@@ -53,7 +53,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     NSError *error;
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequest *request = [[MSIDSSOExtensionGetSsoCookiesRequest alloc] initWithRequestParameters:params
-                                                                                                              headerTypes:@[@(MSIDGetAllHeader)]
+                                                                                                              headerTypes:@[@(MSIDHeaderTypeAll)]
                                                                                                           accountIdentifier:accountIdentifier
                                                                                                                      ssoUrl:@""
                                                                                                               correlationId:[NSUUID UUID]
@@ -77,7 +77,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
-                                                                                                                      headerTypes:@[@(MSIDGetAllHeader)]
+                                                                                                                      headerTypes:@[@(MSIDHeaderTypeAll)]
                                                                                                                   accountIdentifier:accountIdentifier
                                                                                                                              ssoUrl:@"https://www.contoso.com"
                                                                                                                       correlationId:[NSUUID UUID]
@@ -123,7 +123,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
-                                                                                                                      headerTypes:@[@(MSIDGetAllHeader)]
+                                                                                                                      headerTypes:@[@(MSIDHeaderTypeAll)]
                                                                                                                   accountIdentifier:accountIdentifier
                                                                                                                              ssoUrl:@"https://www.contoso.com"
                                                                                                                       correlationId:[NSUUID UUID]
@@ -173,7 +173,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
-                                                                                                                      headerTypes:@[@(MSIDGetPrtHeader), @(MSIDGetDeviceHeader)]
+                                                                                                                      headerTypes:@[@(MSIDHeaderTypePrt), @(MSIDHeaderTypeDeviceRegistration)]
                                                                                                                   accountIdentifier:accountIdentifier
                                                                                                                              ssoUrl:@"https://www.contoso.com"
                                                                                                                       correlationId:[NSUUID UUID]
@@ -260,7 +260,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
-                                                                                                                      headerTypes:@[@(MSIDGetAllHeader)]
+                                                                                                                      headerTypes:@[@(MSIDHeaderTypeAll)]
                                                                                                                   accountIdentifier:accountIdentifier
                                                                                                                              ssoUrl:@"https://www.contoso.com"
                                                                                                                       correlationId:[NSUUID UUID]
