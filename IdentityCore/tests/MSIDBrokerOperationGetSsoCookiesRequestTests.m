@@ -41,6 +41,7 @@
     request.correlationId = [NSUUID UUID];
     request.brokerKey = @"key";
     request.protocolVersion = 99;
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNil(json);
@@ -54,6 +55,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNil(json);
@@ -66,6 +68,8 @@
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
     request.correlationId = [NSUUID UUID];
+    request.headerTypes = @"0";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNotNil(json);
@@ -79,6 +83,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNil(json);
@@ -92,6 +97,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNil(json);
@@ -104,6 +110,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNotNil(json);
@@ -118,6 +125,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNotNil(json);
@@ -125,6 +133,7 @@
     NSDictionary *expectedJson = @{@"sso_url": @"www.contoso.com",
                                    @"broker_key": @"key",
                                    @"home_account_id": @"uid.utid",
+                                   @"types_of_header": @"0",
                                    @"username": @"test@contoso.com",
                                    @"msg_protocol_ver": @"99",
                                    @"correlation_id": correlationId.UUIDString
@@ -184,12 +193,34 @@
     XCTAssertEqualObjects(@"Account is provided, but no homeAccountId is provided from account identifier.", error.userInfo[MSIDErrorDescriptionKey]);
 }
 
+- (void)testInitWithJSONDictionary_whenHaveNoTypesOfHeader_shouldReturnError
+{
+    NSUUID * correlationId = [NSUUID UUID];
+    NSDictionary *json = @{
+        @"sso_url": @"www.contoso.com",
+        @"broker_key": @"broker_key_value",
+        @"msg_protocol_ver": @"99",
+        @"home_account_id": @"uid.utid",
+        @"username": @"test@contoso.com",
+        @"correlation_id": correlationId.UUIDString
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrokerOperationGetSsoCookiesRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(@"Types of header for sso cookie request is missing.", error.userInfo[MSIDErrorDescriptionKey]);
+
+}
+
 - (void)testInitWithJSONDictionary_whenNoAccountIdentifier_shouldNoReturnError
 {
     NSDictionary *json = @{
         @"sso_url": @"www.contoso.com",
         @"broker_key": @"broker_key_value",
         @"msg_protocol_ver": @"99",
+        @"types_of_header": @"0",
         @"correlation_id": [NSUUID UUID].UUIDString
     };
     
@@ -209,6 +240,7 @@
         @"msg_protocol_ver": @"99",
         @"home_account_id": @"uid.utid",
         @"username": @"test@contoso.com",
+        @"types_of_header": @"1, 2",
         @"correlation_id": correlationId.UUIDString
     };
     
@@ -221,6 +253,7 @@
     XCTAssertEqualObjects(request.accountIdentifier.displayableId, @"test@contoso.com");
     XCTAssertEqualObjects(request.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(request.correlationId, correlationId);
+    XCTAssertEqualObjects(request.headerTypes, @"1, 2");
 }
 
 @end

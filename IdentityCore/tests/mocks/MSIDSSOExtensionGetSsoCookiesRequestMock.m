@@ -20,21 +20,26 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
+#if MSID_ENABLE_SSO_EXTENSION
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+#import "MSIDSSOExtensionGetSsoCookiesRequestMock.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
-@class MSIDPrtHeader;
-@class MSIDDeviceHeader;
+@implementation MSIDSSOExtensionGetSsoCookiesRequestMock
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrokerOperationGetSsoCookiesResponse : MSIDBrokerNativeAppOperationResponse
-
-@property (nonatomic, nullable) NSArray<MSIDPrtHeader*> *prtHeaders;
-@property (nonatomic, nullable) NSArray<MSIDDeviceHeader*> *deviceHeaders;
+- (ASAuthorizationController *)controllerWithRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
+{
+    if (self.authorizationControllerToReturn)
+    {
+        self.authorizationControllerToReturn.request = ssoRequest;
+        return self.authorizationControllerToReturn;
+    }
+    
+    return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
+#endif

@@ -20,21 +20,25 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
 
+#import "MSIDSSOExtensionGetDataBaseRequest.h"
+#import <AuthenticationServices/AuthenticationServices.h>
+#import "MSIDRequestParameters.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDBrokerNativeAppOperationResponse.h"
-
-@class MSIDPrtHeader;
-@class MSIDDeviceHeader;
+#import "MSIDSSOExtensionOperationRequestDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationGetSsoCookiesResponse : MSIDBrokerNativeAppOperationResponse
+@interface MSIDSSOExtensionGetDataBaseRequest()
 
-@property (nonatomic, nullable) NSArray<MSIDPrtHeader*> *prtHeaders;
-@property (nonatomic, nullable) NSArray<MSIDDeviceHeader*> *deviceHeaders;
-
+@property (nonatomic) ASAuthorizationController *authorizationController;
+@property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
+@property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic) MSIDRequestParameters *requestParameters;
+ 
 @end
 
 NS_ASSUME_NONNULL_END

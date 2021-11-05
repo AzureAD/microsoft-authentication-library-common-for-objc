@@ -20,21 +20,24 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+#import "MSIDSSOExtensionGetSsoCookiesRequest.h"
 
-@class MSIDPrtHeader;
-@class MSIDDeviceHeader;
+#if MSID_ENABLE_SSO_EXTENSION
+
+#import "MSIDAuthorizationControllerMock.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationGetSsoCookiesResponse : MSIDBrokerNativeAppOperationResponse
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionGetSsoCookiesRequestMock : MSIDSSOExtensionGetSsoCookiesRequest
 
-@property (nonatomic, nullable) NSArray<MSIDPrtHeader*> *prtHeaders;
-@property (nonatomic, nullable) NSArray<MSIDDeviceHeader*> *deviceHeaders;
+@property (nonatomic) MSIDAuthorizationControllerMock *authorizationControllerToReturn;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

@@ -20,21 +20,35 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+#import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
+#import "MSIDSSOExtensionRequestDelegate.h"
 
-@class MSIDPrtHeader;
-@class MSIDDeviceHeader;
+#if MSID_ENABLE_SSO_EXTENSION
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationGetSsoCookiesResponse : MSIDBrokerNativeAppOperationResponse
+@class MSIDRequestParameters;
+@class MSIDBrokerOperationRequest;
 
-@property (nonatomic, nullable) NSArray<MSIDPrtHeader*> *prtHeaders;
-@property (nonatomic, nullable) NSArray<MSIDDeviceHeader*> *deviceHeaders;
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionGetDataBaseRequest : NSObject
+
+@property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
+
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                             error:(NSError * _Nullable * _Nullable)error;
+
+- (void)executeBrokerOperationRequest:(MSIDBrokerOperationRequest *)request
+                           requiresUI:(BOOL)requiresUI
+                           errorBlock:(MSIDSsoExtensionWrapperErrorBlock)errorBlock;
+
++ (BOOL)canPerformRequest;
 
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
