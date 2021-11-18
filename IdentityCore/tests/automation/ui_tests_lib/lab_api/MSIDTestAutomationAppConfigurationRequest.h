@@ -49,9 +49,9 @@ extern MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI;
 
 @interface MSIDTestAutomationAppConfigurationRequest : MSIDAutomationBaseApiRequest
 
-@property (nonatomic) MSIDTestAppType testAppType;
-@property (nonatomic) MSIDTestAppEnvironment testAppEnvironment;
-@property (nonatomic) MSIDTestAppAudience testAppAudience;
+@property (nonatomic) MSIDTestAppType uiTestAppType;
+@property (nonatomic) MSIDTestAppEnvironment uiTestAppEnvironment;
+@property (nonatomic) MSIDTestAppAudience uiTestAppAudience;
 @property (nonatomic) NSDictionary *additionalQueryParameters;
 @property (nonatomic) MSIDTestAppWhiteListType appWhiteListType;
  

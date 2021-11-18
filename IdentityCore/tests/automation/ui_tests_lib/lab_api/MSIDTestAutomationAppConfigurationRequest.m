@@ -52,9 +52,9 @@ MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI = @"app_whitelist_foci";
     
     if (self)
     {
-        _testAppType = MSIDTestAppTypeCloud;
-        _testAppEnvironment = MSIDTestAppEnvironmentWWCloud;
-        _testAppAudience = MSIDTestAppAudienceMultipleOrgsAndPersonalAccounts;
+        _uiTestAppType = MSIDTestAppTypeCloud;
+        _uiTestAppEnvironment = MSIDTestAppEnvironmentWWCloud;
+        _uiTestAppAudience = MSIDTestAppAudienceMultipleOrgsAndPersonalAccounts;
     }
     
     return self;
@@ -63,9 +63,9 @@ MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI = @"app_whitelist_foci";
 - (nonnull id)copyWithZone:(nullable NSZone *)zone
 {
     MSIDTestAutomationAppConfigurationRequest *request = [[MSIDTestAutomationAppConfigurationRequest allocWithZone:zone] init];
-    request.testAppType = [self.testAppType copyWithZone:zone];
-    request.testAppEnvironment = [self.testAppEnvironment copyWithZone:zone];
-    request.testAppAudience = [self.testAppAudience copyWithZone:zone];
+    request.uiTestAppType = [self.uiTestAppType copyWithZone:zone];
+    request.uiTestAppEnvironment = [self.uiTestAppEnvironment copyWithZone:zone];
+    request.uiTestAppAudience = [self.uiTestAppAudience copyWithZone:zone];
     request.appWhiteListType = [self.appWhiteListType copyWithZone:zone];
     return request;
 }
@@ -80,9 +80,9 @@ MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI = @"app_whitelist_foci";
 - (NSArray<NSURLQueryItem *> *)queryItems
 {
     NSMutableArray *queryItems = [NSMutableArray array];
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"apptype" value:self.testAppType]];
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"azureenvironment" value:self.testAppEnvironment]];
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"signinaudience" value:self.testAppAudience]];
+    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"apptype" value:self.uiTestAppType]];
+    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"azureenvironment" value:self.uiTestAppEnvironment]];
+    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"signinaudience" value:self.uiTestAppAudience]];
     
     if (self.appWhiteListType)
     {
@@ -105,9 +105,9 @@ MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI = @"app_whitelist_foci";
 + (MSIDTestAutomationAppConfigurationRequest *)requestWithDictionary:(NSDictionary *)dictionary
 {
     MSIDTestAutomationAppConfigurationRequest *request = [MSIDTestAutomationAppConfigurationRequest new];
-    request.testAppType = dictionary[@"test_app_type"];
-    request.testAppEnvironment = dictionary[@"test_app_environment"];
-    request.testAppAudience = dictionary[@"test_app_audience"];
+    request.uiTestAppType = dictionary[@"test_app_type"];
+    request.uiTestAppEnvironment = dictionary[@"test_app_environment"];
+    request.uiTestAppAudience = dictionary[@"test_app_audience"];
     request.appWhiteListType = dictionary[@"app_whitelist_type"];
     return request;
 }

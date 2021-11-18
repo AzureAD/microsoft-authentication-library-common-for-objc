@@ -44,7 +44,7 @@
 @property (nonatomic, strong) NSString *legacyAccountIdentifierType;
 @property (nonatomic, strong) NSString *loginHint;
 @property (nonatomic, strong) NSString *claims;
-@property (nonatomic, strong) MSIDTestAutomationAccount *testAccount;
+@property (nonatomic, strong) MSIDTestAutomationAccount *uiTestAccount;
 @property (nonatomic) BOOL usePassedWebView;
 @property (nonatomic) MSIDWebviewType webViewType;
 @property (nonatomic) BOOL validateAuthority;
