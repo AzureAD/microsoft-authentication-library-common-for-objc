@@ -85,6 +85,17 @@
 #if TARGET_OS_OSX
             strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
 #endif
+            // Edge case: both response and error is nil. This happens if Apple SSO return the wrong callback.
+            // For normal scenario (we have response or error from SSO-Ext, keep the same logic)
+            if (!operationResponse && !error)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.requestParameters, @"Operation response is nil, exit early");
+                MSIDRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+                strongSelf.requestCompletionBlock = nil;
+                if (completionBlock) completionBlock(nil, error);
+                return;
+            }
+            
             [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                                       requestParameters:strongSelf.requestParameters
                                                  tokenResponseValidator:strongSelf.tokenResponseValidator
