@@ -1,5 +1,6 @@
 TBD
 * Enable additional warnings (#1042)
+* remove throttle noise
 
 Version 1.7.2
 * Use base64URLEncoding for RSA modules (#1058)
