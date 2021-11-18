@@ -31,14 +31,15 @@
 
 - (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
 {
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Received response from SSO extension with authorization is nil: %@", authorization ? @"No" : @"Yes");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Receive response from SSO extension with authorization is nil: %@", authorization ? @"No" : @"Yes");
+    
     if (!self.completionBlock) return;
     
     NSError *error;
     __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
     if (!ssoCredential)
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.context, @"This shouldn't happen: ssoCredential is nill");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"This shouldn't happen: ssoCredential is nill");
         self.completionBlock(nil, error);
         return;
     }
@@ -46,7 +47,7 @@
     __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
     if (!json)
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.context, @"This shouldn't happen: ssoCredential header is nill");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"This shouldn't happen: ssoCredential header is nill");
         self.completionBlock(nil, error);
         return;
     }
@@ -55,7 +56,7 @@
 
     if (!operationResponse)
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.context, @"This shouldn't happen: operationResponse is nill");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"This shouldn't happen: operationResponse is nill");
         self.completionBlock(nil, error);
         return;
     }
