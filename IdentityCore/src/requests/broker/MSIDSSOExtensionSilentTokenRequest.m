@@ -85,6 +85,7 @@
 #if TARGET_OS_OSX
             strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
 #endif
+                       
             [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                                       requestParameters:strongSelf.requestParameters
                                                  tokenResponseValidator:strongSelf.tokenResponseValidator

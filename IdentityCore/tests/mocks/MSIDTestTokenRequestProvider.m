@@ -115,7 +115,7 @@
 
 - (nullable MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(nonnull __unused MSIDRequestParameters *)parameters forceRefresh:(__unused BOOL)forceRefresh
 {
-    return nil;
+    return [[MSIDTestSilentTokenRequest alloc] initWithTestResponse:self.testTokenResult testError:self.testError];
 }
 
 @end
