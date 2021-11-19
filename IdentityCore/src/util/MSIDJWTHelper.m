@@ -46,7 +46,7 @@ static NSString *kEccPrivateKeyTag = @"com.microsoft.eccprivatekey";
 //                               data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
     NSError *error;
     NSData *dataHashToBeSigned = [signingInput dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *signedData = [self eccSignData:[dataHashToBeSigned msidSHA256] signingError:&error];
+    NSData *signedData = [self eccSignData:dataHashToBeSigned signingError:&error];
     NSString *signedEncodedDataString = [NSString msidBase64UrlEncodedStringFromData:signedData];
 
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
