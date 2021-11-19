@@ -131,7 +131,7 @@
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *ssoResult, NSError *ssoError)
         {
             // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-            if (!ssoResult && !ssoError)
+            if (!ssoResult && (ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
             {
                 completionBlock(result, error);
             }
