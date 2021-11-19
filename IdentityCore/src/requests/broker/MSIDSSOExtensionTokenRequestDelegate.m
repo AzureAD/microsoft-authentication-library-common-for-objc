@@ -39,7 +39,7 @@
     __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
     if (!ssoCredential)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"This shouldn't happen: ssoCredential is nill");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"ssoCredential is nill, error %@", error);
         self.completionBlock(nil, error);
         return;
     }
@@ -47,7 +47,7 @@
     __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
     if (!json)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"This shouldn't happen: ssoCredential header is nill");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"ssoCredential header is nill, error %@", error);
         self.completionBlock(nil, error);
         return;
     }
@@ -56,7 +56,7 @@
 
     if (!operationResponse)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"This shouldn't happen: operationResponse is nill");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"operationResponse is nill, error %@", error);
         self.completionBlock(nil, error);
         return;
     }
