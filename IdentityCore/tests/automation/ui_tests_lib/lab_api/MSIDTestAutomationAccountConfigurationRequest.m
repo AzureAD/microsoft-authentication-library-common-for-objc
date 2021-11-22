@@ -121,7 +121,7 @@ MSIDTestAccountTypeUserRoleType MSIDTestAccountTypeUserRoleTypeCloudAdministrato
     if (self.accountType) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"usertype" value:self.accountType]];
     if (self.protectionPolicyType) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"protectionpolicy" value:self.protectionPolicyType]];
     if (self.b2cProviderType) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"b2cprovider" value:self.b2cProviderType]];
-    if (self.federationProviderType) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"federationprovider" value:self.federationProviderType]];
+    if (self.federationProviderType && self.federationProviderType != MSIDTestAccountFederationProviderTypeNone) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"federationprovider" value:self.federationProviderType]];
     if (self.environmentType) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"azureenvironment" value:self.environmentType]];
     if (self.userRole) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"userrole" value:self.userRole]];
     
