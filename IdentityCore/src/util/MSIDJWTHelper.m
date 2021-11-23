@@ -40,8 +40,12 @@
     NSString *headerJSON = [self JSONFromDictionary:header];
     NSString *payloadJSON = [self JSONFromDictionary:payload];
     NSString *signingInput = [NSString stringWithFormat:@"%@.%@", [headerJSON msidBase64UrlEncode], [payloadJSON msidBase64UrlEncode]];
+
+//    NSData *signedData = [self sign:signingKey
+//                               data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
+    NSData *dataHashToBeSigned = [signingInput dataUsingEncoding:NSUTF8StringEncoding];
     NSData *signedData = [self sign:signingKey
-                               data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
+                               data:dataHashToBeSigned];
     NSString *signedEncodedDataString = [NSString msidBase64UrlEncodedStringFromData:signedData];
 
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
