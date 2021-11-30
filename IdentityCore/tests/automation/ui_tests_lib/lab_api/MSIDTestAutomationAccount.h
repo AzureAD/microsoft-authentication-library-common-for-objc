@@ -43,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Writable properties
 @property (nonatomic, nullable) NSString *password;
+@property (nonatomic, nullable) NSString *overriddenTargetTenantId;
+@property (nonatomic, nullable) NSString *overriddenKeyvaultName;
 
 @end
 
