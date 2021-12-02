@@ -333,4 +333,14 @@ typedef unsigned char byte;
     return nil;
 }
 
+-(NSString *)msidSanitizedDomainName
+{
+    NSString *domainSuffix = [self msidDomainSuffix];
+    if (![NSString msidIsStringNilOrBlank:domainSuffix])
+    {
+        return domainSuffix.lowercaseString;
+    }
+    return nil;
+}
+
 @end
