@@ -1,7 +1,7 @@
-TBD
+Version 1.7.3
 * Enable additional warnings (#1042)
-* sanity check sso ext response. If no meaningful will use local result
-* remove throttle noise
+* sanity check sso ext response. If no meaningful will use local result (#1065)
+* remove throttle noise (#1064)
 * added more string util methods in string extension.
 
 Version 1.7.2
