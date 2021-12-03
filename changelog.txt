@@ -2,6 +2,7 @@ TBD
 * Enable additional warnings (#1042)
 * sanity check sso ext response. If no meaningful will use local result
 * remove throttle noise
+* added more string util methods in string extension.
 
 Version 1.7.2
 * Use base64URLEncoding for RSA modules (#1058)
