@@ -36,6 +36,7 @@
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDSSOExtensionSilentTokenRequestController.h"
 
 @interface MSIDSilentControllerIntegrationTests : XCTestCase
 
@@ -348,6 +349,82 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOUnexpectedError_ShouldReturnLocalError API_AVAILABLE(ios(13.0), macos(10.15))
+{
+    
+        // Setup test request providers
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_prompt_auto_fail";
+    
+    NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
+    
+    MSIDTestTokenRequestProvider *localSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:localError testWebMSAuthResponse:nil];
+
+    
+    NSError *error = nil;
+    NSError *ssoUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"unexpected error", @"unexpected error", @"unexpected error", nil, parameters.correlationId, nil, YES);
+    MSIDTestTokenRequestProvider *brokerSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:ssoUnexpectedError testWebMSAuthResponse:nil];
+
+    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(brokerController);
+    
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController error:&error];
+    XCTAssertNotNil(silentController);
+    XCTAssertNil(error);
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    [silentController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error, localError);
+                
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+}
+
+- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOExpectedError_ShouldReturnSSOError API_AVAILABLE(ios(13.0), macos(10.15))
+{
+    
+    // Setup test request providers
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_prompt_auto_fail";
+    
+    NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
+    
+    MSIDTestTokenRequestProvider *localSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:localError testWebMSAuthResponse:nil];
+    
+    
+    NSError *error = nil;
+    NSError *ssoExpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Expected error", @"Expected error", @"Expected error", nil, parameters.correlationId, nil, YES);
+    MSIDTestTokenRequestProvider *brokerSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:ssoExpectedError testWebMSAuthResponse:nil];
+    
+    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(brokerController);
+    
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController error:&error];
+    XCTAssertNotNil(silentController);
+    XCTAssertNil(error);
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    [silentController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error, ssoExpectedError);
+        
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    
 }
 
 @end

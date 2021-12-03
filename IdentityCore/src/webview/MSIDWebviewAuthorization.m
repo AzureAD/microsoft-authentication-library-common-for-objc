@@ -84,6 +84,8 @@ static MSIDWebviewSession *s_currentSession = nil;
     }
     
     void (^startCompletionBlock)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *error) {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Result from authorization session callbackURL host: %@ , has error: %@", callbackURL.host, error ? @"YES" : @"NO");
+
         if (error) {
             [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
             completionHandler(nil, error);
@@ -100,6 +102,8 @@ static MSIDWebviewSession *s_currentSession = nil;
         [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
         completionHandler(response, responseError);
     };
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Start webview authorization session with webview controller class %@: ", [s_currentSession.webviewController class]);
     
     [s_currentSession.webviewController startWithCompletionHandler:startCompletionBlock];
 }
