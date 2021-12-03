@@ -115,4 +115,6 @@
 
 - (NSString *)msidDomainSuffix;
 
+- (NSString *)msidSanitizedDomainName;
+
 @end
