@@ -154,7 +154,7 @@
 {
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     
-    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParametersWithMetadata:YES];
      XCTAssertEqualObjects(eqp, parameters.appRequestMetadata);
 }
 
@@ -165,7 +165,7 @@
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
     
-    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParametersWithMetadata:YES];
     XCTAssertNotNil(eqp);
     XCTAssertEqualObjects(eqp, authorizeEndpointParameters);
 }
@@ -177,7 +177,7 @@
     NSDictionary *additionalParams = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraURLQueryParameters = additionalParams;
     
-    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParametersWithMetadata:YES];
     XCTAssertNotNil(eqp);
     XCTAssertEqualObjects(eqp, additionalParams);
 }
@@ -190,7 +190,7 @@
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
     parameters.extraURLQueryParameters = @{@"add1": @"val1", @"add2": @"val2"};
     
-    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParametersWithMetadata:YES];
     XCTAssertNotNil(eqp);
     NSDictionary *expectedParams = @{@"eqp1": @"val1", @"eqp2": @"val2", @"add1": @"val1", @"add2": @"val2"};
     XCTAssertEqualObjects(eqp, expectedParams);
@@ -205,7 +205,7 @@
     [combinedParameters addEntriesFromDictionary:parameters.appRequestMetadata];
     [combinedParameters addEntriesFromDictionary:authorizeEndpointParameters];
     
-    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParametersWithMetadata:YES];
     XCTAssertNotNil(eqp);
     XCTAssertEqualObjects(eqp, combinedParameters);
 }
@@ -219,7 +219,7 @@
     [combinedParameters addEntriesFromDictionary:parameters.appRequestMetadata];
     [combinedParameters addEntriesFromDictionary:tokenParameters];
     
-    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParametersWithMetadata:YES];
     XCTAssertNotNil(eqp);
     XCTAssertEqualObjects(eqp, combinedParameters);
 }
@@ -236,7 +236,7 @@
     [combinedParameters addEntriesFromDictionary:authorizeEndpointParameters];
     [combinedParameters addEntriesFromDictionary:tokenParameters];
     
-    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParametersWithMetadata:YES];
     XCTAssertNotNil(eqp);
     XCTAssertEqualObjects(eqp, combinedParameters);
 }

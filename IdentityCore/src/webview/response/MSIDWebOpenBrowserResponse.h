@@ -30,7 +30,7 @@
 
 @interface MSIDWebOpenBrowserResponse : MSIDWebviewResponse
 
-@property (readonly) NSURL *browserURL;
+@property (atomic, readonly) NSURL *browserURL;
 
 @end
 

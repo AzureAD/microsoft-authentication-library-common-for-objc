@@ -167,12 +167,12 @@ if node already exists, update and move it to the front of LRU cache */
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         if (self.cacheSizeInt <= DEFAULT_CACHE_OFFSET_SIZE)
         {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: cache was initialized with size less than 1. Cannot write due to insufficient size.", nil, nil, nil, nil, nil, YES);
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: cache was initialized with size less than 1. Cannot write due to insufficient size.", nil, nil, nil, nil, nil, NO);
         }
         
         else if (!cacheRecord || !key)
         {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input. record and/or key is nil", nil, nil, nil, nil, nil, YES);
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input. record and/or key is nil", nil, nil, nil, nil, nil, NO);
         }
         
         else
@@ -226,12 +226,12 @@ if node already exists, update and move it to the front of LRU cache */
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         if (!key)
         {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during removal - key is nil", nil, nil, nil, nil, nil, YES);
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during removal - key is nil", nil, nil, nil, nil, nil, NO);
         }
         
         else if (![self.keySignatureMap objectForKey:key])
         {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid signature for the input key during removal", nil, nil, nil, nil, nil, YES);
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid signature for the input key during removal", nil, nil, nil, nil, nil, NO);
         }
         
         else
@@ -263,7 +263,7 @@ if node already exists, update and move it to the front of LRU cache */
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during removal - signature is nil", nil, nil, nil, nil, nil, YES);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during removal - signature is nil", nil, nil, nil, nil, nil, NO);
         }
         return NO;
         
@@ -273,7 +273,7 @@ if node already exists, update and move it to the front of LRU cache */
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid node for the input signature during removal", nil, nil, nil, nil, nil, YES);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid node for the input signature during removal", nil, nil, nil, nil, nil, NO);
         }
         return NO;
     }
@@ -310,12 +310,11 @@ if node already exists, update and move it to the front of LRU cache */
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         if (!key)
         {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheInvalidSignature, @"MSIDLRUCache Error: invalid input during retrieval - key is nil.", nil, nil, nil, nil, nil, YES);
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheInvalidSignature, @"MSIDLRUCache Error: invalid input during retrieval - key is nil.", nil, nil, nil, nil, nil, NO);
         }
-        
         else if (![self.keySignatureMap objectForKey:key])
         {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheNoRecord, @"MSIDLRUCache Error: Unable to find valid signature for the input key during retrieval", nil, nil, nil, nil, nil, YES);
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheNoRecord, @"MSIDLRUCache Error: Unable to find valid signature for the input key during retrieval", nil, nil, nil, nil, nil, NO);
         }
         if (subError) return;
         cacheRecord = [self objectForKeyImpl:[self.keySignatureMap objectForKey:key]
@@ -341,7 +340,7 @@ if node already exists, update and move it to the front of LRU cache */
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheInvalidSignature, @"MSIDLRUCache Error: invalid input during retrieval - signature is nil", nil, nil, nil, nil, nil, YES);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheInvalidSignature, @"MSIDLRUCache Error: invalid input during retrieval - signature is nil", nil, nil, nil, nil, nil, NO);
         }
         return nil;
     }
@@ -350,7 +349,7 @@ if node already exists, update and move it to the front of LRU cache */
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheNoRecord, @"MSIDLRUCache Error: Unable to find valid node for the input signature during retrieval", nil, nil, nil, nil, nil, YES);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheNoRecord, @"MSIDLRUCache Error: Unable to find valid node for the input signature during retrieval", nil, nil, nil, nil, nil, NO);
         }
         return nil;
     }
@@ -472,7 +471,7 @@ if node already exists, update and move it to the front of LRU cache */
         NSArray *objects = [self.keySignatureMap allKeys];
         if (!objects || !objects.count)
         {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Attempting to remove objects from an empty cache!", nil, nil, nil, nil, nil, YES);
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Attempting to remove objects from an empty cache!", nil, nil, nil, nil, nil, NO);
             
         }
         for (id key in objects)

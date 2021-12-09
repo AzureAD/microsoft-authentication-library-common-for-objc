@@ -81,21 +81,23 @@
         __typeof__(self) __weak weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
+            __typeof__(self) strongSelf = weakSelf;
 #if TARGET_OS_OSX
-            weakSelf.ssoTokenResponseHandler.externalCacheSeeder = weakSelf.externalCacheSeeder;
+            strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
 #endif
-            [weakSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
-                                                    requestParameters:weakSelf.requestParameters
-                                               tokenResponseValidator:weakSelf.tokenResponseValidator
-                                                         oauthFactory:weakSelf.oauthFactory
-                                                           tokenCache:weakSelf.tokenCache
-                                                 accountMetadataCache:weakSelf.accountMetadataCache
-                                                      validateAccount:NO
-                                                                error:error
-                                                      completionBlock:^(MSIDTokenResult *result, NSError *error)
+                       
+            [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
+                                                      requestParameters:strongSelf.requestParameters
+                                                 tokenResponseValidator:strongSelf.tokenResponseValidator
+                                                           oauthFactory:strongSelf.oauthFactory
+                                                             tokenCache:strongSelf.tokenCache
+                                                   accountMetadataCache:strongSelf.accountMetadataCache
+                                                        validateAccount:NO
+                                                                  error:error
+                                                        completionBlock:^(MSIDTokenResult *result, NSError *error)
              {
-                MSIDRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-                weakSelf.requestCompletionBlock = nil;
+                MSIDRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+                strongSelf.requestCompletionBlock = nil;
                 if (error)
                 {
                     /**
@@ -103,7 +105,7 @@
                      */
                     if ([MSIDThrottlingService isThrottlingEnabled])
                     {
-                        [weakSelf.throttlingService updateThrottlingService:error tokenRequest:weakSelf.operationRequest];
+                        [strongSelf.throttlingService updateThrottlingService:error tokenRequest:strongSelf.operationRequest];
                     }
                 }
                 if (completionBlock) completionBlock(result, error);

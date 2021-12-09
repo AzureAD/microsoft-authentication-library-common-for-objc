@@ -245,6 +245,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     MSIDErrorBrokerNotAvailable                    =   -51814,
     
+    // SSO Extension internal error
+    MSIDErrorSSOExtensionUnexpectedError           =   -51815,
+    
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,

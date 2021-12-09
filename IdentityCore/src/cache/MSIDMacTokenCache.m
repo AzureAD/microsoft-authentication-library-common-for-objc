@@ -184,10 +184,12 @@ return NO; \
           context:(id<MSIDRequestContext>)context
             error:(NSError * __autoreleasing *)error
 {
-    [self.delegate willWriteCache:self];
+    __typeof__(self.delegate) strongDelegate = self.delegate;
+    
+    [strongDelegate willWriteCache:self];
     BOOL result = NO;
     result = [self setItemImpl:item key:key serializer:serializer context:context error:error];
-    [self.delegate didWriteCache:self];
+    [strongDelegate didWriteCache:self];
     
     return result;
 }
@@ -218,10 +220,12 @@ return NO; \
                                               context:(__unused id<MSIDRequestContext>)context
                                                 error:(NSError * __autoreleasing *)error
 {
-    [self.delegate willAccessCache:self];
+    __typeof__(self.delegate) strongDelegate = self.delegate;
+    
+    [strongDelegate willAccessCache:self];
     NSArray *result = nil;
     result = [self itemsWithKeyImpl:key serializer:serializer context:nil error:error];
-    [self.delegate didAccessCache:self];
+    [strongDelegate didAccessCache:self];
     
     return result;
 }
@@ -247,12 +251,14 @@ return NO; \
                    context:(id<MSIDRequestContext>)context
                      error:(NSError * __autoreleasing *)error
 {
-    [self.delegate willWriteCache:self];
+    __typeof__(self.delegate) strongDelegate = self.delegate;
+    
+    [strongDelegate willWriteCache:self];
     __block BOOL result = NO;
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         result = [self removeItemsWithKeyImpl:key context:context error:error];
     });
-    [self.delegate didWriteCache:self];
+    [strongDelegate didWriteCache:self];
     
     return result;
 }

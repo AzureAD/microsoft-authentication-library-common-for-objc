@@ -43,7 +43,7 @@
 
 @interface MSIDCredentialCacheItem()
 
-@property (readwrite) NSDictionary *json;
+@property (atomic, readwrite) NSDictionary *json;
 
 @end
 

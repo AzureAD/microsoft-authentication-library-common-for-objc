@@ -44,9 +44,9 @@ typedef NS_ENUM(NSInteger, MSIDThrottlingThumbprintType)
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDThrottlingModelBase : NSObject
 
-@property NSString *thumbprintValue;
-@property MSIDThrottlingThumbprintType thumbprintType;
-@property NSInteger throttleDuration;
+@property (atomic) NSString *thumbprintValue;
+@property (atomic) MSIDThrottlingThumbprintType thumbprintType;
+@property (atomic) NSInteger throttleDuration;
 @property (readonly, nonatomic) id<MSIDThumbprintCalculatable> request;
 @property (readonly, nonatomic) NSError *errorResponse;
 @property (readonly, nonatomic) MSIDThrottlingCacheRecord *cacheRecord;

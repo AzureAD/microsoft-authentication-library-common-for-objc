@@ -34,16 +34,16 @@ extern NSString * const MSID_TOKEN_TYPE_JSON_KEY;
 @interface MSIDConfiguration : NSObject <NSCopying, MSIDJsonSerializable>
 
 // Commonly used or needed properties
-@property (readwrite) MSIDAuthority *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readonly) NSString *target;
-@property (readwrite) MSIDAuthenticationScheme *authScheme;
+@property (atomic, readwrite) MSIDAuthority *authority;
+@property (atomic, readwrite) NSString *redirectUri;
+@property (atomic, readwrite) NSString *clientId;
+@property (atomic, readonly) NSString *target;
+@property (atomic, readwrite) MSIDAuthenticationScheme *authScheme;
 
-@property (readwrite) NSString *applicationIdentifier;
+@property (atomic, readwrite) NSString *applicationIdentifier;
 
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
+@property (atomic, readonly) NSString *resource;
+@property (atomic, readonly) NSOrderedSet<NSString *> *scopes;
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
                       redirectUri:(NSString *)redirectUri

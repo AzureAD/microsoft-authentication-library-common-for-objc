@@ -26,10 +26,10 @@
 
 @interface MSIDCredentialCollectionController : NSObject
 
-@property (strong) IBOutlet NSView *customView;
-@property (strong) IBOutlet NSTextField *usernameField;
-@property (strong) IBOutlet NSSecureTextField *passwordField;
-@property (strong) IBOutlet NSTextField *usernameLabel;
-@property (strong) IBOutlet NSTextField *passwordLabel;
+@property (atomic, strong) IBOutlet NSView *customView;
+@property (atomic, strong) IBOutlet NSTextField *usernameField;
+@property (atomic, strong) IBOutlet NSSecureTextField *passwordField;
+@property (atomic, strong) IBOutlet NSTextField *usernameLabel;
+@property (atomic, strong) IBOutlet NSTextField *passwordLabel;
 
 @end

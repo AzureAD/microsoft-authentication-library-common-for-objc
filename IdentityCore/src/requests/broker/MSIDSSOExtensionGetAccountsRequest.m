@@ -34,6 +34,7 @@
 #import "MSIDBrokerOperationGetAccountsResponse.h"
 #import "MSIDDeviceInfo.h"
 
+// TODO: 1635103 This file can be refactored and use MSIDSSOExtensionGetDataBaseRequest as super class
 @interface MSIDSSOExtensionGetAccountsRequest()
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
@@ -92,8 +93,10 @@
                 returnBrokerAccountsOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
             }
             
-            MSIDGetAccountsRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-            weakSelf.requestCompletionBlock = nil;
+            __typeof__(self) strongSelf = weakSelf;
+            
+            MSIDGetAccountsRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+            strongSelf.requestCompletionBlock = nil;
             
             if (completionBlock) completionBlock(resultAccounts, returnBrokerAccountsOnly, resultError);
         };

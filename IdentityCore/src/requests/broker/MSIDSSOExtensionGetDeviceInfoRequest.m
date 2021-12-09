@@ -32,6 +32,8 @@
 #import "MSIDBrokerOperationGetDeviceInfoRequest.h"
 #import "MSIDDeviceInfo.h"
 
+
+// TODO: 1635103 This file can be refactored and use MSIDSSOExtensionGetDataBaseRequest as super class
 @interface MSIDSSOExtensionGetDeviceInfoRequest()
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
@@ -81,8 +83,10 @@
                 resultDeviceInfo = response.deviceInfo;
             }
             
-            MSIDGetDeviceInfoRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-            weakSelf.requestCompletionBlock = nil;
+            __typeof__(self) strongSelf = weakSelf;
+            
+            MSIDGetDeviceInfoRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+            strongSelf.requestCompletionBlock = nil;
             
             if (completionBlock) completionBlock(resultDeviceInfo, resultError);
         };

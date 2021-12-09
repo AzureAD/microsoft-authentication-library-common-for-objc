@@ -28,13 +28,13 @@
 
 @interface MSIDLegacyTokenCacheItem : MSIDCredentialCacheItem <NSSecureCoding>
 
-@property (readwrite, nullable) NSString *accessToken;
-@property (readwrite, nullable) NSString *refreshToken;
-@property (readwrite, nullable) NSString *idToken;
-@property (readwrite, nullable) NSString *oauthTokenType;
-@property (readonly, nullable) MSIDIdTokenClaims *idTokenClaims;
+@property (atomic, readwrite, nullable) NSString *accessToken;
+@property (atomic, readwrite, nullable) NSString *refreshToken;
+@property (atomic, readwrite, nullable) NSString *idToken;
+@property (atomic, readwrite, nullable) NSString *oauthTokenType;
+@property (atomic, readonly, nullable) MSIDIdTokenClaims *idTokenClaims;
 
 // Additional fields
-@property (readwrite, nullable) NSDictionary *additionalInfo;
+@property (atomic, readwrite, nullable) NSDictionary *additionalInfo;
 
 @end

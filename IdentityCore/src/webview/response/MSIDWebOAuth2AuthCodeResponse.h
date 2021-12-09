@@ -30,7 +30,7 @@
 
 @interface MSIDWebOAuth2AuthCodeResponse : MSIDWebOAuth2Response
 
-@property (readonly) NSString *authorizationCode;
-@property (readonly) NSError *oauthError;
+@property (atomic, readonly) NSString *authorizationCode;
+@property (atomic, readonly) NSError *oauthError;
 
 @end

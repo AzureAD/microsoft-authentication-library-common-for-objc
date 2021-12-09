@@ -38,11 +38,11 @@ __weak static NSAlert *_presentedPrompt = nil;
 + (void)dismissPrompt
 {
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        
-        if (_presentedPrompt)
+        __typeof__(_presentedPrompt) __strong presentedPrompt = _presentedPrompt;
+        if (presentedPrompt)
         {
-            [_presentedPrompt.window.sheetParent endSheet:_presentedPrompt.window];
-            _presentedPrompt = nil;
+            [presentedPrompt.window.sheetParent endSheet:presentedPrompt.window];
+            presentedPrompt = nil;
         }
     }];
 }

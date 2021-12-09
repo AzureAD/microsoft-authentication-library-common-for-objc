@@ -52,12 +52,12 @@
     {
         if (error.code == MSIDErrorThrottleCacheNoRecord || error.code == MSIDErrorThrottleCacheInvalidSignature)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Throttling: No record in throttle cache");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Throttling: No record in throttle cache");
             error = nil;
         }
         else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Throttling: getting record from cache has returned error %@", error);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Throttling: getting record from cache has returned error %@", error);
         }
     }
     
@@ -78,7 +78,7 @@
     
     if (throttleType == MSIDThrottlingTypeNone)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Throttling: [throttlingModelForResponseWithRequest] throttle type is neither 429 nor interaction required.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Throttling: [throttlingModelForResponseWithRequest] throttle type is neither 429 nor interaction required.");
         return nil;
     }
     return [self generateModelFromErrorResponse:errorResponse
@@ -133,7 +133,7 @@
                                                 fullThumbprint:(NSString *)fullThumbprint
                                                          error:(NSError **)error
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Query throttling database with thumbprint strict value: %@, full value: %@", strictThumbprint, fullThumbprint);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Query throttling database with thumbprint strict value: %@, full value: %@", strictThumbprint, fullThumbprint);
     MSIDThrottlingCacheRecord *cacheRecord;
     if (![NSString msidIsStringNilOrBlank:strictThumbprint])
     {

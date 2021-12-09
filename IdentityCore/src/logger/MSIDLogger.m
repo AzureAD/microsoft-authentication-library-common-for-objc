@@ -88,28 +88,32 @@ static long s_maxQueueSize = 1000;
 
 - (MSIDLogLevel)level
 {
-    if (self.loggerConnector) return self.loggerConnector.level;
+    __typeof__(self.loggerConnector) loggerConnector = self.loggerConnector;
+    if (loggerConnector) return loggerConnector.level;
     
     return _level;
 }
 
 - (BOOL)nsLoggingEnabled
 {
-    if (self.loggerConnector) return self.loggerConnector.nsLoggingEnabled;
+    __typeof__(self.loggerConnector) loggerConnector = self.loggerConnector;
+    if (loggerConnector) return loggerConnector.nsLoggingEnabled;
     
     return _nsLoggingEnabled;
 }
 
 - (MSIDLogMaskingLevel)logMaskingLevel
 {
-    if (self.loggerConnector) return self.loggerConnector.logMaskingLevel;
+    __typeof__(self.loggerConnector) loggerConnector = self.loggerConnector;
+    if (loggerConnector) return loggerConnector.logMaskingLevel;
     
     return _logMaskingLevel;
 }
 
 - (BOOL)sourceLineLoggingEnabled
 {
-    if (self.loggerConnector) return self.loggerConnector.sourceLineLoggingEnabled;
+    __typeof__(self.loggerConnector) loggerConnector = self.loggerConnector;
+    if (loggerConnector) return loggerConnector.sourceLineLoggingEnabled;
     
     return _sourceLineLoggingEnabled;
 }
@@ -139,14 +143,15 @@ static NSDateFormatter *s_dateFormatter = nil;
     if (!format) return;
     
     BOOL shouldLog = level <= self.level;
-    if (self.loggerConnector)
+    __typeof__(self.loggerConnector) loggerConnector = self.loggerConnector;
+    if (loggerConnector)
     {
-        shouldLog = [self.loggerConnector shouldLog:level];
+        shouldLog = [loggerConnector shouldLog:level];
     }
     
     if (!shouldLog) return;
     
-    if (!self.callback && !self.nsLoggingEnabled && !self.loggerConnector) return;
+    if (!self.callback && !self.nsLoggingEnabled && !loggerConnector) return;
 
     va_list args;
     va_start(args, format);
@@ -207,16 +212,16 @@ static NSDateFormatter *s_dateFormatter = nil;
             NSLog(@"%@", log);
         }
         
-        if (self.callback || self.loggerConnector)
+        if (self.callback || loggerConnector)
         {
             NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, sourceInfo, message];
             
             BOOL piiAllowed = self.logMaskingLevel != MSIDLogMaskingSettingsMaskAllPII;
             BOOL lineContainsPII = piiAllowed ? containsPII : NO;
             
-            if (self.loggerConnector)
+            if (loggerConnector)
             {
-                [self.loggerConnector onLogWithLevel:level lineNumber:lineNumber function:function message:log];
+                [loggerConnector onLogWithLevel:level lineNumber:lineNumber function:function message:log];
             }
             else if (self.callback)
             {
@@ -227,7 +232,7 @@ static NSDateFormatter *s_dateFormatter = nil;
     };
     
     BOOL loggingQueueEnabled = YES;
-    if (self.loggerConnector) loggingQueueEnabled = self.loggerConnector.loggingQueueEnabled;
+    if (loggerConnector) loggingQueueEnabled = loggerConnector.loggingQueueEnabled;
     
     if (loggingQueueEnabled)
     {
