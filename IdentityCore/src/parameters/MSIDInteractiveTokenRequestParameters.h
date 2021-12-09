@@ -38,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDBrokerInvocationOptions *brokerInvocationOptions;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
-- (NSDictionary *)allAuthorizeRequestExtraParameters;
+- (NSDictionary *)allAuthorizeRequestExtraParameters DEPRECATED_MSG_ATTRIBUTE("Use -allAuthorizeRequestExtraParametersWithMetadata: instead");
+- (NSDictionary *)allAuthorizeRequestExtraParametersWithMetadata:(BOOL)includeMetadata;
 
 // Initialize parameters with extra scopes, and interactive request type
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
