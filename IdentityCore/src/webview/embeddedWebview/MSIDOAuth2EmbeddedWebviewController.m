@@ -377,7 +377,8 @@
     if ([navigationAction navigationType] == WKNavigationTypeLinkActivated)
     {
         //Open secure web links with target=new window in default browser or non-web links with URL schemes that can be opened by the application
-        if (([requestURL.scheme.lowercaseString isEqualToString:@"https"] && !navigationAction.targetFrame.isMainFrame) || ![requestURL.scheme.lowercaseString hasPrefix:@"http"])
+        // If the target of the navigation is a new window, navigationAction.targetFrame is nil. (See discussions in : https://developer.apple.com/documentation/webkit/wknavigationaction/1401918-targetframe?language=objc)
+        if (([requestURL.scheme.lowercaseString isEqualToString:@"https"] && !navigationAction.targetFrame) || ![requestURL.scheme.lowercaseString hasPrefix:@"http"])
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening URL outside embedded webview with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
             [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
