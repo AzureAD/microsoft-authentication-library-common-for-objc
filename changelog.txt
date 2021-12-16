@@ -1,3 +1,6 @@
+TBD
+* Fixed logic to open links within iframe in embedded webiview in itself instead of Safari. (#1074)
+
 Version 1.7.3
 * Enable additional warnings (#1042)
 * sanity check sso ext response. If no meaningful will use local result (#1065)
