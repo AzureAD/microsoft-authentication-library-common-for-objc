@@ -37,7 +37,7 @@
     NSString *username = self.requestParameters.accountIdentifier.displayableId;
     
     NSMutableDictionary *extraQueryParameters = [NSMutableDictionary new];
-    [extraQueryParameters addEntriesFromDictionary:self.requestParameters.extraAuthorizeURLQueryParameters];
+    [extraQueryParameters addEntriesFromDictionary:[self.requestParameters allAuthorizeRequestExtraParametersWithMetadata:NO]];
     
     if (self.requestParameters.instanceAware)
     {

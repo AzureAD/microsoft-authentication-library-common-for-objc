@@ -1,7 +1,11 @@
+TBD
+* Fixed logic to open links within iframe in embedded webiview in itself instead of Safari. (#1074)
+
 Version 1.7.3
 * Enable additional warnings (#1042)
 * sanity check sso ext response. If no meaningful will use local result (#1065)
 * remove throttle noise (#1064)
+* added more string util methods in string extension.
 
 Version 1.7.2
 * Use base64URLEncoding for RSA modules (#1058)

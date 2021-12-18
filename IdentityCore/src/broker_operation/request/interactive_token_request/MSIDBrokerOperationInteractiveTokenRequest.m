@@ -54,7 +54,7 @@
         request.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:parameters.loginHint homeAccountId:nil];
     }
     request.promptType = parameters.promptType;
-    request.extraQueryParameters = parameters.extraAuthorizeURLQueryParameters;
+    request.extraQueryParameters = [parameters allAuthorizeRequestExtraParametersWithMetadata:NO];
     request.extraScopesToConsent = parameters.extraScopesToConsent;
     
     return request;
