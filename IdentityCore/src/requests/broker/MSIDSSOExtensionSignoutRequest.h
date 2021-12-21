@@ -39,6 +39,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                  shouldWipeAccount:(BOOL)shouldWipeAccount
                           clearSSOExtensionCookies:(BOOL)clearSSOExtensionCookies
+                     shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory;
 
 @end

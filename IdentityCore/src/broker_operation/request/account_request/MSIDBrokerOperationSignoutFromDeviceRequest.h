@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL signoutFromBrowser;
 @property (nonatomic) BOOL clearSSOExtensionCookies;
 @property (nonatomic) BOOL wipeAccount;
+@property (nonatomic) BOOL wipeCacheForAllAccounts;
 
 @end
 
