@@ -187,7 +187,7 @@
     NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
     
     MSIDCredentialCacheItem *resultToken = [serializer deserializeCredentialCacheItem:data];
-    XCTAssertNil(resultToken);
+    XCTAssertNotNil(resultToken);
     
 }
 
