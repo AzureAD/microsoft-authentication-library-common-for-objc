@@ -165,6 +165,32 @@
     XCTAssertNil(account);
 }
 
+/**
+ Adding swizzle code into ADAL would be a bit unneccessary, so I intent to skip it.
+ To test manually this case, just need to add code in MSIDUserInformation to throw exception at -initWithCoder: method
+ for example:
+ - (instancetype)initWithCoder:(NSCoder *)coder
+{
+ ...
+ NSException *exception = [[NSException alloc] initWithName:NSGenericException reason:@"test" userInfo:nil];
+ @throw exception;
+}
+ and make sure the unitest ran without crash.
+ */
+- (void)test_whenSerializeToken_AndExceptionIsThrown_shouldNotCrash
+{
+    MSIDKeyedArchiverSerializer *serializer = [MSIDKeyedArchiverSerializer new];
+    
+    MSIDLegacyTokenCacheItem *cacheItem = [MSIDLegacyTokenCacheItem new];
+    NSString *idToken = @"id token";
+    cacheItem.idToken = idToken;
+    NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
+    
+    MSIDCredentialCacheItem *resultToken = [serializer deserializeCredentialCacheItem:data];
+    XCTAssertNil(resultToken);
+    
+}
+
 #pragma mark - Private
 
 - (MSIDClientInfo *)createClientInfo:(NSDictionary *)clientInfoDict

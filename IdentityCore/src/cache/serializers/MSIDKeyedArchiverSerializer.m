@@ -59,13 +59,21 @@
     {
         return nil;
     }
-    
-    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-    // Maintain backward compatibility with ADAL.
-    [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
-    [unarchiver setClass:className forClassName:@"ADTokenCacheStoreItem"];
-    MSIDLegacyTokenCacheItem *token = [unarchiver decodeObjectOfClass:className forKey:NSKeyedArchiveRootObjectKey];
-    [unarchiver finishDecoding];
+    MSIDLegacyTokenCacheItem *token = nil;
+    @try
+    {
+        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+        // Maintain backward compatibility with ADAL.
+        [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
+        [unarchiver setClass:className forClassName:@"ADTokenCacheStoreItem"];
+        token = [unarchiver decodeObjectOfClass:className forKey:NSKeyedArchiveRootObjectKey];
+        [unarchiver finishDecoding];
+
+    }
+    @catch (NSException *exception)
+    {
+        MSID_LOG_ERROR(nil, @"Failed to serialize the cache! Exception reason %@", exception.reason);
+    }    
     
     return token;
 }
