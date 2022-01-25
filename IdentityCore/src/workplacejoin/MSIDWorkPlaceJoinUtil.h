@@ -33,7 +33,8 @@
 + (nullable MSIDRegistrationInformation *)getRegistrationInformation:(nullable id<MSIDRequestContext>)context
                                               workplacejoinChallenge:(nullable MSIDWorkplaceJoinChallenge *)workplacejoinChallenge;
 
-+ (nullable MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(nullable id<MSIDRequestContext>)context;
++ (nullable MSIDAssymetricKeyPairWithCert *)getWPJKeysWithTenantId:(nullable NSString *)tenantId
+                                                           context:(nullable id<MSIDRequestContext>)context;
 
 + (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                              context:(nullable id<MSIDRequestContext>)context

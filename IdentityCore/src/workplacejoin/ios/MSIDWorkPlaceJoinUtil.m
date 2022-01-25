@@ -29,26 +29,25 @@
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 
+static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
+
 @implementation MSIDWorkPlaceJoinUtil
 
-+ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context
++ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
 {
-    return [self getRegistrationInformation:context workplacejoinChallenge:nil];
+    return [self getRegistrationInformation:context tenantId:tenantId workplacejoinChallenge:nil];
 }
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                      workplacejoinChallenge:(__unused MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
 {
-    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
-    
-    if (!teamId)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
-        return nil;
-    }
-    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
-    
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
+    return [self getRegistrationInformation:context tenantId:nil workplacejoinChallenge:workplacejoinChallenge];
+}
+
++ (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
+                                                   tenantId:(NSString *)tenantId
+                                     workplacejoinChallenge:(__unused MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
+{
     MSIDRegistrationInformation *info = nil;
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;
@@ -57,11 +56,11 @@
     NSString *certificateIssuer = nil;
     NSDictionary *keyDict = nil;
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group.", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
+    identity = [self copyWPJIdentityWithTenantId:tenantId context:context certificateIssuer:&certificateIssuer privateKeyDict:&keyDict];
     
-    identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer privateKeyDict:&keyDict];
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
+        
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
         CFReleaseNull(identity);
         return nil;
@@ -105,18 +104,58 @@
     return info;
 }
 
-+ (SecIdentityRef)copyWPJIdentity:(__unused id<MSIDRequestContext>)context
++ (SecIdentityRef)copyWPJIdentityWithTenantId:(NSString *)tenantId
+                                      context:(id<MSIDRequestContext>)context
+                            certificateIssuer:(NSString **)issuer
+                               privateKeyDict:(NSDictionary **)keyDict
+{
+    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
+    
+    if (!teamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
+        return nil;
+    }
+    
+    NSString *legacySharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+    
+    SecIdentityRef legacyIdentity = [self copyWPJIdentity:context tag:nil sharedAccessGroup:legacySharedAccessGroup certificateIssuer:issuer privateKeyDict:keyDict];
+    
+    if (legacyIdentity || [NSString msidIsStringNilOrBlank:tenantId])
+    {
+        return legacyIdentity;
+    }
+    
+    NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+    NSString *tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
+    
+    return [self copyWPJIdentity:context
+                             tag:tag
+               sharedAccessGroup:defaultSharedAccessGroup
+               certificateIssuer:issuer
+                  privateKeyDict:keyDict];;
+}
+
++ (SecIdentityRef)copyWPJIdentity:(id<MSIDRequestContext>)context
+                              tag:(NSString *)tag
                 sharedAccessGroup:(NSString *)accessGroup
                 certificateIssuer:(NSString **)issuer
                    privateKeyDict:(NSDictionary **)keyDict
 
 {
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group, tag %@", MSID_PII_LOG_MASKABLE(accessGroup), tag);
+    
     NSMutableDictionary *identityDict = [[NSMutableDictionary alloc] init];
     [identityDict setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
     [identityDict setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnRef];
     [identityDict setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
     [identityDict setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];
     [identityDict setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    
+    if (![NSString msidIsStringNilOrBlank:tag])
+    {
+        [identityDict setObject:tag forKey:(__bridge  id)kSecAttrApplicationTag];
+    }
     
     CFDictionaryRef result = NULL;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)identityDict, (CFTypeRef *)&result);

@@ -185,7 +185,7 @@
 
 #pragma mark - Lookup by private key
 
-+ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context
++ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithTenantId:(NSString *)tenantId context:(__unused id<MSIDRequestContext>)context
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No cert authorities provided in the request. Looking up default WPJ certificate");
     return [self findDefaultWPJRegistrationInfoWithContext:context];
