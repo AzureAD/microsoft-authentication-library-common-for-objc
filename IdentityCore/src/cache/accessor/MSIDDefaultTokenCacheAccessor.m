@@ -709,9 +709,10 @@
         if (![accessor clearWithContext:context
                                   error:&accountRemovalError])
         {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to clear all cache from other accessor:  %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(accountRemovalError));
+            // Return new error if there wasn't a previous error (if any during primary cache cleanup)
+            if (error && result) *error = accountRemovalError;
             result = NO;
-            if (error) *error = accountRemovalError;
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to clear all cache from other accessor:  %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(*error));
         }
     }
     
