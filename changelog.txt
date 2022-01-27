@@ -1,4 +1,7 @@
 TBD
+* Add support to wipe cache for all accounts (#1075)
+
+Version 1.7.4
 * Fixed logic to open links within iframe in embedded webiview in itself instead of Safari. (#1074)
 
 Version 1.7.3
