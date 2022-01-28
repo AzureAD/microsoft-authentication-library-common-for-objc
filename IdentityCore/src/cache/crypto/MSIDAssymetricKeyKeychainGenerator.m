@@ -26,7 +26,7 @@
 #import "MSIDAssymetricKeyPair.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
 
-static const OSStatus NoStatus = -1;
+static const OSStatus kNoStatus = -1;
 
 @interface MSIDAssymetricKeyKeychainGenerator()
 
@@ -96,7 +96,7 @@ static const OSStatus NoStatus = -1;
 {
     if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
     {
-        [self logAndFillError:@"Invalid key generation attributes provided" status:NoStatus error:error];
+        [self logAndFillError:@"Invalid key generation attributes provided" status:kNoStatus error:error];
         return nil;
     }
     
@@ -138,7 +138,7 @@ static const OSStatus NoStatus = -1;
     {
         if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
         {
-            [self logAndFillError:@"Invalid key lookup attributes provided" status:NoStatus error:error];
+            [self logAndFillError:@"Invalid key lookup attributes provided" status:kNoStatus error:error];
             return nil;
         }
         
@@ -151,14 +151,14 @@ static const OSStatus NoStatus = -1;
         SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
         if (!privateKeyRef)
         {
-            [self logAndFillError:@"Failed to query private key reference from keychain." status:NoStatus error:error];
+            [self logAndFillError:@"Failed to query private key reference from keychain." status:kNoStatus error:error];
             return nil;
         }
         
         SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
         if (!publicKeyRef)
         {
-            [self logAndFillError:@"Failed to copy public key from private key." status:NoStatus error:error];
+            [self logAndFillError:@"Failed to copy public key from private key." status:kNoStatus error:error];
             return nil;
         }
         
@@ -171,7 +171,7 @@ static const OSStatus NoStatus = -1;
     }
     else
     {
-        [self logAndFillError:@"Failed to generate asymmetric key pair due to unsupported iOS/OSX platform." status:NoStatus error:error];
+        [self logAndFillError:@"Failed to generate asymmetric key pair due to unsupported iOS/OSX platform." status:kNoStatus error:error];
         return nil;
     }
 }
@@ -213,7 +213,6 @@ static const OSStatus NoStatus = -1;
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Failed to find key with query %@ with status %ld", keychainQuery, (long)status);
-        
         return nil;
     }
     
@@ -253,7 +252,7 @@ static const OSStatus NoStatus = -1;
         SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
         if (!publicKeyRef)
         {
-            [self logAndFillError:@"Failed to copy public key from private key." status:NoStatus error:error];
+            [self logAndFillError:@"Failed to copy public key from private key." status:kNoStatus error:error];
             CFRelease(privateKeyRef);
             return nil;
         }
@@ -272,7 +271,7 @@ static const OSStatus NoStatus = -1;
     }
     else
     {
-        [self logAndFillError:@"Failed to generate asymmetric key pair due to unsupported iOS/OSX platform." status:NoStatus error:error];
+        [self logAndFillError:@"Failed to generate asymmetric key pair due to unsupported iOS/OSX platform." status:kNoStatus error:error];
         return nil;
     }
 }
@@ -300,13 +299,12 @@ static const OSStatus NoStatus = -1;
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", description);
     
     if (error) {
-        NSError *underlyingError = nil;
-        if (status != NoStatus) {
-            // Underlying error is used to surface a system error code that caused the failure, if any.
-            underlyingError = MSIDCreateError(MSIDErrorDomain, (NSInteger)status, description, nil, nil, nil, nil, nil, NO);
+        if (status == kNoStatus) {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, description, nil, nil, nil, nil, nil, NO);
+        } else {
+            // Implementation of this class guarantees that any non-trivial status is OSStatus coming from keychain API.
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, description, nil, nil, nil, nil, nil, NO);
         }
-
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, description, nil, nil, underlyingError, nil, nil, NO);
     }
     
     return YES;
