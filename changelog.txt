@@ -1,4 +1,5 @@
 TBD
+* Multitenant PkeyAuth support (#1081)
 * Fixed logic to open links within iframe in embedded webiview in itself instead of Safari. (#1074)
 * Expose keychain error OSStatus in errors returned by MSIDAssymetricKeyKeychainGenerator (#1079)
 
