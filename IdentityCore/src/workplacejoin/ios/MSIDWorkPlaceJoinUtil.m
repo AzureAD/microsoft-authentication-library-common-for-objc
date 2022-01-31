@@ -33,6 +33,11 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
 
 @implementation MSIDWorkPlaceJoinUtil
 
++ (nullable MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(nullable id<MSIDRequestContext>)context
+{
+    return [self getWPJKeysWithTenantId:nil context:context];
+}
+
 + (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
 {
     return [self getRegistrationInformation:context tenantId:tenantId workplacejoinChallenge:nil];
