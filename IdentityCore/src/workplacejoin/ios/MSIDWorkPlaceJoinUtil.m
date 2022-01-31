@@ -121,19 +121,43 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     
     SecIdentityRef legacyIdentity = [self copyWPJIdentity:context tag:nil sharedAccessGroup:legacySharedAccessGroup certificateIssuer:issuer privateKeyDict:keyDict];
     
-    if (legacyIdentity || [NSString msidIsStringNilOrBlank:tenantId])
+    if (legacyIdentity)
     {
-        return legacyIdentity;
+        if ([NSString msidIsStringNilOrBlank:tenantId])
+        {
+            // ESTS didn't request a specific tenant, just return default one
+            return legacyIdentity;
+        }
+        
+        // Read tenantId for legacy identity
+        NSString *registrationTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+        
+        // There's no tenantId on the registration, or it mismatches what server requested, keep looking for a better match. Otherwise, return the identity already.
+        if (![NSString msidIsStringNilOrBlank:registrationTenantId]
+            && [registrationTenantId isEqualToString:tenantId])
+        {
+            return legacyIdentity;
+        }
     }
     
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
     NSString *tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
     
-    return [self copyWPJIdentity:context
-                             tag:tag
-               sharedAccessGroup:defaultSharedAccessGroup
-               certificateIssuer:issuer
-                  privateKeyDict:keyDict];;
+    SecIdentityRef secondaryIdentity = [self copyWPJIdentity:context
+                                                         tag:tag
+                                           sharedAccessGroup:defaultSharedAccessGroup
+                                           certificateIssuer:issuer
+                                              privateKeyDict:keyDict];
+    
+    // If secondary Identity was found, return it
+    if (secondaryIdentity)
+    {
+        return secondaryIdentity;
+    }
+    
+    // Otherwise, return legacy Identity - this can happen if we couldn't match based on the tenantId, but Identity was there. It could be usable. We'll let ESTS to evaluate it and check.
+    // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
+    return legacyIdentity;
 }
 
 + (SecIdentityRef)copyWPJIdentity:(id<MSIDRequestContext>)context
@@ -154,7 +178,8 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     
     if (![NSString msidIsStringNilOrBlank:tag])
     {
-        [identityDict setObject:tag forKey:(__bridge  id)kSecAttrApplicationTag];
+        NSData *tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
+        [identityDict setObject:tagData forKey:(__bridge  id)kSecAttrApplicationTag];
     }
     
     CFDictionaryRef result = NULL;
