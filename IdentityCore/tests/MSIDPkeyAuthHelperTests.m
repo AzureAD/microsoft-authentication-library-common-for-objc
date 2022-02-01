@@ -246,7 +246,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     method_exchangeImplementations(originalMethod, mockMethod);
 }
 
-+ (MSIDAssymetricKeyPairWithCert *)swizzled_getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
++ (MSIDWPJKeyPairWithCert *)swizzled_getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
 {
     return s_registrationInformationToReturn;
 }

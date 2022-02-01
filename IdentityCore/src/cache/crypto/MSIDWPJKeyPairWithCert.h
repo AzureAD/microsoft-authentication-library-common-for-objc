@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,23 +20,27 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#ifndef MSIDWorkPlaceJoinUtilBase_h
-#define MSIDWorkPlaceJoinUtilBase_h
-
-@class MSIDWPJKeyPairWithCert;
 
 #import <Foundation/Foundation.h>
+#import "MSIDKeychainIdentity.h"
 
-@interface MSIDWorkPlaceJoinUtilBase : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-+ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context;
+@interface MSIDWPJKeyPairWithCert : NSObject <MSIDKeychainIdentity>
+{
+    SecCertificateRef _certificateRef;
+    NSData *_certificateData;
+    NSString *_certificateSubject;
+    NSString *_certificateIssuer;
+    SecKeyRef _privateKeyRef;
+}
 
-+ (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
-                                                                                certAttributes:(nullable NSDictionary *)certAttributes
-                                                                                       context:(nullable id<MSIDRequestContext>)context;
+@property (nonatomic, readonly) SecKeyRef privateKeyRef;
+@property (nonatomic, readonly) SecKeyRef publicKeyRef;
+@property (nonatomic, readonly) NSDictionary *privateKeyDict;
 
 @end
 
-#endif /* MSIDWorkPlaceJoinUtilBase_h */
+NS_ASSUME_NONNULL_END

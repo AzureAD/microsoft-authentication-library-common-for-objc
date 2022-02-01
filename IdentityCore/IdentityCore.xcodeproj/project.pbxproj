@@ -901,6 +901,10 @@
 		B233F8CA219E578C00DC90E3 /* MSIDBrokerKeyProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B233F8C9219E578C00DC90E3 /* MSIDBrokerKeyProviderTests.m */; };
 		B233F8CC219E57AC00DC90E3 /* MSIDLegacyBrokerRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B233F8CB219E57AC00DC90E3 /* MSIDLegacyBrokerRequestTests.m */; };
 		B233F8D5219FA4AD00DC90E3 /* MSIDBrokerTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B233F8D4219FA4AD00DC90E3 /* MSIDBrokerTokenRequestTests.m */; };
+		B239564827A8DF6A00684CA5 /* MSIDWPJKeyPairWithCert.h in Headers */ = {isa = PBXBuildFile; fileRef = B239564627A8DF6900684CA5 /* MSIDWPJKeyPairWithCert.h */; };
+		B239564927A8DF6B00684CA5 /* MSIDWPJKeyPairWithCert.m in Sources */ = {isa = PBXBuildFile; fileRef = B239564727A8DF6900684CA5 /* MSIDWPJKeyPairWithCert.m */; };
+		B239564A27A8DF6B00684CA5 /* MSIDWPJKeyPairWithCert.m in Sources */ = {isa = PBXBuildFile; fileRef = B239564727A8DF6900684CA5 /* MSIDWPJKeyPairWithCert.m */; };
+		B239564C27A8DFBC00684CA5 /* MSIDKeychainIdentity.h in Headers */ = {isa = PBXBuildFile; fileRef = B239564B27A8DFBC00684CA5 /* MSIDKeychainIdentity.h */; };
 		B239A43C209E8170000A3268 /* MSIDAccountCredentialCache.h in Headers */ = {isa = PBXBuildFile; fileRef = B239A43A209E8170000A3268 /* MSIDAccountCredentialCache.h */; };
 		B239A43D209E8170000A3268 /* MSIDAccountCredentialCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B239A43B209E8170000A3268 /* MSIDAccountCredentialCache.m */; };
 		B239A43E209E8170000A3268 /* MSIDAccountCredentialCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B239A43B209E8170000A3268 /* MSIDAccountCredentialCache.m */; };
@@ -2507,6 +2511,9 @@
 		B233F8C9219E578C00DC90E3 /* MSIDBrokerKeyProviderTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerKeyProviderTests.m; sourceTree = "<group>"; };
 		B233F8CB219E57AC00DC90E3 /* MSIDLegacyBrokerRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLegacyBrokerRequestTests.m; sourceTree = "<group>"; };
 		B233F8D4219FA4AD00DC90E3 /* MSIDBrokerTokenRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerTokenRequestTests.m; sourceTree = "<group>"; };
+		B239564627A8DF6900684CA5 /* MSIDWPJKeyPairWithCert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWPJKeyPairWithCert.h; sourceTree = "<group>"; };
+		B239564727A8DF6900684CA5 /* MSIDWPJKeyPairWithCert.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWPJKeyPairWithCert.m; sourceTree = "<group>"; };
+		B239564B27A8DFBC00684CA5 /* MSIDKeychainIdentity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeychainIdentity.h; sourceTree = "<group>"; };
 		B239A43A209E8170000A3268 /* MSIDAccountCredentialCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountCredentialCache.h; sourceTree = "<group>"; };
 		B239A43B209E8170000A3268 /* MSIDAccountCredentialCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountCredentialCache.m; sourceTree = "<group>"; };
 		B23ECEE81FF2F40C0015FC1D /* MSIDAADTokenResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADTokenResponse.m; sourceTree = "<group>"; };
@@ -4570,6 +4577,9 @@
 				B27893802470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m */,
 				6E4F658B24D488010070CA36 /* MSIDSymmetricKey.h */,
 				6E4F658D24D4883A0070CA36 /* MSIDSymmetricKey.m */,
+				B239564627A8DF6900684CA5 /* MSIDWPJKeyPairWithCert.h */,
+				B239564727A8DF6900684CA5 /* MSIDWPJKeyPairWithCert.m */,
+				B239564B27A8DFBC00684CA5 /* MSIDKeychainIdentity.h */,
 			);
 			path = crypto;
 			sourceTree = "<group>";
@@ -5407,6 +5417,7 @@
 				B210F4371FDDEA23005A8F76 /* MSIDAADV1TokenResponse.h in Headers */,
 				1E3C0ED6217FE2BB0022D61D /* MSIDAppMetadataCacheQuery.h in Headers */,
 				580E2545271A014F003D1795 /* MSIDDeviceHeader.h in Headers */,
+				B239564827A8DF6A00684CA5 /* MSIDWPJKeyPairWithCert.h in Headers */,
 				D6D9A45B1FBD420300EFA430 /* MSIDDeviceId.h in Headers */,
 				B286B9DC2389DF70007833AD /* MSIDURLFormObject.h in Headers */,
 				23D2049321D1C274009B5975 /* MSIDTokenResponseSerializer.h in Headers */,
@@ -5462,6 +5473,7 @@
 				1EE541402458B30300A86414 /* MSIDDevicePopManager.h in Headers */,
 				B286B9B32389DD78007833AD /* MSIDWebAADAuthCodeResponse.h in Headers */,
 				B286B9D22389DF19007833AD /* MSIDAadAuthorityCache.h in Headers */,
+				B239564C27A8DFBC00684CA5 /* MSIDKeychainIdentity.h in Headers */,
 				1EE42FEF248825CE00899491 /* MSIDAccessTokenWithAuthScheme.h in Headers */,
 				238E19DA2086FE28004DF483 /* MSIDTokenRequest.h in Headers */,
 				B26A0B872071B752006BD95A /* MSIDAADV2Oauth2Factory.h in Headers */,
@@ -6624,6 +6636,7 @@
 				B27551C22081705300AA7A38 /* MSIDJWTHelper.m in Sources */,
 				B251CC1D2040F6B5005E0179 /* MSIDLegacyTokenCacheKey.m in Sources */,
 				1EE541422458B30300A86414 /* MSIDDevicePopManager.m in Sources */,
+				B239564A27A8DF6B00684CA5 /* MSIDWPJKeyPairWithCert.m in Sources */,
 				B2525C6C23302364006FBA4B /* MSIDMainThreadUtil.m in Sources */,
 				2306D2A020AB672A00F875A3 /* MSIDAADEndpointProvider.m in Sources */,
 				B251CC4B204105A7005E0179 /* MSIDBaseToken.m in Sources */,
@@ -7289,6 +7302,7 @@
 				B2EF143C1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */,
 				728209C326FA9C9A00B5F018 /* MSIDBackgroundTaskData.m in Sources */,
 				580E25412719FD10003D1795 /* MSIDPrtHeader.m in Sources */,
+				B239564927A8DF6B00684CA5 /* MSIDWPJKeyPairWithCert.m in Sources */,
 				58BC23BD271F6B9D008A77BE /* MSIDSSOExtensionGetDataBaseRequest.m in Sources */,
 				B297E1DD20A0F5D600F370EC /* MSIDDefaultCredentialCacheQuery.m in Sources */,
 				60A504702374917B00648AC5 /* MSIDBrokerOperationGetAccountsResponse.m in Sources */,

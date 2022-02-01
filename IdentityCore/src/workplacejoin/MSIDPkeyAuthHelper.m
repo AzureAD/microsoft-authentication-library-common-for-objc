@@ -44,7 +44,7 @@
     NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";
     NSString *challengeTenantId = challengeData ? [challengeData valueForKey:@"TenantId"] : @"";
     
-    MSIDAssymetricKeyPairWithCert *info = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:challengeTenantId context:context];
+    MSIDWPJKeyPairWithCert *info = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:challengeTenantId context:context];
     
     if (!info)
     {
@@ -129,7 +129,7 @@
 
 + (NSString *)createDeviceAuthResponse:(NSString *)audience
                                  nonce:(NSString *)nonce
-                              identity:(MSIDAssymetricKeyPairWithCert *)identity
+                              identity:(MSIDWPJKeyPairWithCert *)identity
 {
     if (!audience || !nonce)
     {

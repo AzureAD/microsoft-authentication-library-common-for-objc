@@ -22,11 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAssymetricKeyPairWithCert.h"
+#import "MSIDWPJKeyPairWithCert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDRegistrationInformation : MSIDAssymetricKeyPairWithCert
+@interface MSIDRegistrationInformation : MSIDWPJKeyPairWithCert
 {
     SecIdentityRef _securityIdentity;
 }

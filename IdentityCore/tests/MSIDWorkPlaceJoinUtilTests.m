@@ -26,7 +26,7 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "NSData+MSIDExtensions.h"
-#import "MSIDAssymetricKeyPairWithCert.h"
+#import "MSIDWPJKeyPairWithCert.h"
 
 @interface MSIDWorkPlaceJoinUtilTests : XCTestCase
 @end
@@ -83,7 +83,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 #if TARGET_OS_IPHONE
 - (void)testGetWPJKeysWithTenantId_whenWPJMissing_shouldReturnNil
 {
-    MSIDAssymetricKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
     XCTAssertNil(result);
 }
 
@@ -91,7 +91,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 {
     [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
     
-    MSIDAssymetricKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
     XCTAssertNotNil(result);
 }
 
@@ -99,7 +99,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 {
     [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId2" writeTenantMetadata:YES certIdentifier:kDummyTenant2CertIdentifier];
     
-    MSIDAssymetricKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
     XCTAssertNotNil(result);
 }
 
@@ -107,7 +107,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 {
     [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId2" writeTenantMetadata:NO certIdentifier:kDummyTenant2CertIdentifier];
     
-    MSIDAssymetricKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
     XCTAssertNotNil(result);
 }
 
@@ -115,7 +115,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 {
     [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:nil writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
     
-    MSIDAssymetricKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
     XCTAssertNotNil(result);
 }
 
@@ -123,7 +123,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 {
     [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:nil writeTenantMetadata:NO certIdentifier:kDummyTenant1CertIdentifier];
     
-    MSIDAssymetricKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
     XCTAssertNotNil(result);
 }
 
@@ -132,7 +132,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId1" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
     [self insertDummyWPJInLegacyFormat:NO tenantIdentifier:@"tenantId2" writeTenantMetadata:NO certIdentifier:kDummyTenant3CertIdentifier];
     
-    MSIDAssymetricKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId2" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId2" context:nil];
     XCTAssertNotNil(result);
     
     NSString *expectedIssuer = [kDummyTenant3CertIdentifier msidBase64UrlDecode];
@@ -145,7 +145,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [self insertDummyWPJInLegacyFormat:NO tenantIdentifier:@"tenantId1" writeTenantMetadata:NO certIdentifier:kDummyTenant1CertIdentifier];
     [self insertDummyWPJInLegacyFormat:NO tenantIdentifier:@"tenantId2" writeTenantMetadata:NO certIdentifier:kDummyTenant2CertIdentifier];
     
-    MSIDAssymetricKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId3" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId3" context:nil];
     XCTAssertNotNil(result);
     NSString *expectedIssuer = [kDummyTenant3CertIdentifier msidBase64UrlDecode];
     XCTAssertEqualObjects(expectedIssuer, result.certificateSubject);
@@ -249,9 +249,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [certInsertQuery setObject:(__bridge id)(certRef) forKey:(__bridge id)kSecValueRef];
 #if TARGET_OS_IOS
     [certInsertQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#else
-    //For MacOS new getWorkPlaceJoinKeyObj queries certificate reference using publicKeyHash (applicationLabel) retrieved from the private key dictionary
-    [certInsertQuery setObject:publicKeyHash forKey:(__bridge id)kSecAttrPublicKeyHash];
 #endif
     return SecItemAdd((__bridge CFDictionaryRef)certInsertQuery, NULL);
 }

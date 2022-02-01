@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,60 +20,26 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAssymetricKeyPairWithCert.h"
 
-@interface MSIDAssymetricKeyPairWithCert()
+#import <Foundation/Foundation.h>
 
-@property (nonatomic) SecCertificateRef certificateRef;
-@property (nonatomic) NSData *certificateData;
-@property (nonatomic) NSString *certificateSubject;
-@property (nonatomic) NSString *certificateIssuer;
+NS_ASSUME_NONNULL_BEGIN
 
-@end
+@protocol MSIDKeychainIdentity <NSObject>
 
-@implementation MSIDAssymetricKeyPairWithCert
+@property (nonatomic, readonly) SecCertificateRef certificateRef;
+@property (nonatomic, readonly) NSData *certificateData;
+@property (nonatomic, readonly) NSString *certificateSubject;
+@property (nonatomic, readonly) NSString *certificateIssuer;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
                                 certificate:(SecCertificateRef)certificate
-                          certificateIssuer:(NSString *)issuer
-                             privateKeyDict:(NSDictionary *)keyDict
-{
-    if (!certificate)
-    {
-        return nil;
-    }
-    
-    _certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
-    
-    if (!_certificateData)
-    {
-        return nil;
-    }
-    
-    self = [super initWithPrivateKey:privateKey publicKey:publicKey privateKeyDict:keyDict];
-    
-    if (self)
-    {
-        _certificateRef = certificate;
-        CFRetain(_certificateRef);
-        
-        _certificateSubject = (__bridge_transfer NSString *)(SecCertificateCopySubjectSummary(_certificateRef));
-        _certificateIssuer = issuer;
-    }
-    
-    return self;
-}
-
-- (void)dealloc
-{
-    if (_certificateRef)
-    {
-        CFRelease(_certificateRef);
-        _certificateRef = NULL;
-    }
-}
+                          certificateIssuer:(nullable NSString *)issuer
+                             privateKeyDict:(NSDictionary *)keyDict;
 
 @end
+
+NS_ASSUME_NONNULL_END

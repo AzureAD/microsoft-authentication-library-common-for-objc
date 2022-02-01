@@ -33,26 +33,79 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
 
 @implementation MSIDWorkPlaceJoinUtil
 
-+ (nullable MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(nullable id<MSIDRequestContext>)context
++ (MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
 {
-    return [self getWPJKeysWithTenantId:nil context:context];
-}
-
-+ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
-{
-    return [self getRegistrationInformation:context tenantId:tenantId workplacejoinChallenge:nil];
+    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
+    
+    if (!teamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
+        return nil;
+    }
+    
+    NSString *legacySharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+    NSData *tagData = [kMSIDPrivateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSDictionary *extraPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag: tagData,
+                                                 (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
+    NSDictionary *extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
+    
+    MSIDWPJKeyPairWithCert *legacyKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
+        
+    if (legacyKeys)
+    {
+        if ([NSString msidIsStringNilOrBlank:tenantId])
+        {
+            // ESTS didn't request a specific tenant, just return default one
+            return legacyKeys;
+        }
+        
+        // Read tenantId for legacy identity
+        NSString *registrationTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+        
+        // There's no tenantId on the registration, or it mismatches what server requested, keep looking for a better match. Otherwise, return the identity already.
+        if (![NSString msidIsStringNilOrBlank:registrationTenantId]
+            && [registrationTenantId isEqualToString:tenantId])
+        {
+            return legacyKeys;
+        }
+    }
+    
+    NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+    NSString *tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
+    tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
+    
+    extraPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag : tagData,
+                                   (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
+    
+    extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
+    
+    MSIDWPJKeyPairWithCert *defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
+     
+    // If secondary Identity was found, return it
+    if (defaultKeys)
+    {
+        return defaultKeys;
+    }
+    
+    // Otherwise, return legacy Identity - this can happen if we couldn't match based on the tenantId, but Identity was there. It could be usable. We'll let ESTS to evaluate it and check.
+    // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
+    return legacyKeys;
 }
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                      workplacejoinChallenge:(__unused MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
 {
-    return [self getRegistrationInformation:context tenantId:nil workplacejoinChallenge:workplacejoinChallenge];
-}
-
-+ (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                                   tenantId:(NSString *)tenantId
-                                     workplacejoinChallenge:(__unused MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
-{
+    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
+    
+    if (!teamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
+        return nil;
+    }
+    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
     MSIDRegistrationInformation *info = nil;
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;
@@ -61,11 +114,11 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     NSString *certificateIssuer = nil;
     NSDictionary *keyDict = nil;
     
-    identity = [self copyWPJIdentityWithTenantId:tenantId context:context certificateIssuer:&certificateIssuer privateKeyDict:&keyDict];
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group.", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
     
+    identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer privateKeyDict:&keyDict];
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
-        
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
         CFReleaseNull(identity);
         return nil;
@@ -109,70 +162,13 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     return info;
 }
 
-+ (SecIdentityRef)copyWPJIdentityWithTenantId:(NSString *)tenantId
-                                      context:(id<MSIDRequestContext>)context
-                            certificateIssuer:(NSString **)issuer
-                               privateKeyDict:(NSDictionary **)keyDict
-{
-    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
-    
-    if (!teamId)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
-        return nil;
-    }
-    
-    NSString *legacySharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
-    
-    SecIdentityRef legacyIdentity = [self copyWPJIdentity:context tag:nil sharedAccessGroup:legacySharedAccessGroup certificateIssuer:issuer privateKeyDict:keyDict];
-    
-    if (legacyIdentity)
-    {
-        if ([NSString msidIsStringNilOrBlank:tenantId])
-        {
-            // ESTS didn't request a specific tenant, just return default one
-            return legacyIdentity;
-        }
-        
-        // Read tenantId for legacy identity
-        NSString *registrationTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
-        
-        // There's no tenantId on the registration, or it mismatches what server requested, keep looking for a better match. Otherwise, return the identity already.
-        if (![NSString msidIsStringNilOrBlank:registrationTenantId]
-            && [registrationTenantId isEqualToString:tenantId])
-        {
-            return legacyIdentity;
-        }
-    }
-    
-    NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
-    NSString *tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
-    
-    SecIdentityRef secondaryIdentity = [self copyWPJIdentity:context
-                                                         tag:tag
-                                           sharedAccessGroup:defaultSharedAccessGroup
-                                           certificateIssuer:issuer
-                                              privateKeyDict:keyDict];
-    
-    // If secondary Identity was found, return it
-    if (secondaryIdentity)
-    {
-        return secondaryIdentity;
-    }
-    
-    // Otherwise, return legacy Identity - this can happen if we couldn't match based on the tenantId, but Identity was there. It could be usable. We'll let ESTS to evaluate it and check.
-    // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
-    return legacyIdentity;
-}
-
-+ (SecIdentityRef)copyWPJIdentity:(id<MSIDRequestContext>)context
-                              tag:(NSString *)tag
++ (SecIdentityRef)copyWPJIdentity:(__unused id<MSIDRequestContext>)context
                 sharedAccessGroup:(NSString *)accessGroup
                 certificateIssuer:(NSString **)issuer
                    privateKeyDict:(NSDictionary **)keyDict
 
 {
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group, tag %@", MSID_PII_LOG_MASKABLE(accessGroup), tag);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group", MSID_PII_LOG_MASKABLE(accessGroup));
     
     NSMutableDictionary *identityDict = [[NSMutableDictionary alloc] init];
     [identityDict setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
@@ -180,12 +176,6 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     [identityDict setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
     [identityDict setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];
     [identityDict setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-    
-    if (![NSString msidIsStringNilOrBlank:tag])
-    {
-        NSData *tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
-        [identityDict setObject:tagData forKey:(__bridge  id)kSecAttrApplicationTag];
-    }
     
     CFDictionaryRef result = NULL;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)identityDict, (CFTypeRef *)&result);

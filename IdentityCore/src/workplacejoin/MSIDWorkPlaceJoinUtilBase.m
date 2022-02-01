@@ -26,7 +26,7 @@
 #import "MSIDWorkPlaceJoinUtilBase.h"
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 #import "MSIDWorkPlaceJoinConstants.h"
-#import "MSIDAssymetricKeyPairWithCert.h"
+#import "MSIDWPJKeyPairWithCert.h"
 
 NSString *const MSID_DEVICE_INFORMATION_UPN_ID_KEY        = @"userPrincipalName";
 NSString *const MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY = @"aadDeviceIdentifier";
@@ -78,7 +78,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
 {
-    MSIDAssymetricKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:context];
+    MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:context];
 
     if (wpjCerts)
     {
@@ -94,6 +94,132 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     }
 
     return nil;
+}
+
++ (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
+                                                                                certAttributes:(nullable NSDictionary *)certAttributes
+                                                                                       context:(nullable id<MSIDRequestContext>)context
+{
+    OSStatus status = noErr;
+    CFTypeRef privateKeyCFDict = NULL;
+    
+    // Set the private key query dictionary.
+    NSMutableDictionary *queryPrivateKey = [NSMutableDictionary new];
+    queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
+    queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
+    queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
+    
+    if (queryAttributes)
+    {
+        [queryPrivateKey addEntriesFromDictionary:queryAttributes];
+    }
+    
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
+    if (status != errSecSuccess)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find workplace join private key with status %ld", (long)status);
+        return nil;
+    }
+        
+    NSDictionary *privateKeyDict = CFBridgingRelease(privateKeyCFDict); // -1 privateKeyCFDict
+    
+    /*
+     kSecAttrApplicationLabel
+     For asymmetric keys this holds the public key hash which allows digital identity formation (to form a digital identity, this value must match the kSecAttrPublicKeyHash ('pkhh') attribute of the certificate)
+     */
+    NSData *applicationLabel = privateKeyDict[(__bridge id)kSecAttrApplicationLabel];
+
+    if (!applicationLabel)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unexpected key found without application label. Aborting lookup");
+        return nil;
+    }
+    
+    SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
+    
+    if (!privateKeyRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No private key ref found. Aborting lookup.");
+        return nil;
+    }
+        
+    NSDictionary *certQuery = @{(__bridge id)kSecClass : (__bridge id)kSecClassCertificate,
+                                (__bridge id)kSecAttrPublicKeyHash: applicationLabel,
+                                (__bridge id)kSecReturnRef : @YES
+    };
+    
+    NSMutableDictionary *mutableCertQuery = [certQuery mutableCopy];
+    
+    if (certAttributes)
+    {
+        [mutableCertQuery addEntriesFromDictionary:certAttributes];
+    }
+    
+    SecCertificateRef certRef;
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)mutableCertQuery, (CFTypeRef*)&certRef); // +1 certRef
+    
+    if (status != errSecSuccess || !certRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find certificate for public key hash with status %ld", (long)status);
+        return nil;
+    }
+    
+    // Get the public key
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ public key reference.");
+    SecKeyRef publicKeyRef = nil;
+    NSString *issuer = nil;
+    
+    if (@available(iOS 12.0, macos 10.14, *))
+    {
+        publicKeyRef = SecCertificateCopyKey(certRef); // +1 publicKeyRef
+    }
+    else
+    {
+#if TARGET_OS_IPHONE
+        publicKeyRef = SecCertificateCopyPublicKey(certRef); // +1 publicKeyRef
+#else
+        status = SecCertificateCopyPublicKey(certRef, &publicKeyRef); // +1 publicKeyRef
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ public key reference retrieved with result %ld", (long)status);
+#endif
+    }
+            
+    if (!publicKeyRef)
+    {
+        CFReleaseNull(certRef);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No public key ref found. Aborting lookup.");
+        return nil;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Public key ref successfully retrieved");
+        
+    NSData *issuerData = nil;
+    
+    if (@available(iOS 11.0, macOS 10.12.4, *))
+    {
+        issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
+    }
+#if !TARGET_OS_IPHONE
+    else
+    {
+        issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerContent(certRef, NULL));
+    }
+#endif
+        
+    if (issuerData)
+    {
+        issuer = [[NSString alloc] initWithData:issuerData encoding:NSASCIIStringEncoding];
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Retrieved WPJ issuer %@", MSID_PII_LOG_MASKABLE(issuer));
+    
+    MSIDWPJKeyPairWithCert *keyPair = [[MSIDWPJKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
+                                                                               publicKey:publicKeyRef
+                                                                             certificate:certRef
+                                                                       certificateIssuer:issuer
+                                                                          privateKeyDict:privateKeyDict];
+    CFReleaseNull(certRef);
+    CFReleaseNull(publicKeyRef);
+    return keyPair;
 }
 
 @end
