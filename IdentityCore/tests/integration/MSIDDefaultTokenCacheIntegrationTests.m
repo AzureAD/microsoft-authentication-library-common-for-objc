@@ -776,6 +776,84 @@
     XCTAssertEqual([allIDs count], 1);
 }
 
+- (void)testClearCacheForAllAccounts_whenTypeAccessMultipleAccessTokensInCache_shouldClearAllTokens
+{
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
+
+    // save 1st token with default test scope
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+
+    // save 2nd token with non-intersecting scope
+    NSOrderedSet<NSString *> *scopes = [NSOrderedSet orderedSetWithObjects:@"profile.read", nil];
+
+    MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token 2"
+                                                                                  RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                              scopes:scopes
+                                                                             idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                 uid:DEFAULT_TEST_UID
+                                                                                utid:DEFAULT_TEST_UTID
+                                                                            familyId:nil];
+
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfigurationWithScopes:scopes]
+                                       response:tokenResponse2
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+
+    // save 3rd token with different authority
+    MSIDAADV2TokenResponse *tokenResponse3 = [MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                       RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                   scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                                  idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                      uid:DEFAULT_TEST_UID
+                                                                                     utid:DEFAULT_TEST_UTID
+                                                                                 familyId:nil];
+
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://contoso2.com/common"
+                                                                              clientId:DEFAULT_TEST_CLIENT_ID
+                                                                           redirectUri:nil
+                                                                                target:DEFAULT_TEST_SCOPE];
+
+    [_cacheAccessor saveTokensWithConfiguration:configuration
+                                       response:tokenResponse3
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+
+    // save 4th token with different user
+    MSIDTokenResponse *tokenResponse4 = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token 3"
+                                                                                  RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                              scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                             idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                 uid:@"UID2"
+                                                                                utid:@"UTID2"
+                                                                            familyId:nil];
+
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse4
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
+    XCTAssertEqual([accessTokensInCache count], 4);
+
+    // wipe all accounts
+    NSError *error = nil;
+    
+    BOOL result = [_cacheAccessor clearCacheForAllAccountsWithContext:nil
+                                                                error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
+    XCTAssertEqual([accessTokensInCache count], 0);
+}
+
 #pragma mark - Helpers
 
 - (void)setUpEnrollmentIdsCache:(BOOL)isEmpty
