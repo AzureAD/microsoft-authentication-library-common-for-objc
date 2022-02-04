@@ -53,24 +53,30 @@
 
 - (void)testmsidDictionaryFromWWWFormURLEncodedString_whenStringContainsQuery_shouldReturnDictWithDecoding
 {
-    NSString *string = @"key=Some+interesting+test%2F%2B-%29%28%2A%26%5E%25%24%23%40%21~%7C";
+    NSString *string = @"key=Some+interesting+test%2F%2B-%29%28%2A%26%5E%25%24%23%40%21~%7C%3D";
     NSDictionary *dict = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:string];
     
     XCTAssertTrue([[dict allKeys] containsObject:@"key"]);
-    XCTAssertEqualObjects(dict[@"key"], @"Some interesting test/+-)(*&^%$#@!~|");
+    XCTAssertEqualObjects(dict[@"key"], @"Some interesting test/+-)(*&^%$#@!~|=");
 }
 
 - (void)testmsidDictionaryFromURLEncodedString_whenMalformedQuery_shouldReturnDictWithoutBadQuery
 {
-    NSString *string = @"key=val+val&malformed=v1=v2&=noval";
+    NSString *string = @"key=val+val&malformed=v1=v2&=nokey&noval&doubleEqualButEncoded=2%3D2&";
     NSDictionary *dict = [NSDictionary msidDictionaryFromURLEncodedString:string];
     
-    XCTAssertTrue(dict.count == 1);
+    XCTAssertTrue(dict.count == 3);
     XCTAssertTrue([dict.allKeys containsObject:@"key"]);
+    XCTAssertTrue([dict.allKeys containsObject:@"noval"]);
+    XCTAssertTrue([dict.allKeys containsObject:@"doubleEqualButEncoded"]);
+    
+    XCTAssertFalse([dict.allKeys containsObject:@"malformed"]);
+    XCTAssertFalse([dict.allKeys containsObject:@""]);
     
     XCTAssertEqualObjects(dict[@"key"], @"val+val");
+    XCTAssertEqualObjects(dict[@"noval"], @"");
+    XCTAssertEqualObjects(dict[@"doubleEqualButEncoded"], @"2=2");
 }
-
 
 - (void)testMsidDictionaryByRemovingFields_whenNilKeysArray_shouldNotRemoveFields
 {
