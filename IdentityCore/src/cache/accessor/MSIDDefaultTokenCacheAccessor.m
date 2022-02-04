@@ -706,6 +706,7 @@
     // Clear cache from other accessors
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
+        accountRemovalError = nil;
         if (![accessor clearWithContext:context
                                   error:&accountRemovalError])
         {
