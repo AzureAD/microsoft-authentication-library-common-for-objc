@@ -4,6 +4,7 @@ TBD
 Version 1.7.4
 * Fixed logic to open links within iframe in embedded webiview in itself instead of Safari. (#1074)
 * Expose keychain error OSStatus in errors returned by MSIDAssymetricKeyKeychainGenerator (#1079)
+* Prevent logging PII in query to NSDictionary extension method (#1084)
 
 Version 1.7.3
 * Enable additional warnings (#1042)
