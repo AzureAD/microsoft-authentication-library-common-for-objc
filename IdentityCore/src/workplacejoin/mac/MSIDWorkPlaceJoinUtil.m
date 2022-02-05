@@ -80,36 +80,23 @@
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ private key reference retrieved with result %ld", (long)status);
     
-    // Get the public key
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ public key reference.");
-    SecKeyRef publicKeyRef = NULL;
-    
-    if (certificateRef)
-    {
-        status = SecCertificateCopyPublicKey(certificateRef, &publicKeyRef); // +1 publicKeyRef
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ public key reference retrieved with result %ld", (long)status);
-    }
-    
     MSIDRegistrationInformation *info = nil;
     
-    if (!certificateRef || !privateKeyRef || !publicKeyRef)
+    if (!certificateRef || !privateKeyRef)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid. Cert ref = %d, private key ref = %d, public key ref = %d", (int)(certificateRef != NULL), (int)(privateKeyRef != NULL), (int)(publicKeyRef != NULL));
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid. Cert ref = %d, private key ref = %d", (int)(certificateRef != NULL), (int)(privateKeyRef != NULL));
     }
     else
     {
         // We found all the required WPJ information.
         info = [[MSIDRegistrationInformation alloc] initWithIdentity:identity
                                                           privateKey:privateKeyRef
-                                                           publicKey:publicKeyRef
                                                          certificate:certificateRef
-                                                   certificateIssuer:certIssuer
-                                                      privateKeyDict:keyDict];
+                                                   certificateIssuer:certIssuer];
     }
     
     CFReleaseNull(identity);
     CFReleaseNull(privateKeyRef);
-    CFReleaseNull(publicKeyRef);
     CFReleaseNull(certificateRef);
     return info;
 }
