@@ -29,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDKeychainIdentity <NSObject>
 
+@property (nonatomic, readonly) SecKeyRef privateKeyRef;
+@property (nonatomic, readonly) SecKeyRef publicKeyRef;
+@property (nonatomic, readonly) NSDictionary *privateKeyDict;
 @property (nonatomic, readonly) SecCertificateRef certificateRef;
 @property (nonatomic, readonly) NSData *certificateData;
 @property (nonatomic, readonly) NSString *certificateSubject;

@@ -22,17 +22,27 @@
 // THE SOFTWARE.
 
 #import "MSIDAssymetricKeyPair.h"
-#import "MSIDKeychainIdentity.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAssymetricKeyPairWithCert : MSIDAssymetricKeyPair <MSIDKeychainIdentity>
+@interface MSIDAssymetricKeyPairWithCert : MSIDAssymetricKeyPair
 {
     SecCertificateRef _certificateRef;
     NSData *_certificateData;
     NSString *_certificateSubject;
     NSString *_certificateIssuer;
 }
+
+@property (nonatomic, readonly) SecCertificateRef certificateRef;
+@property (nonatomic, readonly) NSData *certificateData;
+@property (nonatomic, readonly) NSString *certificateSubject;
+@property (nonatomic, readonly) NSString *certificateIssuer;
+
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                  publicKey:(SecKeyRef)publicKey
+                                certificate:(SecCertificateRef)certificate
+                          certificateIssuer:(nullable NSString *)issuer
+                             privateKeyDict:(NSDictionary *)keyDict;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey

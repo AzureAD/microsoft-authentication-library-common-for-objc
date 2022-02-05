@@ -61,10 +61,12 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
         }
         
         // Read tenantId for legacy identity
-        NSString *registrationTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+        NSError *tenantIdError = nil;
+        NSString *registrationTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:&tenantIdError];
         
         // There's no tenantId on the registration, or it mismatches what server requested, keep looking for a better match. Otherwise, return the identity already.
-        if (![NSString msidIsStringNilOrBlank:registrationTenantId]
+        if (!tenantIdError
+            && registrationTenantId
             && [registrationTenantId isEqualToString:tenantId])
         {
             return legacyKeys;
@@ -87,7 +89,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     {
         return defaultKeys;
     }
-    
+        
     // Otherwise, return legacy Identity - this can happen if we couldn't match based on the tenantId, but Identity was there. It could be usable. We'll let ESTS to evaluate it and check.
     // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
     return legacyKeys;
@@ -136,11 +138,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ private key reference retrieved with result %ld", (long)status);
     
-    // Get the public key
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ public key reference.");
-    SecKeyRef publicKey = SecKeyCopyPublicKey(privateKey);
-    
-    if (!(certificate && publicKey && privateKey && certificateIssuer))
+    if (!(certificate && privateKey && certificateIssuer))
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid.");
     }
@@ -148,16 +146,13 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     {
         info = [[MSIDRegistrationInformation alloc] initWithIdentity:identity
                                                           privateKey:privateKey
-                                                           publicKey:publicKey
                                                          certificate:certificate
-                                                   certificateIssuer:certificateIssuer
-                                                      privateKeyDict:keyDict];
+                                                   certificateIssuer:certificateIssuer];
     }
     
     CFReleaseNull(identity);
     CFReleaseNull(certificate);
     CFReleaseNull(privateKey);
-    CFReleaseNull(publicKey);
     
     return info;
 }
@@ -168,7 +163,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
                    privateKeyDict:(NSDictionary **)keyDict
 
 {
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group", MSID_PII_LOG_MASKABLE(accessGroup));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group", accessGroup);
     
     NSMutableDictionary *identityDict = [[NSMutableDictionary alloc] init];
     [identityDict setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];

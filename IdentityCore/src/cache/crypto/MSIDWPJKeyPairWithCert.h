@@ -24,11 +24,10 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MSIDKeychainIdentity.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDWPJKeyPairWithCert : NSObject <MSIDKeychainIdentity>
+@interface MSIDWPJKeyPairWithCert : NSObject
 {
     SecCertificateRef _certificateRef;
     NSData *_certificateData;
@@ -38,8 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-@property (nonatomic, readonly) NSDictionary *privateKeyDict;
+@property (nonatomic, readonly) SecCertificateRef certificateRef;
+@property (nonatomic, readonly) NSData *certificateData;
+@property (nonatomic, readonly) NSString *certificateSubject;
+@property (nonatomic, readonly) NSString *certificateIssuer;
+
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                certificate:(SecCertificateRef)certificate
+                          certificateIssuer:(nullable NSString *)issuer;
 
 @end
 

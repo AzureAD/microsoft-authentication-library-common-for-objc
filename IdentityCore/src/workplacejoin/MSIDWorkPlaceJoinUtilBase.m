@@ -105,14 +105,17 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     
     // Set the private key query dictionary.
     NSMutableDictionary *queryPrivateKey = [NSMutableDictionary new];
-    queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
-    queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
-    queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
     
     if (queryAttributes)
     {
         [queryPrivateKey addEntriesFromDictionary:queryAttributes];
     }
+    
+    queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
+    queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
+    queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
+    // TODO: hardcoding this to query RSA keys only for now. Once ECC registration is ready and tested, after removing this line, code should be able to find either ECC or RSA keys, since there should be single key corresponding to the tag per tenant
+    queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
     
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
     if (status != errSecSuccess)
@@ -142,18 +145,17 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No private key ref found. Aborting lookup.");
         return nil;
     }
-        
-    NSDictionary *certQuery = @{(__bridge id)kSecClass : (__bridge id)kSecClassCertificate,
-                                (__bridge id)kSecAttrPublicKeyHash: applicationLabel,
-                                (__bridge id)kSecReturnRef : @YES
-    };
     
-    NSMutableDictionary *mutableCertQuery = [certQuery mutableCopy];
+    NSMutableDictionary *mutableCertQuery = [NSMutableDictionary new];
     
     if (certAttributes)
     {
         [mutableCertQuery addEntriesFromDictionary:certAttributes];
     }
+    
+    mutableCertQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassCertificate;
+    mutableCertQuery[(__bridge id)kSecAttrPublicKeyHash] = applicationLabel;
+    mutableCertQuery[(__bridge id)kSecReturnRef] = @YES;
     
     SecCertificateRef certRef;
     status = SecItemCopyMatching((__bridge CFDictionaryRef)mutableCertQuery, (CFTypeRef*)&certRef); // +1 certRef
@@ -164,61 +166,10 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         return nil;
     }
     
-    // Get the public key
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ public key reference.");
-    SecKeyRef publicKeyRef = nil;
-    NSString *issuer = nil;
-    
-    if (@available(iOS 12.0, macos 10.14, *))
-    {
-        publicKeyRef = SecCertificateCopyKey(certRef); // +1 publicKeyRef
-    }
-    else
-    {
-#if TARGET_OS_IPHONE
-        publicKeyRef = SecCertificateCopyPublicKey(certRef); // +1 publicKeyRef
-#else
-        status = SecCertificateCopyPublicKey(certRef, &publicKeyRef); // +1 publicKeyRef
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ public key reference retrieved with result %ld", (long)status);
-#endif
-    }
-            
-    if (!publicKeyRef)
-    {
-        CFReleaseNull(certRef);
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No public key ref found. Aborting lookup.");
-        return nil;
-    }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Public key ref successfully retrieved");
-        
-    NSData *issuerData = nil;
-    
-    if (@available(iOS 11.0, macOS 10.12.4, *))
-    {
-        issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
-    }
-#if !TARGET_OS_IPHONE
-    else
-    {
-        issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerContent(certRef, NULL));
-    }
-#endif
-        
-    if (issuerData)
-    {
-        issuer = [[NSString alloc] initWithData:issuerData encoding:NSASCIIStringEncoding];
-    }
-    
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Retrieved WPJ issuer %@", MSID_PII_LOG_MASKABLE(issuer));
-    
     MSIDWPJKeyPairWithCert *keyPair = [[MSIDWPJKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
-                                                                               publicKey:publicKeyRef
                                                                              certificate:certRef
-                                                                       certificateIssuer:issuer
-                                                                          privateKeyDict:privateKeyDict];
+                                                                       certificateIssuer:nil];
     CFReleaseNull(certRef);
-    CFReleaseNull(publicKeyRef);
     return keyPair;
 }
 

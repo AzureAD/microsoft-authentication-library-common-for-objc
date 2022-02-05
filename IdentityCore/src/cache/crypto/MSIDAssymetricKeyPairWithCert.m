@@ -23,15 +23,6 @@
 
 #import "MSIDAssymetricKeyPairWithCert.h"
 
-@interface MSIDAssymetricKeyPairWithCert()
-
-@property (nonatomic) SecCertificateRef certificateRef;
-@property (nonatomic) NSData *certificateData;
-@property (nonatomic) NSString *certificateSubject;
-@property (nonatomic) NSString *certificateIssuer;
-
-@end
-
 @implementation MSIDAssymetricKeyPairWithCert
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey

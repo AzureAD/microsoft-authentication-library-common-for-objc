@@ -24,6 +24,7 @@
 
 
 #import "MSIDWPJKeyPairWithCert.h"
+#import "MSIDKeychainUtil.h"
 
 @interface MSIDWPJKeyPairWithCert()
 
@@ -31,18 +32,17 @@
 @property (nonatomic) NSData *certificateData;
 @property (nonatomic) NSString *certificateSubject;
 @property (nonatomic) NSString *certificateIssuer;
+@property (nonatomic) SecKeyRef privateKeyRef;
 
 @end
 
 @implementation MSIDWPJKeyPairWithCert
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey
-                                certificate:(SecCertificateRef)certificate
+                                certificate:(SecCertificateRef)certRef
                           certificateIssuer:(nullable NSString *)issuer
-                             privateKeyDict:(NSDictionary *)keyDict
 {
-    if (!certificate || !privateKey || !publicKey)
+    if (!certRef || !privateKey)
     {
         return nil;
     }
@@ -51,7 +51,7 @@
     
     if (self)
     {
-        _certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
+        _certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certRef));
         
         if (!_certificateData)
         {
@@ -61,18 +61,37 @@
         _privateKeyRef = privateKey;
         CFRetain(_privateKeyRef);
         
-        _publicKeyRef = publicKey;
-        CFRetain(_publicKeyRef);
-        if (keyDict)
-        {
-            _privateKeyDict = keyDict;
-        }
-        
-        _certificateRef = certificate;
+        _certificateRef = certRef;
         CFRetain(_certificateRef);
         
         _certificateSubject = (__bridge_transfer NSString *)(SecCertificateCopySubjectSummary(_certificateRef));
-        _certificateIssuer = issuer;
+        
+        if (![NSString msidIsStringNilOrBlank:issuer])
+        {
+            _certificateIssuer = issuer;
+        }
+        else
+        {
+            NSData *issuerData = nil;
+            
+            if (@available(iOS 11.0, macOS 10.12.4, *))
+            {
+                issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
+            }
+#if !TARGET_OS_IPHONE
+            else
+            {
+                issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerContent(certRef, NULL));
+            }
+#endif
+                
+            if (issuerData)
+            {
+                _certificateIssuer = [[NSString alloc] initWithData:issuerData encoding:NSASCIIStringEncoding];
+            }
+        }
+        
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"Retrieved WPJ issuer %@", MSID_PII_LOG_MASKABLE(_certificateIssuer));
     }
     
     return self;
@@ -90,12 +109,6 @@
     {
         CFRelease(_privateKeyRef);
         _privateKeyRef = NULL;
-    }
-    
-    if (_publicKeyRef)
-    {
-        CFRelease(_publicKeyRef);
-        _publicKeyRef = NULL;
     }
 }
 
