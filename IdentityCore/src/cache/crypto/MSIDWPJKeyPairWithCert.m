@@ -91,7 +91,7 @@
             }
         }
         
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"Retrieved WPJ issuer %@", MSID_PII_LOG_MASKABLE(_certificateIssuer));
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Retrieved WPJ issuer %@", _certificateIssuer);
     }
     
     return self;
