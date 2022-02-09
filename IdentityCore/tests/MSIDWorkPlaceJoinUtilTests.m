@@ -135,8 +135,8 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId2" context:nil];
     XCTAssertNotNil(result);
     
-    NSString *expectedIssuer = [kDummyTenant3CertIdentifier msidBase64UrlDecode];
-    XCTAssertEqualObjects(expectedIssuer, result.certificateSubject);
+    NSString *expectedSubject = [kDummyTenant3CertIdentifier msidBase64UrlDecode];
+    XCTAssertEqualObjects(expectedSubject, result.certificateSubject);
 }
 
 - (void)testGetWPJKeysWithTenantId_whenMultipleWPJInDefaultFormat_andLegacyRegistration_withMismatchingTenant_shouldReturnLegacyRegistration
@@ -147,8 +147,8 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId3" context:nil];
     XCTAssertNotNil(result);
-    NSString *expectedIssuer = [kDummyTenant3CertIdentifier msidBase64UrlDecode];
-    XCTAssertEqualObjects(expectedIssuer, result.certificateSubject);
+    NSString *expectedSubject = [kDummyTenant3CertIdentifier msidBase64UrlDecode];
+    XCTAssertEqualObjects(expectedSubject, result.certificateSubject);
 }
 #endif
 
