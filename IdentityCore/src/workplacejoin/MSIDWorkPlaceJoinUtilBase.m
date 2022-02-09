@@ -26,7 +26,7 @@
 #import "MSIDWorkPlaceJoinUtilBase.h"
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 #import "MSIDWorkPlaceJoinConstants.h"
-#import "MSIDAssymetricKeyPairWithCert.h"
+#import "MSIDWPJKeyPairWithCert.h"
 
 NSString *const MSID_DEVICE_INFORMATION_UPN_ID_KEY        = @"userPrincipalName";
 NSString *const MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY = @"aadDeviceIdentifier";
@@ -78,7 +78,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
 {
-    MSIDAssymetricKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithContext:context];
+    MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:context];
 
     if (wpjCerts)
     {
@@ -94,6 +94,83 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     }
 
     return nil;
+}
+
++ (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
+                                                                                certAttributes:(nullable NSDictionary *)certAttributes
+                                                                                       context:(nullable id<MSIDRequestContext>)context
+{
+    OSStatus status = noErr;
+    CFTypeRef privateKeyCFDict = NULL;
+    
+    // Set the private key query dictionary.
+    NSMutableDictionary *queryPrivateKey = [NSMutableDictionary new];
+    
+    if (queryAttributes)
+    {
+        [queryPrivateKey addEntriesFromDictionary:queryAttributes];
+    }
+    
+    queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
+    queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
+    queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
+    // TODO: hardcoding this to query RSA keys only for now. Once ECC registration is ready and tested, after removing this line, code should be able to find either ECC or RSA keys, since there should be single key corresponding to the tag per tenant
+    queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
+    
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
+    if (status != errSecSuccess)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find workplace join private key with status %ld", (long)status);
+        return nil;
+    }
+        
+    NSDictionary *privateKeyDict = CFBridgingRelease(privateKeyCFDict); // -1 privateKeyCFDict
+    
+    /*
+     kSecAttrApplicationLabel
+     For asymmetric keys this holds the public key hash which allows digital identity formation (to form a digital identity, this value must match the kSecAttrPublicKeyHash ('pkhh') attribute of the certificate)
+     */
+    NSData *applicationLabel = privateKeyDict[(__bridge id)kSecAttrApplicationLabel];
+
+    if (!applicationLabel)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unexpected key found without application label. Aborting lookup");
+        return nil;
+    }
+    
+    SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
+    
+    if (!privateKeyRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No private key ref found. Aborting lookup.");
+        return nil;
+    }
+    
+    NSMutableDictionary *mutableCertQuery = [NSMutableDictionary new];
+    
+    if (certAttributes)
+    {
+        [mutableCertQuery addEntriesFromDictionary:certAttributes];
+    }
+    
+    mutableCertQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassCertificate;
+    mutableCertQuery[(__bridge id)kSecAttrPublicKeyHash] = applicationLabel;
+    mutableCertQuery[(__bridge id)kSecReturnRef] = @YES;
+    
+    SecCertificateRef certRef;
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)mutableCertQuery, (CFTypeRef*)&certRef); // +1 certRef
+    
+    if (status != errSecSuccess || !certRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find certificate for public key hash with status %ld", (long)status);
+        return nil;
+    }
+    
+    MSIDWPJKeyPairWithCert *keyPair = [[MSIDWPJKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
+                                                                             certificate:certRef
+                                                                       certificateIssuer:nil];
+    CFReleaseNull(certRef);
+    return keyPair;
 }
 
 @end
