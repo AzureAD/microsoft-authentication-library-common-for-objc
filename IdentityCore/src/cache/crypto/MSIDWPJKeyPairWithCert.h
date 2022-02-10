@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,30 +20,31 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDWPJKeyPairWithCert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDRegistrationInformation : MSIDWPJKeyPairWithCert
+@interface MSIDWPJKeyPairWithCert : NSObject
 {
-    SecIdentityRef _securityIdentity;
+    SecCertificateRef _certificateRef;
+    NSData *_certificateData;
+    NSString *_certificateSubject;
+    NSString *_certificateIssuer;
+    SecKeyRef _privateKeyRef;
 }
 
-@property (nonatomic, readonly) SecIdentityRef securityIdentity;
-
-- (instancetype)initWithIdentity:(SecIdentityRef)identity
-                      privateKey:(SecKeyRef)privateKey
-                     certificate:(SecCertificateRef)certificate
-               certificateIssuer:(nullable NSString *)issuer;
+@property (nonatomic, readonly) SecKeyRef privateKeyRef;
+@property (nonatomic, readonly) SecCertificateRef certificateRef;
+@property (nonatomic, readonly) NSData *certificateData;
+@property (nonatomic, readonly) NSString *certificateSubject;
+@property (nonatomic, readonly) NSString *certificateIssuer;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                 certificate:(SecCertificateRef)certificate
-                          certificateIssuer:(nullable NSString *)issuer NS_UNAVAILABLE;
-
-- (BOOL)isWorkPlaceJoined;
+                          certificateIssuer:(nullable NSString *)issuer;
 
 @end
 
