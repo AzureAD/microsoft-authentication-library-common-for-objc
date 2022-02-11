@@ -34,10 +34,12 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionSignoutController : MSIDSignoutController
 
 @property (nonatomic, readonly) BOOL shouldWipeAccount;
+@property (nonatomic, readonly) BOOL shouldWipeCacheForAllAccounts;
 
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                  shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                         shouldWipeAccount:(BOOL)shouldWipeAccount
+            shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
                                     error:(NSError *_Nullable *_Nullable)error;
  
