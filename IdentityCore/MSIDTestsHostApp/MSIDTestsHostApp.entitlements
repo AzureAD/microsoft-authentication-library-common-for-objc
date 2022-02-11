@@ -8,6 +8,7 @@
 		<string>$(AppIdentifierPrefix)com.microsoft.MSIDTestsHostApp</string>
 		<string>$(AppIdentifierPrefix)com.microsoft.adalcache</string>
 		<string>$(AppIdentifierPrefix)com.microsoft.intune.mam</string>
+		<string>$(AppIdentifierPrefix)com.microsoft.workplacejoin.v2</string>
 	</array>
 </dict>
 </plist>

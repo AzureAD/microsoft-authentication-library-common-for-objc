@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,44 +20,31 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDJsonSerializable.h"
 
-typedef NS_ENUM(NSInteger, MSIDDeviceMode)
-{
-    MSIDDeviceModePersonal = 0,
-    MSIDDeviceModeShared
-};
-
-typedef NS_ENUM(NSInteger, MSIDSSOExtensionMode)
-{
-    MSIDSSOExtensionModeFull = 0,
-    MSIDSSOExtensionModeSilentOnly
-};
-
-typedef NS_ENUM(NSInteger, MSIDWorkPlaceJoinStatus)
-{
-    MSIDWorkPlaceJoinStatusNotJoined = 0,
-    MSIDWorkPlaceJoinStatusJoined
-};
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDDeviceInfo : NSObject <MSIDJsonSerializable>
+@interface MSIDWPJKeyPairWithCert : NSObject
+{
+    SecCertificateRef _certificateRef;
+    NSData *_certificateData;
+    NSString *_certificateSubject;
+    NSString *_certificateIssuer;
+    SecKeyRef _privateKeyRef;
+}
 
-@property (nonatomic) MSIDDeviceMode deviceMode;
-@property (nonatomic) MSIDSSOExtensionMode ssoExtensionMode;
-@property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
-@property (nonatomic, nullable) NSString *brokerVersion;
-@property (nonatomic) NSDictionary *additionalExtensionData;
-// New property to return MDM Id to 1P and managed apps
-@property (nonatomic, nullable) NSString *mdmId;
+@property (nonatomic, readonly) SecKeyRef privateKeyRef;
+@property (nonatomic, readonly) SecCertificateRef certificateRef;
+@property (nonatomic, readonly) NSData *certificateData;
+@property (nonatomic, readonly) NSString *certificateSubject;
+@property (nonatomic, readonly) NSString *certificateIssuer;
 
-- (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
-                  ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
-                 isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
-                     brokerVersion:(NSString *)brokerVersion;
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                certificate:(SecCertificateRef)certificate
+                          certificateIssuer:(nullable NSString *)issuer;
 
 @end
 
