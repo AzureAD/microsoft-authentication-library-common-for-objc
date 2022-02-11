@@ -43,7 +43,8 @@
         MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"silent_only",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
-        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"token\":\"\",\"dict\":{\"key\":\"value\"},\"feature_flag1\":1}"
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"token\":\"\",\"dict\":{\"key\":\"value\"},\"feature_flag1\":1}",
+        MSID_BROKER_MDM_ID_KEY:@"mdmId"
     };
     
     NSError *error;
@@ -54,6 +55,7 @@
     XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeSilentOnly);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
+    XCTAssertEqualObjects(deviceInfo.mdmId, @"mdmId");
     
     NSDictionary *expectedAdditionalData = @{@"feature_flag1":@1,@"token":@"",@"dict":@{@"key":@"value"}};
     XCTAssertEqualObjects(deviceInfo.additionalExtensionData, expectedAdditionalData);
@@ -77,6 +79,7 @@
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
     XCTAssertNil(deviceInfo.additionalExtensionData);
+    XCTAssertNil(deviceInfo.mdmId);
 }
 
 - (void)testInitWithJSONDictionary_whenDeviceInfoMissing_shouldInitWithDefaultValue {

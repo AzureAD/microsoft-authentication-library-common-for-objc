@@ -79,3 +79,4 @@ extern NSString * _Nonnull const MSID_BROKER_ACCOUNT_IDENTIFIER;
 extern NSString * _Nonnull const MSID_BROKER_TYPES_OF_HEADER;
 extern NSString * _Nonnull const MSID_ADDITIONAL_EXTENSION_DATA_KEY;
 extern NSString * _Nonnull const MSID_SSO_NONCE_QUERY_PARAM_KEY;
+extern NSString * _Nonnull const MSID_BROKER_MDM_ID_KEY;
