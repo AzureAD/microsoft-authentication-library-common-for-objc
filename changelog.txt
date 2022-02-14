@@ -1,4 +1,4 @@
-TBD
+Version 1.7.5
 * Multitenant PkeyAuth support (#1083)
 * Expose keychain error OSStatus in errors returned by MSIDAssymetricKeyKeychainGenerator (#1079)
 * Prevent logging PII in query to NSDictionary extension method (#1084)
