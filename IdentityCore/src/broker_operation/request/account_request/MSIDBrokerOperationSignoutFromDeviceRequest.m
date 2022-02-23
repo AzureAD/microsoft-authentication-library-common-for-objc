@@ -34,6 +34,7 @@
 NSString *const MSID_SIGNOUT_FROM_BROWSER_KEY = @"signout_from_browser";
 NSString *const MSID_CLEAR_SSO_EXT_COOKIES_KEY = @"clear_sso_extension_cookies";
 NSString *const MSID_WIPE_ACCOUNT_KEY = @"wipe_account";
+NSString *const MSID_WIPE_CACHE_ALL_ACCOUNTS_KEY = @"wipe_cache_all_accounts";
 
 @implementation MSIDBrokerOperationSignoutFromDeviceRequest
 
@@ -69,6 +70,7 @@ NSString *const MSID_WIPE_ACCOUNT_KEY = @"wipe_account";
         _signoutFromBrowser = [json msidBoolObjectForKey:MSID_SIGNOUT_FROM_BROWSER_KEY];
         _clearSSOExtensionCookies = [json msidBoolObjectForKey:MSID_CLEAR_SSO_EXT_COOKIES_KEY];
         _wipeAccount = [json msidBoolObjectForKey:MSID_WIPE_ACCOUNT_KEY];
+        _wipeCacheForAllAccounts = [json msidBoolObjectForKey:MSID_WIPE_CACHE_ALL_ACCOUNTS_KEY];
     }
     
     return self;
@@ -99,6 +101,7 @@ NSString *const MSID_WIPE_ACCOUNT_KEY = @"wipe_account";
     json[MSID_SIGNOUT_FROM_BROWSER_KEY] = [NSString stringWithFormat:@"%d", (int)_signoutFromBrowser];
     json[MSID_CLEAR_SSO_EXT_COOKIES_KEY] = [NSString stringWithFormat:@"%d", (int)_clearSSOExtensionCookies];
     json[MSID_WIPE_ACCOUNT_KEY] = [NSString stringWithFormat:@"%d", (int)_wipeAccount];
+    json[MSID_WIPE_CACHE_ALL_ACCOUNTS_KEY] = [NSString stringWithFormat:@"%d", (int)_wipeCacheForAllAccounts];
     
     return json;
 }

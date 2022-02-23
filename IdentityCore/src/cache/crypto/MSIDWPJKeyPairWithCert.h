@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,33 +20,32 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDSignoutController.h"
 
-#if MSID_ENABLE_SSO_EXTENSION
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDInteractiveRequestParameters;
-@class MSIDOauth2Factory;
+@interface MSIDWPJKeyPairWithCert : NSObject
+{
+    SecCertificateRef _certificateRef;
+    NSData *_certificateData;
+    NSString *_certificateSubject;
+    NSString *_certificateIssuer;
+    SecKeyRef _privateKeyRef;
+}
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionSignoutController : MSIDSignoutController
+@property (nonatomic, readonly) SecKeyRef privateKeyRef;
+@property (nonatomic, readonly) SecCertificateRef certificateRef;
+@property (nonatomic, readonly) NSData *certificateData;
+@property (nonatomic, readonly) NSString *certificateSubject;
+@property (nonatomic, readonly) NSString *certificateIssuer;
 
-@property (nonatomic, readonly) BOOL shouldWipeAccount;
-@property (nonatomic, readonly) BOOL shouldWipeCacheForAllAccounts;
-
-- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                 shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
-                        shouldWipeAccount:(BOOL)shouldWipeAccount
-            shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
-                             oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                                    error:(NSError *_Nullable *_Nullable)error;
- 
-+ (BOOL)canPerformRequest;
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                certificate:(SecCertificateRef)certificate
+                          certificateIssuer:(nullable NSString *)issuer;
 
 @end
 
 NS_ASSUME_NONNULL_END
-#endif

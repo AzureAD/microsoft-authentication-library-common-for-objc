@@ -93,6 +93,9 @@
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error;
 
+- (BOOL)clearCacheForAllAccountsWithContext:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error;
+
 - (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
                                          clientId:(NSString *)clientId
                                          familyId:(NSString *)familyId

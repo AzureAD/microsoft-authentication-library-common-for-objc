@@ -78,6 +78,7 @@
     request.protocolVersion = 99;
     request.clearSSOExtensionCookies = YES;
     request.wipeAccount = NO;
+    request.wipeCacheForAllAccounts = NO;
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNotNil(json);
@@ -92,7 +93,8 @@
                                    @"signout_from_browser": @"1",
                                    @"username": @"upn@upn.com",
                                    @"clear_sso_extension_cookies": @"1",
-                                   @"wipe_account": @"0"
+                                   @"wipe_account": @"0",
+                                   @"wipe_cache_all_accounts": @"0"
     };
     
     XCTAssertTrue([json compareAndPrintDiff:expectedJson]);
