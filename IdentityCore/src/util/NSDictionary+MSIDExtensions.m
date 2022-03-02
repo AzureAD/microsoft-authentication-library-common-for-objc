@@ -53,16 +53,17 @@
     for (NSString *query in queries)
     {
         NSArray *queryElements = [query componentsSeparatedByString:@"="];
-        if (queryElements.count > 2)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Query parameter must be a form key=value: %@", query);
-            continue;
-        }
         
         NSString *key = isFormEncoded ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString].msidURLDecode;
         if ([NSString msidIsStringNilOrBlank:key])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Query parameter must have a key");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Query parameter must have a key");
+            continue;
+        }
+        
+        if (queryElements.count > 2)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Query parameter contains more than one '=' for key: %@", key);
             continue;
         }
         

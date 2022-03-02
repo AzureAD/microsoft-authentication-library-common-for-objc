@@ -63,6 +63,7 @@ static NSArray *deviceModeEnumString;
         
         NSData *jsonData = [json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] dataUsingEncoding:NSUTF8StringEncoding];
         _additionalExtensionData = [NSJSONSerialization msidNormalizedDictionaryFromJsonData:jsonData error:nil];
+        _mdmId = [json msidStringObjectForKey:MSID_BROKER_MDM_ID_KEY];
     }
     
     return self;
@@ -77,7 +78,7 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
     json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] = [self.additionalExtensionData msidJSONSerializeWithContext:nil];
-    
+    json[MSID_BROKER_MDM_ID_KEY] = self.mdmId;
     return json;
 }
 

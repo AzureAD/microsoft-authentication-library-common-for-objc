@@ -39,10 +39,12 @@
                                   challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
 {
-    MSIDAssymetricKeyPairWithCert *info = [MSIDWorkPlaceJoinUtil getWPJKeysWithContext:context];
     NSString *authToken = @"";
     NSString *challengeContext = challengeData ? [challengeData valueForKey:@"Context"] : @"";
     NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";
+    NSString *challengeTenantId = challengeData ? [challengeData valueForKey:@"TenantId"] : @"";
+    
+    MSIDWPJKeyPairWithCert *info = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:challengeTenantId context:context];
     
     if (!info)
     {
@@ -127,7 +129,7 @@
 
 + (NSString *)createDeviceAuthResponse:(NSString *)audience
                                  nonce:(NSString *)nonce
-                              identity:(MSIDAssymetricKeyPairWithCert *)identity
+                              identity:(MSIDWPJKeyPairWithCert *)identity
 {
     if (!audience || !nonce)
     {

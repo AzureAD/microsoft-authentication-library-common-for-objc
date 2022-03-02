@@ -28,10 +28,8 @@
 
 - (instancetype)initWithIdentity:(SecIdentityRef)identity
                       privateKey:(SecKeyRef)privateKey
-                       publicKey:(SecKeyRef)publicKey
                      certificate:(SecCertificateRef)certificate
-               certificateIssuer:(NSString *)issuer
-                  privateKeyDict:(NSDictionary *)keyDict
+               certificateIssuer:(nullable NSString *)issuer
 {
     if (!identity)
     {
@@ -39,10 +37,9 @@
     }
     
     self = [super initWithPrivateKey:privateKey
-                           publicKey:publicKey
                          certificate:certificate
-                   certificateIssuer:issuer
-                        privateKeyDict:keyDict];
+                   certificateIssuer:issuer];
+
     if (self)
     {
         _securityIdentity = identity;
