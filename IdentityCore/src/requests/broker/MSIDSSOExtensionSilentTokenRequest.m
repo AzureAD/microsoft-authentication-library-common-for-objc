@@ -94,11 +94,11 @@
                                                    accountMetadataCache:strongSelf.accountMetadataCache
                                                         validateAccount:NO
                                                                   error:error
-                                                        completionBlock:^(MSIDTokenResult *result, NSError *error)
+                                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
              {
                 MSIDRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
                 strongSelf.requestCompletionBlock = nil;
-                if (error)
+                if (localError)
                 {
                     /**
                      * If SSO-EXT responses error, we should update throttling db
@@ -108,7 +108,7 @@
                         [strongSelf.throttlingService updateThrottlingService:error tokenRequest:strongSelf.operationRequest];
                     }
                 }
-                if (completionBlock) completionBlock(result, error);
+                if (completionBlock) completionBlock(result, localError);
             }];
         };
         

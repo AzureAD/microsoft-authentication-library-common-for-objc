@@ -141,7 +141,7 @@
     
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        MSIDRefreshToken *refreshToken = [accessor getRefreshTokenWithAccount:accountIdentifier
+        refreshToken = [accessor getRefreshTokenWithAccount:accountIdentifier
                                                                      familyId:familyId
                                                                 configuration:configuration
                                                                       context:context
@@ -174,11 +174,11 @@
     
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        MSIDPrimaryRefreshToken *prt = [accessor getPrimaryRefreshTokenWithAccount:accountIdentifier
-                                                                          familyId:familyId
-                                                                     configuration:configuration
-                                                                           context:context
-                                                                             error:error];
+        prt = [accessor getPrimaryRefreshTokenWithAccount:accountIdentifier
+                                                 familyId:familyId
+                                            configuration:configuration
+                                                  context:context
+                                                    error:error];
         
         if (prt)
         {

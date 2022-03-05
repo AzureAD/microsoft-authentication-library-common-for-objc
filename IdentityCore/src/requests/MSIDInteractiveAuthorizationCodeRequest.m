@@ -87,11 +87,11 @@
          }
 
          [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                         completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *error)
+                                                         completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *loadError)
           {
-              if (error)
+              if (loadError)
               {
-                  completionBlock(nil, error, nil);
+                  completionBlock(nil, loadError, nil);
                   return;
               }
 
@@ -104,9 +104,9 @@
 {
     void (^webAuthCompletion)(MSIDWebviewResponse *, NSError *) = ^void(MSIDWebviewResponse *response, NSError *error)
     {
-        void (^returnErrorBlock)(NSError *) = ^(NSError *error)
+        void (^returnErrorBlock)(NSError *) = ^(NSError *localError)
         {
-            NSString *errorString = [error msidServerTelemetryErrorString];
+            NSString *errorString = [localError msidServerTelemetryErrorString];
             if (errorString)
             {
                 [self.lastRequestTelemetry updateWithApiId:[self.requestParameters.telemetryApiId integerValue]
@@ -114,7 +114,7 @@
                                                    context:self.requestParameters];
             }
             
-            completionBlock(nil, error, nil);
+            completionBlock(nil, localError, nil);
         };
         
         if (error)
@@ -162,7 +162,7 @@
         }
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {
-            NSError *error = nil;
+            error = nil;
             MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response
                                                                                                             error:&error];
             if (error)

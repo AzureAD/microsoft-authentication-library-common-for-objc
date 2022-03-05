@@ -108,11 +108,11 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                        userPrincipalName:upn
                                                  context:self.requestParameters
                                          completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
-                                                           __unused BOOL validated, NSError *error)
+                                                           __unused BOOL validated, NSError *localError)
      {
-        if (error)
+        if (localError)
         {
-            completionBlock(nil, error);
+            completionBlock(nil, localError);
             return;
         }
         
@@ -549,31 +549,31 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                        validateAccount:NO
                                       saveSSOStateOnly:NO
                                                  error:nil
-                                       completionBlock:^(MSIDTokenResult *result, NSError *error)
+                                       completionBlock:^(MSIDTokenResult *result, NSError *localError)
          {
             /**
              * If we can't serialize the response from server to tokens and there is error, we want to update throttling service
              */
-            if (error && [MSIDThrottlingService isThrottlingEnabled])
+            if (localError && [MSIDThrottlingService isThrottlingEnabled])
             {
-                [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
+                [self.throttlingService updateThrottlingService:localError tokenRequest:tokenRequest];
             }
             
-            if (!result && [self shouldRemoveRefreshToken:error])
+            if (!result && [self shouldRemoveRefreshToken:localError])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Refresh token invalid, removing it...");
                 NSError *removalError = nil;
-                BOOL result = [self.tokenCache validateAndRemoveRefreshToken:refreshToken
+                BOOL removalResult = [self.tokenCache validateAndRemoveRefreshToken:refreshToken
                                                                      context:self.requestParameters
                                                                        error:&removalError];
                 
-                if (!result)
+                if (!removalResult)
                 {
                     MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Failed to remove invalid refresh token with error %@", MSID_PII_LOG_MASKABLE(removalError));
                 }
             }
             
-            completionBlock(result, error);
+            completionBlock(result, localError);
         }];
     }];
 }

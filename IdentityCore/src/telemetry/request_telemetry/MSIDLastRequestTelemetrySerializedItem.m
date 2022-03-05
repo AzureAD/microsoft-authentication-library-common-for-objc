@@ -103,8 +103,8 @@ static int telemetryStringSizeLimit = 350;
         // Fill in remaining errors with comma at the end of each error
         for (int i = lastIndex - 1; i >= 0; i--)
         {
-            NSString *currentFailedRequest = [NSString stringWithFormat:@"%ld,%@,", (long)self.errorsInfo[i].apiId, self.errorsInfo[i].correlationId ?: @""];
-            NSString *currentErrorMessage = [NSString stringWithFormat:@"%@,", self.errorsInfo[i].error ?: @""];
+            currentFailedRequest = [NSString stringWithFormat:@"%ld,%@,", (long)self.errorsInfo[i].apiId, self.errorsInfo[i].correlationId ?: @""];
+            currentErrorMessage = [NSString stringWithFormat:@"%@,", self.errorsInfo[i].error ?: @""];
             
             NSString *newFailedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
             NSString *newErrorMessagesString = [currentErrorMessage stringByAppendingString:errorMessagesString];

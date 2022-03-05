@@ -86,11 +86,11 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
          __auto_type webFingerRequest = [[MSIDWebFingerRequest alloc] initWithIssuer:issuer
                                                                            authority:authority.url
                                                                              context:context];
-         [webFingerRequest sendWithBlock:^(id response, NSError *error)
+         [webFingerRequest sendWithBlock:^(id response, NSError *webFingerError)
           {
-              if (error)
+              if (webFingerError)
               {
-                  if (completionBlock) completionBlock(nil, NO, error);
+                  if (completionBlock) completionBlock(nil, NO, webFingerError);
                   return;
               }
               
@@ -107,8 +107,8 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
               }
               else
               {
-                  error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil, YES);
-                  if (completionBlock) completionBlock(nil, NO, error);
+                  webFingerError = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil, YES);
+                  if (completionBlock) completionBlock(nil, NO, webFingerError);
               }
           }];
      }];
@@ -121,18 +121,18 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
                    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     __auto_type drsOnPremRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDDRSTypeOnPrem context:context];
-    [drsOnPremRequest sendWithBlock:^(id response, NSError *error)
+    [drsOnPremRequest sendWithBlock:^(id drsOnPremResponse, NSError *drsOnPremError)
      {
-         if (response)
+         if (drsOnPremResponse)
          {
-             if (completionBlock) completionBlock(response, error);
+             if (completionBlock) completionBlock(drsOnPremResponse, drsOnPremError);
              return;
          }
          
          __auto_type drsCloudRequest = [[MSIDDRSDiscoveryRequest alloc] initWithDomain:domain adfsType:MSIDDRSTypeInCloud context:context];
-         [drsCloudRequest sendWithBlock:^(id response, NSError *error)
+        [drsCloudRequest sendWithBlock:^(id drsCloudResponse, NSError *drsCloudError)
           {
-              if (completionBlock) completionBlock(response, error);
+              if (completionBlock) completionBlock(drsCloudResponse, drsCloudError);
           }];
      }];
 }

@@ -166,9 +166,9 @@
             if (![json msidAssertTypeIsOneOf:@[NSDictionary.class] ofKey:key required:YES context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
             
             NSDictionary *claimRequestsJson = json[key];
-            for (NSString *key in [claimRequestsJson allKeys])
+            for (NSString *innerKey in [claimRequestsJson allKeys])
             {
-                NSDictionary *claimRequestJson = @{key: claimRequestsJson[key]};
+                NSDictionary *claimRequestJson = @{innerKey: claimRequestsJson[innerKey]};
                 __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithJSONDictionary:claimRequestJson error:&localError];
                 
                 if (localError)

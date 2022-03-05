@@ -66,20 +66,20 @@
                                        userPrincipalName:upn
                                                  context:self.requestParameters
                                          completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
-                                         __unused BOOL validated, NSError *error)
+                                         __unused BOOL validated, NSError *localError)
      {
-         if (error)
+         if (localError)
          {
-             completionBlock(NO, error);
+             completionBlock(NO, localError);
              return;
          }
 
          [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                         completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *error)
+                                                         completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *loadError)
           {
-             if (error)
+             if (loadError)
              {
-                 completionBlock(NO, error);
+                 completionBlock(NO, loadError);
                  return;
              }
              

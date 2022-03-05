@@ -96,13 +96,13 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
     
-    [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+    [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error)
       {
-          MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
+          MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Received network response: %@, error %@", _PII_NULLIFY(urlResponse), _PII_NULLIFY(error));
           
-          if (response) NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
+          if (urlResponse) NSAssert([urlResponse isKindOfClass:NSHTTPURLResponse.class], NULL);
           
-          __auto_type httpResponse = (NSHTTPURLResponse *)response;
+          __auto_type httpResponse = (NSHTTPURLResponse *)urlResponse;
           
           [self.telemetry responseReceivedEventWithContext:self.context
                                                 urlRequest:self.urlRequest
@@ -110,11 +110,11 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                                                       data:data
                                                      error:error];
         
-        void (^completeBlockWrapper)(id, NSError *) = ^(id response, NSError *error)
+        void (^completeBlockWrapper)(id, NSError *) = ^(id wrapperResponse, NSError *wrapperError)
         {
-            [self.serverTelemetry handleError:error context:self.context];
+            [self.serverTelemetry handleError:wrapperError context:self.context];
             
-            if (completionBlock) { completionBlock(response, error); }
+            if (completionBlock) { completionBlock(wrapperResponse, wrapperError); }
         };
           
           if (error)
@@ -129,7 +129,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
               
               if (responseObject && self->_shouldCacheResponse)
               {
-                  NSCachedURLResponse *cachedResponse = [[NSCachedURLResponse alloc] initWithResponse:response data:data];
+                  NSCachedURLResponse *cachedResponse = [[NSCachedURLResponse alloc] initWithResponse:urlResponse data:data];
                   [self setCachedResponse:cachedResponse forRequest:self.urlRequest];
               }
               

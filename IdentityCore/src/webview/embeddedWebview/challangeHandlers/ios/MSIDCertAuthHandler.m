@@ -171,8 +171,8 @@ static BOOL s_useLastRequestURL = NO;
         
         [s_systemWebViewController startWithCompletionHandler:^(NSURL *callbackURL, NSError *error) {
             
-            MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
-            MSIDOAuth2EmbeddedWebviewController *embeddedViewController = (MSIDOAuth2EmbeddedWebviewController  *)currentSession.webviewController;
+            MSIDWebviewSession *session = [MSIDWebviewAuthorization currentSession];
+            MSIDOAuth2EmbeddedWebviewController *embeddedViewController = (MSIDOAuth2EmbeddedWebviewController  *)session.webviewController;
             
             [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
                 
@@ -182,8 +182,8 @@ static BOOL s_useLastRequestURL = NO;
                 }
                 else
                 {
-                    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected Cert Auth response received.", nil, nil, nil, nil, nil, YES);
-                    [embeddedViewController endWebAuthWithURL:nil error:error];
+                    NSError* unexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected Cert Auth response received.", nil, nil, nil, nil, nil, YES);
+                    [embeddedViewController endWebAuthWithURL:nil error:unexpectedError];
                 }
             }];
         }];
