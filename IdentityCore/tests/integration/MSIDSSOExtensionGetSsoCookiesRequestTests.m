@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 #if MSID_ENABLE_SSO_EXTENSION
 
@@ -49,7 +49,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (void)testExecuteRequest_whenCouldntCreateRequestJSON_shouldReturnNilAndFillError
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     NSError *error;
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequest *request = [[MSIDSSOExtensionGetSsoCookiesRequest alloc] initWithRequestParameters:params
@@ -60,12 +60,12 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                                                                                                       error:&error];
     XCTAssertNotNil(request);
     XCTestExpectation *expectation = [self expectationWithDescription:@"Execute request"];
-    [request executeRequestWithCompletion:^(NSArray<MSIDCredentialHeader *> * _Nullable prtHeaders, NSArray<MSIDCredentialHeader *> * _Nullable deviceHeaders, NSError * _Nullable error) {
-        XCTAssertNotNil(error);
+    [request executeRequestWithCompletion:^(NSArray<MSIDCredentialHeader *> * _Nullable prtHeaders, NSArray<MSIDCredentialHeader *> * _Nullable deviceHeaders, NSError * _Nullable localError) {
+        XCTAssertNotNil(localError);
         XCTAssertNil(prtHeaders);
         XCTAssertNil(deviceHeaders);
-        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-        XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+        XCTAssertEqualObjects(localError.domain, MSIDErrorDomain);
+        XCTAssertEqual(localError.code, MSIDErrorInvalidInternalParameter);
         [expectation fulfill];
     }];
     [self waitForExpectations:@[expectation] timeout:1];
@@ -74,7 +74,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (void)testExecuteRequest_whenErrorResponseFromSSOExtension_shouldReturnNilResultAndFillError
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
                                                                                                                       headerTypes:@[@(MSIDHeaderTypeAll)]
@@ -83,14 +83,14 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                                                                                                       correlationId:[NSUUID UUID]
                                                                                                                               error:nil];
     XCTAssertNotNil(request);
-    
+
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
-    
+
     request.authorizationControllerToReturn = authorizationControllerMock;
-    
+
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
-    
+
     [request executeRequestWithCompletion:^(NSArray<MSIDCredentialHeader *> * _Nullable prtHeaders, NSArray<MSIDCredentialHeader *> * _Nullable deviceHeaders, NSError * _Nullable error) {
         XCTAssertNil(prtHeaders);
         XCTAssertNil(deviceHeaders);
@@ -100,18 +100,18 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Invalid param");
         XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
         XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"bad_token");
-        
+
         [executeRequestExpectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     XCTAssertNotNil(authorizationControllerMock.delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
-    
+
     NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Invalid param", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     NSError *error = [NSError errorWithDomain:ASAuthorizationErrorDomain code:MSIDSSOExtensionUnderlyingError userInfo:@{NSUnderlyingErrorKey : msidError}];
-    
+
     __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
     [delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
@@ -120,7 +120,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (void)testExecuteRequest_whenSuccessResponseFromSSOExtension_withNoSsoCookie_shouldReturnNilResultAndNilError
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
                                                                                                                       headerTypes:@[@(MSIDHeaderTypeAll)]
@@ -129,26 +129,26 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                                                                                                       correlationId:[NSUUID UUID]
                                                                                                                               error:nil];
     XCTAssertNotNil(request);
-    
+
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
-    
+
     request.authorizationControllerToReturn = authorizationControllerMock;
-    
+
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
-    
+
     [request executeRequestWithCompletion:^(NSArray<MSIDCredentialHeader *> * _Nullable prtHeaders, NSArray<MSIDCredentialHeader *> * _Nullable deviceHeaders, NSError * _Nullable error) {
         XCTAssertNil(prtHeaders);
         XCTAssertNil(deviceHeaders);
         XCTAssertNil(error);
         [executeRequestExpectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     XCTAssertNotNil(authorizationControllerMock.delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
-    
+
     NSDictionary *responseJSON = @{
         @"operation" : @"get_sso_cookies",
         @"success" : @"1",
@@ -158,9 +158,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         @"sso_cookies": @""
     };
-    
+
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
-    
+
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
     __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
     [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
@@ -170,7 +170,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (void)testExecuteRequest_whenSuccessResponseFromSSOExtension_withCredentialHeaderPresent_shouldReturnNonEmptyResultAndNilError
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
                                                                                                                       headerTypes:@[@(MSIDHeaderTypePrt), @(MSIDHeaderTypeDeviceRegistration)]
@@ -179,14 +179,14 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                                                                                                       correlationId:[NSUUID UUID]
                                                                                                                               error:nil];
     XCTAssertNotNil(request);
-    
+
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
-    
+
     request.authorizationControllerToReturn = authorizationControllerMock;
-    
+
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
-    
+
     [request executeRequestWithCompletion:^(NSArray<MSIDCredentialHeader *> * _Nullable prtHeaders, NSArray<MSIDCredentialHeader *> * _Nullable deviceHeaders, NSError * _Nullable error) {
         XCTAssertNotNil(prtHeaders);
         XCTAssertNotNil(deviceHeaders);
@@ -195,12 +195,12 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         XCTAssertNil(error);
         [executeRequestExpectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     XCTAssertNotNil(authorizationControllerMock.delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
-    
+
     NSDictionary *ssoCookies =
     @{
         @"prt_headers":
@@ -233,9 +233,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                }
             ]
     };
-    
+
     NSString *jsonSsoCookiesString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:ssoCookies options:0 error:nil] encoding:NSUTF8StringEncoding];
-    
+
     NSDictionary *responseJSON = @{
         @"operation" : @"get_sso_cookies",
         @"success" : @"1",
@@ -245,9 +245,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         @"sso_cookies": jsonSsoCookiesString
     };
-    
+
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
-    
+
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
     __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
     [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
@@ -257,7 +257,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (void)testExecuteRequest_whenCorruptResponseFromSSOExtension_shouldReturnErrorFromJSONDecoder
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
                                                                                                                       headerTypes:@[@(MSIDHeaderTypeAll)]
@@ -266,26 +266,26 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                                                                                                       correlationId:[NSUUID UUID]
                                                                                                                               error:nil];
     XCTAssertNotNil(request);
-    
+
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
-    
+
     request.authorizationControllerToReturn = authorizationControllerMock;
-    
+
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
-    
+
     [request executeRequestWithCompletion:^(NSArray<MSIDCredentialHeader *> * _Nullable prtHeaders, NSArray<MSIDCredentialHeader *> * _Nullable deviceHeaders, NSError * _Nullable error) {
         XCTAssertNil(prtHeaders);
         XCTAssertNil(deviceHeaders);
         XCTAssertNil(error);
         [executeRequestExpectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     XCTAssertNotNil(authorizationControllerMock.delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
-    
+
     NSDictionary *responseJSON = @{
         @"operation" : @"get_sso_cookies",
         @"success" : @"1",
@@ -295,9 +295,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         @"sso_cookies": @"{^!&@(!)@}"
     };
-    
+
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
-    
+
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
     __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
     [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];

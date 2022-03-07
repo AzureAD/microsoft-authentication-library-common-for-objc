@@ -98,7 +98,7 @@
 - (void)setUp
 {
     [super setUp];
-    
+
     self.request = [MSIDHttpRequest new];
 }
 
@@ -146,19 +146,19 @@
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
     self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
-                                                         reponse:[NSHTTPURLResponse new]];
-    [MSIDTestURLSession addResponse:response];
-    
+    MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:urlWithParameters
+                                                                reponse:[NSHTTPURLResponse new]];
+    [MSIDTestURLSession addResponse:testUrlResponse];
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request"];
     [self.request sendWithBlock:^(id response, NSError *error)
      {
          XCTAssertNil(response);
          XCTAssertNil(error);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
@@ -168,19 +168,19 @@
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:baseUrl
-                                                         reponse:[NSHTTPURLResponse new]];
-    [MSIDTestURLSession addResponse:response];
-    
+    MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:baseUrl
+                                                                reponse:[NSHTTPURLResponse new]];
+    [MSIDTestURLSession addResponse:testUrlResponse];
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request"];
     [self.request sendWithBlock:^(id response, NSError *error)
      {
          XCTAssertNil(response);
          XCTAssertNil(error);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
@@ -192,12 +192,12 @@
     urlRequest.HTTPMethod = @"POST";
     self.request.urlRequest = urlRequest;
     self.request.parameters = parameters;
-    
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:baseUrl
-                                                         reponse:[NSHTTPURLResponse new]];
-    [response setUrlFormEncodedBody:parameters];
-    [MSIDTestURLSession addResponse:response];
-    
+
+    MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:baseUrl
+                                                                reponse:[NSHTTPURLResponse new]];
+    [testUrlResponse setUrlFormEncodedBody:parameters];
+    [MSIDTestURLSession addResponse:testUrlResponse];
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"POST Request"];
     [self.request sendWithBlock:^(id response, NSError *error)
      {
@@ -218,20 +218,20 @@
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
     self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
-                                                         reponse:[NSHTTPURLResponse new]];
-    response->_error = [NSError new];
-    [MSIDTestURLSession addResponse:response];
-    
+    MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:urlWithParameters
+                                                                reponse:[NSHTTPURLResponse new]];
+    testUrlResponse->_error = [NSError new];
+    [MSIDTestURLSession addResponse:testUrlResponse];
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request With Error"];
     [self.request sendWithBlock:^(id response, NSError *error)
      {
          XCTAssertNil(response);
          XCTAssertNotNil(error);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
@@ -249,16 +249,16 @@
     self.request.context = passedContext;
     self.request.errorHandler = testErrorHandler;
     self.request.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
-                                                         reponse:httpResponse];
-    [MSIDTestURLSession addResponses:@[response]];
+    MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:urlWithParameters
+                                                                reponse:httpResponse];
+    [MSIDTestURLSession addResponses:@[testUrlResponse]];
     [self keyValueObservingExpectationForObject:testErrorHandler keyPath:@"handleErrorInvokedCounts" expectedValue:@1];
-    
+
     [self.request sendWithBlock:^(__unused id response, __unused NSError *error) {}];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    XCTAssertEqualObjects(testErrorHandler.passedError, response->_error);
-    XCTAssertEqualObjects(testErrorHandler.passedHttpResponse, response->_response);
+    XCTAssertEqualObjects(testErrorHandler.passedError, testUrlResponse->_error);
+    XCTAssertEqualObjects(testErrorHandler.passedHttpResponse, testUrlResponse->_response);
     XCTAssertEqualObjects(testErrorHandler.passedHttpRequest, self.request);
     XCTAssertEqualObjects(testErrorHandler.passedContext, passedContext);
     XCTAssertEqualObjects(testErrorHandler.responseSerializer, self.request.responseSerializer);
@@ -280,17 +280,17 @@
     self.request.errorHandler = testErrorHandler;
     self.request.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
     self.request.errorResponseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
-    
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
-                                                         reponse:httpResponse];
-    [MSIDTestURLSession addResponses:@[response]];
+
+    MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:urlWithParameters
+                                                                reponse:httpResponse];
+    [MSIDTestURLSession addResponses:@[testUrlResponse]];
     [self keyValueObservingExpectationForObject:testErrorHandler keyPath:@"handleErrorInvokedCounts" expectedValue:@1];
-    
+
     [self.request sendWithBlock:^(__unused id response, __unused NSError *error) {}];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    XCTAssertEqualObjects(testErrorHandler.passedError, response->_error);
-    XCTAssertEqualObjects(testErrorHandler.passedHttpResponse, response->_response);
+    XCTAssertEqualObjects(testErrorHandler.passedError, testUrlResponse->_error);
+    XCTAssertEqualObjects(testErrorHandler.passedHttpResponse, testUrlResponse->_response);
     XCTAssertEqualObjects(testErrorHandler.passedHttpRequest, self.request);
     XCTAssertEqualObjects(testErrorHandler.passedContext, passedContext);
     XCTAssertEqualObjects(testErrorHandler.responseSerializer, self.request.errorResponseSerializer);
@@ -310,23 +310,23 @@
     urlRequest.HTTPMethod = @"GET";
     self.request.urlRequest = urlRequest;
     self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
-    
-    MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
-                                                         reponse:httpResponse];
+
+    MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:urlWithParameters
+                                                                reponse:httpResponse];
     __auto_type responseJson = @{@"p" : @"v"};
-    [response setResponseJSON:responseJson];
-    [MSIDTestURLSession addResponse:response];
-    
+    [testUrlResponse setResponseJSON:responseJson];
+    [MSIDTestURLSession addResponse:testUrlResponse];
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request"];
     [self.request sendWithBlock:^(id response, NSError *error)
      {
          XCTAssertNotNil(response);
          XCTAssertEqualObjects(responseJson, response);
          XCTAssertNil(error);
-         
+
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 

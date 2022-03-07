@@ -81,7 +81,7 @@
 - (void)setUp
 {
     [super setUp];
-    
+
     self.errorHandler = [MSIDAADRequestErrorHandler new];
 }
 
@@ -94,7 +94,6 @@
 
 - (void)testHandleError_whenItIsServerError_shouldRetryRequestAndDecreseRetryCounter
 {
-    __auto_type error = [NSError new];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
                                                            statusCode:500
                                                           HTTPVersion:nil
@@ -105,19 +104,19 @@
     __auto_type block = ^(__unused id response, __unused NSError *error) {
         isBlockInvoked = YES;
     };
-    
+
     [self keyValueObservingExpectationForObject:httpRequest keyPath:@"sendWithBlockCounter" expectedValue:@1];
-    
-    [self.errorHandler handleError:error
+
+    [self.errorHandler handleError:[NSError new]
                       httpResponse:httpResponse
                               data:nil
                        httpRequest:httpRequest
                 responseSerializer:[MSIDHttpResponseSerializer new]
                            context:context
                    completionBlock:block];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    
+
     XCTAssertEqualObjects(block, httpRequest.passedBlock);
     XCTAssertEqual(1, httpRequest.sendWithBlockCounter);
     XCTAssertEqual(0, httpRequest.retryCounter);
@@ -126,7 +125,6 @@
 
 - (void)testHandleError_whenItIsNotServerError_shouldNotRetry
 {
-    __auto_type error = [NSError new];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
                                                            statusCode:400
                                                           HTTPVersion:nil
@@ -137,20 +135,20 @@
     __auto_type block = ^(__unused id response, __unused NSError *error) {
         isBlockInvoked = YES;
     };
-    
+
     __auto_type expectation = [self keyValueObservingExpectationForObject:httpRequest keyPath:@"sendWithBlockCounter" expectedValue:@1];
     expectation.inverted = YES;
-    
-    [self.errorHandler handleError:error
+
+    [self.errorHandler handleError:[NSError new]
                       httpResponse:httpResponse
                               data:nil
                        httpRequest:httpRequest
                 responseSerializer:[MSIDHttpResponseSerializer new]
                            context:context
                    completionBlock:block];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    
+
     XCTAssertNil(httpRequest.passedBlock);
     XCTAssertEqual(0, httpRequest.sendWithBlockCounter);
     XCTAssertTrue(isBlockInvoked);
@@ -158,14 +156,13 @@
 
 - (void)testHandleError_whenItIsNotServerError_shouldReturnStatusCodeAndHeaders
 {
-    __auto_type error = [NSError new];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
                                                            statusCode:403
                                                           HTTPVersion:nil
                                                          headerFields:@{@"headerKey":@"headerValue"}];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
-    
+
     __block id errorResponse;
     __block NSError *returnError;
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
@@ -176,29 +173,28 @@
     };
     __auto_type jsonErrorPayload = @{@"p1" : @"v1"};
     id data = [NSJSONSerialization dataWithJSONObject:jsonErrorPayload options:0 error:nil];
-    
+
     MSIDAADTokenResponseSerializer *serializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
-    
-    [self.errorHandler handleError:error
+
+    [self.errorHandler handleError:[NSError new]
                       httpResponse:httpResponse
                               data:data
                        httpRequest:httpRequest
                 responseSerializer:serializer
                            context:context
                    completionBlock:block];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    
+
     XCTAssertEqualObjects(returnError.domain, MSIDHttpErrorCodeDomain);
     XCTAssertEqual(returnError.code, MSIDErrorServerUnhandledResponse);
     XCTAssertEqualObjects(returnError.userInfo[MSIDHTTPHeadersKey], @{@"headerKey":@"headerValue"});
-    
+
     XCTAssertNil(errorResponse);
 }
 
 - (void)testHandleError_whenItIsServerErrorAndJSONResponseReturned_shouldReturnTokenResponse
 {
-    __auto_type error = [NSError new];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
                                                            statusCode:400
                                                           HTTPVersion:nil
@@ -221,10 +217,10 @@
                                      @"suberror": @"I'm a suberror"
                                      };
     id data = [NSJSONSerialization dataWithJSONObject:jsonErrorPayload options:0 error:nil];
-    
+
     MSIDAADTokenResponseSerializer *serializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
 
-    [self.errorHandler handleError:error
+    [self.errorHandler handleError:[NSError new]
                       httpResponse:httpResponse
                               data:data
                        httpRequest:httpRequest
@@ -233,7 +229,7 @@
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    
+
     XCTAssertNotNil(errorResponse);
     MSIDAADTokenResponse *tokenResponse = (MSIDAADTokenResponse *)errorResponse;
     XCTAssertTrue([tokenResponse isKindOfClass:[MSIDTokenResponse class]]);
@@ -246,7 +242,6 @@
 
 - (void)testHandleError_whenItIsServerError_shouldReturnResponseCodeInError
 {
-    __auto_type error = [NSError new];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
                                                            statusCode:404
                                                           HTTPVersion:nil
@@ -254,25 +249,25 @@
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
     __block NSError *returnError;
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
     __auto_type block = ^(__unused id response, NSError *error) {
         returnError = error;
         [expectation fulfill];
     };
-    
+
     MSIDAADTokenResponseSerializer *serializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
-    
-    [self.errorHandler handleError:error
+
+    [self.errorHandler handleError:[NSError new]
                       httpResponse:httpResponse
                               data:nil
                        httpRequest:httpRequest
                 responseSerializer:serializer
                            context:context
                    completionBlock:block];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    
+
     XCTAssertEqualObjects(returnError.domain, MSIDHttpErrorCodeDomain);
     XCTAssertEqual(returnError.code, MSIDErrorServerUnhandledResponse);
     XCTAssertEqualObjects(returnError.userInfo[MSIDHTTPResponseCodeKey], @"404");
@@ -280,7 +275,6 @@
 
 - (void)testHandleError_whenNoErorDescriptionInBody_shouldReturnLocalizedErrorDescription
 {
-    __auto_type error = [NSError new];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new]
                                                            statusCode:403
                                                           HTTPVersion:nil
@@ -288,25 +282,25 @@
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
     __block NSError *returnError;
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
     __auto_type block = ^(__unused id response, NSError *error) {
         returnError = error;
         [expectation fulfill];
     };
-    
+
     MSIDAADTokenResponseSerializer *serializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
-    
-    [self.errorHandler handleError:error
+
+    [self.errorHandler handleError:[NSError new]
                       httpResponse:httpResponse
                               data:nil
                        httpRequest:httpRequest
                 responseSerializer:serializer
                            context:context
                    completionBlock:block];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    
+
     XCTAssertEqualObjects(returnError.userInfo[MSIDErrorDescriptionKey], @"forbidden");
 }
 
@@ -321,19 +315,19 @@
     __auto_type context = [MSIDTestContext new];
     __block MSIDAADTokenResponse *errorResponse;
     __block NSError *returnError;
-    
+
     __auto_type json = @{@"error" : @"invalid_request", @"error_description": @"Invalid format for 'authorization_endpoint' value.",};
     NSData *responseData = [NSJSONSerialization dataWithJSONObject:json options:0 error:&error];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
-    __auto_type block = ^(id response, NSError *error) {
-        returnError = error;
+    __auto_type block = ^(id response, NSError *completionError) {
+        returnError = completionError;
         errorResponse = response;
         [expectation fulfill];
     };
-    
+
     MSIDAADTokenResponseSerializer *serializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
-    
+
     [self.errorHandler handleError:error
                       httpResponse:httpResponse
                               data:responseData
@@ -341,9 +335,9 @@
                 responseSerializer:serializer
                            context:context
                    completionBlock:block];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
-    
+
     XCTAssertEqualObjects(errorResponse.errorDescription, @"Invalid format for 'authorization_endpoint' value.");
     XCTAssertEqualObjects(errorResponse.error, @"invalid_request");
 }
