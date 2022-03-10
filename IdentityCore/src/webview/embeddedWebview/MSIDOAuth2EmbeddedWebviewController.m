@@ -317,7 +317,7 @@
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
-    if (_navigationResponseBlock && navigationResponse && navigationResponse.response)
+    if (self.navigationResponseBlock && navigationResponse && navigationResponse.response)
     {
         NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
         if (response)
