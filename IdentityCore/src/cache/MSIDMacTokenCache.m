@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP && TARGET_OS_OSX
+
 #import "MSIDMacTokenCache.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDLegacyTokenCacheKey.h"
@@ -536,3 +538,4 @@ return NO; \
 
 @end
 
+#endif
