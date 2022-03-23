@@ -43,12 +43,14 @@
                               error:(NSError **)error
 {
     NSError *underlyingError;
+#if !EXCLUDE_FROM_MSALCPP
     if ([MSIDB2CAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         __auto_type b2cAuthority = [[MSIDB2CAuthority alloc] initWithURL:url validateFormat:YES rawTenant:rawTenant context:context error:&underlyingError];
         if (b2cAuthority) return b2cAuthority;
     }
-    
+#endif
+
     if ([MSIDADFSAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         __auto_type adfsAuthority = [[MSIDADFSAuthority alloc] initWithURL:url context:context error:&underlyingError];

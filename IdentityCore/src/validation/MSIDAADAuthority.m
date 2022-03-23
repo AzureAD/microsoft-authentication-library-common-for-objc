@@ -183,7 +183,8 @@
         }
         return NO;
     }
-    
+
+#if !EXCLUDE_FROM_MSALCPP
     if ([MSIDB2CAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         if (error)
@@ -193,7 +194,8 @@
         }
         return NO;
     }
-    
+#endif
+
     return tenant != nil;
 }
 
