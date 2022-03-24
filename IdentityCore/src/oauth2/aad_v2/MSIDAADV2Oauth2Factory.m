@@ -157,6 +157,8 @@
 
 #pragma mark - Network requests
 
+#if !EXCLUDE_FROM_MSALCPP
+
 - (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                                          codeVerifier:(NSString *)pkceCodeVerifier
                                                                              authCode:(NSString *)authCode
@@ -245,6 +247,8 @@
 
     return tokenRequest;
 }
+
+#endif
 
 #pragma mark - Authority
 

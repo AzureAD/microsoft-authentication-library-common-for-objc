@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDAADV1AuthorizationCodeRequest.h"
 
 @implementation MSIDAADV1AuthorizationCodeRequest
@@ -51,3 +53,5 @@
 }
 
 @end
+
+#endif

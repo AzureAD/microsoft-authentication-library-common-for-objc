@@ -6,6 +6,8 @@
 //  Copyright © 2018 Microsoft. All rights reserved.
 //
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDAADJsonResponsePreprocessor.h"
 
@@ -22,3 +24,5 @@
 }
 
 @end
+
+#endif
