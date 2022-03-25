@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDAADV2IdTokenClaims.h"
 
 @interface MSIDB2CIdTokenClaims : MSIDAADV2IdTokenClaims
@@ -33,3 +35,5 @@
 @property (readonly) NSString *tfp;
 
 @end
+
+#endif

@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDAdfsAuthorityResolver.h"
 #import "MSIDADFSAuthority.h"
 #import "MSIDWebFingerRequest.h"
@@ -181,3 +183,5 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
 }
 
 @end
+
+#endif

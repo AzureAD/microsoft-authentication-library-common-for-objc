@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 #import <XCTest/XCTest.h>
 #import "MSIDExternalAADCacheSeeder.h"
 #import "MSIDAADV2TokenResponse.h"
@@ -379,3 +378,4 @@
 }
 
 @end
+

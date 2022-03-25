@@ -6,6 +6,8 @@
 //  Copyright © 2018 Microsoft. All rights reserved.
 //
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTokenResponseSerializer.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -15,3 +17,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

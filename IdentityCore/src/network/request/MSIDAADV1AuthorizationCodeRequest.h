@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDAADAuthorizationCodeRequest.h"
 
 @interface MSIDAADV1AuthorizationCodeRequest : MSIDAADAuthorizationCodeRequest
@@ -40,3 +42,5 @@
                                     context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end
+
+#endif

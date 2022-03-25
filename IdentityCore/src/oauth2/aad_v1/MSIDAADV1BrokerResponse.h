@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDBrokerResponse.h"
 
 @interface MSIDAADV1BrokerResponse : MSIDBrokerResponse
@@ -33,3 +35,5 @@
 @property (readonly) NSString *userId;
 
 @end
+
+#endif
