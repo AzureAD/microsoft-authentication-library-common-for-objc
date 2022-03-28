@@ -1,5 +1,6 @@
 TBD
 * Add more utilities for test automation
+* Fix a warning during telemetry decoding
 
 Version 1.7.5
 * Multitenant PkeyAuth support (#1083)
