@@ -120,4 +120,18 @@ static NSDictionary *s_tenantMappingDictionary;
     return nil;
 }
 
+- (NSString *)targetTenantId
+{
+    if (![NSString msidIsStringNilOrBlank:self.overriddenTargetTenantId]) return self.overriddenTargetTenantId;
+    
+    return _targetTenantId;
+}
+
+- (NSString *)keyvaultName
+{
+    if (![NSString msidIsStringNilOrBlank:self.overriddenKeyvaultName]) return self.overriddenKeyvaultName;
+    
+    return _keyvaultName;
+}
+
 @end
