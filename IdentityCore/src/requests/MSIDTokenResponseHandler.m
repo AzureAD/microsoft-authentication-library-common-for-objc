@@ -107,7 +107,7 @@
         completionBlock(tokenResult, nil);
     };
     
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
     if (self.externalCacheSeeder != nil)
     {
         [self.externalCacheSeeder seedTokenResponse:tokenResponse
