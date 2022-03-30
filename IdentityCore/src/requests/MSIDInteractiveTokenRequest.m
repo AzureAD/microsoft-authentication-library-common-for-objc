@@ -73,8 +73,9 @@
     return self;
 }
 
-- (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock) __unused completionBlock
 {
+#if !EXCLUDE_FROM_MSALCPP
 #if TARGET_OS_IPHONE
     [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 #endif
@@ -91,13 +92,15 @@
         
         [self acquireTokenWithCodeResult:result completion:completionBlock];
     }];
+#endif
 }
 
 #pragma mark - Helpers
 
-- (void)acquireTokenWithCodeResult:(MSIDAuthorizationCodeResult *)authCodeResult
-                        completion:(MSIDInteractiveRequestCompletionBlock)completionBlock
+- (void)acquireTokenWithCodeResult:(MSIDAuthorizationCodeResult *) __unused authCodeResult
+                        completion:(MSIDInteractiveRequestCompletionBlock) __unused completionBlock
 {
+#if !EXCLUDE_FROM_MSALCPP
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.oauthFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
                                                                                                            codeVerifier:authCodeResult.pkceVerifier
                                                                                                                authCode:authCodeResult.authCode
@@ -125,6 +128,7 @@
             completionBlock(result, error, nil);
         }];
     }];
+#endif
 }
 
 @end

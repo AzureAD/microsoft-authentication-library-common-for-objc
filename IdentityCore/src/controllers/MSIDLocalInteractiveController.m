@@ -36,9 +36,6 @@
 #endif
 #import "MSIDWebWPJResponse.h"
 #import "MSIDThrottlingService.h"
-#import "MSIDDefaultTokenRequestProvider.h"
-#import "MSIDDefaultTokenRequestProvider+Internal.h"
-#import "MSIDDefaultTokenCacheAccessor.h"
 
 @interface MSIDLocalInteractiveController()
 

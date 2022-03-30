@@ -173,7 +173,8 @@
     if (![super isAuthorityFormatValid:url context:context error:error]) return NO;
     
     __auto_type tenant = [self tenantFromAuthorityUrl:url context:context error:error];
-    
+
+#if !EXCLUDE_FROM_MSALCPP
     if ([MSIDADFSAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         if (error)
@@ -183,7 +184,7 @@
         }
         return NO;
     }
-    
+
     if ([MSIDB2CAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         if (error)
@@ -193,7 +194,8 @@
         }
         return NO;
     }
-    
+#endif
+
     return tenant != nil;
 }
 

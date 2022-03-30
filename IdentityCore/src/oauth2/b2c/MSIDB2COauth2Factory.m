@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDB2COauth2Factory.h"
 #import "MSIDB2CTokenResponse.h"
 #import "MSIDOauth2Factory+Internal.h"
@@ -146,3 +148,5 @@
 }
 
 @end
+
+#endif

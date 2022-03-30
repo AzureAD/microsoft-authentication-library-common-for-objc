@@ -404,9 +404,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     return ![NSString msidIsStringNilOrBlank:msidError.msidOauthError];
 }
 
-- (void)redeemAccessTokenWith:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-              completionBlock:(MSIDRequestCompletionBlock)completionBlock
+- (void)redeemAccessTokenWith:(MSIDBaseToken<MSIDRefreshableToken> *) __unused refreshToken
+              completionBlock:(MSIDRequestCompletionBlock) __unused completionBlock
 {
+#if !EXCLUDE_FROM_MSALCPP
     if (!refreshToken)
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
@@ -438,11 +439,13 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                completionBlock:completionBlock];
         
     }];
+#endif
 }
 
-- (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-                         completionBlock:(MSIDRequestCompletionBlock)completionBlock
+- (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *) __unused refreshToken
+                         completionBlock:(MSIDRequestCompletionBlock) __unused completionBlock
 {
+#if !EXCLUDE_FROM_MSALCPP
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
     
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
@@ -475,6 +478,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             }
         }];
     }
+#endif
 }
 
 - (void)sendTokenRequestImpl:(MSIDRequestCompletionBlock)completionBlock

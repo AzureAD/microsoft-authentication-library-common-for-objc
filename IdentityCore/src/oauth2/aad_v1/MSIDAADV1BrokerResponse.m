@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDAADV1BrokerResponse.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDBrokerResponse+Internal.h"
@@ -82,3 +84,5 @@ MSID_FORM_ACCESSOR(@"user_id", userId);
 }
 
 @end
+
+#endif
