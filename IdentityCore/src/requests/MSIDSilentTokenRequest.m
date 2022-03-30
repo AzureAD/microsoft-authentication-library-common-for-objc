@@ -442,9 +442,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 #endif
 }
 
-- (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-                         completionBlock:(MSIDRequestCompletionBlock)completionBlock
+- (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *) __unused refreshToken
+                         completionBlock:(MSIDRequestCompletionBlock) __unused completionBlock
 {
+#if !EXCLUDE_FROM_MSALCPP
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
     
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
@@ -477,6 +478,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             }
         }];
     }
+#endif
 }
 
 - (void)sendTokenRequestImpl:(MSIDRequestCompletionBlock)completionBlock
