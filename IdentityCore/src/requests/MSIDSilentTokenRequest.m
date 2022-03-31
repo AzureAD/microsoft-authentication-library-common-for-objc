@@ -494,7 +494,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
              */
             if ([MSIDThrottlingService isThrottlingEnabled])
             {
-                [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
+                [self.throttlingService updateThrottlingService:error tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest];
             }
             
             BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
