@@ -560,7 +560,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
              */
             if (error && [MSIDThrottlingService isThrottlingEnabled])
             {
-                [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
+                [self.throttlingService updateThrottlingService:error tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest];
             }
             
             if (!result && [self shouldRemoveRefreshToken:error])
