@@ -2,6 +2,9 @@ TBD
 * Add more utilities for test automation
 * Fix a warning during telemetry decoding
 
+Version 1.7.6
+* Enable exclusion of unused IdentityCore code in MSAL C++ (#1092)
+
 Version 1.7.5
 * Multitenant PkeyAuth support (#1083)
 * Expose keychain error OSStatus in errors returned by MSIDAssymetricKeyKeychainGenerator (#1079)

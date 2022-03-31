@@ -41,7 +41,7 @@
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
 #endif
 
@@ -442,9 +442,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 #endif
 }
 
-- (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-                         completionBlock:(MSIDRequestCompletionBlock)completionBlock
+- (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *) __unused refreshToken
+                         completionBlock:(MSIDRequestCompletionBlock) __unused completionBlock
 {
+#if !EXCLUDE_FROM_MSALCPP
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
     
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
@@ -477,8 +478,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             }
         }];
     }
+#endif
 }
 
+#if !EXCLUDE_FROM_MSALCPP
 - (void)sendTokenRequestImpl:(MSIDRequestCompletionBlock)completionBlock
                 refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                 tokenRequest:(MSIDRefreshTokenGrantRequest *)tokenRequest
@@ -579,6 +582,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         }];
     }];
 }
+#endif
+
 #pragma mark - Abstract
 
 - (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error

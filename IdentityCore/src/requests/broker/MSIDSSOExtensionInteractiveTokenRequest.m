@@ -85,7 +85,7 @@
 #endif
             __typeof__(self) strongSelf = weakSelf;
             
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
             strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
 #endif
             [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse

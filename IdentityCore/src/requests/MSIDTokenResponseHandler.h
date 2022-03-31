@@ -24,7 +24,10 @@
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
 
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 @class MSIDExternalAADCacheSeeder;
+#endif
+
 @class MSIDTokenResponse;
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
@@ -36,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDTokenResponseHandler : NSObject
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
 #endif
 
