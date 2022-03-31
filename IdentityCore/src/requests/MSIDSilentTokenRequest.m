@@ -481,6 +481,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 #endif
 }
 
+#if !EXCLUDE_FROM_MSALCPP
 - (void)sendTokenRequestImpl:(MSIDRequestCompletionBlock)completionBlock
                 refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                 tokenRequest:(MSIDRefreshTokenGrantRequest *)tokenRequest
@@ -494,7 +495,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
              */
             if ([MSIDThrottlingService isThrottlingEnabled])
             {
-                [self.throttlingService updateThrottlingService:error tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest];
+                [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
             }
             
             BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
@@ -540,7 +541,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             return;
         }
         
-#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
+#if TARGET_OS_OSX
         self.tokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
 #endif
         [self.tokenResponseHandler handleTokenResponse:tokenResponse
@@ -560,7 +561,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
              */
             if (error && [MSIDThrottlingService isThrottlingEnabled])
             {
-                [self.throttlingService updateThrottlingService:error tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest];
+                [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
             }
             
             if (!result && [self shouldRemoveRefreshToken:error])
@@ -581,6 +582,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         }];
     }];
 }
+#endif
+
 #pragma mark - Abstract
 
 - (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error
