@@ -25,10 +25,13 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponseValidator.h"
-#import "MSIDExternalAADCacheSeeder.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
+#import "MSIDExternalAADCacheSeeder.h"
+#endif
 
 @implementation MSIDTokenResponseHandler
 
