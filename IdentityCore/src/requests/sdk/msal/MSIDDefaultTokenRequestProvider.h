@@ -29,7 +29,7 @@
 @class MSIDTokenResponseValidator;
 @class MSIDAccountMetadataCacheAccessor;
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 @class MSIDExternalAADCacheSeeder;
 #endif
 
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
 #endif
 

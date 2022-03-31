@@ -41,7 +41,7 @@
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
 #endif
 
@@ -540,7 +540,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             return;
         }
         
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
         self.tokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
 #endif
         [self.tokenResponseHandler handleTokenResponse:tokenResponse
