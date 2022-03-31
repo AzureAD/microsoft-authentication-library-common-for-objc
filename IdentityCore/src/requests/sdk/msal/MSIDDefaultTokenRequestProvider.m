@@ -59,7 +59,7 @@
                                                                               tokenCache:self.tokenCache
                                                                     accountMetadataCache:self.accountMetadataCache
                                                                       extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
     request.externalCacheSeeder = self.externalCacheSeeder;
 #endif
     
@@ -76,7 +76,7 @@
                                                                                 tokenCache:self.tokenCache
                                                                       accountMetadataCache:self.accountMetadataCache];
     
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
     request.externalCacheSeeder = self.externalCacheSeeder;
 #endif
     
