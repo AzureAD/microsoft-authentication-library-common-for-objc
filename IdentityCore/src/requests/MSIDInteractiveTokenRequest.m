@@ -40,7 +40,7 @@
 #import "MSIDBackgroundTaskManager.h"
 #endif
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
 #endif
 
