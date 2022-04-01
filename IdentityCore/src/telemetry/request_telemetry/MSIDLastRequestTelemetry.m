@@ -212,7 +212,7 @@ static int maxErrorCountToArchive = 75;
     NSInteger schemaVersion = [decoder decodeIntegerForKey:kSchemaVersion];
     NSInteger silentSuccessfulCount = [decoder decodeIntegerForKey:kSilentSuccessfulCount];
     
-    NSSet *classes = [NSSet setWithObjects:[NSMutableArray class], [MSIDRequestTelemetryErrorInfo class], nil];
+    NSSet *classes = [NSSet setWithObjects:[NSMutableArray class], [NSString class], [MSIDRequestTelemetryErrorInfo class], nil];
     NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo = [decoder decodeObjectOfClasses:classes forKey:kErrorsInfo];
     
     return [self initFromDecodedObjectWithSchemaVersion:schemaVersion silentSuccessfulCount:silentSuccessfulCount errorsInfo:errorsInfo];
