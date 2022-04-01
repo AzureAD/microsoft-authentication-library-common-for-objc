@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !EXCLUDE_FROM_MSALCPP
-
 #import <XCTest/XCTest.h>
 #import "MSIDExternalAADCacheSeeder.h"
 #import "MSIDAADV2TokenResponse.h"
@@ -380,5 +378,3 @@
 }
 
 @end
-
-#endif
