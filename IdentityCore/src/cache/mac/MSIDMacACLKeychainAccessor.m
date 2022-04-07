@@ -49,16 +49,20 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     self = [super init];
     if (self)
     {
-        NSArray *appList = [self trustedAppListWithCurrentApp:error];
-        
-        if (![appList count])
-        {
-            return nil;
-        }
-        
         NSMutableArray *allTrustedApps = [NSMutableArray new];
-        [allTrustedApps addObjectsFromArray:trustedApplications];
-        [allTrustedApps addObjectsFromArray:appList];
+        if (![trustedApplications count])
+        {
+            NSArray *appList = [self trustedAppListWithCurrentApp:error];
+            if (![appList count])
+            {
+                return nil;
+            }
+            [allTrustedApps addObjectsFromArray:appList];
+        }
+        else
+        {
+             [allTrustedApps addObjectsFromArray:trustedApplications];
+        }
         
         self.accessControlForSharedItems = [self accessCreateWithChangeACL:allTrustedApps accessLabel:accessLabel error:error];
         if (!self.accessControlForSharedItems)
