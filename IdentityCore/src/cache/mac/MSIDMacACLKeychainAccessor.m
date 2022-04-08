@@ -50,9 +50,10 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     if (self)
     {
         NSMutableArray *allTrustedApps = [NSMutableArray new];
+        NSArray *appList;
         if (![trustedApplications count])
         {
-            NSArray *appList = [self trustedAppListWithCurrentApp:error];
+            appList = [self trustedAppListWithCurrentApp:error];
             if (![appList count])
             {
                 return nil;
@@ -69,13 +70,15 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
         {
             return nil;
         }
-        
-        self.accessControlForNonSharedItems = [self accessCreateWithChangeACL:appList accessLabel:accessLabel error:error];
-        if (!self.accessControlForNonSharedItems)
+
+        if ([appList count])
         {
-            return nil;
+            self.accessControlForNonSharedItems = [self accessCreateWithChangeACL:appList accessLabel:accessLabel error:error];
+            if (!self.accessControlForNonSharedItems)
+            {
+                return nil;
+            }
         }
-        
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Init MSIDMacACLPersistentTokenCache");
     }
 
