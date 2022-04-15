@@ -28,6 +28,7 @@
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDCache.h"
+#import "MSIDBackgroundTaskData.h"
 
 @interface MSIDBackgroundTaskManager()
 
@@ -65,55 +66,65 @@
 
 /*
  Background task execution:
- https://forums.developer.apple.com/message/253232#253232
+ https://developer.apple.com/forums/thread/85066
  */
 
 - (void)startOperationWithType:(MSIDBackgroundTaskType)type
 {
-    UIBackgroundTaskIdentifier backgroundTask = [self backgroundTaskWithType:type];
-    
-    if (backgroundTask != UIBackgroundTaskInvalid)
+    @synchronized (self.taskCache)
     {
-        // Background task already started
-        return;
+        MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
+        if (backgroundTaskData)
+        {
+            // A background task was already started for this type, updating count
+            backgroundTaskData.callerReferenceCount++;
+            return;
+        }
+        UIBackgroundTaskIdentifier backgroundTaskId = [[MSIDAppExtensionUtil sharedApplication] beginBackgroundTaskWithName:@"Interactive login"
+                                                                                                          expirationHandler:^{
+                                                                        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Background task expired for type %ld.", (long)type);
+                                                                    // If a task took too long & OS has decided to kill it, end bg task for that type regardless of other requsts relying on bg protection.
+                                                                        [self expireOperationWithType:type];
+                                                                    }];
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Start background app task with type %ld & taskId : %lu", (long)type, (unsigned long)backgroundTaskId);
+        [self setBackgroundTask:[[MSIDBackgroundTaskData alloc] initWithTaskId:backgroundTaskId] forType:type];
     }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Start background app task with type %ld", (long)type);
-    
-    backgroundTask = [[MSIDAppExtensionUtil sharedApplication] beginBackgroundTaskWithName:@"Interactive login"
-                                                                  expirationHandler:^{
-                                                                      MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Background task expired for type %ld", (long)type);
-                                                                      [self stopOperationWithType:type];
-                                                                  }];
-    
-    [self setBackgroundTask:backgroundTask forType:type];
 }
 
 - (void)stopOperationWithType:(MSIDBackgroundTaskType)type
 {
-    UIBackgroundTaskIdentifier backgroundTask = [self backgroundTaskWithType:type];
-    
-    if (backgroundTask == UIBackgroundTaskInvalid)
+    @synchronized (self.taskCache)
     {
-        // Background task not started
-        return;
+        MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
+        backgroundTaskData.callerReferenceCount--;
+        if (!backgroundTaskData || backgroundTaskData.callerReferenceCount > 0)
+        {
+            // No background task found in task cache for specified type or there are still other tasks relying on background protection.
+            return;
+        }
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Stop background task with type %ld & taskId : %lu", (long)type, backgroundTaskData.backgroundTaskId);
+        [[MSIDAppExtensionUtil sharedApplication] endBackgroundTask:backgroundTaskData.backgroundTaskId];
+        [self.taskCache removeObjectForKey:@(type)];
     }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Stop background task with type %ld", (long)type);
-    [[MSIDAppExtensionUtil sharedApplication] endBackgroundTask:backgroundTask];
-    [self setBackgroundTask:UIBackgroundTaskInvalid forType:type];
+}
+
+- (void)expireOperationWithType:(MSIDBackgroundTaskType)type
+{
+    MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
+    backgroundTaskData.callerReferenceCount = 1;
+    [self stopOperationWithType:type];
 }
 
 #pragma mark - Task dictionary
 
-- (UIBackgroundTaskIdentifier)backgroundTaskWithType:(MSIDBackgroundTaskType)type
+- (MSIDBackgroundTaskData *)backgroundTaskWithType:(MSIDBackgroundTaskType)type
 {
-    return [[self.taskCache objectForKey:@(type)] unsignedIntValue];
+    return [self.taskCache objectForKey:@(type)];
 }
 
-- (void)setBackgroundTask:(UIBackgroundTaskIdentifier)backgroundTask forType:(MSIDBackgroundTaskType)type
+- (void)setBackgroundTask:(MSIDBackgroundTaskData *)backgroundTaskData forType:(MSIDBackgroundTaskType)type
 {
-    [self.taskCache setObject:@(backgroundTask) forKey:@(type)];
+    [self.taskCache setObject:backgroundTaskData forKey:@(type)];
 }
 
 @end

@@ -169,9 +169,10 @@
     result[MSID_OAUTH2_LOGIN_HINT] = parameters.accountIdentifier.displayableId ?: parameters.loginHint;
     
     // Extra query params
-    if (parameters.allAuthorizeRequestExtraParameters)
+    __auto_type allAuthorizeRequestExtraParameters = [parameters allAuthorizeRequestExtraParametersWithMetadata:YES];
+    if (allAuthorizeRequestExtraParameters)
     {
-        [result addEntriesFromDictionary:parameters.allAuthorizeRequestExtraParameters];
+        [result addEntriesFromDictionary:allAuthorizeRequestExtraParameters];
     }
     
     // PKCE

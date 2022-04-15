@@ -41,9 +41,9 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
 - (void)setUp
 {
-    [self swizzleMethod:@selector(getWPJKeysWithContext:)
+    [self swizzleMethod:@selector(getWPJKeysWithTenantId:context:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
-             withMethod:@selector(getWPJKeysWithContext:)
+             withMethod:@selector(swizzled_getWPJKeysWithTenantId:context:)
               fromClass:[self class]
      ];
     
@@ -52,9 +52,9 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
 - (void)tearDown
 {
-    [self swizzleMethod:@selector(getWPJKeysWithContext:)
+    [self swizzleMethod:@selector(getWPJKeysWithTenantId:context:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
-             withMethod:@selector(getWPJKeysWithContext:)
+             withMethod:@selector(swizzled_getWPJKeysWithTenantId:context:)
               fromClass:[self class]
      ];
     
@@ -246,7 +246,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     method_exchangeImplementations(originalMethod, mockMethod);
 }
 
-+ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(__unused id<MSIDRequestContext>)context
++ (MSIDWPJKeyPairWithCert *)swizzled_getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
 {
     return s_registrationInformationToReturn;
 }

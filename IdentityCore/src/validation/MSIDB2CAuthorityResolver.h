@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import <Foundation/Foundation.h>
 #import "MSIDAadAuthorityResolver.h"
 
@@ -29,3 +31,5 @@
 @interface MSIDB2CAuthorityResolver : MSIDAadAuthorityResolver
 
 @end
+
+#endif

@@ -35,31 +35,31 @@
 
 @interface MSIDAccount : NSObject <NSCopying, MSIDJsonSerializable>
 
-@property (readwrite) MSIDAccountType accountType;
-@property (readwrite) NSString *localAccountId;
+@property (atomic, readwrite) MSIDAccountType accountType;
+@property (atomic, readwrite) NSString *localAccountId;
 
 /*
  'storageEnvironment' is used only for latter token deletion.
  We can not use 'environment' because cache item could be saved with
  'preferred authority' and it might not be equal to provided 'authority'.
  */
-@property (readwrite) NSString *storageEnvironment;
-@property (readwrite) NSString *environment;
-@property (readwrite) NSString *realm;
+@property (atomic, readwrite) NSString *storageEnvironment;
+@property (atomic, readwrite) NSString *environment;
+@property (atomic, readwrite) NSString *realm;
 /*
  'idTokenClaims' is used to convey corresponding the id token claims for the account.
  */
-@property (readwrite) MSIDIdTokenClaims *idTokenClaims;
+@property (atomic, readwrite) MSIDIdTokenClaims *idTokenClaims;
 
-@property (readwrite) NSString *username;
-@property (readwrite) NSString *givenName;
-@property (readwrite) NSString *middleName;
-@property (readwrite) NSString *familyName;
-@property (readwrite) NSString *name;
-@property (readwrite) MSIDAccountIdentifier *accountIdentifier;
-@property (readwrite) MSIDClientInfo *clientInfo;
-@property (readwrite) NSString *alternativeAccountId;
-@property (readwrite) BOOL isSSOAccount;
+@property (atomic, readwrite) NSString *username;
+@property (atomic, readwrite) NSString *givenName;
+@property (atomic, readwrite) NSString *middleName;
+@property (atomic, readwrite) NSString *familyName;
+@property (atomic, readwrite) NSString *name;
+@property (atomic, readwrite) MSIDAccountIdentifier *accountIdentifier;
+@property (atomic, readwrite) MSIDClientInfo *clientInfo;
+@property (atomic, readwrite) NSString *alternativeAccountId;
+@property (atomic, readwrite) BOOL isSSOAccount;
 
 - (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem;
 - (MSIDAccountCacheItem *)accountCacheItem;

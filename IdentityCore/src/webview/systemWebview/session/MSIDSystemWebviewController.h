@@ -44,8 +44,8 @@
 
 - (BOOL)handleURLResponse:(NSURL *)url;
 
-@property (readonly) NSURL *startURL;
-@property (readonly) NSURL *redirectURL;
+@property (atomic, readonly) NSURL *startURL;
+@property (atomic, readonly) NSURL *redirectURL;
 
 @property (weak, nonatomic) MSIDViewController *parentController;
 

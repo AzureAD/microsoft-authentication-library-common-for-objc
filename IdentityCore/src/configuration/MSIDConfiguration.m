@@ -37,9 +37,9 @@ NSString *const MSID_TOKEN_TYPE_JSON_KEY = @"token_type";
 
 @interface MSIDConfiguration()
 
-@property (readwrite) NSString *resource;
-@property (readwrite) NSString *target;
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
+@property (atomic, readwrite) NSString *resource;
+@property (atomic, readwrite) NSString *target;
+@property (atomic, readwrite) NSOrderedSet<NSString *> *scopes;
 
 @end
 

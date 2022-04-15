@@ -27,8 +27,8 @@
 
 @interface MSIDTestURLSession : NSObject
 
-@property id delegate;
-@property NSOperationQueue* delegateQueue;
+@property (atomic) id delegate;
+@property (atomic) NSOperationQueue* delegateQueue;
 
 - (id)initWithDelegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
 

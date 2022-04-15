@@ -236,6 +236,7 @@
                                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory
                                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                                  shouldWipeAccount:(BOOL)shouldWipeAccount
+                                     shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
                                                              error:(NSError **)error
 {
     if ([parameters shouldUseBroker])
@@ -247,6 +248,7 @@
                 return [[MSIDSSOExtensionSignoutController alloc] initWithRequestParameters:parameters
                                                                    shouldSignoutFromBrowser:shouldSignoutFromBrowser
                                                                           shouldWipeAccount:shouldWipeAccount
+                                                              shouldWipeCacheForAllAccounts:shouldWipeCacheForAllAccounts
                                                                                oauthFactory:oauthFactory
                                                                                       error:error];
             }

@@ -27,8 +27,6 @@
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDThrottlingService.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
-#import "MSIDDefaultTokenRequestProvider.h"
-#import "MSIDDefaultTokenRequestProvider+Internal.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDInteractiveTokenRequest+Internal.h"
 
@@ -56,25 +54,24 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker extension flow.");
     
-    __typeof__(self) __weak weakSelf = self;
     MSIDInteractiveTokenRequest *request = [self.tokenRequestProvider interactiveSSOExtensionTokenRequestWithParameters:self.interactiveRequestParamaters];
 
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         if (!error)
         {
             /**
              Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
              */
-            [MSIDThrottlingService updateLastRefreshTimeDatasource:request.extendedTokenCache context:weakSelf.interactiveRequestParamaters error:nil];
+            [MSIDThrottlingService updateLastRefreshTimeDatasource:request.extendedTokenCache context:self.interactiveRequestParamaters error:nil];
            
         }
-        else if ([weakSelf shouldFallback:error])
+        else if ([self shouldFallback:error])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Falling back to local controller.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Falling back to local controller.");
             
-            [weakSelf.fallbackController acquireToken:completionBlock];
+            [self.fallbackController acquireToken:completionBlock];
             return;
         }
         

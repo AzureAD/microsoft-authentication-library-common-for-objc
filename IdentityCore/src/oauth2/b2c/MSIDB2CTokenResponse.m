@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDB2CTokenResponse.h"
 #import "MSIDB2CIdTokenClaims.h"
 #import "MSIDTokenResponse+Internal.h"
@@ -50,3 +52,5 @@
 }
 
 @end
+
+#endif

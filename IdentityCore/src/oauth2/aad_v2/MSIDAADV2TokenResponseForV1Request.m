@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP_FOR_MACOS
+
 #import "MSIDAADV2TokenResponseForV1Request.h"
 #import "MSIDTokenResponse+Internal.h"
 #import "MSIDAADV1IdTokenClaims.h"
@@ -33,3 +35,5 @@
 }
 
 @end
+
+#endif

@@ -34,9 +34,11 @@ __weak static UIAlertController *_presentedPrompt = nil;
 + (void)dismissPrompt
 {
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        if (_presentedPrompt.presentingViewController)
+        __typeof__(_presentedPrompt) __strong presentedPrompt = _presentedPrompt;
+        
+        if (presentedPrompt.presentingViewController)
         {
-            [_presentedPrompt.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+            [presentedPrompt.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
         
         _presentedPrompt = nil;

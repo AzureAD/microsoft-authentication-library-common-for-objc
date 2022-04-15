@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDAuthority.h"
 
 @interface MSIDADFSAuthority : MSIDAuthority
@@ -30,3 +32,5 @@
                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
+
+#endif

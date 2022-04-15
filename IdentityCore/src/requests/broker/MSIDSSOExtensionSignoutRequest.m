@@ -44,6 +44,7 @@
 @property (nonatomic, readonly) MSIDProviderType providerType;
 @property (nonatomic) BOOL shouldSignoutFromBrowser;
 @property (nonatomic) BOOL clearSSOExtensionCookies;
+@property (nonatomic) BOOL shouldWipeCacheForAllAccounts;
 
 @end
 
@@ -53,6 +54,7 @@
                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                  shouldWipeAccount:(BOOL)shouldWipeAccount
                           clearSSOExtensionCookies:(BOOL)clearSSOExtensionCookies
+                     shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
 {
     self = [self initWithRequestParameters:parameters oauthFactory:oauthFactory];
@@ -62,6 +64,7 @@
         _shouldSignoutFromBrowser = shouldSignoutFromBrowser;
         _clearSSOExtensionCookies = clearSSOExtensionCookies;
         _shouldWipeAccount = shouldWipeAccount;
+        _shouldWipeCacheForAllAccounts = shouldWipeCacheForAllAccounts;
     }
     
     return self;
@@ -84,8 +87,9 @@
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, parameters, @"Finished logout request with error %@", MSID_PII_LOG_MASKABLE(error));
             }
             
-            MSIDSignoutRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-            weakSelf.requestCompletionBlock = nil;
+            __typeof__(self) strongSelf = weakSelf;
+            MSIDSignoutRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+            strongSelf.requestCompletionBlock = nil;
             
             if (completionBlock) completionBlock(operationResponse.success, error);
         };
@@ -118,6 +122,7 @@
     signoutRequest.signoutFromBrowser = self.shouldSignoutFromBrowser;
     signoutRequest.clearSSOExtensionCookies = self.clearSSOExtensionCookies;
     signoutRequest.wipeAccount = self.shouldWipeAccount;
+    signoutRequest.wipeCacheForAllAccounts = self.shouldWipeCacheForAllAccounts;
     
     [MSIDBrokerOperationRequest fillRequest:signoutRequest
                         keychainAccessGroup:self.requestParameters.keychainAccessGroup

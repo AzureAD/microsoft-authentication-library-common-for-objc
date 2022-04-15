@@ -52,6 +52,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                                                                        shouldSignoutFromBrowser:YES
                                                                                               shouldWipeAccount:NO
                                                                                        clearSSOExtensionCookies:NO
+                                                                                  shouldWipeCacheForAllAccounts:NO
                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]];
     XCTAssertNotNil(request);
     
@@ -81,6 +82,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                                                                        shouldSignoutFromBrowser:YES
                                                                                               shouldWipeAccount:NO
                                                                                        clearSSOExtensionCookies:NO
+                                                                                  shouldWipeCacheForAllAccounts:NO
                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]];
     XCTAssertNotNil(request);
     
@@ -125,7 +127,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     NSError *error = [NSError errorWithDomain:ASAuthorizationErrorDomain code:ASAuthorizationErrorCanceled userInfo:nil];
     
-    [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
+    __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
+    [delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
 }
 
@@ -160,7 +163,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Invalid param", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     NSError *error = [NSError errorWithDomain:ASAuthorizationErrorDomain code:MSIDSSOExtensionUnderlyingError userInfo:@{NSUnderlyingErrorKey : msidError}];
     
-    [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
+    __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
+    [delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
 }
 
@@ -173,6 +177,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                                                                                shouldSignoutFromBrowser:YES
                                                                                                       shouldWipeAccount:YES
                                                                                                clearSSOExtensionCookies:NO
+                                                                                          shouldWipeCacheForAllAccounts:NO
                                                                                                            oauthFactory:[MSIDAADV2Oauth2Factory new]];
     
     XCTAssertNotNil(request);
@@ -211,7 +216,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseHeaders];
     
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
-    [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
+    __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
+    [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
 }
 
@@ -224,6 +230,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                                                                                shouldSignoutFromBrowser:YES
                                                                                                       shouldWipeAccount:NO
                                                                                                clearSSOExtensionCookies:NO
+                                                                                          shouldWipeCacheForAllAccounts:NO
                                                                                                            oauthFactory:[MSIDAADV2Oauth2Factory new]];
     
     XCTAssertNotNil(request);

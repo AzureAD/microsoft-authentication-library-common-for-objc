@@ -683,6 +683,43 @@
     return result;
 }
 
+- (BOOL)clearCacheForAllAccountsWithContext:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error
+{
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default accessor) Clearing cache for all accounts");
+
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    
+    BOOL result = YES;
+    NSError *accountRemovalError;
+    
+    result = [_accountCredentialCache clearWithContext:context error:&accountRemovalError];
+    
+    if (!result)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to remove all accounts with error %@", MSID_PII_LOG_MASKABLE(accountRemovalError));
+        if (error) *error = accountRemovalError;
+    }
+    
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+    
+    // Clear cache from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        accountRemovalError = nil;
+        if (![accessor clearWithContext:context
+                                  error:&accountRemovalError])
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to clear all cache from other accessor:  %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(accountRemovalError));
+            // Return new error if there wasn't a previous error (if any during primary cache cleanup)
+            if (error && result) *error = accountRemovalError;
+            result = NO;
+        }
+    }
+    
+    return result;
+}
+
 - (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error

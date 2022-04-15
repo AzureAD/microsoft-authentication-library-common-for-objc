@@ -51,7 +51,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveParameters;
 @property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
-@property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
+@property (atomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
 @end
 

@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDHttpRequest.h"
 #import "MSIDDRSType.h"
 
@@ -33,3 +35,5 @@
 + (instancetype _Nullable)new NS_UNAVAILABLE;
 
 @end
+
+#endif

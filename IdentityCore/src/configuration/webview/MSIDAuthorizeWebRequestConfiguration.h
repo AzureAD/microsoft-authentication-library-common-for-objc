@@ -33,7 +33,7 @@
 @interface MSIDAuthorizeWebRequestConfiguration : MSIDBaseWebRequestConfiguration
 
 // PKCE Support
-@property (readonly) MSIDPkce *pkce;
+@property (atomic, readonly) MSIDPkce *pkce;
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                   endRedirectUri:(NSString *)endRedirectUri

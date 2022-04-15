@@ -40,6 +40,7 @@
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                  shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                         shouldWipeAccount:(BOOL)shouldWipeAccount
+            shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
                                     error:(NSError * _Nullable * _Nullable)error
 {
@@ -51,6 +52,7 @@
     if (self)
     {
         _shouldWipeAccount = shouldWipeAccount;
+        _shouldWipeCacheForAllAccounts = shouldWipeCacheForAllAccounts;
     }
     
     return self;
@@ -64,6 +66,7 @@
                                                                       shouldSignoutFromBrowser:NO
                                                                              shouldWipeAccount:self.shouldWipeAccount
                                                                       clearSSOExtensionCookies:NO
+                                                                 shouldWipeCacheForAllAccounts:self.shouldWipeCacheForAllAccounts
                                                                                   oauthFactory:self.factory];
         
     [self.currentSSORequest executeRequestWithCompletion:^(BOOL success, NSError * _Nullable error) {

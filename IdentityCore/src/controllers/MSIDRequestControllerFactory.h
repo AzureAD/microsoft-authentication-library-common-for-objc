@@ -46,6 +46,7 @@
                                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                                  shouldWipeAccount:(BOOL)shouldWipeAccount
+                                     shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
                                                              error:(NSError * _Nullable * _Nullable)error;
 
 @end

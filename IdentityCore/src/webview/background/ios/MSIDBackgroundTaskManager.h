@@ -30,7 +30,8 @@
 typedef NS_ENUM(NSInteger, MSIDBackgroundTaskType)
 {
     MSIDBackgroundTaskTypeInteractiveRequest = 0,
-    MSIDBackgroundTaskTypeSilentRequest
+    MSIDBackgroundTaskTypeSilentRequest,
+    MSIDBackgroundTaskTypeBrokerRequest
 };
 
 NS_ASSUME_NONNULL_BEGIN

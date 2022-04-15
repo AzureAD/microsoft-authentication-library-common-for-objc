@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDLegacyTokenResponseValidator.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTokenResult.h"
@@ -126,3 +128,5 @@
 }
 
 @end
+
+#endif
