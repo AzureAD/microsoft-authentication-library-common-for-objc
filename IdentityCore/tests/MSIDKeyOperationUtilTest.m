@@ -5,7 +5,6 @@
 //  Created by Ameya Patil on 9/29/21.
 //  Copyright © 2021 Microsoft. All rights reserved.
 //
-#if !TARGET_OS_SIMULATOR
 #import <XCTest/XCTest.h>
 #import "MSIDKeyOperationUtil.h"
 #import "MSIDJwtAlgorithm.h"
@@ -257,4 +256,3 @@
     }
 }
 @end
-#endif
