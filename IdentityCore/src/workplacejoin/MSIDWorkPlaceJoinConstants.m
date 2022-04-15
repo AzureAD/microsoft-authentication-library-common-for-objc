@@ -31,5 +31,5 @@ NSString *const kMSIDPKeyAuthUrn                        = @"urn:http-auth:PKeyAu
 NSString *const kMSIDPKeyAuthHeader                     = @"x-ms-PkeyAuth+";
 NSString *const kMSIDPKeyAuthHeaderVersion              = @"1.0";
 NSString *const kMSIDWwwAuthenticateHeader              = @"WWW-Authenticate";
-NSString *const kMSIDPKeyAuthName                       = @"PKeyAuth+";
+NSString *const kMSIDPKeyAuthName                       = @"PKeyAuth";
 NSString *const kMSIDPKeyAuthKeyWordForUserAgent        = @"PKeyAuth+/1.0";
