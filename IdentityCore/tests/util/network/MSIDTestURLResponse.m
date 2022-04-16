@@ -46,7 +46,7 @@
         headers[@"x-app-name"] = @"UnitTestHost";
         headers[@"x-app-ver"] = @"1.0";
         
-        headers[@"x-ms-PkeyAuth"] = @"1.0";
+        headers[@"x-ms-PkeyAuth+"] = @"1.0";
         
         // TODO: This really shouldn't be a default header...
         headers[@"Content-Type"] = @"application/x-www-form-urlencoded";
