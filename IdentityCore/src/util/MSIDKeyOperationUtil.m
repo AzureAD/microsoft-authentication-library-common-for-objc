@@ -63,7 +63,7 @@
     {
         return MSID_JWT_ALG_ES256;
     }
-    
+    *error = nil;
     if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context error:error])
     {
         return MSID_JWT_ALG_RS256;
