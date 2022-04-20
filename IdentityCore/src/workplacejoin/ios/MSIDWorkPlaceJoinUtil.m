@@ -73,6 +73,12 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
         }
     }
     
+    if (!tenantId)
+    {
+        // default registration should have a tenantId associated.
+        return legacyKeys;
+    }
+    
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
     NSString *tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];

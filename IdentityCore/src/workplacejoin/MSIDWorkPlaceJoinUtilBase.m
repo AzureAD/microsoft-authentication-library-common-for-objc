@@ -114,14 +114,28 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
     queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
     queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
-    // TODO: hardcoding this to query RSA keys only for now. Once ECC registration is ready and tested, after removing this line, code should be able to find either ECC or RSA keys, since there should be single key corresponding to the tag per tenant
-    queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
     
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
     if (status != errSecSuccess)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find workplace join private key with status %ld", (long)status);
-        return nil;
+        if (privateKeyCFDict == NULL)
+        {
+            // Checking if key exists in Secure Enclave
+            NSData *tagData = queryPrivateKey[(__bridge id)kSecAttrApplicationTag];
+            NSString *tag = [[NSString alloc] initWithData:tagData encoding:NSUTF8StringEncoding];
+            if (![tag hasSuffix:@"-EC"])
+            {
+                tag = [NSString stringWithFormat:@"%@%@", tag, @"-EC"];
+                queryPrivateKey[(__bridge id)kSecAttrApplicationTag] = [tag dataUsingEncoding:NSUTF8StringEncoding];
+            }
+            status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
+        }
+        
+        if (status != errSecSuccess)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find workplace join private key with status %ld", (long)status);
+            return nil;
+        }
     }
         
     NSDictionary *privateKeyDict = CFBridgingRelease(privateKeyCFDict); // -1 privateKeyCFDict
