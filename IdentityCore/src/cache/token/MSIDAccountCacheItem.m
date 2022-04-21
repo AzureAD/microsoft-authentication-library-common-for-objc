@@ -193,16 +193,19 @@
 {
     if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
     {
+        MSID_LOG_VERBOSE(nil, @"(MSIDAccountCacheItem ) homeAccountId doesn't match");
         return NO;
     }
 
     if (environment && ![self.environment isEqualToString:environment])
     {
+        MSID_LOG_VERBOSE(nil, @"(MSIDAccountCacheItem) environment doesn't match");
         return NO;
     }
 
     if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
     {
+        MSID_LOG_VERBOSE(nil, @"(MSIDAccountCacheItem) environmentAliases doesn't match");
         return NO;
     }
 
