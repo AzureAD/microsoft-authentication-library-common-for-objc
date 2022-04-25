@@ -35,8 +35,9 @@ def get_guid_i(device) :
 	latest_os_version = None
 	
 	for line in p.stdout :
-		lineStr = line.decode('utf-8')
-		sys.stdout.write(lineStr.encode('UTF-8'))
+        sys.stdout.buffer.write(line)
+        strLine = line.decode(sys.stdout.encoding)
+        
 		if (dev_name_regex.match(line) == None) :
 			continue
 		
@@ -71,7 +72,6 @@ def get_guid(device) :
 
 def print_failure(device) :
 	print "Failed to find GUID for device : " + device
-	subprocess.call("instruments -s devices", shell=True)
 	raise Exception("Failed to get device GUID")
 
 def get_ios(device) :
