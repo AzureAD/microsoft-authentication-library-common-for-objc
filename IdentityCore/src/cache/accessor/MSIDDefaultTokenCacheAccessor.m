@@ -328,7 +328,7 @@
     MSID_LOG_VERBOSE(context, @"(Default accessor) number of accounts from default cache %lu", (unsigned long)accountCacheItems.count);
     for (MSIDAccountCacheItem *cacheItem in accountCacheItems)
     {
-        MSID_LOG_VERBOSE(context, @"(Default accessor) cacheItem with hashed username %@, homeAccountId %@, localAccountid %@, alternativeAccountId %@", [cacheItem.username msidTokenHash], [cacheItem.homeAccountId msidTokenHash], [cacheItem.localAccountId msidTokenHash], cacheItem.alternativeAccountId);
+        MSID_LOG_VERBOSE(context, @"(Default accessor) cacheItem with hashed username %@, homeAccountId %@, localAccountid %@, alternativeAccountId %@", [cacheItem.username msidTokenHash], [cacheItem.homeAccountId msidTokenHash], [cacheItem.localAccountId msidTokenHash], [cacheItem.alternativeAccountId msidTokenHash]);
     }
     
     for (MSIDAccountCacheItem *cacheItem in accountCacheItems)
