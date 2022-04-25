@@ -20,7 +20,7 @@ def is_version_higher(orig_version, new_version) :
 	return False
 
 def get_guid_i(device) :
-	device_regex = re.compile("[A-Za-z0-9 ]+ ?(?:\\(([0-9.]+)\\))? \\[([A-F0-9-]+)\\]")
+	device_regex = re.compile("[A-Za-z0-9 ]+ ?(?:\\(([0-9.]+)\\))? \\(([A-F0-9-]+)\\)")
 	version_regex = re.compile("([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?")
 	
 	command = "xcrun xctrace list devices"
