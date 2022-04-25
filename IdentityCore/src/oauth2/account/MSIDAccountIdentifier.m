@@ -23,9 +23,12 @@
 
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClientInfo.h"
+#import "NSString+MSIDExtensions.h"
 
 @implementation MSIDAccountIdentifier
 
+@synthesize hashedHomeAccountId = _hashedHomeAccountId;
+@synthesize hashedLegacyAccountId = _hashedLegacyAccountId;
 #pragma mark - Init
 
 - (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
@@ -95,6 +98,28 @@
     result &= (!self.homeAccountId && !account.homeAccountId) || [self.homeAccountId isEqualToString:account.homeAccountId];
     result &= (!self.legacyAccountId && !account.legacyAccountId) || [self.legacyAccountId isEqualToString:account.legacyAccountId];
     return result;
+}
+
+- (NSString *)hashedHomeAccountId
+{
+    if (!self.homeAccountId || [self.homeAccountId isEqualToString:@""]) return nil;
+    if (_hashedHomeAccountId)
+    {
+        return _hashedHomeAccountId;
+    }
+    _hashedHomeAccountId = [self.homeAccountId msidTokenHash];
+    return _hashedHomeAccountId;
+}
+
+- (NSString *)hashedLegacyAccountId
+{
+    if (!self.legacyAccountId || [self.legacyAccountId isEqualToString:@""]) return nil;
+    if (_hashedLegacyAccountId)
+    {
+        return _hashedLegacyAccountId;
+    }
+    _hashedLegacyAccountId = [self.legacyAccountId msidTokenHash];
+    return _hashedLegacyAccountId;
 }
 
 @end

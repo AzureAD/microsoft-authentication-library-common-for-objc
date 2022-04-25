@@ -309,7 +309,7 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for account with client ID %@, family ID %@, authority %@, hashed legacyAccountid %@, hashed homeAccountId %@", configuration.clientId, familyId, configuration.authority, [accountIdentifier.legacyAccountId msidTokenHash], [accountIdentifier.homeAccountId msidTokenHash]);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for account with client ID %@, family ID %@, authority %@, hashed legacyAccountid %@, hashed homeAccountId %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.hashedLegacyAccountId, accountIdentifier.hashedHomeAccountId);
     MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for account with client ID %@, family ID %@, authority %@, legacy user ID %@, home account ID %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.legacyAccountId, accountIdentifier.homeAccountId);
 
     MSIDDefaultAccountCacheQuery *cacheQuery = [MSIDDefaultAccountCacheQuery new];
@@ -328,7 +328,7 @@
     MSID_LOG_VERBOSE(context, @"(Default accessor) number of accounts from default cache %lu", (unsigned long)accountCacheItems.count);
     for (MSIDAccountCacheItem *cacheItem in accountCacheItems)
     {
-        MSID_LOG_VERBOSE(context, @"(Default accessor) cacheItem with hashed username %@, homeAccountId %@, localAccountid %@, alternativeAccountId %@", cacheItem.username, cacheItem.homeAccountId, cacheItem.localAccountId, cacheItem.alternativeAccountId);
+        MSID_LOG_VERBOSE(context, @"(Default accessor) cacheItem with hashed username %@, homeAccountId %@, localAccountid %@, alternativeAccountId %@", [cacheItem.username msidTokenHash], [cacheItem.homeAccountId msidTokenHash], [cacheItem.localAccountId msidTokenHash], cacheItem.alternativeAccountId);
     }
     
     for (MSIDAccountCacheItem *cacheItem in accountCacheItems)

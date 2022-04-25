@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,24 +20,35 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
 
-@class MSIDClientInfo;
+#import <XCTest/XCTest.h>
+#import "MSIDAccountIdentifier.h"
 
-@interface MSIDAccountIdentifier : NSObject <NSCopying>
+@interface MSIDMSIDAccountIdentifierTests : XCTestCase
 
-@property (nonatomic, readwrite) NSString *homeAccountId;
-@property (nonatomic, readwrite) NSString *legacyAccountId;
+@end
 
-@property (nonatomic, readonly) NSString *hashedHomeAccountId;
-@property (nonatomic, readonly) NSString *hashedLegacyAccountId;
+@implementation MSIDMSIDAccountIdentifierTests
 
-- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
-                             clientInfo:(MSIDClientInfo *)clientInfo;
 
-- (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
-                          homeAccountId:(NSString *)homeAccountId;
+- (void)testReturnHashedPII_ValidInput
+{
+    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacyAccountId" homeAccountId:@"homeAccountId"];
+    XCTAssertNotNil(accountIdentifier.hashedHomeAccountId);
+    XCTAssertFalse([accountIdentifier.hashedHomeAccountId isEqualToString:@"homeAccountId"]);
+    
+    XCTAssertNotNil(accountIdentifier.hashedLegacyAccountId);
+    XCTAssertFalse([accountIdentifier.hashedLegacyAccountId isEqualToString:@"legacyAccountId"]);
+
+}
+
+- (void)testReturnHashedPII_InValidInput
+{
+    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:nil];
+    XCTAssertNil(accountIdentifier.hashedHomeAccountId);    
+    XCTAssertNil(accountIdentifier.homeAccountId);
+}
 
 @end

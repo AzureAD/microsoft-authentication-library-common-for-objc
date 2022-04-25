@@ -148,7 +148,7 @@
 {
     assert(cacheQuery);
 
-    MSID_LOG_VERBOSE(context, @"(Default account cache) Get accounts with environment %@, hashed homeAccountId %@, isExactMatch %@, environment %@, environmentAliases %@", cacheQuery.environment, cacheQuery.homeAccountId, cacheQuery.exactMatch?@"yes":@"no" , cacheQuery.environment, cacheQuery.environmentAliases);
+    MSID_LOG_VERBOSE(context, @"(Default account cache) Get accounts with environment %@, hashed homeAccountId %@, isExactMatch %@, environment %@, environmentAliases %@", cacheQuery.environment, [cacheQuery.homeAccountId msidTokenHash], cacheQuery.exactMatch?@"yes":@"no" , cacheQuery.environment, cacheQuery.environmentAliases);
     MSID_LOG_VERBOSE_PII(context, @"(Default account cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, cacheQuery.homeAccountId);
 
     NSArray<MSIDAccountCacheItem *> *cacheItems = [_dataSource accountsWithKey:cacheQuery serializer:_serializer context:context error:error];

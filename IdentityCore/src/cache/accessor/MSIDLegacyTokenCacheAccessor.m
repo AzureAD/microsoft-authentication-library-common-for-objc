@@ -293,7 +293,7 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@, authority hashed legacy userID %@, hashed home account ID %@", configuration.clientId, familyId, configuration.authority, [accountIdentifier.legacyAccountId msidTokenHash], [accountIdentifier.homeAccountId msidTokenHash]);
+    MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@, authority hashed legacy userID %@, hashed home account ID %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.hashedLegacyAccountId, accountIdentifier.hashedHomeAccountId);
     MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Looking for account with client ID %@, family ID %@, authority %@, legacy user ID %@, home account ID %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.legacyAccountId, accountIdentifier.homeAccountId);
 
     MSIDLegacyRefreshToken *refreshToken = [self getLegacyRefreshTokenForAccountImpl:accountIdentifier
@@ -306,7 +306,7 @@
     {
         MSIDAccount *account = [MSIDAccount new];
         account.accountIdentifier = refreshToken.accountIdentifier;
-        MSID_LOG_VERBOSE(context, @"(Legacy accessor) get back account identifier from cache with hashed legacy userID %@, hashed home account ID %@",  [refreshToken.accountIdentifier.legacyAccountId msidTokenHash], [refreshToken.accountIdentifier.homeAccountId msidTokenHash]);
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) get back account identifier from cache with hashed legacy userID %@, hashed home account ID %@",  refreshToken.accountIdentifier.hashedLegacyAccountId, refreshToken.accountIdentifier.hashedHomeAccountId);
 
         // TODO: Should we create account if authority is nil?
         __auto_type authority = [_authorityFactory authorityFromUrl:refreshToken.authority.url rawTenant:refreshToken.realm context:context error:nil];
