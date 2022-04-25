@@ -35,7 +35,8 @@ def get_guid_i(device) :
 	latest_os_version = None
 	
 	for line in p.stdout :
-		sys.stdout.write(line)
+		lineStr = line.decode('utf-8')
+		sys.stdout.write(lineStr.encode('UTF-8'))
 		if (dev_name_regex.match(line) == None) :
 			continue
 		
