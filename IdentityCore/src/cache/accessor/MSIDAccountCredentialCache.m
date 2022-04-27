@@ -162,7 +162,7 @@
 
         for (MSIDAccountCacheItem *cacheItem in cacheItems)
         {
-            MSID_LOG_VERBOSE(context, @"(Default account cache) cacheItem hashed home acccount ID %@, environment %@", [cacheItem.homeAccountId msidTokenHash], cacheItem.environment);
+            MSID_LOG_VERBOSE(context, @"(Default account cache) cacheItem hashed home acccount ID %@, environment %@", cacheItem.hashedHomeAccountId, cacheItem.environment);
 
             if (shouldMatchAccount
                 && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId

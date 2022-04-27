@@ -43,6 +43,11 @@
 
 @property (readwrite, nullable) NSDictionary *additionalAccountFields;
 
+@property (nonatomic, readonly) NSString *hashedUserName;
+@property (nonatomic, readonly) NSString *hashedHomeAccountId;
+@property (nonatomic, readonly) NSString *hashedLocalAccountId;
+@property (nonatomic, readonly) NSString *hashedAlternativeAccountId;
+
 - (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
 
 - (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId

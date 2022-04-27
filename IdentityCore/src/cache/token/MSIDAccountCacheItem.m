@@ -32,6 +32,11 @@
 
 @implementation MSIDAccountCacheItem
 
+@synthesize hashedHomeAccountId = _hashedHomeAccountId;
+@synthesize hashedLocalAccountId = _hashedLocalAccountId;
+@synthesize hashedAlternativeAccountId = _hashedAlternativeAccountId;
+@synthesize hashedUserName = _hashedUserName;
+
 #pragma mark - Equal
 
 - (BOOL)isEqual:(id)object
@@ -210,6 +215,50 @@
     }
 
     return YES;
+}
+
+- (NSString *)hashedHomeAccountId
+{
+    if (!self.homeAccountId || [self.homeAccountId isEqualToString:@""]) return nil;
+    if (_hashedHomeAccountId)
+    {
+        return _hashedHomeAccountId;
+    }
+    _hashedHomeAccountId = [self.homeAccountId msidTokenHash];
+    return _hashedHomeAccountId;
+}
+
+- (NSString *)hashedLocalAccountId
+{
+    if (!self.localAccountId || [self.localAccountId isEqualToString:@""]) return nil;
+    if (_hashedLocalAccountId)
+    {
+        return _hashedLocalAccountId;
+    }
+    _hashedLocalAccountId = [self.localAccountId msidTokenHash];
+    return _hashedLocalAccountId;
+}
+
+-(NSString *)hashedAlternativeAccountId
+{
+    if (!self.alternativeAccountId || [self.alternativeAccountId isEqualToString:@""]) return nil;
+    if (_hashedAlternativeAccountId)
+    {
+        return _hashedAlternativeAccountId;
+    }
+    _hashedAlternativeAccountId = [self.alternativeAccountId msidTokenHash];
+    return _hashedAlternativeAccountId;
+}
+
+-(NSString *)hashedUserName
+{
+    if (!self.hashedUserName || [self.hashedUserName isEqualToString:@""]) return nil;
+    if (_hashedUserName)
+    {
+        return _hashedUserName;
+    }
+    _hashedUserName = [self.hashedUserName msidTokenHash];
+    return _hashedUserName;
 }
 
 @end
