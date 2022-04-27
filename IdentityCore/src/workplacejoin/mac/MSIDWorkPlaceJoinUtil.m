@@ -181,7 +181,7 @@
 + (MSIDWPJKeyPairWithCert *)findDefaultWPJRegistrationInfoWithContext:(id<MSIDRequestContext>)context
 {
     NSDictionary *extraAttributes = @{ (__bridge id)kSecAttrApplicationTag: kMSIDPrivateKeyIdentifier };
-    return [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraAttributes certAttributes:nil context:context];
+    return [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraAttributes certAttributes:nil context:context shouldCheckEnclave:NO];
 }
 
 + (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier

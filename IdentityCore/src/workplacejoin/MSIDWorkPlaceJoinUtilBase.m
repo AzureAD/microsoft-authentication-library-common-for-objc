@@ -99,6 +99,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 + (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
                                                                                        context:(nullable id<MSIDRequestContext>)context
+                                                                            shouldCheckEnclave:(BOOL) shouldCheckEnclave
 {
     OSStatus status = noErr;
     CFTypeRef privateKeyCFDict = NULL;
@@ -118,7 +119,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
     if (status != errSecSuccess)
     {
-        if (privateKeyCFDict == NULL)
+        if (shouldCheckEnclave && privateKeyCFDict == NULL)
         {
             // Checking if key exists in Secure Enclave
             NSData *tagData = queryPrivateKey[(__bridge id)kSecAttrApplicationTag];

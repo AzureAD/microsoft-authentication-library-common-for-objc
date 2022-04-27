@@ -44,7 +44,8 @@
 */
 + (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
-                                                                                       context:(nullable id<MSIDRequestContext>)context;
+                                                                                       context:(nullable id<MSIDRequestContext>)context
+                                                                            shouldCheckEnclave:(BOOL)shouldCheckEnclave;
 
 @end
 
