@@ -30,8 +30,8 @@
 @property (nonatomic, readwrite) NSString *homeAccountId;
 @property (nonatomic, readwrite) NSString *legacyAccountId;
 
-@property (nonatomic, readonly) NSString *hashedHomeAccountId;
-@property (nonatomic, readonly) NSString *hashedLegacyAccountId;
+@property (readonly) NSString *hashedHomeAccountId;
+@property (readonly) NSString *hashedLegacyAccountId;
 
 - (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
                              clientInfo:(MSIDClientInfo *)clientInfo;

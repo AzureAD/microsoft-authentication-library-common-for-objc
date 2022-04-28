@@ -28,14 +28,14 @@
 
 @property (readwrite) NSDictionary *json;
 
+@property (nonatomic, readwrite, nullable) NSString *hashedUserName;
+@property (nonatomic, readwrite, nullable) NSString *hashedHomeAccountId;
+@property (nonatomic, readwrite, nullable) NSString *hashedLocalAccountId;
+@property (nonatomic, readwrite, nullable) NSString *hashedAlternativeAccountId;
+
 @end
 
 @implementation MSIDAccountCacheItem
-
-@synthesize hashedHomeAccountId = _hashedHomeAccountId;
-@synthesize hashedLocalAccountId = _hashedLocalAccountId;
-@synthesize hashedAlternativeAccountId = _hashedAlternativeAccountId;
-@synthesize hashedUserName = _hashedUserName;
 
 #pragma mark - Equal
 

@@ -738,10 +738,10 @@
                                     error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
-
+    NSString *hashedLegacyUserId = [legacyUserId msidTokenHash];
     for (NSURL *alias in aliases)
     {
-        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@, hashed legacy userid %@", alias, clientId, resource, [legacyUserId msidTokenHash]);
+        MSID_LOG_VERBOSE(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@, hashed legacy userid %@", alias, clientId, resource, hashedLegacyUserId);
         MSID_LOG_VERBOSE_PII(context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@, legacy userId %@", alias, clientId, resource, legacyUserId);
 
         MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:alias

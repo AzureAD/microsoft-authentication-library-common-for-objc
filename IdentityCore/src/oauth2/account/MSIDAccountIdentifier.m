@@ -25,10 +25,15 @@
 #import "MSIDClientInfo.h"
 #import "NSString+MSIDExtensions.h"
 
+@interface MSIDAccountIdentifier()
+
+@property (nonatomic, readwrite) NSString *hashedHomeAccountId;
+@property (nonatomic, readwrite) NSString *hashedLegacyAccountId;
+
+@end
+
 @implementation MSIDAccountIdentifier
 
-@synthesize hashedHomeAccountId = _hashedHomeAccountId;
-@synthesize hashedLegacyAccountId = _hashedLegacyAccountId;
 #pragma mark - Init
 
 - (instancetype)initWithLegacyAccountId:(NSString *)legacyAccountId
