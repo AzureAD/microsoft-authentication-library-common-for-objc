@@ -351,6 +351,8 @@
 		96F94A39208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */; };
 		96F94A3A208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
 		96F94A3B208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
+		A04CE54828170C79005F7276 /* MSIDMSIDAccountIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A04CE54728170C79005F7276 /* MSIDMSIDAccountIdentifierTests.m */; };
+		A04CE54928170C79005F7276 /* MSIDMSIDAccountIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A04CE54728170C79005F7276 /* MSIDMSIDAccountIdentifierTests.m */; };
 		B2000C7820EC47860092790A /* NSData+JWT.h in Headers */ = {isa = PBXBuildFile; fileRef = B2000C7620EC47860092790A /* NSData+JWT.h */; };
 		B2000C7920EC47860092790A /* NSData+JWT.m in Sources */ = {isa = PBXBuildFile; fileRef = B2000C7720EC47860092790A /* NSData+JWT.m */; };
 		B2000C7A20EC47860092790A /* NSData+JWT.m in Sources */ = {isa = PBXBuildFile; fileRef = B2000C7720EC47860092790A /* NSData+JWT.m */; };
@@ -1106,6 +1108,7 @@
 		96F94A3220817C1A0034676C /* MSIDNTLMHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDNTLMHandler.m; sourceTree = "<group>"; };
 		96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDOAuth2EmbeddedWebviewController.h; sourceTree = "<group>"; };
 		96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuth2EmbeddedWebviewController.m; sourceTree = "<group>"; };
+		A04CE54728170C79005F7276 /* MSIDMSIDAccountIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMSIDAccountIdentifierTests.m; sourceTree = "<group>"; };
 		B2000C7620EC47860092790A /* NSData+JWT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+JWT.h"; sourceTree = "<group>"; };
 		B2000C7720EC47860092790A /* NSData+JWT.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+JWT.m"; sourceTree = "<group>"; };
 		B2031979217BF11B006488D0 /* MSIDClientCapabilitiesUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDClientCapabilitiesUtil.h; sourceTree = "<group>"; };
@@ -2520,6 +2523,7 @@
 				B203197E217BF191006488D0 /* MSIDClientCapabilitiesTests.m */,
 				B2525C742330623E006FBA4B /* MSIDMainThreadUtilTests.m */,
 				E7407A712575807B00C88199 /* MSIDWebviewDefaultConfigurationSettingsTest.m */,
+				A04CE54728170C79005F7276 /* MSIDMSIDAccountIdentifierTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -3043,6 +3047,7 @@
 				B2936F9120AE913E0050C585 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */,
 				964FAB40213F598F00AF0EB1 /* MSIDOrderedSetExtensionsTests.m in Sources */,
 				B210F4651FDF1CB8005A8F76 /* MSIDURLFormObjectTests.m in Sources */,
+				A04CE54828170C79005F7276 /* MSIDMSIDAccountIdentifierTests.m in Sources */,
 				B2DD4B4420A936FE0047A66E /* MSIDAccountCredentialsCacheTests.m in Sources */,
 				239DF9BF20E04BC9002D428B /* MSIDAADAuthorityTests.m in Sources */,
 				96CD653020C8ACBE004813EE /* MSIDWebviewResponseTests.m in Sources */,
@@ -3360,6 +3365,7 @@
 				B2936F7A20ABF8310050C585 /* MSIDLegacyAccessTokenTests.m in Sources */,
 				238AB2AA20BF473F00CD8675 /* MSIDURLSessionDelegateTests.m in Sources */,
 				B2DD5BBF204799DC0084313F /* MSIDMacTokenCacheTests.m in Sources */,
+				A04CE54928170C79005F7276 /* MSIDMSIDAccountIdentifierTests.m in Sources */,
 				96DAC2CE21431DE30001FBF5 /* NSString+MSIDTestUtil.m in Sources */,
 				2361DE8C2048B6F8005FD48A /* MSIDAccountTests.m in Sources */,
 				B2DD5BA5204761720084313F /* MSIDRefreshTokenTests.m in Sources */,

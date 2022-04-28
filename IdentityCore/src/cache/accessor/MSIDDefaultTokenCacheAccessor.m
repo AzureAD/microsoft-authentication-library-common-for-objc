@@ -41,6 +41,7 @@
 #import "MSIDTelemetry+Cache.h"
 #import "MSIDAuthority.h"
 #import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDExtensions.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -308,7 +309,7 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for account with client ID %@, family ID %@, authority %@", configuration.clientId, familyId, configuration.authority);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for account with client ID %@, family ID %@, authority %@, hashed legacyAccountid %@, hashed homeAccountId %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.hashedLegacyAccountId, accountIdentifier.hashedHomeAccountId);
     MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for account with client ID %@, family ID %@, authority %@, legacy user ID %@, home account ID %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.legacyAccountId, accountIdentifier.homeAccountId);
 
     MSIDDefaultAccountCacheQuery *cacheQuery = [MSIDDefaultAccountCacheQuery new];
@@ -323,7 +324,13 @@
         MSID_LOG_WARN(context, @"(Default accessor) Failed to retrieve account with client ID %@, family ID %@, authority %@", configuration.clientId, familyId, configuration.authority);
         return nil;
     }
-
+    
+    MSID_LOG_VERBOSE(context, @"(Default accessor) number of accounts from default cache %lu", (unsigned long)accountCacheItems.count);
+    for (MSIDAccountCacheItem *cacheItem in accountCacheItems)
+    {
+        MSID_LOG_VERBOSE(context, @"(Default accessor) cacheItem with hashed username %@, homeAccountId %@, localAccountid %@, alternativeAccountId %@", cacheItem.hashedUserName, cacheItem.hashedHomeAccountId, cacheItem.hashedLocalAccountId, cacheItem.hashedAlternativeAccountId);
+    }
+    
     for (MSIDAccountCacheItem *cacheItem in accountCacheItems)
     {
         MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:cacheItem];

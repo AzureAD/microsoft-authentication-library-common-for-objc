@@ -20,16 +20,16 @@ def is_version_higher(orig_version, new_version) :
 	return False
 
 def get_guid_i(device) :
-	device_regex = re.compile("[A-Za-z0-9 ]+ ?(?:\\(([0-9.]+)\\))? \\[([A-F0-9-]+)\\]")
+	device_regex = re.compile("[A-Za-z0-9 ]+ ?(?:\\(([0-9.]+)\\))? \\(([A-F0-9-]+)\\)")
 	version_regex = re.compile("([0-9]+)\\.([0-9]+)(?:\\.([0-9]+))?")
 	
-	command = "instruments -s devices"
+	command = "xcrun xctrace list devices"
 	print ("##[group]Devices")
 	p = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
 	
 	# Sometimes the hostname comes back with the proper casing, sometimes not. Using a
 	# case insensitive regex ensures we work either way
-	dev_name_regex = re.compile("^" + device + " \\(", re.I)
+	dev_name_regex = re.compile("^" + device + "( Simulator)?" " \\(", re.I)
 	
 	latest_os_device = None
 	latest_os_version = None
@@ -70,7 +70,6 @@ def get_guid(device) :
 
 def print_failure(device) :
 	print "Failed to find GUID for device : " + device
-	subprocess.call("instruments -s devices", shell=True)
 	raise Exception("Failed to get device GUID")
 
 def get_ios(device) :
