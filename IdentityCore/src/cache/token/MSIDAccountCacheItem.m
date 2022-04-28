@@ -252,12 +252,12 @@
 
 -(NSString *)hashedUserName
 {
-    if (!self.hashedUserName || [self.hashedUserName isEqualToString:@""]) return nil;
+    if (!self.username || [self.username isEqualToString:@""]) return nil;
     if (_hashedUserName)
     {
         return _hashedUserName;
     }
-    _hashedUserName = [self.hashedUserName msidTokenHash];
+    _hashedUserName = [self.username msidTokenHash];
     return _hashedUserName;
 }
 
