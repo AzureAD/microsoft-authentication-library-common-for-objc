@@ -28,6 +28,11 @@
 
 @property (readwrite) NSDictionary *json;
 
+@property (nonatomic, readwrite, nullable) NSString *hashedUserName;
+@property (nonatomic, readwrite, nullable) NSString *hashedHomeAccountId;
+@property (nonatomic, readwrite, nullable) NSString *hashedLocalAccountId;
+@property (nonatomic, readwrite, nullable) NSString *hashedAlternativeAccountId;
+
 @end
 
 @implementation MSIDAccountCacheItem
@@ -193,20 +198,67 @@
 {
     if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
     {
+        MSID_LOG_VERBOSE(nil, @"(MSIDAccountCacheItem ) homeAccountId doesn't match");
         return NO;
     }
 
     if (environment && ![self.environment isEqualToString:environment])
     {
+        MSID_LOG_VERBOSE(nil, @"(MSIDAccountCacheItem) environment doesn't match");
         return NO;
     }
 
     if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
     {
+        MSID_LOG_VERBOSE(nil, @"(MSIDAccountCacheItem) environmentAliases doesn't match");
         return NO;
     }
 
     return YES;
+}
+
+- (NSString *)hashedHomeAccountId
+{
+    if (!self.homeAccountId || [self.homeAccountId isEqualToString:@""]) return nil;
+    if (_hashedHomeAccountId)
+    {
+        return _hashedHomeAccountId;
+    }
+    _hashedHomeAccountId = [self.homeAccountId msidTokenHash];
+    return _hashedHomeAccountId;
+}
+
+- (NSString *)hashedLocalAccountId
+{
+    if (!self.localAccountId || [self.localAccountId isEqualToString:@""]) return nil;
+    if (_hashedLocalAccountId)
+    {
+        return _hashedLocalAccountId;
+    }
+    _hashedLocalAccountId = [self.localAccountId msidTokenHash];
+    return _hashedLocalAccountId;
+}
+
+-(NSString *)hashedAlternativeAccountId
+{
+    if (!self.alternativeAccountId || [self.alternativeAccountId isEqualToString:@""]) return nil;
+    if (_hashedAlternativeAccountId)
+    {
+        return _hashedAlternativeAccountId;
+    }
+    _hashedAlternativeAccountId = [self.alternativeAccountId msidTokenHash];
+    return _hashedAlternativeAccountId;
+}
+
+-(NSString *)hashedUserName
+{
+    if (!self.username || [self.username isEqualToString:@""]) return nil;
+    if (_hashedUserName)
+    {
+        return _hashedUserName;
+    }
+    _hashedUserName = [self.username msidTokenHash];
+    return _hashedUserName;
 }
 
 @end

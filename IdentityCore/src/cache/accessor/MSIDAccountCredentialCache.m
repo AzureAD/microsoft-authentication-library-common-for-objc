@@ -31,6 +31,7 @@
 #import "MSIDCacheKey.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDDefaultAccountCacheQuery.h"
+#import "NSString+MSIDExtensions.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -147,8 +148,8 @@
 {
     assert(cacheQuery);
 
-    MSID_LOG_VERBOSE(context, @"(Default cache) Get accounts with environment %@", cacheQuery.environment);
-    MSID_LOG_VERBOSE_PII(context, @"(Default cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, cacheQuery.homeAccountId);
+    MSID_LOG_VERBOSE(context, @"(Default account cache) Get accounts with environment %@, hashed homeAccountId %@, isExactMatch %@, environment %@, environmentAliases %@", cacheQuery.environment, [cacheQuery.homeAccountId msidTokenHash], cacheQuery.exactMatch?@"yes":@"no" , cacheQuery.environment, cacheQuery.environmentAliases);
+    MSID_LOG_VERBOSE_PII(context, @"(Default account cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, cacheQuery.homeAccountId);
 
     NSArray<MSIDAccountCacheItem *> *cacheItems = [_dataSource accountsWithKey:cacheQuery serializer:_serializer context:context error:error];
 
@@ -157,14 +158,18 @@
         NSMutableArray<MSIDAccountCacheItem *> *filteredResults = [NSMutableArray array];
 
         BOOL shouldMatchAccount = !cacheQuery.homeAccountId || !cacheQuery.environment;
+        MSID_LOG_VERBOSE(context, @"(Default account cache) shouldMatchAccount %@", shouldMatchAccount? @"yes" : @"no");
 
         for (MSIDAccountCacheItem *cacheItem in cacheItems)
         {
+            MSID_LOG_VERBOSE(context, @"(Default account cache) cacheItem hashed home acccount ID %@, environment %@", cacheItem.hashedHomeAccountId, cacheItem.environment);
+
             if (shouldMatchAccount
                 && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
                                            environment:cacheQuery.environment
                                     environmentAliases:cacheQuery.environmentAliases])
             {
+                MSID_LOG_VERBOSE(context, @"(Default account cache) cacheItem matching failed, move on to next item");
                 continue;
             }
 
