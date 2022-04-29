@@ -59,17 +59,18 @@
         return nil;
     }
     
-    if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:privateKey context:context error:error])
+    NSError *ecdsaAlgError;
+    if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:privateKey context:context error:&ecdsaAlgError])
     {
         return MSID_JWT_ALG_ES256;
     }
-    *error = nil;
+
     if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context error:error])
     {
         return MSID_JWT_ALG_RS256;
     }
     
-    if (error)
+    if (error && ecdsaAlgError)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Key does not support signing any supported algorithms or key is public key");
     }
