@@ -208,6 +208,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                                  (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
     NSDictionary *extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
     
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking Legacy keychain for registration.");
     MSIDWPJKeyPairWithCert *legacyKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context shouldCheckEnclave:NO];
         
     if (legacyKeys)
@@ -236,7 +237,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         // default registration should have a tenantId associated.
         return legacyKeys;
     }
-    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking Default keychain for registration.");
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
     NSString *tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
