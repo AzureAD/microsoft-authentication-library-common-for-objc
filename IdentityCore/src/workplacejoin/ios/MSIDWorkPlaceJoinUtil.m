@@ -29,77 +29,7 @@
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 
-static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
-
 @implementation MSIDWorkPlaceJoinUtil
-
-+ (MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
-{
-    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
-    
-    if (!teamId)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
-        return nil;
-    }
-    
-    NSString *legacySharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
-    NSData *tagData = [kMSIDPrivateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
-    
-    NSDictionary *extraPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag: tagData,
-                                                 (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
-    NSDictionary *extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
-    
-    MSIDWPJKeyPairWithCert *legacyKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context shouldCheckEnclave:NO];
-        
-    if (legacyKeys)
-    {
-        if ([NSString msidIsStringNilOrBlank:tenantId])
-        {
-            // ESTS didn't request a specific tenant, just return default one
-            return legacyKeys;
-        }
-        
-        // Read tenantId for legacy identity
-        NSError *tenantIdError = nil;
-        NSString *registrationTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:&tenantIdError];
-        
-        // There's no tenantId on the registration, or it mismatches what server requested, keep looking for a better match. Otherwise, return the identity already.
-        if (!tenantIdError
-            && registrationTenantId
-            && [registrationTenantId isEqualToString:tenantId])
-        {
-            return legacyKeys;
-        }
-    }
-    
-    if (!tenantId)
-    {
-        // default registration should have a tenantId associated.
-        return legacyKeys;
-    }
-    
-    NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
-    NSString *tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
-    tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
-    
-    extraPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag : tagData,
-                                   (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
-    
-    extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
-    
-    MSIDWPJKeyPairWithCert *defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context shouldCheckEnclave:YES];
-     
-    // If secondary Identity was found, return it
-    if (defaultKeys)
-    {
-        return defaultKeys;
-    }
-        
-    // Otherwise, return legacy Identity - this can happen if we couldn't match based on the tenantId, but Identity was there. It could be usable. We'll let ESTS to evaluate it and check.
-    // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
-    return legacyKeys;
-}
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                      workplacejoinChallenge:(__unused MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
