@@ -119,7 +119,7 @@
     return signature;
 }
 
-- (void) generateErrorWithMessage:(NSString *)errorMessage underlyingError:(NSError *)underlyingError context:(id<MSIDRequestContext> _Nullable)context error:(NSError **)error
+- (void)generateErrorWithMessage:(NSString *)errorMessage underlyingError:(NSError *)underlyingError context:(id<MSIDRequestContext> _Nullable)context error:(NSError **)error
 {
     if (error)
     {
