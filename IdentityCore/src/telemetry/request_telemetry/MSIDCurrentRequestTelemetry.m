@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetrySerializedItem.h"
 
@@ -49,3 +51,12 @@
 }
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDCurrentRequestTelemetry.h"
+
+@implementation MSIDCurrentRequestTelemetry
+@end
+
+#endif

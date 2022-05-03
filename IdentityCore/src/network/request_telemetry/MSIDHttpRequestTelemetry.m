@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDHttpRequestTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -72,3 +74,19 @@
 }
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDHttpRequestTelemetry.h"
+
+@implementation MSIDHttpRequestTelemetry
+- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context urlRequest:(NSURLRequest *)urlRequest httpResponse:(NSHTTPURLResponse *)httpResponse data:(NSData *)data error:(NSError *)error
+{}
+
+- (void)sendRequestEventWithId:(NSString *)telemetryRequestId
+{}
+
+@end
+
+
+#endif

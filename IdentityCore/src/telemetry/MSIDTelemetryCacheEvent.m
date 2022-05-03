@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -192,3 +194,12 @@
 }
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDTelemetryCacheEvent.h"
+
+@implementation MSIDTelemetryCacheEvent
+@end
+
+#endif

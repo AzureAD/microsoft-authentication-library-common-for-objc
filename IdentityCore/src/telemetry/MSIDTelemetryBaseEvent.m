@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetryBaseEvent.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
@@ -209,3 +211,92 @@
 }
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDTelemetryBaseEvent.h"
+
+@implementation MSIDTelemetryBaseEvent
+
+@synthesize propertyMap = _propertyMap;
+
+- (instancetype)initWithName:(NSString *)eventName
+                   requestId:(NSString *)requestId
+               correlationId:(NSUUID *)correlationId
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+
+    _propertyMap = [NSMutableDictionary dictionary];
+
+    return self;
+}
+
+- (instancetype)initWithName:(NSString *)eventName
+                     context:(id<MSIDRequestContext>)configuration
+{
+    return [self initWithName:eventName requestId:configuration.telemetryRequestId correlationId:configuration.correlationId];
+}
+
+- (void)setProperty:(NSString *)name value:(NSString *)value
+{}
+
+- (NSString *)propertyWithName:(NSString *)name
+{
+    return nil;
+}
+
+- (void)deleteProperty:(NSString  *)name
+{}
+
+- (NSDictionary *)getProperties
+{
+    return _propertyMap;
+}
+
+- (void)setStartTime:(NSDate *)time
+{}
+
+- (void)setStopTime:(NSDate *)time
+{}
+
+- (void)setResponseTime:(NSTimeInterval)responseTime
+{}
+
+- (void)addDefaultProperties
+{}
+
++ (NSArray<NSString *> *)propertiesToAggregate
+{
+    static dispatch_once_t once;
+    static NSArray *names = nil;
+
+    dispatch_once(&once, ^{
+        names = @[];
+    });
+
+    return names;
+}
+
++ (NSDictionary *)defaultParameters
+{
+    return [self rawDefaultParameters];
+}
+
++ (NSDictionary *)rawDefaultParameters
+{
+    static NSMutableDictionary *s_defaultParameters;
+    static dispatch_once_t s_configurationOnce;
+
+    dispatch_once(&s_configurationOnce, ^{
+        s_defaultParameters = [NSMutableDictionary new];
+    });
+
+    return s_defaultParameters;
+}
+
+@end
+
+#endif

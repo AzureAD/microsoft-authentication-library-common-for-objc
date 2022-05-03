@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDAggregatedDispatcher.h"
 #import "MSIDDefaultDispatcher+Internal.h"
 #import "MSIDTelemetryBaseEvent.h"
@@ -94,3 +96,5 @@ static NSDictionary *s_telemetryCollectionRules;
 }
 
 @end
+
+#endif

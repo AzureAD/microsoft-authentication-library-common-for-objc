@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -140,3 +142,58 @@
 }
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDTelemetryAPIEvent.h"
+
+@implementation MSIDTelemetryAPIEvent
+
+- (void)setCorrelationId:(NSUUID *)correlationId
+{}
+
+- (void)setExtendedExpiresOnSetting:(NSString *)extendedExpiresOnSetting
+{}
+
+- (void)setUserId:(NSString *)userId
+{}
+
+- (void)setClientId:(NSString *)clientId
+{}
+
+- (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken
+{}
+
+- (void)setErrorDomain:(NSString *)errorDomain
+{}
+
+- (void)setApiId:(NSString *)apiId
+{}
+
+- (void)setWebviewType:(NSString *)webviewType
+{}
+
+- (void)setLoginHint:(NSString *)loginHint
+{}
+
+- (void)setErrorCode:(NSUInteger)errorCode
+{}
+
+- (void)setPromptType:(MSIDPromptType)promptType
+{}
+
+- (void)setIsSuccessfulStatus:(NSString *)successStatus
+{}
+
+- (void)setResultStatus:(NSString *)resultStatus
+{}
+
+- (void)setUserInformation:(MSIDAccount *)account
+{}
+
+- (void)setOauthErrorCode:(NSString *)oauthErrorCode
+{}
+
+@end
+
+#endif

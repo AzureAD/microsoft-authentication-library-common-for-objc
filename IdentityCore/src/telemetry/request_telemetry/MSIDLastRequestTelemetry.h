@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import <Foundation/Foundation.h>
 #import "MSIDTelemetryStringSerializable.h"
 
@@ -57,3 +59,23 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#else // MSAL CPP
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDLastRequestTelemetry : NSObject
+
++ (instancetype)sharedInstance;
+
+- (void)updateWithApiId:(NSInteger)apiId
+            errorString:(nullable NSString *)errorString
+                context:(nullable id<MSIDRequestContext>)context;
+
+- (void)increaseSilentSuccessfulCount;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif

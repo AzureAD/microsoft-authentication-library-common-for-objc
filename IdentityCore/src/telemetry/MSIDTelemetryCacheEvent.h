@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetryBaseEvent.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
@@ -43,3 +45,12 @@
 - (void)setExternalCacheSeedingStatus:(NSString *)status;
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDTelemetryBaseEvent.h"
+
+@interface MSIDTelemetryCacheEvent : MSIDTelemetryBaseEvent
+@end
+
+#endif

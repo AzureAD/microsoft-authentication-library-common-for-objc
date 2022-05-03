@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetryAuthorityValidationEvent.h"
 #import "MSIDAuthority.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -61,3 +63,19 @@
 }
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDTelemetryAuthorityValidationEvent.h"
+
+@implementation MSIDTelemetryAuthorityValidationEvent
+
+- (void)setAuthorityValidationStatus:(NSString *)status
+{}
+
+- (void)setAuthority:(MSIDAuthority *)authority
+{}
+
+@end
+
+#endif

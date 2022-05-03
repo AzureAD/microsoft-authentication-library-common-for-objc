@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDLastRequestTelemetrySerializedItem.h"
 #import "NSKeyedArchiver+MSIDExtensions.h"
@@ -383,3 +385,29 @@ static int maxErrorCountToArchive = 75;
 }
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDLastRequestTelemetry.h"
+
+@interface MSIDLastRequestTelemetry()
+@end
+
+@implementation MSIDLastRequestTelemetry
+
++ (instancetype)sharedInstance
+{
+    return nil;
+}
+
+- (void)updateWithApiId:(NSInteger)apiId
+            errorString:(NSString *)errorString
+                context:(id<MSIDRequestContext>)context
+{}
+
+- (void)increaseSilentSuccessfulCount
+{}
+
+@end
+
+#endif

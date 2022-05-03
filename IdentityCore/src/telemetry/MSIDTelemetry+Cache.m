@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry+Cache.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetry+Internal.h"
@@ -66,3 +68,30 @@
 }
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDTelemetry+Cache.h"
+
+@implementation MSIDTelemetry (Cache)
+#pragma mark - Telemetry helpers
++ (MSIDTelemetryCacheEvent *)startCacheEventWithName:(NSString *)cacheEventName
+                                             context:(id<MSIDRequestContext>)context
+{
+    return nil;
+}
+
++ (void)stopCacheEvent:(MSIDTelemetryCacheEvent *)event
+              withItem:(MSIDBaseToken *)token
+               success:(BOOL)success
+               context:(id<MSIDRequestContext>)context
+{}
+
++ (void)stopFailedCacheEvent:(MSIDTelemetryCacheEvent *)event
+                    wipeData:(NSDictionary *)wipeData
+                     context:(id<MSIDRequestContext>)context
+{}
+
+@end
+
+#endif

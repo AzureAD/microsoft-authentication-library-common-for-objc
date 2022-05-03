@@ -25,8 +25,11 @@
 
 @interface MSIDTelemetryUIEvent : MSIDTelemetryBaseEvent
 
+#if !EXCLUDE_FROM_MSALCPP
 - (void)setLoginHint:(NSString *)hint;
 - (void)setNtlm:(NSString *)ntlmHandled;
+#endif
+
 - (void)setIsCancelled:(BOOL)cancelled;
 
 @end

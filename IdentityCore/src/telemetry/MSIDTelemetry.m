@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventInterface.h"
@@ -218,3 +220,73 @@ static NSString* const s_delimiter = @"|";
 }
 
 @end
+
+#else // MSAL CPP
+
+#import "MSIDTelemetry.h"
+
+@implementation MSIDTelemetry
+
+- (id)initInternal
+{
+    self = [super init];
+    return self;
+}
+
++ (MSIDTelemetry *)sharedInstance
+{
+    static dispatch_once_t once;
+    static MSIDTelemetry *singleton = nil;
+
+    dispatch_once(&once, ^{
+        singleton = [[MSIDTelemetry alloc] initInternal];
+    });
+
+    return singleton;
+}
+
+- (void)addDispatcher:(nonnull id<MSIDTelemetryDispatcher>)dispatcher
+{}
+
+- (void)removeDispatcher:(nonnull id<MSIDTelemetryDispatcher>)dispatcher
+{}
+
+- (void)removeAllDispatchers
+{}
+
+@end
+
+@implementation MSIDTelemetry (Internal)
+
+- (NSString *)generateRequestId
+{
+    return @"";
+}
+
+- (void)startEvent:(NSString *)requestId
+         eventName:(NSString *)eventName
+{}
+
+- (void)removeDispatcherByObserver:(id)observer
+{}
+
+- (void)stopEvent:(NSString *)requestId
+            event:(id<MSIDTelemetryEventInterface>)event
+{}
+
+- (void)dispatchEventNow:(NSString *)requestId
+                   event:(id<MSIDTelemetryEventInterface>)event
+{}
+
+- (NSString *)getEventTrackingKey:(NSString*)requestId
+                       eventName:(NSString*)eventName
+{
+    return @"";
+}
+
+- (void)flush:(NSString *)requestId
+{}
+
+@end
+
+#endif
