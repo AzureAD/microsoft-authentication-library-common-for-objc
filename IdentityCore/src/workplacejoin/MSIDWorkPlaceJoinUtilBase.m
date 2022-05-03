@@ -27,6 +27,7 @@
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDWPJKeyPairWithCert.h"
+#import "MSIDKeyOperationUtil.h"
 
 NSString *const MSID_DEVICE_INFORMATION_UPN_ID_KEY        = @"userPrincipalName";
 NSString *const MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY = @"aadDeviceIdentifier";
@@ -165,11 +166,19 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     }
     
     NSMutableDictionary *mutableCertQuery = [NSMutableDictionary new];
-    
     if (certAttributes)
     {
         [mutableCertQuery addEntriesFromDictionary:certAttributes];
     }
+    
+#if TARGET_OS_MACOS
+    // For macOS, if the key is ECC key, use shared access group to query certificate. If it is RSA, remove shared access group from query for certificate as it is not login keychain.
+        NSString *sharedAccessGroup = [certAttributes valueForKey:(__bridge id)kSecAttrAccessGroup];
+        if (sharedAccessGroup && ![[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:privateKeyRef])
+        {
+            [mutableCertQuery removeObjectForKey:(__bridge id)kSecAttrAccessGroup];
+        }
+#endif
     
     mutableCertQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassCertificate;
     mutableCertQuery[(__bridge id)kSecAttrPublicKeyHash] = applicationLabel;
