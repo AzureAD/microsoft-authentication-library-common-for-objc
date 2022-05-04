@@ -171,7 +171,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         [mutableCertQuery addEntriesFromDictionary:certAttributes];
     }
     
-#if TARGET_OS_MACOS
+#if TARGET_OS_OSX
     // For macOS, if the key is ECC key, use shared access group to query certificate. If it is RSA, remove shared access group from query for certificate as it is not login keychain.
         NSString *sharedAccessGroup = [certAttributes valueForKey:(__bridge id)kSecAttrAccessGroup];
         if (sharedAccessGroup && ![[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:privateKeyRef])
