@@ -170,14 +170,16 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"MSIDDevicePopManager: createSignedAccessToken nonce is empty");
     }
-    
+#if ENABLE_ECC_SUPPORT
     MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:self.keyPair.privateKeyRef context:nil error:error];
     if ([NSString msidIsStringNilOrBlank:alg])
     {
         [self logAndFillError:@"Key signing algorithm not supported." error:error];
         return nil;
     }
-    
+#else
+    MSIDJwtAlgorithm alg = MSID_JWT_ALG_RS256;
+#endif
     NSDictionary *header = @{
         @"alg" : alg,
         @"typ" : @"JWT",

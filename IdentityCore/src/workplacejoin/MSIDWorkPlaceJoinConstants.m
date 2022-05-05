@@ -28,8 +28,13 @@ NSString *const kMSIDTenantKeyIdentifier                = @"com.microsoft.workpl
 NSString *const kMSIDUPNKeyIdentifier                   = @"com.microsoft.workplacejoin.registeredUserPrincipalName";
 NSString *const kMSIDProtectionSpaceDistinguishedName   = @"MS-Organization-Access";
 NSString *const kMSIDPKeyAuthUrn                        = @"urn:http-auth:PKeyAuth?";
+#if ENABLE_ECC_SUPPORT
 NSString *const kMSIDPKeyAuthHeader                     = @"x-ms-PkeyAuth+";
+NSString *const kMSIDPKeyAuthKeyWordForUserAgent        = @"PKeyAuth+/1.0";
+#else
+NSString *const kMSIDPKeyAuthHeader                     = @"x-ms-PkeyAuth";
+NSString *const kMSIDPKeyAuthKeyWordForUserAgent        = @"PKeyAuth/1.0";
+#endif
 NSString *const kMSIDPKeyAuthHeaderVersion              = @"1.0";
 NSString *const kMSIDWwwAuthenticateHeader              = @"WWW-Authenticate";
 NSString *const kMSIDPKeyAuthName                       = @"PKeyAuth";
-NSString *const kMSIDPKeyAuthKeyWordForUserAgent        = @"PKeyAuth+/1.0";
