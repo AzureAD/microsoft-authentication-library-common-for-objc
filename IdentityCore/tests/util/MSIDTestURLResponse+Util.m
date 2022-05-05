@@ -27,6 +27,7 @@
 #import "MSIDTestURLResponse.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 @implementation MSIDTestURLResponse (Util)
 
@@ -42,7 +43,7 @@
         headers[@"Accept"] = @"application/json";
         headers[@"x-app-name"] = [MSIDTestRequireValueSentinel new];
         headers[@"x-app-ver"] = [MSIDTestRequireValueSentinel new];
-        headers[@"x-ms-PkeyAuth+"] = [MSIDTestRequireValueSentinel new];
+        headers[kMSIDPKeyAuthHeader] = [MSIDTestRequireValueSentinel new];
         headers[@"X-AnchorMailbox"] = [MSIDTestIgnoreSentinel new];
 
         s_msidHeaders = [headers copy];
