@@ -259,7 +259,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     
     extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
     
-    MSIDWPJKeyPairWithCert *defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context shouldCheckEnclave:ENABLE_ECC_SUPPORT];
+    MSIDWPJKeyPairWithCert *defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context shouldCheckEnclave:MSID_ENABLE_ECC_SUPPORT];
      
     // If secondary Identity was found, return it
     if (defaultKeys)
