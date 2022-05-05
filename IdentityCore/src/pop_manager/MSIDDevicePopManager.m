@@ -170,7 +170,7 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"MSIDDevicePopManager: createSignedAccessToken nonce is empty");
     }
-#if ENABLE_ECC_SUPPORT
+#if MSID_ENABLE_ECC_SUPPORT
     MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:self.keyPair.privateKeyRef context:nil error:error];
     if ([NSString msidIsStringNilOrBlank:alg])
     {

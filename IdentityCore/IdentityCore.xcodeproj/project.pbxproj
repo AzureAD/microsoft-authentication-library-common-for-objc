@@ -9044,15 +9044,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E931FC3626A00CD70C5 /* identitycore__debug.xcconfig */;
 			buildSettings = {
-				ENABLE_ECC_SUPPORT = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"$(MSID_WEBKIT)",
 					"$(MSID_SYSTEMWV)",
-					"ENABLE_ECC_SUPPORT=$(ENABLE_ECC_SUPPORT)",
+					"MSID_ENABLE_ECC_SUPPORT=$(MSID_ENABLE_ECC_SUPPORT)",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MSID_ENABLE_ECC_SUPPORT = 1;
 			};
 			name = Debug;
 		};
@@ -9060,14 +9060,14 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */;
 			buildSettings = {
-				ENABLE_ECC_SUPPORT = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(MSID_SYSTEMWV)",
 					"$(MSID_WEBKIT)",
-					"ENABLE_ECC_SUPPORT=$(ENABLE_ECC_SUPPORT)",
+					"MSID_ENABLE_ECC_SUPPORT=$(MSID_ENABLE_ECC_SUPPORT)",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MSID_ENABLE_ECC_SUPPORT = 1;
 			};
 			name = Release;
 		};
