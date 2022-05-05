@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -31,162 +31,12 @@
                     </view>
                     <connections>
                         <outlet property="actionsView" destination="Nai-5o-zvd" id="B06-wk-egj"/>
-                        <segue destination="tz4-uy-l1V" kind="show" identifier="showRequest" id="xYS-St-QlD"/>
-                        <segue destination="MTA-xe-Rxs" kind="show" identifier="showResult" id="5oE-Jb-XV8"/>
                         <segue destination="qwt-pg-lFT" kind="show" identifier="showPassedInWebview" id="I4d-pk-ncw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-212" y="107"/>
-        </scene>
-        <!--Automation Request View Controller-->
-        <scene sceneID="fhF-b1-OSb">
-            <objects>
-                <viewController id="tz4-uy-l1V" customClass="MSIDAutomationRequestViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="ywn-WD-Uwx"/>
-                        <viewControllerLayoutGuide type="bottom" id="iwV-Th-Uld"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="tro-aW-sHo">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="t76-Do-Sd1">
-                                <rect key="frame" x="0.0" y="50" width="375" height="597"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="200" verticalCompressionResistancePriority="700" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FWm-ZK-sNm">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="25"/>
-                                        <color key="backgroundColor" red="0.1019607843" green="0.73725490199999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="25" id="mDS-sO-ORD"/>
-                                        </constraints>
-                                        <state key="normal" title="Go">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="requestGo"/>
-                                        </userDefinedRuntimeAttributes>
-                                        <connections>
-                                            <action selector="go:" destination="tz4-uy-l1V" eventType="touchUpInside" id="Y93-Im-lVw"/>
-                                        </connections>
-                                    </button>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="seW-d1-iUx">
-                                        <rect key="frame" x="0.0" y="25" width="375" height="572"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="requestInfo"/>
-                                        </userDefinedRuntimeAttributes>
-                                    </textView>
-                                </subviews>
-                            </stackView>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="DnK-pT-IuT"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="iwV-Th-Uld" firstAttribute="top" secondItem="t76-Do-Sd1" secondAttribute="bottom" id="IfY-fi-ped"/>
-                            <constraint firstItem="t76-Do-Sd1" firstAttribute="top" secondItem="ywn-WD-Uwx" secondAttribute="bottom" constant="50" id="a80-eg-Pyu"/>
-                            <constraint firstAttribute="trailing" secondItem="t76-Do-Sd1" secondAttribute="trailing" id="kWo-xv-dyF"/>
-                            <constraint firstItem="t76-Do-Sd1" firstAttribute="leading" secondItem="tro-aW-sHo" secondAttribute="leading" id="q5C-VY-zkk"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <outlet property="requestGo" destination="FWm-ZK-sNm" id="dFp-mp-mKr"/>
-                        <outlet property="requestInfo" destination="seW-d1-iUx" id="LEN-a7-Z4y"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="bk2-u0-TbQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1228" y="-217"/>
-        </scene>
-        <!--Automation Result View Controller-->
-        <scene sceneID="P2I-gA-m0t">
-            <objects>
-                <viewController id="MTA-xe-Rxs" customClass="MSIDAutomationResultViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="Ans-KL-Qw6"/>
-                        <viewControllerLayoutGuide type="bottom" id="V1J-xN-ulG"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="fMu-Rn-tVN">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="bjd-Vl-1u0">
-                                <rect key="frame" x="0.0" y="50" width="375" height="597"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6zk-aL-Kpf">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="25"/>
-                                        <color key="backgroundColor" red="0.1019607843" green="0.73725490199999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="25" id="OGa-Qs-dAn"/>
-                                        </constraints>
-                                        <state key="normal" title="Done">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="resultDone"/>
-                                        </userDefinedRuntimeAttributes>
-                                        <connections>
-                                            <action selector="done:" destination="MTA-xe-Rxs" eventType="touchUpInside" id="MgJ-G1-eB7"/>
-                                        </connections>
-                                    </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" verticalCompressionResistancePriority="800" text="Result Info" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dfe-t6-AAS">
-                                        <rect key="frame" x="0.0" y="25" width="375" height="18"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="K1z-qd-Cvj">
-                                        <rect key="frame" x="0.0" y="43" width="375" height="268"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="resultInfo"/>
-                                        </userDefinedRuntimeAttributes>
-                                    </textView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="300" verticalCompressionResistancePriority="800" text="Result Logs" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6L0-qW-59f">
-                                        <rect key="frame" x="0.0" y="311" width="375" height="18"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="5eC-aD-2y4">
-                                        <rect key="frame" x="0.0" y="329" width="375" height="268"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="resultLogs"/>
-                                        </userDefinedRuntimeAttributes>
-                                    </textView>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="K1z-qd-Cvj" firstAttribute="height" secondItem="5eC-aD-2y4" secondAttribute="height" id="llD-hy-i8v"/>
-                                </constraints>
-                            </stackView>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="I5v-2f-HrO"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="V1J-xN-ulG" firstAttribute="top" secondItem="bjd-Vl-1u0" secondAttribute="bottom" id="7Gd-FL-bmY"/>
-                            <constraint firstAttribute="trailing" secondItem="bjd-Vl-1u0" secondAttribute="trailing" id="9sM-34-BLS"/>
-                            <constraint firstItem="bjd-Vl-1u0" firstAttribute="leading" secondItem="fMu-Rn-tVN" secondAttribute="leading" id="dgm-aO-qlE"/>
-                            <constraint firstItem="bjd-Vl-1u0" firstAttribute="top" secondItem="Ans-KL-Qw6" secondAttribute="bottom" constant="50" id="znq-7F-6Fi"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <outlet property="resultInfo" destination="K1z-qd-Cvj" id="XeB-E7-qLf"/>
-                        <outlet property="resultLogs" destination="5eC-aD-2y4" id="6hj-n4-w1c"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="MQB-Vp-lRw" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1228" y="510"/>
         </scene>
         <!--Automation Passed In Web View Controller-->
         <scene sceneID="X6m-Iq-d7f">

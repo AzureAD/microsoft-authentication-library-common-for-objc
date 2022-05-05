@@ -22,8 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDAutomationMainViewController.h"
-#import "MSIDAutomationRequestViewController.h"
-#import "MSIDAutomationResultViewController.h"
 #import "MSIDAutomation.h"
 #import "MSIDAutomationPassedInWebViewController.h"
 #import "MSIDAutomationActionManager.h"
@@ -44,24 +42,11 @@
     [self selectTabViewAtIndex:0];
 }
 
-- (void)showRequestDataViewWithCompletionHandler:(MSIDAutoParamBlock)completionHandler
-{
-    [self selectTabViewAtIndex:1];
-    MSIDAutomationRequestViewController *requestController = (MSIDAutomationRequestViewController *) [self viewControllerAtIndex:1];
-    requestController.completionBlock = completionHandler;
-    requestController.requestInfo.string = @"";
-}
-
 - (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs
 {
     [self selectTabViewAtIndex:2];
-    MSIDAutomationResultViewController *resultController = (MSIDAutomationResultViewController *) [self viewControllerAtIndex:2];
-
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resultJson options:0 error:nil];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
-    resultController.resultInfoString = jsonString;
-    resultController.resultLogsString = resultLogs;
+    
+    // TODO: implement.
 }
 
 - (void)selectTabViewAtIndex:(NSUInteger)index
@@ -173,8 +158,17 @@ static NSMutableString *s_resultLogs = nil;
 
         [self performAction:action parameters:parameters];
     };
+    
+    NSString *jsonString = [self getConfigJsonString];
+    NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    if (!params)
+    {
+        completionBlock(nil);
+        return;
+    }
 
-    [self showRequestDataViewWithCompletionHandler:completionBlock];
+    MSIDAutomationTestRequest *request = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
+    completionBlock(request);
 }
 
 - (void)performAction:(id<MSIDAutomationTestAction>)action parameters:(MSIDAutomationTestRequest *)parameters

@@ -1505,14 +1505,8 @@
 		B2D8582521C1DAF20043035A /* MSIDAutomationActionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D8582021C1DAF20043035A /* MSIDAutomationActionManager.h */; };
 		B2D8582E21C1DC2E0043035A /* MSIDAutomationPassedInWebViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D8582821C1DC2D0043035A /* MSIDAutomationPassedInWebViewController.h */; };
 		B2D8582F21C1DC2E0043035A /* MSIDAutomationMainViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D8582921C1DC2D0043035A /* MSIDAutomationMainViewController.h */; };
-		B2D8583021C1DC2E0043035A /* MSIDAutomationResultViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D8582A21C1DC2E0043035A /* MSIDAutomationResultViewController.h */; };
-		B2D8583221C1DC2E0043035A /* MSIDAutomationRequestViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D8582C21C1DC2E0043035A /* MSIDAutomationRequestViewController.h */; };
 		B2D8583921C1DD830043035A /* MSIDAutomationMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D8583521C1DD820043035A /* MSIDAutomationMainViewController.m */; };
-		B2D8583A21C1DD830043035A /* MSIDAutomationResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D8583621C1DD820043035A /* MSIDAutomationResultViewController.m */; };
 		B2D8583B21C1DD830043035A /* MSIDAutomationPassedInWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D8583721C1DD820043035A /* MSIDAutomationPassedInWebViewController.m */; };
-		B2D8583C21C1DD830043035A /* MSIDAutomationRequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D8583821C1DD820043035A /* MSIDAutomationRequestViewController.m */; };
-		B2D8584121C1DD9A0043035A /* MSIDAutomationRequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D8583D21C1DD990043035A /* MSIDAutomationRequestViewController.m */; };
-		B2D8584221C1DD9A0043035A /* MSIDAutomationResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D8583E21C1DD990043035A /* MSIDAutomationResultViewController.m */; };
 		B2D8584321C1DD9A0043035A /* MSIDAutomationPassedInWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D8583F21C1DD9A0043035A /* MSIDAutomationPassedInWebViewController.m */; };
 		B2D8584421C1DD9A0043035A /* MSIDAutomationMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D8584021C1DD9A0043035A /* MSIDAutomationMainViewController.m */; };
 		B2DD4B2120A7D2F90047A66E /* MSIDLegacyAccessToken.h in Headers */ = {isa = PBXBuildFile; fileRef = B2DD4B1F20A7D2F90047A66E /* MSIDLegacyAccessToken.h */; };
@@ -2885,14 +2879,8 @@
 		B2D8582021C1DAF20043035A /* MSIDAutomationActionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationActionManager.h; sourceTree = "<group>"; };
 		B2D8582821C1DC2D0043035A /* MSIDAutomationPassedInWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationPassedInWebViewController.h; sourceTree = "<group>"; };
 		B2D8582921C1DC2D0043035A /* MSIDAutomationMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationMainViewController.h; sourceTree = "<group>"; };
-		B2D8582A21C1DC2E0043035A /* MSIDAutomationResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationResultViewController.h; sourceTree = "<group>"; };
-		B2D8582C21C1DC2E0043035A /* MSIDAutomationRequestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationRequestViewController.h; sourceTree = "<group>"; };
 		B2D8583521C1DD820043035A /* MSIDAutomationMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationMainViewController.m; sourceTree = "<group>"; };
-		B2D8583621C1DD820043035A /* MSIDAutomationResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationResultViewController.m; sourceTree = "<group>"; };
 		B2D8583721C1DD820043035A /* MSIDAutomationPassedInWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationPassedInWebViewController.m; sourceTree = "<group>"; };
-		B2D8583821C1DD820043035A /* MSIDAutomationRequestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationRequestViewController.m; sourceTree = "<group>"; };
-		B2D8583D21C1DD990043035A /* MSIDAutomationRequestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationRequestViewController.m; sourceTree = "<group>"; };
-		B2D8583E21C1DD990043035A /* MSIDAutomationResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationResultViewController.m; sourceTree = "<group>"; };
 		B2D8583F21C1DD9A0043035A /* MSIDAutomationPassedInWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationPassedInWebViewController.m; sourceTree = "<group>"; };
 		B2D8584021C1DD9A0043035A /* MSIDAutomationMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationMainViewController.m; sourceTree = "<group>"; };
 		B2D8584521C1E26A0043035A /* MainAutomation.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MainAutomation.storyboard; sourceTree = "<group>"; };
@@ -4710,8 +4698,6 @@
 				B2D8581D21C1DAF20043035A /* MSIDAutomationTestAction.h */,
 				B2D8582921C1DC2D0043035A /* MSIDAutomationMainViewController.h */,
 				B2D8582821C1DC2D0043035A /* MSIDAutomationPassedInWebViewController.h */,
-				B2D8582C21C1DC2E0043035A /* MSIDAutomationRequestViewController.h */,
-				B2D8582A21C1DC2E0043035A /* MSIDAutomationResultViewController.h */,
 			);
 			path = ui_common;
 			sourceTree = "<group>";
@@ -4722,8 +4708,6 @@
 				B2D8584521C1E26A0043035A /* MainAutomation.storyboard */,
 				B2D8583521C1DD820043035A /* MSIDAutomationMainViewController.m */,
 				B2D8583721C1DD820043035A /* MSIDAutomationPassedInWebViewController.m */,
-				B2D8583821C1DD820043035A /* MSIDAutomationRequestViewController.m */,
-				B2D8583621C1DD820043035A /* MSIDAutomationResultViewController.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -4734,8 +4718,6 @@
 				B2D8584621C1E7F00043035A /* MainAutomation.storyboard */,
 				B2D8584021C1DD9A0043035A /* MSIDAutomationMainViewController.m */,
 				B2D8583F21C1DD9A0043035A /* MSIDAutomationPassedInWebViewController.m */,
-				B2D8583D21C1DD990043035A /* MSIDAutomationRequestViewController.m */,
-				B2D8583E21C1DD990043035A /* MSIDAutomationResultViewController.m */,
 			);
 			path = macos;
 			sourceTree = "<group>";
@@ -5293,11 +5275,9 @@
 				B25A438121C3516B000B3DD4 /* MSIDAutomationTestRequest.h in Headers */,
 				B2D8582121C1DAF20043035A /* MSIDAutomationTestAction.h in Headers */,
 				B25A436D21C33D88000B3DD4 /* MSIDClearCookiesTestAction.h in Headers */,
-				B2D8583221C1DC2E0043035A /* MSIDAutomationRequestViewController.h in Headers */,
 				B2D0A69B21D09F220071E0DA /* MSIDAutomationUserInformation.h in Headers */,
 				B2D0A6A021D09F8D0071E0DA /* MSIDAutomationAccountsResult.h in Headers */,
 				B25A437221C34A26000B3DD4 /* MSIDAutomationTestResult.h in Headers */,
-				B2D8583021C1DC2E0043035A /* MSIDAutomationResultViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6154,13 +6134,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				B25A436E21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m in Sources */,
-				B2D8583A21C1DD830043035A /* MSIDAutomationResultViewController.m in Sources */,
 				B25A438221C3516B000B3DD4 /* MSIDAutomationTestRequest.m in Sources */,
 				B25A437821C34CB6000B3DD4 /* MSIDClearKeychainTestAction.m in Sources */,
 				B2D0A69021D087790071E0DA /* MSIDAutomationSuccessResult.m in Sources */,
 				B25A39F121C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */,
 				B2D8583B21C1DD830043035A /* MSIDAutomationPassedInWebViewController.m in Sources */,
-				B2D8583C21C1DD830043035A /* MSIDAutomationRequestViewController.m in Sources */,
 				B2D8582221C1DAF20043035A /* MSIDAutomationActionManager.m in Sources */,
 				B25A437321C34A26000B3DD4 /* MSIDAutomationTestResult.m in Sources */,
 				B2D0A69C21D09F220071E0DA /* MSIDAutomationUserInformation.m in Sources */,
@@ -6180,9 +6158,7 @@
 				B2D8584421C1DD9A0043035A /* MSIDAutomationMainViewController.m in Sources */,
 				B25A438321C3516B000B3DD4 /* MSIDAutomationTestRequest.m in Sources */,
 				B21FA9EE22063D1600806B68 /* NSString+MSIDAutomationUtils.m in Sources */,
-				B2D8584221C1DD9A0043035A /* MSIDAutomationResultViewController.m in Sources */,
 				B2D0A69121D087790071E0DA /* MSIDAutomationSuccessResult.m in Sources */,
-				B2D8584121C1DD9A0043035A /* MSIDAutomationRequestViewController.m in Sources */,
 				B25A39F221C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */,
 				B2D8584321C1DD9A0043035A /* MSIDAutomationPassedInWebViewController.m in Sources */,
 				B25A437421C34A26000B3DD4 /* MSIDAutomationTestResult.m in Sources */,

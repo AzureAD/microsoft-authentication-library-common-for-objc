@@ -31,7 +31,6 @@
 @property (nonatomic) MSIDAutomationRequestViewController *requestViewController;
 @property (nonatomic) WKWebView *webView;
 
-- (void)showRequestDataViewWithCompletionHandler:(MSIDAutoParamBlock)completionHandler;
 - (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs;
 - (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context;
 - (WKWebView *)passedinWebView;
