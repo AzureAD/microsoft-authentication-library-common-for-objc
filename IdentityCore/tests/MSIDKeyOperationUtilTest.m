@@ -1,16 +1,33 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-//  MSIDKeyOperationUtilTest.m
-//  IdentityCore
+// This code is licensed under the MIT License.
 //
-//  Created by Ameya Patil on 9/29/21.
-//  Copyright © 2021 Microsoft. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 #import <XCTest/XCTest.h>
 #import "MSIDKeyOperationUtil.h"
 #import "MSIDJwtAlgorithm.h"
 #import "NSData+MSIDTestUtil.h"
 #import "NSData+JWT.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDTestSecureEnclaveKeyPairGenerator.h"
 
 @interface MSIDKeyOperationUtilTest : XCTestCase
     @property (nonatomic) SecKeyRef eccPrivateKey;
@@ -18,7 +35,8 @@
     @property (nonatomic) SecKeyRef rsaPrivateKey;
     @property (nonatomic) SecKeyRef rsaPublicKey;
     @property (nonatomic) NSString *testApplicationTag;
-    @property (nonatomic) NSString *sharedAccessGroup ;
+    @property (nonatomic) NSString *sharedAccessGroup;
+    @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *generator;
 @end
 
 @implementation MSIDKeyOperationUtilTest
@@ -31,10 +49,12 @@
     prefix = @"UBF8T346G9";
 #endif
     _sharedAccessGroup = [NSString stringWithFormat:@"%@.%@", prefix, @"com.microsoft.MSIDTestsHostApp"]; // Using SGGM6D27TK as prefix for complete shared group
-    if (!self.eccPublicKey)
+    if (!self.generator)
     {
-        [self populateTestKeys];
+        self.generator = [MSIDTestSecureEnclaveKeyPairGenerator new];
     }
+    self.eccPrivateKey = [self.generator eccPrivateKey];
+    self.eccPublicKey = [self.generator eccPublicKey];
     if (!self.rsaPrivateKey)
     {
         [self populateRsaKeys];
@@ -43,9 +63,16 @@
 
 - (void)tearDown
 {
-    if (self.eccPublicKey)
+    self.generator = nil;
+    if (self.rsaPublicKey)
     {
-        CFRelease(self.eccPublicKey);
+        CFRelease(self.rsaPublicKey);
+        self.rsaPublicKey = NULL;
+    }
+    if (self.rsaPrivateKey)
+    {
+        CFRelease(self.rsaPrivateKey);
+        self.rsaPrivateKey = NULL;
     }
 }
 
@@ -160,80 +187,6 @@
 }
 
 #pragma mark -- Test Utility
-
-- (void)populateTestKeys
-{
-    [self fetchKeys];
-    if (self.eccPublicKey == NULL)
-    {
-        [self generateKeyPair];
-    }
-}
-
-- (void)fetchKeys
-{
-    NSData *tag = [self.testApplicationTag dataUsingEncoding:NSUTF8StringEncoding];
-    NSMutableDictionary * queryPrivateKey = [[NSMutableDictionary alloc] init];
-
-    // Set the private key query dictionary.
-    [queryPrivateKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
-    [queryPrivateKey setObject:tag forKey:(__bridge id)kSecAttrApplicationTag];
-    [queryPrivateKey setObject:self.sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-    [queryPrivateKey setObject:(__bridge id)kSecAttrKeyTypeEC forKey:(__bridge id)kSecAttrKeyType];
-    [queryPrivateKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnRef];
-    OSStatus status= noErr;
-    SecKeyRef privateKeyReference = NULL;
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef *)&privateKeyReference);
-    
-    if (status != errSecSuccess)
-    {
-        privateKeyReference = nil;
-    }
-
-    self.eccPrivateKey = privateKeyReference;
-    if (self.eccPrivateKey != NULL)
-    self.eccPublicKey = SecKeyCopyPublicKey(self.eccPrivateKey);
-}
-
-- (void)generateKeyPair
-{
-    SecAccessControlRef access = NULL;
-    if (@available(macOS 10.12.1, iOS 9.0, *))
-    {
-        access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
-                                                 kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                                                 kSecAccessControlPrivateKeyUsage,
-                                                 NULL);
-    }
-    
-    NSData *tag = [self.testApplicationTag dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary* attributes =
-      @{ (id)kSecAttrKeyType:(id)kSecAttrKeyTypeECSECPrimeRandom,
-         (id)kSecAttrKeySizeInBits:@256,
-         (id)kSecAttrTokenID:(id)kSecAttrTokenIDSecureEnclave,
-         (id)kSecPrivateKeyAttrs:
-             @{
-                 (id)kSecAttrIsPermanent:@YES,
-                 (id)kSecAttrApplicationTag:tag,
-                 (id)kSecAttrAccessGroup:self.sharedAccessGroup,
-                 (id)kSecAttrAccessControl:(__bridge id)access,
-                 (id)kSecAttrCanEncrypt:@NO
-             }
-       };
-    
-    CFErrorRef error = NULL;
-    SecKeyRef privateKey = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes,
-                                                 &error);
-    if (!privateKey) {
-        NSError *err = CFBridgingRelease(error);
-        XCTAssertNotNil(err);
-        err = nil;
-        return;
-    }
-    XCTAssertTrue(error == NULL);
-    self.eccPrivateKey = privateKey;
-    self.eccPublicKey = SecKeyCopyPublicKey(self.eccPrivateKey);
-}
 
 -(void) populateRsaKeys
 {
