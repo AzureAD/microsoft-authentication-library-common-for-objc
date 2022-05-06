@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
                           context:(_Nullable id<MSIDRequestContext>)context
                             error:(NSError * _Nullable * _Nullable)error;
 
-/// Get verifying algorithm to be put as 'alg' claim in JWT. Depending on the key supplied and algorithms supported returns alg.
+/// Get asymmetric verifying algorithm to be put as 'alg' claim in JWT. Depending on the key supplied and algorithms supported returns alg.
 /// @param key key used for signing JWT
 /// @param context request context
 /// @param error error determining alg
