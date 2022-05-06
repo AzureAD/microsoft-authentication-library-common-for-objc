@@ -43,8 +43,8 @@
     if (key)
     {
         NSDictionary *attributes = (NSDictionary *)CFBridgingRelease(SecKeyCopyAttributes(key));
-        NSString *attrTokenId = (NSString *)[attributes valueForKey:(NSString *)CFBridgingRelease(kSecAttrTokenID)];
-        NSString *secureEnclaveId = (NSString *)(CFBridgingRelease(kSecAttrTokenIDSecureEnclave));  // id = com.apple.settoken for key in secure enclave
+        NSString *attrTokenId = [attributes valueForKey:(__bridge NSString*)kSecAttrTokenID];
+        NSString *secureEnclaveId = (__bridge NSString*)kSecAttrTokenIDSecureEnclave;  // id = com.apple.settoken for key in secure enclave
         return [secureEnclaveId isEqualToString:attrTokenId];
     }
     return NO;
@@ -75,12 +75,12 @@
     }
     
     NSError *ecdsaAlgError;
-    if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:privateKey context:context error:&ecdsaAlgError])
+    if ([self isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:privateKey context:context error:&ecdsaAlgError])
     {
         return MSID_JWT_ALG_ES256;
     }
 
-    if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context error:error])
+    if ([self isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context error:error])
     {
         return MSID_JWT_ALG_RS256;
     }
@@ -108,11 +108,11 @@
     
     SecKeyAlgorithm algorithm = nil;
     // Since Secure enclave only supports ECC NIST P-256 curve key we can assume key is used for ECDSA
-    if ([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:privateKey] && [[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:privateKey context:context error:error])
+    if ([self isKeyFromSecureEnclave:privateKey] && [self isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:privateKey context:context error:error])
     {
         algorithm = kSecKeyAlgorithmECDSASignatureMessageX962SHA256;
     }
-    else if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256 key:privateKey context:context error:error])
+    else if ([self isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256 key:privateKey context:context error:error])
     {
         algorithm = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
     }
@@ -129,7 +129,12 @@
                                                                           subError));
     if (!signature)
     {
-        [self generateErrorWithMessage:@"Failed to sign data with key." underlyingError:CFBridgingRelease(subError) context:context error:error];
+        NSError *signingError;
+        if (subError)
+        {
+            signingError = CFBridgingRelease(subError);
+        }
+        [self generateErrorWithMessage:@"Failed to sign data with key." underlyingError:signingError context:context error:error];
     }
     return signature;
 }
