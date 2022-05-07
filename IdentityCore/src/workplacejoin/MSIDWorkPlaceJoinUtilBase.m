@@ -103,7 +103,6 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 + (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
                                                                                        context:(nullable id<MSIDRequestContext>)context
-                                                                            shouldCheckEnclave:(BOOL)shouldCheckEnclave
 {
     OSStatus status = noErr;
     CFTypeRef privateKeyCFDict = NULL;
@@ -126,24 +125,8 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
     if (status != errSecSuccess)
     {
-        if (shouldCheckEnclave && privateKeyCFDict == NULL)
-        {
-            // Checking if key exists in Secure Enclave
-            NSData *tagData = queryPrivateKey[(__bridge id)kSecAttrApplicationTag];
-            NSString *tag = [[NSString alloc] initWithData:tagData encoding:NSUTF8StringEncoding];
-            if (![tag hasSuffix:kECPrivateKeyTagSuffix])
-            {
-                tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
-                queryPrivateKey[(__bridge id)kSecAttrApplicationTag] = [tag dataUsingEncoding:NSUTF8StringEncoding];
-            }
-            status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
-        }
-        
-        if (status != errSecSuccess)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find workplace join private key with status %ld", (long)status);
-            return nil;
-        }
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find workplace join private key with status %ld", (long)status);
+        return nil;
     }
         
     NSDictionary *privateKeyDict = CFBridgingRelease(privateKeyCFDict); // -1 privateKeyCFDict
@@ -221,7 +204,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     NSDictionary *extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking Legacy keychain for registration.");
-    MSIDWPJKeyPairWithCert *legacyKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context shouldCheckEnclave:NO];
+    MSIDWPJKeyPairWithCert *legacyKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
         
     if (legacyKeys)
     {
@@ -259,14 +242,25 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     
     extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
     
-    MSIDWPJKeyPairWithCert *defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context shouldCheckEnclave:MSID_ENABLE_ECC_SUPPORT];
+    MSIDWPJKeyPairWithCert *defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
      
     // If secondary Identity was found, return it
     if (defaultKeys)
     {
         return defaultKeys;
     }
-        
+#if MSID_ENABLE_SSO_SUPPORT
+    // The key might be a ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
+    tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
+    tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:extraPrivateKeyAttributes];
+    [privateKeyAttributes setObject:tagData forKey:(__bridge id)kSecAttrApplicationTag];
+    defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes certAttributes:extraCertAttributes context:context];
+    if (defaultKeys)
+    {
+        return defaultKeys;
+    }
+#endif
     // Otherwise, return legacy Identity - this can happen if we couldn't match based on the tenantId, but Identity was there. It could be usable. We'll let ESTS to evaluate it and check.
     // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
     return legacyKeys;
