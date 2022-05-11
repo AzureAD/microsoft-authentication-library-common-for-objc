@@ -141,10 +141,11 @@
         return nil;
     }
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
-#if MSID_ENABLE_ECC_SUPPORT
-    MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:identity.privateKeyRef context:nil error:nil];
-#else
-    MSIDJwtAlgorithm alg = MSID_JWT_ALG_RS256;
+    NSString *alg = MSID_JWT_ALG_RS256;
+#ifdef MSID_ENABLE_ECC_SUPPORT
+    #if MSID_ENABLE_ECC_SUPPORT
+        alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:identity.privateKeyRef context:nil error:nil];
+    #endif
 #endif
     if ([NSString msidIsStringNilOrBlank:alg])
     {

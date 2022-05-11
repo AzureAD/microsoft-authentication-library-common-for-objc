@@ -267,7 +267,7 @@
     NSString *thumbprint = [self sha1FromData:certData].msidBase64UrlEncodedString;
     CFRelease(data);
     CFRelease(certificate);
-#if MSID_ENABLE_ECC_SUPPORT
+#if defined(MSID_ENABLE_ECC_SUPPORT) && MSID_ENABLE_ECC_SUPPORT
     MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:privateKey context:nil];
     if ([NSString msidIsStringNilOrBlank:alg])
     {

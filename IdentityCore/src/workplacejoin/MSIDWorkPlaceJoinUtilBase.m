@@ -118,8 +118,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
     queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
     queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
-#if !MSID_ENABLE_ECC_SUPPORT
-    // TODO: hardcoding this to query RSA keys only for now. Once ECC registration is ready and tested, after removing this line, code should be able to find either ECC or RSA keys, since there should be single key corresponding to the tag per tenant
+#if !defined (MSID_ENABLE_ECC_SUPPORT) || !MSID_ENABLE_ECC_SUPPORT
     queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
 #endif
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict

@@ -28,7 +28,7 @@ NSString *const kMSIDTenantKeyIdentifier                = @"com.microsoft.workpl
 NSString *const kMSIDUPNKeyIdentifier                   = @"com.microsoft.workplacejoin.registeredUserPrincipalName";
 NSString *const kMSIDProtectionSpaceDistinguishedName   = @"MS-Organization-Access";
 NSString *const kMSIDPKeyAuthUrn                        = @"urn:http-auth:PKeyAuth?";
-#if MSID_ENABLE_ECC_SUPPORT
+#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
 NSString *const kMSIDPKeyAuthHeader                     = @"x-ms-PkeyAuth+";
 NSString *const kMSIDPKeyAuthKeyWordForUserAgent        = @"PKeyAuth+/1.0";
 #else
