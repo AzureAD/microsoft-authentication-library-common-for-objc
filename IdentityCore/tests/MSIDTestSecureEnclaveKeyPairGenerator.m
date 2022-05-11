@@ -36,13 +36,8 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
 
 - (void)generateKeyPair
 {
-    NSString *prefix = @"";
-#if TARGET_OS_IPHONE
-    prefix = @"UBF8T346G9";
-#else
-    prefix = @"SGGM6D27TK";
-#endif
-    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.%@", prefix, @"com.microsoft.MSIDTestsHostApp"]; // Using SGGM6D27TK as prefix for complete shared group
+    NSString *sharedAccessGroup = [self sharedAccessGroup];
+    [self queryKeysForAccessGroup:sharedAccessGroup];
     if (!_eccPublicKey)
     {
         SecAccessControlRef access = NULL;
@@ -82,6 +77,58 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
         self.eccPrivateKey = privateKey;
         self.eccPublicKey =  SecKeyCopyPublicKey(privateKey);
     }
+}
+
+- (void)queryKeysForAccessGroup:(NSString *)accessGroup
+{
+    OSStatus status = errSecItemNotFound;
+    CFTypeRef privateKeyCFDict = NULL;
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)[self keyDictionary], (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
+    if (status != errSecSuccess)
+    {
+        return;
+    }
+    
+    NSDictionary *privateKeyDict = CFBridgingRelease(privateKeyCFDict); // -1 privateKeyCFDict
+    self.eccPrivateKey =  (__bridge SecKeyRef)(privateKeyDict[(__bridge id)kSecValueRef]);
+    CFRetain(_eccPrivateKey);
+    self.eccPublicKey  =  SecKeyCopyPublicKey(_eccPrivateKey);
+}
+
+- (void)deleteKeysForAccessGroup:(NSString *)accessGroup
+{
+    OSStatus status = errSecItemNotFound;
+    status = SecItemDelete((__bridge CFDictionaryRef) [self keyDictionary]);
+    if (status != errSecSuccess)
+    {
+        return;
+    }
+}
+
+- (NSString *)sharedAccessGroup
+{
+    NSString *prefix = @"";
+#if TARGET_OS_IPHONE
+    prefix = @"UBF8T346G9";
+#else
+    prefix = @"SGGM6D27TK";
+#endif
+    return [NSString stringWithFormat:@"%@.%@", prefix, @"com.microsoft.MSIDTestsHostApp"]; // Using SGGM6D27TK as prefix for complete shared group
+}
+
+- (NSDictionary *)keyDictionary
+{
+    NSMutableDictionary *queryPrivateKey = [NSMutableDictionary new];
+    queryPrivateKey[(__bridge id)kSecAttrApplicationTag] = [kTestApplicationTag dataUsingEncoding:NSUTF8StringEncoding];
+    queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
+    queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
+    queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
+    queryPrivateKey[(__bridge id)kSecAttrTokenID] = (__bridge id)kSecAttrTokenIDSecureEnclave;
+    queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeECSECPrimeRandom;
+    queryPrivateKey[(__bridge id)kSecAttrKeySizeInBits] = @256;
+    queryPrivateKey[(__bridge id)kSecAttrAccessGroup] = [self sharedAccessGroup];
+    
+    return queryPrivateKey;
 }
 
 - (SecKeyRef)eccPublicKey
