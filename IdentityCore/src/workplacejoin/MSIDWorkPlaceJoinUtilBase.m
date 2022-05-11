@@ -118,7 +118,11 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
     queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
     queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
-#if !defined (MSID_ENABLE_ECC_SUPPORT) || !MSID_ENABLE_ECC_SUPPORT
+#if defined (MSID_ENABLE_ECC_SUPPORT) && MSID_ENABLE_ECC_SUPPORT
+    queryPrivateKey[(__bridge id)kSecAttrTokenID] = (__bridge id)kSecAttrTokenIDSecureEnclave;
+    queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeECSECPrimeRandom;
+    queryPrivateKey[(__bridge id)kSecAttrKeySizeInBits] = @256;
+#else
     queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
 #endif
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
@@ -248,7 +252,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     {
         return defaultKeys;
     }
-#if MSID_ENABLE_SSO_SUPPORT
+#if defined (MSID_ENABLE_SSO_SUPPORT) && MSID_ENABLE_SSO_SUPPORT
     // The key might be a ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
     tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];

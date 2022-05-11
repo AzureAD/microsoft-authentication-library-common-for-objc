@@ -57,7 +57,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     
     [NSDate mockCurrentDate:[[NSDate alloc] initWithTimeIntervalSince1970:5]];
     [self populateRsaKeys];
-#if MSID_ENABLE_ECC_SUPPORT
+#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
     if (!self.eccKeyGenerator)
     {
         self.eccKeyGenerator = [MSIDTestSecureEnclaveKeyPairGenerator new];
@@ -95,7 +95,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
         __auto_type url = [[NSURL alloc] initWithString:@"https://someurl.com"];
         __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
         [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:[url absoluteString] publicKey:self.rsaPublicKey isRsa:true];
-#if MSID_ENABLE_ECC_SUPPORT
+#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
@@ -121,7 +121,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
         
         __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
         [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.rsaPublicKey isRsa:true];
-#if MSID_ENABLE_ECC_SUPPORT
+#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
@@ -148,7 +148,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
         
         __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
         [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.rsaPublicKey isRsa:true];
-#if MSID_ENABLE_ECC_SUPPORT
+#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
@@ -196,7 +196,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
         __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
         
         XCTAssertEqualObjects(expectedResponse, response);
-#if MSID_ENABLE_ECC_SUPPORT
+#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
