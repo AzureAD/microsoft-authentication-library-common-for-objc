@@ -92,7 +92,7 @@
     return nil;
 }
 
-- (NSData *)getSignatureForDataWithKey:(NSData *)rawData privateKey:(SecKeyRef)privateKey context:(id<MSIDRequestContext>)context error:(NSError * _Nullable __autoreleasing *)error
+- (NSData *)getSignatureForDataWithKey:(NSData *)rawData privateKey:(SecKeyRef)privateKey signingAlgorithm:(SecKeyAlgorithm)algorithm context:(id<MSIDRequestContext>)context error:(NSError * _Nullable __autoreleasing *)error
 {
     if (!rawData)
     {
@@ -106,22 +106,19 @@
         return nil;
     }
     
-    SecKeyAlgorithm algorithm = nil;
-    // Since Secure enclave only supports ECC NIST P-256 curve key we can assume key is used for ECDSA
-    if ([self isKeyFromSecureEnclave:privateKey] && [self isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:privateKey context:context error:error])
+    if (algorithm == NULL)
     {
-        algorithm = kSecKeyAlgorithmECDSASignatureMessageX962SHA256;
-    }
-    else if ([self isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256 key:privateKey context:context error:error])
-    {
-        algorithm = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
+        [self generateErrorWithMessage:@"Signing algorithm not defined." underlyingError:nil context:context error:error];
+        return nil;
     }
     
-    if (algorithm == NULL)
+    // Check if provided key supports signing for provided algorithm
+    if (![self isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:algorithm key:privateKey context:context error:error])
     {
         [self generateErrorWithMessage:@"Signing algorithm could not be determined for supplied key because key is not of supported type or it is a public key." underlyingError:nil context:context error:error];
         return nil;
     }
+    
     CFErrorRef *subError = NULL;
     NSData *signature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
                                                                           algorithm,

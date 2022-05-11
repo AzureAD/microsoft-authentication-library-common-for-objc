@@ -58,10 +58,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// Returns signature after using supplied key to sign supplied data. Uses SecKeyCreateSignature which signs(SHA256(data))
 /// @param rawData Data to be signed. Method will SHA256 this internally
 /// @param privateKey Private key to use for signing
+/// @param algorithm to use for signing
 /// @param context request context
 /// @param error error for failed signing
 - (NSData * _Nullable)getSignatureForDataWithKey:(NSData * _Nonnull)rawData
                                       privateKey:(_Nonnull SecKeyRef)privateKey
+                                signingAlgorithm:(SecKeyAlgorithm)algorithm
                                          context:(_Nullable id<MSIDRequestContext>)context
                                            error:(NSError * _Nullable * _Nullable)error;
 @end

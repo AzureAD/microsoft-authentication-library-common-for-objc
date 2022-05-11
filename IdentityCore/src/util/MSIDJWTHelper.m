@@ -80,7 +80,12 @@
 + (NSData *)sign:(SecKeyRef)privateKey
             data:(NSData *)plainData
 {
-    return [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:plainData privateKey:privateKey context:nil error:nil];
+    SecKeyAlgorithm alg = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
+    if ([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:privateKey])
+    {
+        alg = kSecKeyAlgorithmECDSASignatureMessageX962SHA256;
+    }
+    return [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:plainData privateKey:privateKey signingAlgorithm:alg context:nil error:nil];
 }
 
 + (NSString *)JSONFromDictionary:(NSDictionary *)dictionary

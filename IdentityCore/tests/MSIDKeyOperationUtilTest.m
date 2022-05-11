@@ -154,7 +154,7 @@
     NSData *signature = nil;
     
     // Valid signature with ECC private key via secure enclave
-    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:dataToBeSigned privateKey:self.eccPrivateKey context:nil error:&error];
+    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:dataToBeSigned privateKey:self.eccPrivateKey signingAlgorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 context:nil error:&error];
     XCTAssertNotNil(signature);
     XCTAssertNil(error);
 
@@ -168,7 +168,7 @@
     XCTAssertTrue(verifyingError == NULL);
     
     // Valid signature with RSA private key
-    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:dataToBeSigned privateKey:self.rsaPrivateKey context:nil error:&error];
+    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:dataToBeSigned privateKey:self.rsaPrivateKey signingAlgorithm:kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256 context:nil error:&error];
     XCTAssertNotNil(signature);
     XCTAssertNil(error);
 
