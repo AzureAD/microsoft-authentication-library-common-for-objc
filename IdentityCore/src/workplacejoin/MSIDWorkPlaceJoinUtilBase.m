@@ -118,11 +118,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
     queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
     queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
-#if defined (MSID_ENABLE_ECC_SUPPORT) && MSID_ENABLE_ECC_SUPPORT
-    queryPrivateKey[(__bridge id)kSecAttrTokenID] = (__bridge id)kSecAttrTokenIDSecureEnclave;
-    queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeECSECPrimeRandom;
-    queryPrivateKey[(__bridge id)kSecAttrKeySizeInBits] = @256;
-#else
+#if !defined (MSID_ENABLE_ECC_SUPPORT) || !MSID_ENABLE_ECC_SUPPORT
     queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
 #endif
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
@@ -201,9 +197,10 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     
     NSString *legacySharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
     NSData *tagData = [kMSIDPrivateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
-    
+    // Legacy registrations would have be done using RSA, passing keyType = RSA in query
     NSDictionary *extraPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag: tagData,
-                                                 (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
+                                                 (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup,
+                                                 (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
     NSDictionary *extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking Legacy keychain for registration.");
@@ -235,13 +232,14 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         // default registration should have a tenantId associated.
         return legacyKeys;
     }
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking Default keychain for registration.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using RSA key.");
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
     NSString *tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
-    
+    // Default registrations can be done using RSA/ECC. 1st Looking for RSA device key in the keychain.
     extraPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag : tagData,
-                                   (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
+                                   (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup,
+                                   (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
     
     extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
     
@@ -253,11 +251,15 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         return defaultKeys;
     }
 #if defined (MSID_ENABLE_ECC_SUPPORT) && MSID_ENABLE_ECC_SUPPORT
-    // The key might be a ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using ECC key.");
+    // Since the defualt RSA search returned nil, the key might be a ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
     tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:extraPrivateKeyAttributes];
     [privateKeyAttributes setObject:tagData forKey:(__bridge id)kSecAttrApplicationTag];
+    [privateKeyAttributes setObject:(__bridge id)kSecAttrTokenIDSecureEnclave forKey:(__bridge id)kSecAttrTokenID];
+    [privateKeyAttributes setObject:(__bridge id)kSecAttrKeyTypeECSECPrimeRandom forKey:(__bridge id)kSecAttrKeyType];
+    [privateKeyAttributes setObject:@256 forKey:(__bridge id)kSecAttrKeySizeInBits];
     defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes certAttributes:extraCertAttributes context:context];
     if (defaultKeys)
     {
