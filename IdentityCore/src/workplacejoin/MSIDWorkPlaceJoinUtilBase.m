@@ -252,7 +252,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     {
         return defaultKeys;
     }
-#if defined (MSID_ENABLE_SSO_SUPPORT) && MSID_ENABLE_SSO_SUPPORT
+#if defined (MSID_ENABLE_ECC_SUPPORT) && MSID_ENABLE_ECC_SUPPORT
     // The key might be a ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
     tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
