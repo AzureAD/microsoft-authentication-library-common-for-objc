@@ -387,6 +387,12 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 
 - (BOOL)isErrorRecoverableByUserInteraction:(NSError *)msidError
 {
+    // TODO: cover with UT
+    if ([msidError.domain isEqualToString:MSIDOAuthErrorDomain] && msidError.code == MSIDErrorServerProtectionPoliciesRequired)
+    {
+        return NO;
+    }
+    
     MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(msidError.msidOauthError, MSIDErrorServerInvalidGrant);
     
     if (oauthError == MSIDErrorServerInvalidScope
