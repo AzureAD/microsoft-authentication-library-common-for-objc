@@ -82,6 +82,7 @@
         decisionHandler(WKNavigationActionPolicyCancel);
         [MSIDPKeyAuthHandler handleChallenge:requestURL.absoluteString
                                      context:self.context
+                      refreshTokenCredential:[self getRefreshTokenCredential]
                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
                                if (!challengeResponse)
                                {
