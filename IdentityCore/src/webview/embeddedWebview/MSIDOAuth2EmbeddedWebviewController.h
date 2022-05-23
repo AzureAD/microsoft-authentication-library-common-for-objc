@@ -53,9 +53,9 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
-- (NSString *) getRefreshTokenCredential;
 
 @property (atomic, readonly) NSURL *startURL;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
 
 @end

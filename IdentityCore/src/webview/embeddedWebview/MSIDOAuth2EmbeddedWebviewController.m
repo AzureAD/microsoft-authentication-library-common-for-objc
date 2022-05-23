@@ -463,17 +463,6 @@
     [self stopSpinner];
 }
 
-- (NSString *)getRefreshTokenCredential {
-    
-    if (_customHeaders != nil && _customHeaders.count > 0)
-    {
-        return [_customHeaders objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
-    } else
-    {
-        return nil;
-    }
-}
-
 @end
 
 #endif
