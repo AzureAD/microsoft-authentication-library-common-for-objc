@@ -28,6 +28,8 @@
 #import "NSData+MSIDTestUtil.h"
 #import <Security/Security.h>
 #import "MSIDPkeyAuthHelper.h"
+#import "MSIDBasicContext.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @interface MSIDPKeyAuthHandlerTests : XCTestCase
 
@@ -110,4 +112,44 @@
     XCTAssertNil(result);
 }
 
+- (void) testHandleChallengeWithRefreshToken_happyPath_shouldReturnSuccess
+{
+    __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+    __auto_type refreshCredential = @"FakeRefreshToken";
+    
+    __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.extraURLQueryParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
+    __block BOOL callback = NO;
+    BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
+                                                     context:context
+                                      refreshTokenCredential:refreshCredential
+                                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
+        XCTAssertNotNil(challengeResponse);
+        XCTAssertTrue([[[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL] isEqual:refreshCredential]);
+        callback = YES;
+    }];
+    XCTAssertTrue(callback);
+    XCTAssertTrue(handleResult);
+}
+
+- (void) testHandleChallengeWithoutNilRefreshToken_shouldProceedWithSuccess
+{
+    __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+
+    __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.extraURLQueryParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
+    __block BOOL callback = NO;
+    BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
+                                                     context:context
+                                      refreshTokenCredential:nil
+                                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
+        XCTAssertNotNil(challengeResponse);
+        XCTAssertNil([[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL]);
+        callback = YES;
+    }];
+    XCTAssertTrue(callback);
+    XCTAssertTrue(handleResult);
+}
 @end
