@@ -82,7 +82,7 @@
         decisionHandler(WKNavigationActionPolicyCancel);
         [MSIDPKeyAuthHandler handleChallenge:requestURL.absoluteString
                                      context:self.context
-                      refreshTokenCredential:[self getRefreshTokenCredential]
+                               customHeaders:[self customHeaders]
                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
                                if (!challengeResponse)
                                {
@@ -95,17 +95,6 @@
     }
     
     return NO;
-}
-
-- (NSString *)getRefreshTokenCredential {
-
-    if ([self customHeaders] != nil && [self customHeaders].count > 0)
-    {
-        return [[self customHeaders] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
-    } else
-    {
-        return nil;
-    }
 }
 
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction

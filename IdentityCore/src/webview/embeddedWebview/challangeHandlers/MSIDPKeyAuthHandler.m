@@ -35,7 +35,7 @@
 
 + (BOOL)handleChallenge:(NSString *)challengeUrl
                 context:(id<MSIDRequestContext>)context
-       refreshTokenCredential:(NSString *)refreshTokenCredential
+          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
       completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Handling PKeyAuth Challenge.");
@@ -73,14 +73,22 @@
     NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc] initWithURL:responseUrlComp.URL];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
-    if (refreshTokenCredential != nil)
+
+    BOOL refreshTokenIsValid = NO;
+    if (customHeaders != nil && customHeaders.count > 0)
     {
-        [responseReq setValue:refreshTokenCredential forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
+        NSString *refreshToken = [customHeaders objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
+        if (refreshToken != nil)
+        {
+            [responseReq setValue: refreshToken forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
+            refreshTokenIsValid = YES;
+        }
     }
-    else
+    if (!refreshTokenIsValid)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"refreshToken is nil while responding to PKeyAuth Challenge.");
     }
+
     completionHandler(responseReq, nil);
     return YES;
 }
