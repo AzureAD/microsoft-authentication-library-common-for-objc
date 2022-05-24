@@ -128,6 +128,7 @@
                                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
         XCTAssertNotNil(challengeResponse);
         XCTAssertTrue([[[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL] isEqual:value], @"RefreshToken should be valid");
+        XCTAssertNil(error);
         callback = YES;
     }];
     XCTAssertTrue(callback);
@@ -148,6 +149,7 @@
                                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
         XCTAssertNotNil(challengeResponse);
         XCTAssertNil([[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"RefreshToken should be nil");
+        XCTAssertNil(error);
         callback = YES;
     }];
     XCTAssertTrue(callback);
@@ -170,6 +172,7 @@
                                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
         XCTAssertNotNil(challengeResponse);
         XCTAssertNil([[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"RefreshToken should be nil");
+        XCTAssertNil(error);
         callback = YES;
     }];
     XCTAssertTrue(callback);
