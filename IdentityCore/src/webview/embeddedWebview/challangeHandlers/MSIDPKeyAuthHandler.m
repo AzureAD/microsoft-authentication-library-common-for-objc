@@ -74,13 +74,14 @@
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
 
+    // Adding refreshTokenCredential (PRT) header to the challenge response. Header is available in customheaders dict
     BOOL refreshTokenIsValid = NO;
     if (customHeaders != nil && customHeaders.count > 0)
     {
-        NSString *refreshToken = [customHeaders objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
-        if (refreshToken != nil)
+        NSString *primaryRefreshToken = [customHeaders objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
+        if (primaryRefreshToken != nil)
         {
-            [responseReq setValue: refreshToken forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
+            [responseReq setValue: primaryRefreshToken forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
             refreshTokenIsValid = YES;
         }
     }

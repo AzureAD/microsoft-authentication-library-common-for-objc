@@ -82,7 +82,7 @@
         decisionHandler(WKNavigationActionPolicyCancel);
         [MSIDPKeyAuthHandler handleChallenge:requestURL.absoluteString
                                      context:self.context
-                               customHeaders:[self customHeaders]
+                               customHeaders:self.customHeaders
                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
                                if (!challengeResponse)
                                {
