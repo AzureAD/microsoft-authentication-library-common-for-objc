@@ -75,17 +75,13 @@
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
 
     // Adding refreshTokenCredential (PRT) header to the challenge response. Header is available in customheaders dict
-    BOOL refreshTokenIsValid = NO;
-    if (customHeaders != nil && customHeaders.count > 0)
+    NSString *primaryRefreshToken = [customHeaders objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
+    if (primaryRefreshToken)
     {
-        NSString *primaryRefreshToken = [customHeaders objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
-        if (primaryRefreshToken != nil)
-        {
-            [responseReq setValue: primaryRefreshToken forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
-            refreshTokenIsValid = YES;
-        }
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Added refresh token to the PkeyAuth response.");
+        [responseReq setValue: primaryRefreshToken forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
     }
-    if (!refreshTokenIsValid)
+    else
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"refreshToken is nil while responding to PKeyAuth Challenge.");
     }
