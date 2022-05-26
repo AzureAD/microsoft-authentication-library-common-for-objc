@@ -624,6 +624,54 @@
     XCTAssertNotNil(refreshToken);
 }
 
+- (void)testAcquireTokenSilent_whenATExpiredAndFailedToRefreshTokenWithProtectionPoliciesRequired_shouldReturnIt
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveExpiredTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    silentParameters.accountIdentifier = accountIdentifier;
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse errorRefreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                     requestClaims:nil
+                                                                                     requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                     responseError:@"unauthorized_client"
+                                                                                       description:@"test"
+                                                                                          subError:@"protection_policy_required"
+                                                                                               url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                      responseCode:400];
+
+    [MSIDTestURLSession addResponse:tokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(__unused MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
+        XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"unauthorized_client");
+        XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"protection_policy_required");
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 - (void)testAcquireTokenSilent_whenATExpired_AndFailedToRefreshTokenWithBadTokenError_shouldReturnError_AndRemoveExpiredAccesstoken_AndRemoveRefreshTokenInCache
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
