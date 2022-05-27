@@ -118,9 +118,6 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
     queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
     queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
-#if !defined (MSID_ENABLE_ECC_SUPPORT) || !MSID_ENABLE_ECC_SUPPORT
-    queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
-#endif
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
     if (status != errSecSuccess)
     {
@@ -156,15 +153,6 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         [mutableCertQuery addEntriesFromDictionary:certAttributes];
     }
     
-#if TARGET_OS_OSX
-    // For macOS, if the key is ECC key, use shared access group to query certificate. If it is RSA, remove shared access group from query for certificate as it is not login keychain.
-        NSString *sharedAccessGroup = [certAttributes valueForKey:(__bridge id)kSecAttrAccessGroup];
-        if (sharedAccessGroup && ![[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:privateKeyRef])
-        {
-            [mutableCertQuery removeObjectForKey:(__bridge id)kSecAttrAccessGroup];
-        }
-#endif
-    
     mutableCertQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassCertificate;
     mutableCertQuery[(__bridge id)kSecAttrPublicKeyHash] = applicationLabel;
     mutableCertQuery[(__bridge id)kSecReturnRef] = @YES;
@@ -195,14 +183,19 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         return nil;
     }
     
-    NSString *legacySharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
     NSData *tagData = [kMSIDPrivateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
-    // Legacy registrations would have be done using RSA, passing keyType = RSA in query
-    NSDictionary *extraPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag: tagData,
-                                                 (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup,
-                                                 (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
-    NSDictionary *extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup };
+    NSString *legacySharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+    NSDictionary *extraCertAttributes =  @{ (__bridge id)kSecAttrAccessGroup :  legacySharedAccessGroup};
     
+    // Legacy registrations would have be done using RSA, passing keyType = RSA in query
+    NSMutableDictionary *extraPrivateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:@{ (__bridge id)kSecAttrApplicationTag: tagData,
+                                                                                                        (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA,
+                                                                                                        (__bridge id)kSecAttrAccessGroup : legacySharedAccessGroup}];
+    // For macOS, access group should not be included if kSecUseDataProtectionKeychain = NO as some older versions might throw an error. On macOS, access group should only be specified if kSecUseDataProtectionKeychain  = YES
+#if TARGET_OS_OSX
+    [extraPrivateKeyAttributes removeObjectForKey:(__bridge id)kSecAttrAccessGroup];
+    extraCertAttributes = nil;
+#endif
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking Legacy keychain for registration.");
     MSIDWPJKeyPairWithCert *legacyKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
         
@@ -232,30 +225,37 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         // default registration should have a tenantId associated.
         return legacyKeys;
     }
+    
+    NSString *tag = nil;
+    MSIDWPJKeyPairWithCert *defaultKeys = nil;
+
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using RSA key.");
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
-    NSString *tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
+    tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
-    // Default registrations can be done using RSA/ECC. 1st Looking for RSA device key in the keychain.
-    extraPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag : tagData,
-                                   (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup,
-                                   (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
+    // Default registrations can be done using RSA/ECC in iOS and only ECC in macOS. 1st Looking for RSA device key in the keychain.
+    NSDictionary *extraDefaultPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag : tagData,
+                                                        (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup,
+                                                        (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
     
     extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
-    
-    MSIDWPJKeyPairWithCert *defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
-     
+    // In macOS, default registrations can only be ECC. Skip checking default RSA registration for macOS.
+#if !TARGET_OS_OSX
+    defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraDefaultPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
+
     // If secondary Identity was found, return it
     if (defaultKeys)
     {
         return defaultKeys;
     }
+#endif
+    
 #if defined (MSID_ENABLE_ECC_SUPPORT) && MSID_ENABLE_ECC_SUPPORT
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using ECC key.");
-    // Since the defualt RSA search returned nil, the key might be a ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
+    // Since the defualt RSA search returned nil in iOS, the key might be a ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
     tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
-    NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:extraPrivateKeyAttributes];
+    NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:extraDefaultPrivateKeyAttributes];
     [privateKeyAttributes setObject:tagData forKey:(__bridge id)kSecAttrApplicationTag];
     [privateKeyAttributes setObject:(__bridge id)kSecAttrTokenIDSecureEnclave forKey:(__bridge id)kSecAttrTokenID];
     [privateKeyAttributes setObject:(__bridge id)kSecAttrKeyTypeECSECPrimeRandom forKey:(__bridge id)kSecAttrKeyType];
