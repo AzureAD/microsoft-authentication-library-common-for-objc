@@ -112,7 +112,7 @@
     XCTAssertNil(result);
 }
 
-- (void) testHandleChallengeWithRefreshToken_happyPath_shouldReturnSuccess
+- (void)testHandleChallengeWithRefreshToken_happyPath_shouldReturnSuccess
 {
     __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
     NSString *value = @"FakeRefreshToken";
@@ -135,7 +135,7 @@
     XCTAssertTrue(handleResult);
 }
 
-- (void) testHandleChallengeNilRefreshToken_shouldProceedWithSuccess
+- (void)testHandleChallengeNilRefreshToken_shouldProceedWithSuccess
 {
     __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
 
@@ -155,7 +155,7 @@
     XCTAssertTrue(callback);
     XCTAssertTrue(handleResult);
 }
-- (void) testHandleChallengeWithEmptyCustomHeaders_shouldProceedWithSuccess
+- (void)testHandleChallengeWithEmptyCustomHeaders_shouldProceedWithSuccess
 {
     __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
 
