@@ -3994,8 +3994,8 @@
 			isa = PBXGroup;
 			children = (
 				239222AC243D3791009736C4 /* request_telemetry */,
-				B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */,
 				B20657A41FC91C1600412B7D /* MSIDTelemetryDispatcher.h */,
+				B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */,
 				B20657A71FC91DA900412B7D /* MSIDTelemetry.h */,
 				B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */,
 				B20657A01FC91BE100412B7D /* MSIDTelemetry+Internal.h */,
