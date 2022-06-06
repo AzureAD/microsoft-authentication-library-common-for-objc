@@ -49,7 +49,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     self = [super init];
     if (self)
     {
-        NSArray *appList = [self createTrustedAppListWithCurrentApp:error];
+        NSArray *appList = [self trustedAppListWithCurrentApp:error];
         
         if (![appList count])
         {
@@ -122,20 +122,34 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 
 #pragma mark - Access Control Lists
 
-- (NSArray *)createTrustedAppListWithCurrentApp:(NSError **)error
+- (NSArray *)trustedAppListWithCurrentApp:(NSError **)error
 {
-    SecTrustedApplicationRef trustedApplication = nil;
-    OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
-    if (status != errSecSuccess)
+    static dispatch_once_t s_onceCreateTrustedAppListWithCurrentApp;
+    static NSArray *trustedAppListWithCurrentApp;
+    __block NSError *subError = nil;
+    dispatch_once(&s_onceCreateTrustedAppListWithCurrentApp, ^{
+        SecTrustedApplicationRef trustedApplication = nil;
+        OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
+        if (status != errSecSuccess)
+        {
+            [self createError:@"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured."
+                   domain:MSIDKeychainErrorDomain errorCode:status error:&subError context:nil];
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured (status: %d).", (int)status);
+            trustedAppListWithCurrentApp = nil;
+            
+        }
+        else
+        {
+            trustedAppListWithCurrentApp = @[(__bridge_transfer id)trustedApplication];
+            
+        }
+        
+    });
+    if (subError)
     {
-        [self createError:@"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured."
-                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:nil];
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured (status: %d).", (int)status);
-        return nil;
+        *error = subError;
     }
-    
-    NSArray *trustedApplications = @[(__bridge_transfer id)trustedApplication];
-    return trustedApplications;
+    return trustedAppListWithCurrentApp;
 }
 
 - (id)accessCreateWithChangeACL:(NSArray<id> *)trustedApplications
