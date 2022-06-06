@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
                         algorithm:(_Nonnull SecKeyAlgorithm)algorithm
                               key:(_Nonnull SecKeyRef)key
                           context:(_Nullable id<MSIDRequestContext>)context
-                            error:(NSError * _Nullable * _Nullable)error;
+                            error:(NSError * _Nullable * _Nullable)error API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 /// Get asymmetric verifying algorithm to be put as 'alg' claim in JWT. Depending on the key supplied and algorithms supported returns alg.
 /// @param key key used for signing JWT
