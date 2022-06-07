@@ -227,6 +227,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     }
     
     NSString *tag = nil;
+    __unused MSIDWPJKeyPairWithCert *defaultKeys = nil;
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
     tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
@@ -239,7 +240,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     // In macOS, default registrations can only be ECC. Skip checking default RSA registration for macOS.
 #if !TARGET_OS_OSX
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using RSA key.");
-    MSIDWPJKeyPairWithCert *defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraDefaultPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
+    defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraDefaultPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
 
     // If secondary Identity was found, return it
     if (defaultKeys)
@@ -258,7 +259,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     [privateKeyAttributes setObject:(__bridge id)kSecAttrTokenIDSecureEnclave forKey:(__bridge id)kSecAttrTokenID];
     [privateKeyAttributes setObject:(__bridge id)kSecAttrKeyTypeECSECPrimeRandom forKey:(__bridge id)kSecAttrKeyType];
     [privateKeyAttributes setObject:@256 forKey:(__bridge id)kSecAttrKeySizeInBits];
-    MSIDWPJKeyPairWithCert *defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes certAttributes:extraCertAttributes context:context];
+    defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes certAttributes:extraCertAttributes context:context];
     if (defaultKeys)
     {
         return defaultKeys;
