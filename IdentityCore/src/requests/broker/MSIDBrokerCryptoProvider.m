@@ -122,15 +122,9 @@
         NSString *key = [[NSString alloc] initWithData:self.encryptionKey encoding:NSASCIIStringEncoding];
         bzero(keyPtr, sizeof(keyPtr)); // fill with zeroes (for padding)
         // fetch key data
-        if ([key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding])
-        {
-            keyBytes = keyPtr;
-            keySize = kCCKeySizeAES256;
-        }
-        else
-        {
-            return nil;
-        }
+        [key getCString:keyPtr maxLength:sizeof(keyPtr) encoding:NSUTF8StringEncoding];
+        keyBytes = keyPtr;
+        keySize = kCCKeySizeAES256;
     }
 
     return [response msidAES128DecryptedDataWithKey:keyBytes keySize:keySize];
