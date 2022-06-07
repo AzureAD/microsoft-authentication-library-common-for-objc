@@ -146,8 +146,8 @@ class BuildTarget:
         if (xcpretty and operation == "test") :
             command += " --report junit --output ./build/reports/'" + target.name + ".xml'"
         
-		if (self.platform == "Mac") :
-			command += " -allowProvisioningUpdates"
+        if (self.platform == "Mac") :
+            command += " -allowProvisioningUpdates"
         
         return command
     
