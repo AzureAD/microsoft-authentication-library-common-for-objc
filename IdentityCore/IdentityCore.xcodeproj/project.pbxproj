@@ -597,13 +597,6 @@
 		6E4F659424D48B6D0070CA36 /* MSIDSymmetricKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */; };
 		720AC2A72550D4FB00B2C7C8 /* MSIDAppExtensionUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 720AC2A62550D4FB00B2C7C8 /* MSIDAppExtensionUtil.m */; };
 		72371CEB27051CC200EF5475 /* MSIDKeyOperationUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */; };
-		72371D1A2705805100EF5475 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371D192705805100EF5475 /* AppDelegate.m */; };
-		72371D1D2705805100EF5475 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371D1C2705805100EF5475 /* ViewController.m */; };
-		72371D1F2705805400EF5475 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72371D1E2705805400EF5475 /* Assets.xcassets */; };
-		72371D222705805400EF5475 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 72371D202705805400EF5475 /* Main.storyboard */; };
-		72371D242705805400EF5475 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371D232705805400EF5475 /* main.m */; };
-		72371D2E2705805400EF5475 /* MSIDTestHostAppMacTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371D2D2705805400EF5475 /* MSIDTestHostAppMacTests.m */; };
-		72371D382705805400EF5475 /* MSIDTestHostAppMacUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371D372705805400EF5475 /* MSIDTestHostAppMacUITests.m */; };
 		728209C326FA9C9A00B5F018 /* MSIDBackgroundTaskData.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C226FA9C9A00B5F018 /* MSIDBackgroundTaskData.m */; };
 		728209C926FE94D800B5F018 /* MSIDJwtAlgorithm.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */; };
 		728209CA26FE94D800B5F018 /* MSIDJwtAlgorithm.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */; };
@@ -1725,27 +1718,6 @@
 			remoteGlobalIDString = 231CE99C1FE86EA300E95D3E;
 			remoteInfo = MSIDTestsHostApp;
 		};
-		72371D2A2705805400EF5475 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 72371D152705805100EF5475;
-			remoteInfo = MSIDTestHostAppMac;
-		};
-		72371D342705805400EF5475 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 72371D152705805100EF5475;
-			remoteInfo = MSIDTestHostAppMac;
-		};
-		72371D43270580DA00EF5475 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 72371D152705805100EF5475;
-			remoteInfo = MSIDTestHostAppMac;
-		};
 		D626FF501FBA6DFD00EE4487 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
@@ -2336,20 +2308,8 @@
 		720AC2A62550D4FB00B2C7C8 /* MSIDAppExtensionUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAppExtensionUtil.m; sourceTree = "<group>"; };
 		72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyOperationUtilTest.m; sourceTree = "<group>"; };
 		72371CFF27057ED600EF5475 /* MSIDTestsHostApp copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "MSIDTestsHostApp copy-Info.plist"; path = "/Users/ameyapatil/Documents/microsoft-authentication-library-for-objc/MSAL/IdentityCore/IdentityCore/MSIDTestsHostApp copy-Info.plist"; sourceTree = "<absolute>"; };
-		72371D0627057F8900EF5475 /* MSIDTestAppHostMac.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestAppHostMac.m; sourceTree = "<group>"; };
-		72371D162705805100EF5475 /* MSIDTestHostAppMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MSIDTestHostAppMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		72371D182705805100EF5475 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		72371D192705805100EF5475 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		72371D1B2705805100EF5475 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		72371D1C2705805100EF5475 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		72371D1E2705805400EF5475 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		72371D212705805400EF5475 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		72371D232705805400EF5475 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		72371D292705805400EF5475 /* MSIDTestHostAppMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MSIDTestHostAppMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		72371D2D2705805400EF5475 /* MSIDTestHostAppMacTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestHostAppMacTests.m; sourceTree = "<group>"; };
 		72371D332705805400EF5475 /* MSIDTestHostAppMacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MSIDTestHostAppMacUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		72371D372705805400EF5475 /* MSIDTestHostAppMacUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestHostAppMacUITests.m; sourceTree = "<group>"; };
-		72371D422705808A00EF5475 /* MSIDTestHostAppMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MSIDTestHostAppMac.entitlements; sourceTree = "<group>"; };
 		728209C126FA9C9A00B5F018 /* MSIDBackgroundTaskData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskData.h; sourceTree = "<group>"; };
 		728209C226FA9C9A00B5F018 /* MSIDBackgroundTaskData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskData.m; sourceTree = "<group>"; };
 		728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJwtAlgorithm.m; sourceTree = "<group>"; };
@@ -3076,13 +3036,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		231CE99A1FE86EA300E95D3E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		72371D132705805100EF5475 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -3856,45 +3809,6 @@
 				600D199B20963A9D0004CD43 /* mac */,
 			);
 			path = ui;
-			sourceTree = "<group>";
-		};
-		72371D0527057F8900EF5475 /* MSIDTestAppHostMac */ = {
-			isa = PBXGroup;
-			children = (
-				72371D0627057F8900EF5475 /* MSIDTestAppHostMac.m */,
-			);
-			path = MSIDTestAppHostMac;
-			sourceTree = "<group>";
-		};
-		72371D172705805100EF5475 /* MSIDTestHostAppMac */ = {
-			isa = PBXGroup;
-			children = (
-				72371D422705808A00EF5475 /* MSIDTestHostAppMac.entitlements */,
-				72371D182705805100EF5475 /* AppDelegate.h */,
-				72371D192705805100EF5475 /* AppDelegate.m */,
-				72371D1B2705805100EF5475 /* ViewController.h */,
-				72371D1C2705805100EF5475 /* ViewController.m */,
-				72371D1E2705805400EF5475 /* Assets.xcassets */,
-				72371D202705805400EF5475 /* Main.storyboard */,
-				72371D232705805400EF5475 /* main.m */,
-			);
-			path = MSIDTestHostAppMac;
-			sourceTree = "<group>";
-		};
-		72371D2C2705805400EF5475 /* MSIDTestHostAppMacTests */ = {
-			isa = PBXGroup;
-			children = (
-				72371D2D2705805400EF5475 /* MSIDTestHostAppMacTests.m */,
-			);
-			path = MSIDTestHostAppMacTests;
-			sourceTree = "<group>";
-		};
-		72371D362705805400EF5475 /* MSIDTestHostAppMacUITests */ = {
-			isa = PBXGroup;
-			children = (
-				72371D372705805400EF5475 /* MSIDTestHostAppMacUITests.m */,
-			);
-			path = MSIDTestHostAppMacUITests;
 			sourceTree = "<group>";
 		};
 		96235F8F207D7128007EAB36 /* webview */ = {
@@ -5070,10 +4984,6 @@
 				D626FF751FBA7A6600EE4487 /* xcconfig */,
 				231CE99E1FE86EA300E95D3E /* MSIDTestsHostApp */,
 				1EE8FF5724F4BB3800CA1445 /* IdentityCoreSwift */,
-				72371D0527057F8900EF5475 /* MSIDTestAppHostMac */,
-				72371D172705805100EF5475 /* MSIDTestHostAppMac */,
-				72371D2C2705805400EF5475 /* MSIDTestHostAppMacTests */,
-				72371D362705805400EF5475 /* MSIDTestHostAppMacUITests */,
 				D68FB4881FBA698A005308BB /* Products */,
 				D6D9A4C21FBE718C00EFA430 /* Frameworks */,
 				B214C39A1FE851F20070C4F2 /* Recovered References */,
@@ -5096,7 +5006,6 @@
 				B2ED1BA62204D24700A24E82 /* libIdentityAutomationTestLib iOS.a */,
 				B2ED1BB32204D26700A24E82 /* libIdentityAutomationTestLib Mac.a */,
 				1EE8FF5624F4BB3800CA1445 /* libIdentityCoreSwift.a */,
-				72371D162705805100EF5475 /* MSIDTestHostAppMac.app */,
 				72371D292705805400EF5475 /* MSIDTestHostAppMacTests.xctest */,
 				72371D332705805400EF5475 /* MSIDTestHostAppMacUITests.xctest */,
 			);
@@ -5945,23 +5854,6 @@
 			productReference = 231CE99D1FE86EA300E95D3E /* MSIDTestsHostApp.app */;
 			productType = "com.apple.product-type.application";
 		};
-		72371D152705805100EF5475 /* MSIDTestHostAppMac */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 72371D392705805400EF5475 /* Build configuration list for PBXNativeTarget "MSIDTestHostAppMac" */;
-			buildPhases = (
-				72371D122705805100EF5475 /* Sources */,
-				72371D132705805100EF5475 /* Frameworks */,
-				72371D142705805100EF5475 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = MSIDTestHostAppMac;
-			productName = MSIDTestHostAppMac;
-			productReference = 72371D162705805100EF5475 /* MSIDTestHostAppMac.app */;
-			productType = "com.apple.product-type.application";
-		};
 		72371D282705805400EF5475 /* MSIDTestHostAppMacTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 72371D3C2705805400EF5475 /* Build configuration list for PBXNativeTarget "MSIDTestHostAppMacTests" */;
@@ -5973,7 +5865,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				72371D2B2705805400EF5475 /* PBXTargetDependency */,
 			);
 			name = MSIDTestHostAppMacTests;
 			productName = MSIDTestHostAppMacTests;
@@ -5991,7 +5882,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				72371D352705805400EF5475 /* PBXTargetDependency */,
 			);
 			name = MSIDTestHostAppMacUITests;
 			productName = MSIDTestHostAppMacUITests;
@@ -6118,7 +6008,6 @@
 				D6D9A4C71FBE719D00EFA430 /* PBXTargetDependency */,
 				D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */,
 				72371D1127057FBB00EF5475 /* PBXTargetDependency */,
-				72371D44270580DA00EF5475 /* PBXTargetDependency */,
 			);
 			name = "IdentityCoreTests Mac";
 			productName = IdentityCoreTests;
@@ -6200,10 +6089,6 @@
 							};
 						};
 					};
-					72371D152705805100EF5475 = {
-						CreatedOnToolsVersion = 13.0;
-						ProvisioningStyle = Automatic;
-					};
 					72371D282705805400EF5475 = {
 						CreatedOnToolsVersion = 13.0;
 						ProvisioningStyle = Automatic;
@@ -6279,7 +6164,6 @@
 				D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */,
 				D626FF671FBA6EDF00EE4487 /* IdentityCoreTests Mac */,
 				231CE99C1FE86EA300E95D3E /* MSIDTestsHostApp */,
-				72371D152705805100EF5475 /* MSIDTestHostAppMac */,
 				B27551C7208179EE00AA7A38 /* IdentityAutomationAppLib iOS */,
 				B27551D420817A1E00AA7A38 /* IdentityAutomationAppLib Mac */,
 				B2ED1BA52204D24700A24E82 /* IdentityAutomationTestLib iOS */,
@@ -6299,15 +6183,6 @@
 				231CE9AF1FE86EA300E95D3E /* LaunchScreen.storyboard in Resources */,
 				231CE9AC1FE86EA300E95D3E /* Assets.xcassets in Resources */,
 				231CE9AA1FE86EA300E95D3E /* Main.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		72371D142705805100EF5475 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				72371D1F2705805400EF5475 /* Assets.xcassets in Resources */,
-				72371D222705805400EF5475 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6380,21 +6255,10 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		72371D122705805100EF5475 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				72371D1D2705805100EF5475 /* ViewController.m in Sources */,
-				72371D242705805400EF5475 /* main.m in Sources */,
-				72371D1A2705805100EF5475 /* AppDelegate.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		72371D252705805400EF5475 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				72371D2E2705805400EF5475 /* MSIDTestHostAppMacTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6402,7 +6266,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				72371D382705805400EF5475 /* MSIDTestHostAppMacUITests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7689,21 +7552,6 @@
 			target = 231CE99C1FE86EA300E95D3E /* MSIDTestsHostApp */;
 			targetProxy = 72371D1027057FBB00EF5475 /* PBXContainerItemProxy */;
 		};
-		72371D2B2705805400EF5475 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 72371D152705805100EF5475 /* MSIDTestHostAppMac */;
-			targetProxy = 72371D2A2705805400EF5475 /* PBXContainerItemProxy */;
-		};
-		72371D352705805400EF5475 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 72371D152705805100EF5475 /* MSIDTestHostAppMac */;
-			targetProxy = 72371D342705805400EF5475 /* PBXContainerItemProxy */;
-		};
-		72371D44270580DA00EF5475 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 72371D152705805100EF5475 /* MSIDTestHostAppMac */;
-			targetProxy = 72371D43270580DA00EF5475 /* PBXContainerItemProxy */;
-		};
 		D626FF511FBA6DFD00EE4487 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D68FB4861FBA698A005308BB /* IdentityCore iOS */;
@@ -7741,14 +7589,6 @@
 				231CE9AE1FE86EA300E95D3E /* Base */,
 			);
 			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		72371D202705805400EF5475 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				72371D212705805400EF5475 /* Base */,
-			);
-			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -7990,159 +7830,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		72371D3A2705805400EF5475 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = MSIDTestHostAppMac/MSIDTestHostAppMac.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				ENABLE_APP_SANDBOX = YES;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Microsoft. All rights reserved.";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 11.6;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.MSIDTestHostAppMac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-			};
-			name = Debug;
-		};
-		72371D3B2705805400EF5475 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = MSIDTestHostAppMac/MSIDTestHostAppMac.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				ENABLE_APP_SANDBOX = YES;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Microsoft. All rights reserved.";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 11.6;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.MSIDTestHostAppMac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
@@ -9114,15 +8801,6 @@
 			buildConfigurations = (
 				231CE9B11FE86EA300E95D3E /* Debug */,
 				231CE9B21FE86EA300E95D3E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		72371D392705805400EF5475 /* Build configuration list for PBXNativeTarget "MSIDTestHostAppMac" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				72371D3A2705805400EF5475 /* Debug */,
-				72371D3B2705805400EF5475 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
