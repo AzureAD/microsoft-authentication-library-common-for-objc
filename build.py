@@ -141,14 +141,14 @@ class BuildTarget:
         if (self.platform == "iOS") :
             command += " " + ios_sim_flags + " " + ios_sim_dest
         
+        if (self.platform == "Mac") :
+            command += " -allowProvisioningUpdates"
+        
         if (xcpretty) :
             command += " | xcpretty"
         if (xcpretty and operation == "test") :
             command += " --report junit --output ./build/reports/'" + target.name + ".xml'"
-        
-        if (self.platform == "Mac") :
-            command += " -allowProvisioningUpdates"
-        
+                
         return command
     
     def get_build_settings(self) :
