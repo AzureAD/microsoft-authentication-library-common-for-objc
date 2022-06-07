@@ -65,6 +65,6 @@ NS_ASSUME_NONNULL_BEGIN
                                       privateKey:(_Nonnull SecKeyRef)privateKey
                                 signingAlgorithm:(SecKeyAlgorithm)algorithm
                                          context:(_Nullable id<MSIDRequestContext>)context
-                                           error:(NSError * _Nullable * _Nullable)error;
+                                           error:(NSError * _Nullable * _Nullable)error API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 @end
 NS_ASSUME_NONNULL_END

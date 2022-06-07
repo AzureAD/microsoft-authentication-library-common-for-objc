@@ -146,6 +146,9 @@ class BuildTarget:
         if (xcpretty and operation == "test") :
             command += " --report junit --output ./build/reports/'" + target.name + ".xml'"
         
+		if (self.platform == "Mac")
+			command += " -allowProvisioningUpdates"
+        
         return command
     
     def get_build_settings(self) :
