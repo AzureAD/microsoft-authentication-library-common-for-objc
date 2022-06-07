@@ -597,7 +597,6 @@
 		6E4F659424D48B6D0070CA36 /* MSIDSymmetricKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */; };
 		720AC2A72550D4FB00B2C7C8 /* MSIDAppExtensionUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 720AC2A62550D4FB00B2C7C8 /* MSIDAppExtensionUtil.m */; };
 		72371CEB27051CC200EF5475 /* MSIDKeyOperationUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */; };
-		72371CEC27051CC200EF5475 /* MSIDKeyOperationUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */; };
 		72371D1A2705805100EF5475 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371D192705805100EF5475 /* AppDelegate.m */; };
 		72371D1D2705805100EF5475 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371D1C2705805100EF5475 /* ViewController.m */; };
 		72371D1F2705805400EF5475 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72371D1E2705805400EF5475 /* Assets.xcassets */; };
@@ -6245,7 +6244,6 @@
 						CreatedOnToolsVersion = 9.1;
 						LastSwiftMigration = 1160;
 						ProvisioningStyle = Automatic;
-						TestTargetID = 72371D152705805100EF5475;
 					};
 					D626FFD21FBD1F2B00EE4487 = {
 						CreatedOnToolsVersion = 9.1;
@@ -7177,7 +7175,6 @@
 				B2964BE620521D790000BC95 /* MSIDTokenFilteringHelperTests.m in Sources */,
 				23B37D1F20CA098E0018722F /* MSIDCacheTests.m in Sources */,
 				23642AB72187D88C00F97009 /* MSIDAuthorityMock.m in Sources */,
-				72371CEC27051CC200EF5475 /* MSIDKeyOperationUtilTest.m in Sources */,
 				9652905D229E03FC00862A2E /* MSIDAccountMetadataTests.m in Sources */,
 				B2DD4B3220A8DA0B0047A66E /* MSIDLegacyCacheQueryTests.m in Sources */,
 				B2BE925021A24A5300F5AB8C /* MSIDSilentControllerIntegrationTests.m in Sources */,
@@ -8032,6 +8029,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = MSIDTestHostAppMac/MSIDTestHostAppMac.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -8069,6 +8067,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.MSIDTestHostAppMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
@@ -8110,6 +8109,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = MSIDTestHostAppMac/MSIDTestHostAppMac.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -8140,6 +8140,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.MSIDTestHostAppMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
@@ -8996,7 +8997,6 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestHostAppMac.app/Contents/MacOS/MSIDTestHostAppMac";
 			};
 			name = Debug;
 		};
@@ -9012,7 +9012,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestHostAppMac.app/Contents/MacOS/MSIDTestHostAppMac";
 			};
 			name = Release;
 		};

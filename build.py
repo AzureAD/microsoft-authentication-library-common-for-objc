@@ -140,10 +140,7 @@ class BuildTarget:
 
         if (self.platform == "iOS") :
             command += " " + ios_sim_flags + " " + ios_sim_dest
-        
-        if (self.platform == "Mac") :
-            command += " -allowProvisioningUpdates"
-        
+                
         if (xcpretty) :
             command += " | xcpretty"
         if (xcpretty and operation == "test") :
