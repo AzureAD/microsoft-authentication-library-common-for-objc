@@ -80,9 +80,11 @@
         {
             authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
+#if !EXCLUDE_FROM_MSALCPP
             // Save telemetry for successful PkeyAuth ADFS challenge responses
             NSUInteger httpStatusCode = [challengeData valueForKey:@"SubmitUrl"] ? 302 : 401;
             [self saveTelemetryForAdfsPkeyAuthChallengeForUrl:authorizationServer code:httpStatusCode context:context];
+#endif
         }
     }
     
@@ -153,6 +155,7 @@
     return [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKeyRef]];
 }
 
+#if !EXCLUDE_FROM_MSALCPP
 + (void)saveTelemetryForAdfsPkeyAuthChallengeForUrl:(NSURL *)adfsUrl
                                                code:(NSUInteger)code
                                             context:(id<MSIDRequestContext>)context
@@ -164,4 +167,6 @@
         [serverTelemetry handleError:[[NSError alloc] initWithDomain:telemetryMessage code:code userInfo:nil] context:context];
     }
 }
+#endif
+
 @end

@@ -27,8 +27,6 @@
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDThrottlingService.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
-#import "MSIDDefaultTokenRequestProvider.h"
-#import "MSIDDefaultTokenRequestProvider+Internal.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDInteractiveTokenRequest+Internal.h"
 

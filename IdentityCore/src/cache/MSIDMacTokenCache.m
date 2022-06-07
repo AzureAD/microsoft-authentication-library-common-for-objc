@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP_FOR_MACOS
+
 #import "MSIDMacTokenCache.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDLegacyTokenCacheKey.h"
@@ -123,7 +125,7 @@ return NO; \
         [unarchiver setClass:MSIDLegacyTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
         [unarchiver setClass:MSIDLegacyTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
         [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
-        __auto_type allowedClasses = [NSSet setWithObjects:NSDictionary.class, MSIDLegacyTokenCacheKey.class, MSIDLegacyTokenCacheItem.class, MSIDUserInformation.class, nil];
+        __auto_type allowedClasses = [NSSet setWithObjects:NSDictionary.class, NSNumber.class, NSString.class, MSIDLegacyTokenCacheKey.class, MSIDLegacyTokenCacheItem.class, MSIDUserInformation.class, nil];
         cache = [unarchiver decodeObjectOfClasses:allowedClasses forKey:NSKeyedArchiveRootObjectKey];
         [unarchiver finishDecoding];
     }
@@ -536,3 +538,4 @@ return NO; \
 
 @end
 
+#endif

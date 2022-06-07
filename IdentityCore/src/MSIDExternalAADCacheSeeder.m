@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDExternalAADCacheSeeder.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDRefreshTokenGrantRequest.h"
@@ -258,3 +260,5 @@
 }
 
 @end
+
+#endif

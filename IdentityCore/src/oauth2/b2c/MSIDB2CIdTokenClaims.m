@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDB2CIdTokenClaims.h"
 #import "MSIDHelpers.h"
 #import "MSIDB2CAuthority.h"
@@ -78,3 +80,5 @@ MSID_JSON_ACCESSOR(@"tfp", tfp)
 }
 
 @end
+
+#endif

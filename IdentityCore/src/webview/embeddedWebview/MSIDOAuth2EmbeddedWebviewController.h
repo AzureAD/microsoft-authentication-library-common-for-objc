@@ -34,6 +34,8 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDWebViewPlatformParams.h"
 
+typedef void (^MSIDNavigationResponseBlock)(NSHTTPURLResponse *response);
+
 @interface MSIDOAuth2EmbeddedWebviewController :
 MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 
@@ -53,6 +55,8 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
 
 @property (atomic, readonly) NSURL *startURL;
+@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
+@property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
 
 @end
 
