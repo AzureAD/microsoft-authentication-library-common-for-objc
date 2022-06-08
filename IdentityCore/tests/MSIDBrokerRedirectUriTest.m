@@ -62,7 +62,7 @@
 #if TARGET_OS_IPHONE
     url = [NSURL URLWithString:@"msauth.com.microsoft.MSIDTestsHostApp://auth"];
 #else
-    url = [NSURL URLWithString:@"msauth.com.microsoft.MSIDTestHostAppMac://auth"];
+    url = [NSURL URLWithString:@"msauth.com.apple.dt.xctest.tool://auth"];
 #endif
     XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url]);
 
@@ -74,7 +74,7 @@
 #if TARGET_OS_IPHONE
     url = [NSURL URLWithString:@"myscheme://com.microsoft.MSIDTestsHostApp"];
 #else
-    url = [NSURL URLWithString:@"myscheme://com.microsoft.MSIDTestHostAppMac"];
+    url = [NSURL URLWithString:@"myscheme://com.apple.dt.xctest.tool"];
 #endif
     XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url]);
 
@@ -86,7 +86,7 @@
 #if TARGET_OS_IPHONE
     url = [NSURL URLWithString:@"com.microsoft.MSIDTestsHostApp"];
 #else
-    url = [NSURL URLWithString:@"com.microsoft.MSIDTestHostAppMac"];
+    url = [NSURL URLWithString:@"com.apple.dt.xctest.tool"];
 #endif
     XCTAssertFalse([MSIDRedirectUri redirectUriIsBrokerCapable:url]);
 

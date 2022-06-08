@@ -233,7 +233,7 @@
 
 - (NSString *)executablePath
 {
-    return [NSString stringWithFormat:@"%@\0", [[NSBundle mainBundle] bundlePath]];
+    return [NSString stringWithFormat:@"%@\0", [[NSBundle mainBundle] executablePath]];
 }
 
 - (NSArray *)trustedAppsForAccess:(id)access authorizationTag:(CFStringRef)authorizationTag
