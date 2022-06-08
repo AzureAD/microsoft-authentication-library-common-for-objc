@@ -139,7 +139,7 @@
                                       fixedInput:(uint8_t*)mutData.bytes
                                 fixedInputLength:mutData.length];
     
-    if (pbDerivedKey == nil)
+    if (pbDerivedKey == NULL)
     {
         return nil;
     }
@@ -169,9 +169,9 @@
     ctr = 1;
     keyDerivated = (uint8_t *)malloc(outputSizeBit / 8); //output is 32 bytes
     
-    if (keyDerivated == nil)
+    if (keyDerivated == NULL)
     {
-        return nil;
+        return NULL;
     }
     
     do
@@ -181,9 +181,9 @@
                                fixedInput:fixedInput
                         fixedInput_length:fixedInputLength];
         
-        if (dataInput == nil)
+        if (dataInput == NULL)
         {
-            return nil;
+            return NULL;
         }
         
         CCHmac(kCCHmacAlgSHA256,
@@ -231,9 +231,9 @@
 {
     uint8_t *tmpFixedInput = (uint8_t *)malloc(fixedInput_length + 4); //+4 is caused from the ct
     
-    if (tmpFixedInput == nil)
+    if (tmpFixedInput == NULL)
     {
-        return nil;
+        return NULL;
     }
  
     tmpFixedInput[0] = (ctr >> 24);
