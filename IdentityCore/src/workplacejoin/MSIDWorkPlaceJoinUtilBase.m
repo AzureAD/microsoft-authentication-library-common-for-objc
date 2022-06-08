@@ -232,7 +232,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
     // Default registrations can be done using RSA/ECC in iOS and only ECC in macOS. 1st Looking for RSA device key in the keychain.
-    NSDictionary *extraDefaultPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag : tagData,
+    __unused NSDictionary *extraDefaultPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag : tagData,
                                                         (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup,
                                                         (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
     
