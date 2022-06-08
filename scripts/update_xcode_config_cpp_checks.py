@@ -31,7 +31,6 @@ configurations = [
     "Wobjc-literal-conversion",
     "Wobjc-root-class",
     "Wprotocol",
-    "Wshadow",
     "Wshorten-64-to-32",
     "Wstrict-prototypes",
     "Wundeclared-selector",
