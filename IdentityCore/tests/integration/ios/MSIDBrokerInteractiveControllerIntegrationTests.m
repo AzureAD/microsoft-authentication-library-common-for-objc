@@ -44,6 +44,13 @@
 #import "MSIDTestLocalInteractiveController.h"
 #import "MSIDTestIdentifiers.h"
 #import "MSIDTestParametersProvider.h"
+#import "MSIDDefaultBrokerResponseHandler.h"
+#import "MSIDDefaultTokenResponseValidator.h"
+#import "MSIDTestIdTokenUtil.h"
+#import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDTestBrokerResponseHelper.h"
+#import "NSData+MSIDExtensions.h"
+#import "MSIDTestBrokerKeyProviderHelper.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
@@ -55,10 +62,17 @@
 {
     [super setUp];
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
+    
+    [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:MSID_BROKER_SYMMETRIC_KEY_TAG];
 }
 
 - (void)tearDown
 {
+    // Clear keychain
+    NSDictionary *query = @{(id)kSecClass : (id)kSecClassKey,
+                            (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric};
+    
+    SecItemDelete((CFDictionaryRef)query);
    
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
@@ -209,6 +223,158 @@
         XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
         XCTAssertEqualObjects(brokerEvent[@"request_id"], parameters.telemetryRequestId);
         XCTAssertEqualObjects(brokerEvent[@"status"], @"succeeded");
+        XCTAssertNotNil(brokerEvent[@"start_time"]);
+        XCTAssertNotNil(brokerEvent[@"stop_time"]);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenInsufficientScopesReturned_shouldReturnNilResultAndError
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+
+    // Setup test request providers
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.oidcScope = @"openid profile offline_access not_granted_scope";
+    parameters.telemetryApiId = @"api_broker_success";
+
+    NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value1",
+                                           @"test-resume-key2": @"test-resume-value2",
+                                           MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME,
+                                           @"keychain_group" : @"com.microsoft.adalcache",
+                                           @"redirect_uri" : @"x-msauth-test://com.microsoft.testapp",
+                                           @"broker_nonce" : @"nonce"
+    };
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                                                 tokenRequestProvider:provider
+                                                                                                                   fallbackController:nil
+                                                                                                                                error:&error];
+
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+    
+    NSString *scopes = @"myscope1 myscope2";
+    NSString *idTokenString = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"user@contoso.com"
+                                                                        subject:@"mysubject"
+                                                                      givenName:@"myGivenName"
+                                                                     familyName:@"myFamilyName"
+                                                                           name:@"Contoso"
+                                                                        version:@"2.0"
+                                                                            tid:@"contoso.com-guid"];
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+
+        XCTAssertEqualObjects(url, brokerRequestURL);
+
+        NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+        XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
+        
+        NSDictionary *clientInfo = @{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"};
+        NSString *rawClientInfo = [clientInfo msidBase64UrlJson];
+        
+        NSDate *expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
+        NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+        
+        NSString *correlationId = [[NSUUID UUID] UUIDString];
+        
+        NSDictionary *brokerResponseParams =
+        @{
+          @"correlation_id" : correlationId,
+          @"x-broker-app-ver" : @"1.0.0",
+          @"success": @NO,
+          @"broker_nonce" : @"nonce",
+          @"MSIDDeclinedScopesKey" : @"not_granted_scope",
+          @"MSIDGrantedScopesKey" : scopes,
+          @"additional_tokens" : [NSString stringWithFormat:@"{\"client_info\":\"\%@\",\"authority\":\"https://login.microsoftonline.com/common\",\"token_type\":\"Bearer\",\"x-broker-app-ver\":\"1.0\",\"refresh_token\":\"i-am-a-refresh-token\",\"scope\":\"%@ openid profile\",\"broker_version\":\"3.1.37\",\"application_token\":\"app-token\",\"success\":true,\"expires_on\":\"%@\",\"device_mode\":\"personal\",\"wpj_status\":\"notJoined\",\"correlation_id\":\"%@\",\"vt\":\"YES\",\"client_id\":\"my_client_id\",\"id_token\":\"%@\",\"access_token\":\"i-am-an-access-token\",\"sso_extension_mode\":\"full\"}", rawClientInfo, scopes, expiresOnString, correlationId, idTokenString],
+          @"broker_error_code" : @(-50003), // MSALErrorServerDeclinedScopes
+          @"broker_error_domain" : @"MSALErrorDomain",
+          @"error_description" : @"Server returned less scopes than requested",
+          @"error_metadata" : @"{}"
+          };
+        
+        NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                                 redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                               encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+        
+        MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+
+        [MSIDBrokerInteractiveController completeAcquireToken:brokerResponseURL
+                                            sourceApplication:@"com.microsoft.azureauthenticator"
+                                        brokerResponseHandler:brokerResponseHandler];
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNil(result);
+        // Check result
+        XCTAssertNil(result.accessToken);
+        XCTAssertNil(result.rawIdToken);
+        XCTAssertNil(result.account);
+        XCTAssertNil(result.authority);
+        XCTAssertNotNil(error);
+
+        // Check userInfo
+        XCTAssertNotNil(error.userInfo[MSIDDeclinedScopesKey]);
+        XCTAssertEqualObjects([[NSArray arrayWithArray:error.userInfo[MSIDDeclinedScopesKey]] componentsJoinedByString:@" "], @"not_granted_scope");
+        XCTAssertNotNil(error.userInfo[MSIDGrantedScopesKey]);
+        XCTAssertEqualObjects([[NSArray arrayWithArray:error.userInfo[MSIDGrantedScopesKey]] componentsJoinedByString:@" "], scopes);
+        
+        MSIDTokenResult *tokenResult = error.userInfo[MSIDInvalidTokenResultKey];
+        XCTAssertNotNil(tokenResult);
+        XCTAssertEqualObjects(tokenResult.accessToken.accessToken, @"i-am-an-access-token");
+        XCTAssertEqualObjects(tokenResult.refreshToken.refreshToken, @"i-am-a-refresh-token");
+        XCTAssertEqualObjects(tokenResult.rawIdToken, idTokenString);
+        
+        // Check Telemetry event
+        XCTAssertEqual([receivedEvents count], 4);
+        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
+        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_success");
+        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");
+        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(telemetryEvent[@"status"], @"failed");
+        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertNotNil(telemetryEvent[@"response_time"]);
+
+        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
+        XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
+        XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
+        XCTAssertEqualObjects(brokerEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(brokerEvent[@"status"], @"failed");
         XCTAssertNotNil(brokerEvent[@"start_time"]);
         XCTAssertNotNil(brokerEvent[@"stop_time"]);
 
