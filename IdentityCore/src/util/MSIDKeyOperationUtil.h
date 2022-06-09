@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Returns if supplied key is from secure enclave
 /// @param key key to check
-- (BOOL)isKeyFromSecureEnclave:(_Nonnull SecKeyRef)key;
+- (BOOL)isKeyFromSecureEnclave:(_Nonnull SecKeyRef)key API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 /// Returns boolean indicating if a key operation can be done using the key with supplied algorithm
 /// @param operation operation type like encryption, decryption, signing, verifying. Refer SecKeyOperationType for available operations
@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param error error determining alg
 - (_Nullable MSIDJwtAlgorithm)getJwtAlgorithmForKey:(SecKeyRef _Nonnull )key
                                             context:(_Nullable id<MSIDRequestContext>)context
-                                              error:(NSError * _Nullable * _Nullable)error;
+                                              error:(NSError * _Nullable * _Nullable)error API_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0));
 
 /// Returns signature after using supplied key to sign supplied data. Uses SecKeyCreateSignature which signs(SHA256(data))
 /// @param rawData Data to be signed. Method will SHA256 this internally

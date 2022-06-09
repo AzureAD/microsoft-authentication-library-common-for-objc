@@ -36,6 +36,7 @@
 #import "MSIDKeyOperationUtil.h"
 
 static MSIDRegistrationInformation *s_registrationInformationToReturn;
+static BOOL s_shouldGenerateEccKeyPair = NO;
 
 @interface MSIDPkeyAuthHelperTests : XCTestCase
     @property (nonatomic) SecKeyRef eccPrivateKey;
@@ -43,6 +44,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     @property (nonatomic) SecKeyRef rsaPrivateKey;
     @property (nonatomic) SecKeyRef rsaPublicKey;
     @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
+    @property (nonatomic) BOOL isEcKeyMethodSwizzled;
 @end
 
 @implementation MSIDPkeyAuthHelperTests
@@ -60,9 +62,31 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 #if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
     if (!self.eccKeyGenerator)
     {
-        self.eccKeyGenerator = [MSIDTestSecureEnclaveKeyPairGenerator new];
-        self.eccPublicKey = self.eccKeyGenerator.eccPublicKey;
-        self.eccPrivateKey = self.eccKeyGenerator.eccPrivateKey;
+        if (s_shouldGenerateEccKeyPair)
+        {
+            self.eccKeyGenerator = [MSIDTestSecureEnclaveKeyPairGenerator new];
+            self.eccPublicKey = self.eccKeyGenerator.eccPublicKey;
+            self.eccPrivateKey = self.eccKeyGenerator.eccPrivateKey;
+            self.isEcKeyMethodSwizzled = NO;
+        }
+        else
+        {
+            self.eccPublicKey = SecKeyCreateWithData((__bridge CFDataRef)[NSData hexStringToData:@"04a21f94 07831a37 d9ba294c 2b9c16db 599496de 8a44e909 fd8b6fba f947ed51 c775152f 806af756 9409f18e 87261847 54d19e9a 63ccfd49 af2f7c1f 642da582 84"],
+                                                     (__bridge CFDictionaryRef)@{ (id)kSecAttrKeyType: (id)kSecAttrKeyTypeEC,
+                                                                                  (id)kSecAttrKeySizeInBits: @256,
+                                                                                  (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPublic },
+                                                     NULL);
+            CFErrorRef error = NULL;
+            self.eccPrivateKey = SecKeyCreateWithData((__bridge CFDataRef)[NSData hexStringToData:@"04a21f94 07831a37 d9ba294c 2b9c16db 599496de 8a44e909 fd8b6fba f947ed51 c775152f 806af756 9409f18e 87261847 54d19e9a 63ccfd49 af2f7c1f 642da582 84c682d0 e2ac6c42 dcac9417 b31cdccc 2962926d fe088ff3 1dfc3c60 e19c02fb b9"],
+                                                      (__bridge CFDictionaryRef)@{ (id)kSecAttrKeyType: (id)kSecAttrKeyTypeEC,
+                                                                                   (id)kSecAttrKeySizeInBits: @256,
+                                                                                   (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPrivate,
+                                                                                   (id)kSecClass: (id)kSecClassKey },
+                                                      &error);
+            NSError *keyGenError = CFBridgingRelease(error);
+            XCTAssertNil(keyGenError);
+            self.eccPublicKey = SecKeyCopyPublicKey(self.eccPrivateKey);
+        }
     }
 #endif
 }
@@ -74,6 +98,15 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
              withMethod:@selector(swizzled_getWPJKeysWithTenantId:context:)
               fromClass:[self class]
      ];
+    if (self.isEcKeyMethodSwizzled)
+    {
+        [self swizzleInstanceMethod:@selector(isKeyFromSecureEnclave:)
+                            inClass:[MSIDKeyOperationUtil class]
+                         withMethod:@selector(swizzled_isKeyFromSecureEnclave)
+                          fromClass:[self class]
+         ];
+        self.isEcKeyMethodSwizzled = NO;
+    }
     [NSDate reset];
 }
 
@@ -98,6 +131,10 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 #if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
+        if (!s_shouldGenerateEccKeyPair)
+        {
+            [self swizzleIsKeyFromSecureEnclaveImp];
+        }
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
         [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:[url absoluteString] publicKey:self.eccPublicKey isRsa:false];
 #endif
@@ -124,6 +161,10 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 #if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
+        if (!s_shouldGenerateEccKeyPair)
+        {
+            [self swizzleIsKeyFromSecureEnclaveImp];
+        }
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
         [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
 #endif
@@ -151,6 +192,10 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 #if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
+        if (!s_shouldGenerateEccKeyPair)
+        {
+            [self swizzleIsKeyFromSecureEnclaveImp];
+        }
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
         [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
 #endif
@@ -289,6 +334,16 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     method_exchangeImplementations(originalMethod, mockMethod);
 }
 
+- (void)swizzleInstanceMethod:(SEL)defaultMethod
+                      inClass:(Class)class
+                   withMethod:(SEL)swizzledMethod
+                  fromClass:(Class)aNewClass
+{
+    Method originalMethod = class_getInstanceMethod(class, defaultMethod);
+    Method mockMethod = class_getClassMethod(aNewClass, swizzledMethod);
+    method_exchangeImplementations(originalMethod, mockMethod);
+}
+
 + (MSIDWPJKeyPairWithCert *)swizzled_getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
 {
     return s_registrationInformationToReturn;
@@ -349,4 +404,16 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     XCTAssertTrue(isVerified);
     XCTAssertTrue(verifyingError == NULL);
 }
+
++ (BOOL)swizzled_isKeyFromSecureEnclave
+{
+    return YES;
+}
+
+- (void)swizzleIsKeyFromSecureEnclaveImp
+{
+    [self swizzleInstanceMethod:@selector(isKeyFromSecureEnclave:) inClass:MSIDKeyOperationUtil.class withMethod:@selector(swizzled_isKeyFromSecureEnclave) fromClass:self.class];
+    self.isEcKeyMethodSwizzled = YES;
+}
+
 @end
