@@ -28,6 +28,7 @@
 
 + (BOOL)handleChallenge:(NSString *)challengeUrl
                 context:(id<MSIDRequestContext>)context
+          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
       completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
 
 + (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue

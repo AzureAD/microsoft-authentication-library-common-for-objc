@@ -35,6 +35,7 @@
 
 + (BOOL)handleChallenge:(NSString *)challengeUrl
                 context:(id<MSIDRequestContext>)context
+          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
       completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Handling PKeyAuth Challenge.");
@@ -72,6 +73,19 @@
     NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc] initWithURL:responseUrlComp.URL];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
+
+    // Adding refreshTokenCredential (PRT) header to the challenge response. Header is available in customheaders dictionary
+    NSString *credentialHeader = [customHeaders objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
+    if (credentialHeader)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Added refresh token to the PkeyAuth response.");
+        [responseReq setValue:credentialHeader forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"CredentialHeader is nil while responding to PKeyAuth Challenge.");
+    }
+
     completionHandler(responseReq, nil);
     return YES;
 }
