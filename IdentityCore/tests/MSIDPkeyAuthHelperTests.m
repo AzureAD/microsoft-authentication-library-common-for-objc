@@ -36,7 +36,7 @@
 #import "MSIDKeyOperationUtil.h"
 
 static MSIDRegistrationInformation *s_registrationInformationToReturn;
-static BOOL s_shouldGenerateEccKeyPair = NO;
+__unused static BOOL s_shouldGenerateEccKeyPair = NO;
 
 @interface MSIDPkeyAuthHelperTests : XCTestCase
     @property (nonatomic) SecKeyRef eccPrivateKey;
