@@ -5946,7 +5946,6 @@
 			dependencies = (
 				D6D9A4C71FBE719D00EFA430 /* PBXTargetDependency */,
 				D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */,
-				72371D1127057FBB00EF5475 /* PBXTargetDependency */,
 			);
 			name = "IdentityCoreTests Mac";
 			productName = IdentityCoreTests;
@@ -8358,7 +8357,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MSID_ENABLE_ECC_SUPPORT = 1;
+				MSID_ENABLE_ECC_SUPPORT = 0;
 			};
 			name = Debug;
 		};
@@ -8373,7 +8372,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MSID_ENABLE_ECC_SUPPORT = 1;
+				MSID_ENABLE_ECC_SUPPORT = 0;
 			};
 			name = Release;
 		};
