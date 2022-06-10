@@ -181,10 +181,11 @@
     }
 
     NSString *query = [components percentEncodedQuery];
+    NSDictionary *queryParametersDictionary = [self msidQueryParameters];
 
     for (NSString *key in [queryParameters allKeys])
     {
-        if (query && [query containsString:key])
+        if (queryParametersDictionary[key])
         {
             // Don't bother adding it if it's already there
             continue;

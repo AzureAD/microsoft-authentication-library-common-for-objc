@@ -370,6 +370,17 @@
     XCTAssertEqualObjects(resultURL, expectedResultURL);
 }
 
+- (void)testMsidURLWithQueryParameters_whenNonEmptyQuery_andQueryParametersWithSimilarNames_shouldReturnCombinedURL
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&longer-return-client-request-id=true"];
+
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"return-client-request-id":@"value1", @"client-request-id": @"value2"}];
+
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&longer-return-client-request-id=true&return-client-request-id=value1&client-request-id=value2"];
+
+    XCTAssertEqualObjects(resultURL, expectedResultURL);
+}
+
 - (void)testMsidPIINullifiedURL_whenNoQueryParameters_shouldReturnURL
 {
     NSURL *inputURL = [NSURL URLWithString:@"https://login.microsoftonline.com/path/path2/path3"];
