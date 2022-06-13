@@ -41,6 +41,7 @@
 #import "MSIDSSOTokenResponseHandler.h"
 #import "MSIDThrottlingService.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -208,7 +209,7 @@
     
     self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
     self.authorizationController.delegate = self.extensionDelegate;
-    [self.authorizationController performRequests];
+    [self.authorizationController msidPerformRequests];
     
     self.requestCompletionBlock = completionBlock;
 }

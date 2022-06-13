@@ -38,6 +38,7 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDSSOTokenResponseHandler.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
@@ -172,7 +173,7 @@
         self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
         self.authorizationController.delegate = self.extensionDelegate;
         self.authorizationController.presentationContextProvider = self;
-        [self.authorizationController performRequests];
+        [self.authorizationController msidPerformRequests];
         
         self.requestCompletionBlock = completionBlock;
      }];

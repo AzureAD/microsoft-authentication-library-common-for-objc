@@ -34,6 +34,7 @@
 #import "MSIDBrokerOperationRequest.h"
 #import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDConfiguration.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
 
 @interface MSIDSSOExtensionSignoutRequest() <ASAuthorizationControllerPresentationContextProviding, ASAuthorizationControllerDelegate>
 
@@ -148,7 +149,7 @@
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
     self.authorizationController.presentationContextProvider = self;
-    [self.authorizationController performRequests];
+    [self.authorizationController msidPerformRequests];
     
     self.requestCompletionBlock = completionBlock;
 }

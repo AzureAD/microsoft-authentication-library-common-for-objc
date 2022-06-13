@@ -27,6 +27,7 @@
 #import "MSIDBrokerOperationRequest.h"
 #import "MSIDRequestParameters.h"
 #import "NSDictionary+MSIDQueryItems.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
 
 @implementation ASAuthorizationSingleSignOnProvider (MSIDExtensions)
 
