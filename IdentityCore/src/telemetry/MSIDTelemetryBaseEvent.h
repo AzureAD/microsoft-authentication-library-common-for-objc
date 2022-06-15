@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetryEventInterface.h"
 
 @interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
@@ -41,3 +43,20 @@
 + (NSDictionary *)defaultParameters;
 
 @end
+
+#else
+
+#import "MSIDTelemetryEventInterface.h"
+
+@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
+
+- (instancetype)initWithName:(NSString*)eventName
+                   requestId:(NSString*)requestId
+               correlationId:(NSUUID*)correlationId;
+
+- (instancetype)initWithName:(NSString*)eventName
+                     context:(id<MSIDRequestContext>)requestParams;
+
+@end
+
+#endif
