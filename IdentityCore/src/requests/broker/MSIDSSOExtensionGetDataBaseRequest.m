@@ -25,6 +25,7 @@
 
 #import "MSIDSSOExtensionGetDataBaseRequest.h"
 #import "MSIDSSOExtensionGetDataBaseRequest+Internal.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
 
 @implementation MSIDSSOExtensionGetDataBaseRequest
 
@@ -71,7 +72,7 @@
 
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
-    [self.authorizationController performRequests];
+    [self.authorizationController msidPerformRequests];
 }
 
 #pragma mark - AuthenticationServices

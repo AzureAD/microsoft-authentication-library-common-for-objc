@@ -231,8 +231,9 @@
 
     if (err != errSecSuccess)
     {
-        NSString *descr = [NSString stringWithFormat:@"Could not write broker key %ld", (long)err];
-        MSIDFillAndLogError(error, MSIDErrorBrokerKeyFailedToCreate, descr, nil);
+        NSString *message = [NSString stringWithFormat:@"Could not write broker key %ld", (long)err];
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
+        MSIDFillAndLogError(error, MSIDErrorBrokerKeyFailedToCreate, message, nil);
         return nil;
     }
 

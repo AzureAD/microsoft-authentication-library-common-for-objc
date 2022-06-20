@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,23 +20,19 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
 
-@interface MSIDPKeyAuthHandler : NSObject
+#import "ASAuthorizationController+MSIDExtensions.h"
 
-+ (BOOL)handleChallenge:(NSString *)challengeUrl
-                context:(id<MSIDRequestContext>)context
-          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-      completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
+@implementation ASAuthorizationController (MSIDExtensions)
 
-+ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
-                         requestUrl:(NSURL *)requestUrl
-                            context:(id<MSIDRequestContext>)context
-                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
-
-+ (NSDictionary *)parseAuthHeader:(NSString *)authHeader;
+- (void)msidPerformRequests
+{
+    NSString *operations = [[self.authorizationRequests valueForKey:@"requestedOperation"] componentsJoinedByString:@", "];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"ASAuthorizationController: performRequests with operation(s): %@", operations);
+    
+    [self performRequests];
+}
 
 @end

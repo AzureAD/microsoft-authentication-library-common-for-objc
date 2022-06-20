@@ -85,12 +85,9 @@ return NO; \
     }
 
     __block NSData *result = nil;
-    
-    dispatch_sync(self.synchronizationQueue, ^{
-        NSDictionary *cacheCopy = [self.cache mutableCopy];
-
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         // Using the dictionary @{ key : value } syntax here causes _cache to leak. Yay legacy runtime!
-        NSDictionary *wrapper = [NSDictionary dictionaryWithObjectsAndKeys:cacheCopy, @"tokenCache",@CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
+        NSDictionary *wrapper = [NSDictionary dictionaryWithObjectsAndKeys:self.cache, @"tokenCache",@CURRENT_WRAPPER_CACHE_VERSION, @"version", nil];
 
         @try
         {
@@ -125,7 +122,7 @@ return NO; \
         [unarchiver setClass:MSIDLegacyTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
         [unarchiver setClass:MSIDLegacyTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
         [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
-        __auto_type allowedClasses = [NSSet setWithObjects:NSDictionary.class, MSIDLegacyTokenCacheKey.class, MSIDLegacyTokenCacheItem.class, MSIDUserInformation.class, nil];
+        __auto_type allowedClasses = [NSSet setWithObjects:NSDictionary.class, NSNumber.class, NSString.class, MSIDLegacyTokenCacheKey.class, MSIDLegacyTokenCacheItem.class, MSIDUserInformation.class, nil];
         cache = [unarchiver decodeObjectOfClasses:allowedClasses forKey:NSKeyedArchiveRootObjectKey];
         [unarchiver finishDecoding];
     }
@@ -488,8 +485,8 @@ return NO; \
     }
     
     __block NSDictionary *tokens;
-    dispatch_sync(self.synchronizationQueue, ^{
-        tokens = [[self.cache objectForKey:@"tokens"] copy];
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        tokens = [[self.cache objectForKey:@"tokens"] mutableDeepCopy];
     });
     
     if (!tokens)
