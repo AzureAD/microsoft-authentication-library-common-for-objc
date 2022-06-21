@@ -44,8 +44,18 @@ typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error)
                                 fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                              error:(NSError * _Nullable * _Nullable)error;
 
+#if !EXCLUDE_FROM_MSALCPP
+
 - (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
 - (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
+
+#define CONDITIONAL_STOP_TELEMETRY_EVENT(x, y) [self stopTelemetryEvent:(x) error:(y)]
+
+#else
+
+#define CONDITIONAL_STOP_TELEMETRY_EVENT(x, y)
+
+#endif
 
 - (nullable instancetype)init NS_UNAVAILABLE;
 - (nullable instancetype)new NS_UNAVAILABLE;

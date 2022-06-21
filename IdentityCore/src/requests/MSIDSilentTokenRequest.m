@@ -62,9 +62,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
 @property (nonatomic) MSIDAccessToken *unexpiredRefreshNeededAccessToken;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
+#if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 @property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
-
+#endif
 @end
 
 @implementation MSIDSilentTokenRequest
@@ -83,8 +84,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
+#if !EXCLUDE_FROM_MSALCPP
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
         _currentRequestTelemetry = parameters.currentRequestTelemetry;
+#endif
         _unexpiredRefreshNeededAccessToken = nil;
     }
     
@@ -137,8 +140,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         
         if (!accessToken)
         {
+#if !EXCLUDE_FROM_MSALCPP
             self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeNoCachedAT;
-            
+#endif
         }
         
         BOOL enrollmentIdMatch = YES;
@@ -192,7 +196,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                 
                 if (tokenResult)
                 {
+#if !EXCLUDE_FROM_MSALCPP
                     [self.lastRequestTelemetry increaseSilentSuccessfulCount];
+#endif
                     completionBlock(tokenResult, nil);
                     return;
                 }
@@ -203,7 +209,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             {
                 // unexpired token exists, but needs refresh. Store token to return if refresh attempt fails due to AAD being down
                 self.unexpiredRefreshNeededAccessToken = accessToken;
+#if !EXCLUDE_FROM_MSALCPP
                 self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeProactiveTokenRefresh;
+#endif
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Unexpired access token exists, but needs refresh, since refresh expired.");
             }
             
@@ -214,7 +222,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             
             self.extendedLifetimeAccessToken = accessToken;
+#if !EXCLUDE_FROM_MSALCPP
             self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeExpiredAT;
+#endif
         }
         else if (accessToken)
         {
@@ -229,7 +239,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             else
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
+#if !EXCLUDE_FROM_MSALCPP
                 self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeExpiredAT;
+#endif
             }
             
             NSError *removalError = nil;

@@ -52,11 +52,4 @@
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDCurrentRequestTelemetry.h"
-
-@implementation MSIDCurrentRequestTelemetry
-@end
-
 #endif

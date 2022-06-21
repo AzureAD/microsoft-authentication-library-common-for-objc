@@ -83,24 +83,4 @@
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDTelemetryBrokerEvent.h"
-
-@implementation MSIDTelemetryBrokerEvent
-
-- (void)setBrokerAppVersion:(NSString *)version
-{}
-
-- (void)setBrokerProtocolVersion:(NSString *)version
-{}
-
-- (void)setResultStatus:(NSString *)status
-{}
-
-- (void)setBrokerApp:(NSString *)appName
-{}
-
-@end
-
 #endif

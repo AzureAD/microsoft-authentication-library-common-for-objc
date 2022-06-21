@@ -386,28 +386,4 @@ static int maxErrorCountToArchive = 75;
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDLastRequestTelemetry.h"
-
-@interface MSIDLastRequestTelemetry()
-@end
-
-@implementation MSIDLastRequestTelemetry
-
-+ (instancetype)sharedInstance
-{
-    return nil;
-}
-
-- (void)updateWithApiId:(NSInteger)apiId
-            errorString:(NSString *)errorString
-                context:(id<MSIDRequestContext>)context
-{}
-
-- (void)increaseSilentSuccessfulCount
-{}
-
-@end
-
 #endif

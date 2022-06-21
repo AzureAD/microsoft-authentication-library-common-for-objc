@@ -46,11 +46,4 @@
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDTelemetryBaseEvent.h"
-
-@interface MSIDTelemetryCacheEvent : MSIDTelemetryBaseEvent
-@end
-
 #endif

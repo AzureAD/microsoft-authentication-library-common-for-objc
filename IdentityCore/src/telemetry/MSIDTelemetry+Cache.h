@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry.h"
 
 @class MSIDTelemetryCacheEvent;
@@ -40,4 +42,16 @@
                     wipeData:(NSDictionary *)wipeData
                      context:(id<MSIDRequestContext>)context;
 
+#define CONDITIONAL_START_CACHE_EVENT(x, y) MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:(x) context:(y)]
+#define CONDITIONAL_STOP_CACHE_EVENT(x, y, z) [MSIDTelemetry stopCacheEvent:event withItem:(x) success:(y) context:(z)]
+#define CONDITIONAL_STOP_FAILED_CACHE_EVENT(x, y) [MSIDTelemetry stopFailedCacheEvent:event wipeData:(x) context:(y)]
+
 @end
+
+#else // MSAL CPP
+
+#define CONDITIONAL_START_CACHE_EVENT(x, y)
+#define CONDITIONAL_STOP_CACHE_EVENT(x, y, z)
+#define CONDITIONAL_STOP_FAILED_CACHE_EVENT(x, y)
+
+#endif

@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetryDispatcher.h"
 
 /*!
@@ -66,4 +68,12 @@
  */
 - (void)removeAllDispatchers;
 
+#define CONDITIONAL_SHARED_INSTANCE [MSIDTelemetry sharedInstance]
+
 @end
+
+#else // MSAL CPP
+
+#define CONDITIONAL_SHARED_INSTANCE
+
+#endif

@@ -60,22 +60,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#else // MSAL CPP
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDLastRequestTelemetry : NSObject
-
-+ (instancetype)sharedInstance;
-
-- (void)updateWithApiId:(NSInteger)apiId
-            errorString:(nullable NSString *)errorString
-                context:(nullable id<MSIDRequestContext>)context;
-
-- (void)increaseSilentSuccessfulCount;
-
-@end
-
-NS_ASSUME_NONNULL_END
-
 #endif

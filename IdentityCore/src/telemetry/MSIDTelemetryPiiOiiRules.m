@@ -77,27 +77,4 @@ static NSSet *_oiiFields;
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDTelemetryPiiOiiRules.h"
-
-@implementation MSIDTelemetryPiiOiiRules
-
-+ (BOOL)isPii:(NSString *)propertyName
-{
-    return false;
-}
-
-+ (BOOL)isOii:(NSString *)propertyName
-{
-    return false;
-}
-
-+ (BOOL)isPiiOrOii:(NSString *)propertyName
-{
-    return false;
-}
-
-@end
-
 #endif

@@ -75,18 +75,4 @@
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDHttpRequestTelemetry.h"
-
-@implementation MSIDHttpRequestTelemetry
-- (void)responseReceivedEventWithContext:(id<MSIDRequestContext>)context urlRequest:(NSURLRequest *)urlRequest httpResponse:(NSHTTPURLResponse *)httpResponse data:(NSData *)data error:(NSError *)error
-{}
-
-- (void)sendRequestEventWithId:(NSString *)telemetryRequestId
-{}
-
-@end
-
-
 #endif

@@ -56,14 +56,6 @@ typedef NS_ENUM(NSInteger, TokenCacheRefreshType)
 
 @end
 
-#else // MSAL CPP
-
-@interface MSIDCurrentRequestTelemetry : NSObject
-
-@property (nonatomic) TokenCacheRefreshType tokenCacheRefreshType;
-
-@end
-
 #endif
 
 NS_ASSUME_NONNULL_END

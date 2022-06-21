@@ -82,13 +82,4 @@
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDTelemetryUIEvent.h"
-
-@implementation MSIDTelemetryUIEvent
-- (void)setIsCancelled:(BOOL)cancelled
-{}
-@end
-
 #endif

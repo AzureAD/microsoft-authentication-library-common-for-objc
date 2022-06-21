@@ -44,9 +44,4 @@
 
 @end
 
-#else
-
-@protocol MSIDTelemetryEventInterface <NSObject>
-@end
-
 #endif

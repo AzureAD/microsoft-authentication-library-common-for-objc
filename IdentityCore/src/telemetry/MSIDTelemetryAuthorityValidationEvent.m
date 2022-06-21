@@ -64,18 +64,4 @@
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDTelemetryAuthorityValidationEvent.h"
-
-@implementation MSIDTelemetryAuthorityValidationEvent
-
-- (void)setAuthorityValidationStatus:(NSString *)status
-{}
-
-- (void)setAuthority:(MSIDAuthority *)authority
-{}
-
-@end
-
 #endif

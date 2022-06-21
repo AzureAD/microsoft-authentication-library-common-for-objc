@@ -44,19 +44,4 @@
 
 @end
 
-#else
-
-#import "MSIDTelemetryEventInterface.h"
-
-@interface MSIDTelemetryBaseEvent : NSObject <MSIDTelemetryEventInterface>
-
-- (instancetype)initWithName:(NSString*)eventName
-                   requestId:(NSString*)requestId
-               correlationId:(NSUUID*)correlationId;
-
-- (instancetype)initWithName:(NSString*)eventName
-                     context:(id<MSIDRequestContext>)requestParams;
-
-@end
-
 #endif

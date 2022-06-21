@@ -212,29 +212,4 @@
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDTelemetryBaseEvent.h"
-
-@implementation MSIDTelemetryBaseEvent
-
-- (instancetype)initWithName:(NSString *)eventName
-                   requestId:(NSString *)requestId
-               correlationId:(NSUUID *)correlationId
-{
-    if (!(self = [super init]))
-    {
-        return nil;
-    }
-    return self;
-}
-
-- (instancetype)initWithName:(NSString *)eventName
-                     context:(id<MSIDRequestContext>)configuration
-{
-    return [self initWithName:eventName requestId:configuration.telemetryRequestId correlationId:configuration.correlationId];
-}
-
-@end
-
 #endif

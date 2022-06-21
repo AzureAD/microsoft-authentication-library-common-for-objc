@@ -21,15 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetryBaseEvent.h"
 
 @interface MSIDTelemetryUIEvent : MSIDTelemetryBaseEvent
 
-#if !EXCLUDE_FROM_MSALCPP
 - (void)setLoginHint:(NSString *)hint;
 - (void)setNtlm:(NSString *)ntlmHandled;
-#endif
 
 - (void)setIsCancelled:(BOOL)cancelled;
 
+#define CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(x, y) [x setIsCancelled:(y)]
+
 @end
+
+#else
+
+#define CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(x, y)
+
+#endif

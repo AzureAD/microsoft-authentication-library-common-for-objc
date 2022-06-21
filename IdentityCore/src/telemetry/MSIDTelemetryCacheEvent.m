@@ -195,11 +195,4 @@
 
 @end
 
-#else // MSAL CPP
-
-#import "MSIDTelemetryCacheEvent.h"
-
-@implementation MSIDTelemetryCacheEvent
-@end
-
 #endif

@@ -106,8 +106,9 @@
     _tokenExpirationBuffer = 300;
     _extendedLifetimeEnabled = NO;
     _logComponent = [MSIDVersion sdkName];
+#if !EXCLUDE_FROM_MSALCPP
     _telemetryRequestId = [[MSIDTelemetry sharedInstance] generateRequestId];
-
+#endif
     NSDictionary *metadata = [[NSBundle mainBundle] infoDictionary];
 
     NSString *appName = metadata[@"CFBundleDisplayName"];
