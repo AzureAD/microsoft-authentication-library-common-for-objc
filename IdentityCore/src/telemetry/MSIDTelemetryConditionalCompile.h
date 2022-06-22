@@ -21,34 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryConditionalCompile.h"
-
 #if !EXCLUDE_FROM_MSALCPP
-
-#import "MSIDTelemetry.h"
-#import "MSIDTelemetryEventInterface.h"
-#import "MSIDTelemetryDispatcher.h"
-
-@interface MSIDTelemetry (Internal)
-
-- (NSString *)generateRequestId;
-
-- (void)startEvent:(NSString *)requestId
-         eventName:(NSString *)eventName;
-
-- (void)stopEvent:(NSString *)requestId
-            event:(id<MSIDTelemetryEventInterface>)event;
-
-- (void)dispatchEventNow:(NSString*)requestId
-                   event:(id<MSIDTelemetryEventInterface>)event;
-
-- (void)flush:(NSString *)requestId;
-
-- (void)removeDispatcherByObserver:(id)observer;
-
-@end
-
+#define CONDITIONAL_COMPILE(body) body
+#else
+#define CONDITIONAL_COMPILE(body)
 #endif
-
-#define CONDITIONAL_START_EVENT(x, y, z) CONDITIONAL_COMPILE([x startEvent:(y) eventName:(z)])
-#define CONDITIONAL_STOP_EVENT(x, y, z) CONDITIONAL_COMPILE([x stopEvent:(y) event:(z)])

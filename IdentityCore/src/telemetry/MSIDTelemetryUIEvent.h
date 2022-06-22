@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDTelemetryConditionalCompile.h"
+
 #if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDTelemetryBaseEvent.h"
@@ -32,12 +34,8 @@
 
 - (void)setIsCancelled:(BOOL)cancelled;
 
-#define CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(x, y) [x setIsCancelled:(y)]
-
 @end
 
-#else
-
-#define CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(x, y)
-
 #endif
+
+#define CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(x, y) CONDITIONAL_COMPILE([x setIsCancelled:(y)])
