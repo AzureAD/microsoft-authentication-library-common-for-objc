@@ -8325,6 +8325,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E931FC3626A00CD70C5 /* identitycore__debug.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"$(MSID_WEBKIT)",
@@ -8339,6 +8340,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(MSID_SYSTEMWV)",
 					"$(MSID_WEBKIT)",
