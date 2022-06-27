@@ -50,5 +50,5 @@
 
 #endif
 
-#define CONDITIONAL_START_EVENT(x, y, z) CONDITIONAL_COMPILE([x startEvent:(y) eventName:(z)])
-#define CONDITIONAL_STOP_EVENT(x, y, z) CONDITIONAL_COMPILE([x stopEvent:(y) event:(z)])
+#define CONDITIONAL_START_EVENT(x, y, z) CONDITIONAL_COMPILE_MSAL_CPP([x startEvent:(y) eventName:(z)])
+#define CONDITIONAL_STOP_EVENT(x, y, z) CONDITIONAL_COMPILE_MSAL_CPP([x stopEvent:(y) event:(z)])

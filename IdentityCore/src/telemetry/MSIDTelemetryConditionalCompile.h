@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #if !EXCLUDE_FROM_MSALCPP
-#define CONDITIONAL_COMPILE(body) body
+#define CONDITIONAL_COMPILE_MSAL_CPP(body) body
 #else
-#define CONDITIONAL_COMPILE(body)
+#define CONDITIONAL_COMPILE_MSAL_CPP(body)
 #endif

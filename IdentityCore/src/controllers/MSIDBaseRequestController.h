@@ -50,7 +50,7 @@ typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error)
 - (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
 #endif
 
-#define CONDITIONAL_STOP_TELEMETRY_EVENT(x, y) CONDITIONAL_COMPILE([self stopTelemetryEvent:(x) error:(y)])
+#define CONDITIONAL_STOP_TELEMETRY_EVENT(x, y) CONDITIONAL_COMPILE_MSAL_CPP([self stopTelemetryEvent:(x) error:(y)])
 
 - (nullable instancetype)init NS_UNAVAILABLE;
 - (nullable instancetype)new NS_UNAVAILABLE;
