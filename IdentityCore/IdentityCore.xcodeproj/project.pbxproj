@@ -615,7 +615,6 @@
 		74F04D4D246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F04D4C246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h */; };
 		74FDE52D2864F8E500C25344 /* MSIDDarwinNotificationListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 74FDE52B2864F8E500C25344 /* MSIDDarwinNotificationListener.h */; };
 		74FDE52E2864F8E500C25344 /* MSIDDarwinNotificationListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 74FDE52C2864F8E500C25344 /* MSIDDarwinNotificationListener.m */; };
-		74FDE52F2864F8E500C25344 /* MSIDDarwinNotificationListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 74FDE52C2864F8E500C25344 /* MSIDDarwinNotificationListener.m */; };
 		80878AEF247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 80878AEE247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m */; };
 		80878AF0247A9961000BC522 /* MSIDWorkPlaceJoinUtilBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 80878AEE247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m */; };
 		80B6BF3C2480A3E30031BFE8 /* MSIDWorkPlaceJoinUtilTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 80B6BF3B2480A3E30031BFE8 /* MSIDWorkPlaceJoinUtilTests.m */; };
