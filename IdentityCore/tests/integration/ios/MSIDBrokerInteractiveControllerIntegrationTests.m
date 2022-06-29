@@ -331,7 +331,7 @@
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
-    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireError) {
 
         XCTAssertNil(result);
         // Check result
@@ -339,15 +339,15 @@
         XCTAssertNil(result.rawIdToken);
         XCTAssertNil(result.account);
         XCTAssertNil(result.authority);
-        XCTAssertNotNil(error);
+        XCTAssertNotNil(acquireError);
 
         // Check userInfo
-        XCTAssertNotNil(error.userInfo[MSIDDeclinedScopesKey]);
-        XCTAssertEqualObjects([[NSArray arrayWithArray:error.userInfo[MSIDDeclinedScopesKey]] componentsJoinedByString:@" "], @"not_granted_scope");
-        XCTAssertNotNil(error.userInfo[MSIDGrantedScopesKey]);
-        XCTAssertEqualObjects([[NSArray arrayWithArray:error.userInfo[MSIDGrantedScopesKey]] componentsJoinedByString:@" "], scopes);
+        XCTAssertNotNil(acquireError.userInfo[MSIDDeclinedScopesKey]);
+        XCTAssertEqualObjects([[NSArray arrayWithArray:acquireError.userInfo[MSIDDeclinedScopesKey]] componentsJoinedByString:@" "], @"not_granted_scope");
+        XCTAssertNotNil(acquireError.userInfo[MSIDGrantedScopesKey]);
+        XCTAssertEqualObjects([[NSArray arrayWithArray:acquireError.userInfo[MSIDGrantedScopesKey]] componentsJoinedByString:@" "], scopes);
 
-        MSIDTokenResult *tokenResult = error.userInfo[MSIDInvalidTokenResultKey];
+        MSIDTokenResult *tokenResult = acquireError.userInfo[MSIDInvalidTokenResultKey];
         XCTAssertNotNil(tokenResult);
         XCTAssertEqualObjects(tokenResult.accessToken.accessToken, @"i-am-an-access-token");
         XCTAssertEqualObjects(tokenResult.refreshToken.refreshToken, @"i-am-a-refresh-token");
