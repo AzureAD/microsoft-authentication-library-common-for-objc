@@ -33,6 +33,7 @@
 #import "NSDictionary+MSIDQueryItems.h"
 #import "MSIDBrokerOperationGetAccountsResponse.h"
 #import "MSIDDeviceInfo.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
 
 // TODO: 1656998 This file can be refactored and use MSIDSSOExtensionGetDataBaseRequest as super class
 @interface MSIDSSOExtensionGetAccountsRequest()
@@ -128,7 +129,7 @@
         
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
-    [self.authorizationController performRequests];
+    [self.authorizationController msidPerformRequests];
     
     self.requestCompletionBlock = completionBlock;
 }

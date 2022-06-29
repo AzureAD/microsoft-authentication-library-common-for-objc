@@ -138,6 +138,12 @@
                           keyDerivationKeyLength:_symmetricKey.length
                                       fixedInput:(uint8_t*)mutData.bytes
                                 fixedInputLength:mutData.length];
+    
+    if (pbDerivedKey == NULL)
+    {
+        return nil;
+    }
+    
     mutData = nil;
     NSData *dataToReturn = [NSData dataWithBytes:(const void *)pbDerivedKey length:32];
     free(pbDerivedKey);
@@ -163,12 +169,22 @@
     ctr = 1;
     keyDerivated = (uint8_t *)malloc(outputSizeBit / 8); //output is 32 bytes
     
+    if (keyDerivated == NULL)
+    {
+        return NULL;
+    }
+    
     do
     {
         //update data using "ctr"
         dataInput = [self updateDataInput:ctr
                                fixedInput:fixedInput
                         fixedInput_length:fixedInputLength];
+        
+        if (dataInput == NULL)
+        {
+            return NULL;
+        }
         
         CCHmac(kCCHmacAlgSHA256,
                keyDerivationKey,
@@ -215,6 +231,11 @@
 {
     uint8_t *tmpFixedInput = (uint8_t *)malloc(fixedInput_length + 4); //+4 is caused from the ct
     
+    if (tmpFixedInput == NULL)
+    {
+        return NULL;
+    }
+ 
     tmpFixedInput[0] = (ctr >> 24);
     tmpFixedInput[1] = (ctr >> 16);
     tmpFixedInput[2] = (ctr >> 8);

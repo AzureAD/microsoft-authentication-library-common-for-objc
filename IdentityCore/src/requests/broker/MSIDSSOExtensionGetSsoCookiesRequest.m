@@ -52,7 +52,7 @@
         __typeof__(self) __weak weakSelf = self;
         self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
         {
-            __strong typeof(self) strongSelf = weakSelf;
+            __strong __typeof__(self) strongSelf = weakSelf;
             NSArray *prtHeaders = nil;
             NSArray *deviceHeaders = nil;
             
