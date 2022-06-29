@@ -48,6 +48,6 @@
 
 #endif
 
-#define CONDITIONAL_START_CACHE_EVENT(x, y) CONDITIONAL_COMPILE_MSAL_CPP(MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:(x) context:(y)])
-#define CONDITIONAL_STOP_CACHE_EVENT(x, y, z) CONDITIONAL_COMPILE_MSAL_CPP([MSIDTelemetry stopCacheEvent:event withItem:(x) success:(y) context:(z)])
-#define CONDITIONAL_STOP_FAILED_CACHE_EVENT(x, y) CONDITIONAL_COMPILE_MSAL_CPP([MSIDTelemetry stopFailedCacheEvent:event wipeData:(x) context:(y)])
+#define CONDITIONAL_START_CACHE_EVENT(event, x, y) CONDITIONAL_COMPILE_MSAL_CPP(MSIDTelemetryCacheEvent *(event) = [MSIDTelemetry startCacheEventWithName:(x) context:(y)])
+#define CONDITIONAL_STOP_CACHE_EVENT(event, x, y, z) CONDITIONAL_COMPILE_MSAL_CPP([MSIDTelemetry stopCacheEvent:(event) withItem:(x) success:(y) context:(z)])
+#define CONDITIONAL_STOP_FAILED_CACHE_EVENT(event, x, y) CONDITIONAL_COMPILE_MSAL_CPP([MSIDTelemetry stopFailedCacheEvent:(event) wipeData:(x) context:(y)])

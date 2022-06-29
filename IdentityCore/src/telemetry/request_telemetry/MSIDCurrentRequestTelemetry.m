@@ -35,6 +35,11 @@
     return [self serializeCurrentTelemetryString];
 }
 
+- (void)setTokenCacheRefreshType:(TokenCacheRefreshType)type
+{
+    self.tokenCacheRefreshType = type;
+}
+
 #pragma mark - Private
 
 - (NSString *)serializeCurrentTelemetryString

@@ -140,9 +140,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         
         if (!accessToken)
         {
-#if !EXCLUDE_FROM_MSALCPP
-            self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeNoCachedAT;
-#endif
+            CONDITIONAL_SET_REFRESH_TYPE(self.currentRequestTelemetry, TokenCacheRefreshTypeNoCachedAT);
         }
         
         BOOL enrollmentIdMatch = YES;
@@ -209,9 +207,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             {
                 // unexpired token exists, but needs refresh. Store token to return if refresh attempt fails due to AAD being down
                 self.unexpiredRefreshNeededAccessToken = accessToken;
-#if !EXCLUDE_FROM_MSALCPP
-                self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeProactiveTokenRefresh;
-#endif
+                CONDITIONAL_SET_REFRESH_TYPE(self.currentRequestTelemetry, TokenCacheRefreshTypeProactiveTokenRefresh);
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Unexpired access token exists, but needs refresh, since refresh expired.");
             }
             
@@ -222,9 +218,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             
             self.extendedLifetimeAccessToken = accessToken;
-#if !EXCLUDE_FROM_MSALCPP
-            self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeExpiredAT;
-#endif
+            CONDITIONAL_SET_REFRESH_TYPE(self.currentRequestTelemetry, TokenCacheRefreshTypeExpiredAT);
         }
         else if (accessToken)
         {
@@ -239,9 +233,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             else
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
-#if !EXCLUDE_FROM_MSALCPP
-                self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeExpiredAT;
-#endif
+                CONDITIONAL_SET_REFRESH_TYPE(self.currentRequestTelemetry, TokenCacheRefreshTypeExpiredAT);
             }
             
             NSError *removalError = nil;

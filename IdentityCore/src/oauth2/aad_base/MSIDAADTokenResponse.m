@@ -39,7 +39,11 @@
                              MSID_OAUTH2_RESOURCE,
                              MSID_OAUTH2_CLIENT_INFO,
                              MSID_FAMILY_ID,
+#if !EXCLUDE_FROM_MSALCPP
                              MSID_TELEMETRY_KEY_SPE_INFO,
+#else
+                             @"",
+#endif
                              MSID_OAUTH2_EXT_EXPIRES_IN,
                              MSID_OAUTH2_REFRESH_IN,
                              MSID_OAUTH2_REFRESH_ON,
@@ -78,7 +82,9 @@
     {
         _correlationId = [json msidStringObjectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
         _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID];
+#if !EXCLUDE_FROM_MSALCPP
         _speInfo = [json msidStringObjectForKey:MSID_TELEMETRY_KEY_SPE_INFO];
+#endif
         _suberror = [json msidStringObjectForKey:MSID_OAUTH2_SUB_ERROR];
         _additionalUserId = [json msidStringObjectForKey:@"adi"];
         
@@ -99,7 +105,9 @@
     NSMutableDictionary *json = [[super jsonDictionary] mutableDeepCopy];
     json[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = self.correlationId;
     json[MSID_FAMILY_ID] = self.familyId;
+#if !EXCLUDE_FROM_MSALCPP
     json[MSID_TELEMETRY_KEY_SPE_INFO] = self.speInfo;
+#endif
     json[MSID_OAUTH2_SUB_ERROR] = self.suberror;
     json[@"adi"] = self.additionalUserId;
     json[MSID_OAUTH2_CLIENT_INFO] = self.clientInfo.rawClientInfo;

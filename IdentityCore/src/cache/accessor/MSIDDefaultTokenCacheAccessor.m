@@ -270,12 +270,12 @@
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
                                              error:(NSError **)error
 {
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
 
     NSArray<MSIDCredentialCacheItem *> *cacheItems = [_accountCredentialCache getAllItemsWithContext:context error:error];
     NSArray<MSIDBaseToken *> *tokens = [self validTokensFromCacheItems:cacheItems];
 
-    CONDITIONAL_STOP_CACHE_EVENT(nil, [cacheItems count] > 0, context);
+    CONDITIONAL_STOP_CACHE_EVENT(event, nil, [cacheItems count] > 0, context);
     return tokens;
 }
 
@@ -413,7 +413,7 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) Get accounts.");
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
 
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
 
     NSArray<NSString *> *environmentAliases = [authority defaultCacheEnvironmentAliases];
 
@@ -429,7 +429,7 @@
     if (!allAccounts)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"(Default accessor) Failed accounts lookup");
-        CONDITIONAL_STOP_CACHE_EVENT(nil, NO, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
         return nil;
     }
     
@@ -451,7 +451,7 @@
             {
                 *error = localError;
             }
-            CONDITIONAL_STOP_CACHE_EVENT(nil, NO, context);
+            CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
             return nil;
         }
     }
@@ -477,7 +477,7 @@
         {
             *error = localError;
         }
-        CONDITIONAL_STOP_CACHE_EVENT(nil, NO, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
         return nil;
     }
 
@@ -485,13 +485,13 @@
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default accessor) Found the following accounts in default accessor: %@", MSID_PII_LOG_MASKABLE([returnAccountsSet allObjects]));
         
-        CONDITIONAL_STOP_CACHE_EVENT(nil, YES, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, YES, context);
     }
     else
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) No accounts found in default accessor.");
         NSError *wipeError = nil;
-        CONDITIONAL_STOP_FAILED_CACHE_EVENT([_accountCredentialCache wipeInfoWithContext:context error:&wipeError], context);
+        CONDITIONAL_STOP_FAILED_CACHE_EVENT(event, [_accountCredentialCache wipeInfoWithContext:context error:&wipeError], context);
         if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to read wipe info with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
 
@@ -528,7 +528,7 @@
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Looking for account with authority %@, legacy user ID %@, home account ID %@", authority.url, accountIdentifier.maskedDisplayableId, accountIdentifier.maskedHomeAccountId);
 
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
 
     MSIDDefaultAccountCacheQuery *cacheQuery = [MSIDDefaultAccountCacheQuery new];
     cacheQuery.homeAccountId = accountIdentifier.homeAccountId;
@@ -546,7 +546,7 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"(Default accessor) Failed to retrieve account with authority %@", authority.url);
         NSError *wipeError = nil;
-        CONDITIONAL_STOP_FAILED_CACHE_EVENT([_accountCredentialCache wipeInfoWithContext:context error:&wipeError], context);
+        CONDITIONAL_STOP_FAILED_CACHE_EVENT(event, [_accountCredentialCache wipeInfoWithContext:context error:&wipeError], context);
         if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to read wipe info with error %@", MSID_PII_LOG_MASKABLE(wipeError));
         return nil;
     }
@@ -569,7 +569,7 @@
         if (!firstAccount) firstAccount = account;
     }
 
-    CONDITIONAL_STOP_CACHE_EVENT(nil, YES, context);
+    CONDITIONAL_STOP_CACHE_EVENT(event, nil, YES, context);
     return firstAccount;
 }
 
@@ -607,7 +607,7 @@
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default accessor) Clearing cache for environment: %@, client ID %@, family ID %@, account %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId);
 
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE, context);
 
     NSString *homeAccountId = accountIdentifier.homeAccountId;
 
@@ -659,11 +659,11 @@
             }
         }
         
-        CONDITIONAL_STOP_CACHE_EVENT(nil, result, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, result, context);
     }
     else
     {
-        CONDITIONAL_STOP_CACHE_EVENT(nil, YES, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, YES, context);
     }
 
     // Clear cache from other accessors
@@ -688,7 +688,7 @@
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default accessor) Clearing cache for all accounts");
 
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE, context);
     
     BOOL result = YES;
     NSError *accountRemovalError;
@@ -701,7 +701,7 @@
         if (error) *error = accountRemovalError;
     }
     
-    CONDITIONAL_STOP_CACHE_EVENT(nil, result, context);
+    CONDITIONAL_STOP_CACHE_EVENT(event, nil, result, context);
     
     // Clear cache from other accessors
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
@@ -932,7 +932,7 @@
         return NO;
     }
 
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE, context);
     BOOL result = [_accountCredentialCache removeCredential:token.tokenCacheItem context:context error:error];
 
     if (result && token.credentialType == MSIDRefreshTokenType)
@@ -940,7 +940,7 @@
         [_accountCredentialCache saveWipeInfoWithContext:context error:nil];
     }
 
-    CONDITIONAL_STOP_CACHE_EVENT(token, result, context);
+    CONDITIONAL_STOP_CACHE_EVENT(event, token, result, context);
     return result;
 }
 
@@ -951,7 +951,7 @@
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
 
     MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
     accountsQuery.username = legacyAccountId;
@@ -964,12 +964,12 @@
 
     if ([accountCacheItems count])
     {
-        CONDITIONAL_STOP_CACHE_EVENT(nil, YES, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, YES, context);
         MSIDAccountCacheItem *accountCacheItem = accountCacheItems[0];
         return accountCacheItem.homeAccountId;
     }
 
-    CONDITIONAL_STOP_CACHE_EVENT(nil, NO, context);
+    CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
     return nil;
 }
 
@@ -978,7 +978,7 @@
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
 {
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Looking for token with aliases %@, tenant %@, clientId %@, scopes %@", cacheQuery.environmentAliases, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
     
@@ -988,7 +988,7 @@
     if (cacheError)
     {
         if (error) *error = cacheError;
-        CONDITIONAL_STOP_CACHE_EVENT(nil, NO, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
         return nil;
     }
     
@@ -996,19 +996,19 @@
     
     if (resultTokens.count > 0)
     {
-        CONDITIONAL_STOP_CACHE_EVENT(resultTokens[0], YES, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, resultTokens[0], YES, context);
         return resultTokens[0];
     }
     
     if (cacheQuery.credentialType == MSIDRefreshTokenType)
     {
         NSError *wipeError = nil;
-        CONDITIONAL_STOP_FAILED_CACHE_EVENT([_accountCredentialCache wipeInfoWithContext:context error:&wipeError], context);
+        CONDITIONAL_STOP_FAILED_CACHE_EVENT(event, [_accountCredentialCache wipeInfoWithContext:context error:&wipeError], context);
         if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to read wipe info with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
     else
     {
-        CONDITIONAL_STOP_CACHE_EVENT(nil, NO, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
     }
     return nil;
 }
@@ -1018,7 +1018,7 @@
                                                context:(id<MSIDRequestContext>)context
                                                  error:(NSError **)error
 {
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) Looking for token with aliases %@, tenant %@, clientId %@, scopes %@", cacheQuery.environmentAliases, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
 
@@ -1029,7 +1029,7 @@
     if (cacheError)
     {
         if (error) *error = cacheError;
-        CONDITIONAL_STOP_CACHE_EVENT(nil, NO, context);
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
         return nil;
     }
 
@@ -1099,11 +1099,11 @@
         return NO;
     }
 
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE, context);
 
     MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
     BOOL result = [_accountCredentialCache saveCredential:cacheItem context:context error:error];
-    CONDITIONAL_STOP_CACHE_EVENT(token, result, context);
+    CONDITIONAL_STOP_CACHE_EVENT(event, token, result, context);
     return result;
 }
 
@@ -1116,11 +1116,11 @@
         return NO;
     }
 
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE, context);
 
     MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
     BOOL result = [_accountCredentialCache saveAccount:cacheItem context:context error:error];
-    CONDITIONAL_STOP_CACHE_EVENT(nil, result, context);
+    CONDITIONAL_STOP_CACHE_EVENT(event, nil, result, context);
     return result;
 }
 
@@ -1298,10 +1298,10 @@
     
     metadata.environment = [configuration.authority cacheEnvironmentWithContext:context];
     
-    CONDITIONAL_START_CACHE_EVENT(MSID_TELEMETRY_EVENT_APP_METADATA_WRITE, context);
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_APP_METADATA_WRITE, context);
     
     BOOL result = [_accountCredentialCache saveAppMetadata:metadata context:context error:error];
-    CONDITIONAL_STOP_CACHE_EVENT(nil, result, context);
+    CONDITIONAL_STOP_CACHE_EVENT(event, nil, result, context);
 
     return result;
 }

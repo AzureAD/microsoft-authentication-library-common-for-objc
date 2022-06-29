@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTelemetryConditionalCompile.h"
 #import "MSIDTelemetryStringSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -54,8 +55,12 @@ typedef NS_ENUM(NSInteger, TokenCacheRefreshType)
 @property (nonatomic) NSInteger apiId;
 @property (nonatomic) TokenCacheRefreshType tokenCacheRefreshType;
 
+- (void)setTokenCacheRefreshType:(TokenCacheRefreshType)type;
+
 @end
 
 #endif
+
+#define CONDITIONAL_SET_REFRESH_TYPE(x, y) CONDITIONAL_COMPILE_MSAL_CPP([(x) setTokenCacheRefreshType:(y)])
 
 NS_ASSUME_NONNULL_END
