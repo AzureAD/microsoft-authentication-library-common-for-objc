@@ -32,6 +32,8 @@
 
 @implementation MSIDSSOExtensionInteractiveTokenRequestController
 
+NSString* const MSIDExpectedErrorDomain = @"ExpectedErrorDomain";
+
 - (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                   fallbackController:(id<MSIDRequestControlling>)fallbackController
@@ -71,6 +73,11 @@
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Falling back to local controller.");
             
+            if ([self isExpectedErrorDomain:error])
+            {
+                self.requestParameters.isUserlessRegistrationNeeded = YES;
+            }
+            
             [self.fallbackController acquireToken:completionBlock];
             return;
         }
@@ -99,6 +106,12 @@
         return NO;
     }
     
+    if ([self isExpectedErrorDomain:error])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"SSO extension controller detected an expected error. Should fallback: YES");
+        return YES;
+    }
+    
     if (![error.domain isEqualToString:ASAuthorizationErrorDomain]) return NO;
     
     BOOL shouldFallback = NO;
@@ -113,6 +126,21 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"SSO extension controller should fallback: %@", shouldFallback ? @"YES" : @"NO");
     
     return shouldFallback;
+}
+
+- (BOOL)isExpectedErrorDomain:(NSError *)error
+{
+    if (!error)
+    {
+        return NO;
+    }
+    
+    if ([error.domain isEqualToString:MSIDExpectedErrorDomain])
+    {
+        return YES;
+    }
+    
+    return NO;
 }
 
 @end

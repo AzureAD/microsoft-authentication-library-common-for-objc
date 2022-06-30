@@ -43,6 +43,11 @@
     {
         extraQueryParameters[MSID_BROKER_INSTANCE_AWARE_KEY] = @"true";
     }
+    
+    if (self.requestParameters.isUserlessRegistrationNeeded)
+    {
+        extraQueryParameters[MSID_BROKER_USERLESS_REGISTRATION_NEEDED] = @"true";
+    }
 
     NSString *extraQueryParametersString = [extraQueryParameters count] ? [extraQueryParameters msidWWWFormURLEncode] : @"";
     
@@ -70,6 +75,7 @@
     [protocolResumeDictionary msidSetNonEmptyString:MSID_MSAL_SDK_NAME forKey:MSID_SDK_NAME_KEY];
     [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.providedAuthority.url.absoluteString forKey:@"provided_authority_url"];
     [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.instanceAware ? @"YES" : @"NO" forKey:@"instance_aware"];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.isUserlessRegistrationNeeded ? @"YES" : @"" forKey:@"userless_reg"];
     
     return protocolResumeDictionary;
 }

@@ -81,6 +81,9 @@
 #pragma mark - Cache
 @property (nonatomic) NSString *keychainAccessGroup;
 
+#pragma mark - Shared devices
+@property (nonatomic) BOOL isUserlessRegistrationNeeded;
+
 - (NSURL *)tokenEndpoint;
 
 #pragma mark Methods

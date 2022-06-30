@@ -72,6 +72,7 @@ NSString *const MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY = @"sso_extension";
 NSString *const MSID_BROKER_SSO_URL = @"sso_url";
 NSString *const MSID_BROKER_ACCOUNT_IDENTIFIER = @"account_identifier";
 NSString *const MSID_BROKER_TYPES_OF_HEADER = @"types_of_header";
+NSString *const MSID_BROKER_USERLESS_REGISTRATION_NEEDED = @"userless_reg";
 
 NSString *const MSID_ADDITIONAL_EXTENSION_DATA_KEY = @"additional_extension_data";
 NSString *const MSID_SSO_NONCE_QUERY_PARAM_KEY = @"sso_nonce";

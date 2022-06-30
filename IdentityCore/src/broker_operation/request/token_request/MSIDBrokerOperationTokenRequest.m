@@ -56,6 +56,7 @@
     request.mamResources = mamResources;
     request.clientCapabilities = parameters.clientCapabilities;
     request.claimsRequest = parameters.claimsRequest;
+    request.isUserlessRegistrationNeeded = parameters.isUserlessRegistrationNeeded;
         
     return YES;
 }

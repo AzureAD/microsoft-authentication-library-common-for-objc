@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSDictionary *mamResources;
 @property (nonatomic, nullable) NSArray *clientCapabilities;
 @property (nonatomic, nullable) MSIDClaimsRequest *claimsRequest;
+@property (nonatomic) BOOL isUserlessRegistrationNeeded;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters

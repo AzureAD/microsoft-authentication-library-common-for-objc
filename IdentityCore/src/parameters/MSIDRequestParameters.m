@@ -338,6 +338,7 @@
     parameters->_clientCapabilities = [_clientCapabilities copyWithZone:zone];
     parameters->_msidConfiguration = [_msidConfiguration copyWithZone:zone];
     parameters->_keychainAccessGroup = [_keychainAccessGroup copyWithZone:zone];
+    parameters->_isUserlessRegistrationNeeded = _isUserlessRegistrationNeeded;
 
     return parameters;
 }
