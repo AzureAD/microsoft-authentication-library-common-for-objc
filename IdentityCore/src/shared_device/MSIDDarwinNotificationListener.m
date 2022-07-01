@@ -34,7 +34,7 @@ static void sharedModeAccountChangedCallback(__unused CFNotificationCenterRef ce
                                              __unused void const * object,
                                              __unused CFDictionaryRef userInfo)
 {
-    if ([(__bridge NSString *)name isEqualToString: MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY])
+    if ([(__bridge NSString *)name isEqualToString:MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,nil, @"Received shared device mode account change Darwin notification broadcast");
 
@@ -67,11 +67,6 @@ static void sharedModeAccountChangedCallback(__unused CFNotificationCenterRef ce
 
 - (void)createSharedDeviceAccountChangeListener
 {
-    if (!self.passedInCallback)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No callback available when creating Darwin notification listener");
-    }
-    
     //Listens for Darwin notifcations coming from broker in the FLW global signout scenario
     CFNotificationCenterRef center = CFNotificationCenterGetDarwinNotifyCenter();
     CFNotificationCenterAddObserver(center, nil, sharedModeAccountChangedCallback, (CFStringRef)MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY,
@@ -84,6 +79,10 @@ static void sharedModeAccountChangedCallback(__unused CFNotificationCenterRef ce
     {
         self.passedInCallback(nil);
     }
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:kDarwinNotificationReceivedKey
+                                                  object:nil];
 }
 
 @end
