@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDCurrentRequestTelemetrySerializedItem+Internal.h"
 #import "MSIDLastRequestTelemetrySerializedItem.h"
 
@@ -148,3 +150,5 @@ static int telemetryStringSizeLimit = 350;
 }
 
 @end
+
+#endif

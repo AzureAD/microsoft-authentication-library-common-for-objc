@@ -111,16 +111,18 @@
         return;
     }
 
-    [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
+    CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, MSID_TELEMETRY_EVENT_API_EVENT);
     self.currentRequest = request;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
     {
         if (result || !self.fallbackController)
         {
+#if !EXCLUDE_FROM_MSALCPP
             MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
             [telemetryEvent setUserInformation:result.account];
             [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
             [self stopTelemetryEvent:telemetryEvent error:error];
+#endif
             self.currentRequest = nil;
             
             completionBlock(result, error);

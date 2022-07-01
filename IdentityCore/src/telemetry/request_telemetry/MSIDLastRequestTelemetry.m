@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDLastRequestTelemetrySerializedItem.h"
 #import "NSKeyedArchiver+MSIDExtensions.h"
@@ -383,3 +385,5 @@ static int maxErrorCountToArchive = 75;
 }
 
 @end
+
+#endif

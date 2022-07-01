@@ -201,14 +201,14 @@
                                                                                                                 context:parameters];
 
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
-    
+#if !EXCLUDE_FROM_MSALCPP
     if (parameters.currentRequestTelemetry)
     {
         __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
         serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
         tokenRequest.serverTelemetry = serverTelemetry;
     }
-
+#endif
     return tokenRequest;
 }
 
@@ -237,14 +237,14 @@
                                                                                                       context:parameters];
     
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
-    
+#if !EXCLUDE_FROM_MSALCPP
     if (parameters.currentRequestTelemetry)
     {
         __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
         serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
         tokenRequest.serverTelemetry = serverTelemetry;
     }
-
+#endif
     return tokenRequest;
 }
 
