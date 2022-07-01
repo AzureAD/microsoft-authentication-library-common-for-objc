@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#define CONDITIONAL_SET_REFRESH_TYPE(x, y) CONDITIONAL_COMPILE_MSAL_CPP((x) = (y))
+
 #import <Foundation/Foundation.h>
 #import "MSIDTelemetryConditionalCompile.h"
 #import "MSIDTelemetryStringSerializable.h"
@@ -53,13 +55,10 @@ typedef NS_ENUM(NSInteger, TokenCacheRefreshType)
 
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger apiId;
-
-- (void)setTokenCacheRefreshType:(TokenCacheRefreshType)type;
+@property (nonatomic) TokenCacheRefreshType tokenCacheRefreshType;
 
 @end
 
 #endif
-
-#define CONDITIONAL_SET_REFRESH_TYPE(x, y) CONDITIONAL_COMPILE_MSAL_CPP([(x) setTokenCacheRefreshType:(y)])
 
 NS_ASSUME_NONNULL_END

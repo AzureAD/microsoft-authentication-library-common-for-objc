@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#define CONDITIONAL_STOP_TELEMETRY_EVENT(x, y) CONDITIONAL_COMPILE_MSAL_CPP([self stopTelemetryEvent:(x) error:(y)])
+
 #import <Foundation/Foundation.h>
 #import "MSIDRequestParameters.h"
 #import "MSIDTelemetryConditionalCompile.h"
@@ -49,8 +51,6 @@ typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error)
 - (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
 - (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
 #endif
-
-#define CONDITIONAL_STOP_TELEMETRY_EVENT(x, y) CONDITIONAL_COMPILE_MSAL_CPP([self stopTelemetryEvent:(x) error:(y)])
 
 - (nullable instancetype)init NS_UNAVAILABLE;
 - (nullable instancetype)new NS_UNAVAILABLE;

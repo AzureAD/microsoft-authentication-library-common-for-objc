@@ -41,8 +41,6 @@
                              MSID_FAMILY_ID,
 #if !EXCLUDE_FROM_MSALCPP
                              MSID_TELEMETRY_KEY_SPE_INFO,
-#else
-                             @"",
 #endif
                              MSID_OAUTH2_EXT_EXPIRES_IN,
                              MSID_OAUTH2_REFRESH_IN,
