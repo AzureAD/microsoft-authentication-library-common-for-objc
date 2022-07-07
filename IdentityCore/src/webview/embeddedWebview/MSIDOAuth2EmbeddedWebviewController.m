@@ -58,7 +58,9 @@
     id<MSIDRequestContext> _context;
     
     NSString *_telemetryRequestId;
+#if !EXCLUDE_FROM_MSALCPP
     MSIDTelemetryUIEvent *_telemetryEvent;
+#endif
 }
 
 - (id)initWithStartURL:(NSURL *)startURL
@@ -147,7 +149,7 @@
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil, NO);
     
-    [_telemetryEvent setIsCancelled:YES];
+    CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(_telemetryEvent, YES);
     [self endWebAuthWithURL:nil error:error];
 }
 
@@ -163,7 +165,7 @@
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, self.context.correlationId, nil, NO);
     
-    [_telemetryEvent setIsCancelled:YES];
+    CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(_telemetryEvent, YES);
     [self endWebAuthWithURL:nil error:error];
 }
 
@@ -196,7 +198,7 @@
         [MSIDNotifications notifyWebAuthDidCompleteWithURL:endURL];
     }
     
-    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
+    CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, _telemetryRequestId, _telemetryEvent);
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissed web view contoller.");
@@ -237,10 +239,11 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Presenting web view contoller.");
     
     _telemetryRequestId = [_context telemetryRequestId];
-    [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
+    CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, _telemetryRequestId, MSID_TELEMETRY_EVENT_UI_EVENT);
+#if !EXCLUDE_FROM_MSALCPP
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                          context:_context];
-
+#endif
     [self loadRequest:request];
     [self presentView];
 }
