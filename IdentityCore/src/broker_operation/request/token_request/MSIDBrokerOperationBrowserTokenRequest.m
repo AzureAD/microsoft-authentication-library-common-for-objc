@@ -29,12 +29,15 @@
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDAADNetworkConfiguration.h"
 
+NSString *const PLATFORM_KEY = @"x-client-SKU";
+
 @implementation MSIDBrokerOperationBrowserTokenRequest
 
 - (instancetype)initWithRequest:(NSURL *)requestURL
                         headers:(NSDictionary *)headers
                            body:(NSData *)httpBody
                bundleIdentifier:(NSString *)bundleIdentifier
+           isInteractiveRequest:(BOOL)isInterativeRequest
                requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
            useSSOCookieFallback:(BOOL)useSSOCookieFallback
                           error:(NSError **)error
@@ -54,6 +57,18 @@
         }
         
         _requestURL = requestURL;
+
+        if (!isInterativeRequest && [requestValidator isMSALRequest:headers[PLATFORM_KEY]])
+        {
+            if (error)
+            {
+                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create operation request, application with SKU='%@' is not allowed to make an SSO silent browser request", headers[PLATFORM_KEY]];
+                *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
+            }
+                   
+            return nil;
+
+        }
         
         if (![requestValidator shouldHandleURL:_requestURL])
         {

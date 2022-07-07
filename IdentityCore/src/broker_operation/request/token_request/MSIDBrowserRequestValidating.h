@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)shouldHandleURL:(NSURL *)url;
 
+- (BOOL)isMSALRequest:(NSString *)clientSku;
+
 @end
 
 NS_ASSUME_NONNULL_END

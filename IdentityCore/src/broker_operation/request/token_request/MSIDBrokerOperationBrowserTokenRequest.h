@@ -42,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
                         headers:(NSDictionary *)headers
                            body:(nullable NSData *)httpBody
                bundleIdentifier:(NSString *)bundleIdentifier
+           isInteractiveRequest:(BOOL)isInteractiveRequest
                requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
            useSSOCookieFallback:(BOOL)useSSOCookieFallback
                           error:(NSError **)error;
