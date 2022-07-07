@@ -74,8 +74,7 @@
                                          @"extended_expires_on": extExpiresOnString,
                                          @"spe_info": @"2",
                                          @"home_account_id": @"uid.utid",
-                                         @"enrollment_id": @"enrollmentId"
-                                         };
+                                         @"enrollment_id": @"enrollmentId"};
 
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 
@@ -83,6 +82,9 @@
 
 - (void)testJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnJSONDictionary
 {
+    NSDate *lastRecoveryTimestamp = [NSDate date];
+    NSString *lastRecoveryAttemptString = [NSString stringWithFormat:@"%ld", (long)[lastRecoveryTimestamp timeIntervalSince1970]];
+    
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.credentialType = MSIDRefreshTokenType;
@@ -90,13 +92,15 @@
     cacheItem.secret = DEFAULT_TEST_REFRESH_TOKEN;
     cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
     cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.lastRecoveryAttempt = lastRecoveryTimestamp;
 
     NSDictionary *expectedDictionary = @{@"credential_type": @"RefreshToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"secret": DEFAULT_TEST_REFRESH_TOKEN,
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"family_id": DEFAULT_TEST_FAMILY_ID,
-                                         @"home_account_id": @"uid.utid"
+                                         @"home_account_id": @"uid.utid",
+                                         @"recovery_attempted_at": lastRecoveryAttemptString
                                          };
 
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -173,12 +177,16 @@
 
 - (void)testInitWithJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnRefreshTokenCacheItem
 {
+    NSDate *lastRecoveryTimestamp = [NSDate date];
+    NSString *lastRecoveryAttemptString = [NSString stringWithFormat:@"%ld", (long)[lastRecoveryTimestamp timeIntervalSince1970]];
+    
     NSDictionary *jsonDictionary = @{@"credential_type": @"RefreshToken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
                                      @"secret": DEFAULT_TEST_REFRESH_TOKEN,
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"family_id": DEFAULT_TEST_FAMILY_ID,
-                                     @"home_account_id": @"uid.utid"
+                                     @"home_account_id": @"uid.utid",
+                                     @"recovery_attempted_at": lastRecoveryAttemptString
                                      };
 
     NSError *error = nil;
@@ -192,6 +200,9 @@
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(cacheItem.familyId, DEFAULT_TEST_FAMILY_ID);
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
+    
+    NSTimeInterval interval = ABS([cacheItem.lastRecoveryAttempt timeIntervalSinceDate:lastRecoveryTimestamp]);
+    XCTAssertTrue(interval < 1);
     XCTAssertNil(cacheItem.enrollmentId);
 }
 
