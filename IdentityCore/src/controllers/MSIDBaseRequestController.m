@@ -70,6 +70,8 @@
     return self;
 }
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #pragma mark - Telemetry
 
 - (MSIDTelemetryAPIEvent *)telemetryAPIEvent
@@ -100,8 +102,10 @@
         [event setIsSuccessfulStatus:MSID_TELEMETRY_VALUE_YES];
     }
 
-    [[MSIDTelemetry sharedInstance] stopEvent:self.requestParameters.telemetryRequestId event:event];
+    CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, event);
     [[MSIDTelemetry sharedInstance] flush:self.requestParameters.telemetryRequestId];
 }
+
+#endif
 
 @end

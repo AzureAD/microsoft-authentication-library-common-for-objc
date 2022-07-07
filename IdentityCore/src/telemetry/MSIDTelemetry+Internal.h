@@ -21,6 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#define CONDITIONAL_START_EVENT(x, y, z) CONDITIONAL_COMPILE_MSAL_CPP([x startEvent:(y) eventName:(z)])
+#define CONDITIONAL_STOP_EVENT(x, y, z) CONDITIONAL_COMPILE_MSAL_CPP([x stopEvent:(y) event:(z)])
+
+#import "MSIDTelemetryConditionalCompile.h"
+
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetryEventInterface.h"
 #import "MSIDTelemetryDispatcher.h"
@@ -43,3 +50,5 @@
 - (void)removeDispatcherByObserver:(id)observer;
 
 @end
+
+#endif

@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry+Cache.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetry+Internal.h"
@@ -33,8 +35,7 @@
 + (MSIDTelemetryCacheEvent *)startCacheEventWithName:(NSString *)cacheEventName
                                              context:(id<MSIDRequestContext>)context
 {
-    [[MSIDTelemetry sharedInstance] startEvent:[context telemetryRequestId]
-                                     eventName:cacheEventName];
+    CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, [context telemetryRequestId], cacheEventName);
 
     return [[MSIDTelemetryCacheEvent alloc] initWithName:cacheEventName context:context];
 }
@@ -49,8 +50,7 @@
     {
         [event setToken:token];
     }
-    [[MSIDTelemetry sharedInstance] stopEvent:[context telemetryRequestId]
-                                        event:event];
+    CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, [context telemetryRequestId], event);
 }
 
 + (void)stopFailedCacheEvent:(MSIDTelemetryCacheEvent *)event
@@ -66,3 +66,5 @@
 }
 
 @end
+
+#endif
