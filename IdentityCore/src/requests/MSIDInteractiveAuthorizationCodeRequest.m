@@ -46,8 +46,9 @@
 #endif
 
 @interface MSIDInteractiveAuthorizationCodeRequest()
-
+#if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
+#endif
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 @property (nonatomic) MSIDAuthorizeWebRequestConfiguration *webViewConfiguration;
 
@@ -64,7 +65,9 @@
     {
         _requestParameters = parameters;
         _oauthFactory = oauthFactory;
+#if !EXCLUDE_FROM_MSALCPP
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
+#endif
     }
 
     return self;
@@ -109,9 +112,11 @@
             NSString *errorString = [localError msidServerTelemetryErrorString];
             if (errorString)
             {
+#if !EXCLUDE_FROM_MSALCPP
                 [self.lastRequestTelemetry updateWithApiId:[self.requestParameters.telemetryApiId integerValue]
                                                errorString:errorString
                                                    context:self.requestParameters];
+#endif
             }
             
             completionBlock(nil, localError, nil);

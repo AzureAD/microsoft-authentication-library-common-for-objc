@@ -21,6 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#define CONDITIONAL_START_CACHE_EVENT(event, x, y) CONDITIONAL_COMPILE_MSAL_CPP(MSIDTelemetryCacheEvent *(event) = [MSIDTelemetry startCacheEventWithName:(x) context:(y)])
+#define CONDITIONAL_STOP_CACHE_EVENT(event, x, y, z) CONDITIONAL_COMPILE_MSAL_CPP([MSIDTelemetry stopCacheEvent:(event) withItem:(x) success:(y) context:(z)])
+#define CONDITIONAL_STOP_FAILED_CACHE_EVENT(event, x, y) CONDITIONAL_COMPILE_MSAL_CPP([MSIDTelemetry stopFailedCacheEvent:(event) wipeData:(x) context:(y)])
+
+#import "MSIDTelemetryConditionalCompile.h"
+
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry.h"
 
 @class MSIDTelemetryCacheEvent;
@@ -41,3 +49,5 @@
                      context:(id<MSIDRequestContext>)context;
 
 @end
+
+#endif

@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -140,3 +142,5 @@
 }
 
 @end
+
+#endif
