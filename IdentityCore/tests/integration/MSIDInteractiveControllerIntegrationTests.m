@@ -56,18 +56,18 @@
 - (void)setUp
 {
     [super setUp];
-    
+
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
 }
 
 - (void)tearDown
 {
-   
+
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
-    
+
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     [super tearDown];
 }
@@ -155,7 +155,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
-    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
         XCTAssertNotNil(result);
         // Check result
@@ -163,7 +163,7 @@
         XCTAssertEqualObjects(result.rawIdToken, testResult.rawIdToken);
         XCTAssertEqualObjects(result.account, testResult.account);
         XCTAssertEqualObjects(result.authority, testResult.authority);
-        XCTAssertNil(error);
+        XCTAssertNil(acquireTokenError);
 
         // Check Telemetry event
         XCTAssertEqual([receivedEvents count], 1);
@@ -221,11 +221,11 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
-    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
         XCTAssertNil(result);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error, testError);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqualObjects(acquireTokenError, testError);
 
         // Check Telemetry event
         XCTAssertEqual([receivedEvents count], 1);
@@ -308,11 +308,11 @@
     }];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
-    
+
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
-    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
         XCTAssertNotNil(result);
         // Check result
@@ -320,7 +320,7 @@
         XCTAssertEqualObjects(result.rawIdToken, testResult.rawIdToken);
         XCTAssertEqualObjects(result.account, testResult.account);
         XCTAssertEqualObjects(result.authority, testResult.authority);
-        XCTAssertNil(error);
+        XCTAssertNil(acquireTokenError);
 
         // Check Telemetry event
         XCTAssertEqual([receivedEvents count], 4);
@@ -388,13 +388,13 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
-    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
         XCTAssertNil(result);
-        XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, MSIDErrorWorkplaceJoinRequired);
-        XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"my@test.com");
-        XCTAssertEqualObjects(error.userInfo[MSIDHomeAccountIdkey], @"0ea99c58-64b3-4afa-be50-44e6408edcd5.f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorWorkplaceJoinRequired);
+        XCTAssertEqualObjects(acquireTokenError.userInfo[MSIDUserDisplayableIdkey], @"my@test.com");
+        XCTAssertEqualObjects(acquireTokenError.userInfo[MSIDHomeAccountIdkey], @"0ea99c58-64b3-4afa-be50-44e6408edcd5.f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
 
         // Check Telemetry event
         XCTAssertEqual([receivedEvents count], 1);
@@ -452,11 +452,11 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
-    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
         XCTAssertNil(result);
-        XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, MSIDErrorInternal);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorInternal);
 
         // Check Telemetry event
         XCTAssertEqual([receivedEvents count], 1);

@@ -73,15 +73,14 @@
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = requestParameters;
         __typeof__(self) __weak weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
+        _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
         {
             NSArray *resultAccounts = nil;
             BOOL returnBrokerAccountsOnly = NO;
-            NSError *resultError = error;
             
             if (!operationResponse.success)
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Finished get accounts request with error %@", MSID_PII_LOG_MASKABLE(error));
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Finished get accounts request with error %@", MSID_PII_LOG_MASKABLE(resultError));
             }
             else if (![operationResponse isKindOfClass:[MSIDBrokerOperationGetAccountsResponse class]])
             {

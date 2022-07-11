@@ -123,9 +123,9 @@
                                        validateAccount:self.requestParameters.shouldValidateResultAccount
                                       saveSSOStateOnly:NO
                                                  error:error
-                                       completionBlock:^(MSIDTokenResult *result, NSError *error)
+                                       completionBlock:^(MSIDTokenResult *result, NSError *localError)
          {
-            completionBlock(result, error, nil);
+            completionBlock(result, localError, nil);
         }];
     }];
 #endif
