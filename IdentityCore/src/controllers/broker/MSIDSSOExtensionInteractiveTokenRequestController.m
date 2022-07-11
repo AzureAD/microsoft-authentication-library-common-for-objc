@@ -99,7 +99,8 @@
         return NO;
     }
     
-    if (![error.domain isEqualToString:ASAuthorizationErrorDomain]) return NO;
+    // If it is MSIDErrorDomain and Sso Extension returns unexpected error, we should fall back to local controler and unblock user
+    if (![error.domain isEqualToString:ASAuthorizationErrorDomain] && ![error.domain isEqualToString:MSIDErrorDomain]) return NO;
     
     BOOL shouldFallback = NO;
     switch (error.code)
@@ -107,6 +108,7 @@
         case ASAuthorizationErrorNotHandled:
         case ASAuthorizationErrorUnknown:
         case ASAuthorizationErrorFailed:
+        case MSIDErrorSSOExtensionUnexpectedError:
             shouldFallback = YES;
     }
     

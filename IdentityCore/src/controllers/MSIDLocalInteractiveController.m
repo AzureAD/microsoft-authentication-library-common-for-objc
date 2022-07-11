@@ -116,15 +116,17 @@
         additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
         
         NSError *registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo, NO);
+#if !EXCLUDE_FROM_MSALCPP
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setLoginHint:response.upn];
         [self stopTelemetryEvent:telemetryEvent error:registrationError];
+#endif
         completionBlock(nil, registrationError);
         return;
     }
 
     NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-    [self stopTelemetryEvent:[self telemetryAPIEvent] error:appInstallError];
+    CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], appInstallError);
     completionBlock(nil, appInstallError);
 }
 
@@ -134,7 +136,7 @@
     if ([NSString msidIsStringNilOrBlank:response.appInstallLink])
     {
         NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        [self stopTelemetryEvent:[self telemetryAPIEvent] error:appInstallError];
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], appInstallError);
         completion(nil, appInstallError);
         return;
     }
@@ -147,7 +149,7 @@
 
     if (!brokerController)
     {
-        [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], brokerError);
         completion(nil, brokerError);
         return;
     }
@@ -155,11 +157,12 @@
     [brokerController acquireToken:completion];
 #else
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-    [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
+    CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
     completion(nil, error);
 #endif
 }
 
+#if !EXCLUDE_FROM_MSALCPP
 - (MSIDTelemetryAPIEvent *)telemetryAPIEvent
 {
     MSIDTelemetryAPIEvent *event = [super telemetryAPIEvent];
@@ -174,6 +177,7 @@
 
     return event;
 }
+#endif
 
 #pragma mark - Protected
 
@@ -186,7 +190,7 @@
         return;
     }
 
-    [[MSIDTelemetry sharedInstance] startEvent:self.interactiveRequestParamaters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
+    CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.interactiveRequestParamaters.telemetryRequestId, MSID_TELEMETRY_EVENT_API_EVENT);
 
     self.currentRequest = request;
     
@@ -198,10 +202,11 @@
             [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
             return;
         }
-
+#if !EXCLUDE_FROM_MSALCPP
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:result.account];
         [self stopTelemetryEvent:telemetryEvent error:error];
+#endif
         self.currentRequest = nil;
         
         completionBlock(result, error);
