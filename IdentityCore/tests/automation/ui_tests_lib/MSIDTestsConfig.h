@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,19 +20,18 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAutomation.h"
 
-@interface MSIDAutomationRequestViewController : MSIDAutoViewController 
+#import <Foundation/Foundation.h>
 
-#if TARGET_OS_IPHONE
-@property (weak, nonatomic) IBOutlet UITextView *requestInfo;
+NS_ASSUME_NONNULL_BEGIN
 
-#else
-@property (strong, nonatomic) IBOutlet NSTextView *requestInfo;
-#endif
+@interface MSIDTestsConfig : NSObject
 
-@property (atomic) MSIDAutoParamBlock completionBlock;
+@property (nonatomic) BOOL scopesSupported;
+@property (nonatomic) BOOL tenantSpecificResultAuthoritySupported;
 
 @end
+
+NS_ASSUME_NONNULL_END
