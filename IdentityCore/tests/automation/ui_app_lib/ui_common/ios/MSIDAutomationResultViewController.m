@@ -21,20 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomation.h"
-#import "MSIDAutomationTestAction.h"
+#import "MSIDAutomationResultViewController.h"
 
-@class MSIDAutomationRequestViewController;
+@interface MSIDAutomationResultViewController ()
 
-@interface MSIDAutomationMainViewController: MSIDAutoViewController
+@property (strong, nonatomic) IBOutlet UITextView *resultInfo;
+@property (strong, nonatomic) IBOutlet UITextView *resultLogs;
 
-@property (nonatomic) MSIDAutomationRequestViewController *requestViewController;
-@property (nonatomic) WKWebView *webView;
+@end
 
-- (void)showRequestDataViewWithCompletionHandler:(MSIDAutoParamBlock)completionHandler;
-- (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs;
-- (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context;
-- (WKWebView *)passedinWebView;
-+ (void)forwardIdentitySDKLog:(NSString *)logLine;
+@implementation MSIDAutomationResultViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.resultInfo.text = self.resultInfoString;
+    self.resultLogs.text = self.resultLogsString;
+}
+
+- (IBAction)done:(id)sender
+{
+    (void)sender;
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
 
 @end

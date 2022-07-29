@@ -21,20 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomation.h"
-#import "MSIDAutomationTestAction.h"
+#import "MSIDAutomationResultViewController.h"
 
-@class MSIDAutomationRequestViewController;
+@interface MSIDAutomationResultViewController ()
 
-@interface MSIDAutomationMainViewController: MSIDAutoViewController
+@property (strong, nonatomic) IBOutlet NSTextView *resultInfo;
+@property (strong, nonatomic) IBOutlet NSTextView *resultLogs;
 
-@property (nonatomic) MSIDAutomationRequestViewController *requestViewController;
-@property (nonatomic) WKWebView *webView;
+@end
 
-- (void)showRequestDataViewWithCompletionHandler:(MSIDAutoParamBlock)completionHandler;
-- (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs;
-- (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context;
-- (WKWebView *)passedinWebView;
-+ (void)forwardIdentitySDKLog:(NSString *)logLine;
+@implementation MSIDAutomationResultViewController
+
+- (void)viewDidLoad
+{
+    _resultInfo.string = _resultInfoString ?: @"";
+    _resultLogs.string = _resultLogsString ?: @"";
+}
+
+- (void)setResultInfoString:(NSString *)resultInfoString
+{
+    _resultInfoString = resultInfoString;
+    _resultInfo.string = _resultInfoString ?: @"";
+}
+
+- (void)setResultLogsString:(NSString *)resultLogsString
+{
+    _resultLogsString = resultLogsString;
+    _resultLogs.string = _resultLogsString ?: @"";
+}
+
+- (IBAction)done:(__unused id)sender
+{
+    NSTabViewController *tabController = (NSTabViewController *) self.parentViewController;
+    tabController.selectedTabViewItemIndex = 0;
+}
 
 @end

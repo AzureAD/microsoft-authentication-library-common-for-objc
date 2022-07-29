@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "MSIDAutomationMainViewController.h"
+#import "MSIDAutomationRequestViewController.h"
+#import "MSIDAutomationResultViewController.h"
 #import "MSIDAutomation.h"
 #import "MSIDAutomationPassedInWebViewController.h"
 #import "MSIDAutomationActionManager.h"
@@ -38,6 +40,8 @@
 
 @end
 
+#define MSID_SHOW_RESULT_SEGUE @"showResult"
+#define MSID_SHOW_REQUEST_SEGUE @"showRequest"
 #define MSID_SHOW_PASSED_IN_WEBVIEW_SEGUE @"showPassedInWebview"
 #define MSID_WEBVIEW_SEGUE_KEY @"webview"
 #define MSID_RESULT_INFO_SEGUE_KEY @"resultInfo"
@@ -48,12 +52,34 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
+    if ([segue.identifier isEqualToString:MSID_SHOW_RESULT_SEGUE])
+    {
+        MSIDAutomationResultViewController *resultVC = segue.destinationViewController;
+        resultVC.resultInfoString = sender[MSID_RESULT_INFO_SEGUE_KEY];
+        resultVC.resultLogsString = sender[MSID_RESULT_LOGS_SEGUE_KEY];
+    }
+    
+    if ([segue.identifier isEqualToString:MSID_SHOW_REQUEST_SEGUE])
+    {
+        MSIDAutomationRequestViewController *requestVC = segue.destinationViewController;
+        requestVC.requestInfo.text = nil;
+        requestVC.completionBlock = sender[MSID_COMPLETION_BLOCK_SEGUE_KEY];
+    }
+    
     if ([segue.identifier isEqualToString:MSID_SHOW_PASSED_IN_WEBVIEW_SEGUE])
     {
         MSIDAutomationPassedInWebViewController *requestVC = segue.destinationViewController;
         requestVC.passedInWebview = sender[MSID_WEBVIEW_SEGUE_KEY];
     }
 }
+
+
+- (void)showRequestDataViewWithCompletionHandler:(MSIDAutoParamBlock)completionHandler
+{
+    [self performSegueWithIdentifier:MSID_SHOW_REQUEST_SEGUE
+                              sender:@{MSID_COMPLETION_BLOCK_SEGUE_KEY:completionHandler}];
+}
+
 
 - (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs
 {
@@ -213,7 +239,9 @@ static NSMutableString *s_resultLogs = nil;
     [action performActionWithParameters:parameters
                     containerController:self
                         completionBlock:^(MSIDAutomationTestResult *result) {
+
                             [self showResultViewWithResult:result.jsonDictionary logs:self.class.resultLogs];
+
                         }];
 }
 

@@ -21,20 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomation.h"
-#import "MSIDAutomationTestAction.h"
+#import "MSIDAutomationRequestViewController.h"
+#import "MSIDAutomationTestRequest.h"
 
-@class MSIDAutomationRequestViewController;
+@implementation MSIDAutomationRequestViewController
 
-@interface MSIDAutomationMainViewController: MSIDAutoViewController
+- (void)viewWillAppear
+{
+    [super viewWillAppear];
+    self.requestInfo.string = @"";
+}
 
-@property (nonatomic) MSIDAutomationRequestViewController *requestViewController;
-@property (nonatomic) WKWebView *webView;
+- (IBAction)go:(id)sender
+{
+    NSError *error = nil;
+    NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.string dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    if (!params)
+    {
+        self.completionBlock(nil);
+        return;
+    }
 
-- (void)showRequestDataViewWithCompletionHandler:(MSIDAutoParamBlock)completionHandler;
-- (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs;
-- (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context;
-- (WKWebView *)passedinWebView;
-+ (void)forwardIdentitySDKLog:(NSString *)logLine;
+    MSIDAutomationTestRequest *testRequest = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
+    self.completionBlock(testRequest);
+}
 
 @end

@@ -22,19 +22,10 @@
 // THE SOFTWARE.
 
 #import "MSIDAutomation.h"
-#import "MSIDAutomationTestAction.h"
 
-@class MSIDAutomationRequestViewController;
+@interface MSIDAutomationResultViewController : MSIDAutoViewController
 
-@interface MSIDAutomationMainViewController: MSIDAutoViewController
-
-@property (nonatomic) MSIDAutomationRequestViewController *requestViewController;
-@property (nonatomic) WKWebView *webView;
-
-- (void)showRequestDataViewWithCompletionHandler:(MSIDAutoParamBlock)completionHandler;
-- (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs;
-- (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context;
-- (WKWebView *)passedinWebView;
-+ (void)forwardIdentitySDKLog:(NSString *)logLine;
+@property (nonatomic) NSString *resultInfoString;
+@property (nonatomic) NSString *resultLogsString;
 
 @end
