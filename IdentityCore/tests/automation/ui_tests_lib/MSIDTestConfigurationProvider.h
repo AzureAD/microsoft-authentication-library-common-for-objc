@@ -42,13 +42,11 @@
 - (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
 
 - (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
-                                  targetTenantId:(NSString *)targetTenantId
-                                 scopesSupported:(BOOL)scopesSupported;
+                                  targetTenantId:(NSString *)targetTenantId;
 
 - (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
                                   targetTenantId:(NSString *)targetTenantId
-                                   brokerEnabled:(BOOL)brokerEnabled
-                                 scopesSupported:(BOOL)scopesSupported;
+                                   brokerEnabled:(BOOL)brokerEnabled;
 
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
 
