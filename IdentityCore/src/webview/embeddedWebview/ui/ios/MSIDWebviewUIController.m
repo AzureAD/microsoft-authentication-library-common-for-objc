@@ -36,8 +36,6 @@ static WKWebViewConfiguration *s_webConfig;
     UIActivityIndicatorView *_loadingIndicator;
 }
 
-@property (nonatomic) BOOL presentInParentController;
-
 @end
 
 @implementation MSIDWebviewUIController
