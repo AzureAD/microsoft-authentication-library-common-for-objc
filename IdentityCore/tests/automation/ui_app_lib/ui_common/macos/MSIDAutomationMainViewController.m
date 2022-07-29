@@ -183,6 +183,7 @@ static NSMutableString *s_resultLogs = nil;
                     containerController:self
                         completionBlock:^(MSIDAutomationTestResult *result) {
                             [self showResultViewWithResult:result.jsonDictionary logs:self.class.resultLogs];
+
                         }];
 }
 

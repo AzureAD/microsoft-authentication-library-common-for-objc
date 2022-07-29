@@ -41,8 +41,7 @@
     self.resultLogs.text = self.resultLogsString;
 }
 
-- (IBAction)done:(id)sender
-{
+- (IBAction)done:(id)sender {
     (void)sender;
     [self dismissViewControllerAnimated:YES completion:nil];
 }
