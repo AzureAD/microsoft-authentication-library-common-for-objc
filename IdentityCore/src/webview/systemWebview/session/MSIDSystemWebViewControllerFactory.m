@@ -26,9 +26,6 @@
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDASWebAuthenticationSessionHandler.h"
 #import "MSIDConstants.h"
-#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
-#import "MSIDSFAuthenticationSessionHandler.h"
-#endif
 
 #if TARGET_OS_IPHONE
 #import "MSIDSafariViewController.h"
@@ -43,28 +40,8 @@
         return preferredType;
     }
     
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        
-    if (@available(iOS 12.0, macOS 10.15, *))
-    {
-        return MSIDWebviewTypeAuthenticationSession;
-    }
-#endif
-        
-#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
-        
-    if (@available(iOS 11.0, *))
-    {
-        return MSIDWebviewTypeAuthenticationSession;
-    }
-        
-#endif
+    return MSIDWebviewTypeAuthenticationSession;
     
-#if TARGET_OS_IPHONE
-    return MSIDWebviewTypeSafariViewController;
-#endif
-    
-    return MSIDWebviewTypeWKWebView;
 }
 
 + (id<MSIDWebviewInteracting>)authSessionWithParentController:(__unused MSIDViewController *)parentController
@@ -73,27 +50,12 @@
                                            useEmpheralSession:(__unused BOOL)useEmpheralSession
                                                       context:(__unused id<MSIDRequestContext>)context
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     
-    if (@available(iOS 12.0, macOS 10.15, *))
-    {
-        return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
-                                                                              startURL:startURL
-                                                                        callbackScheme:callbackURLScheme
-                                                                    useEmpheralSession:useEmpheralSession];
-    }
-#endif
+    return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+                                                                          startURL:startURL
+                                                                    callbackScheme:callbackURLScheme
+                                                                useEmpheralSession:useEmpheralSession];
     
-#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
-    
-    if (@available(iOS 11.0, *))
-    {
-        return [[MSIDSFAuthenticationSessionHandler alloc] initWithStartURL:startURL callbackScheme:callbackURLScheme];
-    }
-    
-#endif
-    
-    return nil;
 }
 
 #if TARGET_OS_IPHONE

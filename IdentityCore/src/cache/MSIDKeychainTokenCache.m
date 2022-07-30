@@ -151,12 +151,8 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     NSMutableDictionary *defaultKeychainQuery = [@{(id)kSecClass : (id)kSecClassGenericPassword,
                                                   (id)kSecAttrAccessGroup : self.keychainGroup} mutableCopy];
     
-#ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    if (@available(macOS 10.15, *)) {
+#if TARGET_OS_OSX
         defaultKeychainQuery[(id)kSecUseDataProtectionKeychain] = @YES;
-    }
-#endif
 #endif
     
     self.defaultKeychainQuery = defaultKeychainQuery;
@@ -166,12 +162,8 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                               (id)kSecAttrAccessGroup : self.keychainGroup,
                                               (id)kSecAttrAccount : @"TokenWipe"} mutableCopy];
     
-#ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        if (@available(macOS 10.15, *)) {
+#if TARGET_OS_OSX
             defaultWipeQuery[(id)kSecUseDataProtectionKeychain] = @YES;
-        }
-#endif
 #endif
         
     self.defaultWipeQuery = defaultWipeQuery;

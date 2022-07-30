@@ -129,7 +129,11 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     __block NSError *subError = nil;
     dispatch_once(&s_onceCreateTrustedAppListWithCurrentApp, ^{
         SecTrustedApplicationRef trustedApplication = nil;
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
+    #pragma clang diagnostic pop
+        
         if (status != errSecSuccess)
         {
             [self createError:@"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured."

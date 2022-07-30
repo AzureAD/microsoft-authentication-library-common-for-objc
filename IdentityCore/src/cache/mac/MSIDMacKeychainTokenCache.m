@@ -406,27 +406,21 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 - (BOOL)shouldUseLoginKeychain
 {
-    if (@available(macOS 10.15, *))
+     
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
     {
-        
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
-        {
 #if MS_INTERNAL_BUILD
-            return ![self isAppEntitled];
+        return ![self isAppEntitled];
 #else
-            return NO;
+        return NO;
 #endif
-        }
-        else
-        {
-            // if kLoginKeychainEmptyKey is not set
-            return YES;
-        }
     }
     else
     {
+        // if kLoginKeychainEmptyKey is not set
         return YES;
     }
+
 }
 
 // Initialize with defaultKeychainGroup
@@ -450,7 +444,6 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     self = [super initWithTrustedApplications:trustedApplications accessLabel:s_defaultKeychainLabel error:error];
     if (self)
     {
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
         if (![self shouldUseLoginKeychain]) {
                 if (error)
                 {
@@ -460,9 +453,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                 MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it");
                 return nil;
             }
-        
-#endif
-        
+
         self.appStorageItem = [MSIDMacCredentialStorageItem new];
         self.sharedStorageItem = [MSIDMacCredentialStorageItem new];
         self.serializer = [MSIDCacheItemJsonSerializer new];
@@ -908,19 +899,14 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     {
         storageItemIsEmpty = YES;
     }
-    
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    if (@available(macOS 10.15, *)) {
-        
-        // Performance optimization on 10.15. If we've read shared item once and we didn't find it, or it was empty, save a flag into user defaults such as we stop looking into the login keychain altogether
-        if (isShared && storageItemIsEmpty)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Saving a flag to stop looking into login keychain, as it doesn't contain any items");
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kLoginKeychainEmptyKey];
-        }
+
+    // Performance optimization on 10.15. If we've read shared item once and we didn't find it, or it was empty, save a flag into user defaults such as we stop looking into the login keychain altogether
+    if (isShared && storageItemIsEmpty)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Saving a flag to stop looking into login keychain, as it doesn't contain any items");
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kLoginKeychainEmptyKey];
     }
-#endif
-    
+
     return storageItem;
 }
 

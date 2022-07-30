@@ -51,11 +51,6 @@ static WKWebViewConfiguration *s_webConfig;
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
     
-    if (@available(macOS 10.11, *))
-    {
-        webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
-    }
-    
     if (@available(macOS 10.15, *))
     {
         webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
@@ -212,7 +207,7 @@ static WKWebViewConfiguration *s_webConfig;
     }
 
     NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(windowWidth / 2 - 16, windowHeight / 2 - 16, 32, 32)];
-    [loadingIndicator setStyle:NSProgressIndicatorSpinningStyle];
+    [loadingIndicator setStyle:NSProgressIndicatorStyleSpinning];
     // Keep the item centered in the window even if it's resized.
     [loadingIndicator setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
     

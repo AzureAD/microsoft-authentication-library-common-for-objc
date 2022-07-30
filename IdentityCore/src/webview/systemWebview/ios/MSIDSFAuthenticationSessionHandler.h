@@ -28,7 +28,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(11.0))
 @interface MSIDSFAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
