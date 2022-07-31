@@ -196,11 +196,11 @@
                                                                                     resource:@"resource"
                                                                                 legacyUserId:@"test_upn@test_devex.com"];
 
-    NSData *archivedData = [NSKeyedArchiver archivedDataWithRootObject:legacyKey1];
+    NSData *archivedData = [NSKeyedArchiver archivedDataWithRootObject:legacyKey1 requiringSecureCoding:YES error:nil];
 
     XCTAssertNotNil(archivedData);
 
-    MSIDLegacyTokenCacheKey *legacyKey2 = [NSKeyedUnarchiver unarchiveObjectWithData:archivedData];
+    MSIDLegacyTokenCacheKey *legacyKey2 = [NSKeyedUnarchiver unarchivedObjectOfClass:MSIDLegacyTokenCacheKey.class fromData:archivedData error:nil];
 
     XCTAssertNotNil(legacyKey2);
     XCTAssertEqualObjects(legacyKey1, legacyKey2);
