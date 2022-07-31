@@ -95,7 +95,7 @@
                                                                 } mutableCopy]
                                                  } mutableCopy],
                               @"version": @1};
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -117,7 +117,7 @@
                                                                 } mutableCopy]
                                                  } mutableCopy],
                               @"version": @1};
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -140,7 +140,7 @@
                                                                 } mutableCopy]
                                                  } mutableCopy],
                               @"version": @1};
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -163,7 +163,7 @@
                                                                 } mutableCopy]
                                                  } mutableCopy],
                               @"version": @1};
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -187,7 +187,7 @@
                                                                 } mutableCopy]
                                                  } mutableCopy],
                               @"version": @1};
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -210,7 +210,7 @@
                                                                 }
                                                  } mutableCopy],
                               @"version": @1};
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -233,7 +233,7 @@
                                               } mutableCopy]
                                       },
                               @"version": @1};
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -248,7 +248,7 @@
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
     NSDictionary *wrapper = @{ @"version": @1};
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -262,7 +262,7 @@
 - (void)testDeserialize_whenTokenCacheIsNotDicitonary_shouldReturnFalseAndError
 {
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:@"some"];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:@"some" requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -286,7 +286,7 @@
                                                                 } mutableCopy]
                                                  } mutableCopy]
                               };
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
@@ -310,7 +310,7 @@
                                                                 } mutableCopy]
                                                  } mutableCopy],
                               @"version": @99};
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:wrapper requiringSecureCoding:YES error:nil];
     NSError *error;
     
     BOOL result = [cache deserialize:data error:&error];
