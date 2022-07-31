@@ -86,7 +86,11 @@
 {
     NSString *path1 = @"/Applications/Safari.app\0";
     SecTrustedApplicationRef appRef1 = nil;
+   #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SecTrustedApplicationCreateFromPath([path1 UTF8String], &appRef1);
+    #pragma clang diagnostic pop
+    
     id appReference = (__bridge_transfer id)appRef1;
     XCTAssertNotNil(appReference);
     
@@ -260,7 +264,10 @@
         {
             SecTrustedApplicationRef trustedAppRef = (__bridge SecTrustedApplicationRef)trustedApp;
             CFDataRef trustedDataRef = NULL;
+#pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
             SecTrustedApplicationCopyData(trustedAppRef, &trustedDataRef);
+    #pragma clang diagnostic pop
             
             if (trustedDataRef)
             {
