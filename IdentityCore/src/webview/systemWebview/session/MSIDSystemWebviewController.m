@@ -132,6 +132,10 @@
 #endif
     void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
     {
+#if TARGET_OS_IPHONE
+        [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
+        
         if (authError && authError.code == MSIDErrorUserCancel)
         {
             CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(self.telemetryEvent, YES);
