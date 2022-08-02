@@ -58,3 +58,11 @@ NSString *const MSID_POP_TOKEN_PRIVATE_KEY = @"com.microsoft.token.private.key";
 NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN = @"com.microsoft.identity.throttling.metadata";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";
+
+NSString *const MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY = @"SHARED_MODE_CURRENT_ACCOUNT_CHANGED";
+
+NSString *const MSID_CLIENT_SKU_MSAL_IOS           = @"MSAL.iOS";
+NSString *const MSID_CLIENT_SKU_MSAL_OSX           = @"MSAL.OSX";
+NSString *const MSID_CLIENT_SKU_CPP_IOS            = @"MSAL.xplat.iOS";
+NSString *const MSID_CLIENT_SKU_CPP_OSX            = @"MSAL.xplat.macOS";
+NSString *const MSID_CLIENT_SKU_ADAL_IOS           = @"iOS";

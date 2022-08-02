@@ -58,12 +58,14 @@
     NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
     if (![NSString msidIsStringNilOrBlank:clientTelemetry])
     {
+#if !EXCLUDE_FROM_MSALCPP
         NSString *speInfo = [clientTelemetry msidParsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
         
         if (![NSString msidIsStringNilOrBlank:speInfo])
         {
             jsonObject[MSID_TELEMETRY_KEY_SPE_INFO] = speInfo;
         }
+#endif
     }
     
     return jsonObject;

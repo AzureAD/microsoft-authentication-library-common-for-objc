@@ -114,6 +114,7 @@ NSString *const MSID_EXPIRES_ON_CACHE_KEY                = @"expires_on";
 NSString *const MSID_REFRESH_ON_CACHE_KEY                = @"refresh_on";
 NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY          = @"access_token_type";
 NSString *const MSID_CACHED_AT_CACHE_KEY                 = @"cached_at";
+NSString *const MSID_LAST_RECOVERY_ATTEMPT_CACHE_KEY     = @"recovery_attempted_at";
 NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on";
 NSString *const MSID_EXPIRES_IN_CACHE_KEY                = @"expires_in";
 NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";
@@ -152,6 +153,7 @@ NSString *const MSID_DEVICE_ID_CACHE_KEY                 = @"device_id";
 NSString *const MSID_PRT_PROTOCOL_VERSION_CACHE_KEY      = @"prt_protocol_version";
 NSString *const MSID_KID_CACHE_KEY                       = @"kid";
 NSString *const MSID_REQUESTED_CLAIMS_CACHE_KEY          = @"requested_claims";
+NSString *const MSID_REFRESH_TOKEN_CREDENTIAL            = @"x-ms-RefreshTokenCredential";
 
 NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";
 NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the token response";

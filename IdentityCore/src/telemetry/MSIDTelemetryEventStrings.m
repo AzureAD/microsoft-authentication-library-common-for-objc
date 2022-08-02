@@ -23,6 +23,7 @@
 
 #import "MSIDTelemetryEventStrings.h"
 
+#if !EXCLUDE_FROM_MSALCPP
 
 // Telemetry event name
 NSString *const MSID_TELEMETRY_EVENT_DEFAULT_EVENT          = @"default_event";
@@ -134,4 +135,4 @@ NSString *const MSID_TELEMETRY_VALUE_AUTHORITY_AAD                   = @"aad";
 NSString *const MSID_TELEMETRY_VALUE_AUTHORITY_ADFS                  = @"adfs";
 NSString *const MSID_TELEMETRY_VALUE_AUTHORITY_B2C                  = @"b2c";
 
-
+#endif

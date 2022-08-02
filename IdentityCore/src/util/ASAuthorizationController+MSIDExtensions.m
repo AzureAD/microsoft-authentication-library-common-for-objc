@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,23 +20,19 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#define CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(x, y) CONDITIONAL_COMPILE_MSAL_CPP([x setIsCancelled:(y)])
 
-#import "MSIDTelemetryConditionalCompile.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
 
-#if !EXCLUDE_FROM_MSALCPP
+@implementation ASAuthorizationController (MSIDExtensions)
 
-#import "MSIDTelemetryBaseEvent.h"
-
-@interface MSIDTelemetryUIEvent : MSIDTelemetryBaseEvent
-
-- (void)setLoginHint:(NSString *)hint;
-- (void)setNtlm:(NSString *)ntlmHandled;
-
-- (void)setIsCancelled:(BOOL)cancelled;
+- (void)msidPerformRequests
+{
+    NSString *operations = [[self.authorizationRequests valueForKey:@"requestedOperation"] componentsJoinedByString:@", "];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"ASAuthorizationController: performRequests with operation(s): %@", operations);
+    
+    [self performRequests];
+}
 
 @end
-
-#endif

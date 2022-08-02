@@ -48,63 +48,63 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
     params.clientId = nil;
-    
+
     NSError *error;
     MSIDSSOExtensionGetAccountsRequest *request = [[MSIDSSOExtensionGetAccountsRequest alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:&error];
     XCTAssertNotNil(request);
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Execute request"];
-    
-    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error) {
-        
-        XCTAssertNotNil(error);
+
+    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable localError) {
+
+        XCTAssertNotNil(localError);
         XCTAssertNil(accounts);
         XCTAssertFalse(returnBrokerAccountsOnly);
-        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-        XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+        XCTAssertEqualObjects(localError.domain, MSIDErrorDomain);
+        XCTAssertEqual(localError.code, MSIDErrorInvalidInternalParameter);
         [expectation fulfill];
-        
+
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
 - (void)testExecuteRequest_whenErrorResponseFromSSOExtension_shouldReturnNilResultAndFillError
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
-    
+
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
-    
+
     request.authorizationControllerToReturn = authorizationControllerMock;
-    
+
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
-    
-    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error) {
-        
+
+    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable localError) {
+
         XCTAssertFalse(returnBrokerAccountsOnly);
         XCTAssertNil(accounts);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-        XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
-        XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Invalid param");
-        XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
-        XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"bad_token");
-        
+        XCTAssertNotNil(localError);
+        XCTAssertEqualObjects(localError.domain, MSIDErrorDomain);
+        XCTAssertEqual(localError.code, MSIDErrorInvalidDeveloperParameter);
+        XCTAssertEqualObjects(localError.userInfo[MSIDErrorDescriptionKey], @"Invalid param");
+        XCTAssertEqualObjects(localError.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
+        XCTAssertEqualObjects(localError.userInfo[MSIDOAuthSubErrorKey], @"bad_token");
+
         [executeRequestExpectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     XCTAssertNotNil(authorizationControllerMock.delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
-    
+
     NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Invalid param", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     NSError *error = [NSError errorWithDomain:ASAuthorizationErrorDomain code:MSIDSSOExtensionUnderlyingError userInfo:@{NSUnderlyingErrorKey : msidError}];
-    
+
     __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
     [delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
@@ -113,31 +113,31 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (void)testExecuteRequest_whenSuccessResponseFromSSOExtension_withNoAccounts_shouldReturnEmptyResultAndNilError
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
-    
+
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
-    
+
     request.authorizationControllerToReturn = authorizationControllerMock;
-    
+
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
-    
-    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error) {
-        
+
+    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable localError) {
+
         XCTAssertFalse(returnBrokerAccountsOnly);
         XCTAssertNotNil(accounts);
         XCTAssertEqual([accounts count], 0);
-        XCTAssertNil(error);
+        XCTAssertNil(localError);
         [executeRequestExpectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     XCTAssertNotNil(authorizationControllerMock.delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
-    
+
     NSDictionary *responseJSON = @{
         @"operation" : @"get_accounts",
         @"success" : @"1",
@@ -147,9 +147,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         @"accounts": @""
     };
-    
+
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
-    
+
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
     __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
     [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
@@ -159,19 +159,19 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (void)testExecuteRequest_whenSuccessResponseFromSSOExtension_withAccountsPresent_shouldReturnNonEmptyResultAndNilError
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
-    
+
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
-    
+
     request.authorizationControllerToReturn = authorizationControllerMock;
-    
+
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
-    
-    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error) {
-        
+
+    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable localError) {
+
         XCTAssertFalse(returnBrokerAccountsOnly);
         XCTAssertNotNil(accounts);
         XCTAssertEqual([accounts count], 2);
@@ -179,16 +179,16 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         XCTAssertEqualObjects(firstAccount.accountIdentifier.homeAccountId, @"uid.utid");
         MSIDAccount *secondAccount = accounts[1];
         XCTAssertEqualObjects(secondAccount.accountIdentifier.homeAccountId, @"uid.utid");
-        XCTAssertNil(error);
+        XCTAssertNil(localError);
         [executeRequestExpectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
     XCTAssertNotNil(delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
-    
+
     NSArray *accounts = @[
         @{
             @"home_account_id" : @"uid.utid",
@@ -221,9 +221,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
             @"username" : @"username",
         }
     ];
-    
+
     NSString *jsonAccountsString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:accounts options:0 error:nil] encoding:NSUTF8StringEncoding];
-    
+
     NSDictionary *responseJSON = @{
         @"operation" : @"get_accounts",
         @"success" : @"1",
@@ -233,9 +233,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         @"accounts": jsonAccountsString
     };
-    
+
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
-    
+
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
     [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
@@ -244,34 +244,34 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (void)testExecuteRequest_whenSuccessResponseFromSSOExtension_withAccountPresent_andSharedDevice_shouldReturnNonEmptyResultAndNilError_andReturnBrokerAccountsOnlyYES
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
-    
+
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
-    
+
     request.authorizationControllerToReturn = authorizationControllerMock;
-    
+
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
-    
-    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error) {
-        
+
+    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable localError) {
+
         XCTAssertTrue(returnBrokerAccountsOnly);
         XCTAssertNotNil(accounts);
         XCTAssertEqual([accounts count], 1);
         MSIDAccount *firstAccount = accounts[0];
         XCTAssertEqualObjects(firstAccount.accountIdentifier.homeAccountId, @"uid.utid");
-        XCTAssertNil(error);
+        XCTAssertNil(localError);
         [executeRequestExpectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
     XCTAssertNotNil(delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
-    
+
     NSArray *accounts = @[
         @{
             @"home_account_id" : @"uid.utid",
@@ -289,9 +289,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
             @"username" : @"username",
         }
     ];
-    
+
     NSString *jsonAccountsString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:accounts options:0 error:nil] encoding:NSUTF8StringEncoding];
-    
+
     NSDictionary *responseJSON = @{
         @"operation" : @"get_accounts",
         @"success" : @"1",
@@ -301,9 +301,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         @"accounts": jsonAccountsString
     };
-    
+
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
-    
+
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
     [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
@@ -312,33 +312,33 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (void)testExecuteRequest_whenCorruptResponseFromSSOExtension_shouldReturnErrorFromJSONDecoder
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    
+
     MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
-    
+
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
-    
+
     request.authorizationControllerToReturn = authorizationControllerMock;
-    
+
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
-    
-    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error) {
-        
+
+    [request executeRequestWithCompletion:^(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable localError) {
+
         XCTAssertFalse(returnBrokerAccountsOnly);
         XCTAssertNil(accounts);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error.domain, NSCocoaErrorDomain);
-        XCTAssertEqual(error.code, 3840);
+        XCTAssertNotNil(localError);
+        XCTAssertEqualObjects(localError.domain, NSCocoaErrorDomain);
+        XCTAssertEqual(localError.code, 3840);
         [executeRequestExpectation fulfill];
     }];
-    
+
     [self waitForExpectations:@[expectation] timeout:1];
-    
+
     __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
     XCTAssertNotNil(delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
-    
+
     NSDictionary *responseJSON = @{
         @"operation" : @"get_accounts",
         @"success" : @"1",
@@ -348,9 +348,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         @"accounts": @"{\\,, corrupt response}"
     };
-    
+
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
-    
+
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
     [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];

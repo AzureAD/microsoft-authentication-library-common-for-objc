@@ -37,6 +37,7 @@
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthScheme.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDDefaultBrokerResponseHandler
 {
@@ -72,6 +73,7 @@
                                                     authScheme:(MSIDAuthenticationScheme *)authScheme
                                                          error:(NSError **)error
 {
+    MSIDTokenResult *tokenResult = nil;
     NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:encryptedParams
                                                                          correlationId:correlationID
                                                                                  error:error];
@@ -91,7 +93,6 @@
     // assuming they could come in both successful case and failure case.
     if (decryptedResponse[@"additional_tokens"])
     {
-        MSIDTokenResult *tokenResult = nil;
         NSError *additionalTokensError = nil;
         
         NSDictionary *additionalTokensDict = [decryptedResponse[@"additional_tokens"] msidJson];
@@ -149,7 +150,9 @@
         return nil;
     }
     
-    NSError *brokerError = [self resultFromBrokerErrorResponse:brokerResponse];
+    NSError *brokerError = [self resultFromBrokerErrorResponse:brokerResponse
+                                                   tokenResult:tokenResult
+                                             decryptedResponse:decryptedResponse];
     
     if (error)
     {
@@ -208,6 +211,8 @@
 }
 
 - (NSError *)resultFromBrokerErrorResponse:(MSIDAADV2BrokerResponse *)errorResponse
+                               tokenResult:(MSIDTokenResult *)tokenResult
+                         decryptedResponse:(NSDictionary *)decryptedResponse
 {
     NSString *errorDomain = errorResponse.errorDomain;
     
@@ -244,6 +249,24 @@
         userInfo[MSIDHTTPHeadersKey] = httpHeaders;
     
     userInfo[MSIDBrokerVersionKey] = errorResponse.brokerAppVer;
+    
+    // optional: additional_tokens
+    if (tokenResult)
+    {
+        userInfo[MSIDInvalidTokenResultKey] = tokenResult;
+    }
+    
+    // optional: MSIDGrantedScopesKey
+    if (![NSString msidIsStringNilOrBlank:decryptedResponse[MSIDGrantedScopesKey]])
+    {
+        userInfo[MSIDGrantedScopesKey] = [[NSOrderedSet msidOrderedSetFromString:decryptedResponse[MSIDGrantedScopesKey]] array];
+    }
+    
+    // optional: MSIDDeclinedScopesKey
+    if (![NSString msidIsStringNilOrBlank:decryptedResponse[MSIDDeclinedScopesKey]])
+    {
+        userInfo[MSIDDeclinedScopesKey] = [[NSOrderedSet msidOrderedSetFromString:decryptedResponse[MSIDDeclinedScopesKey]] array];
+    }
     
     MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Broker failed with error domain %@, error code %@, oauth error %@, sub error %@, description %@", errorDomain, errorCodeString, oauthErrorCode, subError, MSID_PII_LOG_MASKABLE(errorDescription));
 
