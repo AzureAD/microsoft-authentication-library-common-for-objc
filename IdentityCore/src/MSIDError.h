@@ -248,6 +248,30 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // SSO Extension internal error
     MSIDErrorSSOExtensionUnexpectedError           =   -51815,
     
+    // JIT - Link - Timeout while waiting for server confirmation
+    MSIDErrorJITLinkServerConfirmationTimeout      =   -51816,
+    
+    // JIT - Link - Error while waiting for server confirmation
+    MSIDErrorJITLinkServerConfirmationError        =   -51817,
+    
+    // JIT - Link - Error while acquiring intune token
+    MSIDErrorJITLinkAcquireTokenError              =   -51818,
+    
+    // JIT - Link - Token acquired for wrong tenant
+    MSIDErrorJITLinkTokenAcquiredWrongTenant       =   -51819,
+    
+    // JIT - Link - Error during linking
+    MSIDErrorJITLinkError                          =   -51820,
+    
+    // JIT - Compliance Check - Device not compliant
+    MSIDErrorJITComplianceCheckResultNotCompliant  =   -51821,
+    
+    // JIT - Compliance Check - CP timeout
+    MSIDErrorJITComplianceCheckResultTimeout       =   -51822,
+    
+    // JIT - Compliance Check - Device unknown
+    MSIDErrorJITComplianceCheckResultUnknown       =   -51823,
+    
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,
