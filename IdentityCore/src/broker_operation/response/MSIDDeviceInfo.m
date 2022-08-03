@@ -30,17 +30,6 @@ static NSArray *deviceModeEnumString;
 
 @implementation MSIDDeviceInfo
 
-- (instancetype)init
-{
-    self = [super init];
-
-    if (self)
-    {
-        _extraDeviceInfo = [NSMutableDictionary new];
-    }
-
-    return self;
-}
 
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
                   ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
@@ -55,7 +44,6 @@ static NSArray *deviceModeEnumString;
         _ssoExtensionMode = ssoExtensionMode;
         _wpjStatus = isWorkPlaceJoined ? MSIDWorkPlaceJoinStatusJoined : MSIDWorkPlaceJoinStatusNotJoined;
         _brokerVersion = brokerVersion;
-        _extraDeviceInfo = [NSMutableDictionary new];
     }
     
     return self;
@@ -153,11 +141,6 @@ static NSArray *deviceModeEnumString;
     if ([wpjStatusString isEqualToString:@"joined"])    return MSIDWorkPlaceJoinStatusJoined;
 
     return MSIDWorkPlaceJoinStatusNotJoined;
-}
-
-- (NSDictionary *)extraDeviceInfo
-{
-    return _extraDeviceInfo;
 }
 
 @end

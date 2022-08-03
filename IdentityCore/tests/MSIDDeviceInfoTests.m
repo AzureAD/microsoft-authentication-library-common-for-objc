@@ -228,10 +228,7 @@
     
     NSDictionary *additionalData = @{@"feature_flag1":@1,@"token":@"",@"dict":@{@"key":@"value"}};
     deviceInfo.additionalExtensionData = additionalData;
-    deviceInfo.extraDeviceInfo = [NSMutableDictionary new];
-    deviceInfo.extraDeviceInfo[MSID_BROKER_MDM_ID_KEY] = @"mdmId";
-    deviceInfo.extraDeviceInfo[MSID_ENROLLED_USER_OBJECT_ID_KEY] = @"objectId";
-    
+    deviceInfo.extraDeviceInfo = @{MSID_BROKER_MDM_ID_KEY:@"mdmId",MSID_ENROLLED_USER_OBJECT_ID_KEY:@"objectId"};
     
     NSDictionary *expectedJson = @{
         MSID_BROKER_DEVICE_MODE_KEY : @"shared",
