@@ -74,16 +74,7 @@
         {
             NSData *issuerData = nil;
             
-            if (@available(iOS 11.0, macOS 10.12.4, *))
-            {
-                issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
-            }
-#if !TARGET_OS_IPHONE
-            else
-            {
-                issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerContent(certRef, NULL));
-            }
-#endif
+            issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
                 
             if (issuerData)
             {
