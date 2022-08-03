@@ -30,6 +30,18 @@ static NSArray *deviceModeEnumString;
 
 @implementation MSIDDeviceInfo
 
+- (instancetype)init
+{
+    self = [super init];
+
+    if (self)
+    {
+        _extraDeviceInfo = [NSMutableDictionary new];
+    }
+
+    return self;
+}
+
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
                   ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
                  isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
@@ -43,6 +55,7 @@ static NSArray *deviceModeEnumString;
         _ssoExtensionMode = ssoExtensionMode;
         _wpjStatus = isWorkPlaceJoined ? MSIDWorkPlaceJoinStatusJoined : MSIDWorkPlaceJoinStatusNotJoined;
         _brokerVersion = brokerVersion;
+        _extraDeviceInfo = [NSMutableDictionary new];
     }
     
     return self;
@@ -63,7 +76,7 @@ static NSArray *deviceModeEnumString;
         
         NSData *jsonData = [json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] dataUsingEncoding:NSUTF8StringEncoding];
         _additionalExtensionData = [NSJSONSerialization msidNormalizedDictionaryFromJsonData:jsonData error:nil];
-        _mdmId = [json msidStringObjectForKey:MSID_BROKER_MDM_ID_KEY];
+        _extraDeviceInfo = [json msidObjectForKey:MSID_EXTRA_DEVICE_INFO_KEY ofClass:[NSDictionary class]];
     }
     
     return self;
@@ -78,7 +91,7 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
     json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] = [self.additionalExtensionData msidJSONSerializeWithContext:nil];
-    json[MSID_BROKER_MDM_ID_KEY] = self.mdmId;
+    json[MSID_EXTRA_DEVICE_INFO_KEY] = self.extraDeviceInfo;
     return json;
 }
 
@@ -140,6 +153,11 @@ static NSArray *deviceModeEnumString;
     if ([wpjStatusString isEqualToString:@"joined"])    return MSIDWorkPlaceJoinStatusJoined;
 
     return MSIDWorkPlaceJoinStatusNotJoined;
+}
+
+- (NSDictionary *)extraDeviceInfo
+{
+    return _extraDeviceInfo;
 }
 
 @end
