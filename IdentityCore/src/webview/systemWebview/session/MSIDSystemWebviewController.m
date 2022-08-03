@@ -132,10 +132,6 @@
 #endif
     void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
     {
-#if TARGET_OS_IPHONE
-        [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-#endif
-        
         if (authError && authError.code == MSIDErrorUserCancel)
         {
             CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(self.telemetryEvent, YES);
@@ -250,6 +246,12 @@
 - (void)notifyEndWebAuthWithURL:(NSURL *)url
                           error:(NSError *)error
 {
+    
+    // If the web auth session is ended, make sure that active background tasks started for the system webview session
+    // have been stopped.
+#if TARGET_OS_IPHONE
+        [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
     
     if (error)
     {
