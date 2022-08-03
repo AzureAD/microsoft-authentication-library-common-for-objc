@@ -50,14 +50,14 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     {
         return nil;
     }
-    
+
     self = [super init];
-    
+
     if (self)
     {
         _privateKeyRef = privateKey;
         CFRetain(_privateKeyRef);
-        
+
         _publicKeyRef = publicKey;
         CFRetain(_publicKeyRef);
         if (keyDict)
@@ -66,7 +66,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
             _creationDate = [keyDict objectForKey:(id)kSecAttrCreationDate];
         }
     }
-    
+
     return self;
 }
 
@@ -79,22 +79,22 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         {
             return nil;
         }
-        
+
         int iterator = 0;
-        
+
         iterator++; // TYPE - bit stream - mod + exp
         [self derEncodingGetSizeFrom:publicKeyBits at:&iterator]; // Total size
-        
+
         iterator++; // TYPE - bit stream mod
         int mod_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
         iterator += mod_size;
-        
+
         iterator++; // TYPE - bit stream exp
         int exp_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
-        
+
         _keyExponent = [[publicKeyBits subdataWithRange:NSMakeRange(iterator, exp_size)] msidBase64UrlEncodedString];
     }
-    
+
     return _keyExponent;
 }
 
@@ -107,18 +107,18 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         {
             return nil;
         }
-        
+
         int iterator = 0;
-        
+
         iterator++; // TYPE - bit stream - mod + exp
         [self derEncodingGetSizeFrom:publicKeyBits at:&iterator]; // Total size
-        
+
         iterator++; // TYPE - bit stream mod
         int mod_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
         NSData *subData=[publicKeyBits subdataWithRange:NSMakeRange(iterator, mod_size)];
         _keyModulus = [[subData subdataWithRange:NSMakeRange(1, subData.length-1)] msidBase64UrlEncodedString];
     }
-    
+
     return _keyModulus;
 }
 
@@ -139,11 +139,11 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
             MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to create req_cnf from kid");
             return nil;
         }
-        
+
         NSData *kidData = [kid dataUsingEncoding:NSUTF8StringEncoding];
         _jsonWebKey = [kidData msidBase64UrlEncodedString];
     }
-    
+
     return _jsonWebKey;
 }
 
@@ -155,7 +155,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         NSData *hashedData = [jwkData msidSHA256];
         _kid = [hashedData msidBase64UrlEncodedString];
     }
-    
+
     return _kid;
 }
 
@@ -165,7 +165,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     {
         _stkJwk = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
     }
-    
+
     return _stkJwk;
 }
 
@@ -175,18 +175,18 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     int itr = *iterator;
     int num_bytes = 1;
     int ret = 0;
-    
+
     if (data[itr] > 0x80)
     {
         num_bytes = data[itr] - 0x80;
         itr++;
     }
-    
+
     for (int i = 0 ; i < num_bytes; i++)
     {
         ret = (ret * 0x100) + data[itr + i];
     }
-    
+
     *iterator = itr + num_bytes;
     return ret;
 }
@@ -196,23 +196,16 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     if (!_keyData)
     {
         CFErrorRef keyExtractionError = NULL;
-        if (@available(iOS 10.0, macOS 10.12, *))
+        _keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(self.publicKeyRef, &keyExtractionError));
+
+        if (!_keyData)
         {
-            _keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(self.publicKeyRef, &keyExtractionError));
-            
-            if (!_keyData)
-            {
-                NSError *error = CFBridgingRelease(keyExtractionError);
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read data from key ref %@", error);
-                return nil;
-            }
-        }
-        else
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to extract key data from SecKeyRef due to unsupported platform");
+            NSError *error = CFBridgingRelease(keyExtractionError);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read data from key ref %@", error);
+            return nil;
         }
     }
-    
+
     return _keyData;
 }
 
@@ -225,15 +218,8 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Message to encrypt was empty");
         return nil;
     }
-    
-    if (@available(iOS 10.0, macOS 10.12, *))
-    {
-        return [encryptedMessage msidDecryptedDataWithAlgorithm:kSecKeyAlgorithmRSAEncryptionOAEPSHA1 privateKey:self.privateKeyRef];
-    }
-    else
-    {
-        return nil;
-    }
+
+    return [encryptedMessage msidDecryptedDataWithAlgorithm:kSecKeyAlgorithmRSAEncryptionOAEPSHA1 privateKey:self.privateKeyRef];
 }
 
 - (NSString *)signData:(NSString *)message
@@ -243,7 +229,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Message to sign was empty");
         return nil;
     }
-    
+
     NSData *hashedData = [[message dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
     NSData *signedData = [hashedData msidSignHashWithPrivateKey:self.privateKeyRef];
     NSString *signedEncodedDataString = [NSString msidBase64UrlEncodedStringFromData:signedData];
@@ -261,7 +247,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         privateKeyQuery[(id)kSecAttrLabel] = [self.privateKeyDict objectForKey:(id)kSecAttrLabel];
         privateKeyQuery[(id)kSecReturnRef] = @YES;
         privateKeyQuery[(id)kSecReturnAttributes] = @YES;
-        
+
         #ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
         #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
             if (@available(macOS 10.15, *)) {
@@ -269,19 +255,19 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
             }
         #endif
         #endif
-        
+
         CFDictionaryRef result = nil;
         OSStatus status = SecItemCopyMatching((CFDictionaryRef)privateKeyQuery, (CFTypeRef *)&result);
-        
+
         if (status != errSecSuccess)
         {
             return nil;
         }
-        
+
         NSDictionary *privateKeyDict = CFBridgingRelease(result);
         _creationDate = [privateKeyDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
     }
-    
+
     return _creationDate;
 }
 
@@ -292,7 +278,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         CFRelease(_privateKeyRef);
         _privateKeyRef = NULL;
     }
-    
+
     if (_publicKeyRef)
     {
         CFRelease(_publicKeyRef);

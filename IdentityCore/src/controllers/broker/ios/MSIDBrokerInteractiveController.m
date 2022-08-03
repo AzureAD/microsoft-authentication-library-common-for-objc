@@ -102,15 +102,15 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning broker flow.");
-    
+
     if (!completionBlock)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End broker flow.");
         return;
     }
-    
+
     NSString *upn = self.interactiveParameters.accountIdentifier.displayableId ?: self.interactiveParameters.loginHint;
-    
+
     [self.interactiveParameters.authority resolveAndValidate:self.interactiveParameters.validateAuthority
                                            userPrincipalName:upn
                                                      context:self.interactiveParameters
@@ -122,7 +122,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
              completionBlock(nil, error);
              return;
          }
-         
+
          [self acquireTokenImpl:completionBlock];
      }];
 }
@@ -133,27 +133,27 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 #pragma unused(requestParameters)
     return YES;
 #elif TARGET_OS_IPHONE
-    
+
     if (![NSThread isMainThread])
     {
         __block BOOL brokerInstalled = NO;
         dispatch_sync(dispatch_get_main_queue(), ^{
             brokerInstalled = [self canPerformRequest:requestParameters];
         });
-        
+
         return brokerInstalled;
     }
-    
+
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return NO;
-    
+
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Checking broker install state for version %@", requestParameters.brokerInvocationOptions.versionDisplayableName);
-    
+
     if (requestParameters.brokerInvocationOptions && requestParameters.brokerInvocationOptions.isRequiredBrokerPresent)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Broker version %@ found installed on device", requestParameters.brokerInvocationOptions.versionDisplayableName);
         return YES;
     }
-    
+
     return NO;
 #else
     return NO;
@@ -178,21 +178,21 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, MSID_TELEMETRY_EVENT_API_EVENT);
 
     self.requestCompletionBlock = completionBlockWrapper;
-    
+
     NSError *brokerError;
     NSString *base64UrlKey = [self.brokerKeyProvider base64BrokerKeyWithContext:self.requestParameters
                                                                           error:&brokerError];
-    
+
     if (!base64UrlKey)
     {
         CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], brokerError);
         completionBlockWrapper(nil, brokerError);
         return;
     }
-    
+
     NSError *appTokenError = nil;
     NSString *applicationToken = [self.brokerKeyProvider getApplicationToken:self.interactiveParameters.clientId error:&appTokenError];
-    
+
     if (!applicationToken)
     {
         /*There can be a case for the initial call to not have an application token saved in the keychain. This is not considered an error condition.
@@ -203,7 +203,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read broker application token, error: %@", appTokenError);
         }
     }
-    
+
     MSIDBrokerTokenRequest *brokerRequest = [self.tokenRequestProvider brokerTokenRequestWithParameters:self.interactiveParameters
                                                                                               brokerKey:base64UrlKey
                                                                                  brokerApplicationToken:applicationToken
@@ -217,7 +217,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         completionBlockWrapper(nil, brokerError);
         return;
     }
-    
+
     NSDictionary *brokerResumeDictionary = brokerRequest.resumeDictionary;
     [[NSUserDefaults standardUserDefaults] setObject:brokerResumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 
@@ -227,7 +227,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 - (void)callBrokerWithRequest:(MSIDBrokerTokenRequest *)brokerRequest
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Invoking broker for authentication, correlationId %@", brokerRequest.requestParameters.correlationId.UUIDString);
-    
+
     [self.class setCurrentBrokerController:self];
     [self.class startTrackingAppState];
     CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, MSID_TELEMETRY_EVENT_LAUNCH_BROKER);
@@ -252,25 +252,22 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
        fallbackToLocalController:(BOOL)shouldFallbackToLocalController
 {
     NSDictionary *options = nil;
-    
+
     if (self.interactiveParameters.brokerInvocationOptions.isUniversalLink)
     {
         // Option for openURL:options:CompletionHandler: only open URL if it is a valid universal link with an application configured to open it
         // If there is no application configured, or the user disabled using it to open the link, completion handler called with NO
-        if (@available(iOS 10.0, *))
-        {
-            options = @{UIApplicationOpenURLOptionUniversalLinksOnly : @YES};
-        }
+        options = @{UIApplicationOpenURLOptionUniversalLinksOnly : @YES};
     }
-    
+
     [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL
                                            options:options
                                  completionHandler:^(BOOL success) {
-        
+
                                      if (!success)
                                      {
                                          MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Falling back to local controller");
-                                         
+
                                          [self handleFailedOpenURL:shouldFallbackToLocalController];
                                      }
     }];
@@ -294,7 +291,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to handle non broker response. Skipping request.");
         return NO;
     }
-    
+
     BOOL hasCompletionBlock = [[self.class currentBrokerController] hasCompletionBlock];
     if (![responseHandler canHandleBrokerResponse:resultURL hasCompletionBlock:hasCompletionBlock])
     {
@@ -347,7 +344,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     // occuring between ApplicationWillEnterForeground and ApplicationDidBecomeActive.
 
     // https://developer.apple.com/library/ios/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/Inter-AppCommunication/Inter-AppCommunication.html#//apple_ref/doc/uid/TP40007072-CH6-SW8
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appEnteredForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification
@@ -420,7 +417,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     else
     {
         [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
-    
+
         if (tokenResult.brokerAppVersion)
         {
             [brokerEvent setBrokerAppVersion:tokenResult.brokerAppVersion];
@@ -462,7 +459,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     {
         result = self.requestCompletionBlock != nil;
     }
-    
+
     return result;
 }
 
@@ -477,20 +474,20 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return;
     }
 #endif
-    
+
     [self.class stopTrackingAppState];
 
 #if !EXCLUDE_FROM_MSALCPP
     MSIDTelemetryBrokerEvent *brokerEvent = [[MSIDTelemetryBrokerEvent alloc] initWithName:MSID_TELEMETRY_EVENT_LAUNCH_BROKER requestId:self.requestParameters.telemetryRequestId correlationId:self.requestParameters.correlationId];
-    
+
     [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_FAILED];
     CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, brokerEvent);
 #endif
-    
+
     [self.class setCurrentBrokerController:nil];
-    
+
     MSIDRequestCompletionBlock completionBlock = [self copyAndClearCompletionBlock];
-    
+
     if (!self.fallbackController || !shouldFallbackToLocalController)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Should fallback to local controller %d", (int)shouldFallbackToLocalController);
@@ -498,7 +495,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         if (completionBlock) completionBlock(nil, error);
         return;
     }
-    
+
     [self.fallbackController acquireToken:completionBlock];
 }
 

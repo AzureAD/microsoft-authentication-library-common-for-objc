@@ -72,9 +72,7 @@
         }
         else
         {
-            NSData *issuerData = nil;
-            
-            issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
+            NSData *issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
                 
             if (issuerData)
             {

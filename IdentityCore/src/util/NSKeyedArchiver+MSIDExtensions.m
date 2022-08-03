@@ -39,22 +39,15 @@
         archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
     }
 #endif
-    
+
     if (block) block(archiver);
-    
+
     [archiver encodeObject:obj forKey:NSKeyedArchiveRootObjectKey];
     [archiver finishEncoding];
-    
+
     NSData *result;
-    if (@available(iOS 10.0, macOS 10.12, *))
-    {
-        result = archiver.encodedData;
-    }
-    else
-    {
-        result = data;
-    }
-    
+    result = archiver.encodedData;
+
     return result;
 }
 
@@ -73,7 +66,7 @@
         result = [NSKeyedArchiver archivedDataWithRootObject:object];
     }
 #endif
-    
+
     return result;
 }
 

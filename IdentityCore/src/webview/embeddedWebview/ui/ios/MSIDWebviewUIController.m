@@ -54,11 +54,8 @@ static WKWebViewConfiguration *s_webConfig;
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
 
-    if (@available(iOS 9.0, *))
-    {
-        webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
-    }
-    
+    webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+
     if (@available(iOS 13.0, *))
     {
         webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
@@ -73,7 +70,7 @@ static WKWebViewConfiguration *s_webConfig;
     {
         _context = context;
     }
-    
+
     return self;
 }
 
@@ -100,13 +97,13 @@ static WKWebViewConfiguration *s_webConfig;
     /* Start background transition tracking,
      so we can start a background task, when app transitions to background */
     [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-    
+
     if (_webView)
     {
         self.presentInParentController = NO;
         return YES;
     }
-    
+
     // Get UI container to hold the webview
     // Need parent controller to proceed
     if (![self obtainParentController])
@@ -121,42 +118,42 @@ static WKWebViewConfiguration *s_webConfig;
     [rootView setFrame:[[UIScreen mainScreen] bounds]];
     [rootView setAutoresizesSubviews:YES];
     [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-    
+
     // Prepare the WKWebView
     WKWebView *webView = [[WKWebView alloc] initWithFrame:rootView.frame configuration:s_webConfig];
     [webView setAccessibilityIdentifier:@"MSID_SIGN_IN_WEBVIEW"];
-    
+
     // Customize the UI
     [webView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [self setupCancelButton];
     _loadingIndicator = [self prepareLoadingIndicator:rootView];
     self.view = rootView;
-    
+
     // Append webview and loading indicator
     _webView = webView;
     [rootView addSubview:_webView];
     [rootView addSubview:_loadingIndicator];
-    
+
     // WKWebView was created by MSAL, present it in parent controller.
     // Otherwise we rely on developer to show the web view.
     self.presentInParentController = YES;
-    
+
     return YES;
 }
 
 - (void)presentView
 {
     if (!self.presentInParentController) return;
-    
+
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
     [navController setModalPresentationStyle:_presentationType];
-    
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
         [navController setModalInPresentation:YES];
     }
 #endif
-    
+
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [self.parentController presentViewController:navController animated:YES completion:nil];
     }];
@@ -165,7 +162,7 @@ static WKWebViewConfiguration *s_webConfig;
 - (void)dismissWebview:(void (^)(void))completion
 {
     __typeof__(self.parentController) parentController = self.parentController;
-    
+
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
     if (parentController && self.presentInParentController)
@@ -176,7 +173,7 @@ static WKWebViewConfiguration *s_webConfig;
     {
         completion();
     }
-    
+
     self.parentController = nil;
 }
 
@@ -195,13 +192,13 @@ static WKWebViewConfiguration *s_webConfig;
 - (BOOL)obtainParentController
 {
     __typeof__(self.parentController) parentController = self.parentController;
-    
+
     if (parentController) return YES;
-    
+
     if (@available(iOS 13.0, *)) return NO;
-    
+
     parentController = [UIApplication msidCurrentViewController:parentController];
-    
+
     return parentController != nil;
 }
 
