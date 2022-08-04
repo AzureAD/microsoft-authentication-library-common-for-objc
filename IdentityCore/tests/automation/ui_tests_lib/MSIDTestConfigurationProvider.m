@@ -44,8 +44,6 @@
 @property (nonatomic, readwrite) MSIDAutomationOperationAPIRequestHandler *operationAPIRequestHandler;
 @property (nonatomic, readwrite) MSIDAutomationPasswordRequestHandler *passwordRequestHandler;
 
-@property (nonatomic) MSIDTestsConfig *testsConfig;
-
 @end
 
 @implementation MSIDTestConfigurationProvider
