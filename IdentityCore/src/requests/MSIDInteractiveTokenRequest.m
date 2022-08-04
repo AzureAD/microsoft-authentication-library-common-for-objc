@@ -131,4 +131,11 @@
 #endif
 }
 
+- (void)dealloc
+{
+#if TARGET_OS_IPHONE
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
+}
+
 @end
