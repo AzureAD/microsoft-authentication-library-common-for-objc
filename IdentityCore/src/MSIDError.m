@@ -146,6 +146,14 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorBrokerUnknown),
                       @(MSIDErrorBrokerApplicationTokenWriteFailed),
                       @(MSIDErrorBrokerApplicationTokenReadFailed),
+                      @(MSIDErrorJITLinkServerConfirmationTimeout),
+                      @(MSIDErrorJITLinkServerConfirmationError),
+                      @(MSIDErrorJITLinkAcquireTokenError),
+                      @(MSIDErrorJITLinkTokenAcquiredWrongTenant),
+                      @(MSIDErrorJITLinkError),
+                      @(MSIDErrorJITComplianceCheckResultNotCompliant),
+                      @(MSIDErrorJITComplianceCheckResultTimeout),
+                      @(MSIDErrorJITComplianceCheckResultUnknown),
 
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
