@@ -1,4 +1,5 @@
 * Exclude telemetry for MSAL CPP to reduce binary size. (#1118)
+* Increase macOS deployment target to 10.13
 
 Version 1.7.8
 * Pass token result, granted scopes and declined scopes as part of error.userInfo when these values are returned as additional_tokens in the broker response. (#1114)
