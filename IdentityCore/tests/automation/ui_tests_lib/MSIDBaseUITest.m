@@ -184,12 +184,14 @@ static MSIDTestConfigurationProvider *s_confProvider;
 - (void)clearCache:(XCUIApplication *)application
 {
     [self performAction:MSID_AUTO_CLEAR_CACHE_ACTION_IDENTIFIER config:nil application:application];
+    sleep(3);
     [self closeResultPipeline:application];
 }
 
 - (void)clearCookies:(XCUIApplication *)application
 {
     [self performAction:MSID_AUTO_CLEAR_COOKIES_ACTION_IDENTIFIER config:nil application:application];
+    sleep(3);
     [self closeResultPipeline:application];
 }
 
