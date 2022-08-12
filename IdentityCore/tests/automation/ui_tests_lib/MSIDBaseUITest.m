@@ -251,6 +251,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
     }
     
     [self tapElementAndWaitForKeyboardToAppear:emailTextField app:application];
+    [emailTextField selectTextWithApp:application];
     NSString *emailString = [NSString stringWithFormat:@"%@\n", email];
     [self enterText:emailTextField isMainApp:isMainApp text:emailString];
 }

@@ -55,8 +55,15 @@
     // See here: https://forums.developer.apple.com/thread/86653
     if (![self.placeholderValue isEqualToString:self.value] && self.value)
     {
-        [self pressForDuration:0.5];
-        [app.menuItems[@"Select All"] tap];
+        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 13.0f)
+        {
+            [self tapWithNumberOfTaps:4 numberOfTouches:1];
+        }
+        else
+        {
+            [self pressForDuration:1.0f];
+            [app.menuItems[@"Select All"] tap];
+        }
     }
 #else
     [self typeKey:@"a" modifierFlags:XCUIKeyModifierCommand];
