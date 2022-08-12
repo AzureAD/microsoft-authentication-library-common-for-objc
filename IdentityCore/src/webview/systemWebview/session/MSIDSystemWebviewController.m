@@ -247,6 +247,12 @@
                           error:(NSError *)error
 {
     
+    // If the web auth session is ended, make sure that active background tasks started for the system webview session
+    // have been stopped.
+#if TARGET_OS_IPHONE
+        [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
+    
     if (error)
     {
         [MSIDNotifications notifyWebAuthDidFailWithError:error];
