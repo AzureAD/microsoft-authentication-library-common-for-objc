@@ -279,7 +279,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         }
         
         NSDictionary *privateKeyDict = CFBridgingRelease(result);
-        _creationDate = [privateKeyDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
+        _creationDate = [privateKeyDict objectForKey:(__bridge NSString *)kSecAttrCreationDate];
     }
     
     return _creationDate;
