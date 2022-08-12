@@ -142,10 +142,10 @@ static dispatch_queue_t s_aadValidationQueue;
                  [self.aadCache addInvalidRecord:authority oauthError:error context:context];
              }
              
-             __auto_type endpoint = validate ? nil : [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
+             __auto_type openIdEndpoint = validate ? nil : [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
              error = validate ? error : nil;
              
-             completionBlock(endpoint, NO, error);
+             completionBlock(openIdEndpoint, NO, error);
              return;
          }
          
@@ -153,16 +153,16 @@ static dispatch_queue_t s_aadValidationQueue;
                    openIdConfigEndpoint:response.openIdConfigurationEndpoint
                               authority:authority
                                 context:context
-                             completion:^(BOOL result, NSError *error)
+                             completion:^(BOOL result, NSError *processError)
          {
              if (result)
              {
-                 __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
-                 completionBlock(endpoint, YES, nil);
+                 __auto_type openIdEndpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
+                 completionBlock(openIdEndpoint, YES, nil);
              }
              else
              {
-                 completionBlock(nil, NO, error);
+                 completionBlock(nil, NO, processError);
              }
          }];
      }];

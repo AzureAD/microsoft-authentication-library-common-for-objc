@@ -61,6 +61,7 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
         
         _expiresOn = tokenCacheItem.expiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
+        _lastRecoveryAttempt = tokenCacheItem.lastRecoveryAttempt;
         _expiryInterval = [tokenCacheItem.expiryInterval integerValue];
     }
     
@@ -81,6 +82,7 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     prtCacheItem.prtProtocolVersion = self.prtProtocolVersion;
     prtCacheItem.expiresOn = self.expiresOn;
     prtCacheItem.cachedAt = self.cachedAt;
+    prtCacheItem.lastRecoveryAttempt = self.lastRecoveryAttempt;
     prtCacheItem.expiryInterval = [NSString stringWithFormat:@"%lu", (long)self.expiryInterval];
     return prtCacheItem;
 }
@@ -166,6 +168,7 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     item->_prtProtocolVersion = [_prtProtocolVersion copyWithZone:zone];
     item->_expiresOn = [_expiresOn copyWithZone:zone];
     item->_cachedAt = [_cachedAt copyWithZone:zone];
+    item->_lastRecoveryAttempt = [_lastRecoveryAttempt copyWithZone:zone];
     item->_expiryInterval = _expiryInterval;
     return item;
 }

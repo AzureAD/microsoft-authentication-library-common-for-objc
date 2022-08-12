@@ -42,28 +42,28 @@ static bool AmIBeingDebugged(void)
     int                 mib[4];
     struct kinfo_proc   info;
     size_t              size;
-    
+
     // Initialize the flags so that, if sysctl fails for some bizarre
     // reason, we get a predictable result.
-    
+
     info.kp_proc.p_flag = 0;
-    
+
     // Initialize mib, which tells sysctl the info we want, in this case
     // we're looking for information about a specific process ID.
-    
+
     mib[0] = CTL_KERN;
     mib[1] = KERN_PROC;
     mib[2] = KERN_PROC_PID;
     mib[3] = getpid();
-    
+
     // Call sysctl.
-    
+
     size = sizeof(info);
     junk = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
     assert(junk == 0);
-    
+
     // We're being debugged if the P_TRACED flag is set.
-    
+
     return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
 }
 
@@ -94,7 +94,7 @@ static NSMutableArray* s_responses = nil;
     }
     self.delegate = delegate;
     self.delegateQueue = delegateQueue;
-    
+
     return self;
 }
 
@@ -153,14 +153,14 @@ static NSMutableArray* s_responses = nil;
 {
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     MSIDTestURLSessionDataTask *task = [[MSIDTestURLSessionDataTask alloc] initWithRequest:request delegate:self.delegate session:self];
-    
+
     return (NSURLSessionDataTask *)task;
 }
 
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request
 {
     MSIDTestURLSessionDataTask *task = [[MSIDTestURLSessionDataTask alloc] initWithRequest:request delegate:self.delegate session:self];
-    
+
     return (NSURLSessionDataTask *)task;
 }
 
@@ -169,7 +169,7 @@ static NSMutableArray* s_responses = nil;
     MSIDTestURLSessionDataTask *task = [[MSIDTestURLSessionDataTask alloc] initWithRequest:request
                                                                          completionHandler:completionHandler
                                                                                    session:self];
-    
+
     return (NSURLSessionDataTask *)task;
 }
 
@@ -178,7 +178,7 @@ static NSMutableArray* s_responses = nil;
     NSURL *requestURL = [request URL];
     NSData *body = [request HTTPBody];
     NSDictionary *headers = [request allHTTPHeaderFields];
-    
+
     @synchronized (self)
     {
         NSUInteger cResponses = [s_responses count];
@@ -186,7 +186,7 @@ static NSMutableArray* s_responses = nil;
         {
             id obj = [s_responses objectAtIndex:i];
             MSIDTestURLResponse *response = nil;
-            
+
             if ([obj isKindOfClass:[MSIDTestURLResponse class]])
             {
                 response = (MSIDTestURLResponse *)obj;
@@ -196,7 +196,7 @@ static NSMutableArray* s_responses = nil;
                     return response;
                 }
             }
-            
+
             if ([obj isKindOfClass:[NSMutableArray class]])
             {
                 NSMutableArray *subResponses = [s_responses objectAtIndex:i];
@@ -212,7 +212,7 @@ static NSMutableArray* s_responses = nil;
                 }
             }
         }
-    
+
         // This class is used in the test target only. If you're seeing this outside the test target that means you linked in the file wrong
         // take it out!
         //
@@ -231,22 +231,21 @@ static NSMutableArray* s_responses = nil;
         //                                                              dictionaryAsJSON:@{@"tenant_discovery_endpoint" : @"totally valid!"}];
         //
         //  [MSALTestURLSession addResponse:response];
-        
+
         if (AmIBeingDebugged())
         {
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"\nFailed to find response for request:"] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"URL: %@", request.URL] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"BODY: %@", request.HTTPBody] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"HEADERS: %@", request.allHTTPHeaderFields] UTF8String]);
-            
+
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"\nCurrent responses:"] UTF8String]);
             fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"---"] UTF8String]);
             for (id obj in s_responses)
             {
-                MSIDTestURLResponse *response;
                 if ([obj isKindOfClass:[MSIDTestURLResponse class]])
                 {
-                    response = (MSIDTestURLResponse *)obj;
+                    MSIDTestURLResponse *response = (MSIDTestURLResponse *)obj;
                     [self printResponse: response];
                 }
                 else if ([obj isKindOfClass:[NSMutableArray class]])
@@ -260,10 +259,10 @@ static NSMutableArray* s_responses = nil;
                 {
                     fprintf(stderr, "%s\n", [[obj description] UTF8String]);
                 }
-                
+
                 fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"---"] UTF8String]);
             }
-            
+
             // This will cause the tests to immediately stop execution right here if we're in the debugger,
             // hopefully making it a little easier to see why a test is failing. :)
              __builtin_trap();
@@ -271,7 +270,7 @@ static NSMutableArray* s_responses = nil;
 
         NSAssert(nil, @"did not find a matching response for %@", requestURL.absoluteString);
     }
-    
+
     return nil;
 }
 

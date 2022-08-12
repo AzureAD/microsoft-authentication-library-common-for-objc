@@ -217,12 +217,12 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     }
     
     __auto_type cacheKey = self.openIdConfigurationEndpoint.absoluteString.lowercaseString;
-    __auto_type metadata = [s_openIdConfigurationCache objectForKey:cacheKey];
+    __auto_type cachedMetadata = [s_openIdConfigurationCache objectForKey:cacheKey];
     
-    if (metadata)
+    if (cachedMetadata)
     {
-        self.metadata = metadata;
-        completionBlock(metadata, nil);
+        self.metadata = cachedMetadata;
+        completionBlock(cachedMetadata, nil);
         return;
     }
     
@@ -387,4 +387,3 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 }
 
 @end
-

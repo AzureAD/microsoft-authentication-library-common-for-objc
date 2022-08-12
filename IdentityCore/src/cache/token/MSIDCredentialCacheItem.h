@@ -54,6 +54,7 @@
 @property (atomic, readwrite, nullable) NSDate *refreshOn;
 @property (atomic, readwrite, nullable) NSDate *cachedAt;
 @property (atomic, readwrite, nullable) NSString *expiryInterval;
+@property (atomic, readwrite, nullable) NSDate *lastRecoveryAttempt;
 
 // Family ID
 @property (atomic, readwrite, nullable) NSString *familyId;

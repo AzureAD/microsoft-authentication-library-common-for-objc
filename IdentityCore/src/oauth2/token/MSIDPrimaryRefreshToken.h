@@ -35,6 +35,7 @@
 @property (nonatomic) NSDate *cachedAt;
 @property (nonatomic) NSUInteger expiryInterval;
 @property (nonatomic, readonly) NSUInteger refreshInterval;
+@property (nonatomic) NSDate *lastRecoveryAttempt;
  
 - (BOOL)isDevicelessPRT;
 - (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval;

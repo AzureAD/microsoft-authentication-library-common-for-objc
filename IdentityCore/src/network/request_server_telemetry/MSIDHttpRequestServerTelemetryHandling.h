@@ -32,6 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleError:(NSError *)error
             context:(id<MSIDRequestContext>)context;
 
+- (void)handleError:(NSError *)error
+        errorString:(NSString *)errorString
+            context:(id<MSIDRequestContext>)context;
+
 - (void)setTelemetryToRequest:(id<MSIDHttpRequestProtocol>)request;
 
 @end
