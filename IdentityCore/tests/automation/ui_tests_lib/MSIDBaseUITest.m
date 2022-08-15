@@ -119,7 +119,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 {
     NSDictionary *result;
 #if TARGET_OS_SIMULATOR
-    int timeout = 10;
+    int timeout = 60;
     __auto_type resultPipelineExpectation = [[XCTestExpectation alloc] initWithDescription:@"Wait for result pipeline."];
     
     // Wait till file appears.
