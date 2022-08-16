@@ -167,6 +167,11 @@ static MSIDTestConfigurationProvider *s_confProvider;
 {
     MSIDAutomationSuccessResult *result = [[MSIDAutomationSuccessResult alloc] initWithJSONDictionary:[self automationResultDictionary:application] error:nil];
     XCTAssertNotNil(result);
+    if (!result.success)
+    {
+        // Print dictionary to debug the reason of failure.
+        XCTAssertEqualObjects(@{}, [result jsonDictionary]);
+    }
     XCTAssertTrue(result.success);
     return result;
 }
