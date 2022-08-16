@@ -25,10 +25,12 @@
 #import "MSIDConstants.h"
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "NSJSONSerialization+MSIDExtensions.h"
+#import "MSIDJsonSerializer.h"
 
 static NSArray *deviceModeEnumString;
 
 @implementation MSIDDeviceInfo
+
 
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
                   ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
@@ -63,7 +65,13 @@ static NSArray *deviceModeEnumString;
         
         NSData *jsonData = [json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] dataUsingEncoding:NSUTF8StringEncoding];
         _additionalExtensionData = [NSJSONSerialization msidNormalizedDictionaryFromJsonData:jsonData error:nil];
-        _mdmId = [json msidStringObjectForKey:MSID_BROKER_MDM_ID_KEY];
+        
+        NSString *extraDeviceInfoStr = [json msidStringObjectForKey:MSID_EXTRA_DEVICE_INFO_KEY];
+        if (extraDeviceInfoStr)
+        {
+            _extraDeviceInfo = [extraDeviceInfoStr msidJson];
+        }
+        
     }
     
     return self;
@@ -78,7 +86,11 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
     json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] = [self.additionalExtensionData msidJSONSerializeWithContext:nil];
-    json[MSID_BROKER_MDM_ID_KEY] = self.mdmId;
+    if (self.extraDeviceInfo)
+    {
+        json[MSID_EXTRA_DEVICE_INFO_KEY] = [self.extraDeviceInfo msidJSONSerializeWithContext:nil];
+    }
+    
     return json;
 }
 
