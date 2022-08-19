@@ -65,6 +65,11 @@
 @property (nonatomic) NSUInteger ssoExtensionSharedDeviceMode;
 @property (nonatomic) NSUInteger ssoExtensionInteractiveMode;
 @property (nonatomic) NSString *tokenType;
+@property (nonatomic) NSString *browserSSOURL;
+@property (nonatomic) NSString *browserSSOCallerApp;
+@property (nonatomic) NSArray *ssoAllowedHosts;
+@property (nonatomic) NSDictionary *ssoExtensionConfiguration;
+
 - (BOOL)usesEmbeddedWebView;
 
 @end
