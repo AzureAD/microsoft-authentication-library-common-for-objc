@@ -267,7 +267,8 @@
     NSArray *keys = [self allKeys];
     for (id key in keys)
     {
-        id value = [self valueForKey:key];
+        
+        id value = [self objectForKey:key];
         id copy = nil;
         if ([value respondsToSelector:@selector(mutableDeepCopy)])
         {

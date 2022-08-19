@@ -104,7 +104,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     id <MSIDAuthorityResolving> resolver = [self resolver];
     NSParameterAssert(resolver);
 
-    [[MSIDTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
+    CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, context.telemetryRequestId, MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION);
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Resolving authority: %@, upn: %@", MSID_PII_LOG_TRACKABLE(self.url), MSID_PII_LOG_EMAIL(upn));
     
@@ -115,11 +115,12 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
                completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          self.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
-
+#if !EXCLUDE_FROM_MSALCPP
          MSIDTelemetryAuthorityValidationEvent *validationEvent = [[MSIDTelemetryAuthorityValidationEvent alloc] initWithName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION context:context];
          [validationEvent setAuthorityValidationStatus:validated ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
          [validationEvent setAuthority:self];
-         [[MSIDTelemetry sharedInstance] stopEvent:context.telemetryRequestId event:validationEvent];
+         CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, context.telemetryRequestId, validationEvent);
+#endif
          
          MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Resolved authority, validated: %@, error: %ld", validated ? @"YES" : @"NO", (long)error.code);
          
@@ -216,12 +217,12 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     }
     
     __auto_type cacheKey = self.openIdConfigurationEndpoint.absoluteString.lowercaseString;
-    __auto_type metadata = [s_openIdConfigurationCache objectForKey:cacheKey];
+    __auto_type cachedMetadata = [s_openIdConfigurationCache objectForKey:cacheKey];
     
-    if (metadata)
+    if (cachedMetadata)
     {
-        self.metadata = metadata;
-        completionBlock(metadata, nil);
+        self.metadata = cachedMetadata;
+        completionBlock(cachedMetadata, nil);
         return;
     }
     
@@ -386,4 +387,3 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 }
 
 @end
-

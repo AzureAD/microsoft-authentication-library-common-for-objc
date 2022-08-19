@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,23 +20,17 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#define CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(x, y) CONDITIONAL_COMPILE_MSAL_CPP([x setIsCancelled:(y)])
 
-#import "MSIDTelemetryConditionalCompile.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
-#if !EXCLUDE_FROM_MSALCPP
+NS_ASSUME_NONNULL_BEGIN
 
-#import "MSIDTelemetryBaseEvent.h"
+@interface ASAuthorizationController (MSIDExtensions)
 
-@interface MSIDTelemetryUIEvent : MSIDTelemetryBaseEvent
-
-- (void)setLoginHint:(NSString *)hint;
-- (void)setNtlm:(NSString *)ntlmHandled;
-
-- (void)setIsCancelled:(BOOL)cancelled;
+- (void)msidPerformRequests;
 
 @end
 
-#endif
+NS_ASSUME_NONNULL_END

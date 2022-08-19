@@ -38,6 +38,7 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDSSOTokenResponseHandler.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
@@ -96,11 +97,11 @@
                                                    accountMetadataCache:strongSelf.accountMetadataCache
                                                         validateAccount:strongSelf.requestParameters.shouldValidateResultAccount
                                                                   error:error
-                                                        completionBlock:^(MSIDTokenResult *result, NSError *error)
+                                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
              {
                 MSIDInteractiveRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
                 weakSelf.requestCompletionBlock = nil;
-                if (completionBlock) completionBlock(result, error, nil);
+                if (completionBlock) completionBlock(result, localError, nil);
             }];
         };
         
@@ -157,7 +158,7 @@
         
         if (!jsonDictionary)
         {
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for interactive token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+            error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for interactive token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
             completionBlock(nil, error, nil);
             return;
         }
@@ -172,7 +173,7 @@
         self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
         self.authorizationController.delegate = self.extensionDelegate;
         self.authorizationController.presentationContextProvider = self;
-        [self.authorizationController performRequests];
+        [self.authorizationController msidPerformRequests];
         
         self.requestCompletionBlock = completionBlock;
      }];

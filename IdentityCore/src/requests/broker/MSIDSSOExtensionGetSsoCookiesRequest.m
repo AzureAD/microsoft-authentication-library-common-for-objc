@@ -50,16 +50,15 @@
         _types = [headerTypes componentsJoinedByString:@", "];
         
         __typeof__(self) __weak weakSelf = self;
-        self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
+        self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
         {
-            __strong typeof(self) strongSelf = weakSelf;
+            __strong __typeof__(self) strongSelf = weakSelf;
             NSArray *prtHeaders = nil;
             NSArray *deviceHeaders = nil;
-            NSError *resultError = error;
             
             if (!operationResponse.success)
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Finished get sso cookies request with error %@", MSID_PII_LOG_MASKABLE(error));
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Finished get sso cookies request with error %@", MSID_PII_LOG_MASKABLE(resultError));
             }
             else if (![operationResponse isKindOfClass:[MSIDBrokerOperationGetSsoCookiesResponse class]])
             {

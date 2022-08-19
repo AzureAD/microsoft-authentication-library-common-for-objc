@@ -34,6 +34,7 @@
 
 @property (nonatomic, strong) NSString *wwEnvironment;
 @property (nonatomic) int stressTestInterval;
+@property (nonatomic) MSIDTestsConfig *testsConfig;
 
 @property (nonatomic, readonly) MSIDAutomationOperationAPIRequestHandler *operationAPIRequestHandler;
 @property (nonatomic, readonly) MSIDAutomationPasswordRequestHandler *passwordRequestHandler;

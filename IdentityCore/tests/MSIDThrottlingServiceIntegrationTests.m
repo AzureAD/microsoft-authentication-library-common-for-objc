@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 
 #import <XCTest/XCTest.h>
@@ -193,7 +193,7 @@
     parameters.extendedLifetimeEnabled = YES;
     parameters.keychainAccessGroup = MSIDThrottlingKeychainGroup;
 
-   
+
     //claims request and capabilities - used by AADV2Authority refreshTokenRequestWithRequestParameters
     parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"id_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}} error:nil];
     parameters.clientCapabilities = @[@"cp1", @"llt"];
@@ -219,9 +219,9 @@
                                                                                                 @"resource3" : @"dummyResourceForSSO3",
                                                                                                 }
                                                                                             ]}
-                                         
+
     };
-    
+
     MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:enrollmentJsonDict];
     MSIDIntuneInMemoryCacheDataSource *memoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:msidCache];
     MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
@@ -229,7 +229,7 @@
     //intune mem resources cache
     MSIDIntuneMAMResourcesCache *mamResourceCache = [[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:memoryCache];
     [MSIDIntuneMAMResourcesCache setSharedCache:mamResourceCache];
-    
+
     return parameters;
 
 }
@@ -237,11 +237,11 @@
 {
    static dispatch_once_t once;
    static NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *swizzleStacks = nil;
-   
+
    dispatch_once(&once, ^{
       swizzleStacks = [NSMutableDictionary new];
    });
-   
+
    return swizzleStacks;
 }
 
@@ -282,17 +282,17 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache];
-    
-    
+
+
     //refresh token
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
     refreshToken.refreshToken = self.refreshToken;
-    
+
     //throttlingServiceMock
     MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                      context:self.silentRequestParameters];
 
-    
+
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
 
     [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
@@ -302,8 +302,8 @@
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
-   
-    
+
+
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:self.refreshToken
                                                                                        requestClaims:self.atRequestClaim
                                                                                        requestScopes:self.oidcScopeString
@@ -319,7 +319,7 @@
                                                                                          redirectUri:self.redirectUri
                                                                                             clientId:self.silentRequestParameters.clientId];
 
-    
+
     tokenResponse->_error = [NSError new];
     NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
                                MSIDHTTPHeadersKey: @{
@@ -329,13 +329,13 @@
 
 
     tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
-    
-    
+
+
     //First attempt - there shouldn't be any throttling
     [MSIDTestURLSession addResponse:tokenResponse];
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"silent request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        
+
         //First time around, no throttling
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
@@ -346,7 +346,7 @@
     }];
 
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
-    
+
 
     NSError *subError = nil;
     NSString *expectedThumbprintKey = @"9671032187006166342";
@@ -354,7 +354,7 @@
     MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
     XCTAssertNotNil(record);
     XCTAssertNil(subError);
-    
+
     XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
     XCTAssertEqualObjects(record.cachedErrorResponse,tokenResponse->_error);
     XCTAssertEqual(record.throttledCount,1);
@@ -363,7 +363,7 @@
     [MSIDTestURLSession addResponse:tokenResponse];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttled request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        
+
         //Second time, throttle, also check updateThrottlingServiceInvokedCount to make sure that logic didn't get hit.
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,1);
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
@@ -372,42 +372,42 @@
         XCTAssertEqual(error.code, MSIDErrorInternal);
         [expectation2 fulfill];
     }];
-    
+
 
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
-        
+
 
 }
 
 
 - (void)testMSIDThrottlingServiceIntegration_ThrottledNonSSOSilentRequestThatReturns429Response_ShouldBeClearedAndNotThrottledUponExpiration
 {
-    
+
     NSString *refreshTokenForThisTest = @"customRTForThisTest";
     MSIDRequestParameters *newRequestParam = self.silentRequestParameters;
     newRequestParam.clientId = @"customClientId";
     newRequestParam.oidcScope = @"dummyScopeForThisTest";
     newRequestParam.target = @"dummyTarget";
 
-    
+
     MSIDDefaultSilentTokenRequest *defaultSilentTokenRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:newRequestParam
                                                                                                                    forceRefresh:NO
                                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache];
-    
-    
+
+
     //refresh token
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
     refreshToken.refreshToken = refreshTokenForThisTest;
-    
+
     //throttlingServiceMock
    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                     context:self.silentRequestParameters];
-    
+
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
-    
+
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:refreshTokenForThisTest
                                                                                        requestClaims:self.atRequestClaim
                                                                                        requestScopes:@"dummyTarget dummyScopeForThisTest"
@@ -423,7 +423,7 @@
                                                                                          redirectUri:self.redirectUri
                                                                                             clientId:newRequestParam.clientId];
 
-    
+
     tokenResponse->_error = [NSError new];
     NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
                                MSIDHTTPHeadersKey: @{
@@ -433,7 +433,7 @@
 
 
     tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
-    
+
     [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
                              block:(id)^(void)
@@ -449,14 +449,14 @@
       return [[NSDate new] dateByAddingTimeInterval:-10];
 
    }];
-   
-   
-    
+
+
+
     //First attempt - there shouldn't be any throttling
     [MSIDTestURLSession addResponse:tokenResponse];
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"silent request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        
+
         //First time around, no throttling
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
@@ -465,26 +465,26 @@
         XCTAssertEqual(error.code, MSIDErrorInternal);
         [expectation1 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
-    
+
     NSError *subError = nil;
     NSString *expectedThumbprintKey = @"6959237555979563609";
     //check and see if cache record exists that is mapped by the thumbprint value
     MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
     XCTAssertNotNil(record);
     XCTAssertNil(subError);
-    
+
     XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
     XCTAssertEqualObjects(record.cachedErrorResponse,tokenResponse->_error);
     XCTAssertEqual(record.throttledCount,1);
-    
- 
+
+
     //Second attempt - throttling should be triggered
     [MSIDTestURLSession addResponse:tokenResponse];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttled request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        
+
         //Request shouldn't get throttled this time, since it has already expired.
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,2);
@@ -493,11 +493,11 @@
         XCTAssertEqual(error.code, MSIDErrorInternal);
         [expectation2 fulfill];
     }];
-    
-    
+
+
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
-    
-    
+
+
 }
 
 - (void)testMSIDThrottlingServiceIntegration_NonSSOSilentRequestThatHasExtendedLifeTimeEnabled_ShouldReturnTokenResultInitially_AndThenThrottled
@@ -509,9 +509,9 @@
     newRequestParam.oidcScope = @"joeRoganScope";
     newRequestParam.target = @"joeRoganTarget";
     NSString *customScopeForTokenResponse = [NSString stringWithFormat:@"%@ %@", newRequestParam.target, newRequestParam.oidcScope];
-    
 
-    
+
+
     MSIDDefaultSilentTokenRequest *defaultSilentTokenRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:newRequestParam
                                                                                                                    forceRefresh:NO
                                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]
@@ -520,12 +520,12 @@
                                                                                                            accountMetadataCache:self.accountMetadataCache];
     //add extended lifetime access token
     defaultSilentTokenRequest.extendedLifetimeAccessToken = [MSIDAccessToken new];
-    
-    
+
+
     //refresh token
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
     refreshToken.refreshToken = refreshTokenForThisTest;
-   
+
     //Swizzle resultWithAccessToken
     __block NSUInteger extendedAccessTokenInvokedCount = 0;
     [MSIDTestSwizzle instanceMethod:@selector(resultWithAccessToken:refreshToken:error:)
@@ -536,15 +536,15 @@
          MSIDTokenResult *result = [MSIDTokenResult new];
          return result;
     }];
-    
-   
-    
+
+
+
     //throttlingServiceMock
    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                     context:self.silentRequestParameters];
-    
+
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
-    
+
    //first token response
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:refreshTokenForThisTest
                                                                                        requestClaims:self.atRequestClaim
@@ -561,7 +561,7 @@
                                                                                          redirectUri:self.redirectUri
                                                                                             clientId:newRequestParam.clientId];
 
-    
+
     tokenResponse->_error = [NSError new];
     NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
                                MSIDHTTPHeadersKey: @{
@@ -572,7 +572,7 @@
 
 
     tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
-    
+
     [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
                              block:(id)^(void)
@@ -580,15 +580,15 @@
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
-   
-    
+
+
     //First attempt - there shouldn't be any throttling.
     //
     [MSIDTestURLSession addResponse:tokenResponse];
-   
+
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"silent request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        
+
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
         XCTAssertNotNil(result);
@@ -596,26 +596,26 @@
         XCTAssertEqual(extendedAccessTokenInvokedCount,1);
         [expectation1 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
-    
+
     NSError *subError = nil;
     NSString *expectedThumbprintKey = @"15218151831260745817";
     //check and see if cache record exists that is mapped by the thumbprint value
     MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
     XCTAssertNotNil(record);
     XCTAssertNil(subError);
-    
+
     XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
     XCTAssertEqualObjects(record.cachedErrorResponse,tokenResponse->_error);
     XCTAssertEqual(record.throttledCount,1);
-    
+
 
     //Second attempt - throttling should be triggered
     [MSIDTestURLSession addResponse:tokenResponse];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttled request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        
+
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,1);
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
         XCTAssertNil(result);
@@ -623,11 +623,11 @@
         XCTAssertEqual(error.code, MSIDErrorInternal);
         [expectation2 fulfill];
     }];
-    
-    
+
+
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
-    
-    
+
+
 }
 
 
@@ -640,9 +640,9 @@
     newRequestParam.oidcScope = @"contosoEmployeeScope";
     newRequestParam.target = @"contosoEmployeeTarget";
     NSString *customScopeForTokenResponse = [NSString stringWithFormat:@"%@ %@", newRequestParam.target, newRequestParam.oidcScope];
-    
 
-    
+
+
     MSIDDefaultSilentTokenRequest *defaultSilentTokenRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:newRequestParam
                                                                                                                    forceRefresh:NO
                                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]
@@ -651,18 +651,18 @@
                                                                                                            accountMetadataCache:self.accountMetadataCache];
     //add extended lifetime access token
     defaultSilentTokenRequest.extendedLifetimeAccessToken = [MSIDAccessToken new];
-    
-    
+
+
     //refresh token
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
     refreshToken.refreshToken = refreshTokenForThisTest;
-   
+
 
     //throttlingServiceMock
    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                     context:self.silentRequestParameters];
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
-    
+
    //first token response
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:refreshTokenForThisTest
                                                                                        requestClaims:self.atRequestClaim
@@ -681,7 +681,7 @@
 
    //initially token response should contain no error to trigger UI required error type (ex: invalid grant)
    tokenResponse->_error = nil;
-    
+
    //Swizzle token endpoint
     [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
@@ -690,7 +690,7 @@
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
-   
+
    //Swizzle token response handler
    __block NSError *expectedError;
    [MSIDTestSwizzle instanceMethod:@selector(handleTokenResponse:
@@ -707,7 +707,7 @@
                              class:[MSIDTokenResponseHandler class]
                              block:(id)^(
                                          __unused id obj,
-                                         __unused MSIDTokenResponse *tokenResponse,
+                                         __unused MSIDTokenResponse *completionTokenResponse,
                                          __unused MSIDRequestParameters *requestParameters,
                                          __unused NSString *homeAccountId,
                                          __unused MSIDTokenResponseValidator *tokenResponseValidator,
@@ -724,44 +724,44 @@
          completionBlock(nil,subError);
          return;
    }];
-   
+
    //Token grant request
    MSIDAADRefreshTokenGrantRequest *expectedRequest = (MSIDAADRefreshTokenGrantRequest *) [defaultSilentTokenRequest.oauthFactory refreshTokenRequestWithRequestParameters:defaultSilentTokenRequest.requestParameters
                                                                                                                                                               refreshToken:refreshTokenForThisTest];
    //expected full request thumbprint value
    NSString *expectedFullRequestThumbprintValue = [expectedRequest fullRequestThumbprint];
-   
+
    //First attempt - there shouldn't be any throttling.
    [MSIDTestURLSession addResponse:tokenResponse];
-   
+
    XCTestExpectation *expectation1 = [self expectationWithDescription:@"silent request with interaction require error"];
    [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        
+
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         [expectation1 fulfill];
    }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
-    
+
     NSError *subError = nil;
     //check and see if cache record exists that is mapped by the thumbprint value
     MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedFullRequestThumbprintValue error:&subError];
     XCTAssertNotNil(record);
     XCTAssertNil(subError);
-    
+
     XCTAssertEqual(record.throttleType,MSIDThrottlingTypeInteractiveRequired);
     XCTAssertEqualObjects(record.cachedErrorResponse,expectedError);
     XCTAssertEqual(record.throttledCount,1);
-    
+
 
     //Second attempt - throttling should be triggered
     [MSIDTestURLSession addResponse:tokenResponse];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttled request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        
+
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,1);
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
         XCTAssertNil(result);
@@ -769,7 +769,7 @@
         XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
         [expectation2 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
@@ -783,9 +783,9 @@
     newRequestParam.oidcScope = @"contosoEmployeeScope2";
     newRequestParam.target = @"contosoEmployeeTarget2";
     NSString *customScopeForTokenResponse = [NSString stringWithFormat:@"%@ %@", newRequestParam.target, newRequestParam.oidcScope];
-    
 
-    
+
+
     MSIDDefaultSilentTokenRequest *defaultSilentTokenRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:newRequestParam
                                                                                                                    forceRefresh:NO
                                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]
@@ -794,19 +794,19 @@
                                                                                                            accountMetadataCache:self.accountMetadataCache];
     //add extended lifetime access token
     defaultSilentTokenRequest.extendedLifetimeAccessToken = [MSIDAccessToken new];
-    
-    
+
+
     //refresh token
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
     refreshToken.refreshToken = refreshTokenForThisTest;
-   
+
 
     //throttlingServiceMock
    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                     context:self.silentRequestParameters];
-    
+
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
-    
+
    //first token response
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:refreshTokenForThisTest
                                                                                        requestClaims:self.atRequestClaim
@@ -825,7 +825,7 @@
 
    //initially token response should contain no error to trigger UI required error type (ex: invalid grant)
    tokenResponse->_error = nil;
-    
+
    //Swizzle token endpoint
     [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
@@ -834,7 +834,7 @@
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
-   
+
    //Swizzle token response handler
    __block NSError *expectedError;
    [MSIDTestSwizzle instanceMethod:@selector(handleTokenResponse:
@@ -851,7 +851,7 @@
                              class:[MSIDTokenResponseHandler class]
                              block:(id)^(
                                          __unused id obj,
-                                         __unused MSIDTokenResponse *tokenResponse,
+                                         __unused MSIDTokenResponse *completionTokenResponse,
                                          __unused MSIDRequestParameters *requestParameters,
                                          __unused NSString *homeAccountId,
                                          __unused MSIDTokenResponseValidator *tokenResponseValidator,
@@ -868,39 +868,39 @@
          completionBlock(nil,subError);
          return;
    }];
-   
-   
+
+
    //Token grant request
    MSIDAADRefreshTokenGrantRequest *expectedRequest = (MSIDAADRefreshTokenGrantRequest *) [defaultSilentTokenRequest.oauthFactory refreshTokenRequestWithRequestParameters:defaultSilentTokenRequest.requestParameters
                                                                                                                                                               refreshToken:refreshTokenForThisTest];
    //expected full request thumbprint value
    NSString *expectedFullRequestThumbprintValue = [expectedRequest fullRequestThumbprint];
-   
+
    //First attempt - there shouldn't be any throttling.
    [MSIDTestURLSession addResponse:tokenResponse];
-   
+
    XCTestExpectation *expectation1 = [self expectationWithDescription:@"silent request with interaction require error"];
    [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        
+
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         [expectation1 fulfill];
    }];
-    
+
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
-    
+
     NSError *subError = nil;
     //check and see if cache record exists that is mapped by the thumbprint value
     MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedFullRequestThumbprintValue error:&subError];
     XCTAssertNotNil(record);
     XCTAssertNil(subError);
-    
+
     XCTAssertEqual(record.throttleType,MSIDThrottlingTypeInteractiveRequired);
     XCTAssertEqualObjects(record.cachedErrorResponse,expectedError);
     XCTAssertEqual(record.throttledCount,1);
-    
+
 
 
    //Now let's create an interactive request
@@ -919,8 +919,8 @@
    interactiveRequestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
    interactiveRequestParameters.enablePkce = YES;
    interactiveRequestParameters.keychainAccessGroup = MSIDThrottlingKeychainGroup;
-   
-   
+
+
    //intialize interactive controller
    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              defaultAccessor:self.tokenCache
@@ -929,7 +929,7 @@
 
    NSError *error = nil;
    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:interactiveRequestParameters tokenRequestProvider:provider error:&error];
-   
+
    //swizzle class method
    [MSIDTestSwizzle instanceMethod:@selector(creationTime)
                              class:[MSIDThrottlingCacheRecord class]
@@ -938,7 +938,7 @@
       return [[NSDate new] dateByAddingTimeInterval:-10];
 
    }];
-   
+
    //swizzle interactive token request
    [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
                              class:[MSIDInteractiveTokenRequest class]
@@ -948,9 +948,9 @@
     {
          MSIDTokenResult *tokenResult = [MSIDTokenResult new];
          completionBlock(tokenResult,nil,nil);
-      
+
    }];
-   
+
 #if !TARGET_OS_IOS
       //swizzle interactive method - MacOS test app doesn't have entitlements that support keychain access group.
       //adding a host app that has valid entitlements would also require enabling code-signing, which could break CI/CD check
@@ -963,7 +963,7 @@
        {
             return TRUE;
       }];
-      
+
       [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:
                                                                       context:
                                                                         error:)
@@ -973,37 +973,37 @@
             return [NSDate date];
       }];
 #endif
-   
+
 
    //acquire token interactively - which should trigger keychain update
    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Acquire token Interactively - should trigger lastUpdateRefresh"];
-   [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+   [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
        XCTAssertNotNil(result);
-       XCTAssertNil(error);
+       XCTAssertNil(acquireTokenError);
 
        [expectation2 fulfill];
    }];
    [self waitForExpectationsWithTimeout:5.0 handler:nil];
-   
-   
+
+
    //Now let's call silent request again - request should not be throttled anymore.
    [MSIDTestURLSession addResponse:tokenResponse];
    XCTestExpectation *expectation3 = [self expectationWithDescription:@"throttled request - should be cleraed now"];
-   [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-       
+   [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,2);
        XCTAssertNil(result);
-       XCTAssertNotNil(error);
-       XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+       XCTAssertNotNil(acquireTokenError);
+       XCTAssertEqual(acquireTokenError.code, MSIDErrorInteractionRequired);
        [expectation3 fulfill];
    }];
-  
+
    [self waitForExpectationsWithTimeout:5.0 handler:nil];
-   
+
    [self.keychainTokenCache clearWithContext:nil error:nil];
-   
+
 }
 
 
@@ -1013,10 +1013,10 @@
 {
    if (@available(iOS 13.0, macOS 10.15, *))
    {
-      
+
       //NSError *error = nil;
       //NSString *refreshTokenForThisTest = @"SSORT";
-      
+
       //initialize extra request parameters used by MSIDBrokerOperationSilentTokenRequst
       MSIDRequestParameters *newSSORequestParam = self.silentRequestParameters;
       newSSORequestParam.clientId = @"contosoClientForSSO";
@@ -1037,8 +1037,8 @@
       };
       newSSORequestParam.instanceAware = YES;
       newSSORequestParam.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"Satya" homeAccountId:@"Nadella"];
-      
-      
+
+
       //initialize SSO extension silent token requst
       MSIDSSOExtensionSilentTokenRequest *newSSORequest = [[MSIDSSOExtensionSilentTokenRequest alloc] initWithRequestParameters:newSSORequestParam
                                                                                                                    forceRefresh:NO
@@ -1047,16 +1047,16 @@
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache
                                                                                                              extendedTokenCache:nil];
-      
-      
+
+
       //throttlingServiceMock
       MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                        context:self.silentRequestParameters];
-      
+
       newSSORequest.throttlingService = throttlingServiceMock;
-      
-      
-      
+
+
+
       //swizzle resolve and validate
       [MSIDTestSwizzle instanceMethod:@selector(resolveAndValidate:
                                                  userPrincipalName:
@@ -1073,8 +1073,8 @@
             completionBlock(nil,YES,nil);
             return;
       }];
-      
-      
+
+
       //swizzle SSO extension method
       __block NSError *ssoErrorInternal = nil;
       [MSIDTestSwizzle instanceMethod:@selector(handleOperationResponse:
@@ -1112,9 +1112,9 @@
             completionBlock(nil,ssoError);
             return;
       }];
-      
+
       //Swizzle
-      
+
       [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
                              class:[NSDate class]
                              block:(id)^(void)
@@ -1122,8 +1122,8 @@
          return [[NSDate new] dateByAddingTimeInterval:-10];
 
       }];
-      
-      
+
+
       //Swizzle shouldThrottleRequest to update brokerKey
       [MSIDTestSwizzle instanceMethod:@selector(brokerKey)
                                 class:[MSIDBrokerOperationRequest class]
@@ -1131,48 +1131,48 @@
        {
             return @"danielLaRuSSO";
       }];
-      
+
       //self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
-      
-      
+
+
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-          
+
            XCTAssertNil(result);
            XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation1 fulfill];
       }];
-      
+
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
-      
+
       //Let's verify that request has been throttled and saved in the cache
       NSString *expectedThumbprintKey = @"5500108438307938860";
-      
+
       NSError *subError = nil;
       MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
       XCTAssertNotNil(record);
       XCTAssertNil(subError);
-      
+
       XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
       XCTAssertEqualObjects(record.cachedErrorResponse,ssoErrorInternal);
       XCTAssertEqual(record.throttledCount,1);
-      
-     
+
+
       XCTestExpectation *expectation3 = [self expectationWithDescription:@"throttling SSO extension request - throttling has expired - should be cleared now"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-           
+
            XCTAssertNil(result);
            XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,2);
            [expectation3 fulfill];
       }];
-      
+
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
-      
-      
+
+
    }
 }
 
@@ -1180,10 +1180,10 @@
 {
    if (@available(iOS 13.0, macOS 10.15, *))
    {
-      
+
       //NSError *error = nil;
       //NSString *refreshTokenForThisTest = @"SSORT";
-      
+
       //initialize extra request parameters used by MSIDBrokerOperationSilentTokenRequst
       MSIDRequestParameters *newSSORequestParam = self.silentRequestParameters;
       newSSORequestParam.clientId = @"contosoClientForSSO";
@@ -1204,8 +1204,8 @@
       };
       newSSORequestParam.instanceAware = YES;
       newSSORequestParam.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"Satya" homeAccountId:@"Nadella"];
-      
-      
+
+
       //initialize SSO extension silent token requst
       MSIDSSOExtensionSilentTokenRequest *newSSORequest = [[MSIDSSOExtensionSilentTokenRequest alloc] initWithRequestParameters:newSSORequestParam
                                                                                                                    forceRefresh:NO
@@ -1214,15 +1214,15 @@
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache
                                                                                                              extendedTokenCache:nil];
-      
+
       //throttlingServiceMock
       MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                        context:self.silentRequestParameters];
-      
+
       newSSORequest.throttlingService = throttlingServiceMock;
-      
-      
-      
+
+
+
       //swizzle resolve and validate
       [MSIDTestSwizzle instanceMethod:@selector(resolveAndValidate:
                                                  userPrincipalName:
@@ -1239,8 +1239,8 @@
             completionBlock(nil,YES,nil);
             return;
       }];
-      
-      
+
+
       //swizzle SSO extension method
       __block NSError *ssoErrorInternal = nil;
       [MSIDTestSwizzle instanceMethod:@selector(handleOperationResponse:
@@ -1272,7 +1272,7 @@
                                        };
 
 
-         
+
             //since MSALErrorConverter is in MSAL space, let's do a little hack
             NSError *msalError = MSIDCreateError(@"MSALErrorDomain", MSIDErrorInternal, @"5xx error test", @"MSAL Error", @"subError", nil, nil, userInfo, NO);
             ssoErrorInternal = msalError;
@@ -1280,7 +1280,7 @@
             completionBlock(nil,msalError);
             return;
       }];
-      
+
       //Swizzle NSDate
       [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
                              class:[NSDate class]
@@ -1289,7 +1289,7 @@
          return [[NSDate new] dateByAddingTimeInterval:-10];
 
       }];
-      
+
       //Swizzle shouldThrottleRequest to update brokerKey
       [MSIDTestSwizzle instanceMethod:@selector(brokerKey)
                                 class:[MSIDBrokerOperationRequest class]
@@ -1297,44 +1297,44 @@
        {
             return @"danielLaRuSSO";
       }];
-      
-      
+
+
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-          
+
            XCTAssertNil(result);
            XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation1 fulfill];
       }];
-      
+
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
-      
+
       //Let's verify that request has been throttled and saved in the cache
       NSString *expectedThumbprintKey = @"5500108438307938860";
-      
+
       NSError *subError = nil;
       MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
       XCTAssertNotNil(record);
       XCTAssertNil(subError);
-      
+
       XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
       XCTAssertEqualObjects(record.cachedErrorResponse,ssoErrorInternal);
       XCTAssertEqual(record.throttledCount,1);
-      
+
       XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttling SSO extension request - should be cleared"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-          
+
            XCTAssertNil(result);
            XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,2);
            [expectation2 fulfill];
       }];
-      
+
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
-     
+
 
    }
 }
@@ -1343,7 +1343,7 @@
 {
    if (@available(iOS 13.0, macOS 10.15, *))
    {
-      
+
       //initialize extra request parameters used by MSIDBrokerOperationSilentTokenRequst
       MSIDRequestParameters *newSSORequestParam = self.silentRequestParameters;
       newSSORequestParam.clientId = @"contosoClientForSSO";
@@ -1364,8 +1364,8 @@
       };
       newSSORequestParam.instanceAware = YES;
       newSSORequestParam.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"Satya" homeAccountId:@"Nadella"];
-      
-      
+
+
       //initialize SSO extension silent token requst
       MSIDSSOExtensionSilentTokenRequest *newSSORequest = [[MSIDSSOExtensionSilentTokenRequest alloc] initWithRequestParameters:newSSORequestParam
                                                                                                                    forceRefresh:NO
@@ -1374,15 +1374,15 @@
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache
                                                                                                              extendedTokenCache:nil];
-      
+
       //throttlingServiceMock
       MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                        context:self.silentRequestParameters];
-      
+
       newSSORequest.throttlingService = throttlingServiceMock;
-      
-      
-      
+
+
+
       //swizzle resolve and validate
       [MSIDTestSwizzle instanceMethod:@selector(resolveAndValidate:
                                                  userPrincipalName:
@@ -1399,8 +1399,8 @@
             completionBlock(nil,YES,nil);
             return;
       }];
-      
-      
+
+
       //swizzle SSO extension method
       __block NSError *ssoErrorInternal = nil;
       [MSIDTestSwizzle instanceMethod:@selector(handleOperationResponse:
@@ -1433,7 +1433,7 @@
             completionBlock(nil,msalError);
             return;
       }];
-      
+
       //swizzle time related methods
       //swizzle class method
       [MSIDTestSwizzle instanceMethod:@selector(creationTime)
@@ -1443,27 +1443,27 @@
          return [[NSDate new] dateByAddingTimeInterval:-10];
 
       }];
-      
+
       [MSIDTestSwizzle instanceMethod:@selector(brokerKey)
                                 class:[MSIDBrokerOperationRequest class]
                                 block:(id)^(void)
        {
             return @"danielLaRuSSO";
       }];
-      
-      
+
+
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-          
+
            XCTAssertNil(result);
            XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation1 fulfill];
       }];
-      
+
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
-      
+
       //Let's verify that request has been throttled and saved in the cache
       NSString *expectedThumbprintKey = @"1051707737519838129";
 
@@ -1471,25 +1471,25 @@
       MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
       XCTAssertNotNil(record);
       XCTAssertNil(subError);
-      
+
       XCTAssertEqual(record.throttleType,MSIDThrottlingTypeInteractiveRequired);
       XCTAssertEqualObjects(record.cachedErrorResponse,ssoErrorInternal);
       XCTAssertEqual(record.throttledCount,1);
-      
+
 
       XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttling SSO extension request - should be throttled now"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-          
+
            XCTAssertNil(result);
            XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation2 fulfill];
       }];
-      
+
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
-      
-      
+
+
       //Now let's create an interactive request
       MSIDInteractiveTokenRequestParameters *interactiveRequestParameters = [MSIDInteractiveTokenRequestParameters new];
       interactiveRequestParameters.target = @"fakescope1 fakescope2";
@@ -1506,8 +1506,8 @@
       interactiveRequestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
       interactiveRequestParameters.enablePkce = YES;
       interactiveRequestParameters.keychainAccessGroup = MSIDThrottlingKeychainGroup;
-      
-      
+
+
 #if !TARGET_OS_IOS
       //swizzle interactive method - MacOS test app doesn't have entitlements that support keychain access group.
       //adding a host app that has valid entitlements would also require enabling code-signing, which could break CI/CD check
@@ -1520,7 +1520,7 @@
        {
             return TRUE;
       }];
-      
+
       [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:
                                                                       context:
                                                                         error:)
@@ -1530,8 +1530,8 @@
             return [NSDate date];
       }];
 #endif
-      
-      
+
+
       //intialize interactive controller
       MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                                 defaultAccessor:self.tokenCache
@@ -1540,7 +1540,7 @@
 
       NSError *error = nil;
       MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:interactiveRequestParameters tokenRequestProvider:provider error:&error];
-      
+
       //swizzle interactive token request
       [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
                                 class:[MSIDInteractiveTokenRequest class]
@@ -1550,34 +1550,34 @@
        {
             MSIDTokenResult *tokenResult = [MSIDTokenResult new];
             completionBlock(tokenResult,nil,nil);
-         
+
       }];
 
       //acquire token interactively - which should trigger keychain update
       XCTestExpectation *expectation3 = [self expectationWithDescription:@"Acquire token Interactively - should trigger lastUpdateRefresh"];
-      [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+      [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
           XCTAssertNotNil(result);
-          XCTAssertNil(error);
+          XCTAssertNil(acquireTokenError);
 
           [expectation3 fulfill];
       }];
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
-      
-      
+
+
       //Now let's try to submit the SSO request again.
       XCTestExpectation *expectation4 = [self expectationWithDescription:@"throttling SSO extension request - should be unthrottled by lastUpdateRefresh"];
-      [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-          
+      [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable executeRequestError) {
+
            XCTAssertNil(result);
-           XCTAssertNotNil(error);
+           XCTAssertNotNil(executeRequestError);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,2);
            [expectation4 fulfill];
       }];
-      
+
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
-     
+
       [self.keychainTokenCache clearWithContext:nil error:nil];
    }
 }
@@ -1590,16 +1590,16 @@
                                                                                                         tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                     tokenCache:self.tokenCache
                                                                                                           accountMetadataCache:self.accountMetadataCache];
-   
-   
+
+
    //refresh token
    MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
    refreshToken.refreshToken = self.refreshToken;
-   
+
    //throttlingServiceMock
    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                     context:self.silentRequestParameters];
-   
+
    //swizzle interactive token request
    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle classMethod:@selector(isThrottlingEnabled)
                                                      class:[MSIDThrottlingService class]
@@ -1607,7 +1607,7 @@
                               {
                                  return NO;
                               }];
-   
+
    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
    //swizzle interactive token request
@@ -1619,19 +1619,19 @@
     {
       MSIDTokenResult *tokenResult = [MSIDTokenResult new];
       completionBlock(tokenResult,nil,nil);
-      
+
    }];
    defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
-   
+
    [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
                              block:(id)^(void)
     {
       return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
-      
+
    }];
-   
-   
+
+
    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:self.refreshToken
                                                                                       requestClaims:self.atRequestClaim
                                                                                       requestScopes:self.oidcScopeString
@@ -1646,19 +1646,19 @@
                                                                                        enrollmentId:@"adf79e3f-mike-454d-9f0f-2299e76dbfd5"
                                                                                         redirectUri:self.redirectUri
                                                                                            clientId:self.silentRequestParameters.clientId];
-   
-   
+
+
    tokenResponse->_error = [NSError new];
    NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
                               MSIDHTTPHeadersKey: @{
                                     @"Retry-After": @"100"
                               }
    };
-   
-   
+
+
    tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
-   
-   
+
+
    //First attempt - there shouldn't be any throttling
    [MSIDTestURLSession addResponse:tokenResponse];
    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
@@ -1671,7 +1671,7 @@
       XCTAssertEqual(error.code, MSIDErrorInternal);
       [expectation fulfill];
    }];
-   
+
    [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 #endif

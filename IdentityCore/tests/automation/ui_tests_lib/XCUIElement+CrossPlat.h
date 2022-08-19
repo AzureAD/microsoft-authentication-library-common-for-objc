@@ -21,21 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#define CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(x, y) CONDITIONAL_COMPILE_MSAL_CPP([x setIsCancelled:(y)])
+#import <XCTest/XCTest.h>
 
-#import "MSIDTelemetryConditionalCompile.h"
+@interface XCUIElement (CrossPlat)
 
-#if !EXCLUDE_FROM_MSALCPP
-
-#import "MSIDTelemetryBaseEvent.h"
-
-@interface MSIDTelemetryUIEvent : MSIDTelemetryBaseEvent
-
-- (void)setLoginHint:(NSString *)hint;
-- (void)setNtlm:(NSString *)ntlmHandled;
-
-- (void)setIsCancelled:(BOOL)cancelled;
+- (void)msidTap;
+- (void)msidPasteText:(NSString *)text application:(XCUIApplication *)app;
+- (void)selectTextWithApp:(XCUIApplication *)app;
+- (void)activateTextField;
 
 @end
-
-#endif
