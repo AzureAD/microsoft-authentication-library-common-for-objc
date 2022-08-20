@@ -69,6 +69,7 @@
 @property (nonatomic) NSString *browserSSOCallerApp;
 @property (nonatomic) NSArray *ssoAllowedHosts;
 @property (nonatomic) NSDictionary *ssoExtensionConfiguration;
+@property (nonatomic) BOOL corruptSessionKey;
 
 - (BOOL)usesEmbeddedWebView;
 
