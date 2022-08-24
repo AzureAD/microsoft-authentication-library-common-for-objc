@@ -70,6 +70,7 @@
 @property (nonatomic) NSArray *ssoAllowedHosts;
 @property (nonatomic) NSDictionary *ssoExtensionConfiguration;
 @property (nonatomic) BOOL corruptSessionKey;
+@property (nonatomic) BOOL useSafariUserAgent;
 
 - (BOOL)usesEmbeddedWebView;
 

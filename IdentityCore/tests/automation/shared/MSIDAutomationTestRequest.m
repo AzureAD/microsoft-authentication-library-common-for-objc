@@ -95,6 +95,7 @@
         _ssoAllowedHosts = [json[@"browser_sso_allowed_hosts"] componentsSeparatedByString:@","];
         _ssoExtensionConfiguration = json[@"sso_ext_config"];
         _corruptSessionKey = [json[@"corrupt_session_key"] boolValue];
+        _useSafariUserAgent = [json[@"use_safari_ua"] boolValue];
     }
 
     return self;
@@ -124,6 +125,7 @@
     json[@"browser_sso_allowed_hosts"] = [_ssoAllowedHosts componentsJoinedByString:@","];
     json[@"sso_ext_config"] = _ssoExtensionConfiguration;
     json[@"corrupt_session_key"] = @(_corruptSessionKey);
+    json[@"use_safari_ua"] = @(_useSafariUserAgent);
 
     NSString *webviewType = nil;
 
