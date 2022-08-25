@@ -140,18 +140,18 @@
     MSIDWebWPJResponse *wpjResponse = [[MSIDWebWPJResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;
     
-    // Try to create a browser reponse
+    // Try to create a browser response
     MSIDWebOpenBrowserResponse *browserResponse = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url
                                                                                           context:context
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
     
-    // Try to acreate AAD Auth response
+    // Try to create AAD Auth response
     MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:url
-                                                                      requestState:requestState
-                                                                ignoreInvalidState:ignoreInvalidState
-                                                                           context:context
-                                                                             error:error];
+                                                                              requestState:requestState
+                                                                        ignoreInvalidState:ignoreInvalidState
+                                                                                   context:context
+                                                                                     error:error];
     
     return response;
 }
