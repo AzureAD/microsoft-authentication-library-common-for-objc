@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 #import <XCTest/XCTest.h>
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDWebOpenBrowserAdditionalParameters.h"
 
 @interface MSIDWebBrowserResponseTests : XCTestCase
 @end
@@ -30,11 +31,14 @@
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    [[[MSIDWebOpenBrowserAdditionalParameters sharedInstance] queryParameters] removeAllObjects];
 }
+
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
+
 - (void)testInit_whenNoBrowserScheme_shouldReturnNilWithError
 {
     NSError *error = nil;
@@ -48,16 +52,81 @@
     XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
 }
-- (void)testInit_whenBrowserInput_shouldReturnResponsewithNoError
+
+- (void)testInit_whenBrowserInput_shouldReturnResponseWithNoError
 {
     NSError *error = nil;
     MSIDWebOpenBrowserResponse *response = [[MSIDWebOpenBrowserResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"browser://somehost"]]
-                                                                                                         context:nil
-                                                                                                           error:&error];
+                                                                                   context:nil
+                                                                                     error:&error];
     
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
     XCTAssertEqualObjects(response.browserURL.absoluteString, @"https://somehost");
 }
+
+- (void)testInit_whenBrowserInputWithNoQueryAndExtraQueryParameters_shouldReturnResponseWithNoError
+{
+    MSIDWebOpenBrowserAdditionalParameters *additionalParameters = [MSIDWebOpenBrowserAdditionalParameters sharedInstance];
+    [additionalParameters addQueryParameterForKey:@"objectId" value:@"object-1234"];
+    [additionalParameters addQueryParameterForKey:@"mdmId" value:@"mdm-1234"];
+    NSError *error = nil;
+    MSIDWebOpenBrowserResponse *response = [[MSIDWebOpenBrowserResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"browser://somehost"]]
+                                                                                   context:nil
+                                                                                     error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+
+    XCTAssertEqualObjects(response.browserURL.scheme, @"https");
+    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"objectId"], @"object-1234");
+    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"mdmId"], @"mdm-1234");
+    XCTAssertNil(response.browserURL.msidQueryParameters[@"not-existing-key"]);
+    XCTAssertEqual([response.browserURL.msidQueryParameters count], 2);
+}
+
+- (void)testInit_whenBrowserInputWithExistingQueryAndExtraQueryParameters_shouldReturnResponseWithNoError
+{
+    MSIDWebOpenBrowserAdditionalParameters *additionalParameters = [MSIDWebOpenBrowserAdditionalParameters sharedInstance];
+    [additionalParameters addQueryParameterForKey:@"new-objectId" value:@"object-1234"];
+    [additionalParameters addQueryParameterForKey:@"mdmId" value:@"mdm-1234"];
+    NSError *error = nil;
+    MSIDWebOpenBrowserResponse *response = [[MSIDWebOpenBrowserResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"browser://somehost?existing=1"]]
+                                                                                   context:nil
+                                                                                     error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+
+    XCTAssertEqualObjects(response.browserURL.scheme, @"https");
+    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"new-objectId"], @"object-1234");
+    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"mdmId"], @"mdm-1234");
+    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"existing"], @"1");
+    XCTAssertNil(response.browserURL.msidQueryParameters[@"not-existing-key"]);
+    XCTAssertEqual([response.browserURL.msidQueryParameters count], 3);
+}
+
+- (void)testInit_whenBrowserInputWithExistingQueryAndExtraDuplicatedQueryParameters_shouldReturnResponseWithNoError
+{
+    MSIDWebOpenBrowserAdditionalParameters *additionalParameters = [MSIDWebOpenBrowserAdditionalParameters sharedInstance];
+    [additionalParameters addQueryParameterForKey:@"new-objectId" value:@"object-1234"];
+    [additionalParameters addQueryParameterForKey:@"mdmId" value:@"mdm-1234"];
+    [additionalParameters addQueryParameterForKey:@"new-objectId" value:@"no-new-value"];
+    NSError *error = nil;
+    MSIDWebOpenBrowserResponse *response = [[MSIDWebOpenBrowserResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"browser://somehost?existing=1"]]
+                                                                                   context:nil
+                                                                                     error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+
+    XCTAssertEqualObjects(response.browserURL.scheme, @"https");
+    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"new-objectId"], @"object-1234");
+    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"mdmId"], @"mdm-1234");
+    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"existing"], @"1");
+    XCTAssertNil(response.browserURL.msidQueryParameters[@"not-existing-key"]);
+    XCTAssertEqual([response.browserURL.msidQueryParameters count], 3);
+}
+
 @end
