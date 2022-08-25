@@ -79,8 +79,15 @@
     if ([additionalParameters.queryParameters count] > 0)
     {
 	    NSMutableArray *queryItems = [[urlComponents queryItems] mutableCopy];
-        [queryItems addObjectsFromArray:[additionalParameters.queryParameters msidQueryItems]];
-        urlComponents.queryItems = queryItems;
+
+	    if (queryItems)
+	    {
+		    urlComponents.queryItems = [queryItems arrayByAddingObjectsFromArray:[additionalParameters.queryParameters msidQueryItems]];
+	    }
+	    else
+	    {
+		    urlComponents.queryItems = [additionalParameters.queryParameters msidQueryItems];
+	    }
     }
 
     return [urlComponents URL];
