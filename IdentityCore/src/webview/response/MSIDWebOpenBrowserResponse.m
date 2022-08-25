@@ -28,6 +28,8 @@
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebOpenBrowserResponseOperation.h"
 #import "MSIDWebResponseOperationConstants.h"
+#import "MSIDWebOpenBrowserAdditionalParameters.h"
+#import "NSDictionary+MSIDQueryItems.h"
 
 @implementation MSIDWebOpenBrowserResponse
 
@@ -57,8 +59,8 @@
     self = [super initWithURL:url context:context error:error];
     if (self)
     {
-        _browserURL = [NSURL URLWithString:[url.absoluteString stringByReplacingOccurrencesOfString:@"browser://"
-                                                                                         withString:@"https://"]];
+        _browserURL = [self addAdditionalQueryParameters:[url.absoluteString stringByReplacingOccurrencesOfString:@"browser://"
+                                                                                                       withString:@"https://"]];
     }
     
     return self;
@@ -67,6 +69,21 @@
 + (NSString *)operation
 {
     return MSID_OPEN_BROSWER_OPERATION;
+}
+
+- (NSURL *)addAdditionalQueryParameters:(NSString *)url
+{
+    NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithString:url];
+    MSIDWebOpenBrowserAdditionalParameters *additionalParameters = [MSIDWebOpenBrowserAdditionalParameters sharedInstance];
+
+    if ([additionalParameters.queryParameters count] > 0)
+    {
+	    NSMutableArray *queryItems = [[urlComponents queryItems] mutableCopy];
+        [queryItems addObjectsFromArray:[additionalParameters.queryParameters msidQueryItems]];
+        urlComponents.queryItems = queryItems;
+    }
+
+    return [urlComponents URL];
 }
 
 @end
