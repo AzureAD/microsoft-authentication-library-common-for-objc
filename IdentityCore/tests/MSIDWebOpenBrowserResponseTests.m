@@ -107,12 +107,12 @@
     XCTAssertEqual([response.browserURL.msidQueryParameters count], 3);
 }
 
-- (void)testInit_whenBrowserInputWithExistingQueryAndExtraDuplicatedQueryParameters_shouldReturnResponseWithNoError
+- (void)testInit_whenBrowserInputWithExistingQueryAndExtraDuplicatedQueryParameters_shouldUpdateParameterAndReturnResponseWithNoError
 {
     MSIDWebOpenBrowserAdditionalParameters *additionalParameters = [MSIDWebOpenBrowserAdditionalParameters sharedInstance];
     [additionalParameters addQueryParameterForKey:@"new-objectId" value:@"object-1234"];
     [additionalParameters addQueryParameterForKey:@"mdmId" value:@"mdm-1234"];
-    [additionalParameters addQueryParameterForKey:@"new-objectId" value:@"no-new-value"];
+    [additionalParameters addQueryParameterForKey:@"new-objectId" value:@"new-value"];
     NSError *error = nil;
     MSIDWebOpenBrowserResponse *response = [[MSIDWebOpenBrowserResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"browser://somehost?existing=1"]]
                                                                                    context:nil
@@ -122,7 +122,7 @@
     XCTAssertNil(error);
 
     XCTAssertEqualObjects(response.browserURL.scheme, @"https");
-    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"new-objectId"], @"object-1234");
+    XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"new-objectId"], @"new-value");
     XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"mdmId"], @"mdm-1234");
     XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"existing"], @"1");
     XCTAssertNil(response.browserURL.msidQueryParameters[@"not-existing-key"]);
