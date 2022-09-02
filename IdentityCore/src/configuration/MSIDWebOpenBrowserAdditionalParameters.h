@@ -27,15 +27,15 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDWebOpenBrowserAdditionalParameters : NSObject
 
-@property (atomic) NSMutableDictionary<NSString *, NSString *> *queryParameters;
+@property (atomic, readonly) NSMutableDictionary<NSString *, NSString *> *queryParameters;
 
 + (instancetype _Nonnull)sharedInstance;
 
-- (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
 - (void)addQueryParameterForKey:(NSString *)key value:(NSString *)value;
 
+- (void)removeQueryParameter:(NSString *)key;
 @end
 
 NS_ASSUME_NONNULL_END

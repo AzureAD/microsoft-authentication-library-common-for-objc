@@ -27,17 +27,24 @@
 
 @implementation MSIDWebOpenBrowserAdditionalParameters
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _queryParameters = [[NSMutableDictionary alloc] init];
+    }
+
+    return self;
+}
+
 + (instancetype)sharedInstance
 {
     static dispatch_once_t once;
     static MSIDWebOpenBrowserAdditionalParameters *singleton = nil;
     
     dispatch_once(&once, ^{
-        singleton = [MSIDWebOpenBrowserAdditionalParameters alloc];
-        if (singleton)
-        {
-            singleton.queryParameters = [[NSMutableDictionary alloc] init];
-        }
+        singleton = [[MSIDWebOpenBrowserAdditionalParameters alloc] init];
     });
     
     return singleton;
@@ -45,10 +52,11 @@
 
 - (void)addQueryParameterForKey:(NSString *)key value:(NSString *)value
 {
-    if (![self.queryParameters valueForKey:key])
-    {
-        self.queryParameters[key] = value;
-    }
+    self.queryParameters[key] = value;
 }
 
+- (void)removeQueryParameter:(NSString *)key
+{
+	[self.queryParameters removeObjectForKey:key];
+}
 @end
