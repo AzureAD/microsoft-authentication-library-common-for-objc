@@ -113,6 +113,8 @@
     [additionalParameters addQueryParameterForKey:@"new-objectId" value:@"object-1234"];
     [additionalParameters addQueryParameterForKey:@"mdmId" value:@"mdm-1234"];
     [additionalParameters addQueryParameterForKey:@"new-objectId" value:@"new-value"];
+    [additionalParameters addQueryParameterForKey:@"removed-parameter" value:@"will-remove"];
+    [additionalParameters removeQueryParameter:@"removed-parameter"];
     NSError *error = nil;
     MSIDWebOpenBrowserResponse *response = [[MSIDWebOpenBrowserResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"browser://somehost?existing=1"]]
                                                                                    context:nil
@@ -126,6 +128,7 @@
     XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"mdmId"], @"mdm-1234");
     XCTAssertEqualObjects(response.browserURL.msidQueryParameters[@"existing"], @"1");
     XCTAssertNil(response.browserURL.msidQueryParameters[@"not-existing-key"]);
+    XCTAssertNil(response.browserURL.msidQueryParameters[@"removed-parameter"]);
     XCTAssertEqual([response.browserURL.msidQueryParameters count], 3);
 }
 
