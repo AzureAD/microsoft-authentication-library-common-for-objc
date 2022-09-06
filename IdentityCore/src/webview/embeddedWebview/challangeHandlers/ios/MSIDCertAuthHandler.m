@@ -39,12 +39,23 @@ static NSString *s_redirectScheme = nil;
 static MSIDSystemWebviewController *s_systemWebViewController = nil;
 static BOOL s_useAuthSession = NO;
 static BOOL s_useLastRequestURL = NO;
+static BOOL s_disableCertBasedAuth = NO;
 
 #endif
 
 @implementation MSIDCertAuthHandler
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+
++ (void)disableCertBasedAuth
+{
+    s_disableCertBasedAuth = YES;
+}
+
++ (void)enableCertBasedAuth
+{
+    s_disableCertBasedAuth = NO;
+}
 
 + (void)setRedirectUriPrefix:(NSString *)prefix
                    forScheme:(NSString *)scheme
@@ -96,6 +107,13 @@ static BOOL s_useLastRequestURL = NO;
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
 #if !MSID_EXCLUDE_SYSTEMWV
+    
+    if (s_disableCertBasedAuth)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Cert based auth is explicitly disabled. Ignoring challenge.");
+        return NO;
+    }
+    
     MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
     
     if (!currentSession)

@@ -96,6 +96,7 @@
         _ssoExtensionConfiguration = json[@"sso_ext_config"];
         _corruptSessionKey = [json[@"corrupt_session_key"] boolValue];
         _useSafariUserAgent = [json[@"use_safari_ua"] boolValue];
+        _disableCertBasedAuth = [json[@"disable_cert_based_auth"] boolValue];
     }
 
     return self;
@@ -126,6 +127,7 @@
     json[@"sso_ext_config"] = _ssoExtensionConfiguration;
     json[@"corrupt_session_key"] = @(_corruptSessionKey);
     json[@"use_safari_ua"] = @(_useSafariUserAgent);
+    json[@"disable_cert_based_auth"] = @(_disableCertBasedAuth);
 
     NSString *webviewType = nil;
 
