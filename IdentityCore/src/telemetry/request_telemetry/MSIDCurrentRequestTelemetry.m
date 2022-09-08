@@ -25,6 +25,8 @@
 
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetrySerializedItem.h"
+#import "MSIDRequestTelemetryConstants.h"
+#import "MSIDRequestTelemetryUtils.h"
 
 @implementation MSIDCurrentRequestTelemetry
 
@@ -33,6 +35,21 @@
 - (NSString *)telemetryString
 {
     return [self serializeCurrentTelemetryString];
+}
+
+#pragma mark - Init
+
+- (nullable instancetype)initWithAppId:(NSInteger)appId
+        tokenCacheRefreshType:(TokenCacheRefreshType)tokenCacheRefreshType
+{
+    self = [super init];
+    if (self)
+    {
+        _schemaVersion = HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION;
+        _apiId = appId;
+        _tokenCacheRefreshType = tokenCacheRefreshType;
+    }
+    return self;
 }
 
 #pragma mark - Private
@@ -47,7 +64,7 @@
 - (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithInteger:self.tokenCacheRefreshType]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
+    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:self.platformFields];
 }
 
 @end

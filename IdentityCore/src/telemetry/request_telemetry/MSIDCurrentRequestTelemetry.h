@@ -53,9 +53,13 @@ typedef NS_ENUM(NSInteger, TokenCacheRefreshType)
 
 @interface MSIDCurrentRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
 
+- (nullable instancetype)initWithAppId:(NSInteger)appId
+        tokenCacheRefreshType:(TokenCacheRefreshType)tokenCacheRefreshType;
+
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger apiId;
 @property (nonatomic) TokenCacheRefreshType tokenCacheRefreshType;
+@property (nonatomic, nullable) NSMutableArray<NSString *> *platformFields;
 
 @end
 
