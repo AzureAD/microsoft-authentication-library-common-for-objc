@@ -23,6 +23,8 @@
 
 #import "MSIDCredentialType.h"
 
+static NSInteger kCredentialTypePrefix = 2000;
+
 @implementation MSIDCredentialTypeHelpers
 
 + (NSString *)credentialTypeAsString:(MSIDCredentialType)type
@@ -98,6 +100,11 @@ static NSDictionary *sCredentialTypes = nil;
     }
     
     return MSIDCredentialTypeOther;
+}
+
++ (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType
+{
+    return @(kCredentialTypePrefix + credentialType);
 }
 
 @end

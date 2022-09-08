@@ -29,7 +29,6 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 
 static NSString *keyDelimiter = @"-";
-static NSInteger kCredentialTypePrefix = 2000;
 
 @implementation MSIDDefaultCredentialCacheKey
 
@@ -106,7 +105,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 
 - (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType
 {
-    return @(kCredentialTypePrefix + credentialType);
+    return [MSIDCredentialTypeHelpers credentialTypeNumber:credentialType];
 }
 
 #pragma mark - Public
