@@ -30,7 +30,7 @@
 
 + (nonnull NSString *)getStringFromBool:(BOOL)val
 {
-    if(val)
+    if (val)
     {
         return MSID_REQUEST_TELEMETRY_SCHEMA_STRING_TRUE;
     }
@@ -49,6 +49,7 @@
         {
             *error = validationError;
         }
+        
         return NO;
     }
     
