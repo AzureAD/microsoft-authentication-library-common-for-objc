@@ -28,11 +28,4 @@
 
 NSInteger const HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION = 4;
 
-#pragma mark Request Telemetry Schema Constants
-
-NSString *const MSID_REQUEST_TELEMETRY_SCHEMA_STRING_TRUE = @"1";
-NSString *const MSID_REQUEST_TELEMETRY_SCHEMA_STRING_FALSE = @"0";
-NSString *const MSID_REQUEST_TELEMETRY_SCHEMA_STRING_EMPTY = @"";
-NSString *const MSID_CURRENT_REQUEST_TELEMETRY_KEY_FLW_SIGNIN_APP = @"flw_signin_app_key";
-NSString *const MSID_CURRENT_REQUEST_TELEMETRY_KEY_FLW_SIGNOUT_APP = @"flw_signout_app_key";
 #endif
