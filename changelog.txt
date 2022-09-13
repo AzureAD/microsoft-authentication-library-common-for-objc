@@ -1,5 +1,6 @@
 TBD
 * Expose extra deviceInfo(#1131)
+* Disable Bitcode(#1147)
 
 Version 1.7.10
 * Stop extra background tasks in the system webview case. (#1130)
