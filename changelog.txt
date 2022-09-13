@@ -1,4 +1,4 @@
-TBD
+Version 1.7.11
 * Expose extra deviceInfo(#1131)
 
 Version 1.7.10
