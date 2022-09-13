@@ -65,6 +65,8 @@
 @property (nonatomic) NSUInteger ssoExtensionSharedDeviceMode;
 @property (nonatomic) NSUInteger ssoExtensionInteractiveMode;
 @property (nonatomic) NSString *tokenType;
+@property (nonatomic) BOOL disableCertBasedAuth;
+
 - (BOOL)usesEmbeddedWebView;
 
 @end
