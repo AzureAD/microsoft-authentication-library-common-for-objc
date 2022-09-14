@@ -131,6 +131,7 @@
     
     if (!self.teamId)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to return full access group: no teamID.");
         return nil;
     }
     
