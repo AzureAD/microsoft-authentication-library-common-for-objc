@@ -41,4 +41,46 @@ NSString *const MSID_AUTO_EMPTY_STRESS_TEST_ACTION_IDENTIFIER          =   @"Emp
 NSString *const MSID_AUTO_NON_EMPTY_STRESS_TEST_ACTION_IDENTIFIER      =   @"Non empty stress test";
 NSString *const MSID_AUTO_INTERACTIVE_STRESS_TEST_ACTION_IDENTIFIER    =   @"Interactive stress test";
 
++ (NSString *)requestPipelinePath
+{
+    static NSString *path = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        path = [[[self cachesDirUrl] URLByAppendingPathComponent:@"ui_automation_request_pipeline.txt"] path];
+    });
+
+    return  path;
+}
+
++ (NSString *)resultPipelinePath
+{
+    static NSString *path = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        path = [[[self cachesDirUrl] URLByAppendingPathComponent:@"ui_automation_result_pipeline.txt"] path];
+    });
+
+    return  path;
+}
+
++ (NSString *)logsPipelinePath
+{
+    static NSString *path = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        path = [[[self cachesDirUrl] URLByAppendingPathComponent:@"ui_automation_logs_pipeline.txt"] path];
+    });
+
+    return  path;
+}
+
+#pragma mark - Private
+
++ (NSURL *)cachesDirUrl
+{
+    NSString *simulatorSharedDir = [NSProcessInfo processInfo].environment[@"SIMULATOR_SHARED_RESOURCES_DIRECTORY"];
+    NSURL *simulatorHomeDirUrl = [[NSURL alloc] initFileURLWithPath:simulatorSharedDir];
+    return [simulatorHomeDirUrl URLByAppendingPathComponent:@"Library/Caches"];
+}
+
 @end

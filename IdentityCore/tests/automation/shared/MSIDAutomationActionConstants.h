@@ -43,6 +43,10 @@ extern NSString *const MSID_AUTO_EMPTY_STRESS_TEST_ACTION_IDENTIFIER;
 extern NSString *const MSID_AUTO_NON_EMPTY_STRESS_TEST_ACTION_IDENTIFIER;
 extern NSString *const MSID_AUTO_INTERACTIVE_STRESS_TEST_ACTION_IDENTIFIER;
 
++ (NSString *)requestPipelinePath;
++ (NSString *)resultPipelinePath;
++ (NSString *)logsPipelinePath;
+
 @end
 
 NS_ASSUME_NONNULL_END

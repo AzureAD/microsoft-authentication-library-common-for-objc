@@ -54,6 +54,7 @@
                  error:(NSError **)error
 {
     id jsonResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
+    
     if (!jsonResponse)
     {
         return nil;
@@ -71,6 +72,7 @@
     {
         for (NSDictionary *responseDict in (NSArray *)jsonResponse)
         {
+            NSAssert(![responseDict[@"result"] isEqualToString:@"Errors"], responseDict[@"message"]);
             id result = [[self.className alloc] initWithJSONDictionary:responseDict error:nil];
             if (result) [resultArray addObject:result];
         }
