@@ -22,8 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDAutomationMainViewController.h"
-#import "MSIDAutomationRequestViewController.h"
-#import "MSIDAutomationResultViewController.h"
 #import "MSIDAutomation.h"
 #import "MSIDAutomationPassedInWebViewController.h"
 #import "MSIDAutomationActionManager.h"
@@ -31,6 +29,9 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDAutomationTestRequest.h"
 #import <WebKit/WebKit.h>
+#import "MSIDAutomationActionConstants.h"
+#import "MSIDAutomationRequestViewController.h"
+#import "MSIDAutomationResultViewController.h"
 
 @interface MSIDAutomationMainViewController ()
 
@@ -72,13 +73,11 @@
     }
 }
 
-
 - (void)showRequestDataViewWithCompletionHandler:(MSIDAutoParamBlock)completionHandler
 {
     [self performSegueWithIdentifier:MSID_SHOW_REQUEST_SEGUE
                               sender:@{MSID_COMPLETION_BLOCK_SEGUE_KEY:completionHandler}];
 }
-
 
 - (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs
 {
@@ -99,8 +98,13 @@
 
 - (void)presentResults:(NSString *)resultJson logs:(NSString *)resultLogs
 {
+#if TARGET_OS_SIMULATOR
+    [resultJson writeToFile:[MSIDAutomationActionConstants resultPipelinePath] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    [resultLogs writeToFile:[MSIDAutomationActionConstants logsPipelinePath] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+#else
     [self performSegueWithIdentifier:MSID_SHOW_RESULT_SEGUE sender:@{MSID_RESULT_INFO_SEGUE_KEY:resultJson ? resultJson : @"",
                                                                      MSID_RESULT_LOGS_SEGUE_KEY:resultLogs ? resultLogs : @""}];
+#endif
 }
 
 - (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context
@@ -218,8 +222,23 @@ static NSMutableString *s_resultLogs = nil;
 
         [self performAction:action parameters:requestParams];
     };
+    
+#if TARGET_OS_SIMULATOR
+    NSString *jsonString = [self getConfigJsonString];
+    NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    if (!params)
+    {
+        completionBlock(nil);
+        return;
+    }
 
+    MSIDAutomationTestRequest *request = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
+    request.parentController = self;
+    
+    completionBlock(request);
+#else
     [self performSegueWithIdentifier:MSID_SHOW_REQUEST_SEGUE sender:@{MSID_COMPLETION_BLOCK_SEGUE_KEY : completionBlock}];
+#endif
 }
 
 - (void)performAction:(id<MSIDAutomationTestAction>)action parameters:(MSIDAutomationTestRequest *)parameters
@@ -227,10 +246,17 @@ static NSMutableString *s_resultLogs = nil;
     [action performActionWithParameters:parameters
                     containerController:self
                         completionBlock:^(MSIDAutomationTestResult *result) {
-
                             [self showResultViewWithResult:result.jsonDictionary logs:self.class.resultLogs];
-
                         }];
+}
+
+#pragma mark - Private
+
+- (NSString *)getConfigJsonString
+{
+    NSString *jsonString = [NSString stringWithContentsOfFile:[MSIDAutomationActionConstants requestPipelinePath] encoding:NSUTF8StringEncoding error:nil];
+    
+    return jsonString;
 }
 
 @end

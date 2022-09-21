@@ -1,6 +1,8 @@
 TBD
-* Expose extra deviceInfo. (#1131)
 * Allow adding additional query string parameters when opening the browser. (#1140)
+
+Version 1.7.11
+* Expose extra deviceInfo(#1131)
 
 Version 1.7.10
 * Stop extra background tasks in the system webview case. (#1130)
