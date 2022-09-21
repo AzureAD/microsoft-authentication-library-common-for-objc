@@ -22,8 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDAutomationMainViewController.h"
-#import "MSIDAutomationRequestViewController.h"
-#import "MSIDAutomationResultViewController.h"
 #import "MSIDAutomation.h"
 #import "MSIDAutomationPassedInWebViewController.h"
 #import "MSIDAutomationActionManager.h"
@@ -55,6 +53,7 @@
 - (void)showResultViewWithResult:(NSDictionary *)resultJson logs:(NSString *)resultLogs
 {
     [self selectTabViewAtIndex:2];
+    
     MSIDAutomationResultViewController *resultController = (MSIDAutomationResultViewController *) [self viewControllerAtIndex:2];
 
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resultJson options:0 error:nil];
@@ -173,8 +172,21 @@ static NSMutableString *s_resultLogs = nil;
 
         [self performAction:action parameters:parameters];
     };
-
+    
+    NSString *jsonString = [self getConfigJsonString];
+    NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    if (!params)
+    {
+        completionBlock(nil);
+        return;
+    }
+    
+#if TARGET_OS_SIMULATOR
+    MSIDAutomationTestRequest *request = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
+    completionBlock(request);
+#else
     [self showRequestDataViewWithCompletionHandler:completionBlock];
+#endif
 }
 
 - (void)performAction:(id<MSIDAutomationTestAction>)action parameters:(MSIDAutomationTestRequest *)parameters
@@ -183,7 +195,6 @@ static NSMutableString *s_resultLogs = nil;
                     containerController:self
                         completionBlock:^(MSIDAutomationTestResult *result) {
                             [self showResultViewWithResult:result.jsonDictionary logs:self.class.resultLogs];
-
                         }];
 }
 

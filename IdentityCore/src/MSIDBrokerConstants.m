@@ -75,4 +75,6 @@ NSString *const MSID_BROKER_TYPES_OF_HEADER = @"types_of_header";
 
 NSString *const MSID_ADDITIONAL_EXTENSION_DATA_KEY = @"additional_extension_data";
 NSString *const MSID_SSO_NONCE_QUERY_PARAM_KEY = @"sso_nonce";
-NSString *const MSID_BROKER_MDM_ID_KEY          = @"mdm_id";
+NSString *const MSID_BROKER_MDM_ID_KEY = @"mdm_id";
+NSString *const MSID_ENROLLED_USER_OBJECT_ID_KEY = @"object_id";
+NSString *const MSID_EXTRA_DEVICE_INFO_KEY = @"extraDeviceInfo";
