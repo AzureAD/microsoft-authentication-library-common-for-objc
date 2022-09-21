@@ -21,17 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomation.h"
+#import <XCTest/XCTest.h>
 
-@interface MSIDAutomationRequestViewController : MSIDAutoViewController 
+@interface XCUIElement (CrossPlat)
 
-#if TARGET_OS_IPHONE
-@property (weak, nonatomic) IBOutlet UITextView *requestInfo;
-
-#else
-@property (strong, nonatomic) IBOutlet NSTextView *requestInfo;
-#endif
-
-@property (atomic) MSIDAutoParamBlock completionBlock;
+- (void)msidTap;
+- (void)msidPasteText:(NSString *)text application:(XCUIApplication *)app;
+- (void)selectTextWithApp:(XCUIApplication *)app;
+- (void)activateTextField;
 
 @end
