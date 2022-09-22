@@ -49,12 +49,9 @@ static BOOL s_disableCertBasedAuth = NO;
 
 + (void)disableCertBasedAuth
 {
+    // This is a private API only to ensure nobody with access to internal headers takes dependency on it
+    // This should be executed in automation tests only
     s_disableCertBasedAuth = YES;
-}
-
-+ (void)enableCertBasedAuth
-{
-    s_disableCertBasedAuth = NO;
 }
 
 + (void)setRedirectUriPrefix:(NSString *)prefix

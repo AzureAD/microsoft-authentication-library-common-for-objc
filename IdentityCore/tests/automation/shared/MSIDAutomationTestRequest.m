@@ -168,6 +168,8 @@
     json[@"ssoExtensionSharedDeviceMode"] = @(_ssoExtensionSharedDeviceMode);
     json[@"ssoExtensionInteractiveMode"] = @(_ssoExtensionInteractiveMode);
     json[@"token_type"] = _tokenType;
+    json[@"disable_cert_based_auth"] = @(_disableCertBasedAuth);
+    
     return json;
 }
 
