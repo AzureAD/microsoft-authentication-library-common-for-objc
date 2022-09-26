@@ -32,6 +32,9 @@
 
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context;
 
++ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
+                                                         tenantID: (nullable NSString *)tenantID;
+
 /**
     Helper API to lookup both the private key and the associated certificate from the keychain.
     Functionality of the API can be customized by specifying custom private and cert lookup attributes.

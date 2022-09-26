@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSData *certificateData;
 @property (nonatomic, readonly) NSString *certificateSubject;
 @property (nonatomic, readonly) NSString *certificateIssuer;
+@property (nonatomic) NSString *keyChainVersion;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                 certificate:(SecCertificateRef)certificate

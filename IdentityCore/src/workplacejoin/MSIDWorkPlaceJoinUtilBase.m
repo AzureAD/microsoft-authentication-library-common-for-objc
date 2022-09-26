@@ -96,6 +96,39 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     return nil;
 }
 
++ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
+                                                         tenantID: (nullable NSString *)tenantID {
+    MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantID context:context];
+
+    if (wpjCerts)
+    {
+        if (![wpjCerts.keyChainVersion isEqual: @"v2"]) {
+            NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
+            NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+            NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
+
+            // Certificate subject is nothing but the AAD deviceID
+            [registrationInfoMetadata setValue:wpjCerts.certificateSubject forKey:MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY];
+            [registrationInfoMetadata setValue:userPrincipalName forKey:MSID_DEVICE_INFORMATION_UPN_ID_KEY];
+            [registrationInfoMetadata setValue:tenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
+            return registrationInfoMetadata;
+        } else {
+        NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID ForIdentifier:kSecAttrService context:context error:nil];
+        NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID ForIdentifier:kSecAttrLabel context:context error:nil];
+        NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
+
+        // Certificate subject is nothing but the AAD deviceID
+        [registrationInfoMetadata setValue:wpjCerts.certificateSubject forKey:MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY];
+        [registrationInfoMetadata setValue:userPrincipalName forKey:MSID_DEVICE_INFORMATION_UPN_ID_KEY];
+        [registrationInfoMetadata setValue:tenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
+        return registrationInfoMetadata;
+        }
+    }
+
+    return nil;
+    
+}
+
 + (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
                                                                                        context:(nullable id<MSIDRequestContext>)context

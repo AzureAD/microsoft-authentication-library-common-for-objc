@@ -57,6 +57,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
         if ([NSString msidIsStringNilOrBlank:tenantId])
         {
             // ESTS didn't request a specific tenant, just return default one
+            legacyKeys.keyChainVersion = @"v1";
             return legacyKeys;
         }
         
@@ -87,6 +88,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     // If secondary Identity was found, return it
     if (defaultKeys)
     {
+        defaultKeys.keyChainVersion = @"v2";
         return defaultKeys;
     }
         
