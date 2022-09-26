@@ -42,4 +42,9 @@
                                              context:(nullable id<MSIDRequestContext>)context
                                                error:(NSError*__nullable*__nullable)error;
 
++ (nullable NSString *)getWPJStringDataFromV2ForTenantID:(NSString *_Nullable)tenantID
+                                           ForIdentifier:(nonnull id)identifier
+                                                 context:(nullable id<MSIDRequestContext>)context
+                                                   error:(NSError*__nullable*__nullable)error;
+
 @end

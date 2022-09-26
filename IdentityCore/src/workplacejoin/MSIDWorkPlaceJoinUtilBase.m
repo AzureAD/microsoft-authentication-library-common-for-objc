@@ -76,6 +76,53 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     return stringData;
 }
 
++ (NSString *_Nullable)getWPJStringDataFromV2ForTenantID: (NSString *)tenantID
+                                              Identifier:(nonnull id)identifier
+                                         accessGroup:(nullable NSString *)accessGroup
+                                             context:(id<MSIDRequestContext>_Nullable)context
+                                               error:(NSError*__nullable*__nullable)error
+{
+    // Building dictionary to retrieve given identifier from the keychain
+    NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
+    [query setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
+    [query setObject:tenantID forKey:(__bridge id<NSCopying>)(kSecAttrService)];
+    [query setObject:(id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
+    if (accessGroup)
+    {
+        [query setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    }
+
+    CFDictionaryRef result = nil;
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
+    if (status != errSecSuccess)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"String Data not found with error code:%d", (int)status);
+
+        return nil;
+    }
+    NSString *stringData;
+    if ([identifier isEqual: @"tenantID"]) {
+        stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
+    } else {
+        stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrLabel)];
+    }
+
+    if (result)
+    {
+        CFRelease(result);
+    }
+
+    if (!stringData || stringData.msidTrimmedString.length == 0)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Found empty keychain item.", nil, nil, nil, context.correlationId, nil, NO);
+        }
+    }
+
+    return stringData;
+}
+
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
 {
     MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:context];
@@ -96,8 +143,8 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     return nil;
 }
 
-+ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
-                                                         tenantID: (nullable NSString *)tenantID {
++ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context tenantID: (nullable NSString *)tenantID
+{
     MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantID context:context];
 
     if (wpjCerts)
@@ -113,8 +160,8 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
             [registrationInfoMetadata setValue:tenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
             return registrationInfoMetadata;
         } else {
-        NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID ForIdentifier:kSecAttrService context:context error:nil];
-        NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID ForIdentifier:kSecAttrLabel context:context error:nil];
+        NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID ForIdentifier:@"upn" context:context error:nil];
+        NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID ForIdentifier:@"tenantID" context:context error:nil];
         NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
 
         // Certificate subject is nothing but the AAD deviceID
@@ -126,9 +173,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     }
 
     return nil;
-    
 }
-
 + (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
                                                                                        context:(nullable id<MSIDRequestContext>)context

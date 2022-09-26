@@ -215,4 +215,21 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     return [self getWPJStringDataForIdentifier:identifier accessGroup:sharedAccessGroup context:context error:error];
 }
 
++ (nullable NSString *)getWPJStringDataFromV2ForTenantID:(NSString *)tenantID
+                                           ForIdentifier:(nonnull id)identifier
+                                                 context:(nullable id<MSIDRequestContext>)context
+                                                   error:(NSError*__nullable*__nullable)error
+{
+    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
+
+    if (!teamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
+        return nil;
+    }
+    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+
+    return [self getWPJStringDataFromV2ForTenantID:tenantID Identifier:identifier accessGroup:sharedAccessGroup context:context error:error];
+}
+
 @end
