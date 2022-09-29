@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype _Nonnull)sharedInstance;
 
+- (instancetype)init NS_UNAVAILABLE;
+
 + (instancetype)new NS_UNAVAILABLE;
 
 - (void)addQueryParameterForKey:(NSString *)key value:(NSString *)value;

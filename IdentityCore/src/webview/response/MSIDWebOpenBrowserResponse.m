@@ -71,7 +71,7 @@
     return MSID_OPEN_BROSWER_OPERATION;
 }
 
-- (NSURL *)addAdditionalQueryParameters:(NSString *)url
+- (NSURL *)addAdditionalQueryParameters:(NSString *_Nonnull)url
 {
     NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithString:url];
     MSIDWebOpenBrowserAdditionalParameters *additionalParameters = [MSIDWebOpenBrowserAdditionalParameters sharedInstance];
