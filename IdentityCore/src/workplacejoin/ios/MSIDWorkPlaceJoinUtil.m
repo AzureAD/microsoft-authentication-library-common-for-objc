@@ -203,16 +203,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
                                              context:(nullable id<MSIDRequestContext>)context
                                                error:(NSError*__nullable*__nullable)error
 {
-    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
-
-    if (!teamId)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
-        return nil;
-    }
-    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
-
-    return [self getWPJStringDataForIdentifier:identifier accessGroup:sharedAccessGroup context:context error:error];
+    [self getWPJStringDataFromV2ForTenantID:nil identifier:nil context:context error:error];
 }
 
 + (nullable NSString *)getWPJStringDataFromV2ForTenantID:(NSString *)tenantID
@@ -227,9 +218,15 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
         return nil;
     }
-    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+    
+    if (tenantID) {
+        NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+        return [self getWPJStringDataFromV2ForTenantID:tenantID Identifier:identifier accessGroup:sharedAccessGroup context:context error:error];
+    } else {
+        NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+        return [self getWPJStringDataForIdentifier:identifier accessGroup:sharedAccessGroup context:context error:error];
+    }
 
-    return [self getWPJStringDataFromV2ForTenantID:tenantID Identifier:identifier accessGroup:sharedAccessGroup context:context error:error];
 }
 
 @end
