@@ -40,17 +40,17 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
                                                error:(NSError*__nullable*__nullable)error
 {
     return [self getWPJStringDataFromV2ForTenantID:nil
-                                 identifier:identifier
-                                accessGroup:accessGroup
-                                    context:context
-                                      error:error];
+                                        identifier:identifier
+                                       accessGroup:accessGroup
+                                           context:context
+                                             error:error];
 }
 
 + (NSString *_Nullable)getWPJStringDataFromV2ForTenantID: (NSString *)tenantID
                                               identifier:(nonnull id)identifier
-                                         accessGroup:(nullable NSString *)accessGroup
-                                             context:(id<MSIDRequestContext>_Nullable)context
-                                               error:(NSError*__nullable*__nullable)error
+                                             accessGroup:(nullable NSString *)accessGroup
+                                                 context:(id<MSIDRequestContext>_Nullable)context
+                                                   error:(NSError*__nullable*__nullable)error
 {
     // Building dictionary to retrieve given identifier from the keychain
     NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
@@ -75,7 +75,6 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         return nil;
     }
     NSString *stringData;
-    // TODOMeghna: try to optimise this
     if (tenantID) {
         if ([identifier isEqual: @"tenantID"]) {
             stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
