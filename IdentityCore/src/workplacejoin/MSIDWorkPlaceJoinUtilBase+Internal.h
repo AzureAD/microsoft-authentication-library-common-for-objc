@@ -34,7 +34,7 @@
                                                error:(NSError*__nullable*__nullable)error;
 
 + (NSString *_Nullable)getWPJStringDataFromV2ForTenantID: (NSString *_Nullable)tenantID
-                                              Identifier:(nonnull id)identifier
+                                              identifier:(nonnull id)identifier
                                              accessGroup:(nullable NSString *)accessGroup
                                                  context:(id<MSIDRequestContext>_Nullable)context
                                                    error:(NSError*__nullable*__nullable)error;

@@ -39,25 +39,19 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
                                              context:(id<MSIDRequestContext>_Nullable)context
                                                error:(NSError*__nullable*__nullable)error
 {
-    [self getWPJStringDataFromV2ForTenantID:nil
-                                 Identifier:identifier
+    return [self getWPJStringDataFromV2ForTenantID:nil
+                                 identifier:identifier
                                 accessGroup:accessGroup
                                     context:context
                                       error:error];
 }
 
 + (NSString *_Nullable)getWPJStringDataFromV2ForTenantID: (NSString *)tenantID
-                                              Identifier:(nonnull id)identifier
+                                              identifier:(nonnull id)identifier
                                          accessGroup:(nullable NSString *)accessGroup
                                              context:(id<MSIDRequestContext>_Nullable)context
                                                error:(NSError*__nullable*__nullable)error
 {
-    /*
-     [query setObject:identifier forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
-     
-     NSString *stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
-
-     */
     // Building dictionary to retrieve given identifier from the keychain
     NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
     [query setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
@@ -89,7 +83,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
             stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrLabel)];
         }
     } else {
-        NSString *stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
+        stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
     }
 
     if (result)
@@ -110,15 +104,16 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
 {
-    [self getRegisteredDeviceMetadataInformation:context tenantID: nil];
+    return [self getRegisteredDeviceMetadataInformation:context tenantID: nil];
 }
 
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context tenantID:(nullable NSString *)tenantID
 {
+    MSIDWPJKeyPairWithCert *wpjCerts;
     if (tenantID) {
-        MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:context];
+        wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:context];
     } else {
-        MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantID context:context];
+        wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantID context:context];
     }
 
     if (wpjCerts)
@@ -134,8 +129,8 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
             [registrationInfoMetadata setValue:tenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
             return registrationInfoMetadata;
         } else {
-        NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID ForIdentifier:@"upn" context:context error:nil];
-        NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID ForIdentifier:@"tenantID" context:context error:nil];
+        NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID identifier:@"upn" context:context error:nil];
+        NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantID:tenantID identifier:@"tenantID" context:context error:nil];
         NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
 
         // Certificate subject is nothing but the AAD deviceID
