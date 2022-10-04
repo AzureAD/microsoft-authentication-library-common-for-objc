@@ -139,7 +139,11 @@
             // On iOS 16.0 or macOS 13.0 and above, NSURLComponents percentEncodedHost will no longer throw an exception if invalid.
             if ([NSString msidIsStringNilOrBlank:components.host])
             {
-                @throw MSIDException(MSIDGenericException, @"Host is not valid.", nil);
+                NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Host is not valid.", nil, nil, nil, context.correlationId, nil, YES);
+                
+                if (error) *error = msidError;
+                
+                return nil;
             }
         }
 #endif
