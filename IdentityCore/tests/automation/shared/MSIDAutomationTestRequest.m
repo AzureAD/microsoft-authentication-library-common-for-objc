@@ -90,6 +90,12 @@
         _ssoExtensionSharedDeviceMode = [json[@"ssoExtensionSharedDeviceMode"] integerValue];
         _ssoExtensionInteractiveMode = [json[@"ssoExtensionInteractiveMode"] integerValue];
         _tokenType = json[@"token_type"];
+        _browserSSOURL = json[@"browser_sso_url"];
+        _browserSSOCallerApp = json[@"browser_sso_caller_app"];
+        _ssoAllowedHosts = [json[@"browser_sso_allowed_hosts"] componentsSeparatedByString:@","];
+        _ssoExtensionConfiguration = json[@"sso_ext_config"];
+        _corruptSessionKey = [json[@"corrupt_session_key"] boolValue];
+        _useSafariUserAgent = [json[@"use_safari_ua"] boolValue];
         _disableCertBasedAuth = [json[@"disable_cert_based_auth"] boolValue];
     }
 
@@ -115,6 +121,13 @@
     json[@"refresh_token"] = _refreshToken;
     json[@"intune_mam_ca_capable"] = @(_isIntuneMAMCACapable);
     json[@"target_tenant_id"] = _targetTenantId;
+    json[@"browser_sso_url"] = _browserSSOURL;
+    json[@"browser_sso_caller_app"] = _browserSSOCallerApp;
+    json[@"browser_sso_allowed_hosts"] = [_ssoAllowedHosts componentsJoinedByString:@","];
+    json[@"sso_ext_config"] = _ssoExtensionConfiguration;
+    json[@"corrupt_session_key"] = @(_corruptSessionKey);
+    json[@"use_safari_ua"] = @(_useSafariUserAgent);
+    json[@"disable_cert_based_auth"] = @(_disableCertBasedAuth);
 
     NSString *webviewType = nil;
 
