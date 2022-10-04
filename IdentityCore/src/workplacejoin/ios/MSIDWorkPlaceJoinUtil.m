@@ -203,10 +203,10 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
                                              context:(nullable id<MSIDRequestContext>)context
                                                error:(NSError*__nullable*__nullable)error
 {
-    return [self getWPJStringDataFromV2ForTenantID:nil identifier:identifier context:context error:error];
+    return [self getWPJStringDataFromV2ForTenantId:nil identifier:identifier context:context error:error];
 }
 
-+ (nullable NSString *)getWPJStringDataFromV2ForTenantID:(NSString *)tenantID
++ (nullable NSString *)getWPJStringDataFromV2ForTenantId:(NSString *)tenantId
                                               identifier:(nonnull id)identifier
                                                  context:(nullable id<MSIDRequestContext>)context
                                                    error:(NSError*__nullable*__nullable)error
@@ -219,9 +219,9 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
         return nil;
     }
     
-    if (tenantID) {
+    if (tenantId) {
         NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
-        return [self getWPJStringDataFromV2ForTenantID:tenantID identifier:identifier accessGroup:sharedAccessGroup context:context error:error];
+        return [self getWPJStringDataFromV2ForTenantId:tenantId identifier:identifier accessGroup:sharedAccessGroup context:context error:error];
     } else {
         NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
         return [self getWPJStringDataForIdentifier:identifier accessGroup:sharedAccessGroup context:context error:error];

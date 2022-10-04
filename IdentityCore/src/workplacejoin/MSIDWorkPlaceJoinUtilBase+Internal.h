@@ -33,7 +33,7 @@
                                              context:(nullable id<MSIDRequestContext>)context
                                                error:(NSError*__nullable*__nullable)error;
 
-+ (NSString *_Nullable)getWPJStringDataFromV2ForTenantID: (NSString *_Nullable)tenantID
++ (NSString *_Nullable)getWPJStringDataFromV2ForTenantId: (NSString *_Nullable)tenantId
                                               identifier:(nonnull id)identifier
                                              accessGroup:(nullable NSString *)accessGroup
                                                  context:(id<MSIDRequestContext>_Nullable)context
