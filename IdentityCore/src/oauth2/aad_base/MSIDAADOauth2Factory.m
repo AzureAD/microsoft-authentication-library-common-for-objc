@@ -111,7 +111,11 @@
             {
                 errorCode = MSIDErrorServerProtectionPoliciesRequired;
                 additionalUserInfo[MSIDUserDisplayableIdkey] = response.additionalUserId;
-                additionalUserInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
+                if (response.clientInfo.accountIdentifier)
+                {
+                    additionalUserInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
+                }
+                
             }
             
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Processing an AAD error with error code %ld, error %@, suberror %@, description %@", (long)errorCode, response.error, response.suberror, MSID_PII_LOG_MASKABLE(response.errorDescription));
