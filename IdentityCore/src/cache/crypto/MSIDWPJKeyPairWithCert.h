@@ -27,6 +27,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*
+ 
+ v1KeychainAccessGroup : Keychain with shared access group com.microsoft.workplacejoin
+ v2KeychainAccessGroup : Keychain with shared access group com.microsoft.workplacejoin.v2
+
+ */
+
+typedef enum {
+    v1KeychainAccessGroup,
+    v2KeychainAccessGroup
+} KeychainAccessGroup;
+
 @interface MSIDWPJKeyPairWithCert : NSObject
 {
     SecCertificateRef _certificateRef;
