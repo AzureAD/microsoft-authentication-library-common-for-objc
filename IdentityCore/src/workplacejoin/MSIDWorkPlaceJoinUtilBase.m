@@ -108,13 +108,13 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context tenantId:(nullable NSString *)tenantId
 {
-    MSIDWPJKeyPairWithCert *wpjCerts;
-    wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
+    MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
     NSString *userPrincipalName;
     NSString *fetchedTenantId;
     if (wpjCerts)
     {
-        if (![[wpjCerts convertKeychainAccessGroupToString:wpjCerts.keyChainVersion] isEqual: @"v2"]) {
+        if (![[wpjCerts convertKeychainAccessGroupToString:wpjCerts.keyChainVersion] isEqual: @"v2"])
+        {
             userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
             fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
         } else {

@@ -34,7 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 
  */
 
-typedef enum {
+typedef enum
+{
     v1KeychainAccessGroup,
     v2KeychainAccessGroup
 } KeychainAccessGroup;
