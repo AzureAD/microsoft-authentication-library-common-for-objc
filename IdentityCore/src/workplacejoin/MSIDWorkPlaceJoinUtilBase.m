@@ -41,13 +41,15 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 {
     return [self getWPJStringDataFromV2ForTenantId:nil
                                         identifier:identifier
+                                               key:nil
                                        accessGroup:accessGroup
                                            context:context
                                              error:error];
 }
 
-+ (NSString *_Nullable)getWPJStringDataFromV2ForTenantId: (NSString *)tenantId
-                                              identifier:(nonnull id)identifier
++ (NSString *_Nullable)getWPJStringDataFromV2ForTenantId:(NSString *)tenantId
+                                              identifier:(nonnull NSString *)identifier
+                                                     key:(CFStringRef)key
                                              accessGroup:(nullable NSString *)accessGroup
                                                  context:(id<MSIDRequestContext>_Nullable)context
                                                    error:(NSError*__nullable*__nullable)error
@@ -55,7 +57,8 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     // Building dictionary to retrieve given identifier from the keychain
     NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
     [query setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
-    if (tenantId) {
+    if (tenantId)
+    {
         [query setObject:tenantId forKey:(__bridge id<NSCopying>)(kSecAttrService)];
     } else {
         [query setObject:identifier forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
@@ -75,12 +78,9 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         return nil;
     }
     NSString *stringData;
-    if (tenantId) {
-        if ([identifier isEqual: @"tenantId"]) {
-            stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
-        } else {
-            stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrLabel)];
-        }
+    if (tenantId)
+    {
+        stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(key)];
     } else {
         stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
     }
@@ -109,15 +109,11 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context tenantId:(nullable NSString *)tenantId
 {
     MSIDWPJKeyPairWithCert *wpjCerts;
-    if (tenantId) {
-        wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:context];
-    } else {
-        wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
-    }
+    wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
 
     if (wpjCerts)
     {
-        if (![wpjCerts.keyChainVersion isEqual: @"v2"]) {
+        if (![[wpjCerts convertKeychainAccessGroupToString:wpjCerts.keyChainVersion] isEqual: @"v2"]) {
             NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
             NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
             NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
@@ -128,14 +124,14 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
             [registrationInfoMetadata setValue:tenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
             return registrationInfoMetadata;
         } else {
-            NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:@"upn" context:context error:nil];
-            NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:@"tenantId" context:context error:nil];
+            NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDUPNKeyIdentifier key:kSecAttrLabel context:context error:nil];
+            NSString *fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDTenantKeyIdentifier key:kSecAttrService context:context error:nil];
             NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
 
             // Certificate subject is nothing but the AAD deviceID
             [registrationInfoMetadata setValue:wpjCerts.certificateSubject forKey:MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY];
             [registrationInfoMetadata setValue:userPrincipalName forKey:MSID_DEVICE_INFORMATION_UPN_ID_KEY];
-            [registrationInfoMetadata setValue:tenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
+            [registrationInfoMetadata setValue:fetchedTenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
             return registrationInfoMetadata;
         }
     }
