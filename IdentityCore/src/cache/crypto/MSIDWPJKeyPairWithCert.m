@@ -112,21 +112,5 @@
     }
 }
 
-- (NSString *)convertKeychainAccessGroupToString:(KeychainAccessGroup) keychainAccessGroup
-{
-    switch (keychainAccessGroup)
-    {
-        case v1KeychainAccessGroup:
-            return @"v1";
-            
-        case v2KeychainAccessGroup:
-            return @"v2";
-            
-        default:
-            // defaults to v1 keychain access group
-            return @"v1";
-    }
-}
-
 
 @end

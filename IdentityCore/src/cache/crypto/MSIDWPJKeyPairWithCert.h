@@ -29,16 +29,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*
  
- v1KeychainAccessGroup : Keychain with shared access group com.microsoft.workplacejoin
- v2KeychainAccessGroup : Keychain with shared access group com.microsoft.workplacejoin.v2
+ MSIDWPJKeychainAccessGroupV1 : Keychain with shared access group version V1
+ MSIDWPJKeychainAccessGroupV2 : Keychain with shared access group version V2
 
  */
 
-typedef enum
+typedef NS_ENUM(NSInteger, MSIDWPJKeychainAccessGroup)
 {
-    v1KeychainAccessGroup,
-    v2KeychainAccessGroup
-} KeychainAccessGroup;
+    MSIDWPJKeychainAccessGroupV1 = 0,
+    MSIDWPJKeychainAccessGroupV2 = 1
+};
 
 @interface MSIDWPJKeyPairWithCert : NSObject
 {
@@ -54,13 +54,11 @@ typedef enum
 @property (nonatomic, readonly) NSData *certificateData;
 @property (nonatomic, readonly) NSString *certificateSubject;
 @property (nonatomic, readonly) NSString *certificateIssuer;
-@property (nonatomic) KeychainAccessGroup *keyChainVersion;
+@property (nonatomic) MSIDWPJKeychainAccessGroup keyChainVersion;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                 certificate:(SecCertificateRef)certificate
                           certificateIssuer:(nullable NSString *)issuer;
-
-- (NSString *)convertKeychainAccessGroupToString:(KeychainAccessGroup)keychainAccessGroup;
 
 @end
 

@@ -57,7 +57,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
         if ([NSString msidIsStringNilOrBlank:tenantId])
         {
             // ESTS didn't request a specific tenant, just return default one
-            legacyKeys.keyChainVersion = v1KeychainAccessGroup;
+            legacyKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV1;
             return legacyKeys;
         }
         
@@ -88,7 +88,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     // If secondary Identity was found, return it
     if (defaultKeys)
     {
-        defaultKeys.keyChainVersion = v2KeychainAccessGroup;
+        defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
         return defaultKeys;
     }
         
@@ -207,7 +207,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
 }
 
 + (nullable NSString *)getWPJStringDataFromV2ForTenantId:(NSString *)tenantId
-                                              identifier:(nonnull id)identifier
+                                              identifier:(nonnull NSString *)identifier
                                               key:(CFStringRef)key
                                                  context:(nullable id<MSIDRequestContext>)context
                                                    error:(NSError*__nullable*__nullable)error
@@ -224,7 +224,9 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     {
         NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
         return [self getWPJStringDataFromV2ForTenantId:tenantId identifier:identifier key:key accessGroup:sharedAccessGroup context:context error:error];
-    } else {
+    }
+    else
+    {
         NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
         return [self getWPJStringDataForIdentifier:identifier accessGroup:sharedAccessGroup context:context error:error];
     }
