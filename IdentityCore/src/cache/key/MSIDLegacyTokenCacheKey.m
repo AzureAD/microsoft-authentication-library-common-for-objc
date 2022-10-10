@@ -218,12 +218,40 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
         return NO;
     }
     
-    BOOL result = YES;
-    result &= (!self.account && !key.account) || [self.account isEqualToString:key.account];
-    result &= (!self.service && !key.service) || [self.service isEqualToString:key.service];
-    result &= (self.type == nil && key.type == nil) || [self.type isEqualToNumber:key.type];
+    // Check for account match
+    BOOL isAccountMatch = YES;
+    if ((self.account && !key.account) || (!self.account && key.account))
+    {
+        isAccountMatch = NO;
+    }
+    else
+    {
+        isAccountMatch = (!self.account && !key.account) || [self.account isEqualToString:key.account];
+    }
+        
+    // Check for service match
+    BOOL isServiceMatch = YES;
+    if ((self.service && !key.service) || (!self.service && key.service))
+    {
+        isServiceMatch = NO;
+    }
+    else
+    {
+        isServiceMatch = (!self.service && !key.service) || [self.service isEqualToString:key.service];
+    }
     
-    return result;
+    // Check for type match
+    BOOL isTypeMatch = YES;
+    if ((self.type == nil && key.type != nil) || (self.type != nil && key.type == nil))
+    {
+        isTypeMatch = NO;
+    }
+    else
+    {
+        isTypeMatch = (self.type == nil && key.type == nil) || [self.type isEqualToNumber:key.type];
+    }
+    
+    return isAccountMatch && isServiceMatch && isTypeMatch;
 }
 
 - (NSUInteger)hash
