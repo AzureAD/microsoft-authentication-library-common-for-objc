@@ -65,6 +65,12 @@
 @property (nonatomic) NSUInteger ssoExtensionSharedDeviceMode;
 @property (nonatomic) NSUInteger ssoExtensionInteractiveMode;
 @property (nonatomic) NSString *tokenType;
+@property (nonatomic) NSString *browserSSOURL;
+@property (nonatomic) NSString *browserSSOCallerApp;
+@property (nonatomic) NSArray *ssoAllowedHosts;
+@property (nonatomic) NSDictionary *ssoExtensionConfiguration;
+@property (nonatomic) BOOL corruptSessionKey;
+@property (nonatomic) BOOL useSafariUserAgent;
 @property (nonatomic) BOOL disableCertBasedAuth;
 
 - (BOOL)usesEmbeddedWebView;
