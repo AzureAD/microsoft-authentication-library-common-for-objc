@@ -81,21 +81,22 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJStringDataForIdentifier_withKeychainV2Item_shouldReturnValidValue
 {
-   NSString *sharedAccessGroup = [self keychainGroup:NO];
+    NSString *sharedAccessGroup = [self keychainGroup:NO];
 
-   // Insert dummy UPN value.
+    // Insert dummy UPN value.
     [MSIDWorkPlaceJoinUtilTests insertDummyStringUPNDataIntoKeychainV2:dummyKeyIdentifierValue1 tenantIdentifier:dummyKeyTenantValue1 dataIdentifier:dummyKeyV2Idendeifier accessGroup:sharedAccessGroup];
+    NSString *formattedKeyForUPN = (__bridge NSString *)kSecAttrLabel;
+    NSString *formattedKeyForTenantId = (__bridge NSString *)kSecAttrService;
+    NSString *upnData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1 identifier:dummyKeyIdentifierValue1 key:formattedKeyForUPN context:nil error:nil];
+    NSString *tenantData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1  identifier:dummyKeyIdentifierValue1 key:formattedKeyForTenantId context:nil error:nil];
 
-   NSString *upnData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1 identifier:dummyKeyIdentifierValue1 key:kSecAttrLabel context:nil error:nil];
-   NSString *tenantData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1  identifier:dummyKeyIdentifierValue1 key:kSecAttrService context:nil error:nil];
+    XCTAssertNotNil(upnData1);
+    XCTAssertNotNil(tenantData1);
+    XCTAssertEqual([dummyKeyIdentifierValue1 isEqualToString: upnData1], TRUE, "Expected registrationInfo.userPrincipalName to be same as test dummyUPNValue1");
+    XCTAssertEqual([dummyKeyTenantValue1 isEqualToString: tenantData1], TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue1");
 
-   XCTAssertNotNil(upnData1);
-   XCTAssertNotNil(tenantData1);
-   XCTAssertEqual([dummyKeyIdentifierValue1 isEqualToString: upnData1], TRUE, "Expected registrationInfo.userPrincipalName to be same as test dummyUPNValue1");
-   XCTAssertEqual([dummyKeyTenantValue1 isEqualToString: tenantData1], TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue1");
-
-   // Cleanup
-   [MSIDWorkPlaceJoinUtilTests deleteDummyStringDataIntoKeychain:kMSIDUPNKeyIdentifier accessGroup:sharedAccessGroup];
+    // Cleanup
+    [MSIDWorkPlaceJoinUtilTests deleteDummyStringDataIntoKeychain:kMSIDUPNKeyIdentifier accessGroup:sharedAccessGroup];
 }
 
 - (void)testGetWPJStringDataForIdentifier_withKeychainItemV2_shouldReturnValidValue_WithMultipleEntries
@@ -106,11 +107,13 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [MSIDWorkPlaceJoinUtilTests insertDummyStringUPNDataIntoKeychainV2:dummyKeyIdentifierValue1 tenantIdentifier:dummyKeyTenantValue1 dataIdentifier:dummyKeyV2Idendeifier accessGroup:sharedAccessGroup];
     [MSIDWorkPlaceJoinUtilTests insertDummyStringUPNDataIntoKeychainV2:dummyKeyIdentifierValue2 tenantIdentifier:dummyKeyTenantValue2 dataIdentifier:dummyKeyV2Idendeifier accessGroup:sharedAccessGroup];
 
-    NSString *upnData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1 identifier:dummyKeyIdentifierValue1 key:kSecAttrLabel context:nil error:nil];
-    NSString *tenantData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1  identifier:dummyKeyIdentifierValue1 key:kSecAttrService context:nil error:nil];
+    NSString *formattedKeyForUPN = (__bridge NSString *)kSecAttrLabel;
+    NSString *formattedKeyForTenantId = (__bridge NSString *)kSecAttrService;
+    NSString *upnData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1 identifier:dummyKeyIdentifierValue1 key:formattedKeyForUPN context:nil error:nil];
+    NSString *tenantData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1  identifier:dummyKeyIdentifierValue1 key:formattedKeyForTenantId context:nil error:nil];
     
-    NSString *upnData2 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue2 identifier:dummyKeyIdentifierValue2 key:kSecAttrLabel context:nil error:nil];
-    NSString *tenantData2 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue2  identifier:dummyKeyIdentifierValue2 key:kSecAttrService context:nil error:nil];
+    NSString *upnData2 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue2 identifier:dummyKeyIdentifierValue2 key:formattedKeyForUPN context:nil error:nil];
+    NSString *tenantData2 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue2  identifier:dummyKeyIdentifierValue2 key:formattedKeyForTenantId context:nil error:nil];
 
     XCTAssertNotNil(upnData1);
     XCTAssertNotNil(tenantData1);
@@ -144,11 +147,13 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [MSIDWorkPlaceJoinUtilTests insertDummyStringUPNDataIntoKeychainV2:dummyKeyIdentifierValue1 tenantIdentifier:dummyKeyTenantValue1 dataIdentifier:dummyKeyV2Idendeifier accessGroup:sharedAccessGroup];
     [MSIDWorkPlaceJoinUtilTests insertDummyStringUPNDataIntoKeychainV2:dummyKeyIdentifierValue2 tenantIdentifier:dummyKeyTenantValue2 dataIdentifier:dummyKeyV2Idendeifier accessGroup:sharedAccessGroup];
 
-    NSString *upnData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1 identifier:dummyKeyIdentifierValue1 key:kSecAttrLabel context:nil error:nil];
-    NSString *tenantData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1  identifier:dummyKeyIdentifierValue1 key:kSecAttrService context:nil error:nil];
+    NSString *formattedKeyForUPN = (__bridge NSString *)kSecAttrLabel;
+    NSString *formattedKeyForTenantId = (__bridge NSString *)kSecAttrService;
+    NSString *upnData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1 identifier:dummyKeyIdentifierValue1 key:formattedKeyForUPN context:nil error:nil];
+    NSString *tenantData1 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue1  identifier:dummyKeyIdentifierValue1 key:formattedKeyForTenantId context:nil error:nil];
     
-    NSString *upnData2 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue2 identifier:dummyKeyIdentifierValue2 key:kSecAttrLabel context:nil error:nil];
-    NSString *tenantData2 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue2  identifier:dummyKeyIdentifierValue2 key:kSecAttrService context:nil error:nil];
+    NSString *upnData2 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue2 identifier:dummyKeyIdentifierValue2 key:formattedKeyForUPN context:nil error:nil];
+    NSString *tenantData2 = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:dummyKeyTenantValue2  identifier:dummyKeyIdentifierValue2 key:formattedKeyForTenantId context:nil error:nil];
 
     XCTAssertNotNil(upnData1);
     XCTAssertNotNil(tenantData1);
