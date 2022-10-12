@@ -44,7 +44,7 @@
 
 + (nullable NSString *)getWPJStringDataFromV2ForTenantId:(NSString *_Nullable)tenantId
                                               identifier:(nonnull NSString *)identifier
-                                                     key:(CFStringRef _Nullable )key
+                                                     key:(nullable NSString *)key
                                                  context:(nullable id<MSIDRequestContext>)context
                                                    error:(NSError*__nullable*__nullable)error;
 

@@ -49,7 +49,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 
 + (NSString *_Nullable)getWPJStringDataFromV2ForTenantId:(NSString *)tenantId
                                               identifier:(nonnull NSString *)identifier
-                                                     key:(CFStringRef)key
+                                                     key:(nullable NSString *)key
                                              accessGroup:(nullable NSString *)accessGroup
                                                  context:(id<MSIDRequestContext>_Nullable)context
                                                    error:(NSError*__nullable*__nullable)error
@@ -82,7 +82,8 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     NSString *stringData;
     if (tenantId && key)
     {
-        stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(key)];
+        CFStringRef unformattedKey = (__bridge CFStringRef)key;
+        stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(unformattedKey)];
     }
     else
     {
@@ -124,8 +125,10 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         }
         else
         {
-            userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDUPNKeyIdentifier key:kSecAttrLabel context:context error:nil];
-            fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDTenantKeyIdentifier key:kSecAttrService context:context error:nil];
+            NSString *formattedKeyForUPN = (__bridge NSString *)kSecAttrLabel;
+            NSString *formattedKeyForTenantId = (__bridge NSString *)kSecAttrService;
+            userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDUPNKeyIdentifier key:formattedKeyForUPN context:context error:nil];
+            fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDTenantKeyIdentifier key:formattedKeyForTenantId context:context error:nil];
         }
         NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
 

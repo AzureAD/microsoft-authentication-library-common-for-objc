@@ -208,7 +208,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
 
 + (nullable NSString *)getWPJStringDataFromV2ForTenantId:(NSString *)tenantId
                                               identifier:(nonnull NSString *)identifier
-                                              key:(CFStringRef)key
+                                                     key:(nullable NSString *)key
                                                  context:(nullable id<MSIDRequestContext>)context
                                                    error:(NSError*__nullable*__nullable)error
 {
