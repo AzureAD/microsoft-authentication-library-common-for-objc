@@ -52,7 +52,7 @@
                                   targetTenantId:(NSString *)targetTenantId
                                    brokerEnabled:(BOOL)brokerEnabled;
 
-- (NSDictionary *)appInstallForConfiguration:(NSString *)appId;s
+- (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
 
 // Environment configuration
 - (NSString *)defaultEnvironmentForIdentifier:(NSString *)environmentIDentifier;
