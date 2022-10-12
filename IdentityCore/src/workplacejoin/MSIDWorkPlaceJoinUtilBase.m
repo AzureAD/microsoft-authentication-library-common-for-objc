@@ -125,8 +125,9 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         }
         else
         {
-            NSString *formattedKeyForUPN = (__bridge NSString *)kSecAttrLabel;
-            NSString *formattedKeyForTenantId = (__bridge NSString *)kSecAttrService;
+            // Using __bridge_transfer to avoid calling CFRelease
+            NSString *formattedKeyForUPN = (__bridge_transfer NSString *)kSecAttrLabel;
+            NSString *formattedKeyForTenantId = (__bridge_transfer NSString *)kSecAttrService;
             userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDUPNKeyIdentifier key:formattedKeyForUPN context:context error:nil];
             fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDTenantKeyIdentifier key:formattedKeyForTenantId context:context error:nil];
         }
