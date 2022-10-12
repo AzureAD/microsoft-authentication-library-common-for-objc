@@ -82,8 +82,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     NSString *stringData;
     if (tenantId && key)
     {
-        CFStringRef unformattedKey = (__bridge CFStringRef)key;
-        stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(unformattedKey)];
+        stringData = [(__bridge NSDictionary *)result objectForKey:key];
     }
     else
     {
@@ -125,9 +124,8 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         }
         else
         {
-            // Using __bridge_transfer to avoid calling CFRelease
-            NSString *formattedKeyForUPN = (__bridge_transfer NSString *)kSecAttrLabel;
-            NSString *formattedKeyForTenantId = (__bridge_transfer NSString *)kSecAttrService;
+            NSString *formattedKeyForUPN = (__bridge NSString * )kSecAttrLabel;
+            NSString *formattedKeyForTenantId = (__bridge NSString *)kSecAttrService;
             userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDUPNKeyIdentifier key:formattedKeyForUPN context:context error:nil];
             fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDTenantKeyIdentifier key:formattedKeyForTenantId context:context error:nil];
         }
