@@ -191,4 +191,13 @@
     return [self getWPJStringDataForIdentifier:identifier accessGroup:nil context:context error:error];
 }
 
++ (nullable NSString *)getWPJStringDataFromV2ForTenantId:(NSString *_Nullable)tenantId
+                                              identifier:(nonnull NSString *)identifier
+                                                     key:(nullable NSString *)key
+                                                 context:(nullable id<MSIDRequestContext>)context
+                                                   error:(NSError*__nullable*__nullable)error
+{
+    return [self getWPJStringDataFromV2ForTenantId:tenantId identifier:identifier key:key accessGroup:nil context:context error:error];
+}
+
 @end
