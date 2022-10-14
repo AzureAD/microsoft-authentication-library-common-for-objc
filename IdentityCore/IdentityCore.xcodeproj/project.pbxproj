@@ -464,6 +464,8 @@
 		581AB24A24B8C8780075B8CA /* MSIDWebResponseOperationFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 581AB24924B8C8780075B8CA /* MSIDWebResponseOperationFactoryTests.m */; };
 		5828740724D49C4100466916 /* MSIDBrokerRedirectUriTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5828740624D49C4100466916 /* MSIDBrokerRedirectUriTest.m */; };
 		5828740824D49C4100466916 /* MSIDBrokerRedirectUriTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5828740624D49C4100466916 /* MSIDBrokerRedirectUriTest.m */; };
+		5837A7DC28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5837A7DB28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.m */; };
+		5837A7DD28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5837A7DB28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.m */; };
 		583BFCA724D87BA40035B901 /* MSIDRedirectUri.h in Headers */ = {isa = PBXBuildFile; fileRef = 583BFCA524D87BA40035B901 /* MSIDRedirectUri.h */; };
 		583BFCA824D87BA40035B901 /* MSIDRedirectUri.m in Sources */ = {isa = PBXBuildFile; fileRef = 583BFCA624D87BA40035B901 /* MSIDRedirectUri.m */; };
 		583BFCA924D87BA40035B901 /* MSIDRedirectUri.m in Sources */ = {isa = PBXBuildFile; fileRef = 583BFCA624D87BA40035B901 /* MSIDRedirectUri.m */; };
@@ -2172,6 +2174,8 @@
 		580E254D271A1815003D1795 /* MSIDBrokerOperationGetSsoCookiesResponseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationGetSsoCookiesResponseTests.m; sourceTree = "<group>"; };
 		581AB24924B8C8780075B8CA /* MSIDWebResponseOperationFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebResponseOperationFactoryTests.m; sourceTree = "<group>"; };
 		5828740624D49C4100466916 /* MSIDBrokerRedirectUriTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerRedirectUriTest.m; sourceTree = "<group>"; };
+		5837A7DA28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDLegacyTokenCacheKey+UTest.h"; sourceTree = "<group>"; };
+		5837A7DB28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDLegacyTokenCacheKey+UTest.m"; sourceTree = "<group>"; };
 		583BFCA524D87BA40035B901 /* MSIDRedirectUri.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRedirectUri.h; sourceTree = "<group>"; };
 		583BFCA624D87BA40035B901 /* MSIDRedirectUri.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDRedirectUri.m; sourceTree = "<group>"; };
 		583BFCAA24D88CED0035B901 /* MSIDRedirectUriVerifier.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDRedirectUriVerifier.m; sourceTree = "<group>"; };
@@ -3398,6 +3402,8 @@
 				E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */,
 				58EB18332729BAB800F4DD73 /* MSIDSSOExtensionGetSsoCookiesRequestMock.h */,
 				58EB18342729BAB800F4DD73 /* MSIDSSOExtensionGetSsoCookiesRequestMock.m */,
+				5837A7DA28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.h */,
+				5837A7DB28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.m */,
 			);
 			path = mocks;
 			sourceTree = "<group>";
@@ -6456,6 +6462,7 @@
 				9652905C229E03FC00862A2E /* MSIDAccountMetadataTests.m in Sources */,
 				B2936F7320ABDEF40050C585 /* MSIDBaseTokenTests.m in Sources */,
 				B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */,
+				5837A7DC28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.m in Sources */,
 				23B37D1E20CA098E0018722F /* MSIDCacheTests.m in Sources */,
 				233E970822656F74007FCE2A /* MSIDTelemetryDefaultTests.m in Sources */,
 				B27CCDD5229EF2C000CAD565 /* MSIDDictionaryExtensionsTests.m in Sources */,
@@ -7001,6 +7008,7 @@
 				B20657D01FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
 				B2AE0FDB2427E96800B8FAF1 /* MSIDKeychainUtilTests.m in Sources */,
 				B26A0B972072B9CB006BD95A /* MSIDAADV1Oauth2FactoryTests.m in Sources */,
+				5837A7DD28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.m in Sources */,
 				B2DD5BA2204761660084313F /* MSIDLegacySingleResourceTokenTests.m in Sources */,
 				239DF9C020E04BC9002D428B /* MSIDAADAuthorityTests.m in Sources */,
 				D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
@@ -7782,6 +7790,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -7848,6 +7857,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -8035,6 +8045,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -8101,6 +8112,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -8252,6 +8264,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -8269,6 +8282,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -8339,6 +8353,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 			};
@@ -8348,6 +8363,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Release;
@@ -8373,7 +8389,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E931FC3626A00CD70C5 /* identitycore__debug.xcconfig */;
 			buildSettings = {
-				ENABLE_BITCODE = YES;
+				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"$(MSID_WEBKIT)",
@@ -8389,7 +8405,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */;
 			buildSettings = {
-				ENABLE_BITCODE = YES;
+				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(MSID_SYSTEMWV)",
 					"$(MSID_WEBKIT)",
@@ -8404,6 +8420,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 			};
@@ -8413,6 +8430,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
+				ENABLE_BITCODE = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Release;

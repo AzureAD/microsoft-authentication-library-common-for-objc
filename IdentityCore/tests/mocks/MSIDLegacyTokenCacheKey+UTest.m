@@ -23,43 +23,23 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
+#import "MSIDLegacyTokenCacheKey+UTest.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDLegacyTokenCacheKey (UTest)
 
-/*
- 
- MSIDWPJKeychainAccessGroupV1 : Keychain with shared access group version V1
- MSIDWPJKeychainAccessGroupV2 : Keychain with shared access group version V2
-
- */
-
-typedef NS_ENUM(NSInteger, MSIDWPJKeychainAccessGroup)
+- (instancetype)initWithAuthority:(NSURL *)authority
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource
+                     legacyUserId:(NSString *)legacyUserId
+                             type:(NSNumber *)type
 {
-    MSIDWPJKeychainAccessGroupV1 = 0,
-    MSIDWPJKeychainAccessGroupV2 = 1
-};
-
-@interface MSIDWPJKeyPairWithCert : NSObject
-{
-    SecCertificateRef _certificateRef;
-    NSData *_certificateData;
-    NSString *_certificateSubject;
-    NSString *_certificateIssuer;
-    SecKeyRef _privateKeyRef;
+    self = [self initWithAuthority:authority clientId:clientId resource:resource legacyUserId:legacyUserId];
+    if (self)
+    {
+        _type = type;
+    }
+    
+    return self;
 }
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecCertificateRef certificateRef;
-@property (nonatomic, readonly) NSData *certificateData;
-@property (nonatomic, readonly) NSString *certificateSubject;
-@property (nonatomic, readonly) NSString *certificateIssuer;
-@property (nonatomic) MSIDWPJKeychainAccessGroup keyChainVersion;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                certificate:(SecCertificateRef)certificate
-                          certificateIssuer:(nullable NSString *)issuer;
-
 @end
-
-NS_ASSUME_NONNULL_END

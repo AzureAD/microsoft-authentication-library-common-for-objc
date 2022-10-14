@@ -58,6 +58,7 @@
                                     defaultScopes:(NSDictionary *)defaultScopes
                                  defaultResources:(NSDictionary *)defaultResources
                                  operationAPIConf:(NSDictionary *)operationAPIConfiguration
+                                        jitConfig:(NSDictionary *)jitConfig
 {
     self = [super init];
 
@@ -70,6 +71,7 @@
         _defaultScopes = defaultScopes;
         _defaultResources = defaultResources;
         _stressTestInterval = stressTestInterval;
+        _jitConfig = jitConfig;
         
         MSIDAutomationOperationAPIInMemoryCacheHandler *cacheHandler = [[MSIDAutomationOperationAPIInMemoryCacheHandler alloc] initWithDictionary:additionalConfigurations];
         
@@ -142,7 +144,8 @@
                                 stressTestInterval:[configurationDictionary[@"stress_test_interval"] intValue]
                                      defaultScopes:configurationDictionary[@"scopes"]
                                   defaultResources:configurationDictionary[@"resources"]
-                                  operationAPIConf:configurationDictionary[@"operation_api_conf"]];
+                                  operationAPIConf:configurationDictionary[@"operation_api_conf"]
+                                         jitConfig:configurationDictionary[@"jit_intune_ids"]];
 
 }
 

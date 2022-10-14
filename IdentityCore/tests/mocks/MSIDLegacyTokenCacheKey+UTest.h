@@ -23,42 +23,17 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
+#import "MSIDLegacyTokenCacheKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*
- 
- MSIDWPJKeychainAccessGroupV1 : Keychain with shared access group version V1
- MSIDWPJKeychainAccessGroupV2 : Keychain with shared access group version V2
+@interface MSIDLegacyTokenCacheKey (UTest)
 
- */
-
-typedef NS_ENUM(NSInteger, MSIDWPJKeychainAccessGroup)
-{
-    MSIDWPJKeychainAccessGroupV1 = 0,
-    MSIDWPJKeychainAccessGroupV2 = 1
-};
-
-@interface MSIDWPJKeyPairWithCert : NSObject
-{
-    SecCertificateRef _certificateRef;
-    NSData *_certificateData;
-    NSString *_certificateSubject;
-    NSString *_certificateIssuer;
-    SecKeyRef _privateKeyRef;
-}
-
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecCertificateRef certificateRef;
-@property (nonatomic, readonly) NSData *certificateData;
-@property (nonatomic, readonly) NSString *certificateSubject;
-@property (nonatomic, readonly) NSString *certificateIssuer;
-@property (nonatomic) MSIDWPJKeychainAccessGroup keyChainVersion;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                certificate:(SecCertificateRef)certificate
-                          certificateIssuer:(nullable NSString *)issuer;
+- (instancetype)initWithAuthority:(NSURL *)authority
+                         clientId:(NSString *)clientId
+                         resource:(nullable NSString *)resource
+                     legacyUserId:(NSString *)legacyUserId
+                             type:(nullable NSNumber *)type;
 
 @end
 
