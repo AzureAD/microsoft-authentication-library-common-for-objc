@@ -34,12 +34,19 @@
 @class MSIDExternalAADCacheSeeder;
 #endif
 
+@protocol MSIDSilentTokenRequestDelegate <NSObject>
+
+-(BOOL)skipCahcedRefreshToken;
+
+@end
+
 @interface MSIDSilentTokenRequest : NSObject
 
 @property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, nullable) MSIDThrottlingService *throttlingService;
+@property (nonatomic, weak, nullable) id <MSIDSilentTokenRequestDelegate> delegate;
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
