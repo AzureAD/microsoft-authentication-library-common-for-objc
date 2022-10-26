@@ -133,6 +133,11 @@
             MSIDTelemetryAPIEvent *telemetryEvent = [strongSelf telemetryAPIEvent];
             [telemetryEvent setUserInformation:result.account];
             [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+            if(strongSelf.ssoError)
+            {
+                [telemetryEvent setSsoExtFallBackFlow:1];
+            }
+            
             [strongSelf stopTelemetryEvent:telemetryEvent error:error];
 #endif
             strongSelf.currentRequest = nil;

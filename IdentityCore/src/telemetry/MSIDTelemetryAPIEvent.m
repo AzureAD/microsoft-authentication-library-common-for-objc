@@ -44,6 +44,11 @@
     [self setProperty:MSID_TELEMETRY_KEY_EXTENDED_EXPIRES_ON_SETTING value:extendedExpiresOnSetting];
 }
 
+- (void)setSsoExtFallBackFlow:(NSUInteger)ssoExtFallBackFlow
+{
+    [self setProperty:MSID_TELEMETRY_KEY_SSO_EXT_FALLBCK_FLOW value:[NSString stringWithFormat:@"%ld", (long)ssoExtFallBackFlow]];
+}
+
 - (void)setUserId:(NSString *)userId
 {
     [self setProperty:MSID_TELEMETRY_KEY_USER_ID value:userId];
@@ -134,7 +139,8 @@
                                      MSID_TELEMETRY_KEY_API_ERROR_CODE,
                                      MSID_TELEMETRY_KEY_ERROR_DOMAIN,
                                      MSID_TELEMETRY_KEY_PROTOCOL_CODE,
-                                     MSID_TELEMETRY_KEY_IS_SUCCESSFUL
+                                     MSID_TELEMETRY_KEY_IS_SUCCESSFUL,
+                                     MSID_TELEMETRY_KEY_SSO_EXT_FALLBCK_FLOW
                                      ]];
     });
     

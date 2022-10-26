@@ -36,6 +36,7 @@
 - (void)setUserId:(NSString *)userId;
 - (void)setClientId:(NSString *)clientId;
 - (void)setIsExtendedLifeTimeToken:(NSString *)isExtendedLifeToken;
+- (void)setSsoExtFallBackFlow:(NSUInteger)ssoExtFallBackFlow;
 - (void)setErrorDomain:(NSString *)errorDomain;
 
 - (void)setApiId:(NSString *)apiId;
