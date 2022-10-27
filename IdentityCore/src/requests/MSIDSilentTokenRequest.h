@@ -36,7 +36,7 @@
 
 @protocol MSIDSilentTokenRequestDelegate <NSObject>
 
--(BOOL)skipCahcedRefreshToken;
+- (BOOL)skipCachedRefreshToken;
 
 @end
 
