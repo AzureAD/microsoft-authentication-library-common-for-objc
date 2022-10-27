@@ -249,7 +249,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     if ([self.delegate skipCahcedRefreshToken])
     {
         // Skipping using local RT for token acquisition
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cahced RT is not allowed to be used for token acquisition, skipping.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached RT is not allowed to be used for token acquisition, skipping.");
         completionBlock(nil, nil);
         return;
     }
