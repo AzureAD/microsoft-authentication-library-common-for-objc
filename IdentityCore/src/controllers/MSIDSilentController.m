@@ -125,27 +125,16 @@
             return;
         }
         
-        if (strongSelf.ssoError
-            || result
-            || !strongSelf.fallbackController)
+        if (result || !strongSelf.fallbackController)
         {
 #if !EXCLUDE_FROM_MSALCPP
-            MSIDTelemetryAPIEvent *telemetryEvent = [strongSelf telemetryAPIEvent];
-            [telemetryEvent setUserInformation:result.account];
-            [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
-            if(strongSelf.ssoError)
-            {
-                [telemetryEvent setSsoExtFallBackFlow:1];
-            }
-            
-            [strongSelf stopTelemetryEvent:telemetryEvent error:error];
+            [strongSelf addTelemetryEvent:result error:error];
 #endif
             strongSelf.currentRequest = nil;
             completionBlock(result, error);
             return;
         }
 
-        strongSelf.currentRequest = nil;
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *ssoResult, NSError *ssoError)
         {
             // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
@@ -155,19 +144,23 @@
             if (!ssoResult && (strongSelf.requestParameters.allowGettingAccessTokenWithRefreshToken || ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
             {
                 // Skip duplicate local cache lookups
-                strongSelf.forceRefresh = YES;
-                [strongSelf acquireToken:^(MSIDTokenResult *localRtResults, NSError *localRtError)
+                request.forceRefresh = YES;
+                [request executeRequestWithCompletion:^(MSIDTokenResult *localRtResults, NSError *localRtError)
                 {
+#if !EXCLUDE_FROM_MSALCPP
+                    [strongSelf addTelemetryEvent:localRtResults error:localRtError];
+#endif
+                    strongSelf.currentRequest = nil;
                     [strongSelf completionHandler:localRtResults
                                   ssoResult:nil
                                       error:localRtError
                                    ssoError:strongSelf.ssoError
                             completionBlock:completionBlock];
                 }];
-                
                 return;
             }
             
+            strongSelf.currentRequest = nil;
             [strongSelf completionHandler:nil
                           ssoResult:ssoResult
                               error:error
@@ -177,6 +170,19 @@
 
         [strongSelf.fallbackController acquireToken:completionBlockWrapper];
     }];
+}
+
+- (void)addTelemetryEvent:(MSIDTokenResult *)result error:(NSError *)error
+{
+    MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+    [telemetryEvent setUserInformation:result.account];
+    [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+    if(self.ssoError)
+    {
+        [telemetryEvent setSsoExtFallBackFlow:1];
+    }
+    
+    [self stopTelemetryEvent:telemetryEvent error:error];
 }
 
 - (void)completionHandler:(nullable MSIDTokenResult *)result
