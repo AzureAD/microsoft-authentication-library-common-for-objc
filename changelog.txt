@@ -1,8 +1,5 @@
-#TBD
+Version 1.7.12
 * Fetch WPJ Metadata for specific tenantId
-
-
-#TBD
 * Added not nil check before updating homeAccountId from clientInfo(#1155)
 
 Version 1.7.11
