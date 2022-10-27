@@ -207,7 +207,7 @@
 
 #pragma mark - MSIDSilentTokenRequestDelegate
 
-- (BOOL)skipCahcedRefreshToken
+- (BOOL)skipCachedRefreshToken
 {
     // Use Sso Ext when MSIDSSOExtensionSilentTokenRequestController is available and has not run through Sso Ext yet
     return self.fallbackController && !self.ssoError;
