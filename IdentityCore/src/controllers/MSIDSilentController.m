@@ -114,23 +114,14 @@
 
     CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, MSID_TELEMETRY_EVENT_API_EVENT);
     self.currentRequest = request;
-    __weak typeof (self) weakSelf = self;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
     {
-        typeof (self) strongSelf = weakSelf;
-        // This should not happen, and good to add a check point.
-        if (!strongSelf)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Instance is dealloc");
-            return;
-        }
-        
-        if (result || !strongSelf.fallbackController)
+        if (result || !self.fallbackController)
         {
 #if !EXCLUDE_FROM_MSALCPP
-            [strongSelf addTelemetryEvent:result error:error];
+            [self addTelemetryEvent:result error:error];
 #endif
-            strongSelf.currentRequest = nil;
+            self.currentRequest = nil;
             completionBlock(result, error);
             return;
         }
@@ -140,35 +131,35 @@
             // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
             
             // If ssoError presented already, skip broker when came back from local RT fallback
-            strongSelf.ssoError = ssoError;
-            if (!ssoResult && (strongSelf.requestParameters.allowGettingAccessTokenWithRefreshToken || ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
+            self.ssoError = ssoError;
+            if (!ssoResult && (self.requestParameters.allowGettingAccessTokenWithRefreshToken || ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
             {
                 // Skip duplicate local cache lookups
                 request.forceRefresh = YES;
                 [request executeRequestWithCompletion:^(MSIDTokenResult *localRtResults, NSError *localRtError)
                 {
 #if !EXCLUDE_FROM_MSALCPP
-                    [strongSelf addTelemetryEvent:localRtResults error:localRtError];
+                    [self addTelemetryEvent:localRtResults error:localRtError];
 #endif
-                    strongSelf.currentRequest = nil;
-                    [strongSelf completionHandler:localRtResults
+                    self.currentRequest = nil;
+                    [self completionHandler:localRtResults
                                   ssoResult:nil
                                       error:localRtError
-                                   ssoError:strongSelf.ssoError
+                                   ssoError:self.ssoError
                             completionBlock:completionBlock];
                 }];
                 return;
             }
             
-            strongSelf.currentRequest = nil;
-            [strongSelf completionHandler:nil
+            self.currentRequest = nil;
+            [self completionHandler:nil
                           ssoResult:ssoResult
                               error:error
                            ssoError:self.ssoError
                     completionBlock:completionBlock];
         };
 
-        [strongSelf.fallbackController acquireToken:completionBlockWrapper];
+        [self.fallbackController acquireToken:completionBlockWrapper];
     }];
 }
 
