@@ -117,7 +117,9 @@
     {
         if (result || !self.fallbackController)
         {
+#if !EXCLUDE_FROM_MSALCPP
             [self addTelemetryEvent:result isSsoExtFallBack:YES error:error];
+#endif
             self.currentRequest = nil;
             completionBlock(result, error);
             return;
@@ -135,7 +137,9 @@
                 request.skipLocalRt = NO;
                 [request executeRequestWithCompletion:^(MSIDTokenResult *localRtResults, NSError *localRtError)
                 {
+#if !EXCLUDE_FROM_MSALCPP
                     [self addTelemetryEvent:localRtResults isSsoExtFallBack:YES error:localRtError];
+#endif
                     self.currentRequest = nil;
                     [self completionHandler:localRtResults
                                   ssoResult:nil
@@ -158,11 +162,11 @@
     }];
 }
 
+#if !EXCLUDE_FROM_MSALCPP
 - (void)addTelemetryEvent:(MSIDTokenResult *)result
          isSsoExtFallBack:(BOOL)isSsoExtFallBack
                     error:(NSError *)error
 {
-#if !EXCLUDE_FROM_MSALCPP
     MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
     [telemetryEvent setUserInformation:result.account];
     [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
@@ -172,8 +176,8 @@
     }
     
     [self stopTelemetryEvent:telemetryEvent error:error];
-#endif
 }
+#endif
 
 - (void)completionHandler:(nullable MSIDTokenResult *)result
                 ssoResult:(nullable MSIDTokenResult *)ssoResult
