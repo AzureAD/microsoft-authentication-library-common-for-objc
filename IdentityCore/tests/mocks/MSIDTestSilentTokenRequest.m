@@ -53,7 +53,7 @@
 
 - (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
 {
-    if ([self.delegate skipCachedRefreshToken])
+    if (self.skipLocalRt)
     {
         completionBlock(nil, nil);
     }

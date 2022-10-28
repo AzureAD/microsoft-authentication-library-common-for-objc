@@ -246,7 +246,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         }
     }
     
-    if ([self.delegate skipCachedRefreshToken])
+    if (self.skipLocalRt)
     {
         // Skipping using local RT for token acquisition
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached RT is not allowed to be used for token acquisition, skipping.");

@@ -33,10 +33,9 @@
 #import "MSIDBackgroundTaskManager.h"
 #endif
 
-@interface MSIDSilentController() <MSIDSilentTokenRequestDelegate>
+@interface MSIDSilentController()
 
 @property (nonatomic, readwrite) BOOL forceRefresh;
-@property (nonatomic) NSError *ssoError;
 @property (nonatomic) MSIDSilentTokenRequest *currentRequest;
 
 @end
@@ -97,7 +96,7 @@
     
     __auto_type request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                          forceRefresh:self.forceRefresh];
-    request.delegate = self;
+    request.skipLocalRt = self.fallbackController != nil;
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
@@ -119,7 +118,7 @@
         if (result || !self.fallbackController)
         {
 #if !EXCLUDE_FROM_MSALCPP
-            [self addTelemetryEvent:result error:error];
+            [self addTelemetryEvent:result isSsoExtFallBack:YES error:error];
 #endif
             self.currentRequest = nil;
             completionBlock(result, error);
@@ -131,21 +130,21 @@
             // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
             
             // If ssoError presented already, skip broker when came back from local RT fallback
-            self.ssoError = ssoError;
             if (!ssoResult && (self.requestParameters.allowGettingAccessTokenWithRefreshToken || ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
             {
                 // Skip duplicate local cache lookups
                 request.forceRefresh = YES;
+                request.skipLocalRt = NO;
                 [request executeRequestWithCompletion:^(MSIDTokenResult *localRtResults, NSError *localRtError)
                 {
 #if !EXCLUDE_FROM_MSALCPP
-                    [self addTelemetryEvent:localRtResults error:localRtError];
+                    [self addTelemetryEvent:localRtResults isSsoExtFallBack:YES error:localRtError];
 #endif
                     self.currentRequest = nil;
                     [self completionHandler:localRtResults
                                   ssoResult:nil
                                       error:localRtError
-                                   ssoError:self.ssoError
+                                   ssoError:ssoError
                             completionBlock:completionBlock];
                 }];
                 return;
@@ -155,7 +154,7 @@
             [self completionHandler:nil
                           ssoResult:ssoResult
                               error:error
-                           ssoError:self.ssoError
+                           ssoError:ssoError
                     completionBlock:completionBlock];
         };
 
@@ -163,12 +162,14 @@
     }];
 }
 
-- (void)addTelemetryEvent:(MSIDTokenResult *)result error:(NSError *)error
+- (void)addTelemetryEvent:(MSIDTokenResult *)result
+         isSsoExtFallBack:(BOOL)isSsoExtFallBack
+                    error:(NSError *)error
 {
     MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
     [telemetryEvent setUserInformation:result.account];
     [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
-    if(self.ssoError)
+    if(isSsoExtFallBack)
     {
         [telemetryEvent setSsoExtFallBackFlow:1];
     }
@@ -194,14 +195,6 @@
     {
         completionBlock(ssoResult, ssoError);
     }
-}
-
-#pragma mark - MSIDSilentTokenRequestDelegate
-
-- (BOOL)skipCachedRefreshToken
-{
-    // Use Sso Ext when MSIDSSOExtensionSilentTokenRequestController is available and has not run through Sso Ext yet
-    return self.fallbackController && !self.ssoError;
 }
 
 @end
