@@ -34,7 +34,20 @@
 
 @end
 
+@interface MSIDRequestPerformanceInfo : NSObject <NSSecureCoding>
+
+@property (nonatomic, nullable) NSMutableArray<NSNumber *> *totalNumbers;
+@property (nonatomic, nullable) NSMutableArray<NSNumber *> *ipcRequestNumbers;
+@property (nonatomic, nullable) NSMutableArray<NSNumber *> *ipcResponseNumbers;
+
+@end
+
 NS_ASSUME_NONNULL_BEGIN
+
+extern NSString * _Nonnull const MSID_PERF_TELEMETRY_SILENT_TYPE;
+extern NSString * _Nonnull const MSID_PERF_TELEMETRY_SIGNOUT_TYPE;
+extern NSString * _Nonnull const MSID_PERF_TELEMETRY_GETACCOUNTS_TYPE;
+extern NSString * _Nonnull const MSID_PERF_TELEMETRY_GETDEVICEINFO_TYPE;
 
 @class MSIDCurrentRequestTelemetrySerializedItem;
 
@@ -55,6 +68,11 @@ NS_ASSUME_NONNULL_BEGIN
                 context:(nullable id<MSIDRequestContext>)context;
 
 - (void)increaseSilentSuccessfulCount;
+
+- (void)trackSSOExtensionPerformanceWithType:(NSString *)type
+                             totalPerfNumber:(NSTimeInterval)totalPerfNumber
+                        ipcRequestPerfNumber:(NSTimeInterval)ipcRequestPerfNumber
+                       ipcResponsePerfNumber:(NSTimeInterval)ipcResponsePerfNumber;
 
 @end
 
