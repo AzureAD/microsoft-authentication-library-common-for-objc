@@ -35,11 +35,18 @@
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializer.h"
+#import "NSDate+MSIDExtensions.h"
+#if !EXCLUDE_FROM_MSALCPP
+#import "MSIDLastRequestTelemetry.h"
+#endif
+#import "NSDate+MSIDExtensions.h"
 
 NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
 NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_response_type";
 NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
+NSString *const MSID_BROKER_RESPONSE_GENERATION_TIMESTAMP = @"response_gen_timestamp";
+NSString *const MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP = @"request_received_timestamp";
 
 @implementation MSIDBrokerNativeAppOperationResponse
 
@@ -99,6 +106,8 @@ NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
         _success = [json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] boolValue];
         _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_APP_VERSION_JSON_KEY];
         _deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:json error:error];
+        _responseGenerationTimeStamp =  [NSDate msidDateFromTimeStamp:json[MSID_BROKER_RESPONSE_GENERATION_TIMESTAMP]];
+        _requestReceivedTimeStamp = [NSDate msidDateFromTimeStamp:json[MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP]];
     }
     
     return self;
@@ -117,12 +126,33 @@ NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
     json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
     json[MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY] = self.class.responseType;
     json[MSID_BROKER_APP_VERSION_JSON_KEY] = self.clientAppVersion;
+    json[MSID_BROKER_RESPONSE_GENERATION_TIMESTAMP] = [self.responseGenerationTimeStamp msidDateToFractionalTimestamp:10];
+    json[MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP] = [self.requestReceivedTimeStamp msidDateToFractionalTimestamp:10];
     
     NSDictionary *deviceInfoJson = [self.deviceInfo jsonDictionary];
     if (deviceInfoJson) [json addEntriesFromDictionary:deviceInfoJson];
     
     return json;
 }
+
+#if !EXCLUDE_FROM_MSALCPP
+
+- (void)trackPerfTelemetryWithLastRequest:(MSIDLastRequestTelemetry *)telemetry
+                         requestStartDate:(NSDate *)requestStartDate
+                                     type:(NSString *)type
+{
+    NSDate *responseDate = [NSDate date];
+    NSTimeInterval totalTime = [responseDate timeIntervalSinceDate:requestStartDate];
+    NSTimeInterval ipcRequestTime = [self.requestReceivedTimeStamp timeIntervalSinceDate:requestStartDate];
+    NSTimeInterval ipcResponseTime = [responseDate timeIntervalSinceDate:self.responseGenerationTimeStamp];
+    
+    [telemetry trackSSOExtensionPerformanceWithType:type
+                                    totalPerfNumber:totalTime
+                               ipcRequestPerfNumber:ipcRequestTime
+                              ipcResponsePerfNumber:ipcResponseTime];
+}
+
+#endif
 
 @end
 
