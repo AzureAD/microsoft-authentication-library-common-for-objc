@@ -26,9 +26,6 @@
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDASWebAuthenticationSessionHandler.h"
 #import "MSIDConstants.h"
-#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
-#import "MSIDSFAuthenticationSessionHandler.h"
-#endif
 
 #if TARGET_OS_IPHONE
 #import "MSIDSafariViewController.h"
@@ -79,12 +76,6 @@
                                                                         callbackScheme:callbackURLScheme
                                                                     useEmpheralSession:useEmpheralSession];
     }
-#endif
-    
-#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
-    
-    return [[MSIDSFAuthenticationSessionHandler alloc] initWithStartURL:startURL callbackScheme:callbackURLScheme];
-    
 #endif
     
     return nil;
