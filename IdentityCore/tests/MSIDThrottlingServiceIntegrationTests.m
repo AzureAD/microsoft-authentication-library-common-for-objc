@@ -1011,7 +1011,7 @@
 
 - (void)testMSIDThrottlingServiceIntegration_SSOSilentRequestWith429MSIDError_ShouldBeThrottledSuccessfully_AndThenUnThrottledUponExpiration
 {
-   if (@available(macOS 10.15, *))
+   if (@available(iOS 13.0, macOS 10.15, *))
    {
 
       //NSError *error = nil;
@@ -1178,7 +1178,7 @@
 
 - (void)testMSIDThrottlingServiceIntegration_SSOSilentRequestWith5XXWithMSALError_ShouldBeThrottledSuccessfully_AndThenUnThrottledUponExpiration
 {
-   if (@available(macOS 10.15, *))
+   if (@available(iOS 13.0, macOS 10.15, *))
    {
 
       //NSError *error = nil;
@@ -1341,7 +1341,7 @@
 
 - (void)testMSIDThrottlingServiceIntegration_SSOSilentRequestThatReturnsInteractionRequiredError_ShouldBeThrottledSuccessfully_AndThenUnThrottledUponLaterSuccessfulInteractionRequest
 {
-   if (@available(macOS 10.15, *))
+   if (@available(iOS 13.0, macOS 10.15, *))
    {
 
       //initialize extra request parameters used by MSIDBrokerOperationSilentTokenRequst
