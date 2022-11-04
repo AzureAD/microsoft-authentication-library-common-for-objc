@@ -96,7 +96,7 @@
     
     __auto_type request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                          forceRefresh:self.forceRefresh];
-    request.skipLocalRt = self.fallbackController != nil;
+    request.skipLocalRt = self.requestParameters.isSsoExtInstalledOnDevice;
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
@@ -185,12 +185,12 @@
 {
     if (result)
     {
-        completionBlock(result, error);
+        completionBlock(result, nil);
     }
     else if (!ssoResult && (ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
     {
         // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-        completionBlock(result, error);
+        completionBlock(nil, error);
     }
     else
     {

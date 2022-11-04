@@ -30,6 +30,23 @@
 
 #pragma mark - MSIDRequestControlling
 
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                              tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                             error:(NSError * _Nullable * _Nullable)error
+{
+    self = [super initWithRequestParameters:parameters
+                               forceRefresh:forceRefresh
+                       tokenRequestProvider:tokenRequestProvider
+                                      error:error];
+    if (self)
+    {
+        parameters.isSsoExtInstalledOnDevice = YES;
+    }
+    
+    return self;
+}
+
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent broker extension flow.");
