@@ -244,6 +244,11 @@ static int maxErrorCountToArchive = 75;
                             ipcRequestPerfNumber:(NSTimeInterval)ipcRequestPerfNumber
                            ipcResponsePerfNumber:(NSTimeInterval)ipcResponsePerfNumber
 {
+    if (!self.perfTelemetry)
+    {
+        self.perfTelemetry = [NSMutableDictionary new];
+    }
+    
     MSIDRequestPerformanceInfo *perfInfo = self.perfTelemetry[type];
     
     if (!perfInfo)
@@ -334,13 +339,24 @@ static int maxErrorCountToArchive = 75;
     
     NSMutableArray *platformFields = [NSMutableArray new];
     [platformFields addObjectsFromArray:self.platformFields];
-    [platformFields addObject:[self serializedPerfTelemetry]];
+    
+    NSString *serializedPerfTelemetry = [self serializedPerfTelemetry];
+    
+    if (![NSString msidIsStringNilOrBlank:serializedPerfTelemetry])
+    {
+        [platformFields addObject:[self serializedPerfTelemetry]];
+    }
     
     return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self->_errorsInfo platformFields:platformFields];
 }
 
 - (NSString *)serializedPerfTelemetry
 {
+    if (![self.perfTelemetry count])
+    {
+        return nil;
+    }
+    
     NSString *serializedPerfTelemetry = [NSString stringWithFormat:@"%@;%@;%@;%@;",
                                          [self serializedAverageForType:MSID_PERF_TELEMETRY_SILENT_TYPE],
                                          [self serializedAverageForType:MSID_PERF_TELEMETRY_SIGNOUT_TYPE],

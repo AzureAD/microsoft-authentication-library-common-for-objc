@@ -106,7 +106,7 @@
 #if !EXCLUDE_FROM_MSALCPP
             [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
                                                 requestStartDate:strongSelf.requestSentDate
-                                                            type:MSID_PERF_TELEMETRY_GETACCOUNTS_TYPE];
+                                                   telemetryType:MSID_PERF_TELEMETRY_GETACCOUNTS_TYPE];
 #endif
             
             MSIDGetAccountsRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;

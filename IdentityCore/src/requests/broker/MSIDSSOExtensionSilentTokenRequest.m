@@ -96,7 +96,7 @@
 #if !EXCLUDE_FROM_MSALCPP
             [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
                                                 requestStartDate:strongSelf.requestSentDate
-                                                            type:MSID_PERF_TELEMETRY_SILENT_TYPE];
+                                                   telemetryType:MSID_PERF_TELEMETRY_SILENT_TYPE];
 #endif
             
             [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
