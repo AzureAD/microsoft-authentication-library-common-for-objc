@@ -433,7 +433,7 @@
         // Setup test request providers
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_prompt_auto_fail";
-    parameters.allowGettingAccessTokenWithRefreshToken = YES;
+    parameters.allowUsingLocalCachedRtWhenSsoExtFailed = YES;
     NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *localSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:localError testWebMSAuthResponse:nil];
@@ -471,7 +471,7 @@
     // Setup test request providers
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_prompt_auto_fail";
-    parameters.allowGettingAccessTokenWithRefreshToken = YES;
+    parameters.allowUsingLocalCachedRtWhenSsoExtFailed = YES;
     NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *localSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:localError testWebMSAuthResponse:nil];

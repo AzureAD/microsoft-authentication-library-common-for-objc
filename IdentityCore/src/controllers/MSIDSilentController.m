@@ -127,10 +127,8 @@
 
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *ssoResult, NSError *ssoError)
         {
-            // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-            
             // If ssoError presented already, skip broker when came back from local RT fallback
-            if (!ssoResult && (self.requestParameters.allowGettingAccessTokenWithRefreshToken || ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
+            if (!ssoResult && (self.requestParameters.allowUsingLocalCachedRtWhenSsoExtFailed || ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
             {
                 // Skip duplicate local cache lookups
                 request.forceRefresh = YES;
@@ -191,6 +189,7 @@
     }
     else if (!ssoResult && (ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
     {
+        // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
         completionBlock(result, error);
     }
     else
