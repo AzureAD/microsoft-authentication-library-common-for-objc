@@ -114,19 +114,19 @@
 
 #pragma mark - Wipe data
 
-- (void)testDeserializeCredentialCacheItem_whenWipeData_shouldReturnNil
-{
-    NSDictionary *wipeInfo = @{ @"bundleId" : @"bundleId",
-                                @"wipeTime" : [NSDate date]
-                                };
-    
-    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
-    
-    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
-    MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:wipeData];
-    
-    XCTAssertNil(token);
-}
+//- (void)testDeserializeCredentialCacheItem_whenWipeData_shouldReturnNil
+//{
+//    NSDictionary *wipeInfo = @{ @"bundleId" : @"bundleId",
+//                                @"wipeTime" : [NSDate date]
+//                                };
+//    
+//    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
+//    
+//    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
+//    MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:wipeData];
+//    
+//    XCTAssertNil(token);
+//}
 
 #pragma mark - Private
 

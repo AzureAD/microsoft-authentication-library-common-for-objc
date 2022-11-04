@@ -1466,7 +1466,7 @@
 
       //Let's verify that request has been throttled and saved in the cache
       NSString *expectedThumbprintKey = @"1051707737519838129";
-
+      //4772930854413450477 - this value for expected thumprint passes
       NSError *subError = nil;
       MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
       XCTAssertNotNil(record);
