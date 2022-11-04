@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)trackPerfTelemetryWithLastRequest:(MSIDLastRequestTelemetry *)telemetry
                          requestStartDate:(NSDate *)requestStartDate
-                                     type:(NSString *)type;
+                            telemetryType:(NSString *)telemetryType;
 
 #endif
 

@@ -101,7 +101,7 @@
 #if !EXCLUDE_FROM_MSALCPP
             [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
                                                 requestStartDate:strongSelf.requestSentDate
-                                                            type:MSID_PERF_TELEMETRY_SIGNOUT_TYPE];
+                                                   telemetryType:MSID_PERF_TELEMETRY_SIGNOUT_TYPE];
 #endif
             
             MSIDSignoutRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;

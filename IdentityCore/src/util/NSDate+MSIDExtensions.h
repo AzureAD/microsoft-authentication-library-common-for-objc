@@ -30,5 +30,4 @@
 - (NSString *)msidDateToFractionalTimestamp:(int)precision;
 + (NSDate *)msidDateFromTimeStamp:(NSString *)timeStamp;
 + (NSDate *)msidDateFromRetryHeader:(NSString *)retryHeaderString;
-
 @end
