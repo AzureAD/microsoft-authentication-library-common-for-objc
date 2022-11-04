@@ -201,20 +201,7 @@ static WKWebViewConfiguration *s_webConfig;
 - (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
 {
     UIActivityIndicatorView *loadingIndicator;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *))
-    {
-        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
-    }
-#if !TARGET_OS_MACCATALYST
-    else
-    {
-        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    }
-#endif
-#else
-    loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-#endif
+    loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
 
     [loadingIndicator setColor:[UIColor blackColor]];
     [loadingIndicator setCenter:rootView.center];
