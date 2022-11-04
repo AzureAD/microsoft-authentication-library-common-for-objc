@@ -143,10 +143,7 @@
         }
     }
     
-    if (@available(iOS 13.0, *))
-    {
-        brokerController.sdkBrokerCapabilities = @[MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY];
-    }
+    brokerController.sdkBrokerCapabilities = @[MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY];
     
     id<MSIDRequestControlling> ssoExtensionController = [self ssoExtensionInteractiveController:parameters
                                                                            tokenRequestProvider:tokenRequestProvider

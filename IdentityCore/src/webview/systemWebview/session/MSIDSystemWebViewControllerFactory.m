@@ -53,10 +53,7 @@
         
 #if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
         
-    if (@available(iOS 11.0, *))
-    {
-        return MSIDWebviewTypeAuthenticationSession;
-    }
+    return MSIDWebviewTypeAuthenticationSession;
         
 #endif
     
@@ -86,10 +83,7 @@
     
 #if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
     
-    if (@available(iOS 11.0, *))
-    {
-        return [[MSIDSFAuthenticationSessionHandler alloc] initWithStartURL:startURL callbackScheme:callbackURLScheme];
-    }
+    return [[MSIDSFAuthenticationSessionHandler alloc] initWithStartURL:startURL callbackScheme:callbackURLScheme];
     
 #endif
     

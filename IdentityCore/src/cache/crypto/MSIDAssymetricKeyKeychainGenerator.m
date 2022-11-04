@@ -134,46 +134,40 @@ static const OSStatus kNoStatus = -1;
 - (MSIDAssymetricKeyPair *)readKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                              error:(NSError **)error
 {
-    if (@available(iOS 10.0, macOS 10.12, *))
+    
+    if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
     {
-        if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
-        {
-            [self logAndFillError:@"Invalid key lookup attributes provided" status:kNoStatus error:error];
-            return nil;
-        }
-        
-        NSDictionary *privateKeyDict = [self keyAttributesWithQueryDictionary:[attributes privateKeyAttributes] error:error];
-        if (!privateKeyDict)
-        {
-            return nil;
-        }
-        
-        SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
-        if (!privateKeyRef)
-        {
-            [self logAndFillError:@"Failed to query private key reference from keychain." status:kNoStatus error:error];
-            return nil;
-        }
-        
-        SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
-        if (!publicKeyRef)
-        {
-            [self logAndFillError:@"Failed to copy public key from private key." status:kNoStatus error:error];
-            return nil;
-        }
-        
-        MSIDAssymetricKeyPair *keypair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef
-                                                                                 publicKey:publicKeyRef
-                                                                            privateKeyDict:privateKeyDict];
-
-        CFRelease(publicKeyRef);
-        return keypair;
-    }
-    else
-    {
-        [self logAndFillError:@"Failed to generate asymmetric key pair due to unsupported iOS/OSX platform." status:kNoStatus error:error];
+        [self logAndFillError:@"Invalid key lookup attributes provided" status:kNoStatus error:error];
         return nil;
     }
+    
+    NSDictionary *privateKeyDict = [self keyAttributesWithQueryDictionary:[attributes privateKeyAttributes] error:error];
+    if (!privateKeyDict)
+    {
+        return nil;
+    }
+    
+    SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
+    if (!privateKeyRef)
+    {
+        [self logAndFillError:@"Failed to query private key reference from keychain." status:kNoStatus error:error];
+        return nil;
+    }
+    
+    SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
+    if (!publicKeyRef)
+    {
+        [self logAndFillError:@"Failed to copy public key from private key." status:kNoStatus error:error];
+        return nil;
+    }
+    
+    MSIDAssymetricKeyPair *keypair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef
+                                                                             publicKey:publicKeyRef
+                                                                        privateKeyDict:privateKeyDict];
+
+    CFRelease(publicKeyRef);
+    return keypair;
+    
 }
 
 #pragma mark - Cleanup
@@ -237,43 +231,36 @@ static const OSStatus kNoStatus = -1;
 - (MSIDAssymetricKeyPair *)generateKeyPairForKeyDict:(NSDictionary *)attributes
                                                error:(NSError **)error
 {
-    if (@available(iOS 10.0, macOS 10.12, *))
+    CFErrorRef keyGenerationError = NULL;
+    SecKeyRef privateKeyRef = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &keyGenerationError);
+    
+    if (!privateKeyRef)
     {
-        CFErrorRef keyGenerationError = NULL;
-        SecKeyRef privateKeyRef = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &keyGenerationError);
-        
-        if (!privateKeyRef)
-        {
-            NSError *keyError = CFBridgingRelease(keyGenerationError);
-            [self logAndFillError:@"Failed to generate private key." status:(int)keyError.code error:error];
-            return nil;
-        }
-        
-        SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
-        if (!publicKeyRef)
-        {
-            [self logAndFillError:@"Failed to copy public key from private key." status:kNoStatus error:error];
-            CFRelease(privateKeyRef);
-            return nil;
-        }
-        
-        /*
-         Setting creationDate to nil here intentionally as it is only needed for cpp code.
-         CreationDate will be initialized using lazy loading once it is queried for the first time on key pair object.
-         */
-        
-        MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef privateKeyDict:attributes];
-        
-        if (privateKeyRef) CFRelease(privateKeyRef);
-        if (publicKeyRef) CFRelease(publicKeyRef);
-        
-        return keyPair;
-    }
-    else
-    {
-        [self logAndFillError:@"Failed to generate asymmetric key pair due to unsupported iOS/OSX platform." status:kNoStatus error:error];
+        NSError *keyError = CFBridgingRelease(keyGenerationError);
+        [self logAndFillError:@"Failed to generate private key." status:(int)keyError.code error:error];
         return nil;
     }
+    
+    SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
+    if (!publicKeyRef)
+    {
+        [self logAndFillError:@"Failed to copy public key from private key." status:kNoStatus error:error];
+        CFRelease(privateKeyRef);
+        return nil;
+    }
+    
+    /*
+     Setting creationDate to nil here intentionally as it is only needed for cpp code.
+     CreationDate will be initialized using lazy loading once it is queried for the first time on key pair object.
+     */
+    
+    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef privateKeyDict:attributes];
+    
+    if (privateKeyRef) CFRelease(privateKeyRef);
+    if (publicKeyRef) CFRelease(publicKeyRef);
+    
+    return keyPair;
+    
 }
 
 #pragma mark - Platform

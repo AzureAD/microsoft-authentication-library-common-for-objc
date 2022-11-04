@@ -28,17 +28,7 @@
 + (NSData *)msidEncodeObject:(nullable id)obj usingBlock:(void (^)(NSKeyedArchiver *archiver))block
 {
     NSKeyedArchiver *archiver;
-    NSMutableData *data = [NSMutableData data];
-    if (@available(iOS 11.0, macOS 10.13, *))
-    {
-        archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
-    }
-#if !TARGET_OS_MACCATALYST
-    else
-    {
-        archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-    }
-#endif
+    archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
     
     if (block) block(archiver);
     
@@ -46,14 +36,7 @@
     [archiver finishEncoding];
     
     NSData *result;
-    if (@available(iOS 10.0, macOS 10.12, *))
-    {
-        result = archiver.encodedData;
-    }
-    else
-    {
-        result = data;
-    }
+    result = archiver.encodedData;
     
     return result;
 }
@@ -63,16 +46,7 @@
                                      error:(NSError **)error
 {
     NSData *result;
-    if (@available(iOS 11.0, macOS 10.13, *))
-    {
-        result = [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:requiresSecureCoding error:error];
-    }
-#if !TARGET_OS_MACCATALYST
-    else
-    {
-        result = [NSKeyedArchiver archivedDataWithRootObject:object];
-    }
-#endif
+    result = [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:requiresSecureCoding error:error];
     
     return result;
 }
