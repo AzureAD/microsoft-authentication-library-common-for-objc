@@ -96,7 +96,7 @@
     
     __auto_type request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                          forceRefresh:self.forceRefresh];
-    request.skipLocalRt = self.requestParameters.isSsoExtInstalledOnDevice;
+    request.skipLocalRt = self.requestParameters.canPerformSilentSsoExtRequest;
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 

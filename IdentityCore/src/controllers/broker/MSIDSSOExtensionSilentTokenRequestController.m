@@ -41,7 +41,7 @@
                                       error:error];
     if (self)
     {
-        parameters.isSsoExtInstalledOnDevice = YES;
+        parameters.canPerformSilentSsoExtRequest = YES;
     }
     
     return self;
