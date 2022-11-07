@@ -81,6 +81,7 @@
     if (!localController) return nil;
     
     if (brokerController) localController.skipLocalRt = YES;
+    
     return localController;
 }
 
