@@ -138,7 +138,7 @@
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallbackResult, NSError *fallbackError)
         {
             // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-            
+            // In if block, we handle fallback from local controller to Sso Extention controller, and to use the valid error information
             if (self.controllerType == MSIDSSOExtensionSilentTokenRequestControllerType)
             {
                 if (fallbackResult)
