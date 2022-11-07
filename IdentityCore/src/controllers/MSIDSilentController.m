@@ -135,6 +135,7 @@
             return;
         }
         
+        self.currentRequest = nil;
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallbackResult, NSError *fallbackError)
         {
             // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
@@ -163,7 +164,6 @@
             }
         };
         
-        self.currentRequest = nil;
         [self.fallbackController acquireToken:completionBlockWrapper];
     }];
 }
