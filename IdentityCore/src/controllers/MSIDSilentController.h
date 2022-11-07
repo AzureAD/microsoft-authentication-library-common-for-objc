@@ -25,10 +25,18 @@
 #import "MSIDBaseRequestController.h"
 #import "MSIDRequestControlling.h"
 
+typedef NS_ENUM(NSInteger, MSIDSilentControllerType)
+{
+    MSIDSilentControllerDefaultType = 0,
+    MSIDSSOExtensionSilentTokenRequestControllerType = 1,
+    
+};
+
 @interface MSIDSilentController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @property (nonatomic, readonly) BOOL forceRefresh;
 @property (nonatomic) BOOL skipLocalRt;
+@property (nonatomic) BOOL isLocalFallbackMode;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh

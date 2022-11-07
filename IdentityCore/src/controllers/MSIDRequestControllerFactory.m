@@ -55,9 +55,10 @@
                 if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
                 {
                     localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
-                                                                                             forceRefresh:YES
-                                                                                     tokenRequestProvider:tokenRequestProvider
-                                                                                                    error:error];
+                                                                                 forceRefresh:YES
+                                                                         tokenRequestProvider:tokenRequestProvider
+                                                                                        error:error];
+                    localController.isLocalFallbackMode = YES;
                 }
                 
                 brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters

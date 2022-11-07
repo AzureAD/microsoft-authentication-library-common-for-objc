@@ -53,7 +53,14 @@
 
 - (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
 {
-    completionBlock(self.testTokenResult, self.testError);
+    if (self.skipLocalRt)
+    {
+        completionBlock(nil, nil);
+    }
+    else
+    {
+        completionBlock(self.testTokenResult, self.testError);
+    }
 }
 
 @end

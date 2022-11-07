@@ -37,6 +37,7 @@
 
 @property (nonatomic, readwrite) BOOL forceRefresh;
 @property (nonatomic) MSIDSilentTokenRequest *currentRequest;
+@property (nonatomic) MSIDSilentControllerType controllerType;
 
 @end
 
@@ -121,6 +122,11 @@
             MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
             [telemetryEvent setUserInformation:result.account];
             [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+            if (self.isLocalFallbackMode)
+            {
+                 [telemetryEvent setSsoExtFallBackFlow:1];
+            }
+            
             [self stopTelemetryEvent:telemetryEvent error:error];
 #endif
             self.currentRequest = nil;
@@ -128,21 +134,36 @@
             completionBlock(result, error);
             return;
         }
-
-        self.currentRequest = nil;
-        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *ssoResult, NSError *ssoError)
+        
+        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallbackResult, NSError *fallbackError)
         {
             // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-            if (!ssoResult && (ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
+            
+            if (self.controllerType == MSIDSSOExtensionSilentTokenRequestControllerType)
             {
-                completionBlock(result, error);
+                if (fallbackResult)
+                {
+                    completionBlock(fallbackResult, nil);
+                }
+                else
+                {
+                    completionBlock(nil, (error.code == MSIDErrorSSOExtensionUnexpectedError) ? fallbackError : error);
+                }
             }
             else
             {
-                completionBlock(ssoResult, ssoError);
+                if (!fallbackResult && (fallbackError.code == MSIDErrorSSOExtensionUnexpectedError))
+                {
+                    completionBlock(result, error);
+                }
+                else
+                {
+                    completionBlock(fallbackResult, fallbackError);
+                }
             }
         };
-
+        
+        self.currentRequest = nil;
         [self.fallbackController acquireToken:completionBlockWrapper];
     }];
 }

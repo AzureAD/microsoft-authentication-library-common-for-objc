@@ -33,37 +33,20 @@
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent broker extension flow.");
-    
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker extension flow finished. Result %@, error: %ld error domain: %@, shouldFallBack:%@", _PII_NULLIFY(result), (long)error.code, error.domain, @(self.fallbackController != nil));
-        if (result)
-        {
-            completionBlock(result, error);
-            return;
-        }
-        
-        [self.fallbackController acquireToken:^(MSIDTokenResult * _Nullable fallBackResult, NSError * _Nullable fallBackError) {
-            if (fallBackResult)
-            {
-                completionBlock(fallBackResult, nil);
-            }
-            else
-            {
-                // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-                completionBlock(nil, (error.code == MSIDErrorSSOExtensionUnexpectedError) ? fallBackError : error);
-            }
-            
-            completionBlock(fallBackResult, fallBackError);
-        }];
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker extension flow finished. Result %@, error: %ld error domain: %@, shouldFallBack: %@", _PII_NULLIFY(result), (long)error.code, error.domain, @(self.fallbackController != nil));
+        completionBlock(result, error);
     };
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Starting local fallback flow..");
     __auto_type request = [self.tokenRequestProvider silentSSOExtensionTokenRequestWithParameters:self.requestParameters
-                                                                                        forceRefresh:self.forceRefresh];
-    
+                                                                                     forceRefresh:self.forceRefresh];
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
+}
+
+- (MSIDSilentControllerType)controllerType
+{
+    return MSIDSSOExtensionSilentTokenRequestControllerType;
 }
 
 + (BOOL)canPerformRequest
