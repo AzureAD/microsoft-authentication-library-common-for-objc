@@ -44,6 +44,7 @@
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, nullable) MSIDThrottlingService *throttlingService;
+@property (nonatomic) BOOL skipLocalRt;
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;

@@ -28,6 +28,7 @@
 @interface MSIDSilentController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @property (nonatomic, readonly) BOOL forceRefresh;
+@property (nonatomic) BOOL skipLocalRt;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh

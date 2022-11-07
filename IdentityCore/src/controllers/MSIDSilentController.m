@@ -96,7 +96,7 @@
     
     __auto_type request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                          forceRefresh:self.forceRefresh];
-    
+    request.skipLocalRt = self.skipLocalRt;
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
