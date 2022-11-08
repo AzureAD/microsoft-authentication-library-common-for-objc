@@ -30,6 +30,8 @@ extern NSString * const MSID_REDIRECT_URI_JSON_KEY;
 extern NSString * const MSID_CLIENT_ID_JSON_KEY;
 extern NSString * const MSID_SCOPE_JSON_KEY;
 extern NSString * const MSID_TOKEN_TYPE_JSON_KEY;
+extern NSString * const MSID_NESTED_REDIRECT_URI_JSON_KEY;
+extern NSString * const MSID_NESTED_CLIENT_ID_JSON_KEY;
 
 @interface MSIDConfiguration : NSObject <NSCopying, MSIDJsonSerializable>
 
@@ -39,6 +41,10 @@ extern NSString * const MSID_TOKEN_TYPE_JSON_KEY;
 @property (atomic, readwrite) NSString *clientId;
 @property (atomic, readonly) NSString *target;
 @property (atomic, readwrite) MSIDAuthenticationScheme *authScheme;
+
+// Double broker
+@property (atomic, readwrite) NSString *nestedRedirectUri;
+@property (atomic, readwrite) NSString *nestedClientId;
 
 @property (atomic, readwrite) NSString *applicationIdentifier;
 

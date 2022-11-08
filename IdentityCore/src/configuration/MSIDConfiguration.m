@@ -34,6 +34,8 @@ NSString *const MSID_REDIRECT_URI_JSON_KEY = @"redirect_uri";
 NSString *const MSID_CLIENT_ID_JSON_KEY = @"client_id";
 NSString *const MSID_SCOPE_JSON_KEY = @"scope";
 NSString *const MSID_TOKEN_TYPE_JSON_KEY = @"token_type";
+NSString *const MSID_NESTED_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
+NSString *const MSID_NESTED_CLIENT_ID_JSON_KEY = @"brk_client_id";
 
 @interface MSIDConfiguration()
 
@@ -123,7 +125,15 @@ NSString *const MSID_TOKEN_TYPE_JSON_KEY = @"token_type";
     if (![json msidAssertType:NSString.class ofKey:MSID_SCOPE_JSON_KEY required:NO error:error]) return nil;
     NSString *target = [json msidStringObjectForKey:MSID_SCOPE_JSON_KEY];
     
+    if (![json msidAssertType:NSString.class ofKey:MSID_NESTED_CLIENT_ID_JSON_KEY required:NO error:error]) return nil;
+    NSString *nestedClientId = [json msidStringObjectForKey:MSID_NESTED_CLIENT_ID_JSON_KEY];
+    
+    if (![json msidAssertType:NSString.class ofKey:MSID_NESTED_REDIRECT_URI_JSON_KEY required:NO error:error]) return nil;
+    NSString *nestedRedirectUri = [json msidStringObjectForKey:MSID_NESTED_REDIRECT_URI_JSON_KEY];
+    
     MSIDConfiguration *config = [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target];
+    config.nestedClientId = nestedClientId;
+    config.nestedRedirectUri = nestedRedirectUri;
     
     /*
      We pass error as nil in auth scheme creation as token_type key will only be added for MSIDAuthenticationSchemePop.
@@ -160,6 +170,13 @@ NSString *const MSID_TOKEN_TYPE_JSON_KEY = @"token_type";
     }
     json[MSID_REDIRECT_URI_JSON_KEY] = self.redirectUri;
     json[MSID_SCOPE_JSON_KEY] = self.target;
+    
+    // Double broker
+    if (![NSString msidIsStringNilOrBlank:self.nestedRedirectUri]  && ![NSString msidIsStringNilOrBlank:self.nestedClientId])
+    {
+        json[MSID_NESTED_REDIRECT_URI_JSON_KEY] = self.nestedRedirectUri;
+        json[MSID_NESTED_CLIENT_ID_JSON_KEY] = self.nestedClientId;
+    }
     
     NSDictionary *authSchemeJson = [self.authScheme jsonDictionary];
     if (!authSchemeJson)

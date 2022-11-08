@@ -234,6 +234,10 @@
                                                                     clientId:self.clientId
                                                                       target:self.target];
     
+    // Double broker
+    config.nestedClientId = self.nestedClientId;
+    config.nestedRedirectUri = self.nestedRedirectUri;
+    
     config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
                                                                                                 appIdentifier:self.intuneApplicationIdentifier];
     config.authScheme = self.authScheme;
