@@ -222,8 +222,8 @@
     {
         components.percentEncodedQuery = query;
     }
-    NSURL *url = [components URL];
-    return url;
+    
+    return [components URL];
 }
 
 - (NSURL *)msidPIINullifiedURL
