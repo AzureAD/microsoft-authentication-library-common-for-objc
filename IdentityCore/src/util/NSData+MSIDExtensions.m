@@ -93,7 +93,7 @@
 }
 
 - (NSData *)msidDecryptedDataWithAlgorithm:(SecKeyAlgorithm)algorithm
-                                privateKey:(SecKeyRef)privateKey
+                                privateKey:(SecKeyRef)privateKey API_AVAILABLE(ios(10.0), macos(10.12))
 {
     if ([self length] == 0)
     {
