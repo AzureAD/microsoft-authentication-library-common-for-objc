@@ -198,7 +198,7 @@
     NSString *query = [components percentEncodedQuery];
     NSDictionary *queryParametersDictionary = [self msidQueryParameters];
 
-    for (NSString *key in [queryParameters allKeys])
+    for (NSString *key in [[queryParameters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)])
     {
         if (queryParametersDictionary[key])
         {
@@ -222,8 +222,8 @@
     {
         components.percentEncodedQuery = query;
     }
-
-    return [components URL];
+    NSURL *url = [components URL];
+    return url;
 }
 
 - (NSURL *)msidPIINullifiedURL

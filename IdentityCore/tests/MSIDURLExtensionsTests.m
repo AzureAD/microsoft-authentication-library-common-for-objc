@@ -365,7 +365,7 @@
 
     NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"spec ial,":@"value1", @"key2": @"value2"}];
 
-    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&spec%20ial%2C=value1&key2=value2"];
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&key2=value2&spec%20ial%2C=value1"];
 
     XCTAssertEqualObjects(resultURL, expectedResultURL);
 }
@@ -376,7 +376,7 @@
 
     NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"return-client-request-id":@"value1", @"client-request-id": @"value2"}];
 
-    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&longer-return-client-request-id=true&return-client-request-id=value1&client-request-id=value2"];
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&longer-return-client-request-id=true&client-request-id=value2&return-client-request-id=value1"];
 
     XCTAssertEqualObjects(resultURL, expectedResultURL);
 }
