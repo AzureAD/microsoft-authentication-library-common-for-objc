@@ -65,6 +65,11 @@
 #if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
 #endif
+
+#pragma mark Double broker properties
+@property (nonatomic) NSString *nestedClientId;
+@property (nonatomic) NSString *nestedRedirectUri;
+
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;
 @property (nonatomic) NSString *logComponent;
