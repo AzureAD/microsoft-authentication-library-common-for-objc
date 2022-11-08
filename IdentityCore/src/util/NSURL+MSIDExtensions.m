@@ -198,7 +198,7 @@
     NSString *query = [components percentEncodedQuery];
     NSDictionary *queryParametersDictionary = [self msidQueryParameters];
 
-    for (NSString *key in [[queryParameters allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)])
+    for (NSString *key in [queryParameters allKeys])
     {
         if (queryParametersDictionary[key])
         {
