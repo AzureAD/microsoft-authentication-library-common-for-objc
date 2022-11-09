@@ -58,8 +58,8 @@
 /// </remarks>
 + (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString
 {
-    NSString *base64encoded = [[encodedString stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
-                               stringByReplacingOccurrencesOfString:@"_" withString:@"/"];
+    NSString *base64encoded = [[[encodedString stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
+                                stringByReplacingOccurrencesOfString:@"_" withString:@"/"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     
     // The input string lacks the usual '=' padding at the end, so the valid end sequences
     // are:
