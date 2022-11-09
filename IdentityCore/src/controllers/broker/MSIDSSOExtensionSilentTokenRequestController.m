@@ -44,11 +44,6 @@
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
-- (MSIDSilentControllerType)controllerType
-{
-    return MSIDSSOExtensionSilentTokenRequestControllerType;
-}
-
 + (BOOL)canPerformRequest
 {
     return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
