@@ -502,7 +502,7 @@
 
         XCTAssertNil(result);
         XCTAssertNotNil(acquireTokenError);
-        XCTAssertEqualObjects(acquireTokenError, ssoExpectedError);
+        XCTAssertEqualObjects(acquireTokenError, localError);
 
         [expectation fulfill];
     }];
