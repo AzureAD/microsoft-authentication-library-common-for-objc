@@ -61,6 +61,13 @@
     NSString *base64encoded = [[[encodedString stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
                                 stringByReplacingOccurrencesOfString:@"_" withString:@"/"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     
+    // if input string has only space, then stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet] will return empty string,
+    // so return nil in this case to keep the existing behavior remain same
+    if (!base64encoded.length)
+    {
+        return nil;
+    }
+    
     // The input string lacks the usual '=' padding at the end, so the valid end sequences
     // are:
     //      ........XX           (cbEncodedSize % 4) == 2    (2 chars of virtual padding)
