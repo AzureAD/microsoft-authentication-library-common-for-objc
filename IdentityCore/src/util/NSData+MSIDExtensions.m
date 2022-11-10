@@ -62,7 +62,7 @@
                                 stringByReplacingOccurrencesOfString:@"_" withString:@"/"] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     
     // if input string has only space, then stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet] will return empty string,
-    // so return nil in this case to keep the existing behavior remain same
+    // if input string is empty or has only space return nil
     if (!base64encoded.length)
     {
         return nil;
