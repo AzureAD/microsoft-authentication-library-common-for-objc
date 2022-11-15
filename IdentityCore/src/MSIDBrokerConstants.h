@@ -86,3 +86,4 @@ extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_UPN;
 extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_DEVICE_ID;
 extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_TENANT_ID;
 extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_CLOUD;
+extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT;
