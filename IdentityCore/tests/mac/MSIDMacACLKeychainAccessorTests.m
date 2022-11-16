@@ -86,7 +86,10 @@
 {
     NSString *path1 = @"/Applications/Safari.app\0";
     SecTrustedApplicationRef appRef1 = nil;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SecTrustedApplicationCreateFromPath([path1 UTF8String], &appRef1);
+#pragma clang diagnostic pop
     id appReference = (__bridge_transfer id)appRef1;
     XCTAssertNotNil(appReference);
     
@@ -239,7 +242,10 @@
 - (NSArray *)trustedAppsForAccess:(id)access authorizationTag:(CFStringRef)authorizationTag
 {
     SecAccessRef accessRef = (__bridge SecAccessRef)access;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSArray *sharedACLs = (__bridge_transfer NSArray*)SecAccessCopyMatchingACLList(accessRef, authorizationTag);
+#pragma clang diagnostic pop
     NSMutableArray *resultArray = [NSMutableArray new];
     
     for (id acl in sharedACLs)
@@ -247,7 +253,10 @@
         CFArrayRef trustedAppsList = nil;
         CFStringRef description = nil;
         SecKeychainPromptSelector selector;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         SecACLCopyContents((__bridge SecACLRef)acl, &trustedAppsList, &description, &selector);
+#pragma clang diagnostic pop
         
         if (!trustedAppsList)
         {
@@ -260,7 +269,10 @@
         {
             SecTrustedApplicationRef trustedAppRef = (__bridge SecTrustedApplicationRef)trustedApp;
             CFDataRef trustedDataRef = NULL;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
             SecTrustedApplicationCopyData(trustedAppRef, &trustedDataRef);
+#pragma clang diagnostic pop
             
             if (trustedDataRef)
             {
