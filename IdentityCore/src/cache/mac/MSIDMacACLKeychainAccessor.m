@@ -129,7 +129,10 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     __block NSError *subError = nil;
     dispatch_once(&s_onceCreateTrustedAppListWithCurrentApp, ^{
         SecTrustedApplicationRef trustedApplication = nil;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
+#pragma clang diagnostic pop
         if (status != errSecSuccess)
         {
             [self createError:@"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured."
@@ -157,7 +160,10 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
                           error:(NSError **)error
 {
     SecAccessRef access;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     OSStatus status = SecAccessCreate((__bridge CFStringRef)accessLabel, (__bridge CFArrayRef)trustedApplications, &access);
+#pragma clang diagnostic pop
     
     if (status != errSecSuccess)
     {
@@ -186,7 +192,10 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSArray *acls = (__bridge_transfer NSArray*)SecAccessCopyMatchingACLList(access, aclAuthorizationTag);
+#pragma clang diagnostic pop
     OSStatus status;
     CFStringRef description = nil;
     CFArrayRef oldtrustedAppList = nil;
@@ -195,16 +204,20 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     // TODO: handle case where tag is not found?
     for (id acl in acls)
     {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         status = SecACLCopyContents((__bridge SecACLRef)acl, &oldtrustedAppList, &description, &selector);
-        
+#pragma clang diagnostic pop
         if (status != errSecSuccess)
         {
             [self createError:@"Failed to get contents from ACL. Please make sure the app you're running is properly signed and keychain access group is configured." domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
              MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to get contents from ACL. Please make sure the app you're running is properly signed and keychain access group is configured(status: %d).", (int)status);
             return NO;
         }
-        
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         status = SecACLSetContents((__bridge SecACLRef)acl, (__bridge CFArrayRef)trustedApplications, description, selector);
+#pragma clang diagnostic pop
         
         if (status != errSecSuccess)
         {
