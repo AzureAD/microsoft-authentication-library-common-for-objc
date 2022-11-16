@@ -51,9 +51,20 @@
         {
             if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
             {
+                MSIDSilentController *localController = nil;
+                if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
+                {
+                    localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                                                 forceRefresh:YES
+                                                                         tokenRequestProvider:tokenRequestProvider
+                                                                                        error:error];
+                    localController.isLocalFallbackMode = YES;
+                }
+                
                 brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                                       forceRefresh:forceRefresh
                                                                                               tokenRequestProvider:tokenRequestProvider
+                                                                                     fallbackInteractiveController:localController
                                                                                                              error:error];
             }
         }
@@ -68,6 +79,8 @@
                                                             fallbackInteractiveController:brokerController
                                                                                     error:error];
     if (!localController) return nil;
+    
+    if (brokerController) localController.skipLocalRt = YES;
     
     return localController;
 }

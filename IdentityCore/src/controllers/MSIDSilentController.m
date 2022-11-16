@@ -96,7 +96,7 @@
     
     __auto_type request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                          forceRefresh:self.forceRefresh];
-    
+    request.skipLocalRt = self.skipLocalRt;
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
@@ -121,6 +121,11 @@
             MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
             [telemetryEvent setUserInformation:result.account];
             [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+            if (self.isLocalFallbackMode)
+            {
+                 [telemetryEvent setSsoExtFallBackFlow:1];
+            }
+            
             [self stopTelemetryEvent:telemetryEvent error:error];
 #endif
             self.currentRequest = nil;
@@ -128,21 +133,21 @@
             completionBlock(result, error);
             return;
         }
-
+        
         self.currentRequest = nil;
-        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *ssoResult, NSError *ssoError)
+        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallResult, NSError *fallError)
         {
             // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-            if (!ssoResult && (ssoError.code == MSIDErrorSSOExtensionUnexpectedError))
+            if (!fallResult && (fallError.code == MSIDErrorSSOExtensionUnexpectedError))
             {
                 completionBlock(result, error);
             }
             else
             {
-                completionBlock(ssoResult, ssoError);
+                completionBlock(fallResult, fallError);
             }
         };
-
+        
         [self.fallbackController acquireToken:completionBlockWrapper];
     }];
 }
