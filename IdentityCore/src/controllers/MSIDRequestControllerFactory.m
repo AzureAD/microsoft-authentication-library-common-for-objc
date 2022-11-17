@@ -47,7 +47,7 @@
     
     if ([parameters shouldUseBroker])
     {
-        if (@available(iOS 13.0, macOS 10.15, *))
+        if (@available(macOS 10.15, *))
         {
             if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
             {
@@ -156,10 +156,7 @@
         }
     }
     
-    if (@available(iOS 13.0, *))
-    {
-        brokerController.sdkBrokerCapabilities = @[MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY];
-    }
+    brokerController.sdkBrokerCapabilities = @[MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY];
     
     id<MSIDRequestControlling> ssoExtensionController = [self ssoExtensionInteractiveController:parameters
                                                                            tokenRequestProvider:tokenRequestProvider
@@ -201,7 +198,7 @@
                                                       fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                                                    error:(NSError * _Nullable * _Nullable)error
 {
-    if (@available(iOS 13.0, macOS 10.15, *))
+    if (@available(macOS 10.15, *))
     {
         if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
         {
@@ -254,7 +251,7 @@
 {
     if ([parameters shouldUseBroker])
     {
-        if (@available(iOS 13.0, macos 10.15, *))
+        if (@available(macOS 10.15, *))
         {
             if ([MSIDSSOExtensionSignoutController canPerformRequest])
             {

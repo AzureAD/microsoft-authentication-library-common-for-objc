@@ -1075,7 +1075,6 @@
 		B26CEAE723653C62009E6E54 /* MSIDASWebAuthenticationSessionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = B26CEAE523653C62009E6E54 /* MSIDASWebAuthenticationSessionHandler.h */; };
 		B26CEAE823653C62009E6E54 /* MSIDASWebAuthenticationSessionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B26CEAE623653C62009E6E54 /* MSIDASWebAuthenticationSessionHandler.m */; };
 		B26CEAE923653C62009E6E54 /* MSIDASWebAuthenticationSessionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B26CEAE623653C62009E6E54 /* MSIDASWebAuthenticationSessionHandler.m */; };
-		B26CEAFF2367ACFA009E6E54 /* MSIDSFAuthenticationSessionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B26CEAFE2367ACFA009E6E54 /* MSIDSFAuthenticationSessionHandler.m */; };
 		B26CEB022367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = B26CEB002367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.h */; };
 		B26CEB032367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B26CEB012367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.m */; };
 		B26CEB042367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B26CEB012367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.m */; };
@@ -2660,8 +2659,6 @@
 		B26CEADD2365311E009E6E54 /* MSIDMacLegacyCachePersistenceHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacLegacyCachePersistenceHandler.m; sourceTree = "<group>"; };
 		B26CEAE523653C62009E6E54 /* MSIDASWebAuthenticationSessionHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDASWebAuthenticationSessionHandler.h; sourceTree = "<group>"; };
 		B26CEAE623653C62009E6E54 /* MSIDASWebAuthenticationSessionHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDASWebAuthenticationSessionHandler.m; sourceTree = "<group>"; };
-		B26CEAFD2367ACFA009E6E54 /* MSIDSFAuthenticationSessionHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSFAuthenticationSessionHandler.h; sourceTree = "<group>"; };
-		B26CEAFE2367ACFA009E6E54 /* MSIDSFAuthenticationSessionHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSFAuthenticationSessionHandler.m; sourceTree = "<group>"; };
 		B26CEB002367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSystemWebViewControllerFactory.h; sourceTree = "<group>"; };
 		B26CEB012367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSystemWebViewControllerFactory.m; sourceTree = "<group>"; };
 		B274DEC621FC002300DB7757 /* MSIDInteractiveTokenRequestParametersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDInteractiveTokenRequestParametersTests.m; sourceTree = "<group>"; };
@@ -4298,8 +4295,6 @@
 		B245C2FC2106AD0A00CD5A52 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				B26CEAFD2367ACFA009E6E54 /* MSIDSFAuthenticationSessionHandler.h */,
-				B26CEAFE2367ACFA009E6E54 /* MSIDSFAuthenticationSessionHandler.m */,
 				9621605322FF4FCD00DF5D9A /* MSIDURLResponseHandling.h */,
 				960196FA208E579600D962D3 /* MSIDSafariViewController.h */,
 				960196FB208E579600D962D3 /* MSIDSafariViewController.m */,
@@ -7214,7 +7209,6 @@
 				B2C7B3B4213C681F009FFCC1 /* MSIDErrorConverter.m in Sources */,
 				B2C7089821991D0000D917B8 /* MSIDAADV2BrokerResponse.m in Sources */,
 				B28BDA85217E9676003E5670 /* MSIDB2CIdTokenClaims.m in Sources */,
-				B26CEAFF2367ACFA009E6E54 /* MSIDSFAuthenticationSessionHandler.m in Sources */,
 				B2AF1D27218BCD900080C1A0 /* MSIDBrokerInteractiveController.m in Sources */,
 				659929AB26296B0200830FD5 /* MSIDRequestTelemetryConstants.m in Sources */,
 				23B018A023554B2B00207FEC /* MSIDBrokerOperationTokenRequest.m in Sources */,
@@ -7567,7 +7561,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -7628,7 +7622,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -7687,9 +7681,9 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = MSIDTestsHostApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.MSIDTestsHostApp;
@@ -7737,9 +7731,9 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = MSIDTestsHostApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.MSIDTestsHostApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7803,7 +7797,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -7864,7 +7858,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7933,7 +7927,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACH_O_TYPE = staticlib;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7994,7 +7988,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACH_O_TYPE = staticlib;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -8058,7 +8052,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -8119,7 +8113,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -8186,7 +8180,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -8245,7 +8239,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8263,7 +8257,7 @@
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests iOS-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -8280,7 +8274,7 @@
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests iOS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -8297,7 +8291,7 @@
 					"$(inherited)",
 					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/Swift",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 			};
 			name = Debug;
 		};
@@ -8309,7 +8303,7 @@
 					"$(inherited)",
 					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/Swift",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 			};
 			name = Release;
 		};
@@ -8323,7 +8317,7 @@
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -8339,7 +8333,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
@@ -8351,7 +8345,7 @@
 			buildSettings = {
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 			};
 			name = Debug;
 		};
@@ -8360,7 +8354,7 @@
 			baseConfigurationReference = D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */;
 			buildSettings = {
 				ENABLE_BITCODE = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 			};
 			name = Release;
 		};
@@ -8369,7 +8363,7 @@
 			baseConfigurationReference = D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 			};
 			name = Debug;
 		};
@@ -8377,7 +8371,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 			};
 			name = Release;
 		};
@@ -8392,8 +8386,8 @@
 					"$(MSID_SYSTEMWV)",
 				);
 				GCC_WARN_SHADOW = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 			};
 			name = Debug;
 		};
@@ -8407,8 +8401,8 @@
 					"$(MSID_WEBKIT)",
 				);
 				GCC_WARN_SHADOW = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 			};
 			name = Release;
 		};
@@ -8418,7 +8412,7 @@
 			buildSettings = {
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 			};
 			name = Debug;
 		};
@@ -8427,7 +8421,7 @@
 			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
 				ENABLE_BITCODE = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 			};
 			name = Release;
 		};

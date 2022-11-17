@@ -36,11 +36,6 @@
     
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return nil;
     
-#if !TARGET_OS_MACCATALYST
-    __auto_type controller = [self msidCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
-    return controller;
-#else
-    
     for (UIWindow *window in [MSIDAppExtensionUtil sharedApplication].windows)
     {
         if (window.isKeyWindow)
@@ -51,7 +46,6 @@
     
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Couldn't find key window");
     return nil;
-#endif
 }
 
 + (UIViewController*)msidCurrentViewControllerWithRootViewController:(UIViewController *)rootViewController

@@ -57,7 +57,7 @@
 {
     __auto_type response = [[MSIDBrokerOperationTestResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     
-    XCTAssertEqual(@200, response.httpStatusCode);
+    XCTAssertEqual(200, [response.httpStatusCode intValue]);
 }
 
 - (void)testJsonDictionary_whenAllPropertiesSet_shouldReturnJson
