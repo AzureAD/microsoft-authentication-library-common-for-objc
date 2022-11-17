@@ -51,6 +51,8 @@
 - (void)setUserInformation:(MSIDAccount *)account;
 - (void)setOauthErrorCode:(NSString *)oauthErrorCode;
 
+- (void)setSsoExtFallBackFlow:(NSUInteger)ssoExtFallBackFlow;
+
 @end
 
 #endif
