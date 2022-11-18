@@ -120,7 +120,7 @@
                                 @"wipeTime" : [NSDate date]
                                 };
     
-    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
+    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo requiringSecureCoding:YES error:nil];
     
     MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
     MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:wipeData];

@@ -36,31 +36,23 @@
         return nil;
     }
 
-    if (@available(iOS 10.0, macOS 10.12, *))
-    {
-        SecKeyAlgorithm algorithm = kSecKeyAlgorithmRSAEncryptionOAEPSHA1;
-        
-        if (!SecKeyIsAlgorithmSupported(_publicKeyRef, kSecKeyOperationTypeEncrypt, algorithm)) {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to use the requested crypto algorithm with the provided key.");
-            return nil;
-        }
-
-        CFErrorRef error = nil;
-        NSData *encryptedBlobBytes = (NSData *)CFBridgingRelease(
-            SecKeyCreateEncryptedData(_publicKeyRef, algorithm, (__bridge CFDataRef)message, &error));
-        if (error)
-        {
-            NSError *err = CFBridgingRelease(error);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to encrypt data" stringByAppendingString:[NSString stringWithFormat:@"%ld", (long)err.code]]);
-            return nil;
-        }
-        return [encryptedBlobBytes base64EncodedStringWithOptions:0];
-    }
-    else
-    {
+    SecKeyAlgorithm algorithm = kSecKeyAlgorithmRSAEncryptionOAEPSHA1;
+    
+    if (!SecKeyIsAlgorithmSupported(_publicKeyRef, kSecKeyOperationTypeEncrypt, algorithm)) {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to use the requested crypto algorithm with the provided key.");
         return nil;
     }
+
+    CFErrorRef error = nil;
+    NSData *encryptedBlobBytes = (NSData *)CFBridgingRelease(
+        SecKeyCreateEncryptedData(_publicKeyRef, algorithm, (__bridge CFDataRef)message, &error));
+    if (error)
+    {
+        NSError *err = CFBridgingRelease(error);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to encrypt data" stringByAppendingString:[NSString stringWithFormat:@"%ld", (long)err.code]]);
+        return nil;
+    }
+    return [encryptedBlobBytes base64EncodedStringWithOptions:0];
 }
 
 @end

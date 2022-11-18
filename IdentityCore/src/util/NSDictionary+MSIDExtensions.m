@@ -156,7 +156,7 @@
 - (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context
 {
     NSError *serializationError = nil;
-    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:self options:0 error:&serializationError];
+    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:self options:NSJSONWritingSortedKeys error:&serializationError];
 
     if (!serializedData)
     {

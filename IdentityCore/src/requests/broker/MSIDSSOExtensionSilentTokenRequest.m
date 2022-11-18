@@ -43,6 +43,10 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
 
+#if !EXCLUDE_FROM_MSALCPP
+#import "MSIDLastRequestTelemetry.h"
+#endif
+
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
@@ -56,6 +60,8 @@
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
 @property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
 @property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
+@property (nonatomic) NSDate *requestSentDate;
+
 @end
 
 @implementation MSIDSSOExtensionSilentTokenRequest
@@ -86,7 +92,13 @@
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
             strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
 #endif
-
+            
+#if !EXCLUDE_FROM_MSALCPP
+            [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
+                                                requestStartDate:strongSelf.requestSentDate
+                                                   telemetryType:MSID_PERF_TELEMETRY_SILENT_TYPE];
+#endif
+            
             [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                                       requestParameters:strongSelf.requestParameters
                                                  tokenResponseValidator:strongSelf.tokenResponseValidator
@@ -209,6 +221,8 @@
 
     self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
     self.authorizationController.delegate = self.extensionDelegate;
+    
+    self.requestSentDate = [NSDate date];
     [self.authorizationController msidPerformRequests];
 
     self.requestCompletionBlock = completionBlock;

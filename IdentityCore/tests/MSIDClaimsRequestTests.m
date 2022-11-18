@@ -74,7 +74,7 @@
     
     [claimsRequest requestCapabilities:inputCapabilities];
     
-    NSString *expectedResult = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
+    NSString *expectedResult = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}},\"id_token\":{\"polids\":{\"essential\":true,\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"]}}}";
     NSString *jsonString = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:nil];
     XCTAssertEqualObjects(jsonString, expectedResult);
 }
@@ -86,7 +86,7 @@
     
     [claimsRequest requestCapabilities:inputCapabilities];
     
-    NSString *expectedResult = @"{\"access_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true},\"xms_cc\":{\"values\":[\"cp1\",\"llt\"]}}}";
+    NSString *expectedResult = @"{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"]},\"xms_cc\":{\"values\":[\"cp1\",\"llt\"]}}}";
     NSString *jsonString = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:nil];
     XCTAssertEqualObjects(jsonString, expectedResult);
 }

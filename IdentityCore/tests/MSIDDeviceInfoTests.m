@@ -235,7 +235,7 @@
         MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"full",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
-        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"token\":\"\",\"dict\":{\"key\":\"value\"},\"feature_flag1\":1}",
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
         MSID_EXTRA_DEVICE_INFO_KEY:@"{\"mdm_id\":\"mdmId\",\"object_id\":\"objectId\"}"
     };
     

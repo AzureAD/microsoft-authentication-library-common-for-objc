@@ -96,7 +96,8 @@
 
 - (NSString *)msidBase64UrlJson
 {
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self options:0 error:nil];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self options:NSJSONWritingSortedKeys
+ error:nil];
     return [NSString msidBase64UrlEncodedStringFromData:jsonData];
 }
 
