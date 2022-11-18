@@ -208,7 +208,7 @@ static WKWebViewConfiguration *s_webConfig;
     }
     else
     {
-        windowWidth = DEFAULT_WINDOW_WIDTH; 
+        windowWidth = DEFAULT_WINDOW_WIDTH;
         windowHeight = DEFAULT_WINDOW_HEIGHT;
     }
 
