@@ -198,8 +198,20 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (NSProgressIndicator *)prepareLoadingIndicator
 {
-    CGFloat windowWidth = DEFAULT_WINDOW_WIDTH;
-    CGFloat windowHeight = DEFAULT_WINDOW_HEIGHT;
+    CGFloat windowWidth;
+    CGFloat windowHeight;
+    
+    if (self.webView)
+    {
+        windowWidth = self.webView.frame.size.width;
+        windowHeight = self.webView.frame.size.height;
+    }
+    else
+    {
+        windowWidth = DEFAULT_WINDOW_WIDTH;
+        windowHeight = DEFAULT_WINDOW_HEIGHT;
+    }
+
     if (_platformParams && !NSIsEmptyRect([_platformParams customWindowRect]))
     {
         NSRect window = [_platformParams customWindowRect];
