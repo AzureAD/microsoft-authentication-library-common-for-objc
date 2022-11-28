@@ -61,7 +61,7 @@
     NSDictionary *additionalInfo = @{@"test": @"test"};
     cacheItem.additionalInfo = additionalInfo;
 
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem requiringSecureCoding:YES error:nil];
 
     XCTAssertNotNil(data);
 
@@ -123,7 +123,7 @@
                                      @"url": [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"]    };
     cacheItem.additionalInfo = additionalInfo;
 
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem requiringSecureCoding:YES error:nil];
 
     XCTAssertNotNil(data);
 
@@ -180,7 +180,7 @@
     NSDictionary *additionalInfo = @{@"test": @"test"};
     cacheItem.additionalInfo = additionalInfo;
 
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem requiringSecureCoding:YES error:nil];
 
     XCTAssertNotNil(data);
 

@@ -49,6 +49,7 @@ NSString *const MSID_TELEMETRY_KEY_EVENT_NAME                   = @"event_name";
 NSString *const MSID_TELEMETRY_KEY_AUTHORITY_TYPE               = @"authority_type";
 NSString *const MSID_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS  = @"authority_validation_status";
 NSString *const MSID_TELEMETRY_KEY_EXTENDED_EXPIRES_ON_SETTING  = @"extended_expires_on_setting";
+NSString *const MSID_TELEMETRY_KEY_SSO_EXT_FALLBCK_FLOW         = @"sso_ext_fallback_flow";
 NSString *const MSID_TELEMETRY_KEY_PROMPT_BEHAVIOR              = @"prompt_behavior";
 NSString *const MSID_TELEMETRY_KEY_UI_BEHAVIOR                  = @"ui_behavior";
 NSString *const MSID_TELEMETRY_KEY_RESULT_STATUS                = @"status";

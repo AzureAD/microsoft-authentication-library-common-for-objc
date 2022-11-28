@@ -59,6 +59,7 @@
 @property (nonatomic) NSUInteger tokenExpirationBuffer;
 @property (nonatomic) BOOL extendedLifetimeEnabled;
 @property (nonatomic) BOOL instanceAware;
+@property (nonatomic) BOOL allowUsingLocalCachedRtWhenSsoExtFailed;
 @property (nonatomic) NSString *intuneApplicationIdentifier;
 @property (nonatomic) MSIDRequestType requestType;
 #if !EXCLUDE_FROM_MSALCPP

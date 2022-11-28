@@ -222,7 +222,7 @@
     {
         components.percentEncodedQuery = query;
     }
-
+    
     return [components URL];
 }
 

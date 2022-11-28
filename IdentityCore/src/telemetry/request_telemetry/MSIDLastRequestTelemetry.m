@@ -29,6 +29,39 @@
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
 #import "MSIDRequestTelemetryConstants.h"
 
+@implementation MSIDRequestPerformanceInfo
+
+#define kTotalNumbers              @"totalNumbers"
+#define kIpcRequestNumbers         @"ipcRequestNumbers"
+#define kIpcResponseNumbers        @"ipcResponseNumbers"
+
+- (void)encodeWithCoder:(NSCoder *)encoder
+{
+    [encoder encodeObject:self.totalNumbers forKey:kTotalNumbers];
+    [encoder encodeObject:self.ipcRequestNumbers forKey:kIpcRequestNumbers];
+    [encoder encodeObject:self.ipcResponseNumbers forKey:kIpcResponseNumbers];
+}
+
+- (instancetype)initWithCoder:(NSCoder *)decoder
+{
+    self = [super init];
+    if (self)
+    {
+        NSSet *classes = [NSSet setWithObjects:[NSMutableArray class], [NSNumber class], nil];
+        self.totalNumbers = [decoder decodeObjectOfClasses:classes forKey:kTotalNumbers];
+        self.ipcRequestNumbers = [decoder decodeObjectOfClasses:classes forKey:kIpcRequestNumbers];
+        self.ipcResponseNumbers = [decoder decodeObjectOfClasses:classes forKey:kIpcResponseNumbers];
+    }
+    return self;
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
+@end
+
 @implementation MSIDRequestTelemetryErrorInfo
 
 #define kApiId              @"apiId"
@@ -66,11 +99,17 @@
 
 @end
 
+NSString * _Nonnull const MSID_PERF_TELEMETRY_SILENT_TYPE = @"silent";
+NSString * _Nonnull const MSID_PERF_TELEMETRY_SIGNOUT_TYPE = @"signout";
+NSString * _Nonnull const MSID_PERF_TELEMETRY_GETACCOUNTS_TYPE = @"accounts";
+NSString * _Nonnull const MSID_PERF_TELEMETRY_GETDEVICEINFO_TYPE = @"deviceinfo";
+
 @interface MSIDLastRequestTelemetry()
 
 @property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger silentSuccessfulCount;
+@property (nonatomic) NSMutableDictionary<NSString *, MSIDRequestPerformanceInfo *> *perfTelemetry;
 @property (nonatomic) NSMutableArray<NSString *> *platformFields;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
 @property (nonatomic) MSIDLastRequestTelemetrySerializedItem *telemetrySerializedItem;
@@ -184,6 +223,61 @@ static int maxErrorCountToArchive = 75;
     });
 }
 
+- (void)trackSSOExtensionPerformanceWithType:(NSString *)type
+                             totalPerfNumber:(NSTimeInterval)totalPerfNumber
+                        ipcRequestPerfNumber:(NSTimeInterval)ipcRequestPerfNumber
+                       ipcResponsePerfNumber:(NSTimeInterval)ipcResponsePerfNumber
+{
+    dispatch_barrier_async(self.synchronizationQueue, ^{
+        
+        [self trackSSOExtensionPerformanceWithTypeImpl:type
+                                       totalPerfNumber:totalPerfNumber
+                                  ipcRequestPerfNumber:ipcRequestPerfNumber
+                                 ipcResponsePerfNumber:ipcResponsePerfNumber];
+        
+        [self saveTelemetryToDisk];
+    });
+}
+
+- (void)trackSSOExtensionPerformanceWithTypeImpl:(NSString *)type
+                                 totalPerfNumber:(NSTimeInterval)totalPerfNumber
+                            ipcRequestPerfNumber:(NSTimeInterval)ipcRequestPerfNumber
+                           ipcResponsePerfNumber:(NSTimeInterval)ipcResponsePerfNumber
+{
+    if (!self.perfTelemetry)
+    {
+        self.perfTelemetry = [NSMutableDictionary new];
+    }
+    
+    MSIDRequestPerformanceInfo *perfInfo = self.perfTelemetry[type];
+    
+    if (!perfInfo)
+    {
+        perfInfo = [MSIDRequestPerformanceInfo new];
+    }
+    
+    if (!perfInfo.totalNumbers)
+    {
+        perfInfo.totalNumbers = [NSMutableArray new];
+    }
+    
+    if (!perfInfo.ipcRequestNumbers)
+    {
+        perfInfo.ipcRequestNumbers = [NSMutableArray new];
+    }
+    
+    if (!perfInfo.ipcResponseNumbers)
+    {
+        perfInfo.ipcResponseNumbers = [NSMutableArray new];
+    }
+    
+    [perfInfo.totalNumbers addObject:@(totalPerfNumber)];
+    [perfInfo.ipcRequestNumbers addObject:@(ipcRequestPerfNumber)];
+    [perfInfo.ipcResponseNumbers addObject:@(ipcResponsePerfNumber)];
+    
+    self.perfTelemetry[type] = perfInfo;
+}
+
 #pragma mark - MSIDTelemetryStringSerializable
 
 - (NSString *)telemetryString
@@ -201,12 +295,14 @@ static int maxErrorCountToArchive = 75;
 #define kSchemaVersion              @"schemaVersion"
 #define kSilentSuccessfulCount      @"silentSuccessfulCount"
 #define kErrorsInfo                 @"errorsInfo"
+#define kPerfTelemetry              @"perfTelemetry"
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
     [encoder encodeInteger:_schemaVersion forKey:kSchemaVersion];
     [encoder encodeInteger:_silentSuccessfulCount forKey:kSilentSuccessfulCount];
     [encoder encodeObject:_errorsInfo forKey:kErrorsInfo];
+    [encoder encodeObject:_perfTelemetry forKey:kPerfTelemetry];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)decoder
@@ -217,7 +313,10 @@ static int maxErrorCountToArchive = 75;
     NSSet *classes = [NSSet setWithObjects:[NSMutableArray class], [NSString class], [MSIDRequestTelemetryErrorInfo class], nil];
     NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo = [decoder decodeObjectOfClasses:classes forKey:kErrorsInfo];
     
-    return [self initFromDecodedObjectWithSchemaVersion:schemaVersion silentSuccessfulCount:silentSuccessfulCount errorsInfo:errorsInfo];
+    NSSet *perfClasses = [NSSet setWithObjects:[NSMutableDictionary class], [NSString class], [MSIDRequestPerformanceInfo class], nil];
+    NSDictionary *perfTelemetry = [decoder decodeObjectOfClasses:perfClasses forKey:kPerfTelemetry];
+    
+    return [self initFromDecodedObjectWithSchemaVersion:schemaVersion silentSuccessfulCount:silentSuccessfulCount errorsInfo:errorsInfo perfTelemetry:perfTelemetry];
 }
 
 + (BOOL)supportsSecureCoding
@@ -237,7 +336,49 @@ static int maxErrorCountToArchive = 75;
 - (MSIDLastRequestTelemetrySerializedItem *)createSerializedItem
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self->_silentSuccessfulCount]];
-    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self->_errorsInfo platformFields:self.platformFields];
+    
+    NSMutableArray *platformFields = [NSMutableArray new];
+    [platformFields addObjectsFromArray:self.platformFields];
+    
+    NSString *serializedPerfTelemetry = [self serializedPerfTelemetry];
+    
+    if (![NSString msidIsStringNilOrBlank:serializedPerfTelemetry])
+    {
+        [platformFields addObject:[self serializedPerfTelemetry]];
+    }
+    
+    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self->_errorsInfo platformFields:platformFields];
+}
+
+- (NSString *)serializedPerfTelemetry
+{
+    if (![self.perfTelemetry count])
+    {
+        return nil;
+    }
+    
+    NSString *serializedPerfTelemetry = [NSString stringWithFormat:@"%@;%@;%@;%@;",
+                                         [self serializedAverageForType:MSID_PERF_TELEMETRY_SILENT_TYPE],
+                                         [self serializedAverageForType:MSID_PERF_TELEMETRY_SIGNOUT_TYPE],
+                                         [self serializedAverageForType:MSID_PERF_TELEMETRY_GETACCOUNTS_TYPE],
+                                         [self serializedAverageForType:MSID_PERF_TELEMETRY_GETDEVICEINFO_TYPE]];
+    return serializedPerfTelemetry;
+}
+
+- (NSString *)serializedAverageForType:(NSString *)type
+{
+    MSIDRequestPerformanceInfo *perfInfo = self.perfTelemetry[type];
+    
+    if (!perfInfo)
+    {
+        return [NSString stringWithFormat:@"%@:", type];
+    }
+ 
+    NSNumber *totalAverage = perfInfo.totalNumbers ? [perfInfo.totalNumbers valueForKeyPath:@"@avg.self"] : nil;
+    NSNumber *ipcRequestAverage = perfInfo.ipcRequestNumbers ? [perfInfo.ipcRequestNumbers valueForKeyPath:@"@avg.self"] : nil;
+    NSNumber *ipcResponseAverage = perfInfo.ipcResponseNumbers ? [perfInfo.ipcResponseNumbers valueForKeyPath:@"@avg.self"] : nil;
+    
+    return [NSString stringWithFormat:@"%@:%f:%f:%f", type, [totalAverage doubleValue], [ipcRequestAverage doubleValue], [ipcResponseAverage doubleValue]];
 }
 
 #pragma mark - Update object
@@ -271,6 +412,8 @@ static int maxErrorCountToArchive = 75;
         {
             self->_errorsInfo = nil;
         }
+        
+        self.perfTelemetry = [NSMutableDictionary new];
 
         [self saveTelemetryToDisk];
     });
@@ -304,7 +447,7 @@ static int maxErrorCountToArchive = 75;
     }
 }
 
-- (instancetype)initFromDecodedObjectWithSchemaVersion:(NSInteger)schemaVersion silentSuccessfulCount:(NSInteger)silentSuccessfulCount errorsInfo:(NSMutableArray<MSIDRequestTelemetryErrorInfo *>*) errorsInfo
+- (instancetype)initFromDecodedObjectWithSchemaVersion:(NSInteger)schemaVersion silentSuccessfulCount:(NSInteger)silentSuccessfulCount errorsInfo:(NSMutableArray<MSIDRequestTelemetryErrorInfo *>*) errorsInfo perfTelemetry:(NSDictionary *)perfTelemetry
 {
     self = [super init];
     if (self)
@@ -315,6 +458,7 @@ static int maxErrorCountToArchive = 75;
             _silentSuccessfulCount = silentSuccessfulCount;
             _errorsInfo = errorsInfo;
             _synchronizationQueue = [self initializeDispatchQueue];
+            _perfTelemetry = [[NSMutableDictionary alloc] initWithDictionary:perfTelemetry];
             _platformFields = [NSMutableArray<NSString *> new];
         }
         else
