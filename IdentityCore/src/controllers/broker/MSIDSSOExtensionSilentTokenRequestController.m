@@ -33,16 +33,14 @@
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent broker extension flow.");
-    
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker extension flow finished. Result %@, error: %ld error domain: %@, shouldFallBack: %@", _PII_NULLIFY(result), (long)error.code, error.domain, @(self.fallbackController != nil));
         completionBlock(result, error);
     };
     
     __auto_type request = [self.tokenRequestProvider silentSSOExtensionTokenRequestWithParameters:self.requestParameters
-                                                                                        forceRefresh:self.forceRefresh];
-    
+                                                                                     forceRefresh:self.forceRefresh];
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 

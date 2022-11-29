@@ -1355,7 +1355,7 @@
     [MSIDTestURLSession addResponse:oidcResponse];
 
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
-                                                                                requestClaims:@"{\"access_token\":{\"polids\":{\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"],\"essential\":true}}}"
+                                                                                requestClaims:@"{\"access_token\":{\"polids\":{\"essential\":true,\"values\":[\"5ce770ea-8690-4747-aa73-c5b3cd509cd4\"]}}}"
                                                                                 requestScopes:@"user.read tasks.read openid profile offline_access"
                                                                                    responseAT:@"new at"
                                                                                    responseRT:@"new rt"

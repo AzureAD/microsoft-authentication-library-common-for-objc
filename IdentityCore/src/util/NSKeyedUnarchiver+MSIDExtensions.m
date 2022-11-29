@@ -28,16 +28,7 @@
 + (instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError **)error
 {
     NSKeyedUnarchiver *unarchiver;
-    if (@available(iOS 11.0, macOS 10.13, *))
-    {
-        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:error];
-    }
-#if !TARGET_OS_MACCATALYST
-    else
-    {
-        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-    }
-#endif
+    unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:error];
     
     return unarchiver;
 }
@@ -45,16 +36,7 @@
 + (id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError **)error
 {
     id result;
-    if (@available(iOS 11.0, macOS 10.13, *))
-    {
-        result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:error];
-    }
-#if !TARGET_OS_MACCATALYST
-    else
-    {
-        result = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-    }
-#endif
+    result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:error];
 
     return result;
 }

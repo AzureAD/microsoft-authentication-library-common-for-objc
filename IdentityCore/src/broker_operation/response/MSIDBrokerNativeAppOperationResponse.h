@@ -26,6 +26,9 @@
 #import "MSIDBrokerOperationResponse.h"
 
 @class MSIDDeviceInfo;
+#if !EXCLUDE_FROM_MSALCPP
+@class MSIDLastRequestTelemetry;
+#endif
 
 extern NSString * _Nonnull const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY;
 
@@ -43,10 +46,20 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, class, readonly) NSNumber *defaultHttpStatusCode;
 @property (nonatomic, nullable) NSDictionary *httpHeaders;
 @property (nonatomic) NSString *httpVersion;
+@property (nonatomic) NSDate *responseGenerationTimeStamp;
+@property (nonatomic) NSDate *requestReceivedTimeStamp;
 
 - (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
+
+#if !EXCLUDE_FROM_MSALCPP
+
+- (void)trackPerfTelemetryWithLastRequest:(MSIDLastRequestTelemetry *)telemetry
+                         requestStartDate:(NSDate *)requestStartDate
+                            telemetryType:(NSString *)telemetryType;
+
+#endif
 
 
 @end

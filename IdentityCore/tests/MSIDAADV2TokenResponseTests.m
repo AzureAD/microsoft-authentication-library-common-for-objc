@@ -74,7 +74,7 @@
     XCTAssertEqualObjects(json[@"refresh_in"], @"150");
     XCTAssertEqualObjects(json[@"refresh_on"], @"145635662");
     XCTAssertEqualObjects(json[@"foci"], @"family 1");
-    XCTAssertEqualObjects(json[@"id_token"], @"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ");
+    XCTAssertEqualObjects(json[@"id_token"], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
     XCTAssertEqualObjects(json[@"scope"], @"scope 1");
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");

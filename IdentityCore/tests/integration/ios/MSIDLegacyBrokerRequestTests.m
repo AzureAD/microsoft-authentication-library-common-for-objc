@@ -55,7 +55,7 @@
                                       @"broker_key": @"brokerKey",
                                       @"client_version": [MSIDVersion sdkVersion],
                                       @"extra_qp": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
-                                      @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%7D%7D",
+                                      @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D",
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"skip_cache": @"YES",

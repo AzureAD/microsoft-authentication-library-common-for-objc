@@ -34,15 +34,24 @@
 @class MSIDExternalAADCacheSeeder;
 #endif
 
+#if !EXCLUDE_FROM_MSALCPP
+@class MSIDLastRequestTelemetry;
+#endif
+
 @interface MSIDSilentTokenRequest : NSObject
 
 @property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, nullable) MSIDThrottlingService *throttlingService;
+@property (nonatomic) BOOL skipLocalRt;
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
+#endif
+
+#if !EXCLUDE_FROM_MSALCPP
+@property (nonatomic, readonly, nullable) MSIDLastRequestTelemetry *lastRequestTelemetry;
 #endif
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters

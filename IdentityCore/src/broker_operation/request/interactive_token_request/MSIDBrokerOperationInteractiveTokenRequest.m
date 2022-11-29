@@ -34,7 +34,7 @@
 
 + (void)load
 {
-    if (@available(iOS 13.0, macOS 10.15, *))
+    if (@available(macOS 10.15, *))
     {
         [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
     }
@@ -64,7 +64,7 @@
 
 + (NSString *)operation
 {
-    if (@available(iOS 13.0, macOS 10.15, *))
+    if (@available(macOS 10.15, *))
     {
         return ASAuthorizationOperationLogin;
     }

@@ -119,7 +119,7 @@
 - (void)testMsidBase64UrlDecode_whenEmpty_shouldReturnEmptyString
 {
     NSString *decodeEmpty = [@"" msidBase64UrlDecode];
-    XCTAssertEqualObjects(decodeEmpty, @"");
+    XCTAssertNil(decodeEmpty);
 }
 
 - (void)testMsidBase64UrlDecode_whenInvalid_shouldReturnNil

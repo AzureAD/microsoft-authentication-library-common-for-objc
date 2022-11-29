@@ -103,7 +103,7 @@ static MSIDWebviewSession *s_currentSession = nil;
         completionHandler(response, responseError);
     };
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Start webview authorization session with webview controller class %@: ", [s_currentSession.webviewController class]);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Start webview authorization session with webview controller class %@: ", [s_currentSession.webviewController class]);
     
     [s_currentSession.webviewController startWithCompletionHandler:startCompletionBlock];
 }

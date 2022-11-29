@@ -53,16 +53,9 @@ static WKWebViewConfiguration *s_webConfig;
 + (WKWebViewConfiguration *)defaultWKWebviewConfiguration
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
+    webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
 
-    if (@available(iOS 9.0, *))
-    {
-        webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
-    }
-    
-    if (@available(iOS 13.0, *))
-    {
-        webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
-    }
     return webConfig;
 }
 
@@ -151,11 +144,7 @@ static WKWebViewConfiguration *s_webConfig;
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
     [navController setModalPresentationStyle:_presentationType];
     
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *)) {
-        [navController setModalInPresentation:YES];
-    }
-#endif
+    [navController setModalInPresentation:YES];
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [self.parentController presentViewController:navController animated:YES completion:nil];
@@ -198,11 +187,7 @@ static WKWebViewConfiguration *s_webConfig;
     
     if (parentController) return YES;
     
-    if (@available(iOS 13.0, *)) return NO;
-    
-    parentController = [UIApplication msidCurrentViewController:parentController];
-    
-    return parentController != nil;
+    return NO;
 }
 
 - (void)setupCancelButton
@@ -216,20 +201,7 @@ static WKWebViewConfiguration *s_webConfig;
 - (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
 {
     UIActivityIndicatorView *loadingIndicator;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *))
-    {
-        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
-    }
-#if !TARGET_OS_MACCATALYST
-    else
-    {
-        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    }
-#endif
-#else
-    loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-#endif
+    loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
 
     [loadingIndicator setColor:[UIColor blackColor]];
     [loadingIndicator setCenter:rootView.center];

@@ -71,14 +71,15 @@
     XCTAssertEqualObjects(json[@"ext_expires_on"], @"0");
     XCTAssertEqualObjects(json[@"refresh_in"], @"0");
     XCTAssertEqualObjects(json[@"refresh_on"], @"0");
-    XCTAssertEqualObjects(json[@"id_token"], @"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ");
+    XCTAssertEqualObjects(json[@"id_token"], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"operation_token_response");
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
     XCTAssertEqualObjects(json[@"scope"], @"scope 1");
     XCTAssertEqualObjects(json[@"success"], @"1");
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
-    XCTAssertEqualObjects(json[@"additional_token_reponse"], @"{\"refresh_on\":\"0\",\"token_type\":\"Bearer\",\"scope\":\"scope 1\",\"ext_expires_in\":\"0\",\"provider_type\":\"provider_aad_v2\",\"ext_expires_on\":\"0\",\"refresh_in\":\"0\",\"expires_on\":\"0\",\"id_token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ\",\"access_token\":\"access_token\",\"expires_in\":\"300\"}");
+    XCTAssertEqualObjects(json[@"additional_token_reponse"],
+    @"{\"access_token\":\"access_token\",\"expires_in\":\"300\",\"expires_on\":\"0\",\"ext_expires_in\":\"0\",\"ext_expires_on\":\"0\",\"id_token\":\"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ\",\"provider_type\":\"provider_aad_v2\",\"refresh_in\":\"0\",\"refresh_on\":\"0\",\"scope\":\"scope 1\",\"token_type\":\"Bearer\"}");
     XCTAssertEqualObjects(json[@"device_mode"], @"personal");
     XCTAssertEqualObjects(json[@"sso_extension_mode"], @"full");
     XCTAssertEqualObjects(json[@"wpj_status"], @"notJoined");
@@ -111,7 +112,7 @@
     XCTAssertEqualObjects(json[@"ext_expires_in"], @"0");
     XCTAssertEqualObjects(json[@"ext_expires_on"], @"0");
     XCTAssertEqualObjects(json[@"refresh_in"], @"0");
-    XCTAssertEqualObjects(json[@"id_token"], @"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ");
+    XCTAssertEqualObjects(json[@"id_token"], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"operation_token_response");
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
@@ -180,14 +181,15 @@
     XCTAssertEqualObjects(json[@"ext_expires_on"], @"0");
     XCTAssertEqualObjects(json[@"refresh_in"], @"0");
     XCTAssertEqualObjects(json[@"refresh_on"], @"0");
-    XCTAssertEqualObjects(json[@"id_token"], @"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ");
+    XCTAssertEqualObjects(json[@"id_token"], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"operation_token_response");
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
     XCTAssertEqualObjects(json[@"scope"], @"scope 1");
     XCTAssertEqualObjects(json[@"success"], @"0");
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
-    XCTAssertEqualObjects(json[@"additional_token_reponse"], @"{\"refresh_on\":\"0\",\"token_type\":\"Bearer\",\"scope\":\"scope 1\",\"ext_expires_in\":\"0\",\"provider_type\":\"provider_aad_v2\",\"ext_expires_on\":\"0\",\"refresh_in\":\"0\",\"expires_on\":\"0\",\"id_token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ\",\"access_token\":\"access_token\",\"expires_in\":\"300\"}");
+    XCTAssertEqualObjects(json[@"additional_token_reponse"],
+    @"{\"access_token\":\"access_token\",\"expires_in\":\"300\",\"expires_on\":\"0\",\"ext_expires_in\":\"0\",\"ext_expires_on\":\"0\",\"id_token\":\"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ\",\"provider_type\":\"provider_aad_v2\",\"refresh_in\":\"0\",\"refresh_on\":\"0\",\"scope\":\"scope 1\",\"token_type\":\"Bearer\"}");
 }
 
 - (void)testJsonDictionary_whenNoAdditionalTokenResponseForFailureResponse_shouldReturnJson
@@ -215,7 +217,7 @@
     XCTAssertEqualObjects(json[@"ext_expires_on"], @"0");
     XCTAssertEqualObjects(json[@"refresh_in"], @"0");
     XCTAssertEqualObjects(json[@"refresh_on"], @"0");
-    XCTAssertEqualObjects(json[@"id_token"], @"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ");
+    XCTAssertEqualObjects(json[@"id_token"], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"operation_token_response");
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");

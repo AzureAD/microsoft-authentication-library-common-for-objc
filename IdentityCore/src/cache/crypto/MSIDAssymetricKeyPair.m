@@ -196,20 +196,13 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     if (!_keyData)
     {
         CFErrorRef keyExtractionError = NULL;
-        if (@available(iOS 10.0, macOS 10.12, *))
+        _keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(self.publicKeyRef, &keyExtractionError));
+        
+        if (!_keyData)
         {
-            _keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(self.publicKeyRef, &keyExtractionError));
-            
-            if (!_keyData)
-            {
-                NSError *error = CFBridgingRelease(keyExtractionError);
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read data from key ref %@", error);
-                return nil;
-            }
-        }
-        else
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to extract key data from SecKeyRef due to unsupported platform");
+            NSError *error = CFBridgingRelease(keyExtractionError);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read data from key ref %@", error);
+            return nil;
         }
     }
     
@@ -226,14 +219,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         return nil;
     }
     
-    if (@available(iOS 10.0, macOS 10.12, *))
-    {
-        return [encryptedMessage msidDecryptedDataWithAlgorithm:kSecKeyAlgorithmRSAEncryptionOAEPSHA1 privateKey:self.privateKeyRef];
-    }
-    else
-    {
-        return nil;
-    }
+    return [encryptedMessage msidDecryptedDataWithAlgorithm:kSecKeyAlgorithmRSAEncryptionOAEPSHA1 privateKey:self.privateKeyRef];
 }
 
 - (NSString *)signData:(NSString *)message
