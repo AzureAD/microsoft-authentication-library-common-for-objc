@@ -405,7 +405,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         return NO;
     }
     
-    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(msidError.msidOauthError, MSIDErrorServerInvalidGrant);
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthErrorWithSubErrorCode(msidError.msidOauthError, MSIDErrorServerInvalidGrant, msidError.msidSubError);
     
     if (oauthError == MSIDErrorServerInvalidScope
         || oauthError == MSIDErrorServerInvalidClient)

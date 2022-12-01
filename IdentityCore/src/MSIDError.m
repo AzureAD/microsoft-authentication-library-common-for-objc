@@ -99,8 +99,28 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     {
         return MSIDErrorServerAccessDenied;
     }
-    
+    if (oauthError && [oauthError caseInsensitiveCompare:@"tokenTransferFailedOTC"] == NSOrderedSame)
+    {
+        return MSIDErrorUserCancel;
+    }
     return defaultCode;
+}
+
+MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString *oauthError, MSIDErrorCode defaultCode, NSString *subError)
+{
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame && [subError caseInsensitiveCompare:@"transfer_token_expired"] == NSOrderedSame )
+    {
+        return MSIDErrorUserCancel;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && [subError caseInsensitiveCompare:@"tts_denied"] == NSOrderedSame )
+    {
+        return MSIDErrorUserCancel;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && [subError caseInsensitiveCompare:@"user_skipped"] == NSOrderedSame )
+    {
+        return MSIDErrorUserCancel;
+    }
+    return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
 }
 
 NSDictionary* MSIDErrorDomainsAndCodes()

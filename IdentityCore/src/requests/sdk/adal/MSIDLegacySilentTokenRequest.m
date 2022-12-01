@@ -96,7 +96,7 @@
 - (BOOL)shouldRemoveRefreshToken:(NSError *)serverError
 {
     // ADAL removes RTs on invalid_grant
-    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthErrorWithSubErrorCode(serverError.msidOauthError, MSIDErrorInternal, serverError.msidSubError);
     return oauthError == MSIDErrorServerInvalidGrant;
 }
 
