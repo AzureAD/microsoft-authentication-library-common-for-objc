@@ -94,7 +94,6 @@
         default:
             break;
     }
-    if (brokerController) localController.skipLocalRt = YES;
     
     return localController;
 }
