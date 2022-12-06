@@ -97,6 +97,10 @@
         _corruptSessionKey = [json[@"corrupt_session_key"] boolValue];
         _useSafariUserAgent = [json[@"use_safari_ua"] boolValue];
         _disableCertBasedAuth = [json[@"disable_cert_based_auth"] boolValue];
+        _registrationMode = (MSIDAutomationWPJRegistrationAPIMode)[json[@"wpj_registration_mode"] integerValue];
+        _wpjRegistrationTenantId = json[@"wpj_registration_tid"];
+        _wpjRegistrationUpn = json[@"wpj_registration_upn"];
+        _operateOnPrimaryWPJ = [json[@"wpj_operate_on_primary_reg"] boolValue];
     }
 
     return self;
@@ -169,6 +173,10 @@
     json[@"ssoExtensionInteractiveMode"] = @(_ssoExtensionInteractiveMode);
     json[@"token_type"] = _tokenType;
     json[@"disable_cert_based_auth"] = @(_disableCertBasedAuth);
+    json[@"wpj_registration_mode"] = @(_registrationMode);
+    json[@"wpj_registration_tid"] = _wpjRegistrationTenantId;
+    json[@"wpj_registration_upn"] = _wpjRegistrationUpn;
+    json[@"wpj_operate_on_primary_reg"] = @(_operateOnPrimaryWPJ);
     
     return json;
 }
