@@ -40,6 +40,7 @@
 
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
+                                                         skipLocalRt:(MSIDSilentSkipLocalRtType)skipLocalRt
                                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError **)error
 {
@@ -80,6 +81,19 @@
                                                                                     error:error];
     if (!localController) return nil;
     
+    switch (skipLocalRt) {
+        case MSIDSilentSkipLocalRt:
+            localController.skipLocalRt = YES;
+            break;
+        case MSIDSilentNotSkipLocalRt:
+            localController.skipLocalRt = NO;
+            break;
+        case MSIDSilentUndefinedSkipLocalRt:
+            if (brokerController) localController.skipLocalRt = YES;
+            break;
+        default:
+            break;
+    }
     if (brokerController) localController.skipLocalRt = YES;
     
     return localController;

@@ -31,10 +31,18 @@
 @class MSIDOauth2Factory;
 @class MSIDInteractiveRequestParameters;
 
+typedef NS_ENUM(NSInteger, MSIDSilentSkipLocalRtType)
+{
+    MSIDSilentSkipLocalRt = 0,
+    MSIDSilentNotSkipLocalRt = 1,
+    MSIDSilentUndefinedSkipLocalRt = 2
+};
+
 @interface MSIDRequestControllerFactory : NSObject
 
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
+                                                         skipLocalRt:(MSIDSilentSkipLocalRtType)skipLocalRt
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError * _Nullable * _Nullable)error;
 
