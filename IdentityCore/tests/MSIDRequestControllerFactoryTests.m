@@ -47,7 +47,7 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (void)testWhenForceToSkipLocalRt_isSet_shouldSkip_whenFallBackController_isValid
+- (void)testWhenForceToSkipLocalRt_isSet_shouldSkip_whenFallBackController_isValid API_AVAILABLE(macos(10.15))
 {
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
                                                                                               testError:nil
@@ -105,7 +105,7 @@
 }
 
 
-- (void)testWhenForceToUseLocalRt_isSet_shouldSkip_whenFallBackController_isValid
+- (void)testWhenForceToUseLocalRt_isSet_shouldSkip_whenFallBackController_isValid API_AVAILABLE(macos(10.15))
 {
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
                                                                                               testError:nil
@@ -162,7 +162,7 @@
     
 }
 
-- (void)testWhenUseLocalRt_isUnDefined_shouldSkip_whenFallBackController_isValid
+- (void)testWhenUseLocalRt_isUnDefined_shouldSkip_whenFallBackController_isValid API_AVAILABLE(macos(10.15))
 {
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
                                                                                               testError:nil
