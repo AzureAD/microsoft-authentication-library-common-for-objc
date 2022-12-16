@@ -79,6 +79,10 @@ extern NSString *const MSID_OAUTH2_CODE_CHALLENGE;
 extern NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD;
 extern NSString *const MSID_OAUTH2_CODE_VERIFIER;
 
+// Nested auth protocol
+extern NSString *const MSID_BROKER_CLIENT_ID;
+extern NSString *const MSID_BROKER_REDIRECT_URI;
+
 // AAD user identifiers
 extern NSString *const MSID_OAUTH2_CLIENT_INFO;
 extern NSString *const MSID_OAUTH2_UNIQUE_IDENTIFIER;

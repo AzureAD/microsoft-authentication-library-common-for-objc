@@ -22,8 +22,6 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDRequestContext.h"
-#import "MSIDCacheAccessor.h"
 #import "MSIDConstants.h"
 
 @class MSIDAuthority;
@@ -33,6 +31,8 @@
 @class MSIDConfiguration;
 @class MSIDClaimsRequest;
 @class MSIDAuthenticationScheme;
+@class MSIDRequestContext;
+@class MSIDCacheAccessor;
 #if !EXCLUDE_FROM_MSALCPP
 @class MSIDCurrentRequestTelemetry;
 #endif
@@ -66,7 +66,7 @@
 @property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
 #endif
 
-#pragma mark Double broker properties
+#pragma mark Nested auth protocol properties
 @property (nonatomic) NSString *nestedClientId;
 @property (nonatomic) NSString *nestedRedirectUri;
 
@@ -99,6 +99,8 @@
 - (BOOL)validateParametersWithError:(NSError **)error;
 
 - (void)updateAppRequestMetadata:(NSString *)homeAccountId;
+
+- (BOOL)isNestedAuthProtocol;
 
 #pragma mark - Init
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority

@@ -24,7 +24,6 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDRequestParameters+Internal.h"
 #import "MSIDVersion.h"
-#import "MSIDConstants.h"
 #import "MSIDAuthority.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDOpenIdProviderMetadata.h"
@@ -201,6 +200,12 @@
     [self updateMSIDConfiguration];
 }
 
+- (void)setRedirectUri:(NSString *)redirectUri
+{
+    _redirectUri = redirectUri;
+    [self updateMSIDConfiguration];
+}
+
 - (void)setTarget:(NSString *)target
 {
     _target = target;
@@ -232,11 +237,9 @@
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                  redirectUri:self.redirectUri
                                                                     clientId:self.clientId
-                                                                      target:self.target];
-    
-    // Double broker
-    config.nestedClientId = self.nestedClientId;
-    config.nestedRedirectUri = self.nestedRedirectUri;
+                                                                      target:self.target
+                                                              brokerClientId:self.nestedClientId
+                                                           brokerRedirectUri:self.nestedRedirectUri];
     
     config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
                                                                                                 appIdentifier:self.intuneApplicationIdentifier];
@@ -282,6 +285,16 @@
     self.appRequestMetadata = appRequestMetadata;
 }
 
+- (BOOL)isNestedAuthProtocol
+{
+    if (![NSString msidIsStringNilOrBlank:self.nestedClientId] && ![NSString msidIsStringNilOrBlank:self.nestedRedirectUri])
+    {
+        return YES;
+    }
+    
+    return NO;
+}
+
 #pragma mark - Validate
 
 - (BOOL)validateParametersWithError:(NSError **)error
@@ -323,6 +336,8 @@
     parameters->_cloudAuthority = [_cloudAuthority copyWithZone:zone];
     parameters->_redirectUri = [_redirectUri copyWithZone:zone];
     parameters->_clientId = [_clientId copyWithZone:zone];
+    parameters->_nestedClientId = [_nestedClientId copyWithZone:zone];
+    parameters->_nestedRedirectUri = [_nestedRedirectUri copyWithZone:zone];
     parameters->_target = [_target copyWithZone:zone];
     parameters->_oidcScope = [_oidcScope copyWithZone:zone];
     parameters->_accountIdentifier = [_accountIdentifier copyWithZone:zone];

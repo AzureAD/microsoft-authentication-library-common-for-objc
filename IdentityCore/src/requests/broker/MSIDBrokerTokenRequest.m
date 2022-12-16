@@ -152,6 +152,8 @@
     NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
     NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    NSString *brokerClientId = self.requestParameters.nestedClientId;
+    NSString *brokerRedirectUri = self.requestParameters.nestedRedirectUri;
     
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
@@ -179,6 +181,14 @@
         [queryDictionary msidSetNonEmptyString:capabilitiesString forKey:MSID_BROKER_SDK_CAPABILITIES_KEY];
     }
 
+    // Nested auth protocol
+    if (![NSString msidIsStringNilOrBlank:brokerClientId] && ![NSString msidIsStringNilOrBlank:brokerRedirectUri])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to payload");
+        queryDictionary[MSID_BROKER_CLIENT_ID] = brokerClientId;
+        queryDictionary[MSID_BROKER_REDIRECT_URI] = brokerRedirectUri;
+    }
+
     return queryDictionary;
 }
 
@@ -198,6 +208,13 @@
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
     [resumeDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [resumeDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    
+    if ([self.requestParameters isNestedAuthProtocol])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to resume dictionary");
+        [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedClientId forKey:MSID_BROKER_CLIENT_ID];
+        [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedRedirectUri forKey:MSID_BROKER_REDIRECT_URI];
+    }
     
     return resumeDictionary;
 }

@@ -30,8 +30,8 @@ extern NSString * const MSID_REDIRECT_URI_JSON_KEY;
 extern NSString * const MSID_CLIENT_ID_JSON_KEY;
 extern NSString * const MSID_SCOPE_JSON_KEY;
 extern NSString * const MSID_TOKEN_TYPE_JSON_KEY;
-extern NSString * const MSID_NESTED_REDIRECT_URI_JSON_KEY;
-extern NSString * const MSID_NESTED_CLIENT_ID_JSON_KEY;
+extern NSString * const MSID_BROKER_CLIENT_ID_JSON_KEY;
+extern NSString * const MSID_BROKER_REDIRECT_URI_JSON_KEY;
 
 @interface MSIDConfiguration : NSObject <NSCopying, MSIDJsonSerializable>
 
@@ -42,9 +42,9 @@ extern NSString * const MSID_NESTED_CLIENT_ID_JSON_KEY;
 @property (atomic, readonly) NSString *target;
 @property (atomic, readwrite) MSIDAuthenticationScheme *authScheme;
 
-// Double broker
-@property (atomic, readwrite) NSString *nestedRedirectUri;
-@property (atomic, readwrite) NSString *nestedClientId;
+// Nested auth protocol
+@property (atomic, readwrite) NSString *brokerClientId;
+@property (atomic, readwrite) NSString *brokerRedirectUri;
 
 @property (atomic, readwrite) NSString *applicationIdentifier;
 
@@ -61,5 +61,20 @@ extern NSString * const MSID_NESTED_CLIENT_ID_JSON_KEY;
                          clientId:(NSString *)clientId
                          resource:(NSString *)resource
                            scopes:(NSOrderedSet<NSString *> *)scopes;
+
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                           target:(NSString *)target
+                   brokerClientId:(NSString *)brokerClientId
+                brokerRedirectUri:(NSString *)brokerRedirectUri;
+
+- (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                      redirectUri:(NSString *)redirectUri
+                         clientId:(NSString *)clientId
+                         resource:(NSString *)resource
+                           scopes:(NSOrderedSet<NSString *> *)scopes
+                   brokerClientId:(NSString *)brokerClientId
+                brokerRedirectUri:(NSString *)brokerRedirectUri;
 
 @end

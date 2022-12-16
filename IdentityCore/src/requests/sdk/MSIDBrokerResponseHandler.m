@@ -81,7 +81,7 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Handling broker response.");
     
     // Verify resume dictionary
-    NSDictionary *resumeState = [self verifyResumeStateDicrionary:response error:error];
+    NSDictionary *resumeState = [self verifyResumeStateDictionary:response error:error];
 
     if (!resumeState)
     {
@@ -216,7 +216,7 @@
 
 #pragma mark - Helpers
 
-- (NSDictionary *)verifyResumeStateDicrionary:(NSURL *)response error:(NSError **)error
+- (NSDictionary *)verifyResumeStateDictionary:(NSURL *)response error:(NSError **)error
 {
     if (!response)
     {
@@ -234,6 +234,10 @@
 
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
     NSString *redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
+    
+    if ([[resumeDictionary allKeys] containsObject:MSID_BROKER_REDIRECT_URI]) {
+        redirectUri = [resumeDictionary objectForKey:MSID_BROKER_REDIRECT_URI];
+    }
 
     if (!redirectUri)
     {

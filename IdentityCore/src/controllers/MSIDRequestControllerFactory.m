@@ -155,6 +155,18 @@
 {
     MSIDBrokerInteractiveController *brokerController = nil;
     
+    // Nested auth protocol - Reverse client id & redirect uri
+    if ([parameters isNestedAuthProtocol])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Reversing client id & redirect uri");
+        NSString *tempClientId = parameters.nestedClientId;
+        NSString *tempRedirectUri = parameters.nestedRedirectUri;
+        parameters.nestedClientId = parameters.clientId;
+        parameters.nestedRedirectUri = parameters.redirectUri;
+        parameters.clientId = tempClientId;
+        parameters.redirectUri = tempRedirectUri;
+    }
+    
     NSError *brokerControllerError;
     if ([MSIDBrokerInteractiveController canPerformRequest:parameters])
     {
