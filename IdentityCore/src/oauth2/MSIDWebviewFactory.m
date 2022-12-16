@@ -181,6 +181,14 @@
         result[MSID_OAUTH2_CODE_CHALLENGE] = pkce.codeChallenge;
         result[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = pkce.codeChallengeMethod;
     }
+    
+    // Nested auth protocol
+    if ([parameters isNestedAuthProtocol])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to webview");
+        result[MSID_BROKER_CLIENT_ID] = parameters.nestedClientId;
+        result[MSID_BROKER_REDIRECT_URI] = parameters.nestedRedirectUri;
+    }
 
     // State
     result[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
@@ -254,9 +262,16 @@
     NSString *oauthState = [self generateStateValue];
     NSDictionary *authorizeQuery = [self authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:oauthState];
     NSURL *startURL = [self startURLWithEndpoint:authorizeEndpoint authority:parameters.authority query:authorizeQuery context:parameters];
-    
+    NSString *endRedirectUri = parameters.redirectUri;
+
+    // Nested auth protocol
+    if ([parameters isNestedAuthProtocol])
+    {
+        endRedirectUri = parameters.nestedRedirectUri;
+    }
+
     MSIDAuthorizeWebRequestConfiguration *configuration = [[MSIDAuthorizeWebRequestConfiguration alloc] initWithStartURL:startURL
-                                                                                  endRedirectUri:parameters.redirectUri
+                                                                                  endRedirectUri:endRedirectUri
                                                                                             pkce:pkce
                                                                                            state:oauthState
                                                                               ignoreInvalidState:NO];
