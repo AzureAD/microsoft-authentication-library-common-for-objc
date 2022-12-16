@@ -25,6 +25,8 @@
 #import "MSIDLogger+Trace.h"
 #import "MSIDLogger+Internal.h"
 #import "MSIDKeychainUtil.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 static dispatch_queue_t s_customizedSynchronizationQueue;
 static dispatch_queue_t s_defaultSynchronizationQueue;
@@ -387,3 +389,5 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 }
 
 @end
+
+#pragma clang diagnostic pop
