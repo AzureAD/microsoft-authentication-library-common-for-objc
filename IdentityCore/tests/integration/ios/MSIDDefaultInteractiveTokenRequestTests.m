@@ -730,6 +730,115 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+- (void)testInteractiveRequestFlow_whenNestedAuth_shouldReturnResultWithBrokerParametersAndNoError
+{
+    __block NSUUID *correlationId = [NSUUID new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
+    parameters.target = @"fakescope1 fakescope2";
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
+    parameters.clientId = @"my_client_id";
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.loginHint = @"fakeuser@contoso.com";
+    parameters.correlationId = correlationId;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
+    parameters.extraScopesToConsent = @"fakescope3";
+    parameters.oidcScope = @"openid profile offline_access";
+    parameters.promptType = MSIDPromptTypeConsent;
+    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    parameters.enablePkce = YES;
+    parameters.nestedClientId = @"123-456-7890-123";
+    parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
+
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                             oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                               tokenCache:self.tokenCache accountMetadataCache:self.metadataCache extendedTokenCache:nil];
+
+    XCTAssertNotNil(request);
+
+    // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
+    [MSIDTestSwizzle classMethod:@selector(startSessionWithWebView:oauth2Factory:configuration:context:completionHandler:)
+                           class:[MSIDWebviewAuthorization class]
+                           block:(id)^(
+                                   __unused id obj,
+                                   __unused NSObject<MSIDWebviewInteracting> *webview,
+                                   __unused MSIDOauth2Factory *oauth2Factory,
+                                   __unused MSIDBaseWebRequestConfiguration *configuration,
+                                   __unused id<MSIDRequestContext> context,
+                                   MSIDWebviewAuthCompletionHandler completionHandler)
+                           {
+                               NSString *responseString = [NSString stringWithFormat:@"x-msauth-test://com.microsoft.testapp?code=iamafakecode&client_info=%@", [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson]];
+
+                               MSIDWebAADAuthCodeResponse *oauthResponse = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:[NSURL URLWithString:responseString]
+                                                                                                                   context:nil error:nil];
+                               completionHandler(oauthResponse, nil);
+                           }];
+
+    NSMutableDictionary *reqHeaders = [[MSIDTestURLResponse msidDefaultRequestHeaders] mutableCopy];
+    reqHeaders[@"Content-Type"] = @"application/x-www-form-urlencoded";
+
+    NSString *url = @"https://login.microsoftonline.com/common/oauth2/v2.0/token";
+
+    MSIDTestURLResponse *response =
+            [MSIDTestURLResponse requestURLString:url
+                                   requestHeaders:reqHeaders
+                                requestParamsBody:@{ @"code" : @"iamafakecode",
+                                        @"client_id" : @"my_client_id",
+                                        @"scope" : @"fakescope1 fakescope2 openid profile offline_access",
+                                        @"redirect_uri" : @"x-msauth-test://com.microsoft.testapp",
+                                        @"grant_type" : @"authorization_code",
+                                        @"code_verifier" : [MSIDTestRequireValueSentinel sentinel],
+                                        @"client_info" : @"1",
+                                        @"brk_client_id" : @"123-456-7890-123",
+                                        @"brk_redirect_uri" : @"msauth.com.app.id://auth"}
+                                responseURLString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"
+                                     responseCode:200
+                                 httpHeaderFields:nil
+                                 dictionaryAsJSON:@{ @"access_token" : @"i am a access token!",
+                                         @"expires_in" : @"600",
+                                         @"refresh_token" : @"i am a refresh token",
+                                         @"id_token" : [MSIDTestIdTokenUtil defaultV2IdToken],
+                                         @"id_token_expires_in" : @"1200",
+                                         @"client_info" : [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson],
+                                         @"scope": @"fakescope1 fakescope2 openid profile offline_access"
+                                 }];
+
+    [response->_requestHeaders removeObjectForKey:@"Content-Length"];
+
+    [MSIDTestURLSession addResponse:response];
+
+    NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
+
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+        XCTAssertNotNil(result.account);
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
+        XCTAssertEqualObjects(result.account.name, [MSIDTestIdTokenUtil defaultName]);
+        XCTAssertEqualObjects(result.account.username, [MSIDTestIdTokenUtil defaultUsername]);
+        XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
+        XCTAssertFalse(result.extendedLifeTimeToken);
+        XCTAssertEqualObjects(result.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY_GUID);
+        XCTAssertNil(installBrokerResponse);
+        XCTAssertNil(error);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
 #if TARGET_OS_IPHONE
 - (void)testInteractiveRequestFlow_whenOpenBrowserResponse_shouldOpenLink
 {
