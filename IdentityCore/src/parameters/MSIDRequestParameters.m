@@ -206,6 +206,18 @@
     [self updateMSIDConfiguration];
 }
 
+- (void)setNestedClientId:(NSString *)nestedClientId
+{
+    _nestedClientId = nestedClientId;
+    [self updateMSIDConfiguration];
+}
+
+- (void)setNestedRedirectUri:(NSString *)nestedRedirectUri
+{
+    _nestedRedirectUri = nestedRedirectUri;
+    [self updateMSIDConfiguration];
+}
+
 - (void)setTarget:(NSString *)target
 {
     _target = target;

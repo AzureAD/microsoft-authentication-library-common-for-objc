@@ -121,6 +121,7 @@
 
     MSIDAuthorizeWebRequestConfiguration *configuration = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
     XCTAssertNotNil(configuration);
+    XCTAssertEqualObjects(configuration.endRedirectUrl, parameters.redirectUri);
     
     NSURLComponents *startURLComponents = [NSURLComponents componentsWithURL:configuration.startURL resolvingAgainstBaseURL:NO];
     startURLComponents.query = nil;
@@ -258,6 +259,106 @@
     XCTAssertTrue([response isKindOfClass:MSIDWebOpenBrowserResponse.class]);
     XCTAssertNil(error);
 }
+
+- (void)testAuthorizationParametersFromParameters_whenNestedAuthParametersMissing_shouldNotBeIncluded
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.instanceAware = YES;
+    parameters.nestedClientId = nil;
+    parameters.nestedRedirectUri = nil;
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_CLIENT_ID]);
+    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_REDIRECT_URI]);
+}
+
+- (void)testAuthorizationParametersFromParameters_whenNestedAuthParametersIncomplete1_shouldNotBeIncluded
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.instanceAware = YES;
+    parameters.nestedClientId = @"123-456-7890-123";
+    parameters.nestedRedirectUri = nil;
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_CLIENT_ID]);
+    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_REDIRECT_URI]);
+}
+
+- (void)testAuthorizationParametersFromParameters_whenNestedAuthParametersIncomplete2_shouldNotBeIncluded
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.instanceAware = YES;
+    parameters.nestedClientId = nil;
+    parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_CLIENT_ID]);
+    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_REDIRECT_URI]);
+}
+
+- (void)testAuthorizationParametersFromParameters_whenNestedAuthParametersComplete_shouldBeIncluded
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.instanceAware = YES;
+    parameters.nestedClientId = @"123-456-7890-123";
+    parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    XCTAssertTrue([[params allKeys] containsObject:MSID_BROKER_CLIENT_ID]);
+    XCTAssertTrue([[params allKeys] containsObject:MSID_BROKER_REDIRECT_URI]);
+    XCTAssertEqualObjects(params[MSID_BROKER_CLIENT_ID], @"123-456-7890-123");
+    XCTAssertEqualObjects(params[MSID_BROKER_REDIRECT_URI], @"msauth.com.app.id://auth");
+}
+
+- (void)testWebViewConfiguration_whenNestedAuth_shouldSetEndUrlToNestedRedirectUri
+{
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    __auto_type record = [MSIDAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"login.microsoftonline.com";
+    [cache setObject:record forKey:@"login.windows.net"];
+
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    MSIDAuthority *authority = [@"https://login.windows.net/common" aadAuthority];
+    MSIDOpenIdProviderMetadata *metadata = [MSIDOpenIdProviderMetadata new];
+    metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.windows.net/contoso.com/mypath/oauth/authorize"];
+    authority.metadata = metadata;
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.authority = authority;
+    parameters.nestedClientId = @"123-456-7890-123";
+    parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
+
+    MSIDAuthorizeWebRequestConfiguration *configuration = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
+    XCTAssertNotNil(configuration);
+    XCTAssertEqualObjects(configuration.endRedirectUrl, parameters.nestedRedirectUri);
+}
+
 #if AD_BROKER
 - (void)testResponseWithURL_whenReceivedSSONonceRedirect_shouldReturnError
 {
