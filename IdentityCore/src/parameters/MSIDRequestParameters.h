@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDRequestContext.h"
+#import "MSIDCacheAccessor.h"
 #import "MSIDConstants.h"
 
 @class MSIDAuthority;
@@ -31,8 +33,6 @@
 @class MSIDConfiguration;
 @class MSIDClaimsRequest;
 @class MSIDAuthenticationScheme;
-@class MSIDRequestContext;
-@class MSIDCacheAccessor;
 #if !EXCLUDE_FROM_MSALCPP
 @class MSIDCurrentRequestTelemetry;
 #endif
