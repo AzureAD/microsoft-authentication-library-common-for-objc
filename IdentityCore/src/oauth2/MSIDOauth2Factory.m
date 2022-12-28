@@ -290,6 +290,12 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Trying to initialize refresh token when missing refresh token field");
         return NO;
     }
+    
+    // Nested auth protocol - RT is for 'broker/hub' client id
+    if (![NSString msidIsStringNilOrBlank:configuration.brokerClientId])
+    {
+        token.clientId = configuration.brokerClientId;
+    }
 
     return YES;
 }
