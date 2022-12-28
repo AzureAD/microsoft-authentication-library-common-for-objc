@@ -39,6 +39,7 @@
 #import "MSIDAccount.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAccessToken.h"
+#import "MSIDRefreshToken.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDTestIdentifiers.h"
@@ -828,6 +829,7 @@
         XCTAssertEqualObjects(result.account.username, [MSIDTestIdTokenUtil defaultUsername]);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
+        XCTAssertEqualObjects(((MSIDRefreshToken*)result.refreshToken).clientId, parameters.nestedClientId, @"Make sure RT's clientId is from nested client id");
         XCTAssertFalse(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY_GUID);
         XCTAssertNil(installBrokerResponse);
