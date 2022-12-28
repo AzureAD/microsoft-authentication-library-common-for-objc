@@ -241,4 +241,14 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
     return json;
 }
 
+- (BOOL)isNestedAuthProtocol
+{
+    if (![NSString msidIsStringNilOrBlank:self.brokerClientId] && ![NSString msidIsStringNilOrBlank:self.brokerRedirectUri])
+    {
+        return YES;
+    }
+    
+    return NO;
+}
+
 @end

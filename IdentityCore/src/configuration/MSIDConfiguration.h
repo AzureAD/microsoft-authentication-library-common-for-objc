@@ -77,4 +77,6 @@ extern NSString * const MSID_BROKER_REDIRECT_URI_JSON_KEY;
                    brokerClientId:(NSString *)brokerClientId
                 brokerRedirectUri:(NSString *)brokerRedirectUri;
 
+- (BOOL)isNestedAuthProtocol;
+
 @end
