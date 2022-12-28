@@ -219,7 +219,7 @@
 - (BOOL)shouldRemoveRefreshToken:(NSError *)serverError
 {
     // MSAL removes RTs on invalid_grant + bad token combination
-    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthErrorWithSubErrorCode(serverError.msidOauthError, MSIDErrorInternal, serverError.msidSubError);
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
     NSString *subError = serverError.msidSubError;
     return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorBadToken];
 }
