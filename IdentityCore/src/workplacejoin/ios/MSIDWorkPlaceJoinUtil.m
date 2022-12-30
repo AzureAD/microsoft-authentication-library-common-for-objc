@@ -150,7 +150,10 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
                                                           privateKey:privateKey
                                                          certificate:certificate
                                                    certificateIssuer:certificateIssuer];
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Registration information failed to be created");
+        if (!info)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Registration information failed to be created");
+        }
     }
     
     CFReleaseNull(identity);
