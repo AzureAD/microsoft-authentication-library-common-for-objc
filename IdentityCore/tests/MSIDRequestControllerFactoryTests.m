@@ -29,6 +29,7 @@
 #import "MSIDRequestControllerFactory.h"
 #import "MSIDTestTokenRequestProvider.h"
 #import "MSIDSilentController.h"
+#import "MSIDLocalInteractiveController.h"
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDRequestParameters+Broker.h"
@@ -79,8 +80,6 @@
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
     XCTAssertTrue([(MSIDSilentController *)controller skipLocalRt]);
-    
-    
 }
 
 - (void)testWhenForceToSkipLocalRt_isSet_shouldSkip_whenFallBackController_isNotSet
@@ -100,10 +99,7 @@
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
     XCTAssertTrue([(MSIDSilentController *)controller skipLocalRt]);
-    
-    
 }
-
 
 - (void)testWhenForceToUseLocalRt_isSet_shouldSkip_whenFallBackController_isValid API_AVAILABLE(macos(10.15))
 {
@@ -137,8 +133,6 @@
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
     XCTAssertFalse([(MSIDSilentController *)controller skipLocalRt]);
-    
-    
 }
 
 - (void)testWhenForceToUseLocalRt_isSet_shouldSkip_whenFallBackController_isNotSet
@@ -158,8 +152,6 @@
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
     XCTAssertFalse([(MSIDSilentController *)controller skipLocalRt]);
-    
-    
 }
 
 - (void)testWhenUseLocalRt_isUnDefined_shouldSkip_whenFallBackController_isValid API_AVAILABLE(macos(10.15))
@@ -213,8 +205,57 @@
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
     XCTAssertFalse([(MSIDSilentController *)controller skipLocalRt]);
-    
-    
+}
+
+- (void)testInteractiveController_whenNestedAuth_parametersAreReversed
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.nestedClientId = @"other_client_id";
+    parameters.nestedRedirectUri = @"other_redirect_uri";
+
+    NSError *error;
+
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters
+                                                                                        tokenRequestProvider:provider
+                                                                                                       error:&error];
+
+    XCTAssertTrue([controller isKindOfClass:MSIDLocalInteractiveController.class]);
+
+    MSIDRequestParameters *requestParameters = [(MSIDLocalInteractiveController *)controller requestParameters];
+    XCTAssertEqualObjects(requestParameters.clientId, @"other_client_id");
+    XCTAssertEqualObjects(requestParameters.redirectUri, @"other_redirect_uri");
+    XCTAssertEqualObjects(requestParameters.nestedClientId, @"my_client_id");
+    XCTAssertEqualObjects(requestParameters.nestedRedirectUri, @"my_redirect_uri");
+}
+
+- (void)testSilentController_whenNestedAuth_parametersAreReversed
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDRequestParameters *parameters = [self requestParameters];
+    parameters.nestedClientId = @"other_client_id";
+    parameters.nestedRedirectUri = @"other_redirect_uri";
+
+    NSError *error;
+
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory silentControllerForParameters:parameters
+                                                                                           forceRefresh:YES
+                                                                                            skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
+                                                                                   tokenRequestProvider:provider
+                                                                                                  error:&error];
+
+    XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
+
+    MSIDRequestParameters *requestParameters = [(MSIDSilentController *)controller requestParameters];
+
+    XCTAssertEqualObjects(requestParameters.clientId, @"other_client_id");
+    XCTAssertEqualObjects(requestParameters.redirectUri, @"other_redirect_uri");
+    XCTAssertEqualObjects(requestParameters.nestedClientId, @"my_client_id");
+    XCTAssertEqualObjects(requestParameters.nestedRedirectUri, @"my_redirect_uri");
 }
 
 - (MSIDInteractiveTokenRequestParameters *)requestParameters
@@ -229,7 +270,6 @@
     parameters.extendedLifetimeEnabled = YES;
     parameters.telemetryRequestId = [[NSUUID new] UUIDString];
     return parameters;
-
 }
 
 @end
