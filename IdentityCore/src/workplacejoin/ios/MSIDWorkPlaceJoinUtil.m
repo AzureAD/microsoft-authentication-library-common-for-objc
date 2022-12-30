@@ -179,6 +179,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     
     if (status != errSecSuccess)
     {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to get registration information failed - %@ shared access Group - status %d", accessGroup, (int)status);
         return NULL;
     }
     
