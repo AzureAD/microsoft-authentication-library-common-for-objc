@@ -1,5 +1,6 @@
 TBD
 * Add skip local RT when creating silent controller
+* Add support for nested auth protocol (#1175)
 
 Version 1.7.13
 * Update minimum OS version to iOS14 and macOS 10.13
