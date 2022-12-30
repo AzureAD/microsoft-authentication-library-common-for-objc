@@ -123,7 +123,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
     identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer privateKeyDict:&keyDict];
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to retrieve WPJ identity.identity %@, typeIdMismatch %@", @(!identity), @(CFGetTypeID(identity) != SecIdentityGetTypeID()));
         CFReleaseNull(identity);
         return nil;
     }
@@ -150,6 +150,7 @@ static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privat
                                                           privateKey:privateKey
                                                          certificate:certificate
                                                    certificateIssuer:certificateIssuer];
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Registration information failed to be created");
     }
     
     CFReleaseNull(identity);
