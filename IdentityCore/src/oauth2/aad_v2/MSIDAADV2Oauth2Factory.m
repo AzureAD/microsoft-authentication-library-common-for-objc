@@ -206,8 +206,8 @@
         NSMutableDictionary<NSString *, NSString *> *nestedAuthParams = [tokenRequest.parameters mutableCopy];
         
         // Nested auth protocol
-        nestedAuthParams[MSID_BROKER_CLIENT_ID] = parameters.nestedClientId;
-        nestedAuthParams[MSID_BROKER_REDIRECT_URI] = parameters.nestedRedirectUri;
+        nestedAuthParams[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = parameters.nestedClientId;
+        nestedAuthParams[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = parameters.nestedRedirectUri;
         
         tokenRequest.parameters = nestedAuthParams;
     }
@@ -254,8 +254,8 @@
         NSMutableDictionary<NSString *, NSString *> *nestedAuthParams = [tokenRequest.parameters mutableCopy];
 
         // Nested auth protocol
-        nestedAuthParams[MSID_BROKER_CLIENT_ID] = parameters.nestedClientId;
-        nestedAuthParams[MSID_BROKER_REDIRECT_URI] = parameters.nestedRedirectUri;
+        nestedAuthParams[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = parameters.nestedClientId;
+        nestedAuthParams[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = parameters.nestedRedirectUri;
 
         tokenRequest.parameters = nestedAuthParams;
     }

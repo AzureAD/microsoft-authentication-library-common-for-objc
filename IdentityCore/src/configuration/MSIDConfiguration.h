@@ -30,8 +30,8 @@ extern NSString * const MSID_REDIRECT_URI_JSON_KEY;
 extern NSString * const MSID_CLIENT_ID_JSON_KEY;
 extern NSString * const MSID_SCOPE_JSON_KEY;
 extern NSString * const MSID_TOKEN_TYPE_JSON_KEY;
-extern NSString * const MSID_BROKER_CLIENT_ID_JSON_KEY;
-extern NSString * const MSID_BROKER_REDIRECT_URI_JSON_KEY;
+extern NSString * const MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY;
+extern NSString * const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY;
 
 @interface MSIDConfiguration : NSObject <NSCopying, MSIDJsonSerializable>
 
@@ -43,8 +43,8 @@ extern NSString * const MSID_BROKER_REDIRECT_URI_JSON_KEY;
 @property (atomic, readwrite) MSIDAuthenticationScheme *authScheme;
 
 // Nested auth protocol
-@property (atomic, readwrite) NSString *brokerClientId;
-@property (atomic, readwrite) NSString *brokerRedirectUri;
+@property (atomic, readwrite) NSString *nestedAuthBrokerClientId;
+@property (atomic, readwrite) NSString *nestedAuthBrokerRedirectUri;
 
 @property (atomic, readwrite) NSString *applicationIdentifier;
 
@@ -66,16 +66,16 @@ extern NSString * const MSID_BROKER_REDIRECT_URI_JSON_KEY;
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target
-                   brokerClientId:(NSString *)brokerClientId
-                brokerRedirectUri:(NSString *)brokerRedirectUri;
+         nestedAuthBrokerClientId:(NSString *)nestedAuthBrokerClientId
+      nestedAuthBrokerRedirectUri:(NSString *)nestedAuthBrokerRedirectUri;
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                          resource:(NSString *)resource
                            scopes:(NSOrderedSet<NSString *> *)scopes
-                   brokerClientId:(NSString *)brokerClientId
-                brokerRedirectUri:(NSString *)brokerRedirectUri;
+         nestedAuthBrokerClientId:(NSString *)nestedAuthBrokerClientId
+      nestedAuthBrokerRedirectUri:(NSString *)nestedAuthBrokerRedirectUri;
 
 - (BOOL)isNestedAuthProtocol;
 

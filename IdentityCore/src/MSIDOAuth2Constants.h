@@ -80,8 +80,8 @@ extern NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD;
 extern NSString *const MSID_OAUTH2_CODE_VERIFIER;
 
 // Nested auth protocol
-extern NSString *const MSID_BROKER_CLIENT_ID;
-extern NSString *const MSID_BROKER_REDIRECT_URI;
+extern NSString *const MSID_NESTED_AUTH_BROKER_CLIENT_ID;
+extern NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI;
 
 // AAD user identifiers
 extern NSString *const MSID_OAUTH2_CLIENT_INFO;

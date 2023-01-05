@@ -304,8 +304,8 @@
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
 
     XCTAssertFalse([parameters isNestedAuthProtocol]);
-    XCTAssertNil(parameters.msidConfiguration.brokerClientId);
-    XCTAssertNil(parameters.msidConfiguration.brokerRedirectUri);
+    XCTAssertNil(parameters.msidConfiguration.nestedAuthBrokerClientId);
+    XCTAssertNil(parameters.msidConfiguration.nestedAuthBrokerRedirectUri);
 }
 
 - (void)testNestedAuthRequestParameters_whenExtraParameters_shouldReturnNestedAuthConfiguration
@@ -328,13 +328,13 @@
     parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
 
     XCTAssertTrue([parameters isNestedAuthProtocol]);
-    XCTAssertEqualObjects(parameters.msidConfiguration.brokerClientId, @"123-456-7890-123");
-    XCTAssertEqualObjects(parameters.msidConfiguration.brokerRedirectUri, @"msauth.com.app.id://auth");
+    XCTAssertEqualObjects(parameters.msidConfiguration.nestedAuthBrokerClientId, @"123-456-7890-123");
+    XCTAssertEqualObjects(parameters.msidConfiguration.nestedAuthBrokerRedirectUri, @"msauth.com.app.id://auth");
 
     NSDictionary *jsonConfiguration = parameters.msidConfiguration.jsonDictionary;
 
-    XCTAssertEqualObjects(jsonConfiguration[MSID_BROKER_CLIENT_ID_JSON_KEY], @"123-456-7890-123");
-    XCTAssertEqualObjects(jsonConfiguration[MSID_BROKER_REDIRECT_URI_JSON_KEY], @"msauth.com.app.id://auth");
+    XCTAssertEqualObjects(jsonConfiguration[MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY], @"123-456-7890-123");
+    XCTAssertEqualObjects(jsonConfiguration[MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY], @"msauth.com.app.id://auth");
 }
 
 @end

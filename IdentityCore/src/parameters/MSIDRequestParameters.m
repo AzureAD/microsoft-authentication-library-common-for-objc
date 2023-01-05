@@ -250,8 +250,8 @@
                                                                  redirectUri:self.redirectUri
                                                                     clientId:self.clientId
                                                                       target:self.target
-                                                              brokerClientId:self.nestedClientId
-                                                           brokerRedirectUri:self.nestedRedirectUri];
+                                                    nestedAuthBrokerClientId:self.nestedClientId
+                                                 nestedAuthBrokerRedirectUri:self.nestedRedirectUri];
     
     config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
                                                                                                 appIdentifier:self.intuneApplicationIdentifier];

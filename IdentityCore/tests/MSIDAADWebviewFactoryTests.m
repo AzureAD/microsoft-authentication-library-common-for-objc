@@ -274,8 +274,8 @@
 
     NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
 
-    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_CLIENT_ID]);
-    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_REDIRECT_URI]);
+    XCTAssertFalse([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_CLIENT_ID]);
+    XCTAssertFalse([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_REDIRECT_URI]);
 }
 
 - (void)testAuthorizationParametersFromParameters_whenNestedAuthParametersIncomplete1_shouldNotBeIncluded
@@ -292,8 +292,8 @@
 
     NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
 
-    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_CLIENT_ID]);
-    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_REDIRECT_URI]);
+    XCTAssertFalse([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_CLIENT_ID]);
+    XCTAssertFalse([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_REDIRECT_URI]);
 }
 
 - (void)testAuthorizationParametersFromParameters_whenNestedAuthParametersIncomplete2_shouldNotBeIncluded
@@ -310,8 +310,8 @@
 
     NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
 
-    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_CLIENT_ID]);
-    XCTAssertFalse([[params allKeys] containsObject:MSID_BROKER_REDIRECT_URI]);
+    XCTAssertFalse([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_CLIENT_ID]);
+    XCTAssertFalse([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_REDIRECT_URI]);
 }
 
 - (void)testAuthorizationParametersFromParameters_whenNestedAuthParametersComplete_shouldBeIncluded
@@ -328,10 +328,10 @@
 
     NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
 
-    XCTAssertTrue([[params allKeys] containsObject:MSID_BROKER_CLIENT_ID]);
-    XCTAssertTrue([[params allKeys] containsObject:MSID_BROKER_REDIRECT_URI]);
-    XCTAssertEqualObjects(params[MSID_BROKER_CLIENT_ID], @"123-456-7890-123");
-    XCTAssertEqualObjects(params[MSID_BROKER_REDIRECT_URI], @"msauth.com.app.id://auth");
+    XCTAssertTrue([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_CLIENT_ID]);
+    XCTAssertTrue([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_REDIRECT_URI]);
+    XCTAssertEqualObjects(params[MSID_NESTED_AUTH_BROKER_CLIENT_ID], @"123-456-7890-123");
+    XCTAssertEqualObjects(params[MSID_NESTED_AUTH_BROKER_REDIRECT_URI], @"msauth.com.app.id://auth");
 }
 
 - (void)testWebViewConfiguration_whenNestedAuth_shouldSetEndUrlToNestedRedirectUri
