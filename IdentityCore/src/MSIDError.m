@@ -108,18 +108,21 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
 
 MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString *oauthError, MSIDErrorCode defaultCode, NSString *subError)
 {
-    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame && subError && [subError caseInsensitiveCompare:@"transfer_token_expired"] == NSOrderedSame )
-    {   // When account Transfter Token is expired.
-        return MSIDErrorUserCancel;
+    if (subError == nil) {
+        return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
     }
-    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && subError && [subError caseInsensitiveCompare:@"tts_denied"] == NSOrderedSame )
-    {   //when user cancels, this is the same error we return to mobile app for Account Transfer
-        return MSIDErrorUserCancel;
-    }
-    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && subError && [subError caseInsensitiveCompare:@"user_skipped"] == NSOrderedSame )
-    {   //Account Transfter, when user skips the QR code page.
-        return MSIDErrorUserCancel;
-    }
+//    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame && [subError caseInsensitiveCompare:@"transfer_token_expired"] == NSOrderedSame )
+//    {   // When account Transfter Token is expired.
+//        return MSIDErrorUserCancel;
+//    }
+//    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && [subError caseInsensitiveCompare:@"tts_denied"] == NSOrderedSame )
+//    {   //when user cancels, this is the same error we return to mobile app for Account Transfer
+//        return MSIDErrorUserCancel;
+//    }
+//    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && [subError caseInsensitiveCompare:@"user_skipped"] == NSOrderedSame )
+//    {   //Account Transfter, when user skips the QR code page.
+//        return MSIDErrorUserCancel;
+//    }
     return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
 }
 
