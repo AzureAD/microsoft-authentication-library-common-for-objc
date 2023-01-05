@@ -144,33 +144,47 @@
     
     XCTAssertNil(result);
 }
+@end
 
-- (void)testMSIDErrorWithSubErrorCodeShouldReturnMSIDErrorCode
+@interface MSIDErrorWithSubErrorTests : XCTestCase
+
+@end
+
+@implementation MSIDErrorWithSubErrorTests
+
+- (void)testMSIDErrorWithInvalidGrantAndSubErrorTransferTokenExpiredShouldReturnUserCanceled
 {
     NSError *errorWithInvalidGrantAndTransferTokenExpired = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"invalid_grant", @"transfer_token_expired", nil, nil, nil, NO);
-    NSError *errorWithAccessDeniedAndTTSDenied = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"invalid_grant", @"transfer_token_expired", nil, nil, nil, NO);
-    NSError *errorWithAccessDeniedAndUserSkipped = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"invalid_grant", @"transfer_token_expired", nil, nil, nil, NO);
-    NSError *errorWithTransferTokenFailedError= MSIDCreateError(@"TestDomain", -5555, @"Test description", @"tokenTransferFailedOTC", @"test_sub_error", nil, nil, nil, NO);
-    NSError *errorWithInvalidGrantWithOutTransferTokenExpired = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"invalid_grant", @"test_sub_error", nil, nil, nil, NO);
-    
     XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithInvalidGrantAndTransferTokenExpired.userInfo[MSIDOAuthErrorKey],
                                                               MSIDErrorUserCancel,
                                                               errorWithInvalidGrantAndTransferTokenExpired.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
+}
+
+- (void)testMSIDErrorWithAccessDeniedAndSubErrorTTSDeniedShouldReturnUserCanceled
+{
+    NSError *errorWithAccessDeniedAndTTSDenied = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"access_denied", @"tts_denied", nil, nil, nil, NO);
     XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithAccessDeniedAndTTSDenied.userInfo[MSIDOAuthErrorKey],
                                                               MSIDErrorUserCancel,
                                                               errorWithAccessDeniedAndTTSDenied.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
+}
+- (void)testMSIDErrorWithAccessDeniedAndSubErrorUserSkippedShouldReturnUserCanceled
+{
+    NSError *errorWithAccessDeniedAndUserSkipped = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"access_denied", @"user_skipped", nil, nil, nil, NO);
     XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithAccessDeniedAndUserSkipped.userInfo[MSIDOAuthErrorKey],
                                                               MSIDErrorUserCancel,
                                                               errorWithAccessDeniedAndUserSkipped.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
-    XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithTransferTokenFailedError.userInfo[MSIDOAuthErrorKey],
-                                                              MSIDErrorUserCancel,
-                                                              errorWithTransferTokenFailedError.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
-    XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithInvalidGrantWithOutTransferTokenExpired.userInfo[MSIDOAuthErrorKey],
-                                                              MSIDErrorUserCancel,
-                                                              errorWithInvalidGrantWithOutTransferTokenExpired.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorServerInvalidGrant);
-
-    
-
+}
+- (void)testMSIDErrorWithTransferTokenFailedShouldReturnUserCanceled
+{
+      NSError *errorWithTransferTokenFailedError= MSIDCreateError(@"TestDomain", -5555, @"Test description", @"tokenTransferFailedOTC", @"test_sub_error", nil, nil, nil, NO);
+     XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithTransferTokenFailedError.userInfo[MSIDOAuthErrorKey],
+                                                               MSIDErrorUserCancel,
+                                                               errorWithTransferTokenFailedError.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
+}
+- (void)testMSIDErrorWithInvalidGrantAndSubErrorTestSubErrorShouldReturnInvalidGrantError
+{
+    NSError *errorWithInvalidGrantWithOutTransferTokenExpired = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"invalid_grant", @"test_sub_error", nil, nil, nil, NO);
+    XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithInvalidGrantWithOutTransferTokenExpired.userInfo[MSIDOAuthErrorKey], MSIDErrorUserCancel,errorWithInvalidGrantWithOutTransferTokenExpired.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorServerInvalidGrant);
 }
 
 @end

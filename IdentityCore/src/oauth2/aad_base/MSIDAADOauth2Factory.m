@@ -105,7 +105,7 @@
             
             /* This is a special error case for True MAM,
              where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
-            MSIDErrorCode oauthErrorCode = MSIDErrorCodeForOAuthErrorWithSubErrorCode(response.error, MSIDErrorServerOauth, response.suberror);
+            MSIDErrorCode oauthErrorCode = MSIDErrorCodeForOAuthError(response.error, MSIDErrorServerOauth);
             if (oauthErrorCode == MSIDErrorServerUnauthorizedClient
                 && [response.suberror isEqualToString:MSID_PROTECTION_POLICY_REQUIRED])
             {
