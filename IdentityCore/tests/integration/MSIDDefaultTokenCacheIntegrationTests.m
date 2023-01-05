@@ -738,8 +738,8 @@
                                                                         redirectUri:nil
                                                                            clientId:DEFAULT_TEST_CLIENT_ID
                                                                              target:DEFAULT_TEST_RESOURCE
-                                                                     brokerClientId:@"other_client_id"
-                                                                  brokerRedirectUri:@"other_redirect_uri"];
+                                                           nestedAuthBrokerClientId:@"other_client_id"
+                                                        nestedAuthBrokerRedirectUri:@"other_redirect_uri"];
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
                                                                             homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];

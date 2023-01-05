@@ -183,8 +183,8 @@
     if ([self.requestParameters isNestedAuthProtocol])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to payload");
-        queryDictionary[MSID_BROKER_CLIENT_ID] = self.requestParameters.nestedClientId;
-        queryDictionary[MSID_BROKER_REDIRECT_URI] = self.requestParameters.nestedRedirectUri;
+        queryDictionary[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = self.requestParameters.nestedClientId;
+        queryDictionary[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = self.requestParameters.nestedRedirectUri;
     }
 
     return queryDictionary;
@@ -210,8 +210,8 @@
     if ([self.requestParameters isNestedAuthProtocol])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to resume dictionary");
-        [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedClientId forKey:MSID_BROKER_CLIENT_ID];
-        [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedRedirectUri forKey:MSID_BROKER_REDIRECT_URI];
+        [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedClientId forKey:MSID_NESTED_AUTH_BROKER_CLIENT_ID];
+        [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedRedirectUri forKey:MSID_NESTED_AUTH_BROKER_REDIRECT_URI];
     }
     
     return resumeDictionary;

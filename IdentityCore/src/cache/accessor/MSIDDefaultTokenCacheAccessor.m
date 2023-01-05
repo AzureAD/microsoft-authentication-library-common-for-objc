@@ -212,7 +212,7 @@
     if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType) return nil;
 
     // For nested auth, get the RT using the broker/hub's client id
-    NSString *clientId = [configuration isNestedAuthProtocol] ? configuration.brokerClientId : configuration.clientId;
+    NSString *clientId = [configuration isNestedAuthProtocol] ? configuration.nestedAuthBrokerClientId : configuration.clientId;
 
     if (![NSString msidIsStringNilOrBlank:accountIdentifier.homeAccountId])
     {

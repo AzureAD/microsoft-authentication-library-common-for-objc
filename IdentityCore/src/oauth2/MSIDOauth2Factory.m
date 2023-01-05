@@ -292,9 +292,9 @@
     }
     
     // Nested auth protocol - RT is for 'broker/hub' client id
-    if (![NSString msidIsStringNilOrBlank:configuration.brokerClientId])
+    if (![NSString msidIsStringNilOrBlank:configuration.nestedAuthBrokerClientId])
     {
-        token.clientId = configuration.brokerClientId;
+        token.clientId = configuration.nestedAuthBrokerClientId;
     }
 
     return YES;

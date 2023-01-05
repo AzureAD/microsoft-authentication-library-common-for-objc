@@ -173,8 +173,8 @@
                                                                         redirectUri:nil
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target
-                                                                     brokerClientId:brokerResponse.brokerClientId
-                                                                  brokerRedirectUri:nil];
+                                                           nestedAuthBrokerClientId:brokerResponse.nestedAuthBrokerClientId
+                                                        nestedAuthBrokerRedirectUri:nil];
     
     configuration.authScheme = authScheme;
     

@@ -235,8 +235,8 @@
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeDictionary objectForKey:@"correlation_id"]];
     NSString *redirectUri = [resumeDictionary objectForKey:@"redirect_uri"];
     
-    if ([[resumeDictionary allKeys] containsObject:MSID_BROKER_REDIRECT_URI]) {
-        redirectUri = [resumeDictionary objectForKey:MSID_BROKER_REDIRECT_URI];
+    if ([[resumeDictionary allKeys] containsObject:MSID_NESTED_AUTH_BROKER_REDIRECT_URI]) {
+        redirectUri = [resumeDictionary objectForKey:MSID_NESTED_AUTH_BROKER_REDIRECT_URI];
     }
 
     if (!redirectUri)

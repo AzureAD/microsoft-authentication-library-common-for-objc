@@ -439,8 +439,8 @@
                                                                                            homeAccountId:@"home_account_id"];
 
     XCTAssertNotNil(request);
-    XCTAssertEqualObjects(request.parameters[MSID_BROKER_CLIENT_ID], @"other_client_id");
-    XCTAssertEqualObjects(request.parameters[MSID_BROKER_REDIRECT_URI], @"other_redirect_uri");
+    XCTAssertEqualObjects(request.parameters[MSID_NESTED_AUTH_BROKER_CLIENT_ID], @"other_client_id");
+    XCTAssertEqualObjects(request.parameters[MSID_NESTED_AUTH_BROKER_REDIRECT_URI], @"other_redirect_uri");
 }
 
 - (void)testRefreshTokenRequest_whenNestedAuth_shouldIncludeAdditionalParameters
@@ -452,8 +452,8 @@
                                                                                  refreshToken:@"the_refresh_token"];
 
     XCTAssertNotNil(request);
-    XCTAssertEqualObjects(request.parameters[MSID_BROKER_CLIENT_ID], @"other_client_id");
-    XCTAssertEqualObjects(request.parameters[MSID_BROKER_REDIRECT_URI], @"other_redirect_uri");
+    XCTAssertEqualObjects(request.parameters[MSID_NESTED_AUTH_BROKER_CLIENT_ID], @"other_client_id");
+    XCTAssertEqualObjects(request.parameters[MSID_NESTED_AUTH_BROKER_REDIRECT_URI], @"other_redirect_uri");
 }
 
 - (MSIDInteractiveTokenRequestParameters *)nestedAuthRequestParameters

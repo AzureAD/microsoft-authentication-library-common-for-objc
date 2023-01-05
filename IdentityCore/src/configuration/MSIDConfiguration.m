@@ -34,8 +34,8 @@ NSString *const MSID_REDIRECT_URI_JSON_KEY = @"redirect_uri";
 NSString *const MSID_CLIENT_ID_JSON_KEY = @"client_id";
 NSString *const MSID_SCOPE_JSON_KEY = @"scope";
 NSString *const MSID_TOKEN_TYPE_JSON_KEY = @"token_type";
-NSString *const MSID_BROKER_CLIENT_ID_JSON_KEY = @"brk_client_id";
-NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
+NSString *const MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY = @"brk_client_id";
+NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
 
 @interface MSIDConfiguration()
 
@@ -58,8 +58,8 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
     configuration.scopes = [_scopes copyWithZone:zone];
     configuration.applicationIdentifier = [_applicationIdentifier copyWithZone:zone];
     configuration.authScheme = [_authScheme copyWithZone:zone];
-    configuration.brokerClientId = [_brokerClientId copyWithZone:zone];
-    configuration.brokerRedirectUri = [_brokerRedirectUri copyWithZone:zone];
+    configuration.nestedAuthBrokerClientId = [_nestedAuthBrokerClientId copyWithZone:zone];
+    configuration.nestedAuthBrokerRedirectUri = [_nestedAuthBrokerRedirectUri copyWithZone:zone];
     return configuration;
 }
 
@@ -72,8 +72,8 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
                        redirectUri:redirectUri
                           clientId:clientId
                             target:target
-                    brokerClientId:nil
-                 brokerRedirectUri:nil];
+          nestedAuthBrokerClientId:nil
+       nestedAuthBrokerRedirectUri:nil];
 }
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
@@ -87,16 +87,16 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
                           clientId:clientId
                           resource:resource
                             scopes:scopes
-                    brokerClientId:nil
-                 brokerRedirectUri:nil];
+          nestedAuthBrokerClientId:nil
+       nestedAuthBrokerRedirectUri:nil];
 }
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            target:(NSString *)target
-                   brokerClientId:(NSString *)brokerClientId
-                brokerRedirectUri:(NSString *)brokerRedirectUri
+         nestedAuthBrokerClientId:(NSString *)nestedAuthBrokerClientId
+      nestedAuthBrokerRedirectUri:(NSString *)nestedAuthBrokerRedirectUri
 {
     self = [super init];
     
@@ -116,8 +116,8 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
         _authScheme = [MSIDAuthenticationScheme new];
         
         // Nested auth protocol
-        _brokerClientId = brokerClientId;
-        _brokerRedirectUri = brokerRedirectUri;
+        _nestedAuthBrokerClientId = nestedAuthBrokerClientId;
+        _nestedAuthBrokerRedirectUri = nestedAuthBrokerRedirectUri;
     }
     
     return self;
@@ -128,8 +128,8 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
                          clientId:(NSString *)clientId
                          resource:(NSString *)resource
                            scopes:(NSOrderedSet<NSString *> *)scopes
-                   brokerClientId:(NSString *)brokerClientId
-                brokerRedirectUri:(NSString *)brokerRedirectUri
+         nestedAuthBrokerClientId:(NSString *)nestedAuthBrokerClientId
+      nestedAuthBrokerRedirectUri:(NSString *)nestedAuthBrokerRedirectUri
 {
     self = [super init];
     
@@ -144,8 +144,8 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
         _authScheme = [MSIDAuthenticationScheme new];
         
         // Nested auth protocol
-        _brokerClientId = brokerClientId;
-        _brokerRedirectUri = brokerRedirectUri;
+        _nestedAuthBrokerClientId = nestedAuthBrokerClientId;
+        _nestedAuthBrokerRedirectUri = nestedAuthBrokerRedirectUri;
     }
     
     return self;
@@ -167,18 +167,18 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
     if (![json msidAssertType:NSString.class ofKey:MSID_SCOPE_JSON_KEY required:NO error:error]) return nil;
     NSString *target = [json msidStringObjectForKey:MSID_SCOPE_JSON_KEY];
     
-    if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_CLIENT_ID_JSON_KEY required:NO error:error]) return nil;
-    NSString *brokerClientId = [json msidStringObjectForKey:MSID_BROKER_CLIENT_ID_JSON_KEY];
+    if (![json msidAssertType:NSString.class ofKey:MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY required:NO error:error]) return nil;
+    NSString *nestedAuthBrokerClientId = [json msidStringObjectForKey:MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY];
     
-    if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_REDIRECT_URI_JSON_KEY required:NO error:error]) return nil;
-    NSString *brokerRedirectUri = [json msidStringObjectForKey:MSID_BROKER_REDIRECT_URI_JSON_KEY];
+    if (![json msidAssertType:NSString.class ofKey:MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY required:NO error:error]) return nil;
+    NSString *nestedAuthBrokerRedirectUri = [json msidStringObjectForKey:MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY];
     
     MSIDConfiguration *config = [self initWithAuthority:authority
                                             redirectUri:redirectUri
                                                clientId:clientId
                                                  target:target
-                                         brokerClientId:brokerClientId
-                                      brokerRedirectUri:brokerRedirectUri];
+                               nestedAuthBrokerClientId:nestedAuthBrokerClientId
+                            nestedAuthBrokerRedirectUri:nestedAuthBrokerRedirectUri];
     
     /*
      We pass error as nil in auth scheme creation as token_type key will only be added for MSIDAuthenticationSchemePop.
@@ -217,8 +217,8 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
     json[MSID_SCOPE_JSON_KEY] = self.target;
     
     // Nested auth protocol
-    json[MSID_BROKER_REDIRECT_URI_JSON_KEY] = self.brokerRedirectUri;
-    json[MSID_BROKER_CLIENT_ID_JSON_KEY] = self.brokerClientId;
+    json[MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY] = self.nestedAuthBrokerRedirectUri;
+    json[MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY] = self.nestedAuthBrokerClientId;
     
     NSDictionary *authSchemeJson = [self.authScheme jsonDictionary];
     if (!authSchemeJson)
@@ -234,7 +234,7 @@ NSString *const MSID_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
 
 - (BOOL)isNestedAuthProtocol
 {
-    if (![NSString msidIsStringNilOrBlank:self.brokerClientId] && ![NSString msidIsStringNilOrBlank:self.brokerRedirectUri])
+    if (![NSString msidIsStringNilOrBlank:self.nestedAuthBrokerClientId] && ![NSString msidIsStringNilOrBlank:self.nestedAuthBrokerRedirectUri])
     {
         return YES;
     }

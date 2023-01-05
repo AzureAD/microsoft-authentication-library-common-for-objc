@@ -186,8 +186,8 @@
     if ([parameters isNestedAuthProtocol])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to webview");
-        result[MSID_BROKER_CLIENT_ID] = parameters.nestedClientId;
-        result[MSID_BROKER_REDIRECT_URI] = parameters.nestedRedirectUri;
+        result[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = parameters.nestedClientId;
+        result[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = parameters.nestedRedirectUri;
     }
 
     // State
