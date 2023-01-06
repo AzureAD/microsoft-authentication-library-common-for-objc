@@ -73,7 +73,8 @@ extern NSString * _Nonnull MSIDServerUnavailableStatusKey;
 extern NSString * _Nonnull MSIDInvalidTokenResultKey;
 
 /*!
- SSO extensioMSIDErrorCodeForOAuthErrorWithSubErrorCoder defined under ASAuthorizationErrorDomain.
+ SSO extension failed with underlying error.
+ This error defined under ASAuthorizationErrorDomain.
  */
 extern NSInteger const MSIDSSOExtensionUnderlyingError;
 
