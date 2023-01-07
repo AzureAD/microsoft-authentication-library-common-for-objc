@@ -102,6 +102,8 @@
 
 - (BOOL)isNestedAuthProtocol;
 
+- (void)reverseNestedAuthParametersIfNeeded;
+
 #pragma mark - Init
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
                        authScheme:(MSIDAuthenticationScheme *)authScheme
