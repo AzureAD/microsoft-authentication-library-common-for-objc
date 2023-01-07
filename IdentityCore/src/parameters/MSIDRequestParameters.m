@@ -307,6 +307,21 @@
     return NO;
 }
 
+- (void)reverseNestedAuthParametersIfNeeded
+{
+    // Nested auth protocol - Reverse client id & redirect uri if it hasn't been done yet
+    if ([self isNestedAuthProtocol] && [self.nestedRedirectUri hasPrefix:@"brk-"])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Reversing client id & redirect uri");
+        NSString *tempClientId = self.nestedClientId;
+        NSString *tempRedirectUri = self.nestedRedirectUri;
+        self.nestedClientId = self.clientId;
+        self.nestedRedirectUri = self.redirectUri;
+        self.clientId = tempClientId;
+        self.redirectUri = tempRedirectUri;
+    }
+}
+
 #pragma mark - Validate
 
 - (BOOL)validateParametersWithError:(NSError **)error

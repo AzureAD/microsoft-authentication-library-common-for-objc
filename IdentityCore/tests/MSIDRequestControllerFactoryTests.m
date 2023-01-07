@@ -214,7 +214,7 @@
                                                                                   testWebMSAuthResponse:nil];
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.nestedClientId = @"other_client_id";
-    parameters.nestedRedirectUri = @"other_redirect_uri";
+    parameters.nestedRedirectUri = @"brk-other_redirect_uri";
 
     NSError *error;
 
@@ -226,7 +226,7 @@
 
     MSIDRequestParameters *requestParameters = [(MSIDLocalInteractiveController *)controller requestParameters];
     XCTAssertEqualObjects(requestParameters.clientId, @"other_client_id");
-    XCTAssertEqualObjects(requestParameters.redirectUri, @"other_redirect_uri");
+    XCTAssertEqualObjects(requestParameters.redirectUri, @"brk-other_redirect_uri");
     XCTAssertEqualObjects(requestParameters.nestedClientId, @"my_client_id");
     XCTAssertEqualObjects(requestParameters.nestedRedirectUri, @"my_redirect_uri");
 }
@@ -238,7 +238,7 @@
                                                                                   testWebMSAuthResponse:nil];
     MSIDRequestParameters *parameters = [self requestParameters];
     parameters.nestedClientId = @"other_client_id";
-    parameters.nestedRedirectUri = @"other_redirect_uri";
+    parameters.nestedRedirectUri = @"brk-other_redirect_uri";
 
     NSError *error;
 
@@ -253,7 +253,7 @@
     MSIDRequestParameters *requestParameters = [(MSIDSilentController *)controller requestParameters];
 
     XCTAssertEqualObjects(requestParameters.clientId, @"other_client_id");
-    XCTAssertEqualObjects(requestParameters.redirectUri, @"other_redirect_uri");
+    XCTAssertEqualObjects(requestParameters.redirectUri, @"brk-other_redirect_uri");
     XCTAssertEqualObjects(requestParameters.nestedClientId, @"my_client_id");
     XCTAssertEqualObjects(requestParameters.nestedRedirectUri, @"my_redirect_uri");
 }
