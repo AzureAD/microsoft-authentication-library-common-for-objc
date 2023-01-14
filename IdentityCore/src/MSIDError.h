@@ -271,6 +271,27 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // JIT - Compliance Check - Device unknown
     MSIDErrorJITComplianceCheckResultUnknown       =   -51823,
+
+    // JIT - Compliance Check - Invalid linkPayload from SSO configuration
+    MSIDErrorJITComplianceCheckInvalidLinkPayload  =   -51824,
+
+    // JIT - Compliance Check - Could not create compliance check web view controller
+    MSIDErrorJITComplianceCheckCreateController    =   -51825,
+
+    // JIT - Link - LinkConfig not found
+    MSIDErrorJITLinkConfigNotFound                 =   -51826,
+
+    // JIT - Link - Invalid LinkTokenConfig
+    MSIDErrorJITInvalidLinkTokenConfig             =   -51827,
+
+    // JIT - WPJ - Device Registration Failed
+    MSIDErrorJITWPJDeviceRegistrationFailed        =   -51828,
+
+    // JIT - WPJ - AccountIdentifier is nil
+    MSIDErrorJITWPJAccountIdentifierNil            =   -51829,
+
+    // JIT - WPJ - Failed to acquire broker token
+    MSIDErrorJITWPJAcquireTokenError               =   -51830,
     
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
