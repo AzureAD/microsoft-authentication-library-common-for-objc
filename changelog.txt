@@ -1,3 +1,6 @@
+TBD
+* Add more detailed error codes for JIT (#1180)
+
 Version 1.7.14
 * Add skip local RT when creating silent controller
 
