@@ -41,15 +41,15 @@
     }
 
     NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    if (additionalUserInfo)
+    {
+        [userInfo addEntriesFromDictionary:additionalUserInfo];
+    }
     userInfo[MSIDErrorDescriptionKey] = errorDescription;
     userInfo[self.oauthErrorKey] = oauthError;
     userInfo[self.subErrorKey] = subError;
     userInfo[NSUnderlyingErrorKey] = underlyingError;
     userInfo[MSIDCorrelationIdKey] = [correlationId UUIDString];
-    if (additionalUserInfo)
-    {
-        [userInfo addEntriesFromDictionary:additionalUserInfo];
-    }
 
     return [NSError errorWithDomain:domain code:code userInfo:userInfo];
 }
