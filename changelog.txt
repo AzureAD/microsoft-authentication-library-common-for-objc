@@ -1,4 +1,4 @@
-TBD
+Version 1.7.14
 * Add skip local RT when creating silent controller
 * Add support for nested auth protocol (#1175)
 
