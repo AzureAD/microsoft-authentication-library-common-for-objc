@@ -417,7 +417,7 @@
         // Check error
         XCTAssertEqualObjects(acquireTokenError.domain, MSIDErrorDomain);
         XCTAssertEqual(acquireTokenError.code, MSIDErrorInternal);
-        XCTAssertEqualObjects(acquireTokenError.userInfo[MSIDErrorDescriptionKey], @"Failed to open broker URL.");
+        XCTAssertEqualObjects(acquireTokenError.userInfo[MSIDErrorDescriptionKey], @"Failed to open broker URL. Application is active");
         [expectation fulfill];
     }];
 
