@@ -497,7 +497,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
                 applicationState = @"active";
                 break;
             case UIApplicationStateInactive:
-                applicationState = @"inacticve";
+                applicationState = @"inactive";
                 break;
             case UIApplicationStateBackground:
                 applicationState = @"background";
