@@ -64,10 +64,25 @@
     NSURL *requestURL = navigationAction.request.URL;
     
     // Stop at broker
-    if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"] ||
-        [requestURL.scheme.lowercaseString isEqualToString:@"browser"] )
+    BOOL isBrowserUrl = [requestURL.scheme.lowercaseString isEqualToString:@"browser"];
+    if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"] || isBrowserUrl)
     {
         NSURL *url = navigationAction.request.URL;
+
+        // Let external code decide if browser url is allowed to continue
+        if (isBrowserUrl && self.externalDecidePolicyForBrowserAction)
+        {
+            NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(url);
+
+            if (challengeResponse)
+            {
+                decisionHandler(WKNavigationActionPolicyCancel);
+                [self loadRequest:challengeResponse];
+
+                return YES;
+            }
+        }
+        
         [self completeWebAuthWithURL:url];
         
         decisionHandler(WKNavigationActionPolicyCancel);

@@ -83,13 +83,17 @@
 
 - (NSObject<MSIDWebviewInteracting> *)embeddedWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
                                                          customWebview:(WKWebView *)webview
+                                  externalDecidePolicyForBrowserAction:(MSIDExternalDecidePolicyForBrowserActionBlock)externalDecidePolicyForBrowserAction
                                                                context:(id<MSIDRequestContext>)context
 {
     if (![NSThread isMainThread])
     {
         __block NSObject<MSIDWebviewInteracting> *session;
         dispatch_sync(dispatch_get_main_queue(), ^{
-            session = [self embeddedWebviewFromConfiguration:configuration customWebview:webview context:context];
+            session = [self embeddedWebviewFromConfiguration:configuration
+                                               customWebview:webview
+                        externalDecidePolicyForBrowserAction:externalDecidePolicyForBrowserAction
+                                                     context:context];
         });
         
         return session;
@@ -107,6 +111,8 @@
     embeddedWebviewController.parentController = configuration.parentController;
     embeddedWebviewController.presentationType = configuration.presentationType;
 #endif
+    
+    embeddedWebviewController.externalDecidePolicyForBrowserAction = externalDecidePolicyForBrowserAction;
 
     return embeddedWebviewController;
 }

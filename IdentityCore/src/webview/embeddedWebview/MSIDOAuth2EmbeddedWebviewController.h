@@ -35,6 +35,7 @@
 #import "MSIDWebViewPlatformParams.h"
 
 typedef void (^MSIDNavigationResponseBlock)(NSHTTPURLResponse *response);
+typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(NSURL *url);
 
 @interface MSIDOAuth2EmbeddedWebviewController :
 MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
@@ -57,6 +58,7 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
 @property (atomic, readonly) NSURL *startURL;
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
+@property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
 
 @end
 

@@ -48,7 +48,8 @@
 #pragma mark - Webview creation
 
 - (NSObject<MSIDWebviewInteracting> *)webViewWithConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
-                                             requestParameters:(MSIDInteractiveRequestParameters *)requestParameters
+                                             requestParameters:(MSIDInteractiveRequestParameters *)requestParameters 
+                          externalDecidePolicyForBrowserAction:(MSIDExternalDecidePolicyForBrowserActionBlock)externalDecidePolicyForBrowserAction
                                                        context:(id<MSIDRequestContext>)context
 {
         MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory availableWebViewTypeWithPreferredType:requestParameters.webviewType];
@@ -60,7 +61,8 @@
         {
             case MSIDWebviewTypeWKWebView:
                 return [self embeddedWebviewFromConfiguration:configuration
-                                                customWebview:requestParameters.customWebview
+                                                customWebview:requestParameters.customWebview 
+                         externalDecidePolicyForBrowserAction:externalDecidePolicyForBrowserAction
                                                       context:context];
                 
 #if !MSID_EXCLUDE_SYSTEMWV
@@ -87,14 +89,18 @@
 }
 
 - (NSObject<MSIDWebviewInteracting> *)embeddedWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
-                                                         customWebview:(WKWebView *)webview
+                                                         customWebview:(WKWebView *)webview 
+                                  externalDecidePolicyForBrowserAction:(MSIDExternalDecidePolicyForBrowserActionBlock)externalDecidePolicyForBrowserAction
                                                                context:(id<MSIDRequestContext>)context
 {
     if (![NSThread isMainThread])
     {
         __block NSObject<MSIDWebviewInteracting> *session;
         dispatch_sync(dispatch_get_main_queue(), ^{
-            session = [self embeddedWebviewFromConfiguration:configuration customWebview:webview context:context];
+            session = [self embeddedWebviewFromConfiguration:configuration
+                                               customWebview:webview
+                        externalDecidePolicyForBrowserAction:externalDecidePolicyForBrowserAction
+                                                     context:context];
         });
         
         return session;
@@ -112,6 +118,8 @@
     embeddedWebviewController.parentController = configuration.parentController;
     embeddedWebviewController.presentationType = configuration.presentationType;
 #endif
+
+    embeddedWebviewController.externalDecidePolicyForBrowserAction = externalDecidePolicyForBrowserAction;
 
     return embeddedWebviewController;
 }
