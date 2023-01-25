@@ -78,4 +78,44 @@
     XCTAssertEqualObjects(userInfo, resultError.userInfo);
 }
 
+- (void)testGetStatusCodeUserInfoFromUnderlyingErrorCode_whenNoUnderlyingError_returnsNil
+{
+    __auto_type errorWithNoUnderlyingError = [[NSError alloc] initWithDomain:@"domain" code:0 userInfo:nil];
+    NSDictionary *statusCodeInfo = [errorWithNoUnderlyingError msidGetStatusCodeUserInfoFromUnderlyingErrorCode];
+    
+    XCTAssertNil(statusCodeInfo);
+}
+
+- (void)testGetStatusCodeUserInfoFromUnderlyingErrorCode_whenUnderlyingError_returnsAdditionalInfo
+{
+    __auto_type underlyingError = [[NSError alloc] initWithDomain:@"domain" code:500 userInfo:nil];
+    __auto_type errorWithUnderlyingError = MSIDCreateError(@"domain", 123, @"Error on X process.", nil, nil, underlyingError, nil, nil, NO);
+    NSDictionary *statusCodeInfo = [errorWithUnderlyingError msidGetStatusCodeUserInfoFromUnderlyingErrorCode];
+    
+    XCTAssertNotNil(statusCodeInfo);
+    XCTAssertEqual([statusCodeInfo count], 1);
+    XCTAssertNotNil(statusCodeInfo[@"statusCode"]);
+    XCTAssertEqualObjects(statusCodeInfo[@"statusCode"], @(500));
+}
+
+- (void)testGetStatusCodeUserInfoFromUnderlyingErrorCode_whenUnderlyingErrorAndExtraUserInfo_returnsAdditionalInfo
+{
+    __auto_type underlyingError = [[NSError alloc] initWithDomain:@"domain" code:500 userInfo:nil];
+    __auto_type failedUrl = [[NSURL alloc] initWithString:@"myapp://com.myapp/?code=some_code_value&session_state=12345678&x-client-Ver=2.6.4"];
+    __auto_type userInfo = @{
+                             NSLocalizedDescriptionKey: @"unsupported URL",
+                             NSURLErrorFailingURLErrorKey: failedUrl,
+                             NSURLErrorFailingURLStringErrorKey: failedUrl.absoluteString,
+                             };
+    
+    __auto_type errorWithUnderlyingError = MSIDCreateError(@"domain", 123, @"Error on X process.", nil, nil, underlyingError, nil, userInfo, NO);
+    
+    NSDictionary *statusCodeInfo = [errorWithUnderlyingError msidGetStatusCodeUserInfoFromUnderlyingErrorCode];
+    
+    XCTAssertNotNil(statusCodeInfo);
+    XCTAssertEqual([statusCodeInfo count], 1);
+    XCTAssertNotNil(statusCodeInfo[@"statusCode"]);
+    XCTAssertEqualObjects(statusCodeInfo[@"statusCode"], @(500));
+}
+
 @end
