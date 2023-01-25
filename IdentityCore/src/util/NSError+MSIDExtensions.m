@@ -76,7 +76,7 @@
     return self.userInfo[self.msidErrorConverter.subErrorKey];
 }
 
-- (nullable NSDictionary*)getStatusCodeUserInfoFromUnderlyingErrorCode
+- (nullable NSDictionary *)msidGetStatusCodeUserInfoFromUnderlyingErrorCode
 {
     NSMutableDictionary *additionalUserInfo = nil;
     if (self.userInfo[NSUnderlyingErrorKey] != nil)

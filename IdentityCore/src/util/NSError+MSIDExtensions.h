@@ -42,6 +42,6 @@ typedef NS_OPTIONS(NSUInteger, MSIDErrorFilteringOptions)
 
 - (nullable NSString *)msidSubError;
 
-- (nullable NSDictionary*)getStatusCodeUserInfoFromUnderlyingErrorCode;
+- (nullable NSDictionary *)msidGetStatusCodeUserInfoFromUnderlyingErrorCode;
 
 @end
