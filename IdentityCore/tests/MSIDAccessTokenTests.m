@@ -263,6 +263,7 @@
     cacheItem.extendedExpiresOn = extExpireTime;
     cacheItem.cachedAt = cachedAt;
     cacheItem.target = @"target";
+    cacheItem.redirectUri = @"msauth.com.microsoft.teams://auth";
     
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
@@ -281,12 +282,58 @@
     XCTAssertEqualObjects(token.accessToken, @"token");
     XCTAssertNil(token.enrollmentId);
     XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
+    XCTAssertEqualObjects(token.redirectUri, @"msauth.com.microsoft.teams://auth");
 
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
 }
 
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
+{
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
+    cacheItem.speInfo = @"test";
+    cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.clientId = @"client id";
+    cacheItem.secret = @"token";
+    cacheItem.enrollmentId = @"enrollmentId";
+
+    NSDate *expiresOn = [NSDate date];
+    NSDate *extExpireTime = [NSDate date];
+    NSDate *cachedAt = [NSDate date];
+    
+    cacheItem.expiresOn = expiresOn;
+    cacheItem.extendedExpiresOn = extExpireTime;
+    cacheItem.cachedAt = cachedAt;
+    cacheItem.target = @"target";
+    cacheItem.redirectUri = @"msauth.com.microsoft.teams://auth";
+
+    MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"contoso.com");
+    XCTAssertEqualObjects(token.clientId, @"client id");
+    XCTAssertEqualObjects(token.speInfo, @"test");
+    XCTAssertNil(token.additionalServerInfo);
+    XCTAssertEqualObjects(token.extendedExpiresOn, extExpireTime);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(token.expiresOn, expiresOn);
+    XCTAssertEqualObjects(token.cachedAt, cachedAt);
+    XCTAssertEqualObjects(token.resource, @"target");
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"target", nil];
+    XCTAssertEqualObjects(token.scopes, scopes);
+    XCTAssertEqualObjects(token.accessToken, @"token");
+    XCTAssertEqual(token.enrollmentId, @"enrollmentId");
+    XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
+    XCTAssertEqualObjects(token.redirectUri, @"msauth.com.microsoft.teams://auth");
+
+    MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
+    XCTAssertEqualObjects(cacheItem, newCacheItem);
+}
+
+- (void)testInitWithTokenCacheItem_whenAllFieldsSetAndNoRedirectUri_shouldReturnToken
 {
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.credentialType = MSIDAccessTokenType;
@@ -324,6 +371,7 @@
     XCTAssertEqualObjects(token.accessToken, @"token");
     XCTAssertEqual(token.enrollmentId, @"enrollmentId");
     XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
+    XCTAssertNil(token.redirectUri);
 
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
@@ -420,6 +468,7 @@
     token.accessToken = @"token";
     token.resource = @"target";
     token.enrollmentId = @"enrollmentId";
+    token.redirectUri = @"msauth.com.microsoft.teams://auth";
     return token;
 }
 
