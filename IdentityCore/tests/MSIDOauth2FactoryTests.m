@@ -235,6 +235,39 @@
     XCTAssertNil(token.extendedExpiresOn);
 }
 
+- (void)testAccessTokenFromResponse_whenOIDCTokenResponseAndNestedAuth_shouldReturnTokenWithRedirectUrl
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    
+    MSIDTokenResponse *response = [MSIDTestTokenResponse defaultTokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                 RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                           username:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                            subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+    
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
+    configuration.redirectUri = @"brk-1fec8e78-1234-5678-9101://myNestedApp.com";
+    configuration.nestedAuthBrokerClientId = @"1fec8e78-1234-5678-9101";
+    configuration.nestedAuthBrokerRedirectUri = @"msauth.com.microsoft.teams://auth";
+    
+    MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
+    
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertNil(token.additionalServerInfo);
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
+    
+    XCTAssertEqualObjects(token.scopes, scopes);
+    XCTAssertNotNil(token.expiresOn);
+    XCTAssertNil(token.extendedExpiresOn);
+    XCTAssertNotNil(token.redirectUri);
+    XCTAssertEqualObjects(token.redirectUri, @"brk-1fec8e78-1234-5678-9101://myNestedApp.com");
+}
+
 - (void)testAccessTokenFromResponse_whenOIDCTokenResponse_andNoAccessToken_shouldReturnNil
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];

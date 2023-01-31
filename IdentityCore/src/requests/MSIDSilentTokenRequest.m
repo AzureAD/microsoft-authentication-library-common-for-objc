@@ -251,7 +251,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             else
             {
                 removeOldAccessToken = NO;
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached redirect uri is different from access token's redirect uri in nested auth.");
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached redirect uri in AT is different from request parameter's redirect uri in nested auth.");
             }
             
             if (removeOldAccessToken)
