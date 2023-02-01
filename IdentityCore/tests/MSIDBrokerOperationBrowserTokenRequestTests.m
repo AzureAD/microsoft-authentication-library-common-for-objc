@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,29 +20,40 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
 
-typedef NS_OPTIONS(NSUInteger, MSIDErrorFilteringOptions)
+#import <XCTest/XCTest.h>
+#import "MSIDBrokerOperationBrowserTokenRequest.h"
+
+@interface MSIDBrokerOperationBrowserTokenRequest(Test)
+
++ (NSString *)protocolLogNameForRequestURL:(NSURL *)requestURL;
+
+@end
+
+@interface MSIDBrokerOperationBrowserTokenRequestTests : XCTestCase
+
+@end
+
+@implementation MSIDBrokerOperationBrowserTokenRequestTests
+
+- (void)testProtocolLogNameForRequestURL_whenValidOAuth2URL_shouldReturnOAuthIdentifier
 {
-    MSIDErrorFilteringOptionNone                  = 0,
-    // Remove parameters from failed url.
-    MSIDErrorFilteringOptionRemoveUrlParameters   = 1 << 0,
-};
+    NSString *url = @"https://login.microsoftonline.com/contoso.com/oauth2/v2.0/authorize?client_id=client";
 
+    NSString *result = [MSIDBrokerOperationBrowserTokenRequest protocolLogNameForRequestURL:[NSURL URLWithString:url]];
 
-@interface NSError (MSIDExtensions)
+    XCTAssertEqualObjects(result, @"OAuth2 Authorize");
+}
 
-/*!
- Return filtered error based on provided filtering options.
- */
-- (nonnull NSError *)msidErrorWithFilteringOptions:(MSIDErrorFilteringOptions)option;
+- (void)testProtocolLogNameForRequestURL_whenNonCommonIdentifier_shouldReturnNAIdentifier
+{
+    NSString *url = @"https://login.microsoftonline.com/contoso.com/oauth2/v2.0/fido";
 
-- (nullable NSString *)msidOauthError;
+    NSString *result = [MSIDBrokerOperationBrowserTokenRequest protocolLogNameForRequestURL:[NSURL URLWithString:url]];
 
-- (nullable NSString *)msidSubError;
-
-- (nullable NSDictionary *)msidGetStatusCodeUserInfoFromUnderlyingErrorCode;
+    XCTAssertEqualObjects(result, @"N/A");
+}
 
 @end

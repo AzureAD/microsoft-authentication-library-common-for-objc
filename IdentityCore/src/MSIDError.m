@@ -178,6 +178,12 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorJITComplianceCheckResultNotCompliant),
                       @(MSIDErrorJITComplianceCheckResultTimeout),
                       @(MSIDErrorJITComplianceCheckResultUnknown),
+                      @(MSIDErrorJITComplianceCheckInvalidLinkPayload),
+                      @(MSIDErrorJITLinkConfigNotFound),
+                      @(MSIDErrorJITInvalidLinkTokenConfig),
+                      @(MSIDErrorJITWPJDeviceRegistrationFailed),
+                      @(MSIDErrorJITWPJAccountIdentifierNil),
+                      @(MSIDErrorJITWPJAcquireTokenError),
 
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
