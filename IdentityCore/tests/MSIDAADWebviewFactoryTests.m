@@ -266,8 +266,8 @@
 
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.instanceAware = YES;
-    parameters.nestedClientId = nil;
-    parameters.nestedRedirectUri = nil;
+    parameters.nestedAuthBrokerClientId = nil;
+    parameters.nestedAuthBrokerRedirectUri = nil;
 
     NSString *requestState = @"state";
     MSIDPkce *pkce = [MSIDPkce new];
@@ -284,8 +284,8 @@
 
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.instanceAware = YES;
-    parameters.nestedClientId = @"123-456-7890-123";
-    parameters.nestedRedirectUri = nil;
+    parameters.nestedAuthBrokerClientId = @"123-456-7890-123";
+    parameters.nestedAuthBrokerRedirectUri = nil;
 
     NSString *requestState = @"state";
     MSIDPkce *pkce = [MSIDPkce new];
@@ -302,8 +302,8 @@
 
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.instanceAware = YES;
-    parameters.nestedClientId = nil;
-    parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
+    parameters.nestedAuthBrokerClientId = nil;
+    parameters.nestedAuthBrokerRedirectUri = @"msauth.com.app.id://auth";
 
     NSString *requestState = @"state";
     MSIDPkce *pkce = [MSIDPkce new];
@@ -320,8 +320,8 @@
 
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.instanceAware = YES;
-    parameters.nestedClientId = @"123-456-7890-123";
-    parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
+    parameters.nestedAuthBrokerClientId = @"123-456-7890-123";
+    parameters.nestedAuthBrokerRedirectUri = @"msauth.com.app.id://auth";
 
     NSString *requestState = @"state";
     MSIDPkce *pkce = [MSIDPkce new];
@@ -351,12 +351,12 @@
 
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority = authority;
-    parameters.nestedClientId = @"123-456-7890-123";
-    parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
+    parameters.nestedAuthBrokerClientId = @"123-456-7890-123";
+    parameters.nestedAuthBrokerRedirectUri = @"msauth.com.app.id://auth";
 
     MSIDAuthorizeWebRequestConfiguration *configuration = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
     XCTAssertNotNil(configuration);
-    XCTAssertEqualObjects(configuration.endRedirectUrl, parameters.nestedRedirectUri);
+    XCTAssertEqualObjects(configuration.endRedirectUrl, parameters.nestedAuthBrokerRedirectUri);
 }
 
 #if AD_BROKER

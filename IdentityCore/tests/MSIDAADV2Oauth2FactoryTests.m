@@ -471,8 +471,8 @@
     parameters.correlationId = [NSUUID new];
     parameters.extendedLifetimeEnabled = YES;
     parameters.telemetryRequestId = [[NSUUID new] UUIDString];
-    parameters.nestedClientId = @"other_client_id";
-    parameters.nestedRedirectUri = @"other_redirect_uri";
+    parameters.nestedAuthBrokerClientId = @"other_client_id";
+    parameters.nestedAuthBrokerRedirectUri = @"other_redirect_uri";
     return parameters;
 }
 

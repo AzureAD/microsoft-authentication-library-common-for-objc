@@ -211,6 +211,13 @@
     }
 
     token.familyId = response.familyId;
+
+    // Nested auth protocol - RT is for 'broker/hub' client id
+    if (![NSString msidIsStringNilOrBlank:configuration.nestedAuthBrokerClientId])
+    {
+        token.clientId = configuration.nestedAuthBrokerClientId;
+    }
+
     return YES;
 }
 
