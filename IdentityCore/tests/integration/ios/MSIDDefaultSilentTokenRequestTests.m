@@ -188,8 +188,8 @@
 - (void)testAcquireTokenSilent_whenAccessAndRefreshTokensInCache_andNestedAuthAndMatchRedirectUri_shouldReturnATAndRT
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
-    silentParameters.nestedClientId = @"1234-5678";
-    silentParameters.nestedRedirectUri = @"brk-hub-app://auth";
+    silentParameters.nestedAuthBrokerClientId = @"1234-5678";
+    silentParameters.nestedAuthBrokerRedirectUri = @"brk-hub-app://auth";
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
 
     [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
@@ -895,8 +895,8 @@
 - (void)testAcquireTokenSilent_whenNestedAuthAndNoMatchRedirectUri_shouldRefreshToken
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
-    silentParameters.nestedClientId = @"1234-5678";
-    silentParameters.nestedRedirectUri = @"brk-hub-app://auth";
+    silentParameters.nestedAuthBrokerClientId = @"1234-5678";
+    silentParameters.nestedAuthBrokerRedirectUri = @"brk-hub-app://auth";
     silentParameters.msidConfiguration.redirectUri = @"real-app-cached://auth";
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
 
