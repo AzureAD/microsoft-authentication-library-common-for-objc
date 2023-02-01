@@ -213,8 +213,8 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
-    parameters.nestedClientId = @"other_client_id";
-    parameters.nestedRedirectUri = @"brk-other_redirect_uri";
+    parameters.nestedAuthBrokerClientId = @"other_client_id";
+    parameters.nestedAuthBrokerRedirectUri = @"brk-other_redirect_uri";
 
     NSError *error;
 
@@ -227,8 +227,8 @@
     MSIDRequestParameters *requestParameters = [(MSIDLocalInteractiveController *)controller requestParameters];
     XCTAssertEqualObjects(requestParameters.clientId, @"other_client_id");
     XCTAssertEqualObjects(requestParameters.redirectUri, @"brk-other_redirect_uri");
-    XCTAssertEqualObjects(requestParameters.nestedClientId, @"my_client_id");
-    XCTAssertEqualObjects(requestParameters.nestedRedirectUri, @"my_redirect_uri");
+    XCTAssertEqualObjects(requestParameters.nestedAuthBrokerClientId, @"my_client_id");
+    XCTAssertEqualObjects(requestParameters.nestedAuthBrokerRedirectUri, @"my_redirect_uri");
 }
 
 - (void)testSilentController_whenNestedAuth_parametersAreReversed
@@ -237,8 +237,8 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDRequestParameters *parameters = [self requestParameters];
-    parameters.nestedClientId = @"other_client_id";
-    parameters.nestedRedirectUri = @"brk-other_redirect_uri";
+    parameters.nestedAuthBrokerClientId = @"other_client_id";
+    parameters.nestedAuthBrokerRedirectUri = @"brk-other_redirect_uri";
 
     NSError *error;
 
@@ -254,8 +254,8 @@
 
     XCTAssertEqualObjects(requestParameters.clientId, @"other_client_id");
     XCTAssertEqualObjects(requestParameters.redirectUri, @"brk-other_redirect_uri");
-    XCTAssertEqualObjects(requestParameters.nestedClientId, @"my_client_id");
-    XCTAssertEqualObjects(requestParameters.nestedRedirectUri, @"my_redirect_uri");
+    XCTAssertEqualObjects(requestParameters.nestedAuthBrokerClientId, @"my_client_id");
+    XCTAssertEqualObjects(requestParameters.nestedAuthBrokerRedirectUri, @"my_redirect_uri");
 }
 
 - (MSIDInteractiveTokenRequestParameters *)requestParameters

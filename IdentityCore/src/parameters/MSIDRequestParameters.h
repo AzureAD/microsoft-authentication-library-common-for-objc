@@ -67,8 +67,8 @@
 #endif
 
 #pragma mark Nested auth protocol properties
-@property (nonatomic) NSString *nestedClientId;
-@property (nonatomic) NSString *nestedRedirectUri;
+@property (nonatomic) NSString *nestedAuthBrokerClientId;
+@property (nonatomic) NSString *nestedAuthBrokerRedirectUri;
 
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;
