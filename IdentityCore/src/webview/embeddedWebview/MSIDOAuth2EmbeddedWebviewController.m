@@ -72,13 +72,13 @@
 {
     if (!startURL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attemped to start with nil URL");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attempted to start with nil URL");
         return nil;
     }
     
     if (!endURL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attemped to start with nil endURL");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attempted to start with nil endURL");
         return nil;
     }
     
@@ -144,10 +144,10 @@
 
 - (void)cancelProgrammatically
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view controller.");
     
     // End web auth with error
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil, NO);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programmatically.", nil, nil, nil, self.context.correlationId, nil, NO);
     
     CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(_telemetryEvent, YES);
     [self endWebAuthWithURL:nil error:error];
@@ -160,7 +160,7 @@
 
 - (void)userCancel
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller by the user.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view controller by the user.");
     
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, self.context.correlationId, nil, NO);
@@ -201,7 +201,7 @@
     CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, _telemetryRequestId, _telemetryEvent);
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissed web view contoller.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissed web view controller.");
         [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
     }];
     
@@ -236,7 +236,7 @@
 
 - (void)startRequest:(NSURLRequest *)request
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Presenting web view contoller.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Presenting web view controller.");
     
     _telemetryRequestId = [_context telemetryRequestId];
     CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, _telemetryRequestId, MSID_TELEMETRY_EVENT_UI_EVENT);

@@ -375,8 +375,8 @@
     
     XCTAssertEqualObjects(parameters.clientId, @"myclient_id");
     XCTAssertEqualObjects(parameters.redirectUri, @"myredirect");
-    XCTAssertNil(parameters.nestedClientId);
-    XCTAssertNil(parameters.nestedRedirectUri);
+    XCTAssertNil(parameters.nestedAuthBrokerClientId);
+    XCTAssertNil(parameters.nestedAuthBrokerRedirectUri);
 }
 
 - (void)testReverseNestedAuth_whenNestedAuthParametersPresent_shouldReverse
@@ -397,15 +397,15 @@
                                                                              requestType:MSIDRequestLocalType
                                                                                    error:&error];
     
-    parameters.nestedClientId = @"nested_client_id";
-    parameters.nestedRedirectUri = @"brk-nested_redirect";
+    parameters.nestedAuthBrokerClientId = @"nested_client_id";
+    parameters.nestedAuthBrokerRedirectUri = @"brk-nested_redirect";
     
     [parameters reverseNestedAuthParametersIfNeeded];
     
     XCTAssertEqualObjects(parameters.clientId, @"nested_client_id");
     XCTAssertEqualObjects(parameters.redirectUri, @"brk-nested_redirect");
-    XCTAssertEqualObjects(parameters.nestedClientId, @"myclient_id");
-    XCTAssertEqualObjects(parameters.nestedRedirectUri, @"myredirect");
+    XCTAssertEqualObjects(parameters.nestedAuthBrokerClientId, @"myclient_id");
+    XCTAssertEqualObjects(parameters.nestedAuthBrokerRedirectUri, @"myredirect");
 }
 
 - (void)testReverseNestedAuth_whenNestedAuthParametersPresentCalledTwice_shouldReverseOnce
@@ -426,8 +426,8 @@
                                                                              requestType:MSIDRequestLocalType
                                                                                    error:&error];
     
-    parameters.nestedClientId = @"nested_client_id";
-    parameters.nestedRedirectUri = @"brk-nested_redirect";
+    parameters.nestedAuthBrokerClientId = @"nested_client_id";
+    parameters.nestedAuthBrokerRedirectUri = @"brk-nested_redirect";
         
     [parameters reverseNestedAuthParametersIfNeeded];
     // Call again
@@ -435,8 +435,8 @@
     
     XCTAssertEqualObjects(parameters.clientId, @"nested_client_id");
     XCTAssertEqualObjects(parameters.redirectUri, @"brk-nested_redirect");
-    XCTAssertEqualObjects(parameters.nestedClientId, @"myclient_id");
-    XCTAssertEqualObjects(parameters.nestedRedirectUri, @"myredirect");
+    XCTAssertEqualObjects(parameters.nestedAuthBrokerClientId, @"myclient_id");
+    XCTAssertEqualObjects(parameters.nestedAuthBrokerRedirectUri, @"myredirect");
 }
 
 @end

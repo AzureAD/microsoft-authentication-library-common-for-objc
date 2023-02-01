@@ -462,8 +462,8 @@
 
     // Run the test
     MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
-    parameters.nestedClientId = @"123-456-7890-123";
-    parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
+    parameters.nestedAuthBrokerClientId = @"123-456-7890-123";
+    parameters.nestedAuthBrokerRedirectUri = @"msauth.com.app.id://auth";
 
     NSError *error = nil;
     MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];

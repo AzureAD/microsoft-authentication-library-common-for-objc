@@ -63,6 +63,12 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 #endif
 }
 
+- (void)testGetRegistrationInformation_withoutRegistrationInformation_andNoChallenge_shoudReturnNil
+{
+    MSIDRegistrationInformation *registrationInfo = [MSIDWorkPlaceJoinUtil getRegistrationInformation:nil workplacejoinChallenge:nil];
+    XCTAssertNil(registrationInfo);
+}
+
 - (void)testGetWPJStringDataForIdentifier_withKeychainItem_shouldReturnValidValue
 {
     NSString *dummyKeyIdentifierValue = @"dummyupn@dummytenant.com";

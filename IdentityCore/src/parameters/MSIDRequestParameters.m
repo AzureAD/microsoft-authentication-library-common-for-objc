@@ -206,15 +206,15 @@
     [self updateMSIDConfiguration];
 }
 
-- (void)setNestedClientId:(NSString *)nestedClientId
+- (void)setNestedAuthBrokerClientId:(NSString *)nestedAuthBrokerClientId
 {
-    _nestedClientId = nestedClientId;
+    _nestedAuthBrokerClientId = nestedAuthBrokerClientId;
     [self updateMSIDConfiguration];
 }
 
-- (void)setNestedRedirectUri:(NSString *)nestedRedirectUri
+- (void)setNestedAuthBrokerRedirectUri:(NSString *)nestedAuthBrokerRedirectUri
 {
-    _nestedRedirectUri = nestedRedirectUri;
+    _nestedAuthBrokerRedirectUri = nestedAuthBrokerRedirectUri;
     [self updateMSIDConfiguration];
 }
 
@@ -250,8 +250,8 @@
                                                                  redirectUri:self.redirectUri
                                                                     clientId:self.clientId
                                                                       target:self.target
-                                                    nestedAuthBrokerClientId:self.nestedClientId
-                                                 nestedAuthBrokerRedirectUri:self.nestedRedirectUri];
+                                                    nestedAuthBrokerClientId:self.nestedAuthBrokerClientId
+                                                 nestedAuthBrokerRedirectUri:self.nestedAuthBrokerRedirectUri];
     
     config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
                                                                                                 appIdentifier:self.intuneApplicationIdentifier];
@@ -299,7 +299,7 @@
 
 - (BOOL)isNestedAuthProtocol
 {
-    if (![NSString msidIsStringNilOrBlank:self.nestedClientId] && ![NSString msidIsStringNilOrBlank:self.nestedRedirectUri])
+    if (![NSString msidIsStringNilOrBlank:self.nestedAuthBrokerClientId] && ![NSString msidIsStringNilOrBlank:self.nestedAuthBrokerRedirectUri])
     {
         return YES;
     }
@@ -310,13 +310,13 @@
 - (void)reverseNestedAuthParametersIfNeeded
 {
     // Nested auth protocol - Reverse client id & redirect uri if it hasn't been done yet
-    if ([self isNestedAuthProtocol] && [self.nestedRedirectUri hasPrefix:@"brk-"])
+    if ([self isNestedAuthProtocol] && [self.nestedAuthBrokerRedirectUri hasPrefix:@"brk-"])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Reversing client id & redirect uri");
-        NSString *tempClientId = self.nestedClientId;
-        NSString *tempRedirectUri = self.nestedRedirectUri;
-        self.nestedClientId = self.clientId;
-        self.nestedRedirectUri = self.redirectUri;
+        NSString *tempClientId = self.nestedAuthBrokerClientId;
+        NSString *tempRedirectUri = self.nestedAuthBrokerRedirectUri;
+        self.nestedAuthBrokerClientId = self.clientId;
+        self.nestedAuthBrokerRedirectUri = self.redirectUri;
         self.clientId = tempClientId;
         self.redirectUri = tempRedirectUri;
     }
@@ -363,8 +363,8 @@
     parameters->_cloudAuthority = [_cloudAuthority copyWithZone:zone];
     parameters->_redirectUri = [_redirectUri copyWithZone:zone];
     parameters->_clientId = [_clientId copyWithZone:zone];
-    parameters->_nestedClientId = [_nestedClientId copyWithZone:zone];
-    parameters->_nestedRedirectUri = [_nestedRedirectUri copyWithZone:zone];
+    parameters->_nestedAuthBrokerClientId = [_nestedAuthBrokerClientId copyWithZone:zone];
+    parameters->_nestedAuthBrokerRedirectUri = [_nestedAuthBrokerRedirectUri copyWithZone:zone];
     parameters->_target = [_target copyWithZone:zone];
     parameters->_oidcScope = [_oidcScope copyWithZone:zone];
     parameters->_accountIdentifier = [_accountIdentifier copyWithZone:zone];

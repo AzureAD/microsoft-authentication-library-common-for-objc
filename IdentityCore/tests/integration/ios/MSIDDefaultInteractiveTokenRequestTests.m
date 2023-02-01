@@ -750,8 +750,8 @@
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     parameters.enablePkce = YES;
-    parameters.nestedClientId = @"123-456-7890-123";
-    parameters.nestedRedirectUri = @"msauth.com.app.id://auth";
+    parameters.nestedAuthBrokerClientId = @"123-456-7890-123";
+    parameters.nestedAuthBrokerRedirectUri = @"msauth.com.app.id://auth";
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
                                                                                              oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
@@ -829,7 +829,7 @@
         XCTAssertEqualObjects(result.account.username, [MSIDTestIdTokenUtil defaultUsername]);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
-        XCTAssertEqualObjects(((MSIDRefreshToken*)result.refreshToken).clientId, parameters.nestedClientId, @"Make sure RT's clientId is from nested client id");
+        XCTAssertEqualObjects(((MSIDRefreshToken*)result.refreshToken).clientId, parameters.nestedAuthBrokerClientId, @"Make sure RT's clientId is from nested client id");
         XCTAssertFalse(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY_GUID);
         XCTAssertNil(installBrokerResponse);

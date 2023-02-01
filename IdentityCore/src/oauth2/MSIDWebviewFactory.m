@@ -181,14 +181,6 @@
         result[MSID_OAUTH2_CODE_CHALLENGE] = pkce.codeChallenge;
         result[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = pkce.codeChallengeMethod;
     }
-    
-    // Nested auth protocol
-    if ([parameters isNestedAuthProtocol])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to webview");
-        result[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = parameters.nestedClientId;
-        result[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = parameters.nestedRedirectUri;
-    }
 
     // State
     result[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
@@ -267,7 +259,7 @@
     // Nested auth protocol
     if ([parameters isNestedAuthProtocol])
     {
-        endRedirectUri = parameters.nestedRedirectUri;
+        endRedirectUri = parameters.nestedAuthBrokerRedirectUri;
     }
 
     MSIDAuthorizeWebRequestConfiguration *configuration = [[MSIDAuthorizeWebRequestConfiguration alloc] initWithStartURL:startURL
