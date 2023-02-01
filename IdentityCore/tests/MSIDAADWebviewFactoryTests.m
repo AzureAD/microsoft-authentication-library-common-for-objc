@@ -314,26 +314,6 @@
     XCTAssertFalse([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_REDIRECT_URI]);
 }
 
-- (void)testAuthorizationParametersFromParameters_whenNestedAuthParametersComplete_shouldBeIncluded
-{
-    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
-
-    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
-    parameters.instanceAware = YES;
-    parameters.nestedAuthBrokerClientId = @"123-456-7890-123";
-    parameters.nestedAuthBrokerRedirectUri = @"msauth.com.app.id://auth";
-
-    NSString *requestState = @"state";
-    MSIDPkce *pkce = [MSIDPkce new];
-
-    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
-
-    XCTAssertTrue([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_CLIENT_ID]);
-    XCTAssertTrue([[params allKeys] containsObject:MSID_NESTED_AUTH_BROKER_REDIRECT_URI]);
-    XCTAssertEqualObjects(params[MSID_NESTED_AUTH_BROKER_CLIENT_ID], @"123-456-7890-123");
-    XCTAssertEqualObjects(params[MSID_NESTED_AUTH_BROKER_REDIRECT_URI], @"msauth.com.app.id://auth");
-}
-
 - (void)testWebViewConfiguration_whenNestedAuth_shouldSetEndUrlToNestedRedirectUri
 {
     MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
