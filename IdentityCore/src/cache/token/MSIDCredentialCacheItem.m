@@ -53,7 +53,7 @@
 {
     return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, refreshOn: %@, cachedAt: %@, last recovery attempted at: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@, redirectUri: %@",
             self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn,
-            self.extendedExpiresOn, self.refreshOn, self.cachedAt, self.lastRecoveryAttempt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash], self.redirectUri];
+            self.extendedExpiresOn, self.refreshOn, self.cachedAt, self.lastRecoveryAttempt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash], MSID_PII_LOG_TRACKABLE(self.redirectUri)];
 }
 
 #pragma mark - MSIDCacheItem
