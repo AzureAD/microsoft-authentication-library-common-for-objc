@@ -261,6 +261,37 @@
     XCTAssertNotNil(token.expiresOn);
 }
 
+- (void)testAccessTokenFromResponse_whenOIDCTokenResponseAndNestedAuth_shouldReturnTokenWithRedirectUrl
+{
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    configuration.redirectUri = @"brk-1fec8e78-1234-5678-9101://myNestedApp.com";
+    configuration.nestedAuthBrokerClientId = @"1fec8e78-1234-5678-9101";
+    configuration.nestedAuthBrokerRedirectUri = @"msauth.com.microsoft.teams://auth";
+    
+    MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
+    
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, DEFAULT_TEST_UTID);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
+    
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
+
+    XCTAssertNotNil(token.extendedExpiresOn);
+
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
+    
+    XCTAssertEqualObjects(token.scopes, scopes);
+    XCTAssertNotNil(token.expiresOn);
+    XCTAssertNotNil(token.redirectUri);
+    XCTAssertEqualObjects(token.redirectUri, @"brk-1fec8e78-1234-5678-9101://myNestedApp.com");
+}
+
 - (void)testRefreshTokenFromResponse_whenAADV2TokenResponse_shouldReturnToken
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];

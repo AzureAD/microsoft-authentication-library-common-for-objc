@@ -262,12 +262,6 @@
     
     token.expiresOn = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[expiresOn timeIntervalSince1970]];
     token.cachedAt = [NSDate dateWithTimeIntervalSince1970:(uint64_t)[[NSDate date] timeIntervalSince1970]];
-    
-    // Cache redirect uri
-    if (configuration.isNestedAuthProtocol)
-    {
-        token.redirectUri = configuration.redirectUri;
-    }
 
     return YES;
 }
