@@ -56,6 +56,7 @@ static NSUInteger s_expirationBuffer = 300;
     item->_enrollmentId = [_enrollmentId copyWithZone:zone];
     item->_applicationIdentifier = [_applicationIdentifier copyWithZone:zone];
     item->_requestedClaims = [_requestedClaims copyWithZone:zone];
+    item->_redirectUri = [_redirectUri copyWithZone:zone];
     return item;
 }
 
@@ -87,6 +88,7 @@ static NSUInteger s_expirationBuffer = 300;
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.applicationIdentifier.hash;
     hash = hash * 31 + self.requestedClaims.hash;
+    hash = hash * 31 + self.redirectUri.hash;
     return hash;
 }
 
@@ -106,6 +108,7 @@ static NSUInteger s_expirationBuffer = 300;
     result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
     result &= (!self.applicationIdentifier && !token.applicationIdentifier) || [self.applicationIdentifier isEqualToString:token.applicationIdentifier];
     result &= (!self.requestedClaims && !token.requestedClaims) || [self.requestedClaims isEqualToString:token.requestedClaims];
+    result &= (!self.redirectUri && !token.redirectUri) || [self.redirectUri isEqualToString:token.redirectUri];
     return result;
 }
 
@@ -124,6 +127,7 @@ static NSUInteger s_expirationBuffer = 300;
         _enrollmentId = tokenCacheItem.enrollmentId;
         _accessToken = tokenCacheItem.secret;
         _requestedClaims = tokenCacheItem.requestedClaims;
+        _redirectUri = tokenCacheItem.redirectUri;
 
         if (!_accessToken)
         {
@@ -160,6 +164,7 @@ static NSUInteger s_expirationBuffer = 300;
     cacheItem.enrollmentId = self.enrollmentId;
     cacheItem.applicationIdentifier = self.applicationIdentifier;
     cacheItem.requestedClaims = self.requestedClaims;
+    cacheItem.redirectUri = self.redirectUri;
     return cacheItem;
 }
 
@@ -244,8 +249,8 @@ static NSUInteger s_expirationBuffer = 300;
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, extendedExpiresOn=%@,refreshOn=%@, target=%@, enrollmentId=%@, applicationIdentfier=%@)",
-            [_accessToken msidSecretLoggingHash], _expiresOn, _extendedExpiresOn, _refreshOn, _target, [_enrollmentId msidSecretLoggingHash], _applicationIdentifier];
+    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, extendedExpiresOn=%@,refreshOn=%@, target=%@, enrollmentId=%@, applicationIdentfier=%@, redirectUri=%@)",
+            [_accessToken msidSecretLoggingHash], _expiresOn, _extendedExpiresOn, _refreshOn, _target, [_enrollmentId msidSecretLoggingHash], _applicationIdentifier, MSID_PII_LOG_TRACKABLE(_redirectUri)];
 }
 
 @end

@@ -141,6 +141,12 @@
     {
         accessToken.scopes = configuration.scopes;
     }
+    
+    // Cache redirect uri
+    if (configuration.isNestedAuthProtocol)
+    {
+        accessToken.redirectUri = configuration.redirectUri;
+    }
 
     return YES;
 }
