@@ -283,7 +283,8 @@
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache];
 
-
+    defaultSilentTokenRequest.requestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+   
     //refresh token
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
     refreshToken.refreshToken = self.refreshToken;
@@ -397,6 +398,7 @@
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache];
 
+    defaultSilentTokenRequest.requestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     //refresh token
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
@@ -520,7 +522,7 @@
                                                                                                            accountMetadataCache:self.accountMetadataCache];
     //add extended lifetime access token
     defaultSilentTokenRequest.extendedLifetimeAccessToken = [MSIDAccessToken new];
-
+    defaultSilentTokenRequest.requestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     //refresh token
     MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
@@ -649,6 +651,8 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache];
+    defaultSilentTokenRequest.requestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+   
     //add extended lifetime access token
     defaultSilentTokenRequest.extendedLifetimeAccessToken = [MSIDAccessToken new];
 
@@ -792,6 +796,8 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache];
+    defaultSilentTokenRequest.requestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+   
     //add extended lifetime access token
     defaultSilentTokenRequest.extendedLifetimeAccessToken = [MSIDAccessToken new];
 
@@ -1586,6 +1592,7 @@
                                                                                                                     tokenCache:self.tokenCache
                                                                                                           accountMetadataCache:self.accountMetadataCache];
 
+   defaultSilentTokenRequest.requestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
    //refresh token
    MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
