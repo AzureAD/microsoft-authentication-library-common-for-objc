@@ -65,6 +65,11 @@
 #if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
 #endif
+
+#pragma mark Nested auth protocol properties
+@property (nonatomic) NSString *nestedAuthBrokerClientId;
+@property (nonatomic) NSString *nestedAuthBrokerRedirectUri;
+
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;
 @property (nonatomic) NSString *logComponent;
@@ -94,6 +99,10 @@
 - (BOOL)validateParametersWithError:(NSError **)error;
 
 - (void)updateAppRequestMetadata:(NSString *)homeAccountId;
+
+- (BOOL)isNestedAuthProtocol;
+
+- (void)reverseNestedAuthParametersIfNeeded;
 
 #pragma mark - Init
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority

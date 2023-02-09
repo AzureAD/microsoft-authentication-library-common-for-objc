@@ -165,6 +165,33 @@
                                             responseCode:(NSUInteger)responseCode
                                                expiresIn:(NSString *)expiresIn
 {
+    return [self refreshTokenGrantResponseWithRT:requestRT
+                                   requestClaims:requestClaims
+                                   requestScopes:requestScopes
+                                      responseAT:responseAT
+                                      responseRT:responseRT
+                                      responseID:responseID
+                                   responseScope:responseScope
+                              responseClientInfo:responseClientInfo
+                                             url:url
+                                    responseCode:responseCode
+                                       expiresIn:expiresIn
+                            additionalBodyParams:nil];
+}
+
++ (MSIDTestURLResponse *)refreshTokenGrantResponseWithRT:(NSString *)requestRT
+                                           requestClaims:(NSString *)requestClaims
+                                           requestScopes:(NSString *)requestScopes
+                                              responseAT:(NSString *)responseAT
+                                              responseRT:(NSString *)responseRT
+                                              responseID:(NSString *)responseID
+                                           responseScope:(NSString *)responseScope
+                                      responseClientInfo:(NSString *)responseClientInfo
+                                                     url:(NSString *)url
+                                            responseCode:(NSUInteger)responseCode
+                                               expiresIn:(NSString *)expiresIn
+                                    additionalBodyParams:(NSDictionary *)additionalBodyParams
+{
     NSMutableDictionary *reqHeaders = [[self msidDefaultRequestHeaders] mutableCopy];
     [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
 
@@ -187,6 +214,11 @@
     if (requestClaims)
     {
         requestBody[@"claims"] = requestClaims;
+    }
+    
+    if (additionalBodyParams)
+    {
+        [requestBody addEntriesFromDictionary:additionalBodyParams];
     }
 
     MSIDTestURLResponse *response =

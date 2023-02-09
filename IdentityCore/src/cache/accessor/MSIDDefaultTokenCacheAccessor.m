@@ -211,6 +211,9 @@
 {
     if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType) return nil;
 
+    // For nested auth, get the RT using the broker/hub's client id
+    NSString *clientId = [configuration isNestedAuthProtocol] ? configuration.nestedAuthBrokerClientId : configuration.clientId;
+
     if (![NSString msidIsStringNilOrBlank:accountIdentifier.homeAccountId])
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Finding token with user ID %@, clientId %@, familyID %@, authority %@", accountIdentifier.maskedHomeAccountId, configuration.clientId, familyId, configuration.authority);
@@ -218,7 +221,7 @@
         MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
         query.homeAccountId = accountIdentifier.homeAccountId;
         query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
-        query.clientId = familyId ? nil : configuration.clientId;
+        query.clientId = familyId ? nil : clientId;
         query.familyId = familyId;
         query.credentialType = credentialType;
 
@@ -240,7 +243,7 @@
 
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshableTokenByDisplayableId:accountIdentifier
                                                                                              authority:configuration.authority
-                                                                                              clientId:configuration.clientId
+                                                                                              clientId:clientId
                                                                                               familyId:familyId
                                                                                         credentialType:credentialType
                                                                                                context:context
