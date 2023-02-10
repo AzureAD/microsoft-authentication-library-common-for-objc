@@ -297,7 +297,7 @@
     XCTAssertNil(error);
 }
 
-- (void)testEnrollmentIdForHomeAccountIdUserId_whenHomeAccountIdIsNotInCacheUserIdNotInCache_shouldReturnFirstAvailableId
+- (void)testEnrollmentIdForHomeAccountIdUserId_whenHomeAccountIdIsNotInCacheUserIdNotInCache_shouldReturnNil
 {
     NSString *homeAccountId = @"123-456-not-cached";
     NSString *userId = @"qwe@contoso.com";
@@ -305,11 +305,11 @@
     NSError *error;
     __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId legacyUserId:userId context:nil error:&error];
     
-    XCTAssertEqualObjects(@"64d0557f-dave-4193-b630-8491ffd3b180", enrollmentId);
+    XCTAssertNil(enrollmentId);
     XCTAssertNil(error);
 }
 
-- (void)testEnrollmentIdForHomeAccountIdUserId_whenHomeAccountIdIsNilUserIdNotInCache_shouldReturnFirstAvailableId
+- (void)testEnrollmentIdForHomeAccountIdUserId_whenHomeAccountIdIsNilUserIdNotInCache_shouldReturnNil
 {
     NSString *homeAccountId;
     NSString *userId = @"qwe@contoso.com";
@@ -317,11 +317,11 @@
     NSError *error;
     __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId legacyUserId:userId context:nil error:&error];
     
-    XCTAssertEqualObjects(@"64d0557f-dave-4193-b630-8491ffd3b180", enrollmentId);
+    XCTAssertNil(enrollmentId);
     XCTAssertNil(error);
 }
 
-- (void)testEnrollmentIdForHomeAccountIdUserId_whenHomeAccountIdIsNilUserIdIsNil_shouldReturnNil
+- (void)testEnrollmentIdForHomeAccountIdUserId_whenHomeAccountIdIsNilUserIdIsNil_shouldReturnFirstAvailableId
 {
     NSString *homeAccountId;
     NSString *userId;
@@ -329,11 +329,11 @@
     NSError *error;
     __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId legacyUserId:userId context:nil error:&error];
     
-    XCTAssertNil(enrollmentId);
+    XCTAssertEqualObjects(@"64d0557f-dave-4193-b630-8491ffd3b180", enrollmentId);
     XCTAssertNil(error);
 }
 
-- (void)testEnrollmentIdForHomeAccountIdUserId_whenHomeAccountIdIsEmptyUserIdIsEmpty_shouldReturnNil
+- (void)testEnrollmentIdForHomeAccountIdUserId_whenHomeAccountIdIsEmptyUserIdIsEmpty_shouldReturnFirstAvailableId
 {
     NSString *homeAccountId = @"";
     NSString *userId = @"";
@@ -341,7 +341,7 @@
     NSError *error;
     __auto_type enrollmentId = [self.cache enrollmentIdForHomeAccountId:homeAccountId legacyUserId:userId context:nil error:&error];
     
-    XCTAssertNil(enrollmentId);
+    XCTAssertEqualObjects(@"64d0557f-dave-4193-b630-8491ffd3b180", enrollmentId);
     XCTAssertNil(error);
 }
 
