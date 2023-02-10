@@ -124,8 +124,8 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     }
     
     // If we haven't found an exact match yet, fallback to any enrollment ID to support no userID or single userID scenarios
-    // only if homeAccountId or legacyId are not empty
-    if (![NSString msidIsStringNilOrBlank:homeAccountId] || ![NSString msidIsStringNilOrBlank:legacyUserId])
+    // only if homeAccountId and legacyId are both empty
+    if ([NSString msidIsStringNilOrBlank:homeAccountId] && [NSString msidIsStringNilOrBlank:legacyUserId])
     {
         return [self enrollmentIdIfAvailableWithContext:context error:error];
     }
