@@ -263,7 +263,7 @@
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     XCTAssertNotNil(token.expiresOn);
     XCTAssertNotNil(token.extendedExpiresOn);
-    XCTAssertEqualObjects(token.enrollmentId, @"enrollmentId");
+    XCTAssertNil(token.enrollmentId);
     
     [self setUpEnrollmentIdsCache:YES];
 }
