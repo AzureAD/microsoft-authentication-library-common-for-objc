@@ -80,7 +80,7 @@
             // If there is no preferred identity saved, we must set preferred identity certificate using hostname and key usage parameters
             if (identity == NULL)
             {
-                NSArray *arr = @[(__bridge NSString *)kSecAttrCanSign,(__bridge NSString *)kSecAttrCanEncrypt,(__bridge NSString *)kSecAttrCanDecrypt];
+                NSArray *arr = @[(__bridge NSString *)kSecAttrCanSign, (__bridge NSString *)kSecAttrCanEncrypt, (__bridge NSString *)kSecAttrCanDecrypt];
                 CFArrayRef arrayRef = (__bridge CFArrayRef)arr;
                 OSStatus status = SecIdentitySetPreferred(selectedIdentity, (CFStringRef)host, arrayRef);
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Result of setting identity preference is %d", status);
