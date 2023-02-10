@@ -36,7 +36,9 @@
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
+    
     NSString *host = challenge.protectionSpace.host;
+    
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
     
     // Check if a preferred identity is set for this host
@@ -47,7 +49,9 @@
         // If there was no identity matched for the exact host, try to match by URL
         // URL matching is more flexible, as it's doing a wildcard matching for different subdomains
         // However, we need to do both, because if there's an entry by hostname, matching by URL won't find it
+        
         identity = SecIdentityCopyPreferred((CFStringRef)webview.URL.absoluteString, NULL, (CFArrayRef)distinguishedNames);
+       
     }
     
     if (identity != NULL)
@@ -72,7 +76,15 @@
                  completionHandler(NSURLSessionAuthChallengeRejectProtectionSpace, nil);
                  return;
              }
-             
+            
+            // If there is no preferred identity saved, we must set preferred identity certificate using hostname and key usage parameters
+            if (identity == NO){
+                NSArray *arr = @[(__bridge NSString *)kSecAttrCanSign,(__bridge NSString *)kSecAttrCanEncrypt,(__bridge NSString *)kSecAttrCanDecrypt];
+                CFArrayRef arrayRef = (__bridge CFArrayRef)arr;
+                OSStatus status = SecIdentitySetPreferred(selectedIdentity, (CFStringRef)host, arrayRef);
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Result of setting identity preference is %d", status);
+            }
+                
              // Adding a retain count to match the retain count from SecIdentityCopyPreferred
              CFRetain(selectedIdentity);
              MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Using user selected certificate");
