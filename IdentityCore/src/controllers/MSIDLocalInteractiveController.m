@@ -90,6 +90,12 @@
                                                                  error:nil];
         }
         
+        if (!completionBlock)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End local interactive acquire token.");
+            return;
+        }
+        
         completionBlock(result, error);
     };
 
