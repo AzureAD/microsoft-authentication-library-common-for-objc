@@ -63,6 +63,19 @@
                                             responseCode:(NSUInteger)responseCode
                                                expiresIn:(NSString *)expiresIn;
 
++ (MSIDTestURLResponse *)refreshTokenGrantResponseWithRT:(NSString *)requestRT
+                                           requestClaims:(NSString *)requestClaims
+                                           requestScopes:(NSString *)requestScopes
+                                              responseAT:(NSString *)responseAT
+                                              responseRT:(NSString *)responseRT
+                                              responseID:(NSString *)responseID
+                                           responseScope:(NSString *)responseScope
+                                      responseClientInfo:(NSString *)responseClientInfo
+                                                     url:(NSString *)url
+                                            responseCode:(NSUInteger)responseCode
+                                               expiresIn:(NSString *)expiresIn
+                                    additionalBodyParams:(NSDictionary *)additionalBodyParams;
+
 + (MSIDTestURLResponse *)errorRefreshTokenGrantResponseWithRT:(NSString *)requestRT
                                                 requestClaims:(NSString *)requestClaims
                                                 requestScopes:(NSString *)requestScopes

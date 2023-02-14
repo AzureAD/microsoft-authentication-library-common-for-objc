@@ -44,6 +44,7 @@
     cacheItem.secret = DEFAULT_TEST_ACCESS_TOKEN;
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.enrollmentId = @"enrollmentId";
+    cacheItem.redirectUri = @"msauth.com.microsoft.teams://auth";
 
     NSDate *expiresOn = [NSDate date];
     NSDate *refreshOn = [NSDate date];
@@ -74,7 +75,9 @@
                                          @"extended_expires_on": extExpiresOnString,
                                          @"spe_info": @"2",
                                          @"home_account_id": @"uid.utid",
-                                         @"enrollment_id": @"enrollmentId"};
+                                         @"enrollment_id": @"enrollmentId",
+                                         @"redirect_uri": @"msauth.com.microsoft.teams://auth"
+                                        };
 
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 
@@ -154,7 +157,8 @@
                                      @"spe_info": @"2",
                                      @"test": @"test2",
                                      @"home_account_id": @"uid.utid",
-                                     @"enrollment_id": @"enrollmentId"
+                                     @"enrollment_id": @"enrollmentId",
+                                     @"redirect_uri": @"msauth.com.microsoft.teams://auth"
                                      };
 
     NSError *error = nil;
@@ -173,6 +177,7 @@
     XCTAssertEqualObjects(cacheItem.speInfo, @"2");
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(cacheItem.enrollmentId, @"enrollmentId");
+    XCTAssertEqualObjects(cacheItem.redirectUri, @"msauth.com.microsoft.teams://auth");
 }
 
 - (void)testInitWithJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnRefreshTokenCacheItem
@@ -254,6 +259,7 @@
     XCTAssertNil(cacheItem.enrollmentId);
     XCTAssertNil(cacheItem.familyId);
     XCTAssertFalse([[cacheItem familyId] isKindOfClass:[NSNull class]]);
+    XCTAssertNil(cacheItem.redirectUri);
 }
 
 - (void)testEqualityForCredentialCacheItems_WhenEitherOfTheComparedPropertiesInTheObject_IsNil

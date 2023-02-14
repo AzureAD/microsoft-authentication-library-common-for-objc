@@ -31,6 +31,7 @@
 
 @property (readonly) NSString *authority;
 @property (readonly) NSString *clientId;
+@property (readonly) NSString *nestedAuthBrokerClientId;
 @property (readonly) NSString *applicationToken;
 
 @property (readonly) NSString *brokerAppVer;

@@ -28,6 +28,7 @@
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTestIdentifiers.h"
+#import "MSIDConfiguration.h"
 
 @interface MSIDInteractiveTokenRequestParametersTests : XCTestCase
 
@@ -296,6 +297,44 @@
     XCTAssertNotNil(parameters);
     XCTAssertEqual(1, parameters.appRequestMetadata.count);
     XCTAssertEqualObjects(parameters.appRequestMetadata[MSID_CCS_HINT_KEY], @"Oid:fedcba98-7654-3210-0000-000000000000@00000000-0000-1234-5678-90abcdefffff");
+}
+
+- (void)testNestedAuthRequestParameters_whenNoExtraParameters_shouldReturnConfiguration
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
+
+    XCTAssertFalse([parameters isNestedAuthProtocol]);
+    XCTAssertNil(parameters.msidConfiguration.nestedAuthBrokerClientId);
+    XCTAssertNil(parameters.msidConfiguration.nestedAuthBrokerRedirectUri);
+}
+
+- (void)testNestedAuthRequestParameters_whenExtraParameters_shouldReturnNestedAuthConfiguration
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
+                                                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                                                             redirectUri:@"redirect"
+                                                                                                                clientId:@"clientid"
+                                                                                                                  scopes:[@"scope scope2" msidScopeSet]
+                                                                                                              oidcScopes:[@"openid openid2" msidScopeSet]
+                                                                                                    extraScopesToConsent:[@"extra1 extra5" msidScopeSet]
+                                                                                                           correlationId:nil
+                                                                                                          telemetryApiId:@"100"
+                                                                                                           brokerOptions:[MSIDBrokerInvocationOptions new]
+                                                                                                             requestType:MSIDRequestBrokeredType
+                                                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                                                                   error:nil];
+    parameters.nestedAuthBrokerClientId = @"123-456-7890-123";
+    parameters.nestedAuthBrokerRedirectUri = @"msauth.com.app.id://auth";
+
+    XCTAssertTrue([parameters isNestedAuthProtocol]);
+    XCTAssertEqualObjects(parameters.msidConfiguration.nestedAuthBrokerClientId, @"123-456-7890-123");
+    XCTAssertEqualObjects(parameters.msidConfiguration.nestedAuthBrokerRedirectUri, @"msauth.com.app.id://auth");
+
+    NSDictionary *jsonConfiguration = parameters.msidConfiguration.jsonDictionary;
+
+    XCTAssertEqualObjects(jsonConfiguration[MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY], @"123-456-7890-123");
+    XCTAssertEqualObjects(jsonConfiguration[MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY], @"msauth.com.app.id://auth");
 }
 
 @end

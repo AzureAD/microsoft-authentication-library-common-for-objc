@@ -143,8 +143,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             CONDITIONAL_SET_REFRESH_TYPE(self.currentRequestTelemetry.tokenCacheRefreshType, TokenCacheRefreshTypeNoCachedAT);
         }
         
+        BOOL accessTokenExpired = NO;
         BOOL enrollmentIdMatch = YES;
         BOOL accessTokenKeyThumbprintMatch = YES;
+        BOOL nestedAuthRedirectUriMatch = YES;
         
         // If token is scoped down to a particular enrollmentId and app is capable for True MAM CA, verify that enrollmentIds match
         // EnrollmentID matching is done on the request layer to ensure that expired access tokens get removed even if valid enrollmentId is not presented
@@ -170,12 +172,22 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Enrollment id match result = %@, access token's enrollment id : %@, cached enrollment id: %@, ", enrollmentIdMatch ? @"True" : @"False", MSID_PII_LOG_MASKABLE(accessToken.enrollmentId), MSID_PII_LOG_MASKABLE(currentEnrollmentId));
         }
         
+        if (accessToken)
+        {
+            accessTokenExpired = [accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer];
+        }
+        
         if (accessToken && ![NSString msidIsStringNilOrBlank:accessToken.kid])
         {
             accessTokenKeyThumbprintMatch = [self.requestParameters.authScheme matchAccessTokenKeyThumbprint:accessToken];
         }
         
-        if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
+        if (accessToken && ![NSString msidIsStringNilOrBlank:accessToken.redirectUri] && self.requestParameters.isNestedAuthProtocol)
+        {
+            nestedAuthRedirectUriMatch = [self.requestParameters.redirectUri.msidNormalizedString isEqualToString:accessToken.redirectUri.msidNormalizedString];
+        }
+        
+        if (accessToken && !accessTokenExpired && enrollmentIdMatch && accessTokenKeyThumbprintMatch && nestedAuthRedirectUriMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
             
@@ -212,8 +224,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             }
             
         }
-        
-        else if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
+        else if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch && accessTokenKeyThumbprintMatch && nestedAuthRedirectUriMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             
@@ -222,6 +233,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         }
         else if (accessToken)
         {
+            BOOL removeOldAccessToken = YES;
+            
             if (!enrollmentIdMatch)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached enrollment id is different from access token's enrollment id, removing it..");
@@ -230,19 +243,27 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached key thumbprint is different from access token's key thumbprint, removing it..");
             }
-            else
+            else if (accessTokenExpired)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
                 CONDITIONAL_SET_REFRESH_TYPE(self.currentRequestTelemetry.tokenCacheRefreshType, TokenCacheRefreshTypeExpiredAT);
             }
-            
-            NSError *removalError = nil;
-            BOOL removalResult = [self.tokenCache removeAccessToken:accessToken
-                                                            context:self.requestParameters
-                                                              error:&removalError];
-            if (!removalResult)
+            else
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning,self.requestParameters, @"Failed to remove access token with error %@", MSID_PII_LOG_MASKABLE(removalError));
+                removeOldAccessToken = NO;
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached redirect uri in AT is different from request parameter's redirect uri in nested auth.");
+            }
+            
+            if (removeOldAccessToken)
+            {
+                NSError *removalError = nil;
+                BOOL removalResult = [self.tokenCache removeAccessToken:accessToken
+                                                                context:self.requestParameters
+                                                                  error:&removalError];
+                if (!removalResult)
+                {
+                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning,self.requestParameters, @"Failed to remove access token with error %@", MSID_PII_LOG_MASKABLE(removalError));
+                }
             }
         }
     }

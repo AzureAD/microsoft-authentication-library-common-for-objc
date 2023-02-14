@@ -353,4 +353,90 @@
     XCTAssertEqualObjects(parameters.appRequestMetadata[MSID_CCS_HINT_KEY], @"UPN:user2@contoso.com");
 }
 
+- (void)testReverseNestedAuth_whenNoNestedAuthParametersPresent_shouldNotReverse
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    
+    [parameters reverseNestedAuthParametersIfNeeded];
+    
+    XCTAssertEqualObjects(parameters.clientId, @"myclient_id");
+    XCTAssertEqualObjects(parameters.redirectUri, @"myredirect");
+    XCTAssertNil(parameters.nestedAuthBrokerClientId);
+    XCTAssertNil(parameters.nestedAuthBrokerRedirectUri);
+}
+
+- (void)testReverseNestedAuth_whenNestedAuthParametersPresent_shouldReverse
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    
+    parameters.nestedAuthBrokerClientId = @"nested_client_id";
+    parameters.nestedAuthBrokerRedirectUri = @"brk-nested_redirect";
+    
+    [parameters reverseNestedAuthParametersIfNeeded];
+    
+    XCTAssertEqualObjects(parameters.clientId, @"nested_client_id");
+    XCTAssertEqualObjects(parameters.redirectUri, @"brk-nested_redirect");
+    XCTAssertEqualObjects(parameters.nestedAuthBrokerClientId, @"myclient_id");
+    XCTAssertEqualObjects(parameters.nestedAuthBrokerRedirectUri, @"myredirect");
+}
+
+- (void)testReverseNestedAuth_whenNestedAuthParametersPresentCalledTwice_shouldReverseOnce
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    
+    parameters.nestedAuthBrokerClientId = @"nested_client_id";
+    parameters.nestedAuthBrokerRedirectUri = @"brk-nested_redirect";
+        
+    [parameters reverseNestedAuthParametersIfNeeded];
+    // Call again
+    [parameters reverseNestedAuthParametersIfNeeded];
+    
+    XCTAssertEqualObjects(parameters.clientId, @"nested_client_id");
+    XCTAssertEqualObjects(parameters.redirectUri, @"brk-nested_redirect");
+    XCTAssertEqualObjects(parameters.nestedAuthBrokerClientId, @"myclient_id");
+    XCTAssertEqualObjects(parameters.nestedAuthBrokerRedirectUri, @"myredirect");
+}
+
 @end

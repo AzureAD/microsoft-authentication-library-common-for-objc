@@ -44,6 +44,12 @@
                                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError **)error
 {
+    // Nested auth protocol - Reverse client id & redirect uri
+    if ([parameters isNestedAuthProtocol])
+    {
+        [parameters reverseNestedAuthParametersIfNeeded];
+    }
+
     MSIDSilentController *brokerController;
     
     if ([parameters shouldUseBroker])
@@ -102,6 +108,12 @@
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                     error:(NSError * _Nullable * _Nullable)error
 {
+    // Nested auth protocol - Reverse client id & redirect uri
+    if ([parameters isNestedAuthProtocol])
+    {
+        [parameters reverseNestedAuthParametersIfNeeded];
+    }
+
     id<MSIDRequestControlling> interactiveController = [self platformInteractiveController:parameters
                                                                       tokenRequestProvider:tokenRequestProvider
                                                                                      error:error];

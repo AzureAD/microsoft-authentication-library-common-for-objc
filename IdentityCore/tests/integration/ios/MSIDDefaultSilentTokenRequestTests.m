@@ -185,6 +185,47 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+- (void)testAcquireTokenSilent_whenAccessAndRefreshTokensInCache_andNestedAuthAndMatchRedirectUri_shouldReturnATAndRT
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    silentParameters.nestedAuthBrokerClientId = @"1234-5678";
+    silentParameters.nestedAuthBrokerRedirectUri = @"brk-hub-app://auth";
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                       accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertEqualObjects(result.accessToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+        XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read user.write tasks.read"]);
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
+        XCTAssertFalse(result.extendedLifeTimeToken);
+        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+        XCTAssertNil(result.refreshToken.familyId);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 - (void)testAcquireTokenSilent_whenAccessAndFociRefreshTokensInCache_andNoAppRefreshToken_shouldReturnATAndFociRT
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
@@ -844,6 +885,73 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         NSURL *tenantURL = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY_GUID];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireTokenSilent_whenNestedAuthAndNoMatchRedirectUri_shouldRefreshToken
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    silentParameters.nestedAuthBrokerClientId = @"1234-5678";
+    silentParameters.nestedAuthBrokerRedirectUri = @"brk-hub-app://auth";
+    silentParameters.msidConfiguration.redirectUri = @"real-app-cached://auth";
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    silentParameters.redirectUri = @"other-app-request://auth";
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    NSDictionary *additionalBodyParams = @{
+                                            @"redirect_uri": @"other-app-request://auth",
+                                            @"brk_redirect_uri": @"brk-hub-app://auth",
+                                            @"brk_client_id": @"1234-5678"
+    };
+    
+    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                requestClaims:nil
+                                                                                requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                   responseAT:@"new at"
+                                                                                   responseRT:@"new rt"
+                                                                                   responseID:nil
+                                                                                responseScope:@"user.read tasks.read"
+                                                                           responseClientInfo:nil
+                                                                                          url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil
+                                                                         additionalBodyParams:additionalBodyParams];
+
+    
+    [MSIDTestURLSession addResponse:tokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
+        XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
+        XCTAssertFalse(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
     }];

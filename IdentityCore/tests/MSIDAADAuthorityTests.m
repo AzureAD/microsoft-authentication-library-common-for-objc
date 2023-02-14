@@ -464,7 +464,7 @@
     XCTAssertNil(error);
 }
 
-- (void)testEnrollmentIdForHomeAccountId_whenUnenrolledHomeAccountIdAndUserId_shouldReturnFirstEnrollmentId
+- (void)testEnrollmentIdForHomeAccountId_whenUnenrolledHomeAccountIdAndUserId_shouldReturnNil
 {
     [self setUpEnrollmentIdsCache:NO];
     
@@ -472,11 +472,11 @@
     MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     NSError *error = nil;
     
-    XCTAssertEqual([authority enrollmentIdForHomeAccountId:@"homeAccountId" legacyUserId:@"user@contoso.com" context:nil error:&error], @"adf79e3f-mike-454d-9f0f-2299e76dbfd5");
+    XCTAssertNil([authority enrollmentIdForHomeAccountId:@"homeAccountId" legacyUserId:@"user@contoso.com" context:nil error:&error]);
     XCTAssertNil(error);
 }
 
-- (void)testEnrollmentIdForHomeAccountId_whenNilHomeAccountIdAndUserId_shouldReturnFirstEnrollmentId
+- (void)testEnrollmentIdForHomeAccountId_whenNilHomeAccountIdAndNilUserId_shouldReturnFirstEnrollmentId
 {
     [self setUpEnrollmentIdsCache:NO];
     

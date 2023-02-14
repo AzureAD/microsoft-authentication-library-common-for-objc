@@ -84,6 +84,9 @@
 // Requested claims for access tokens, currently only used by MSAL C++
 @property (atomic, readwrite, nullable) NSString *requestedClaims;
 
+// Redirect Uri
+@property (atomic, readwrite, nullable) NSString *redirectUri;
+
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;
