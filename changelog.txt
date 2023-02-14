@@ -1,4 +1,4 @@
-TBD
+Version 1.7.16
 * Add more detailed error codes for JIT (#1187)
 * Add support for nested auth protocol (#1175)
 * Return enrollmentId only if homeAccountId and legacyId are both empty (#1191)
