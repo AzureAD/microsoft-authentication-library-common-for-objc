@@ -1,4 +1,5 @@
-TBD
+Version 1.7.15
+* Fix a crash when no identiy found during getting device registration information.
 * Add support for nested auth protocol (#1175)
 
 Version 1.7.14
