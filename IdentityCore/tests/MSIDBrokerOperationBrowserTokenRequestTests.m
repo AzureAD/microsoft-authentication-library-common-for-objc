@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,33 +20,40 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDURLFormObject.h"
-#import "MSIDAADTokenResponse.h"
 
-@class MSIDAuthority;
-@class MSIDDeviceInfo;
+#import <XCTest/XCTest.h>
+#import "MSIDBrokerOperationBrowserTokenRequest.h"
 
-@interface MSIDBrokerResponse : MSIDURLFormObject
+@interface MSIDBrokerOperationBrowserTokenRequest(Test)
 
-@property (readonly) NSString *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *nestedAuthBrokerClientId;
-@property (readonly) NSString *applicationToken;
++ (NSString *)protocolLogNameForRequestURL:(NSURL *)requestURL;
 
-@property (readonly) NSString *brokerAppVer;
-@property (readonly) NSString *validAuthority;
+@end
 
-@property (readonly) NSString *correlationId;
-@property (readonly) NSString *errorCode;
-@property (readonly) NSString *errorDomain;
-@property (readonly) NSString *target;
+@interface MSIDBrokerOperationBrowserTokenRequestTests : XCTestCase
 
-// Derived properties
-@property (readonly) MSIDTokenResponse *tokenResponse;
-@property (readonly) MSIDAuthority *msidAuthority;
-@property (readonly) BOOL ignoreAccessTokenCache;
-@property (readonly) MSIDDeviceInfo *deviceInfo;
+@end
+
+@implementation MSIDBrokerOperationBrowserTokenRequestTests
+
+- (void)testProtocolLogNameForRequestURL_whenValidOAuth2URL_shouldReturnOAuthIdentifier
+{
+    NSString *url = @"https://login.microsoftonline.com/contoso.com/oauth2/v2.0/authorize?client_id=client";
+
+    NSString *result = [MSIDBrokerOperationBrowserTokenRequest protocolLogNameForRequestURL:[NSURL URLWithString:url]];
+
+    XCTAssertEqualObjects(result, @"OAuth2 Authorize");
+}
+
+- (void)testProtocolLogNameForRequestURL_whenNonCommonIdentifier_shouldReturnNAIdentifier
+{
+    NSString *url = @"https://login.microsoftonline.com/contoso.com/oauth2/v2.0/fido";
+
+    NSString *result = [MSIDBrokerOperationBrowserTokenRequest protocolLogNameForRequestURL:[NSURL URLWithString:url]];
+
+    XCTAssertEqualObjects(result, @"N/A");
+}
 
 @end

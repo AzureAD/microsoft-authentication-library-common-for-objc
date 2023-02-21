@@ -1,3 +1,10 @@
+Version 1.7.16
+* Add more detailed error codes for JIT (#1187)
+* Add support for nested auth protocol (#1175)
+* Return enrollmentId only if homeAccountId and legacyId are both empty (#1191)
+* Prevent crash when missing completionBlock on local interactive aquireToken (#1193)
+* Add support for memorizing certificate preference for CBA on MacOS (#1194)
+
 Version 1.7.15
 * Fix a crash when no identiy found during getting device registration information on iOS.
 

@@ -52,6 +52,9 @@
 @property (nonatomic) NSString *kid;
 @property (nonatomic) NSString *tokenType;
 
+// Redirect Uri when the access token was obtained; when returning cached AT, redirect uri should match
+@property (atomic, readwrite) NSString *redirectUri;
+
 // Claims string sent to the server to produce this AT. Used by MSAL C++
 @property (atomic, readwrite) NSString *requestedClaims;
 

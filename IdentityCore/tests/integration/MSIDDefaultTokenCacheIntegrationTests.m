@@ -732,6 +732,37 @@
     XCTAssertEqualObjects(returnedToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
 
+- (void)testGetTokenWithType_whenTypeRefreshAccountWithUtidAndUidProvidedAndNestedAuth_shouldReturnToken
+{
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY aadAuthority]
+                                                                        redirectUri:nil
+                                                                           clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             target:DEFAULT_TEST_RESOURCE
+                                                           nestedAuthBrokerClientId:@"other_client_id"
+                                                        nestedAuthBrokerRedirectUri:@"other_redirect_uri"];
+
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    [_cacheAccessor saveSSOStateWithConfiguration:configuration
+                                         response:[MSIDTestTokenResponse v2DefaultTokenResponse]
+                                          factory:[MSIDAADV2Oauth2Factory new]
+                                          context:nil
+                                            error:nil];
+
+    NSError *error = nil;
+
+    MSIDRefreshToken *returnedToken = [_cacheAccessor getRefreshTokenWithAccount:account
+                                                                        familyId:nil
+                                                                   configuration:configuration
+                                                                         context:nil
+                                                                           error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(returnedToken);
+    XCTAssertEqualObjects(returnedToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(returnedToken.clientId, @"other_client_id");
+}
+
 #pragma mark - Remove
 
 - (void)testRemoveToken_whenItemInCache_andAccountWithUidUtidProvided_shouldRemoveOnlyRTItems

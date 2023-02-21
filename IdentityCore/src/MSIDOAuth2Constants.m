@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDOAuth2Constants.h"
-#import "MSIDAADNetworkConfiguration.h"
 
 NSString *const MSID_OAUTH2_ACCESS_TOKEN       = @"access_token";
 NSString *const MSID_OAUTH2_AUTHORIZATION      = @"authorization";
@@ -79,6 +78,9 @@ NSString *const MSID_ENROLLMENT_ID              = @"microsoft_enrollment_id";
 NSString *const MSID_OAUTH2_CODE_CHALLENGE               = @"code_challenge";
 NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD        = @"code_challenge_method";
 NSString *const MSID_OAUTH2_CODE_VERIFIER                = @"code_verifier";
+
+NSString *const MSID_NESTED_AUTH_BROKER_CLIENT_ID        = @"brk_client_id";
+NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI     = @"brk_redirect_uri";
 
 NSString *const MSID_OAUTH2_CLIENT_INFO                  = @"client_info";
 NSString *const MSID_OAUTH2_UNIQUE_IDENTIFIER            = @"uid";

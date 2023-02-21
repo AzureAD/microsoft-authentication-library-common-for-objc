@@ -48,6 +48,12 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDHttpRequest.h"
+#import "MSIDAuthorizationCodeGrantRequest.h"
+#import "MSIDRefreshTokenGrantRequest.h"
 
 @interface MSIDAADV2Oauth2FactoryTests : XCTestCase
 
@@ -255,6 +261,37 @@
     XCTAssertNotNil(token.expiresOn);
 }
 
+- (void)testAccessTokenFromResponse_whenOIDCTokenResponseAndNestedAuth_shouldReturnTokenWithRedirectUrl
+{
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    configuration.redirectUri = @"brk-1fec8e78-1234-5678-9101://myNestedApp.com";
+    configuration.nestedAuthBrokerClientId = @"1fec8e78-1234-5678-9101";
+    configuration.nestedAuthBrokerRedirectUri = @"msauth.com.microsoft.teams://auth";
+    
+    MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
+    
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, DEFAULT_TEST_UTID);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
+    
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
+
+    XCTAssertNotNil(token.extendedExpiresOn);
+
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
+    
+    XCTAssertEqualObjects(token.scopes, scopes);
+    XCTAssertNotNil(token.expiresOn);
+    XCTAssertNotNil(token.redirectUri);
+    XCTAssertEqualObjects(token.redirectUri, @"brk-1fec8e78-1234-5678-9101://myNestedApp.com");
+}
+
 - (void)testRefreshTokenFromResponse_whenAADV2TokenResponse_shouldReturnToken
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
@@ -418,6 +455,56 @@
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
     XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(account.realm, @"contoso.com");
+}
+
+#pragma mark - Request
+
+- (void)testAuthorizationGrantRequest_whenNestedAuth_shouldIncludeAdditionalParameters
+{
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDRequestParameters *parameters = [self nestedAuthRequestParameters];
+
+    MSIDAuthorizationCodeGrantRequest *request = [factory authorizationGrantRequestWithRequestParameters:parameters
+                                                                                            codeVerifier:@"pkce_code_verifier"
+                                                                                                authCode:@"auth_code"
+                                                                                           homeAccountId:@"home_account_id"];
+
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(request.parameters[MSID_NESTED_AUTH_BROKER_CLIENT_ID], @"other_client_id");
+    XCTAssertEqualObjects(request.parameters[MSID_NESTED_AUTH_BROKER_REDIRECT_URI], @"other_redirect_uri");
+}
+
+- (void)testRefreshTokenRequest_whenNestedAuth_shouldIncludeAdditionalParameters
+{
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDRequestParameters *parameters = [self nestedAuthRequestParameters];
+
+    MSIDRefreshTokenGrantRequest *request = [factory refreshTokenRequestWithRequestParameters:parameters
+                                                                                 refreshToken:@"the_refresh_token"];
+
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(request.parameters[MSID_NESTED_AUTH_BROKER_CLIENT_ID], @"other_client_id");
+    XCTAssertEqualObjects(request.parameters[MSID_NESTED_AUTH_BROKER_REDIRECT_URI], @"other_redirect_uri");
+}
+
+- (MSIDInteractiveTokenRequestParameters *)nestedAuthRequestParameters
+{
+    __auto_type authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    authority.metadata = [MSIDOpenIdProviderMetadata new];
+    authority.metadata.tokenEndpoint = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
+    parameters.authority = authority;
+    parameters.clientId = @"my_client_id";
+    parameters.target = @"user.read tasks.read";
+    parameters.oidcScope = @"openid profile offline_access";
+    parameters.redirectUri = @"my_redirect_uri";
+    parameters.correlationId = [NSUUID new];
+    parameters.extendedLifetimeEnabled = YES;
+    parameters.telemetryRequestId = [[NSUUID new] UUIDString];
+    parameters.nestedAuthBrokerClientId = @"other_client_id";
+    parameters.nestedAuthBrokerRedirectUri = @"other_redirect_uri";
+    return parameters;
 }
 
 @end

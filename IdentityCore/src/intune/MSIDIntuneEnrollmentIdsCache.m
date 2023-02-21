@@ -123,8 +123,14 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
         if (enrollmentId) return enrollmentId;
     }
     
-    // If we haven't found an exact match yet, fallback to any enrollment ID to support no userID or single userID scenarios.
-    return [self enrollmentIdIfAvailableWithContext:context error:error];
+    // If we haven't found an exact match yet, fallback to any enrollment ID to support no userID or single userID scenarios
+    // only if homeAccountId and legacyId are both empty
+    if ([NSString msidIsStringNilOrBlank:homeAccountId] && [NSString msidIsStringNilOrBlank:legacyUserId])
+    {
+        return [self enrollmentIdIfAvailableWithContext:context error:error];
+    }
+    
+    return nil;
 }
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
@@ -154,10 +160,11 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
+    validationId = [validationId msidNormalizedString];
     NSArray *enrollIds = [self fetchAllEnrollmentIdsWithContext:context error:error];
     for (NSDictionary *enrollIdDic in enrollIds)
     {
-        if ([enrollIdDic[key] isEqualToString:validationId])
+        if ([[enrollIdDic[key] msidNormalizedString] isEqualToString:validationId])
         {
             NSString *enrollmentId = enrollIdDic[MSID_INTUNE_ENROLL_ID];
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Queried by %@, enrollment id read from intune cache : %@.", key, enrollmentId ? MSID_PII_LOG_MASKABLE(enrollmentId) : enrollmentId);
