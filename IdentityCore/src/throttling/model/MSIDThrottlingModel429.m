@@ -66,6 +66,11 @@ NSInteger const MSID_THROTTLING_MAX_RETRY_AFTER = 3600;
     BOOL res = NO;
     
     NSString *httpResponseCode = [errorResponse msidGetUserInfoValueWithMSIDKey:MSIDHTTPResponseCodeKey orMSALKey:@"MSALHTTPResponseCodeKey"];
+    if ([NSString msidIsStringNilOrBlank:httpResponseCode])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Throttling: httpResponseCode is not valid");
+    }
+    
     NSInteger responseCode = [httpResponseCode intValue];
     if (responseCode == 429) res = YES;
     if (responseCode >= 500 && responseCode <= 599) res = YES;
