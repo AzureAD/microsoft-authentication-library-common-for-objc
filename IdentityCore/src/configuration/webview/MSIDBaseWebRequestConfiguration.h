@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDWebviewResponse;
 @class MSIDWebviewFactory;
+@class MSIDExternalSSOContext;
 
 @interface MSIDBaseWebRequestConfiguration : NSObject
 
@@ -53,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 @property (nonatomic, readonly) NSString *state;
+@property (nonatomic, readonly) MSIDExternalSSOContext *ssoContext;
 
 // State verification
 // Set this to YES to have the request continue even at state verification failure.
@@ -65,6 +67,11 @@ NS_ASSUME_NONNULL_BEGIN
                            state:(NSString *)state
               ignoreInvalidState:(BOOL)ignoreInvalidState;
 
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState
+                      ssoContext:(nullable MSIDExternalSSOContext *)ssoContext;
 
 - (nullable MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                                 factory:(MSIDWebviewFactory *)factory

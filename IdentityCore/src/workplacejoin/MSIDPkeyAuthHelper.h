@@ -24,10 +24,13 @@
 #import <Foundation/Foundation.h>
 #import "MSIDRegistrationInformation.h"
 
+@class MSIDExternalSSOContext;
+
 @interface MSIDPkeyAuthHelper : NSObject
 
 + (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
                                   challengeData:(nullable NSDictionary *)challengeData
+                             externalSSOContext:(nullable MSIDExternalSSOContext *)externalSSOContext
                                         context:(nullable id<MSIDRequestContext>)context;
 
 @end

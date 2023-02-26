@@ -62,6 +62,7 @@
 @property (nonatomic) id<MSIDRequestContext> passedContext;
 @property (nonatomic, copy) MSIDHttpRequestDidCompleteBlock passedBlock;
 @property (nonatomic) id<MSIDResponseSerialization> responseSerializer;
+@property (nonatomic) MSIDExternalSSOContext *passedSSOContext;
 
 @end
 
@@ -72,6 +73,7 @@
                data:(NSData *)data
         httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
  responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
+ externalSSOContext:(MSIDExternalSSOContext *)ssoContext
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
@@ -83,6 +85,7 @@
     self.passedBlock = completionBlock;
     self.responseSerializer = responseSerializer;
     self.handleErrorInvokedCounts++;
+    self.passedSSOContext = ssoContext;
 }
 
 @end

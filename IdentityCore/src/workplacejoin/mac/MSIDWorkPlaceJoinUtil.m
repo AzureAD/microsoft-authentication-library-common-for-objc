@@ -28,10 +28,89 @@
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
+#import "MSIDExternalSSOContext.h"
+#import "MSIDAADAuthority.h"
 
 // Convenience macro to release CF objects
 
 @implementation MSIDWorkPlaceJoinUtil
+
++ (MSIDWPJKeyPairWithCert *)wpjKeyPairWithSSOContext:(MSIDExternalSSOContext *)ssoContext
+                                            tenantId:(NSString *)tenantId
+                                             context:(id<MSIDRequestContext>)context
+{
+    if (@available(macOS 13.0, *))
+    {
+        if (![NSString msidIsStringNilOrBlank:tenantId])
+        {
+            NSURL *tokenEndpointURL = ssoContext.loginManager.loginConfiguration.tokenEndpointURL;
+            
+            if (tokenEndpointURL)
+            {
+                NSError *authorityURLError = nil;
+                MSIDAADAuthority *authorityURL = [[MSIDAADAuthority alloc] initWithURL:tokenEndpointURL
+                                                                             rawTenant:nil
+                                                                               context:context
+                                                                                 error:&authorityURLError];
+                
+                if (!authorityURL)
+                {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to create authority URL with error %@", authorityURLError);
+                }
+                else if (![authorityURL.tenant.rawTenant.lowercaseString isEqualToString:tenantId.lowercaseString])
+                {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Tenant was specified for matching and it mismatches registration tenant, returning early. Specified tenant %@, registration tenant %@", tenantId, authorityURL.tenant.rawTenant);
+                    return nil;
+                }
+            }
+        }
+        
+        SecIdentityRef identityRef = [ssoContext.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning]; // +1
+        
+        if (!identityRef)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to copy identity for the ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning keytype");
+            return nil;
+        }
+        
+        SecCertificateRef certificateRef = NULL;
+        OSStatus certCopyStatus = SecIdentityCopyCertificate(identityRef, &certificateRef); // +1
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Certificate copy status from identity %d", (int)certCopyStatus);
+        
+        if (!certificateRef)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to copy certificate from identityref with status %d", (int)certCopyStatus);
+            CFReleaseNull(identityRef);
+            return nil;
+        }
+        
+        SecKeyRef privateKeyRef = NULL;
+        OSStatus keyCopyStatus = SecIdentityCopyPrivateKey(identityRef, &privateKeyRef); // +1
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Key copy status from identity %d", (int)keyCopyStatus);
+        
+        if (!privateKeyRef)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to copy private key from identityref with status %d", (int)keyCopyStatus);
+            CFReleaseNull(identityRef);
+            CFReleaseNull(certificateRef);
+            return nil;
+        }
+        
+        MSIDWPJKeyPairWithCert *keypair = [[MSIDWPJKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
+                                                                                 certificate:certificateRef
+                                                                           certificateIssuer:nil];
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Successfully created MSIDWPJKeyPairWithCert from external SSO context for identity %@", identityRef);
+        
+        CFReleaseNull(identityRef);
+        CFReleaseNull(certificateRef);
+        CFReleaseNull(privateKeyRef);
+        return keypair;
+        
+    }
+    
+    return nil;
+}
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                      workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *)workplacejoinChallenge

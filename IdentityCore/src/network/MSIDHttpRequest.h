@@ -33,6 +33,7 @@
 @protocol MSIDHttpRequestErrorHandling;
 @protocol MSIDHttpRequestServerTelemetryHandling;
 @class MSIDURLSessionManager;
+@class MSIDExternalSSOContext;
 
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 {
@@ -75,6 +76,8 @@
 @property (nonatomic, nullable) id<MSIDHttpRequestErrorHandling> errorHandler;
 
 @property (nonatomic, nullable) id<MSIDRequestContext> context;
+
+@property (nonatomic, nullable) MSIDExternalSSOContext *externalSSOContext;
 
 @property (nonatomic) NSInteger retryCounter;
 @property (nonatomic) NSTimeInterval retryInterval;

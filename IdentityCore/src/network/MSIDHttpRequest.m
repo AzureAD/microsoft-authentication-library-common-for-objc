@@ -150,6 +150,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                                             data:data
                                      httpRequest:self
                               responseSerializer:responseSerializer
+                              externalSSOContext:self.externalSSOContext
                                          context:self.context
                                  completionBlock:completeBlockWrapper];
               }

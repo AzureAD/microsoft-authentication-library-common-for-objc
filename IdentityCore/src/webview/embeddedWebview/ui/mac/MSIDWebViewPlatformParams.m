@@ -32,6 +32,35 @@
     if (self)
     {
         _customWindowRect = customWindowRect;
+        _customWindowRectIsSet = YES;
+    }
+    
+    return self;
+}
+
+-(instancetype)initWithExternalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _externalSSOContext = externalSSOContext;
+        _customWindowRectIsSet = NO;
+    }
+    
+    return self;
+}
+
+-(instancetype)initWithExternalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
+                         customWindowRect:(NSRect)customWindowRect
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _externalSSOContext = externalSSOContext;
+        _customWindowRect = customWindowRect;
+        _customWindowRectIsSet = YES;
     }
     
     return self;

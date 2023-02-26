@@ -24,3 +24,20 @@
 
 
 #import <Foundation/Foundation.h>
+#import "MSIDWebViewPlatformParams.h"
+
+@implementation MSIDWebViewPlatformParams
+
+-(instancetype)initWithExternalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _externalSSOContext = externalSSOContext;
+    }
+    
+    return self;
+}
+
+@end
