@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDKeychainUtil ()
 
+@property (readonly) BOOL isAppEntitled;
+
 - (nullable NSString *)teamIdFromSigningInformation:(NSDictionary *)signingInformation;
 - (nullable NSString *)appIdPrefixFromSigningInformation:(NSDictionary *)signingInformation;
 

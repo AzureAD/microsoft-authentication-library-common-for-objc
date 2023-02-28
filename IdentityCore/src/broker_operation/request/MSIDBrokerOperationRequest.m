@@ -28,6 +28,11 @@
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDVersion.h"
 #import "NSDictionary+MSIDLogging.h"
+#if !TARGET_OS_OSX
+#import "MSIDKeychainUtil.h"
+#else
+#import "MSIDKeychainUtil+MacInternal.h"
+#endif
 
 @implementation MSIDBrokerOperationRequest
 
@@ -36,11 +41,16 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
      clientMetadata:(NSDictionary *)clientMetadata
             context:(id<MSIDRequestContext>)context
 {
-    NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
-    __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
-    NSString *base64UrlKey = [brokerKeyProvider base64BrokerKeyWithContext:context
-                                                                     error:nil];
-    request.brokerKey = base64UrlKey;
+    NSString *base64UrlKey = nil;
+    if (![self shouldIgnoreBrokerKey])
+    {
+        NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
+        __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
+        base64UrlKey = [brokerKeyProvider base64BrokerKeyWithContext:context
+                                                               error:nil];
+        request.brokerKey = base64UrlKey;
+    }
+    
     request.clientVersion = [MSIDVersion sdkVersion];
     request.protocolVersion = MSID_BROKER_PROTOCOL_VERSION_4;
     request.clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
@@ -86,15 +96,28 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
     NSMutableDictionary *json = [NSMutableDictionary new];
     if (!self.brokerKey)
     {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, brokerKey is nil.", self.class);
-        return nil;
+        
+        if (![MSIDBrokerOperationRequest shouldIgnoreBrokerKey])
+        {
+            MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, brokerKey is nil.", self.class);
+            return nil;
+        }
+        else
+        {
+            MSID_LOG_WITH_CORR(MSIDLogLevelInfo, self.correlationId, @"Broker key is invalid, continue generating broker request for %@ class", self.class);
+        }
     }
-    json[MSID_BROKER_KEY] = self.brokerKey;
+    else
+    {
+        json[MSID_BROKER_KEY] = self.brokerKey;
+    }
+    
     if (self.protocolVersion < 1)
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, protocolVersion is invalid.", self.class);
         return nil;
     }
+    
     json[MSID_BROKER_PROTOCOL_VERSION_KEY] = [@(self.protocolVersion) stringValue];
     json[MSID_BROKER_CLIENT_VERSION_KEY] = self.clientVersion;
     json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
@@ -106,9 +129,23 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
     return json;
 }
 
--(NSString *)logInfo
+- (NSString *)logInfo
 {
     return [NSString stringWithFormat:@"%@",[self.jsonDictionary msidMaskedRequestDictionary]];
+}
+
++ (BOOL)shouldIgnoreBrokerKey
+{
+#if !TARGET_OS_OSX
+    return NO;
+#else
+        if([MSIDKeychainUtil sharedInstance].isAppEntitled)
+        {
+            return NO;
+        }
+    
+    return YES;
+#endif
 }
 
 @end
