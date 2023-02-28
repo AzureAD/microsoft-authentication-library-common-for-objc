@@ -39,14 +39,12 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
      clientMetadata:(NSDictionary *)clientMetadata
             context:(id<MSIDRequestContext>)context
 {
-    NSString *base64UrlKey = nil;
     if (![self shouldIgnoreBrokerKey])
     {
         NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
         __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
-        base64UrlKey = [brokerKeyProvider base64BrokerKeyWithContext:context
+        request.brokerKey = [brokerKeyProvider base64BrokerKeyWithContext:context
                                                                error:nil];
-        request.brokerKey = base64UrlKey;
     }
     
     request.clientVersion = [MSIDVersion sdkVersion];
