@@ -28,9 +28,7 @@
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDVersion.h"
 #import "NSDictionary+MSIDLogging.h"
-#if !TARGET_OS_OSX
-#import "MSIDKeychainUtil.h"
-#else
+#if TARGET_OS_OSX
 #import "MSIDKeychainUtil+MacInternal.h"
 #endif
 
