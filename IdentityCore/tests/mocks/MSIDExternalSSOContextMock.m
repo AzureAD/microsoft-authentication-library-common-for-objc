@@ -23,22 +23,34 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import <AuthenticationServices/AuthenticationServices.h>
+#import "MSIDExternalSSOContextMock.h"
 
-@class MSIDWPJKeyPairWithCert;
+@implementation MSIDWPJKeyPairWithCertMock
 
-NS_ASSUME_NONNULL_BEGIN
+- (void)setPrivateKey:(SecKeyRef)privateKey
+{
+    self->_privateKeyRef = privateKey;
+    self->_certificateRef = (SecCertificateRef)@"";
+}
 
-@interface MSIDExternalSSOContext : NSObject
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable, strong) ASAuthorizationProviderExtensionLoginManager *loginManager API_AVAILABLE(macos(13.0));
-#endif
-
-- (nullable MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(nullable id<MSIDRequestContext>)context;
-- (nullable NSURL *)tokenEndpointURL;
+- (void)setCertIssuer:(NSString *)issuer
+{
+    self->_certificateIssuer = issuer;
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDExternalSSOContextMock
+
+- (MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(id<MSIDRequestContext>)context
+{
+    self.wpjCertWithContextCalledCount++;
+    return self.mockedKeyPair;
+}
+
+- (nullable NSURL *)tokenEndpointURL
+{
+    return self.mockedTokenEndpointURL;
+}
+
+@end

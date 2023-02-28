@@ -30,6 +30,8 @@
 #import "MSIDRegistrationInformationMock.h"
 #import "NSDate+MSIDTestUtil.h"
 #import "MSIDLastRequestTelemetry.h"
+#import "MSIDExternalSSOContextMock.h"
+#import "MSIDWPJKeyPairWithCert.h"
 
 static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
@@ -102,6 +104,83 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     
     XCTAssertEqualObjects(expectedResponse, response);
 }
+
+#if TARGET_OS_OSX
+- (void)testCreateDeviceAuthResponse_whenDeviceIsWPJWithExternalSSOContext_shouldCreateProperResponse
+{
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+"};
+    
+    MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
+    [keyPair setPrivateKey:[self privateKey]];
+    [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    
+    MSIDExternalSSOContextMock *ssoContextMock = [MSIDExternalSSOContextMock new];
+    ssoContextMock.mockedKeyPair = keyPair;
+    
+    __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:ssoContextMock context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIihudWxsKSIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.DUH5zaLjXfDfDZmxlQ15vh32Xc5t9vrGBlRUEY4S2wY7iJ1pGdPrAceL3lVffNW3bxvw7RXSOJaa8I2gMHwS3I-N_vtT-8nCuzKnN-Y40e3E7ygWXN2qOfSz1HRZQBYPn0eWNVBzaFfEN263knYZFU7w_zr3Luca2CWf5ARYL6b9v7ZkP7XEWZqvdVPHVRATGHw16jFC1htCJFe7NwQX_zeazLYpdc3F1sGWNpzxXeKK-NI2C09iPkpMQW33ejVPWxHa-nZwB40vbkZi4aUa5HF8cJ1vqKbZev14Xk_52QYRfIbRiIR_7j74RBdgbT83RDO26r8skzvlfmolVke1wg\", Context=\"some context\", Version=\"1.0\"";
+    
+    XCTAssertEqualObjects(expectedResponse, response);
+}
+
+- (void)testCreateDeviceAuthResponse_whenDeviceIsWPJWithExternalSSOContext_whenTenantIdSpecifiedAndMatches_shouldCreateProperResponse
+{
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+",
+                                  @"TenantId": @"contoso.com"
+    };
+    
+    MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
+    [keyPair setPrivateKey:[self privateKey]];
+    [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    
+    MSIDExternalSSOContextMock *ssoContextMock = [MSIDExternalSSOContextMock new];
+    ssoContextMock.mockedKeyPair = keyPair;
+    ssoContextMock.mockedTokenEndpointURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    
+    __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:ssoContextMock context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIihudWxsKSIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.DUH5zaLjXfDfDZmxlQ15vh32Xc5t9vrGBlRUEY4S2wY7iJ1pGdPrAceL3lVffNW3bxvw7RXSOJaa8I2gMHwS3I-N_vtT-8nCuzKnN-Y40e3E7ygWXN2qOfSz1HRZQBYPn0eWNVBzaFfEN263knYZFU7w_zr3Luca2CWf5ARYL6b9v7ZkP7XEWZqvdVPHVRATGHw16jFC1htCJFe7NwQX_zeazLYpdc3F1sGWNpzxXeKK-NI2C09iPkpMQW33ejVPWxHa-nZwB40vbkZi4aUa5HF8cJ1vqKbZev14Xk_52QYRfIbRiIR_7j74RBdgbT83RDO26r8skzvlfmolVke1wg\", Context=\"some context\", Version=\"1.0\"";
+    
+    XCTAssertEqualObjects(expectedResponse, response);
+}
+
+- (void)testCreateDeviceAuthResponse_whenDeviceIsWPJWithExternalSSOContext_whenTenantIdSpecifiedAndDoesntMatch_shouldNotCreateProperResponse
+{
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+",
+                                  @"TenantId": @"contoso2.com"
+    };
+        
+    MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
+    [keyPair setPrivateKey:[self privateKey]];
+    [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+        
+    MSIDExternalSSOContextMock *ssoContextMock = [MSIDExternalSSOContextMock new];
+    ssoContextMock.mockedKeyPair = keyPair;
+    ssoContextMock.mockedTokenEndpointURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    
+    __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:ssoContextMock context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
+    XCTAssertEqualObjects(response, expectedResponse);
+}
+
+#endif
 
 - (void)testCreateDeviceAuthResponse_whenDeviceIsWPJAndAuthServerUrlWihtQueryParams_andCertAuthoritiesURLEncoded_shouldCreateProperResponse
 {

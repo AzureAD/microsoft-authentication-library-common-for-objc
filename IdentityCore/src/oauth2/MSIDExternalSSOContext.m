@@ -24,7 +24,71 @@
 
 
 #import "MSIDExternalSSOContext.h"
+#import "MSIDWPJKeyPairWithCert.h"
+#import "MSIDKeychainUtil.h"
 
 @implementation MSIDExternalSSOContext
+
+- (MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(id<MSIDRequestContext>)context
+{
+#if TARGET_OS_OSX
+    if (@available(macOS 13.0, *))
+    {
+        SecIdentityRef identityRef = [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning]; // +1
+        
+        if (!identityRef)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to copy identity for the ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning keytype");
+            return nil;
+        }
+        
+        SecCertificateRef certificateRef = NULL;
+        OSStatus certCopyStatus = SecIdentityCopyCertificate(identityRef, &certificateRef); // +1
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Certificate copy status from identity %d", (int)certCopyStatus);
+        
+        if (!certificateRef)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to copy certificate from identityref with status %d", (int)certCopyStatus);
+            CFReleaseNull(identityRef);
+            return nil;
+        }
+        
+        SecKeyRef privateKeyRef = NULL;
+        OSStatus keyCopyStatus = SecIdentityCopyPrivateKey(identityRef, &privateKeyRef); // +1
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Key copy status from identity %d", (int)keyCopyStatus);
+        
+        if (!privateKeyRef)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to copy private key from identityref with status %d", (int)keyCopyStatus);
+            CFReleaseNull(identityRef);
+            CFReleaseNull(certificateRef);
+            return nil;
+        }
+        
+        MSIDWPJKeyPairWithCert *keypair = [[MSIDWPJKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
+                                                                                 certificate:certificateRef
+                                                                           certificateIssuer:nil];
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Successfully created MSIDWPJKeyPairWithCert from external SSO context for identity %@", identityRef);
+        
+        CFReleaseNull(identityRef);
+        CFReleaseNull(certificateRef);
+        CFReleaseNull(privateKeyRef);
+        return keypair;
+    }
+#endif
+
+    return nil;
+}
+
+- (nullable NSURL *)tokenEndpointURL
+{
+    if (@available(macOS 13.0, *))
+    {
+        return self.loginManager.loginConfiguration.tokenEndpointURL;
+    }
+    
+    return nil;
+}
 
 @end

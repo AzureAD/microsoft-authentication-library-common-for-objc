@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,35 +20,26 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDBaseBrokerOperationRequest.h"
-#import "MSIDBrowserRequestValidating.h"
+
+#import "MSIDExternalSSOContext.h"
+#import "MSIDWPJKeyPairWithCert.h"
+
+@interface MSIDWPJKeyPairWithCertMock : MSIDWPJKeyPairWithCert
+
+- (void)setPrivateKey:(nullable SecKeyRef)privateKey;
+- (void)setCertIssuer:(nullable NSString *)issuer;
+
+@end
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDAADAuthority;
-@class MSIDExternalSSOContext;
+@interface MSIDExternalSSOContextMock : MSIDExternalSSOContext
 
-@interface MSIDBrokerOperationBrowserTokenRequest : MSIDBaseBrokerOperationRequest
-
-@property (nonatomic, readonly) NSURL *requestURL;
-@property (nonatomic, readonly) NSString *bundleIdentifier;
-@property (nonatomic, readonly) MSIDAADAuthority *authority;
-@property (nonatomic, readonly) NSDictionary *headers;
-@property (nonatomic, readonly) NSData *httpBody;
-@property (nonatomic, readonly) BOOL useSSOCookieFallback;
-@property (nonatomic, readonly) MSIDExternalSSOContext *ssoContext;
-
-- (instancetype)initWithRequest:(NSURL *)requestURL
-                        headers:(NSDictionary *)headers
-                           body:(nullable NSData *)httpBody
-               bundleIdentifier:(NSString *)bundleIdentifier
-               requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
-           useSSOCookieFallback:(BOOL)useSSOCookieFallback
-                     ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
-                          error:(NSError **)error;
+@property (nonatomic) MSIDWPJKeyPairWithCert *mockedKeyPair;
+@property (nonatomic) NSUInteger wpjCertWithContextCalledCount;
+@property (nonatomic, nullable) NSURL *mockedTokenEndpointURL;
 
 @end
 
