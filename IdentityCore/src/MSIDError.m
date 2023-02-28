@@ -81,7 +81,7 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     return defaultCode;
 }
 
-NSDictionary* MSIDErrorDomainsAndCodes()
+NSDictionary* MSIDErrorDomainsAndCodes(void)
 {
     return @{ MSIDErrorDomain : @[// General Errors
                       @(MSIDErrorInternal),

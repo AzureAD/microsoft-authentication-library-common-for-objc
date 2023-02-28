@@ -1,3 +1,7 @@
+Version 1.0.24
+-------------
+* Fix function declaration without prototype on Xcode 14.3 (#1200)
+
 Version 1.0.22
 -------------
 * Fix for ADAL apps that send passed In view to show spinner while blocked from showing SSO UI prompt on mac
