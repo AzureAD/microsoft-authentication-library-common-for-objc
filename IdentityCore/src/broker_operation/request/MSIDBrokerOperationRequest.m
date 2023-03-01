@@ -37,21 +37,19 @@
 + (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
 keychainAccessGroup:(NSString *)keychainAccessGroup
      clientMetadata:(NSDictionary *)clientMetadata
+          isRunTime:(BOOL)isRunTime
             context:(id<MSIDRequestContext>)context
 {
-    if (![self shouldIgnoreBrokerKey])
-    {
-        NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
-        __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
-        request.brokerKey = [brokerKeyProvider base64BrokerKeyWithContext:context
-                                                               error:nil];
-    }
-    
+    NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
+    __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
+    request.brokerKey = [brokerKeyProvider base64BrokerKeyWithContext:context
+                                                           error:nil];
     request.clientVersion = [MSIDVersion sdkVersion];
     request.protocolVersion = MSID_BROKER_PROTOCOL_VERSION_4;
     request.clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
     request.clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     request.correlationId = context.correlationId;
+    request.isRunTime = isRunTime;
     
     return YES;
 }
@@ -93,7 +91,7 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
     if (!self.brokerKey)
     {
         
-        if (![MSIDBrokerOperationRequest shouldIgnoreBrokerKey])
+        if (![self shouldIgnoreBrokerKey])
         {
             MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, brokerKey is nil.", self.class);
             return nil;
@@ -130,12 +128,12 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
     return [NSString stringWithFormat:@"%@",[self.jsonDictionary msidMaskedRequestDictionary]];
 }
 
-+ (BOOL)shouldIgnoreBrokerKey
+- (BOOL)shouldIgnoreBrokerKey
 {
 #if !TARGET_OS_OSX
     return NO;
 #else
-        if([MSIDKeychainUtil sharedInstance].isAppEntitled)
+        if(!self.isRunTime || (self.isRunTime && [MSIDKeychainUtil sharedInstance].isAppEntitled))
         {
             return NO;
         }

@@ -43,14 +43,25 @@
 
 #else
 
-- (void)testJsonDictionary_whenNoBrokerKey_shouldReturnValidJson
+- (void)testJsonDictionary_whenNoBrokerKey_andRunTime_shouldReturnValidJson
+{
+    __auto_type request = [MSIDBrokerOperationRequest new];
+    request.protocolVersion = 99;
+    request.isRunTime = YES;
+    
+    NSDictionary *json = [request jsonDictionary];
+    
+    XCTAssertNotNil(json);
+}
+
+- (void)testJsonDictionary_whenNoBrokerKey_andNotRunTime_shouldReturnInvalidJson
 {
     __auto_type request = [MSIDBrokerOperationRequest new];
     request.protocolVersion = 99;
     
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertNotNil(json);
+    XCTAssertNil(json);
 }
 
 #endif

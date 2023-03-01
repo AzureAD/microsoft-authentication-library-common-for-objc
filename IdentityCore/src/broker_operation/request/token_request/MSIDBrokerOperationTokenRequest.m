@@ -45,6 +45,7 @@
     [self fillRequest:request
   keychainAccessGroup:parameters.keychainAccessGroup
        clientMetadata:parameters.appRequestMetadata
+            isRunTime:parameters.isRunTime
               context:parameters];
     
     request.configuration = parameters.msidConfiguration;

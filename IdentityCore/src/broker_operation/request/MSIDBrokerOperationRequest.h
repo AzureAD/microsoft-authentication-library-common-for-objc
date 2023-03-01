@@ -36,10 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *clientAppVersion;
 @property (nonatomic, nullable) NSString *clientAppName;
 @property (nonatomic) MSIDClientSDKType clientSDK;
+@property (nonatomic) BOOL isRunTime;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
 keychainAccessGroup:(nullable NSString *)keychainAccessGroup
      clientMetadata:(nullable NSDictionary *)clientMetadata
+          isRunTime:(BOOL)isRunTime
             context:(nullable id<MSIDRequestContext>)context;
 
 @end
