@@ -1,3 +1,6 @@
+[TBD]
+* Fix function declaration without prototype on Xcode 14.3 (#1200)
+
 Version 1.7.16
 * Add more detailed error codes for JIT (#1187)
 * Add support for nested auth protocol (#1175)
