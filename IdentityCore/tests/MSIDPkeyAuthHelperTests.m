@@ -113,6 +113,8 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
                                   @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
                                   @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+"};
     
+    s_registrationInformationToReturn = nil;
+    
     MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
     [keyPair setPrivateKey:[self privateKey]];
     [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
@@ -137,6 +139,8 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
                                   @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+",
                                   @"TenantId": @"contoso.com"
     };
+    
+    s_registrationInformationToReturn = nil;
     
     MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
     [keyPair setPrivateKey:[self privateKey]];
