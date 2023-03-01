@@ -33,7 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDExternalSSOContext : NSObject
 
 #if TARGET_OS_OSX
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
 @property (nonatomic, nullable, strong) ASAuthorizationProviderExtensionLoginManager *loginManager API_AVAILABLE(macos(13.0));
+#endif
 #endif
 
 - (nullable MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(nullable id<MSIDRequestContext>)context;
