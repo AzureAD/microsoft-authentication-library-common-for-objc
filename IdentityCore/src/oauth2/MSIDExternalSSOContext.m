@@ -32,6 +32,7 @@
 - (MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(id<MSIDRequestContext>)context
 {
 #if TARGET_OS_OSX
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
     if (@available(macOS 13.0, *))
     {
         SecIdentityRef identityRef = [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning]; // +1
@@ -77,6 +78,7 @@
         return keypair;
     }
 #endif
+#endif
 
     return nil;
 }
@@ -84,10 +86,12 @@
 - (nullable NSURL *)tokenEndpointURL
 {
 #if TARGET_OS_OSX
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
     if (@available(macOS 13.0, *))
     {
         return self.loginManager.loginConfiguration.tokenEndpointURL;
     }
+#endif
 #endif
     
     return nil;
