@@ -818,6 +818,7 @@
 		B208854A29ADB86200A50B88 /* MSIDExternalSSOContextMock.m in Sources */ = {isa = PBXBuildFile; fileRef = B208854829ADB86100A50B88 /* MSIDExternalSSOContextMock.m */; };
 		B208854B29ADB86200A50B88 /* MSIDExternalSSOContextMock.m in Sources */ = {isa = PBXBuildFile; fileRef = B208854829ADB86100A50B88 /* MSIDExternalSSOContextMock.m */; };
 		B208854C29ADC0FD00A50B88 /* MSIDPkeyAuthHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C5E220A68D400768729 /* MSIDPkeyAuthHelperTests.m */; };
+		B208854D29AEE75D00A50B88 /* MSIDExternalSSOContext.m in Sources */ = {isa = PBXBuildFile; fileRef = B229841429A9C2930005F83D /* MSIDExternalSSOContext.m */; };
 		B20E3CAE1FC4F14B0029C097 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */; };
 		B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
@@ -7261,6 +7262,7 @@
 				600D19B220964CE70004CD43 /* MSIDPkeyAuthHelper.m in Sources */,
 				B2E2A924239221A000BA2EA3 /* MSIDBrokerOperationSignoutFromDeviceRequest.m in Sources */,
 				B217863923A5994300839CE8 /* MSIDSSOExtensionSignoutController.m in Sources */,
+				B208854D29AEE75D00A50B88 /* MSIDExternalSSOContext.m in Sources */,
 				602CD4E223739B3C00A4D7F3 /* MSIDBrokerOperationGetAccountsRequest.m in Sources */,
 				235480CB20DDF81000246F72 /* MSIDB2CAuthority.m in Sources */,
 				B214C3A41FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m in Sources */,

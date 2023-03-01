@@ -83,10 +83,12 @@
 
 - (nullable NSURL *)tokenEndpointURL
 {
+#if TARGET_OS_OSX
     if (@available(macOS 13.0, *))
     {
         return self.loginManager.loginConfiguration.tokenEndpointURL;
     }
+#endif
     
     return nil;
 }
