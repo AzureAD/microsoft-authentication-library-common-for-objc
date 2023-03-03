@@ -4,6 +4,7 @@ Version 1.7.16
 * Return enrollmentId only if homeAccountId and legacyId are both empty (#1191)
 * Prevent crash when missing completionBlock on local interactive aquireToken (#1193)
 * Add support for memorizing certificate preference for CBA on MacOS (#1194)
+* Fix a crash when additional info is not present in the device info json. (#1203)
 
 Version 1.7.15
 * Fix a crash when no identiy found during getting device registration information on iOS.
