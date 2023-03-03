@@ -31,9 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDate *)msidGetRetryDateFromError;
 - (BOOL)msidIsMSIDError;
 - (NSString *)msidGetHTTPHeaderValue:(NSString *)headerKey;
-- (NSString *)msidGetUserInfoValueWithMSIDKey:(NSString *)msidKey
-                                    orMSALKey:(NSString *)msalKey;
-
-@end
 
 NS_ASSUME_NONNULL_END
+
+- (NSString *_Nullable)msidGetUserInfoValueWithMSIDKey:(NSString * _Nonnull)msidKey
+                                             orMSALKey:(NSString * _Nonnull)msalKey;
+@end
