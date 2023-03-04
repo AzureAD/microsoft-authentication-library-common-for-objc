@@ -119,7 +119,11 @@
 
 - (nonnull NSString *)telemetryAuthorityType
 {
+#if !EXCLUDE_FROM_MSALCPP
     return MSID_TELEMETRY_VALUE_AUTHORITY_B2C;
+#else // MSAL CPP
+    return @"";
+#endif
 }
 
 - (BOOL)supportsBrokeredAuthentication

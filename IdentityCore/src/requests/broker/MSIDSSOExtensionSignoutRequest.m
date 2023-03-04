@@ -34,6 +34,11 @@
 #import "MSIDBrokerOperationRequest.h"
 #import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDConfiguration.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
+
+#if !EXCLUDE_FROM_MSALCPP
+#import "MSIDLastRequestTelemetry.h"
+#endif
 
 @interface MSIDSSOExtensionSignoutRequest() <ASAuthorizationControllerPresentationContextProviding, ASAuthorizationControllerDelegate>
 
@@ -45,6 +50,10 @@
 @property (nonatomic) BOOL shouldSignoutFromBrowser;
 @property (nonatomic) BOOL clearSSOExtensionCookies;
 @property (nonatomic) BOOL shouldWipeCacheForAllAccounts;
+@property (nonatomic) NSDate *requestSentDate;
+#if !EXCLUDE_FROM_MSALCPP
+@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
+#endif
 
 @end
 
@@ -88,6 +97,13 @@
             }
             
             __typeof__(self) strongSelf = weakSelf;
+            
+#if !EXCLUDE_FROM_MSALCPP
+            [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
+                                                requestStartDate:strongSelf.requestSentDate
+                                                   telemetryType:MSID_PERF_TELEMETRY_SIGNOUT_TYPE];
+#endif
+            
             MSIDSignoutRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
             strongSelf.requestCompletionBlock = nil;
             
@@ -97,6 +113,10 @@
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
         _providerType = [[oauthFactory class] providerType];
         _shouldSignoutFromBrowser = YES;
+        
+#if !EXCLUDE_FROM_MSALCPP
+        _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
+#endif
     }
     
     return self;
@@ -148,7 +168,8 @@
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
     self.authorizationController.presentationContextProvider = self;
-    [self.authorizationController performRequests];
+    self.requestSentDate = [NSDate date];
+    [self.authorizationController msidPerformRequests];
     
     self.requestCompletionBlock = completionBlock;
 }

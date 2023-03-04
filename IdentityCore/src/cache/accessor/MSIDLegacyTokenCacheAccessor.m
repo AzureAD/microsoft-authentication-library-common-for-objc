@@ -249,7 +249,7 @@
                                             error:(NSError **)error
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@, account identifier %@, legacy identifier %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     query.legacyUserId = accountIdentifier.displayableId;
@@ -308,14 +308,14 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found no refresh tokens");
         NSError *wipeError = nil;
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:&wipeError] context:context];
+        CONDITIONAL_STOP_FAILED_CACHE_EVENT(event, [_dataSource wipeInfo:context error:&wipeError], context);
         
         if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to read wipe data with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
     else
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found %lu refresh tokens", (unsigned long)[allRefreshTokens count]);
-        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, YES, context);
     }
 
     NSMutableSet *resultAccounts = [NSMutableSet set];
@@ -488,7 +488,7 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Clearing cache with account %@ and client id %@", accountIdentifier.maskedDisplayableId, clientId);
 
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE, context);
 
     BOOL result = YES;
 
@@ -533,7 +533,7 @@
         }
     }
 
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+    CONDITIONAL_STOP_CACHE_EVENT(event, nil, result, context);
 
     // Clear cache from other accessors
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
@@ -677,7 +677,7 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE, context);
     
     MSIDCredentialCacheItem *tokenCacheItem = token.legacyTokenCacheItem;
 
@@ -699,19 +699,19 @@
 
     if (!result)
     {
-        [MSIDTelemetry stopCacheEvent:event withItem:token success:NO context:context];
+        CONDITIONAL_STOP_CACHE_EVENT(event, token, NO, context);
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to save token with alias: %@", tokenCacheItem.environment);
         return NO;
     }
 
-    [MSIDTelemetry stopCacheEvent:event withItem:token success:YES context:context];
+    CONDITIONAL_STOP_CACHE_EVENT(event, token, YES, context);
     return YES;
 }
 
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
                                              error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
     __auto_type items = [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
@@ -728,7 +728,7 @@
         }
     }
 
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:[tokens count] > 0 context:context];
+    CONDITIONAL_STOP_CACHE_EVENT(event, nil, [tokens count] > 0, context);
     return tokens;
 }
 
@@ -755,7 +755,7 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Removing token with clientId %@, environment %@, realm %@, target %@, account %@", clientId, environment, realm, target, MSID_PII_LOG_EMAIL(userId));
 
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE, context);
     
     MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithEnvironment:environment
                                                                                   realm:realm
@@ -772,7 +772,7 @@
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
 
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+    CONDITIONAL_STOP_CACHE_EVENT(event, nil, result, context);
     return result;
 }
 
@@ -788,7 +788,7 @@
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
 
     for (NSURL *alias in aliases)
     {
@@ -811,7 +811,7 @@
         
         if (cacheError)
         {
-            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+            CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
             if (error) *error = cacheError;
             return nil;
         }
@@ -822,7 +822,7 @@
             MSIDBaseToken *token = [cacheItem tokenWithType:type];
             token.storageEnvironment = token.environment;
             token.environment = environment;
-            [MSIDTelemetry stopCacheEvent:event withItem:token success:YES context:context];
+            CONDITIONAL_STOP_CACHE_EVENT(event, token, YES, context);
             return token;
         }
     }
@@ -830,12 +830,12 @@
     if (type == MSIDRefreshTokenType)
     {
         NSError *wipeError = nil;
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:&wipeError] context:context];
+        CONDITIONAL_STOP_FAILED_CACHE_EVENT(event, [_dataSource wipeInfo:context error:&wipeError], context);
         if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to read wipe data with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
     else
     {
-        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+        CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
     }
     return nil;
 }

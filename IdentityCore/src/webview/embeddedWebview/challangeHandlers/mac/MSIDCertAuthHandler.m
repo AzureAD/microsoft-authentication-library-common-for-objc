@@ -62,9 +62,9 @@
                                host:host
                             webview:webview
                       correlationId:context.correlationId
-                  completionHandler:^(SecIdentityRef identity)
+                  completionHandler:^(SecIdentityRef selectedIdentity)
          {
-             if (identity == NULL)
+             if (selectedIdentity == NULL)
              {
                  MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No identity returned from cert chooser");
                  
@@ -72,11 +72,23 @@
                  completionHandler(NSURLSessionAuthChallengeRejectProtectionSpace, nil);
                  return;
              }
+            
+            // If there is no preferred identity saved, we must set preferred identity certificate using hostname and key usage parameters: kSecAttrCanSign to create digital signature in Keychain and kSecAttrCanEn/Decrypt to specify certain attributes of identity to be stored in encrypted format
+            NSArray *arr = @[(__bridge NSString *)kSecAttrCanSign, (__bridge NSString *)kSecAttrCanEncrypt, (__bridge NSString *)kSecAttrCanDecrypt];
+            CFArrayRef arrayRef = (__bridge CFArrayRef)arr;
+            if (host)
+            {
+                OSStatus status = SecIdentitySetPreferred(selectedIdentity, (CFStringRef)host, arrayRef);
+                if (!status)
+                {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Result of setting identity preference is %d", status);
+                }
+            }
              
              // Adding a retain count to match the retain count from SecIdentityCopyPreferred
-             CFRetain(identity);
+             CFRetain(selectedIdentity);
              MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Using user selected certificate");
-             [self respondCertAuthChallengeWithIdentity:identity context:context completionHandler:completionHandler];
+             [self respondCertAuthChallengeWithIdentity:selectedIdentity context:context completionHandler:completionHandler];
          }];
     }
     

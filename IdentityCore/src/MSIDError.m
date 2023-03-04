@@ -99,11 +99,35 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     {
         return MSIDErrorServerAccessDenied;
     }
-    
+    if (oauthError && [oauthError caseInsensitiveCompare:@"tokenTransferFailedOTC"] == NSOrderedSame)
+    {   // Account Transfer session time out, When the token's time is expired
+        return MSIDErrorUserCancel;
+    }
     return defaultCode;
 }
 
-NSDictionary* MSIDErrorDomainsAndCodes()
+MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString *oauthError, MSIDErrorCode defaultCode, NSString *subError)
+{
+    if (subError == nil)
+    {
+        return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame && [subError caseInsensitiveCompare:@"transfer_token_expired"] == NSOrderedSame)
+    {   // When account Transfter Token is expired.
+        return MSIDErrorUserCancel;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && [subError caseInsensitiveCompare:@"tts_denied"] == NSOrderedSame)
+    {   //when user cancels, this is the same error we return to mobile app for Account Transfer
+        return MSIDErrorUserCancel;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && [subError caseInsensitiveCompare:@"user_skipped"] == NSOrderedSame)
+    {   //Account Transfter, when user skips the QR code page.
+        return MSIDErrorUserCancel;
+    }
+    return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
+}
+
+NSDictionary* MSIDErrorDomainsAndCodes(void)
 {
     return @{ MSIDErrorDomain : @[// General Errors
                       @(MSIDErrorInternal),
@@ -146,6 +170,20 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorBrokerUnknown),
                       @(MSIDErrorBrokerApplicationTokenWriteFailed),
                       @(MSIDErrorBrokerApplicationTokenReadFailed),
+                      @(MSIDErrorJITLinkServerConfirmationTimeout),
+                      @(MSIDErrorJITLinkServerConfirmationError),
+                      @(MSIDErrorJITLinkAcquireTokenError),
+                      @(MSIDErrorJITLinkTokenAcquiredWrongTenant),
+                      @(MSIDErrorJITLinkError),
+                      @(MSIDErrorJITComplianceCheckResultNotCompliant),
+                      @(MSIDErrorJITComplianceCheckResultTimeout),
+                      @(MSIDErrorJITComplianceCheckResultUnknown),
+                      @(MSIDErrorJITComplianceCheckInvalidLinkPayload),
+                      @(MSIDErrorJITLinkConfigNotFound),
+                      @(MSIDErrorJITInvalidLinkTokenConfig),
+                      @(MSIDErrorJITWPJDeviceRegistrationFailed),
+                      @(MSIDErrorJITWPJAccountIdentifierNil),
+                      @(MSIDErrorJITWPJAcquireTokenError),
 
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors

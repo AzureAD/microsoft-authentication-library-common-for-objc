@@ -51,9 +51,9 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, refreshOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@",
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, refreshOn: %@, cachedAt: %@, last recovery attempted at: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@, redirectUri: %@",
             self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn,
-            self.extendedExpiresOn, self.refreshOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash]];
+            self.extendedExpiresOn, self.refreshOn, self.cachedAt, self.lastRecoveryAttempt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash], MSID_PII_LOG_TRACKABLE(self.redirectUri)];
 }
 
 #pragma mark - MSIDCacheItem
@@ -93,6 +93,7 @@
     result &= (!self.tokenType && !item.tokenType) || [self.tokenType isEqual:item.tokenType];
     result &= (!self.kid && !item.kid) || [self.kid isEqual:item.kid];
     result &= (!self.requestedClaims && !item.requestedClaims) || [self.requestedClaims isEqual:item.requestedClaims];
+    result &= (!self.redirectUri && !item.redirectUri) || [self.redirectUri isEqual:item.redirectUri];
     // Ignore the lastMod properties (two otherwise-identical items with different
     // last modification informational values should be considered equal)
     return result;
@@ -113,6 +114,7 @@
     hash = hash * 31 + self.extendedExpiresOn.hash;
     hash = hash * 31 + self.refreshOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
+    hash = hash * 31 + self.lastRecoveryAttempt.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.speInfo.hash;
@@ -120,6 +122,7 @@
     hash = hash * 31 + self.tokenType.hash;
     hash = hash * 31 + self.kid.hash;
     hash = hash * 31 + self.requestedClaims.hash;
+    hash = hash * 31 + self.redirectUri.hash;
     return hash;
 }
 
@@ -138,6 +141,7 @@
     item.extendedExpiresOn = [self.extendedExpiresOn copyWithZone:zone];
     item.refreshOn = [self.refreshOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
+    item.lastRecoveryAttempt = [self.lastRecoveryAttempt copyWithZone:zone];
     item.expiryInterval = [self.expiryInterval copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
@@ -149,6 +153,7 @@
     item.tokenType = [self.tokenType copyWithZone:zone];
     item.kid = [self.kid copyWithZone:zone];
     item.requestedClaims = [self.requestedClaims copyWithZone:zone];
+    item.redirectUri = [self.redirectUri copyWithZone:zone];
     return item;
 }
 
@@ -187,6 +192,7 @@
     _extendedExpiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
     _refreshOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_REFRESH_ON_CACHE_KEY]];
     _cachedAt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_CACHED_AT_CACHE_KEY]];
+    _lastRecoveryAttempt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_LAST_RECOVERY_ATTEMPT_CACHE_KEY]];
     _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID_CACHE_KEY];
     _homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
@@ -202,6 +208,7 @@
     _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
     _expiryInterval = [json msidStringObjectForKey:MSID_EXPIRES_IN_CACHE_KEY];
     _requestedClaims = [json msidStringObjectForKey:MSID_REQUESTED_CLAIMS_CACHE_KEY];
+    _redirectUri = [json msidStringObjectForKey:MSID_OAUTH2_REDIRECT_URI];
     return self;
 }
 
@@ -225,6 +232,7 @@
     dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = _extendedExpiresOn.msidDateToTimestamp;
     dictionary[MSID_REFRESH_ON_CACHE_KEY] = _refreshOn.msidDateToTimestamp;
     dictionary[MSID_CACHED_AT_CACHE_KEY] = _cachedAt.msidDateToTimestamp;
+    dictionary[MSID_LAST_RECOVERY_ATTEMPT_CACHE_KEY] = _lastRecoveryAttempt.msidDateToTimestamp;
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
@@ -238,6 +246,7 @@
     dictionary[MSID_KID_CACHE_KEY] = _kid;
     dictionary[MSID_OAUTH2_TOKEN_TYPE] = _tokenType;
     dictionary[MSID_REQUESTED_CLAIMS_CACHE_KEY] = _requestedClaims;
+    dictionary[MSID_OAUTH2_REDIRECT_URI] = _redirectUri;
     return dictionary;
 }
 

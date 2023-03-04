@@ -56,17 +56,14 @@
     }
 
     // Clear WKWebView cookies
-    if (@available(macOS 10.11, *)) {
-        WKWebsiteDataStore *dateStore = [WKWebsiteDataStore defaultDataStore];
-        
-        [dateStore fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
-                         completionHandler:^(NSArray<WKWebsiteDataRecord *> *records) {
-            for (WKWebsiteDataRecord *record in records) {
-                [dateStore removeDataOfTypes:record.dataTypes forDataRecords:@[record] completionHandler:^{}];
-            }
-        }];
-    }
-
+    WKWebsiteDataStore *dateStore = [WKWebsiteDataStore defaultDataStore];
+    
+    [dateStore fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
+                     completionHandler:^(NSArray<WKWebsiteDataRecord *> *records) {
+        for (WKWebsiteDataRecord *record in records) {
+            [dateStore removeDataOfTypes:record.dataTypes forDataRecords:@[record] completionHandler:^{}];
+        }
+    }];
     MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
                                                                                     success:YES
                                                                              additionalInfo:@{@"cleared_items_count":@(count)}];

@@ -23,7 +23,7 @@
 
 #import "MSIDAutomation.h"
 
-@interface MSIDAutomationRequestViewController : MSIDAutoViewController
+@interface MSIDAutomationRequestViewController : MSIDAutoViewController 
 
 #if TARGET_OS_IPHONE
 @property (weak, nonatomic) IBOutlet UITextView *requestInfo;

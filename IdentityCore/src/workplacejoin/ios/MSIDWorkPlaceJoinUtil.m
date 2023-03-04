@@ -57,7 +57,7 @@
     identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer privateKeyDict:&keyDict];
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to retrieve WPJ identity. Identity is nil: %@", @(identity == nil));
         CFReleaseNull(identity);
         return nil;
     }
@@ -84,6 +84,10 @@
                                                           privateKey:privateKey
                                                          certificate:certificate
                                                    certificateIssuer:certificateIssuer];
+        if (!info)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Registration information failed to be created");
+        }
     }
     
     CFReleaseNull(identity);
@@ -113,6 +117,7 @@
     
     if (status != errSecSuccess)
     {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to get registration information failed - %@ shared access Group - status %d", accessGroup, (int)status);
         return NULL;
     }
     
@@ -137,6 +142,15 @@
                                              context:(nullable id<MSIDRequestContext>)context
                                                error:(NSError*__nullable*__nullable)error
 {
+    return [self getWPJStringDataFromV2ForTenantId:nil identifier:identifier key:nil context:context error:error];
+}
+
++ (nullable NSString *)getWPJStringDataFromV2ForTenantId:(NSString *)tenantId
+                                              identifier:(nonnull NSString *)identifier
+                                                     key:(nullable NSString *)key
+                                                 context:(nullable id<MSIDRequestContext>)context
+                                                   error:(NSError*__nullable*__nullable)error
+{
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
 
     if (!teamId)
@@ -144,9 +158,18 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
         return nil;
     }
-    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+    
+    if (tenantId)
+    {
+        NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+        return [self getWPJStringDataFromV2ForTenantId:tenantId identifier:identifier key:key accessGroup:sharedAccessGroup context:context error:error];
+    }
+    else
+    {
+        NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+        return [self getWPJStringDataForIdentifier:identifier accessGroup:sharedAccessGroup context:context error:error];
+    }
 
-    return [self getWPJStringDataForIdentifier:identifier accessGroup:sharedAccessGroup context:context error:error];
 }
 
 @end

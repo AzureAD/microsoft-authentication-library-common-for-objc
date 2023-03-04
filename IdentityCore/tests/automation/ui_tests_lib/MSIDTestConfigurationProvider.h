@@ -26,6 +26,7 @@
 #import "MSIDAutomationOperationAPIRequestHandler.h"
 #import "MSIDAutomationPasswordRequestHandler.h"
 #import "MSIDTestAutomationAppConfigurationRequest.h"
+#import "MSIDTestsConfig.h"
 
 @class MSIDTestAutomationApplication;
 
@@ -33,13 +34,16 @@
 
 @property (nonatomic, strong) NSString *wwEnvironment;
 @property (nonatomic) int stressTestInterval;
+@property (nonatomic) MSIDTestsConfig *testsConfig;
+@property (nonatomic) NSDictionary *jitConfig;
 
 @property (nonatomic, readonly) MSIDAutomationOperationAPIRequestHandler *operationAPIRequestHandler;
 @property (nonatomic, readonly) MSIDAutomationPasswordRequestHandler *passwordRequestHandler;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
+- (instancetype)initWithConfigurationPath:(NSString *)configurationPath
+                              testsConfig:(MSIDTestsConfig *)testsConfig;
 
 - (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
                                   targetTenantId:(NSString *)targetTenantId;
@@ -64,5 +68,22 @@
 - (NSString *)oidcScopes;
 - (NSString *)scopesForEnvironment:(NSString *)environment type:(NSString *)type;
 - (NSString *)resourceForEnvironment:(NSString *)environment type:(NSString *)type;
+
+- (void)configureResourceInRequest:(MSIDAutomationTestRequest *)request
+               forEnvironment:(NSString *)environment
+                                     type:(NSString *)type
+                            suportsScopes:(BOOL)suportsScopes;
+
+- (void)configureScopesInRequest:(MSIDAutomationTestRequest *)request
+               forEnvironment:(NSString *)environment
+                      scopesType:(NSString *)scopesType
+                    resourceType:(NSString *)resourceType
+                   suportsScopes:(BOOL)suportsScopes;
+
+- (void)configureAuthorityInRequest:(MSIDAutomationTestRequest *)request
+                     forEnvironment:(NSString *)environment
+                           tenantId:(NSString *)tenantId
+                    accountTenantId:(NSString *)accountTenantId
+supportsTenantSpecificResultAuthority:(BOOL)supportsTenantSpecificResultAuthority;
 
 @end

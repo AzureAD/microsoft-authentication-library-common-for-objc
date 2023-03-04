@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetryBaseEvent.h"
 #import "MSIDConstants.h"
 
@@ -49,4 +51,8 @@
 - (void)setUserInformation:(MSIDAccount *)account;
 - (void)setOauthErrorCode:(NSString *)oauthErrorCode;
 
+- (void)setSsoExtFallBackFlow:(NSUInteger)ssoExtFallBackFlow;
+
 @end
+
+#endif

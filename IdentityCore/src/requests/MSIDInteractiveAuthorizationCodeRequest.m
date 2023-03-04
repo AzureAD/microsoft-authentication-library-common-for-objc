@@ -46,8 +46,9 @@
 #endif
 
 @interface MSIDInteractiveAuthorizationCodeRequest()
-
+#if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
+#endif
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 @property (nonatomic) MSIDAuthorizeWebRequestConfiguration *webViewConfiguration;
 
@@ -64,7 +65,9 @@
     {
         _requestParameters = parameters;
         _oauthFactory = oauthFactory;
+#if !EXCLUDE_FROM_MSALCPP
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
+#endif
     }
 
     return self;
@@ -87,11 +90,11 @@
          }
 
          [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                         completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *error)
+                                                         completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *loadError)
           {
-              if (error)
+              if (loadError)
               {
-                  completionBlock(nil, error, nil);
+                  completionBlock(nil, loadError, nil);
                   return;
               }
 
@@ -104,17 +107,19 @@
 {
     void (^webAuthCompletion)(MSIDWebviewResponse *, NSError *) = ^void(MSIDWebviewResponse *response, NSError *error)
     {
-        void (^returnErrorBlock)(NSError *) = ^(NSError *error)
+        void (^returnErrorBlock)(NSError *) = ^(NSError *localError)
         {
-            NSString *errorString = [error msidServerTelemetryErrorString];
+            NSString *errorString = [localError msidServerTelemetryErrorString];
             if (errorString)
             {
+#if !EXCLUDE_FROM_MSALCPP
                 [self.lastRequestTelemetry updateWithApiId:[self.requestParameters.telemetryApiId integerValue]
                                                errorString:errorString
                                                    context:self.requestParameters];
+#endif
             }
             
-            completionBlock(nil, error, nil);
+            completionBlock(nil, localError, nil);
         };
         
         if (error)
@@ -162,7 +167,7 @@
         }
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {
-            NSError *error = nil;
+            error = nil;
             MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response
                                                                                                             error:&error];
             if (error)

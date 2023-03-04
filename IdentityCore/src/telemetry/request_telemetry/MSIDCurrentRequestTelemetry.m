@@ -21,8 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetrySerializedItem.h"
+#import "MSIDRequestTelemetryConstants.h"
 
 @implementation MSIDCurrentRequestTelemetry
 
@@ -33,19 +36,38 @@
     return [self serializeCurrentTelemetryString];
 }
 
+#pragma mark - Init
+
+- (nullable instancetype)initWithAppId:(NSInteger)appId
+                 tokenCacheRefreshType:(TokenCacheRefreshType)tokenCacheRefreshType
+                        platformFields:(nullable NSMutableArray *)platformFields
+{
+    self = [super init];
+    if (self)
+    {
+        _schemaVersion = HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION;
+        _apiId = appId;
+        _tokenCacheRefreshType = tokenCacheRefreshType;
+        _platformFields = platformFields;
+    }
+    
+    return self;
+}
+
 #pragma mark - Private
 
 - (NSString *)serializeCurrentTelemetryString
 {
     MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
-    
     return [currentTelemetryFields serialize];
 }
 
 - (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithInteger:self.tokenCacheRefreshType]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
+    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:self.platformFields];
 }
 
 @end
+
+#endif

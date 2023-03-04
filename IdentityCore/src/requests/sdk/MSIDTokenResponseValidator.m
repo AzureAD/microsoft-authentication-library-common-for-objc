@@ -172,7 +172,9 @@
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:brokerResponse.msidAuthority
                                                                         redirectUri:nil
                                                                            clientId:brokerResponse.clientId
-                                                                             target:brokerResponse.target];
+                                                                             target:brokerResponse.target
+                                                           nestedAuthBrokerClientId:brokerResponse.nestedAuthBrokerClientId
+                                                        nestedAuthBrokerRedirectUri:nil];
     
     configuration.authScheme = authScheme;
     

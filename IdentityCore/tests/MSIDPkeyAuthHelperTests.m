@@ -114,20 +114,22 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
 
 - (void)testCreateDeviceAuthResponse_whenDeviceIsWPJ_shouldCreateProperResponse
 {
-    if (@available(iOS 10.0, *))
-    {
-        __auto_type challengeData = @{@"Context": @"some context",
-                                      @"Version": @"1.0",
-                                      @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
-                                      @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
-        __auto_type regInfo = [MSIDRegistrationInformationMock new];
-        regInfo.isWorkPlaceJoinedFlag = YES;
-        [regInfo setPrivateKey:self.rsaPrivateKey];
-        [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
-        s_registrationInformationToReturn = regInfo;
-        __auto_type url = [[NSURL alloc] initWithString:@"https://someurl.com"];
-        __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-        [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:[url absoluteString] publicKey:self.rsaPublicKey isRsa:true];
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
+    __auto_type regInfo = [MSIDRegistrationInformationMock new];
+    regInfo.isWorkPlaceJoinedFlag = YES;
+    [regInfo setPrivateKey:[self privateKey]];
+    [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    s_registrationInformationToReturn = regInfo;
+    __auto_type url = [[NSURL alloc] initWithString:@"https://someurl.com"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9zb21ldXJsLmNvbSIsCiAgIm5vbmNlIiA6ICJYTm1lNlpsbm5aZ0lTNGJNSFB6WTRSaWhrSEZxQ0g2czFoblJnanY4WTBRIiwKICAiaWF0IiA6ICI1Igp9.NI9E37170Ykse1oRZlBqkzCn-VLbde3HGi6MdQOFlnkIopSDlzeh00Fc2-YAVcKMPbmmbHZRpOppoZGTFItRSzOyiDQkpVaC_l89w1ip2OdarOffdc2SmGmFL80RqlsnWEvz7h1tC-Ziq5A1va58alL2hrPwdZe8fTGzQmo87MUz_gLwdf8GHbGqVqgE_csavbFrPo1iHu6qZiIcI8CBYzRpXOZsILDlvjBjtuxQ1cJDSBkmTg1TUemU8yrbxoB4wcTxvgmDbe8QCCCJwyxbo4Ww8leQd0D3cCrhRHihs6bHjI2y9z00vOj-4Qj0JC20hGUW9EdZFuB8vmvwsyT34g\", Context=\"some context\", Version=\"1.0\"";
+    
+    XCTAssertEqualObjects(expectedResponse, response);
 #if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
@@ -138,26 +140,26 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
         [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:[url absoluteString] publicKey:self.eccPublicKey isRsa:false];
 #endif
-    }
 }
 
 - (void)testCreateDeviceAuthResponse_whenDeviceIsWPJAndAuthServerUrlWihtQueryParams_shouldCreateProperResponse
 {
-    if (@available(iOS 10.0, *))
-    {
-        __auto_type challengeData = @{@"Context": @"some context",
-                                      @"Version": @"1.0",
-                                      @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
-                                      @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
-        __auto_type regInfo = [MSIDRegistrationInformationMock new];
-        regInfo.isWorkPlaceJoinedFlag = YES;
-        [regInfo setPrivateKey:self.rsaPrivateKey];
-        [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
-        s_registrationInformationToReturn = regInfo;
-        __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
-        
-        __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-        [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.rsaPublicKey isRsa:true];
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
+    __auto_type regInfo = [MSIDRegistrationInformationMock new];
+    regInfo.isWorkPlaceJoinedFlag = YES;
+    [regInfo setPrivateKey:[self privateKey]];
+    [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    s_registrationInformationToReturn = regInfo;
+    __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.HMgqNP2ZkDFZC7u_jo4Vlc6lMozr1x05rCTyMaJwvCIQx6vO9bPjhJ2f-fXrd_W9syrAa4TNRQZELfQPm-3dCVzHBpRJzDrH-Z3S3zYE4egWBq59BwNsrSbtgevlyeusd6h9z-WLDOVMZN1n79v4K6sSux0WEwaxGPjU0haTIBZmqaT0NEsLADDdeAMJCLN9Exd4VFi4GeZ9jsTw3_bzHS_2I8lyj5r8lr4yHUpPdxw0rFvOacJepbPqd_vW7jKl2tSZRVDw9iWRA9CxWWgVp3eZrPUesx7oLnkAnp7mIfKuhI4bL3yxAkg1ouErYqlIhJUgK7jR1OPZOKhBXSV98Q\", Context=\"some context\", Version=\"1.0\"";
+    
+    XCTAssertEqualObjects(expectedResponse, response);
 #if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
@@ -168,27 +170,24 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
         [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
 #endif
-        
-    }
 }
 
 - (void)testCreateDeviceAuthResponse_whenDeviceIsWPJAndAuthServerUrlWihtQueryParams_andCertAuthoritiesURLEncoded_shouldCreateProperResponse
 {
-    if (@available(iOS 10.0, *))
-    {
-        __auto_type challengeData = @{@"Context": @"some context",
-                                      @"Version": @"1.0",
-                                      @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
-                                      @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+"};
-        __auto_type regInfo = [MSIDRegistrationInformationMock new];
-        regInfo.isWorkPlaceJoinedFlag = YES;
-        [regInfo setPrivateKey:self.rsaPrivateKey];
-        [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
-        s_registrationInformationToReturn = regInfo;
-        __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
-        
-        __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-        [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.rsaPublicKey isRsa:true];
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+"};
+    __auto_type regInfo = [MSIDRegistrationInformationMock new];
+    regInfo.isWorkPlaceJoinedFlag = YES;
+    [regInfo setPrivateKey:[self privateKey]];
+    [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    s_registrationInformationToReturn = regInfo;
+    __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.HMgqNP2ZkDFZC7u_jo4Vlc6lMozr1x05rCTyMaJwvCIQx6vO9bPjhJ2f-fXrd_W9syrAa4TNRQZELfQPm-3dCVzHBpRJzDrH-Z3S3zYE4egWBq59BwNsrSbtgevlyeusd6h9z-WLDOVMZN1n79v4K6sSux0WEwaxGPjU0haTIBZmqaT0NEsLADDdeAMJCLN9Exd4VFi4GeZ9jsTw3_bzHS_2I8lyj5r8lr4yHUpPdxw0rFvOacJepbPqd_vW7jKl2tSZRVDw9iWRA9CxWWgVp3eZrPUesx7oLnkAnp7mIfKuhI4bL3yxAkg1ouErYqlIhJUgK7jR1OPZOKhBXSV98Q\", Context=\"some context\", Version=\"1.0\"";
 #if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
@@ -199,55 +198,47 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
         [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
 #endif
-    }
+    XCTAssertEqualObjects(expectedResponse, response);
 }
 
 - (void)testCreateDeviceAuthResponse_whenDeviceIsNotWPJ_shouldCreateProperResponse
 {
-    if (@available(iOS 10.0, *))
-    {
-        s_registrationInformationToReturn = nil;
-        __auto_type challengeData = @{@"Context": @"some context",
-                                      @"Version": @"1.0",
-                                      @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
-                                      @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
-        __auto_type url = [[NSURL alloc] initWithString:@"https://someurl.com"];
-        
-        __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-        
-        __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
-        
-        XCTAssertEqualObjects(expectedResponse, response);
-    }
+    s_registrationInformationToReturn = nil;
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
+    __auto_type url = [[NSURL alloc] initWithString:@"https://someurl.com"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
+    
+    XCTAssertEqualObjects(expectedResponse, response);
 }
 
 - (void)testCreateDeviceAuthResponse_whenCertDoesnotMatch_shouldCreateProperResponse
 {
-    if (@available(iOS 10.0, *))
-    {
-        __auto_type challengeData = @{@"Context": @"some context",
-                                      @"Version": @"1.0",
-                                      @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
-                                      @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
-        __auto_type regInfo = [MSIDRegistrationInformationMock new];
-        regInfo.isWorkPlaceJoinedFlag = YES;
-        [regInfo setPrivateKey:self.rsaPrivateKey];
-        [regInfo setCertificateIssuer:@"XXXXXX"];
-        s_registrationInformationToReturn = regInfo;
-        __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
-        
-        __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-        
-        __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
-        
-        XCTAssertEqualObjects(expectedResponse, response);
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
+    __auto_type regInfo = [MSIDRegistrationInformationMock new];
+    regInfo.isWorkPlaceJoinedFlag = YES;
+    [regInfo setPrivateKey:[self privateKey]];
+    [regInfo setCertificateIssuer:@"XXXXXX"];
+    s_registrationInformationToReturn = regInfo;
+    __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
 #if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
         [regInfo setPrivateKey:self.eccPrivateKey];
         s_registrationInformationToReturn = regInfo;
         response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-        XCTAssertEqualObjects(expectedResponse, response);
 #endif
-    }
+    XCTAssertEqualObjects(expectedResponse, response);
 }
 
 - (void)testAdfsPkeyAuthRequest_whenSuccessfulResponse_shouldSaveTelemetry
@@ -307,10 +298,8 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     
     NSDictionary *attributes = @{ (id)kSecAttrKeyType: (id)kSecAttrKeyTypeRSA, (id)kSecAttrKeySizeInBits: @2048, (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPrivate };
     
-    if (@available(iOS 10.0, *))
-    {
-        self.rsaPrivateKey = SecKeyCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)attributes, NULL);
-    }
+    SecKeyRef signingKey = NULL;
+    signingKey = SecKeyCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)attributes, NULL);
     
     __auto_type publicHexString = @"3082010a 02820101 00b1dc0c 48cc3192 e3790f61 5c7c50da c6b25e30 ff26eddf 8e6db8eb 6744b0b3 5eee71e8 c814a420 0f0e9dee 71117bce 2631f6f5 db8b5f8a b0a197cc 8b20661c 87e231f6 18189f5e 5e26d6b9 0d83c025 fc931b16 4cfd6ee3 f891d0fb 8a795ccc aa6f24fc cc1052fc 75ae6a25 584d7b93 ab63cdc3 fa357fa2 388e3468 4b514623 3ee50eba 7b89b61b c782bcac a0b21656 8bd58ea7 fb1bc09b f7c6cb31 ed72f51c 1caa6967 4cd30784 3e31a415 310ab1a0 91927a0f 7f1022ef 46bf7214 3b26f08a 57cc2afd b5ac0bc7 d0753812 f0bd82a6 33dc44e8 a6a80d55 c1563047 4889fce0 db2174ce 94a2f936 07b48fb6 c73281f0 d7d85dbc 8f70dc82 577d4eb7 a8e877bf 33020301 0001";
     

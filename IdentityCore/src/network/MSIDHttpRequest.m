@@ -42,7 +42,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 - (instancetype)init
 {
     self = [super init];
-    
+
     if (self)
     {
         _sessionManager = MSIDURLSessionManager.defaultManager;
@@ -50,25 +50,27 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
         responseSerializer.preprocessor = [MSIDJsonResponsePreprocessor new];
         _responseSerializer = responseSerializer;
         _requestSerializer = [MSIDUrlRequestSerializer new];
+#if !EXCLUDE_FROM_MSALCPP
         _telemetry = [MSIDHttpRequestTelemetry new];
+#endif
         _retryCounter = s_retryCount;
         _retryInterval = s_retryInterval;
         _requestTimeoutInterval = s_requestTimeoutInterval;
         _cache = [NSURLCache sharedURLCache];
         _shouldCacheResponse = NO;
     }
-    
+
     return self;
 }
 
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     NSParameterAssert(self.urlRequest);
-    
+
     __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
-    
+
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
@@ -78,7 +80,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                                                                           data:response.data
                                                                        context:self.context
                                                                          error:&error];
-        
+
         if (!responseObject)
         {
             [self.cache removeCachedResponseForRequest:self.urlRequest];
@@ -90,33 +92,35 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
             return;
         }
     }
-    
+#if !EXCLUDE_FROM_MSALCPP
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
+#endif
     [self.serverTelemetry setTelemetryToRequest:self];
-    
+
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
-    
-    [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+
+    [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error)
       {
-          MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
-          
-          if (response) NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
-          
-          __auto_type httpResponse = (NSHTTPURLResponse *)response;
-          
+          MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Received network response: %@, error %@", _PII_NULLIFY(urlResponse), _PII_NULLIFY(error));
+
+          if (urlResponse) NSAssert([urlResponse isKindOfClass:NSHTTPURLResponse.class], NULL);
+
+          __auto_type httpResponse = (NSHTTPURLResponse *)urlResponse;
+#if !EXCLUDE_FROM_MSALCPP
           [self.telemetry responseReceivedEventWithContext:self.context
                                                 urlRequest:self.urlRequest
                                               httpResponse:httpResponse
                                                       data:data
                                                      error:error];
-        
-        void (^completeBlockWrapper)(id, NSError *) = ^(id response, NSError *error)
+#endif
+
+        void (^completeBlockWrapper)(id, NSError *) = ^(id wrapperResponse, NSError *wrapperError)
         {
-            [self.serverTelemetry handleError:error context:self.context];
-            
-            if (completionBlock) { completionBlock(response, error); }
+            [self.serverTelemetry handleError:wrapperError context:self.context];
+
+            if (completionBlock) { completionBlock(wrapperResponse, wrapperError); }
         };
-          
+
           if (error)
           {
               completeBlockWrapper(nil, error);
@@ -124,15 +128,15 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
           else if (httpResponse.statusCode == 200)
           {
               id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data context:self.context error:&error];
-              
+
               MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
-              
+
               if (responseObject && self->_shouldCacheResponse)
               {
-                  NSCachedURLResponse *cachedResponse = [[NSCachedURLResponse alloc] initWithResponse:response data:data];
+                  NSCachedURLResponse *cachedResponse = [[NSCachedURLResponse alloc] initWithResponse:urlResponse data:data];
                   [self setCachedResponse:cachedResponse forRequest:self.urlRequest];
               }
-              
+
               completeBlockWrapper(responseObject, error);
           }
           else
@@ -140,7 +144,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
               if (self.errorHandler)
               {
                   id<MSIDResponseSerialization> responseSerializer = self.errorResponseSerializer ? self.errorResponseSerializer : self.responseSerializer;
-                  
+
                   [self.errorHandler handleError:error
                                     httpResponse:httpResponse
                                             data:data

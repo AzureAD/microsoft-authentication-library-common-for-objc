@@ -101,7 +101,10 @@
 #if TARGET_OS_MACCATALYST
             [addQuery setObject:(id)kSecAttrAccessibleAfterFirstUnlock forKey:(id)kSecAttrAccessible];
 #else
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
             [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
+#pragma clang diagnostic pop
 #endif
             status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
         }
@@ -131,6 +134,7 @@
     
     if (!self.teamId)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to return full access group: no teamID.");
         return nil;
     }
     

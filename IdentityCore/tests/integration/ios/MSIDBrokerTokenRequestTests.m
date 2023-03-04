@@ -274,7 +274,7 @@
                                       @"redirect_uri": @"my-redirect://com.microsoft.test",
                                       @"broker_key": @"brokerKey",
                                       @"client_version": [MSIDVersion sdkVersion],
-                                      @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%7D%7D",
+                                      @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22essential%22%3Atrue%2C%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%7D%7D%7D",
                                       @"client_capabilities": @"cp1,cp2",
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
@@ -395,8 +395,8 @@
                                       @"redirect_uri": @"my-redirect://com.microsoft.test",
                                       @"broker_key": @"brokerKey",
                                       @"client_version": [MSIDVersion sdkVersion],
-                                      @"intune_enrollment_ids": @"{\"enrollment_ids\":[{\"home_account_id\":\"1e4dd613-dave-4527-b50a-97aca38b57ba\",\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\"user_id\":\"dave@contoso.com\",\"oid\":\"6eec576f-dave-416a-9c4a-536b178a194a\",\"enrollment_id\":\"64d0557f-dave-4193-b630-8491ffd3b180\"},{\"home_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\",\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\"user_id\":\"mike@contoso.com\",\"oid\":\"d3444455-mike-4271-b6ea-e499cc0cab46\",\"enrollment_id\":\"adf79e3f-mike-454d-9f0f-2299e76dbfd5\"}]}",
-                                      @"intune_mam_resource": @"{\"login.windows.net\":\"https:\\/\\/www.microsoft.com\\/windowsIntune\",\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\"}",
+                                      @"intune_enrollment_ids": @"{\"enrollment_ids\":[{\"enrollment_id\":\"64d0557f-dave-4193-b630-8491ffd3b180\",\"home_account_id\":\"1e4dd613-dave-4527-b50a-97aca38b57ba\",\"oid\":\"6eec576f-dave-416a-9c4a-536b178a194a\",\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\"user_id\":\"dave@contoso.com\"},{\"enrollment_id\":\"adf79e3f-mike-454d-9f0f-2299e76dbfd5\",\"home_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\",\"oid\":\"d3444455-mike-4271-b6ea-e499cc0cab46\",\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\"user_id\":\"mike@contoso.com\"}]}",
+                                       @"intune_mam_resource": @"{\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\",\"login.windows.net\":\"https:\\/\\/www.microsoft.com\\/windowsIntune\"}",
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
@@ -419,6 +419,91 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"broker_nonce": brokerNonce
                                                };
+
+    XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
+}
+
+- (void)testInitBrokerRequest_whenParametersWithNestedAuthItems_shouldReturnValidPayload
+{
+    MSIDCache *inMemoryStorage = [MSIDCache new];
+    __auto_type dictionary = @{
+            @"enrollment_ids": @[
+                    @{
+                            @"tid": @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                            @"oid": @"6eec576f-dave-416a-9c4a-536b178a194a",
+                            @"home_account_id": @"1e4dd613-dave-4527-b50a-97aca38b57ba",
+                            @"user_id": @"dave@contoso.com",
+                            @"enrollment_id": @"64d0557f-dave-4193-b630-8491ffd3b180"
+                    },
+                    @{
+                            @"tid": @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                            @"oid": @"d3444455-mike-4271-b6ea-e499cc0cab46",
+                            @"home_account_id": @"60406d5d-mike-41e1-aa70-e97501076a22",
+                            @"user_id": @"mike@contoso.com",
+                            @"enrollment_id": @"adf79e3f-mike-454d-9f0f-2299e76dbfd5"
+                    },
+            ]
+    };
+    [inMemoryStorage setObject:dictionary forKey:@"intune_app_protection_enrollment_id_V1"];
+
+    __auto_type dataSource = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:inMemoryStorage];
+    [MSIDIntuneEnrollmentIdsCache setSharedCache:[[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:dataSource]];
+
+    MSIDCache *resourceInMemoryStorage = [MSIDCache new];
+    __auto_type resourceDict = @{
+            @"login.microsoftonline.com": @"https://www.microsoft.com/intune",
+            @"login.microsoftonline.de": @"https://www.microsoft.com/intune-de",
+            @"login.windows.net": @"https://www.microsoft.com/windowsIntune"
+    };
+    [resourceInMemoryStorage setObject:resourceDict forKey:@"intune_mam_resource_V1"];
+
+    __auto_type resourceDataSource = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:resourceInMemoryStorage];
+    [MSIDIntuneMAMResourcesCache setSharedCache:[[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:resourceDataSource]];
+
+    // Run the test
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.nestedAuthBrokerClientId = @"123-456-7890-123";
+    parameters.nestedAuthBrokerRedirectUri = @"msauth.com.app.id://auth";
+
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+            @"client_id": @"my_client_id",
+            @"correlation_id": [parameters.correlationId UUIDString],
+            @"redirect_uri": @"my-redirect://com.microsoft.test",
+            @"broker_key": @"brokerKey",
+            @"client_version": [MSIDVersion sdkVersion],
+            @"intune_enrollment_ids": @"{\"enrollment_ids\":[{\"enrollment_id\":\"64d0557f-dave-4193-b630-8491ffd3b180\",\"home_account_id\":\"1e4dd613-dave-4527-b50a-97aca38b57ba\",\"oid\":\"6eec576f-dave-416a-9c4a-536b178a194a\",\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\"user_id\":\"dave@contoso.com\"},{\"enrollment_id\":\"adf79e3f-mike-454d-9f0f-2299e76dbfd5\",\"home_account_id\":\"60406d5d-mike-41e1-aa70-e97501076a22\",\"oid\":\"d3444455-mike-4271-b6ea-e499cc0cab46\",\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\",\"user_id\":\"mike@contoso.com\"}]}",
+            @"intune_mam_resource": @"{\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\",\"login.windows.net\":\"https:\\/\\/www.microsoft.com\\/windowsIntune\"}",
+            @"client_app_name": @"MSIDTestsHostApp",
+            @"client_app_version": @"1.0",
+            @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+            @"application_token" : @"brokerApplicationToken",
+            @"brk_client_id" : @"123-456-7890-123",
+            @"brk_redirect_uri" : @"msauth.com.app.id://auth"
+    };
+
+    NSURL *actualURL = request.brokerRequestURL;
+
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
+
+    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+            @"client_id": @"my_client_id",
+            @"correlation_id": [parameters.correlationId UUIDString],
+            @"redirect_uri": @"my-redirect://com.microsoft.test",
+            @"keychain_group": @"com.microsoft.mygroup",
+            @"broker_nonce": brokerNonce,
+            @"brk_client_id" : @"123-456-7890-123",
+            @"brk_redirect_uri" : @"msauth.com.app.id://auth"
+    };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }

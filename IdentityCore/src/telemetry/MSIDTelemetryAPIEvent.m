@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -110,6 +112,11 @@
     [self setProperty:MSID_TELEMETRY_KEY_PROTOCOL_CODE value:oauthErrorCode];
 }
 
+- (void)setSsoExtFallBackFlow:(NSUInteger)ssoExtFallBackFlow
+{
+    [self setProperty:MSID_TELEMETRY_KEY_SSO_EXT_FALLBCK_FLOW value:[NSString stringWithFormat:@"%ld", (long)ssoExtFallBackFlow]];
+}
+
 #pragma mark - MSIDTelemetryBaseEvent
 
 + (NSArray<NSString *> *)propertiesToAggregate
@@ -132,7 +139,8 @@
                                      MSID_TELEMETRY_KEY_API_ERROR_CODE,
                                      MSID_TELEMETRY_KEY_ERROR_DOMAIN,
                                      MSID_TELEMETRY_KEY_PROTOCOL_CODE,
-                                     MSID_TELEMETRY_KEY_IS_SUCCESSFUL
+                                     MSID_TELEMETRY_KEY_IS_SUCCESSFUL,
+                                     MSID_TELEMETRY_KEY_SSO_EXT_FALLBCK_FLOW
                                      ]];
     });
     
@@ -140,3 +148,5 @@
 }
 
 @end
+
+#endif

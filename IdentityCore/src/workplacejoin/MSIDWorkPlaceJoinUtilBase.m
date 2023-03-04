@@ -43,10 +43,32 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                              context:(id<MSIDRequestContext>_Nullable)context
                                                error:(NSError*__nullable*__nullable)error
 {
+    return [self getWPJStringDataFromV2ForTenantId:nil
+                                        identifier:identifier
+                                               key:nil
+                                       accessGroup:accessGroup
+                                           context:context
+                                             error:error];
+}
+
++ (NSString *_Nullable)getWPJStringDataFromV2ForTenantId:(NSString *)tenantId
+                                              identifier:(nonnull NSString *)identifier
+                                                     key:(nullable NSString *)key
+                                             accessGroup:(nullable NSString *)accessGroup
+                                                 context:(id<MSIDRequestContext>_Nullable)context
+                                                   error:(NSError*__nullable*__nullable)error
+{
     // Building dictionary to retrieve given identifier from the keychain
     NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
     [query setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
-    [query setObject:identifier forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
+    if (tenantId)
+    {
+        [query setObject:tenantId forKey:(__bridge id<NSCopying>)(kSecAttrService)];
+    }
+    else
+    {
+        [query setObject:identifier forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
+    }
     [query setObject:(id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     if (accessGroup)
     {
@@ -61,8 +83,15 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 
         return nil;
     }
-
-    NSString *stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
+    NSString *stringData;
+    if (tenantId && key)
+    {
+        stringData = [(__bridge NSDictionary *)result objectForKey:key];
+    }
+    else
+    {
+        stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
+    }
 
     if (result)
     {
@@ -82,24 +111,39 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
 {
-    MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:context];
+    return [self getRegisteredDeviceMetadataInformation:context tenantId:nil];
+}
 
++ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context tenantId:(nullable NSString *)tenantId
+{
+    MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
+    NSString *userPrincipalName;
+    NSString *fetchedTenantId;
     if (wpjCerts)
     {
-        NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
-        NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+        if (wpjCerts.keyChainVersion != MSIDWPJKeychainAccessGroupV2)
+        {
+            userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
+            fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+        }
+        else
+        {
+            NSString *formattedKeyForUPN = (__bridge NSString * )kSecAttrLabel;
+            NSString *formattedKeyForTenantId = (__bridge NSString *)kSecAttrService;
+            userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDUPNKeyIdentifier key:formattedKeyForUPN context:context error:nil];
+            fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDTenantKeyIdentifier key:formattedKeyForTenantId context:context error:nil];
+        }
         NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
 
         // Certificate subject is nothing but the AAD deviceID
         [registrationInfoMetadata setValue:wpjCerts.certificateSubject forKey:MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY];
         [registrationInfoMetadata setValue:userPrincipalName forKey:MSID_DEVICE_INFORMATION_UPN_ID_KEY];
-        [registrationInfoMetadata setValue:tenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
+        [registrationInfoMetadata setValue:fetchedTenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
         return registrationInfoMetadata;
     }
 
     return nil;
 }
-
 + (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
                                                                                        context:(nullable id<MSIDRequestContext>)context

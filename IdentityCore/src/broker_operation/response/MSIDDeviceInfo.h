@@ -50,8 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
 @property (nonatomic, nullable) NSString *brokerVersion;
 @property (nonatomic) NSDictionary *additionalExtensionData;
-// New property to return MDM Id to 1P and managed apps
-@property (nonatomic, nullable) NSString *mdmId;
+// New property to return additional device Info
+@property (nonatomic) NSDictionary *extraDeviceInfo;
 
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
                   ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode

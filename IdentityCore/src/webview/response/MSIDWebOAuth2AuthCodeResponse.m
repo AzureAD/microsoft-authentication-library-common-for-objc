@@ -74,7 +74,7 @@
     {
         NSString *errorDescription = parameters[MSID_OAUTH2_ERROR_DESCRIPTION];
         NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
-        MSIDErrorCode errorCode = MSIDErrorCodeForOAuthError(serverOAuth2Error, MSIDErrorAuthorizationFailed);
+        MSIDErrorCode errorCode = MSIDErrorCodeForOAuthErrorWithSubErrorCode(serverOAuth2Error, MSIDErrorAuthorizationFailed, subError);
         
         MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Failed authorization code response with error %@, sub error %@, description %@", serverOAuth2Error, subError, MSID_PII_LOG_MASKABLE(errorDescription));
         

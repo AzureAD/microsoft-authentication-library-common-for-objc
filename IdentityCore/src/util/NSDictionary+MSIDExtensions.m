@@ -156,7 +156,7 @@
 - (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context
 {
     NSError *serializationError = nil;
-    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:self options:0 error:&serializationError];
+    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:self options:NSJSONWritingSortedKeys error:&serializationError];
 
     if (!serializedData)
     {
@@ -267,7 +267,8 @@
     NSArray *keys = [self allKeys];
     for (id key in keys)
     {
-        id value = [self valueForKey:key];
+        
+        id value = [self objectForKey:key];
         id copy = nil;
         if ([value respondsToSelector:@selector(mutableDeepCopy)])
         {

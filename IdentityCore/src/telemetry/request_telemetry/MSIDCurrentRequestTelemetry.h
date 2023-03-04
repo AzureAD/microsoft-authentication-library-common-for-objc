@@ -21,7 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#define CONDITIONAL_SET_REFRESH_TYPE(x, y) CONDITIONAL_COMPILE_MSAL_CPP((x) = (y))
+
 #import <Foundation/Foundation.h>
+#import "MSIDTelemetryConditionalCompile.h"
 #import "MSIDTelemetryStringSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,13 +49,21 @@ typedef NS_ENUM(NSInteger, TokenCacheRefreshType)
     TokenCacheRefreshTypeCachingMechanismNotImplemented,
 };
 
+#if !EXCLUDE_FROM_MSALCPP
+
 @interface MSIDCurrentRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
+
+- (nullable instancetype)initWithAppId:(NSInteger)appId
+                 tokenCacheRefreshType:(TokenCacheRefreshType)tokenCacheRefreshType
+                        platformFields:(nullable NSMutableArray *)platformFields;
 
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger apiId;
 @property (nonatomic) TokenCacheRefreshType tokenCacheRefreshType;
-
+@property (nonatomic, nullable) NSMutableArray<NSString *> *platformFields;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END

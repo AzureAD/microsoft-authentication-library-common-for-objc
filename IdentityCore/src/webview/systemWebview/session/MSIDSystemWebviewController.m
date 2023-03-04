@@ -45,7 +45,9 @@
 
 @property (nonatomic, copy) MSIDWebUICompletionHandler completionHandler;
 @property (nonatomic) NSString *telemetryRequestId;
+#if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDTelemetryUIEvent *telemetryEvent;
+#endif
 @property (nonatomic) id<MSIDWebviewInteracting> session;
 @property (nonatomic) id<MSIDRequestContext> context;
 
@@ -123,18 +125,19 @@
 #endif
     
     self.telemetryRequestId = [self.context telemetryRequestId];
-    [[MSIDTelemetry sharedInstance] startEvent:self.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
+    CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.telemetryRequestId, MSID_TELEMETRY_EVENT_UI_EVENT);
+#if !EXCLUDE_FROM_MSALCPP
     self.telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                              context:self.context];
-        
+#endif
     void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
     {
         if (authError && authError.code == MSIDErrorUserCancel)
         {
-            [self.telemetryEvent setIsCancelled:YES];
+            CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(self.telemetryEvent, YES);
         }
         
-        [[MSIDTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:self.telemetryEvent];
+        CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, self.telemetryRequestId, self.telemetryEvent);
         
         [self notifyEndWebAuthWithURL:callbackURL error:authError];
         self.completionHandler(callbackURL, authError);
@@ -147,8 +150,8 @@
 
 - (void)cancel:(NSError *)error
 {
-    [self.telemetryEvent setIsCancelled:YES];
-    [[MSIDTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:self.telemetryEvent];
+    CONDITIONAL_UI_EVENT_SET_IS_CANCELLED(self.telemetryEvent, YES);
+    CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, self.telemetryRequestId, self.telemetryEvent);
     
     [self.session cancelProgrammatically];
     
@@ -187,7 +190,7 @@
         return NO;
     }
     
-    [[MSIDTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:self.telemetryEvent];
+    CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, self.telemetryRequestId, self.telemetryEvent);
     
     [self.session dismiss];
     
@@ -243,6 +246,12 @@
 - (void)notifyEndWebAuthWithURL:(NSURL *)url
                           error:(NSError *)error
 {
+    
+    // If the web auth session is ended, make sure that active background tasks started for the system webview session
+    // have been stopped.
+#if TARGET_OS_IPHONE
+        [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
     
     if (error)
     {

@@ -74,25 +74,6 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     }
 }
 
-- (NSString *)enrollmentIdForUserId:(NSString *)userId
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
-{
-    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
-    if (![self isValid:jsonDictionary context:context error:error]) return nil;
-    
-    NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
-    for (NSDictionary *enrollIdDic in enrollIds)
-    {
-        if ([enrollIdDic[MSID_INTUNE_USER_ID] isEqualToString:userId])
-        {
-            return enrollIdDic[MSID_INTUNE_ENROLL_ID];
-        }
-    }
-    
-    return nil;
-}
-
 - (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
                                  tenantId:(NSString *)tenantId
                                   context:(id<MSIDRequestContext>)context
@@ -117,25 +98,6 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
-{
-    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
-    if (![self isValid:jsonDictionary context:context error:error]) return nil;
-    
-    NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
-    for (NSDictionary *enrollIdDic in enrollIds)
-    {
-        if ([enrollIdDic[MSID_INTUNE_HOME_ACCOUNT_ID] isEqualToString:homeAccountId])
-        {
-            return enrollIdDic[MSID_INTUNE_ENROLL_ID];
-        }
-    }
-    
-    return nil;
-}
-
-- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                               legacyUserId:(NSString *)legacyUserId
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error
@@ -145,40 +107,100 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     // If homeAccountID is provided, try to match by it first.
     if (homeAccountId)
     {
-        enrollmentId = [self enrollmentIdForHomeAccountId:homeAccountId context:context error:error];
-        if (enrollmentId)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Enrollment id read from intune cache : %@.", MSID_PII_LOG_MASKABLE(enrollmentId));
-            return enrollmentId;
-        }
+        enrollmentId = [self enrollmentIdForHomeAccountId:homeAccountId
+                                                  context:context
+                                                    error:error];
+        if (enrollmentId) return enrollmentId;
     }
     
     // If legacy userID is provided, try to match by userID.
     if (legacyUserId)
     {
-        enrollmentId = [self enrollmentIdForUserId:legacyUserId context:context error:error];
-        if (enrollmentId)
+        enrollmentId = [self enrollmentIdForUserId:legacyUserId
+                                           context:context
+                                             error:error];
+        
+        if (enrollmentId) return enrollmentId;
+    }
+    
+    // If we haven't found an exact match yet, fallback to any enrollment ID to support no userID or single userID scenarios
+    // only if homeAccountId and legacyId are both empty
+    if ([NSString msidIsStringNilOrBlank:homeAccountId] && [NSString msidIsStringNilOrBlank:legacyUserId])
+    {
+        return [self enrollmentIdIfAvailableWithContext:context error:error];
+    }
+    
+    return nil;
+}
+
+- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
+{
+    NSString* enrollmentId = [self queryEnrollmentIdWithKey:MSID_INTUNE_HOME_ACCOUNT_ID
+                                     validationId:homeAccountId
+                                          context:context
+                                            error:error];
+    return enrollmentId;
+}
+
+- (NSString *)enrollmentIdForUserId:(NSString *)userId
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    NSString* enrollmentId = [self queryEnrollmentIdWithKey:MSID_INTUNE_USER_ID
+                                     validationId:userId
+                                          context:context
+                                            error:error];
+    return enrollmentId;
+}
+
+-(NSString *)queryEnrollmentIdWithKey:(NSString *)key
+                         validationId:(NSString *)validationId
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
+{
+    validationId = [validationId msidNormalizedString];
+    NSArray *enrollIds = [self fetchAllEnrollmentIdsWithContext:context error:error];
+    for (NSDictionary *enrollIdDic in enrollIds)
+    {
+        if ([[enrollIdDic[key] msidNormalizedString] isEqualToString:validationId])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Enrollment id read from intune cache : %@.", MSID_PII_LOG_MASKABLE(enrollmentId));
-            return enrollmentId;
+            NSString *enrollmentId = enrollIdDic[MSID_INTUNE_ENROLL_ID];
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Queried by %@, enrollment id read from intune cache : %@.", key, enrollmentId ? MSID_PII_LOG_MASKABLE(enrollmentId) : enrollmentId);
+            return enrollIdDic[MSID_INTUNE_ENROLL_ID];
         }
     }
     
-    // If we haven't found an exact match yet, fallback to any enrollment ID to support no userID or single userID scenarios.
-    return [self enrollmentIdIfAvailableWithContext:context error:error];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ is passed in, but cannot find matching enrollment id.", key);
+    return nil;
 }
+
 
 - (NSString *)enrollmentIdIfAvailableWithContext:(id<MSIDRequestContext>)context
                                            error:(NSError **)error
+{
+    NSArray *enrollIds = [self fetchAllEnrollmentIdsWithContext:context error:error];
+    if (enrollIds)
+    {
+        NSDictionary *enrollIdDic = enrollIds.firstObject;
+        NSString *enrollmentId = enrollIdDic[MSID_INTUNE_ENROLL_ID];
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Enrollment id read from intune cache : %@ by using the first object in cache", enrollmentId ? MSID_PII_LOG_MASKABLE(enrollmentId) : enrollmentId);
+        return enrollmentId;
+    }
+    
+    return nil;
+}
+
+- (NSArray *)fetchAllEnrollmentIdsWithContext:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
 {
     NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
     if (![self isValid:jsonDictionary context:context error:error]) return nil;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
-    NSDictionary *enrollIdDic = enrollIds.firstObject;
-    NSString *enrollmentId = enrollIdDic[MSID_INTUNE_ENROLL_ID];
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Enrollment id read from intune cache : %@.", enrollmentId ? MSID_PII_LOG_MASKABLE(enrollmentId) : enrollmentId);
-    return enrollmentId;
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%d enrollmentId(s) found in cache", (int)enrollIds.count);
+    return enrollIds;
 }
 
 - (BOOL)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary

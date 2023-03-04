@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDOAuth2Constants.h"
-#import "MSIDAADNetworkConfiguration.h"
 
 NSString *const MSID_OAUTH2_ACCESS_TOKEN       = @"access_token";
 NSString *const MSID_OAUTH2_AUTHORIZATION      = @"authorization";
@@ -80,6 +79,9 @@ NSString *const MSID_OAUTH2_CODE_CHALLENGE               = @"code_challenge";
 NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD        = @"code_challenge_method";
 NSString *const MSID_OAUTH2_CODE_VERIFIER                = @"code_verifier";
 
+NSString *const MSID_NESTED_AUTH_BROKER_CLIENT_ID        = @"brk_client_id";
+NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI     = @"brk_redirect_uri";
+
 NSString *const MSID_OAUTH2_CLIENT_INFO                  = @"client_info";
 NSString *const MSID_OAUTH2_UNIQUE_IDENTIFIER            = @"uid";
 NSString *const MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER     = @"utid";
@@ -114,6 +116,7 @@ NSString *const MSID_EXPIRES_ON_CACHE_KEY                = @"expires_on";
 NSString *const MSID_REFRESH_ON_CACHE_KEY                = @"refresh_on";
 NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY          = @"access_token_type";
 NSString *const MSID_CACHED_AT_CACHE_KEY                 = @"cached_at";
+NSString *const MSID_LAST_RECOVERY_ATTEMPT_CACHE_KEY     = @"recovery_attempted_at";
 NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on";
 NSString *const MSID_EXPIRES_IN_CACHE_KEY                = @"expires_in";
 NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";

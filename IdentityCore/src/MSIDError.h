@@ -248,6 +248,51 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // SSO Extension internal error
     MSIDErrorSSOExtensionUnexpectedError           =   -51815,
     
+    // JIT - Link - Timeout while waiting for server confirmation
+    MSIDErrorJITLinkServerConfirmationTimeout      =   -51816,
+    
+    // JIT - Link - Error while waiting for server confirmation
+    MSIDErrorJITLinkServerConfirmationError        =   -51817,
+    
+    // JIT - Link - Error while acquiring intune token
+    MSIDErrorJITLinkAcquireTokenError              =   -51818,
+    
+    // JIT - Link - Token acquired for wrong tenant
+    MSIDErrorJITLinkTokenAcquiredWrongTenant       =   -51819,
+    
+    // JIT - Link - Error during linking
+    MSIDErrorJITLinkError                          =   -51820,
+    
+    // JIT - Compliance Check - Device not compliant
+    MSIDErrorJITComplianceCheckResultNotCompliant  =   -51821,
+    
+    // JIT - Compliance Check - CP timeout
+    MSIDErrorJITComplianceCheckResultTimeout       =   -51822,
+    
+    // JIT - Compliance Check - Device unknown
+    MSIDErrorJITComplianceCheckResultUnknown       =   -51823,
+    
+    // JIT - Compliance Check - Invalid linkPayload from SSO configuration
+    MSIDErrorJITComplianceCheckInvalidLinkPayload  =   -51824,
+
+    // JIT - Compliance Check - Could not create compliance check web view controller
+    MSIDErrorJITComplianceCheckCreateController    =   -51825,
+
+    // JIT - Link - LinkConfig not found
+    MSIDErrorJITLinkConfigNotFound                 =   -51826,
+
+    // JIT - Link - Invalid LinkTokenConfig
+    MSIDErrorJITInvalidLinkTokenConfig             =   -51827,
+
+    // JIT - WPJ - Device Registration Failed
+    MSIDErrorJITWPJDeviceRegistrationFailed        =   -51828,
+
+    // JIT - WPJ - AccountIdentifier is nil
+    MSIDErrorJITWPJAccountIdentifierNil            =   -51829,
+
+    // JIT - WPJ - Failed to acquire broker token
+    MSIDErrorJITWPJAcquireTokenError               =   -51830,
+    
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,
@@ -257,6 +302,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
 extern NSError * _Nonnull MSIDCreateError(NSString * _Nonnull domain, NSInteger code, NSString * _Nullable errorDescription, NSString * _Nullable oauthError, NSString * _Nullable subError, NSError * _Nullable underlyingError, NSUUID * _Nullable correlationId, NSDictionary * _Nullable additionalUserInfo, BOOL logErrorDescription);
 
 extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString * _Nullable oauthError, MSIDErrorCode defaultCode);
+
+extern MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString * _Nullable oauthError, MSIDErrorCode defaultCode, NSString * _Nullable subError);
 
 extern NSDictionary<NSString *, NSArray *> * _Nonnull MSIDErrorDomainsAndCodes(void);
 

@@ -27,6 +27,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*
+ 
+ MSIDWPJKeychainAccessGroupV1 : Keychain with shared access group version V1
+ MSIDWPJKeychainAccessGroupV2 : Keychain with shared access group version V2
+
+ */
+
+typedef NS_ENUM(NSInteger, MSIDWPJKeychainAccessGroup)
+{
+    MSIDWPJKeychainAccessGroupV1 = 0,
+    MSIDWPJKeychainAccessGroupV2 = 1
+};
+
 @interface MSIDWPJKeyPairWithCert : NSObject
 {
     SecCertificateRef _certificateRef;
@@ -41,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSData *certificateData;
 @property (nonatomic, readonly) NSString *certificateSubject;
 @property (nonatomic, readonly) NSString *certificateIssuer;
+@property (nonatomic) MSIDWPJKeychainAccessGroup keyChainVersion;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                 certificate:(SecCertificateRef)certificate

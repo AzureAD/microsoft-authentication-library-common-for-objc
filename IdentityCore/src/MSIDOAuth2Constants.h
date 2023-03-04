@@ -79,6 +79,10 @@ extern NSString *const MSID_OAUTH2_CODE_CHALLENGE;
 extern NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD;
 extern NSString *const MSID_OAUTH2_CODE_VERIFIER;
 
+// Nested auth protocol
+extern NSString *const MSID_NESTED_AUTH_BROKER_CLIENT_ID;
+extern NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI;
+
 // AAD user identifiers
 extern NSString *const MSID_OAUTH2_CLIENT_INFO;
 extern NSString *const MSID_OAUTH2_UNIQUE_IDENTIFIER;
@@ -112,6 +116,7 @@ extern NSString *const MSID_EXPIRES_ON_CACHE_KEY;
 extern NSString *const MSID_REFRESH_ON_CACHE_KEY;
 extern NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY;
 extern NSString *const MSID_CACHED_AT_CACHE_KEY;
+extern NSString *const MSID_LAST_RECOVERY_ATTEMPT_CACHE_KEY;
 extern NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY;
 extern NSString *const MSID_EXPIRES_IN_CACHE_KEY;
 extern NSString *const MSID_SPE_INFO_CACHE_KEY;

@@ -46,6 +46,7 @@ NSWindowController
 #if TARGET_OS_IPHONE
 @property (nonatomic, weak) UIViewController *parentController;
 @property (nonatomic) UIModalPresentationStyle presentationType;
+@property (nonatomic, readonly) BOOL presentInParentController;
 #endif
 
 + (WKWebViewConfiguration *)defaultWKWebviewConfiguration;

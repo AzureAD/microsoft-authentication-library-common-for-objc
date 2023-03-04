@@ -133,6 +133,21 @@
         // probably a good thing.
         components.percentEncodedHost = hostComponents[0];
         
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 160000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
+        if (@available(iOS 16.0, macOS 13.0, *))
+        {
+            // On iOS 16.0 or macOS 13.0 and above, NSURLComponents percentEncodedHost will no longer throw an exception if invalid.
+            if ([NSString msidIsStringNilOrBlank:components.host])
+            {
+                NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Host is not valid.", nil, nil, nil, context.correlationId, nil, YES);
+                
+                if (error) *error = msidError;
+                
+                return nil;
+            }
+        }
+#endif
+        
         if (hostComponents.count > 1)
         {
             NSScanner *scanner = [NSScanner scannerWithString:hostComponents[1]];
@@ -181,10 +196,11 @@
     }
 
     NSString *query = [components percentEncodedQuery];
+    NSDictionary *queryParametersDictionary = [self msidQueryParameters];
 
     for (NSString *key in [queryParameters allKeys])
     {
-        if (query && [query containsString:key])
+        if (queryParametersDictionary[key])
         {
             // Don't bother adding it if it's already there
             continue;
@@ -206,7 +222,7 @@
     {
         components.percentEncodedQuery = query;
     }
-
+    
     return [components URL];
 }
 

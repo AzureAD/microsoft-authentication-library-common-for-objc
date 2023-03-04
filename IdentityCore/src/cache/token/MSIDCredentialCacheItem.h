@@ -54,6 +54,7 @@
 @property (atomic, readwrite, nullable) NSDate *refreshOn;
 @property (atomic, readwrite, nullable) NSDate *cachedAt;
 @property (atomic, readwrite, nullable) NSString *expiryInterval;
+@property (atomic, readwrite, nullable) NSDate *lastRecoveryAttempt;
 
 // Family ID
 @property (atomic, readwrite, nullable) NSString *familyId;
@@ -82,6 +83,9 @@
 
 // Requested claims for access tokens, currently only used by MSAL C++
 @property (atomic, readwrite, nullable) NSString *requestedClaims;
+
+// Redirect Uri
+@property (atomic, readwrite, nullable) NSString *redirectUri;
 
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 
