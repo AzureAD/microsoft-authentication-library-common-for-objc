@@ -33,6 +33,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAuthority.h"
 #import "MSIDCBAWebAADAuthResponse.h"
+#import "MSIDJITTroubleshootingResponse.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "NSURL+MSIDAADUtils.h"
@@ -140,6 +141,20 @@
             return nil;
         }
     }
+    
+    // Try to create JIT troubleshooting response
+    MSIDJITTroubleshootingResponse *jitResponse = [[MSIDJITTroubleshootingResponse alloc] initWithURL:url context:context error:nil];
+    if (jitResponse && jitResponse.status && error)
+    {
+        // Get error from response's status
+        NSError *jitError = [jitResponse getErrorFromResponseWithContext:context];
+        if (jitError)
+        {
+            *error = jitError;
+            return nil;
+        }
+    }
+    
 #endif
     
     // Try to create a WPJ response

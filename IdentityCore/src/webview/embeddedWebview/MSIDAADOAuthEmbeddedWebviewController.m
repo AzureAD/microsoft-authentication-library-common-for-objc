@@ -63,16 +63,16 @@
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
     
-    // Stop at broker
-    BOOL isBrowserUrl = [requestURL.scheme.lowercaseString isEqualToString:@"browser"];
-    if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"] || isBrowserUrl)
+    // Stop at broker or browser
+    BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+    BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+    
+    if (isBrokerUrl || isBrowserUrl)
     {
-        NSURL *url = navigationAction.request.URL;
-
         // Let external code decide if browser url is allowed to continue
         if (isBrowserUrl && self.externalDecidePolicyForBrowserAction)
         {
-            NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(url);
+            NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(requestURL);
 
             if (challengeResponse)
             {
@@ -83,7 +83,7 @@
             }
         }
         
-        [self completeWebAuthWithURL:url];
+        [self completeWebAuthWithURL:requestURL];
         
         decisionHandler(WKNavigationActionPolicyCancel);
         return YES;

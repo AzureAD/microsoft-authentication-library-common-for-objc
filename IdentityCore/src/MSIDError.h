@@ -293,6 +293,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // JIT - WPJ - Failed to acquire broker token
     MSIDErrorJITWPJAcquireTokenError               =   -51830,
     
+    // JIT - Link is required to proceed
+    MSIDErrorLinkRequired  =   -51831,
+    
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,

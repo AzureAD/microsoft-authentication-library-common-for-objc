@@ -184,6 +184,7 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorJITWPJDeviceRegistrationFailed),
                       @(MSIDErrorJITWPJAccountIdentifierNil),
                       @(MSIDErrorJITWPJAcquireTokenError),
+                      @(MSIDErrorLinkRequired),
 
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
