@@ -37,7 +37,7 @@
 + (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
 keychainAccessGroup:(NSString *)keychainAccessGroup
      clientMetadata:(NSDictionary *)clientMetadata
-          isRunTime:(BOOL)isRunTime
+clientBrokerKeyCapabilityNotSupported:(BOOL)clientBrokerKeyCapabilityNotSupported
             context:(id<MSIDRequestContext>)context
 {
     NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
@@ -49,7 +49,7 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
     request.clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
     request.clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     request.correlationId = context.correlationId;
-    request.isRunTime = isRunTime;
+    request.clientBrokerKeyCapabilityNotSupported = clientBrokerKeyCapabilityNotSupported;
     
     return YES;
 }
@@ -132,14 +132,14 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
 {
 #if !TARGET_OS_OSX
     return NO;
-#else
-        if(!self.isRunTime || (self.isRunTime && [MSIDKeychainUtil sharedInstance].isAppEntitled))
-        {
-            return NO;
-        }
-    
-    return YES;
 #endif
+    
+    if(!self.clientBrokerKeyCapabilityNotSupported || (self.clientBrokerKeyCapabilityNotSupported && [MSIDKeychainUtil sharedInstance].isAppEntitled))
+    {
+        return NO;
+    }
+
+    return YES;
 }
 
 @end

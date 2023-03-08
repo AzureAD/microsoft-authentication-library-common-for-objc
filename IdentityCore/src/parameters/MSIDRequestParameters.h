@@ -60,7 +60,7 @@
 @property (nonatomic) BOOL extendedLifetimeEnabled;
 @property (nonatomic) BOOL instanceAware;
 @property (nonatomic) BOOL allowUsingLocalCachedRtWhenSsoExtFailed;
-@property (nonatomic) BOOL isRunTime;
+@property (nonatomic) BOOL clientBrokerKeyCapabilityNotSupported;
 @property (nonatomic) NSString *intuneApplicationIdentifier;
 @property (nonatomic) MSIDRequestType requestType;
 #if !EXCLUDE_FROM_MSALCPP

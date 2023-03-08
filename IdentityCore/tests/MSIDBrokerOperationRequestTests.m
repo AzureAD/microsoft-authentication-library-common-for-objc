@@ -47,7 +47,7 @@
 {
     __auto_type request = [MSIDBrokerOperationRequest new];
     request.protocolVersion = 99;
-    request.isRunTime = YES;
+    request.clientBrokerKeyCapabilityNotSupported = YES;
     
     NSDictionary *json = [request jsonDictionary];
     
