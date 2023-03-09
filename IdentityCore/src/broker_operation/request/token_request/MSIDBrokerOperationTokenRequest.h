@@ -41,12 +41,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSDictionary *mamResources;
 @property (nonatomic, nullable) NSArray *clientCapabilities;
 @property (nonatomic, nullable) MSIDClaimsRequest *claimsRequest;
+@property (nonatomic) NSDate *requestSentDate;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
        providerType:(MSIDProviderType)providerType
       enrollmentIds:(nullable NSDictionary *)enrollmentIds
-       mamResources:(nullable NSDictionary *)mamResources;
+       mamResources:(nullable NSDictionary *)mamResources
+    requestSentDate:(NSDate *)requestSentDate;
 
 @end
 
