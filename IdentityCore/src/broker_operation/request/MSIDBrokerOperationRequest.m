@@ -132,14 +132,14 @@ clientBrokerKeyCapabilityNotSupported:(BOOL)clientBrokerKeyCapabilityNotSupporte
 {
 #if !TARGET_OS_OSX
     return NO;
-#endif
-    
+#else
     if(!self.clientBrokerKeyCapabilityNotSupported || (self.clientBrokerKeyCapabilityNotSupported && [MSIDKeychainUtil sharedInstance].isAppEntitled))
     {
         return NO;
     }
 
     return YES;
+#endif
 }
 
 @end
