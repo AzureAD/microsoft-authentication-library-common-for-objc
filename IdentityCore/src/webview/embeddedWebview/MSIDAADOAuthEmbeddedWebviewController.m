@@ -72,7 +72,7 @@
         // Let external code decide if browser url is allowed to continue
         if (isBrowserUrl && self.externalDecidePolicyForBrowserAction)
         {
-            NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(requestURL);
+            NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(self, requestURL);
 
             if (challengeResponse)
             {

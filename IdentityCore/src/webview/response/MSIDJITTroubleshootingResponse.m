@@ -30,7 +30,7 @@
 @implementation MSIDJITTroubleshootingResponse
 
 - (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
+                    context:(id <MSIDRequestContext>)context
                       error:(NSError **)error
 {
     // Check for JIT troubleshooting response
@@ -39,19 +39,19 @@
         if (error)
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     MSIDErrorServerInvalidResponse,
-                                     @"MSAuth JIT troubleshooting response should have msauth as a scheme and compliance_status as a host",
-                                     nil, nil, nil, context.correlationId, nil, NO);
+                    MSIDErrorServerInvalidResponse,
+                    @"MSAuth JIT troubleshooting response should have msauth as a scheme and compliance_status as a host",
+                    nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
     }
-    
+
     self = [super initWithURL:url context:context error:error];
     if (self)
     {
         _status = self.parameters[@"status"];
     }
-    
+
     return self;
 }
 
@@ -61,7 +61,7 @@
     return ([@"msauth" caseInsensitiveCompare:url.scheme] == NSOrderedSame && [@"compliance_status" caseInsensitiveCompare:url.host] == NSOrderedSame);
 }
 
-- (NSError *)getErrorFromResponseWithContext:(id<MSIDRequestContext>)context
+- (NSError *)getErrorFromResponseWithContext:(id <MSIDRequestContext>)context
 {
     NSError *returnError = nil;
 
@@ -70,7 +70,7 @@
         case 4:
             returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorJITRetryRequired, @"JIT: Retrying JIT", nil, nil, nil, context.correlationId, nil, NO);
             break;
-            
+
         default:
             returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorJITUnknownStatusWebCP, [NSString stringWithFormat:@"JIT: Unexpected status received from webCP troubleshooting flow: %@.", self.status], nil, nil, nil, context.correlationId, nil, YES);
             break;

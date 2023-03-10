@@ -35,10 +35,11 @@
 #import "MSIDWebViewPlatformParams.h"
 
 typedef void (^MSIDNavigationResponseBlock)(NSHTTPURLResponse *response);
-typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(NSURL *url);
 
 @interface MSIDOAuth2EmbeddedWebviewController :
 MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
+
+typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth2EmbeddedWebviewController *webView, NSURL *url);
 
 - (id)init NS_UNAVAILABLE;
 - (id)initWithStartURL:(NSURL *)startURL

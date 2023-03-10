@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -21,19 +20,15 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// THE SOFTWARE.  
 
-#import "MSIDWebviewResponse.h"
+#import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDJITTroubleshootingResponse : MSIDWebviewResponse
+@interface MSIDWKNavigationActionMock : WKNavigationAction
 
-@property (atomic, readonly) NSNumber *status;
-
-- (NSError *)getErrorFromResponseWithContext:(id <MSIDRequestContext>)context;
+- (instancetype)initWithRequest:(NSURLRequest *)request;
 
 @end
 
