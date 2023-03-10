@@ -101,8 +101,7 @@
     NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"https://login.microsoftonline.com/auth"]];
     MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
 
-    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
-    }];
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:nil];
 
     XCTAssertFalse(result);
 }
