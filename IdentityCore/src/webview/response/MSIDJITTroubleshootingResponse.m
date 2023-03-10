@@ -68,14 +68,11 @@
     switch ([self.status intValue])
     {
         case 4:
-            returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"JIT: Retrying Workplace join", nil, nil, nil, context.correlationId, nil, YES);
+            returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorJITRetryRequired, @"JIT: Retrying JIT", nil, nil, nil, context.correlationId, nil, NO);
             break;
             
-        case 5:
-            returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorLinkRequired, @"JIT: Retrying Link", nil, nil, nil, context.correlationId, nil, YES);
-            break;
-
         default:
+            returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorJITUnknownStatusWebCP, [NSString stringWithFormat:@"JIT: Unexpected status received from webCP troubleshooting flow: %@.", self.status], nil, nil, nil, context.correlationId, nil, YES);
             break;
     }
 

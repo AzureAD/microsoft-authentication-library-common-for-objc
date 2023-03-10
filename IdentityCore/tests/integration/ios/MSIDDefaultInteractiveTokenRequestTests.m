@@ -909,6 +909,7 @@
     [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
         XCTAssertEqualObjects(url.absoluteString, @"https://login.microsoftonline.appinstall.test");
         [openURLExpectation fulfill];
+        return YES;
     }];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];

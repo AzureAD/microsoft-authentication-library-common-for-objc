@@ -144,7 +144,7 @@
     
     // Try to create JIT troubleshooting response
     MSIDJITTroubleshootingResponse *jitResponse = [[MSIDJITTroubleshootingResponse alloc] initWithURL:url context:context error:nil];
-    if (jitResponse && jitResponse.status && error)
+    if (jitResponse && error)
     {
         // Get error from response's status
         NSError *jitError = [jitResponse getErrorFromResponseWithContext:context];
