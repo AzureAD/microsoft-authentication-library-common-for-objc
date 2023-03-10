@@ -267,10 +267,11 @@
     NSString *thumbprint = [self sha1FromData:certData].msidBase64UrlEncodedString;
     CFRelease(data);
     CFRelease(certificate);
-    MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:privateKey context:nil];
+    NSError *algError;
+    MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:privateKey context:nil error:&algError];
     if ([NSString msidIsStringNilOrBlank:alg])
     {
-        NSLog(@"Signing algorithm not supported by key");
+        NSLog(@"Signing algorithm not supported by key : %@", algError);
         return nil;
     }
 

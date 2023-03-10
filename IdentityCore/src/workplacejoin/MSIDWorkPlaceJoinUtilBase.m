@@ -289,17 +289,18 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     // If secondary Identity was found, return it
     if (defaultKeys)
     {
+        defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
         return defaultKeys;
     }
 #endif
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using ECC key.");
-    // Since the defualt RSA search returned nil in iOS, the key might be an ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
+    // Since the defualt RSA search returned nil in iOS, the key might be an ECC key. Use the tag specific for EC device key and re-try
     tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:extraDefaultPrivateKeyAttributes];
     [privateKeyAttributes setObject:tagData forKey:(__bridge id)kSecAttrApplicationTag];
-    [privateKeyAttributes setObject:(__bridge id)kSecAttrTokenIDSecureEnclave forKey:(__bridge id)kSecAttrTokenID];
+    // Not including kSecAttrTokenIDSecureEnclave in query dict as in the future registrations maybe ECC based even in software keychain
     [privateKeyAttributes setObject:(__bridge id)kSecAttrKeyTypeECSECPrimeRandom forKey:(__bridge id)kSecAttrKeyType];
     [privateKeyAttributes setObject:@256 forKey:(__bridge id)kSecAttrKeySizeInBits];
     defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes certAttributes:extraCertAttributes context:context];

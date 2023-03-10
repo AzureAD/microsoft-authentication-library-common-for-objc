@@ -144,11 +144,12 @@
         return nil;
     }
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
-    NSString *alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:identity.privateKeyRef context:nil error:nil];
+    NSError *error;
+    NSString *alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:identity.privateKeyRef context:nil error:&error];
 
     if (![NSString msidIsStringNilOrBlank:serverSupportedAlgs])
     {
-        NSSet<NSString*> *set = [NSSet setWithArray:[serverSupportedAlgs componentsSeparatedByString:@","]];
+        NSSet<NSString *> *set = [NSSet setWithArray:[serverSupportedAlgs componentsSeparatedByString:@","]];
         if (![set containsObject:alg])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [NSString stringWithFormat: @"Server does not support client's signature alg. Server supports : %@ Client alg according to private key : %@", serverSupportedAlgs, alg]);
@@ -158,7 +159,7 @@
     
     if ([NSString msidIsStringNilOrBlank:alg])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Key signing algorithm not supported");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Can't determine key signing alg for private key : %@", error);
         return nil;
     }
     NSDictionary *header = @{
