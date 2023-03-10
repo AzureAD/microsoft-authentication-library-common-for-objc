@@ -59,7 +59,6 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     
     [NSDate mockCurrentDate:[[NSDate alloc] initWithTimeIntervalSince1970:5]];
     [self populateRsaKeys];
-#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
     if (!self.eccKeyGenerator)
     {
         if (s_shouldGenerateEccKeyPair)
@@ -88,7 +87,6 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
             self.eccPublicKey = SecKeyCopyPublicKey(self.eccPrivateKey);
         }
     }
-#endif
 }
 
 - (void)tearDown
@@ -130,16 +128,15 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9zb21ldXJsLmNvbSIsCiAgIm5vbmNlIiA6ICJYTm1lNlpsbm5aZ0lTNGJNSFB6WTRSaWhrSEZxQ0g2czFoblJnanY4WTBRIiwKICAiaWF0IiA6ICI1Igp9.NI9E37170Ykse1oRZlBqkzCn-VLbde3HGi6MdQOFlnkIopSDlzeh00Fc2-YAVcKMPbmmbHZRpOppoZGTFItRSzOyiDQkpVaC_l89w1ip2OdarOffdc2SmGmFL80RqlsnWEvz7h1tC-Ziq5A1va58alL2hrPwdZe8fTGzQmo87MUz_gLwdf8GHbGqVqgE_csavbFrPo1iHu6qZiIcI8CBYzRpXOZsILDlvjBjtuxQ1cJDSBkmTg1TUemU8yrbxoB4wcTxvgmDbe8QCCCJwyxbo4Ww8leQd0D3cCrhRHihs6bHjI2y9z00vOj-4Qj0JC20hGUW9EdZFuB8vmvwsyT34g\", Context=\"some context\", Version=\"1.0\"";
     
     XCTAssertEqualObjects(expectedResponse, response);
-#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
-        [regInfo setPrivateKey:self.eccPrivateKey];
-        s_registrationInformationToReturn = regInfo;
-        if (!s_shouldGenerateEccKeyPair)
-        {
-            [self swizzleIsKeyFromSecureEnclaveImp];
-        }
-        response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-        [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:[url absoluteString] publicKey:self.eccPublicKey isRsa:false];
-#endif
+    [regInfo setPrivateKey:self.eccPrivateKey];
+    s_registrationInformationToReturn = regInfo;
+    if (!s_shouldGenerateEccKeyPair)
+    {
+        [self swizzleIsKeyFromSecureEnclaveImp];
+    }
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:[url absoluteString] publicKey:self.eccPublicKey isRsa:false];
+
 }
 
 - (void)testCreateDeviceAuthResponse_whenChallengeContainsSupportedAlgs_algNotSupportedByClient
@@ -162,16 +159,15 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9zb21ldXJsLmNvbSIsCiAgIm5vbmNlIiA6ICJYTm1lNlpsbm5aZ0lTNGJNSFB6WTRSaWhrSEZxQ0g2czFoblJnanY4WTBRIiwKICAiaWF0IiA6ICI1Igp9.NI9E37170Ykse1oRZlBqkzCn-VLbde3HGi6MdQOFlnkIopSDlzeh00Fc2-YAVcKMPbmmbHZRpOppoZGTFItRSzOyiDQkpVaC_l89w1ip2OdarOffdc2SmGmFL80RqlsnWEvz7h1tC-Ziq5A1va58alL2hrPwdZe8fTGzQmo87MUz_gLwdf8GHbGqVqgE_csavbFrPo1iHu6qZiIcI8CBYzRpXOZsILDlvjBjtuxQ1cJDSBkmTg1TUemU8yrbxoB4wcTxvgmDbe8QCCCJwyxbo4Ww8leQd0D3cCrhRHihs6bHjI2y9z00vOj-4Qj0JC20hGUW9EdZFuB8vmvwsyT34g\", Context=\"some context\", Version=\"1.0\"";
     
     XCTAssertEqualObjects(expectedResponse, response);
-#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
-        [regInfo setPrivateKey:self.eccPrivateKey];
-        s_registrationInformationToReturn = regInfo;
-        if (!s_shouldGenerateEccKeyPair)
-        {
-            [self swizzleIsKeyFromSecureEnclaveImp];
-        }
-        response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+
+    [regInfo setPrivateKey:self.eccPrivateKey];
+    s_registrationInformationToReturn = regInfo;
+    if (!s_shouldGenerateEccKeyPair)
+    {
+        [self swizzleIsKeyFromSecureEnclaveImp];
+    }
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
     XCTAssertEqualObjects(@"PKeyAuth  Context=\"some context\", Version=\"1.0\"", response);
-#endif
 }
 
 - (void)testCreateDeviceAuthResponse_whenDeviceIsWPJAndAuthServerUrlWihtQueryParams_shouldCreateProperResponse
@@ -192,16 +188,14 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.HMgqNP2ZkDFZC7u_jo4Vlc6lMozr1x05rCTyMaJwvCIQx6vO9bPjhJ2f-fXrd_W9syrAa4TNRQZELfQPm-3dCVzHBpRJzDrH-Z3S3zYE4egWBq59BwNsrSbtgevlyeusd6h9z-WLDOVMZN1n79v4K6sSux0WEwaxGPjU0haTIBZmqaT0NEsLADDdeAMJCLN9Exd4VFi4GeZ9jsTw3_bzHS_2I8lyj5r8lr4yHUpPdxw0rFvOacJepbPqd_vW7jKl2tSZRVDw9iWRA9CxWWgVp3eZrPUesx7oLnkAnp7mIfKuhI4bL3yxAkg1ouErYqlIhJUgK7jR1OPZOKhBXSV98Q\", Context=\"some context\", Version=\"1.0\"";
     
     XCTAssertEqualObjects(expectedResponse, response);
-#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
-        [regInfo setPrivateKey:self.eccPrivateKey];
-        s_registrationInformationToReturn = regInfo;
-        if (!s_shouldGenerateEccKeyPair)
-        {
-            [self swizzleIsKeyFromSecureEnclaveImp];
-        }
-        response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-        [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
-#endif
+    [regInfo setPrivateKey:self.eccPrivateKey];
+    s_registrationInformationToReturn = regInfo;
+    if (!s_shouldGenerateEccKeyPair)
+    {
+        [self swizzleIsKeyFromSecureEnclaveImp];
+    }
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
 }
 
 - (void)testCreateDeviceAuthResponse_whenDeviceIsWPJAndAuthServerUrlWihtQueryParams_andCertAuthoritiesURLEncoded_shouldCreateProperResponse
@@ -220,16 +214,15 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
     
     __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.HMgqNP2ZkDFZC7u_jo4Vlc6lMozr1x05rCTyMaJwvCIQx6vO9bPjhJ2f-fXrd_W9syrAa4TNRQZELfQPm-3dCVzHBpRJzDrH-Z3S3zYE4egWBq59BwNsrSbtgevlyeusd6h9z-WLDOVMZN1n79v4K6sSux0WEwaxGPjU0haTIBZmqaT0NEsLADDdeAMJCLN9Exd4VFi4GeZ9jsTw3_bzHS_2I8lyj5r8lr4yHUpPdxw0rFvOacJepbPqd_vW7jKl2tSZRVDw9iWRA9CxWWgVp3eZrPUesx7oLnkAnp7mIfKuhI4bL3yxAkg1ouErYqlIhJUgK7jR1OPZOKhBXSV98Q\", Context=\"some context\", Version=\"1.0\"";
-#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
-        [regInfo setPrivateKey:self.eccPrivateKey];
-        s_registrationInformationToReturn = regInfo;
-        if (!s_shouldGenerateEccKeyPair)
-        {
-            [self swizzleIsKeyFromSecureEnclaveImp];
-        }
-        response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-        [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
-#endif
+
+    [regInfo setPrivateKey:self.eccPrivateKey];
+    s_registrationInformationToReturn = regInfo;
+    if (!s_shouldGenerateEccKeyPair)
+    {
+        [self swizzleIsKeyFromSecureEnclaveImp];
+    }
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
     XCTAssertEqualObjects(expectedResponse, response);
 }
 
@@ -265,11 +258,10 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
     
     __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
-#if defined MSID_ENABLE_ECC_SUPPORT && MSID_ENABLE_ECC_SUPPORT
-        [regInfo setPrivateKey:self.eccPrivateKey];
-        s_registrationInformationToReturn = regInfo;
-        response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
-#endif
+
+    [regInfo setPrivateKey:self.eccPrivateKey];
+    s_registrationInformationToReturn = regInfo;
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
     XCTAssertEqualObjects(expectedResponse, response);
 }
 

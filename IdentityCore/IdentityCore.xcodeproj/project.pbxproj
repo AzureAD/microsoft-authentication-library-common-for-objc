@@ -8431,12 +8431,10 @@
 					"$(inherited)",
 					"$(MSID_WEBKIT)",
 					"$(MSID_SYSTEMWV)",
-					"MSID_ENABLE_ECC_SUPPORT=$(MSID_ENABLE_ECC_SUPPORT)",
 				);
 				GCC_WARN_SHADOW = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MSID_ENABLE_ECC_SUPPORT = 0;
 			};
 			name = Debug;
 		};
@@ -8448,12 +8446,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(MSID_SYSTEMWV)",
 					"$(MSID_WEBKIT)",
-					"MSID_ENABLE_ECC_SUPPORT=$(MSID_ENABLE_ECC_SUPPORT)",
 				);
 				GCC_WARN_SHADOW = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MSID_ENABLE_ECC_SUPPORT = 0;
 			};
 			name = Release;
 		};
@@ -8463,6 +8459,11 @@
 			buildSettings = {
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"$(MSID_WEBKIT)",
+					"$(MSID_SYSTEMWV)",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 			};
 			name = Debug;
@@ -8472,6 +8473,10 @@
 			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
 				ENABLE_BITCODE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(MSID_SYSTEMWV)",
+					"$(MSID_WEBKIT)",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 			};
 			name = Release;

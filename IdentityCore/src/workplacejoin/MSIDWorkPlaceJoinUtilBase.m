@@ -293,9 +293,8 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     }
 #endif
     
-#if defined (MSID_ENABLE_ECC_SUPPORT) && MSID_ENABLE_ECC_SUPPORT
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using ECC key.");
-    // Since the defualt RSA search returned nil in iOS, the key might be a ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
+    // Since the defualt RSA search returned nil in iOS, the key might be an ECC key accessible only to secure enclave. Use the tag specific for EC device key and re-try
     tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:extraDefaultPrivateKeyAttributes];
@@ -308,7 +307,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     {
         return defaultKeys;
     }
-#endif
+
     // Otherwise, return legacy Identity - this can happen if we couldn't match based on the tenantId, but Identity was there. It could be usable. We'll let ESTS to evaluate it and check.
     // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
     return legacyKeys;
