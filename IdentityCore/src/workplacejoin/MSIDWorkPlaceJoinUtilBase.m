@@ -245,6 +245,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         
     if (legacyKeys)
     {
+        legacyKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV1;
         if ([NSString msidIsStringNilOrBlank:tenantId])
         {
             // ESTS didn't request a specific tenant, just return default one
@@ -306,6 +307,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes certAttributes:extraCertAttributes context:context];
     if (defaultKeys)
     {
+        defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
         return defaultKeys;
     }
 
