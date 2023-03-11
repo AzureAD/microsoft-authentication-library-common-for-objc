@@ -95,6 +95,11 @@
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
     if (@available(macOS 13.0, *))
     {
+        if (!self.loginManager)
+        {
+            return nil;
+        }
+        
         return self.loginManager.loginConfiguration.tokenEndpointURL;
     }
 #endif
