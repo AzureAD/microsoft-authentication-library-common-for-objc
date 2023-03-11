@@ -63,6 +63,8 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
         _cachedAt = tokenCacheItem.cachedAt;
         _lastRecoveryAttempt = tokenCacheItem.lastRecoveryAttempt;
         _expiryInterval = [tokenCacheItem.expiryInterval integerValue];
+        
+        _externalKeyLocationType = (MSIDExternalPRTKeyLocationType)[[jsonDictionary msidObjectForKey:MSID_PRT_EXTERNAL_KEY_TYPE_CACHE_KEY ofClass:[NSString class]] integerValue];
     }
     
     return self;
@@ -84,6 +86,7 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     prtCacheItem.cachedAt = self.cachedAt;
     prtCacheItem.lastRecoveryAttempt = self.lastRecoveryAttempt;
     prtCacheItem.expiryInterval = [NSString stringWithFormat:@"%lu", (long)self.expiryInterval];
+    prtCacheItem.externalKeyLocationType = self.externalKeyLocationType;
     return prtCacheItem;
 }
 
@@ -141,6 +144,7 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     hash = hash * 31 + self.sessionKey.hash;
     hash = hash * 31 + self.deviceID.hash;
     hash = hash * 31 + self.prtProtocolVersion.hash;
+    hash = hash * 31 + self.externalKeyLocationType;
     return hash;
 }
 
@@ -155,6 +159,7 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     result &= (!self.sessionKey && !token.sessionKey) || [self.sessionKey isEqualToData:token.sessionKey];
     result &= (!self.deviceID && !token.deviceID) || [self.deviceID isEqualToString:token.deviceID];
     result &= (!self.prtProtocolVersion && !token.prtProtocolVersion) || [self.prtProtocolVersion isEqualToString:token.prtProtocolVersion];
+    result &= self.externalKeyLocationType == token.externalKeyLocationType;
     return result;
 }
 
@@ -170,6 +175,7 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     item->_cachedAt = [_cachedAt copyWithZone:zone];
     item->_lastRecoveryAttempt = [_lastRecoveryAttempt copyWithZone:zone];
     item->_expiryInterval = _expiryInterval;
+    item->_externalKeyLocationType = _externalKeyLocationType;
     return item;
 }
 

@@ -23,11 +23,13 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDLegacyTokenCacheItem.h"
+#import "MSIDPrimaryRefreshToken.h"
 
 @interface MSIDPRTCacheItem : MSIDLegacyTokenCacheItem
 
 @property (atomic) NSData *sessionKey;
 @property (atomic) NSString *deviceID;
 @property (atomic) NSString *prtProtocolVersion;
+@property (atomic) MSIDExternalPRTKeyLocationType externalKeyLocationType;
 
 @end
