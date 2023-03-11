@@ -54,6 +54,7 @@
             if (!authorityURL)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to create authority URL with error %@", authorityURLError);
+                return nil;
             }
             else if (![authorityURL.tenant.rawTenant.lowercaseString isEqualToString:tenantId.lowercaseString])
             {
