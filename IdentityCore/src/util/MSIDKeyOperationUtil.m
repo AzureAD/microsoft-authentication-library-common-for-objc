@@ -119,11 +119,11 @@
         return nil;
     }
     
-    CFErrorRef *subError = NULL;
+    CFErrorRef subError = NULL;
     NSData *signature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
                                                                           algorithm,
                                                                           (__bridge CFDataRef)rawData,
-                                                                          subError));
+                                                                          &subError));
     if (!signature)
     {
         NSError *signingError;

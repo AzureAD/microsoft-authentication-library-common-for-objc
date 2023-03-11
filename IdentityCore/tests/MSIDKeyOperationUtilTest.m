@@ -186,6 +186,36 @@
 
 }
 
+- (void)testSigningRawDataWithKey_NegativeTests
+{
+    NSData *dataToBeSigned = nil;
+    NSError *error;
+    NSData *signature = nil;
+    SecKeyAlgorithm alg = NULL;
+    
+    // nil data
+    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:dataToBeSigned privateKey:self.eccPrivateKey signingAlgorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 context:nil error:&error];
+    XCTAssertNil(signature);
+    XCTAssertNotNil(error);
+    error = nil;
+    // NULL alg
+    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] privateKey:self.eccPrivateKey signingAlgorithm:alg context:nil error:&error];
+    XCTAssertNil(signature);
+    XCTAssertNotNil(error);
+    error = nil;
+    // nil private key
+    SecKeyRef nilPrivateKey = NULL;
+    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] privateKey:nilPrivateKey signingAlgorithm:alg context:nil error:&error];
+    XCTAssertNil(signature);
+    XCTAssertNotNil(error);
+    error = nil;
+    // Trying to sign using a public key
+    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] privateKey:self.eccPublicKey signingAlgorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 context:nil error:&error];
+    XCTAssertNil(signature);
+    XCTAssertNotNil(error);
+    error = nil;
+}
+
 #pragma mark -- Test Utility
 
 -(void) populateRsaKeys
