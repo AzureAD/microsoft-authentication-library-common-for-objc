@@ -76,7 +76,7 @@
                                                                                  certificate:certificateRef
                                                                            certificateIssuer:nil];
         
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Successfully created MSIDWPJKeyPairWithCert from external SSO context for identity %@", identityRef);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Successfully created MSIDWPJKeyPairWithCert from external SSO context for identity %@", identityRef ? @"not-null" : @"null");
         
         CFReleaseNull(identityRef);
         CFReleaseNull(certificateRef);
