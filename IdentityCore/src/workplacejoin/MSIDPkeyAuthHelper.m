@@ -147,6 +147,12 @@
     NSError *error;
     NSString *alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:identity.privateKeyRef context:nil error:&error];
 
+    if ([NSString msidIsStringNilOrBlank:alg])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Can't determine key signing alg for private key : %@", error);
+        return nil;
+    }
+    
     if (![NSString msidIsStringNilOrBlank:serverSupportedAlgs])
     {
         NSSet<NSString *> *set = [NSSet setWithArray:[serverSupportedAlgs componentsSeparatedByString:@","]];
@@ -157,11 +163,6 @@
         }
     }
     
-    if ([NSString msidIsStringNilOrBlank:alg])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Can't determine key signing alg for private key : %@", error);
-        return nil;
-    }
     NSDictionary *header = @{
                              @"alg" : alg,
                              @"typ" : @"JWT",
