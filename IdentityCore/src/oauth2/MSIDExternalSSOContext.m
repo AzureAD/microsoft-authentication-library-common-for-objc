@@ -35,6 +35,12 @@
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
     if (@available(macOS 13.0, *))
     {
+        if (!self.loginManager)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Loginmanager not present, returning early");
+            return nil;
+        }
+        
         SecIdentityRef identityRef = [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning]; // +1
         
         if (!identityRef)
