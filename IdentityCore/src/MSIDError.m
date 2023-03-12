@@ -124,6 +124,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString *oauthError, M
     {   //Account Transfter, when user skips the QR code page.
         return MSIDErrorUserCancel;
     }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"server_error"] == NSOrderedSame && [subError caseInsensitiveCompare:@"server_error"] == NSOrderedSame)
+    {   //Account Transfter, when the request could not be completed.
+        return MSIDErrorUserCancel;
+    }
     return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
 }
 

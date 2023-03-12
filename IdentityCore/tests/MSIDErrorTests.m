@@ -175,10 +175,17 @@
                                                               MSIDErrorUserCancel,
                                                               errorWithAccessDeniedAndUserSkipped.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
 }
+- (void)testMSIDErrorWithServerErrorAndSubErrorServerErroThenShouldReturnUserCanceled
+{
+    NSError *errorWithAccessDeniedAndUserSkipped = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"server_error", @"server_error", nil, nil, nil, NO);
+    XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithAccessDeniedAndUserSkipped.userInfo[MSIDOAuthErrorKey],
+                                                              MSIDErrorUserCancel,
+                                                              errorWithAccessDeniedAndUserSkipped.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
+}
 - (void)testMSIDErrorWithTransferTokenFailedShouldReturnUserCanceled
 {
-      NSError *errorWithTransferTokenFailedError= MSIDCreateError(@"TestDomain", -5555, @"Test description", @"tokenTransferFailedOTC", @"test_sub_error", nil, nil, nil, NO);
-     XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithTransferTokenFailedError.userInfo[MSIDOAuthErrorKey],
+    NSError *errorWithTransferTokenFailedError= MSIDCreateError(@"TestDomain", -5555, @"Test description", @"tokenTransferFailedOTC", @"test_sub_error", nil, nil, nil, NO);
+    XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithTransferTokenFailedError.userInfo[MSIDOAuthErrorKey],
                                                                MSIDErrorUserCancel,
                                                                errorWithTransferTokenFailedError.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
 }
