@@ -37,12 +37,14 @@
                               refreshToken:(nonnull NSString *)refreshToken
                                redirectUri:(nullable NSString *)redirectUri
                            extraParameters:(nullable NSDictionary *)extraParameters
+                                ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
                                 authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                   clientId:(nonnull NSString *)clientId
                                      scope:(nullable NSString *)scope
+                                ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                                    context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end

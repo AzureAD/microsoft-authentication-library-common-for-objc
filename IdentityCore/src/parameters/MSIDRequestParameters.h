@@ -36,6 +36,7 @@
 #if !EXCLUDE_FROM_MSALCPP
 @class MSIDCurrentRequestTelemetry;
 #endif
+@class MSIDExternalSSOContext;
 
 @interface MSIDRequestParameters : NSObject <NSCopying, MSIDRequestContext>
 
@@ -89,6 +90,9 @@
 
 #pragma mark - Cache
 @property (nonatomic) NSString *keychainAccessGroup;
+
+#pragma mark - SSO context
+@property (nonatomic) MSIDExternalSSOContext *ssoContext;
 
 - (NSURL *)tokenEndpoint;
 

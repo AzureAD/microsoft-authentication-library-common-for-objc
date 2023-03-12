@@ -28,10 +28,18 @@
 #import "MSIDError.h"
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
+#import "MSIDExternalSSOContext.h"
 
 static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
 
 @implementation MSIDWorkPlaceJoinUtil
+
++ (MSIDWPJKeyPairWithCert *)wpjKeyPairWithSSOContext:(MSIDExternalSSOContext *)ssoContext
+                                            tenantId:(NSString *)tenantId
+                                             context:(id<MSIDRequestContext>)context
+{
+    return nil;
+}
 
 + (MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
 {

@@ -204,6 +204,7 @@
                                                                                                                  claims:claims
                                                                                                            codeVerifier:pkceCodeVerifier
                                                                                                         extraParameters:parameters.extraTokenRequestParameters
+                                                                                                             ssoContext:parameters.ssoContext
                                                                                                                 context:parameters];
 
     if ([parameters isNestedAuthProtocol])
@@ -252,6 +253,7 @@
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
                                                                                               extraParameters:parameters.extraTokenRequestParameters
+                                                                                                   ssoContext:parameters.ssoContext
                                                                                                       context:parameters];
 
     if ([parameters isNestedAuthProtocol])

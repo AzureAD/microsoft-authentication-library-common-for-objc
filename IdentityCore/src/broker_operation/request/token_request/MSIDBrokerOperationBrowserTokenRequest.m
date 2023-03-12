@@ -37,6 +37,7 @@
                bundleIdentifier:(NSString *)bundleIdentifier
                requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
            useSSOCookieFallback:(BOOL)useSSOCookieFallback
+                     ssoContext:(MSIDExternalSSOContext *)ssoContext
                           error:(NSError **)error
 {
     self = [super init];
@@ -87,6 +88,7 @@
         authority.metadata.tokenEndpoint = tokenEndpoint;
         
         _correlationId = [NSUUID UUID];
+        _ssoContext = ssoContext;
     }
     
     return self;

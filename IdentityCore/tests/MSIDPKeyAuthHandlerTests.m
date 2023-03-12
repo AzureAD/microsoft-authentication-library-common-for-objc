@@ -125,6 +125,7 @@
     BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
                                                      context:context
                                                customHeaders:customHeaders
+                                          externalSSOContext:nil
                                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
         XCTAssertNotNil(challengeResponse);
         XCTAssertTrue([[[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL] isEqual:value], @"RefreshToken should be valid");
@@ -146,6 +147,7 @@
     BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
                                                      context:context
                                                customHeaders:nil
+                                          externalSSOContext:nil
                                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
         XCTAssertNotNil(challengeResponse);
         XCTAssertNil([[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"RefreshToken should be nil");
@@ -169,6 +171,7 @@
     BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
                                                      context:context
                                                customHeaders:customHeaders
+                                          externalSSOContext:nil 
                                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
         XCTAssertNotNil(challengeResponse);
         XCTAssertNil([[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"RefreshToken should be nil");

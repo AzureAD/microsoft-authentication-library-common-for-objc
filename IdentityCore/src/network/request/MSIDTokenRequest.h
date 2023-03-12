@@ -26,6 +26,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDHttpRequest.h"
 @class MSIDAuthenticationScheme;
+@class MSIDExternalSSOContext;
 /**
  @abstract Represents abstract request to oauth 2.0 '/token' endpoint.
  */
@@ -35,6 +36,7 @@
                                 authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                   clientId:(nonnull NSString *)clientId
                                      scope:(nullable NSString *)scope
+                                ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;

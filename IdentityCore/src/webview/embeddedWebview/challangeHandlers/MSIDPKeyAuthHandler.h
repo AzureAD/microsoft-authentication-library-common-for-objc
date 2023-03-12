@@ -24,15 +24,19 @@
 #import <Foundation/Foundation.h>
 #import "MSIDChallengeHandling.h"
 
+@class MSIDExternalSSOContext;
+
 @interface MSIDPKeyAuthHandler : NSObject
 
 + (BOOL)handleChallenge:(NSString *)challengeUrl
                 context:(id<MSIDRequestContext>)context
           customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+     externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
       completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
 
 + (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
                          requestUrl:(NSURL *)requestUrl
+                 externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
                             context:(id<MSIDRequestContext>)context
                   completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
 
