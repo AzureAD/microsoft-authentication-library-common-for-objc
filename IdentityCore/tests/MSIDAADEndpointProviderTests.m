@@ -45,12 +45,44 @@ static NSString  *baseUrlString = @"https://login.microsoftonline.com/e966f473-6
     XCTAssertEqualObjects(tokenEndpointURL, resultURL);
 }
 
+- (void)testOauth2TokenEndpointWithNilUrl_shouldReturnNil
+{
+    
+    NSString *baseUrl = nil;
+    NSURL *tokenEndpointURL = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider oauth2TokenEndpointWithUrl:[NSURL URLWithString:baseUrl]];
+    XCTAssertNil(tokenEndpointURL);
+}
+
+- (void)testOauth2TokenEndpointWithEmptyUrl_shouldReturnNil
+{
+    
+    NSString *baseUrl = @"";
+    NSURL *tokenEndpointURL = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider oauth2TokenEndpointWithUrl:[NSURL URLWithString:baseUrl]];
+    XCTAssertNil(tokenEndpointURL);
+}
+
 - (void)testOauth2IssuerWithUrl_shouldReturnExpectedUrl
 {
     NSURL *issuerURL = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider oauth2IssuerWithUrl:[NSURL URLWithString:baseUrlString]];
     NSString *expectedResultStr = @"https://login.microsoftonline.com/e966f473-64cd-4681-8bdc-cb4b768a0521/test-api-version";
     NSURL *resultURL = [NSURL URLWithString:expectedResultStr];
     XCTAssertEqualObjects(issuerURL, resultURL);
+}
+
+- (void)testOauth2IssuerWithNilUrl_shouldReturnNil
+{
+    
+    NSString *baseUrl = nil;
+    NSURL *issuerURL = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider oauth2IssuerWithUrl:[NSURL URLWithString:baseUrl]];
+    XCTAssertNil(issuerURL);
+}
+
+- (void)testOauth2IssuerWithEmptyUrl_shouldReturnNil
+{
+    
+    NSString *baseUrl = @"";
+    NSURL *issuerURL = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider oauth2IssuerWithUrl:[NSURL URLWithString:baseUrl]];
+    XCTAssertNil(issuerURL);
 }
 
 - (void)testOauth2jwksEndpointWithUrl_shouldReturnExpectedUrl
@@ -61,5 +93,20 @@ static NSString  *baseUrlString = @"https://login.microsoftonline.com/e966f473-6
     XCTAssertEqualObjects(jwksEndpointURL, resultURL);
 }
 
+- (void)testOauth2jwksEndpointWithNilUrl_shouldReturnNil
+{
+    
+    NSString *baseUrl = nil;
+    NSURL *jwksEndpointURL = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider oauth2jwksEndpointWithUrl:[NSURL URLWithString:baseUrl]];
+    XCTAssertNil(jwksEndpointURL);
+}
+
+- (void)testOauth2jwksEndpointWithEmptyUrl_shouldReturnNil
+{
+    
+    NSString *baseUrl = @"";
+    NSURL *jwksEndpointURL = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider oauth2jwksEndpointWithUrl:[NSURL URLWithString:baseUrl]];
+    XCTAssertNil(jwksEndpointURL);
+}
 
 @end
