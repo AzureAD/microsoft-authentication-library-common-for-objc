@@ -1263,6 +1263,7 @@
     
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result.accessToken.accessToken, @"i-am-a-access-token");
+    XCTAssertNil(result.accessToken.redirectUri, @"Not nested auth will have nil redirect uri");
     XCTAssertNil(error);
     
     XCTAssertEqualObjects(brokerResponseHandler.providedAuthority.absoluteString, @"https://login.microsoftonline.com/common");
