@@ -34,6 +34,8 @@
 #import "MSIDTestSecureEnclaveKeyPairGenerator.h"
 #import "MSIDJwtAlgorithm.h"
 #import "MSIDKeyOperationUtil.h"
+#import "MSIDExternalSSOContextMock.h"
+#import "MSIDWPJKeyPairWithCert.h"
 
 static MSIDRegistrationInformation *s_registrationInformationToReturn;
 __unused static BOOL s_shouldGenerateEccKeyPair = NO;
@@ -123,7 +125,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     s_registrationInformationToReturn = regInfo;
     __auto_type url = [[NSURL alloc] initWithString:@"https://someurl.com"];
     
-    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     
     __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9zb21ldXJsLmNvbSIsCiAgIm5vbmNlIiA6ICJYTm1lNlpsbm5aZ0lTNGJNSFB6WTRSaWhrSEZxQ0g2czFoblJnanY4WTBRIiwKICAiaWF0IiA6ICI1Igp9.NI9E37170Ykse1oRZlBqkzCn-VLbde3HGi6MdQOFlnkIopSDlzeh00Fc2-YAVcKMPbmmbHZRpOppoZGTFItRSzOyiDQkpVaC_l89w1ip2OdarOffdc2SmGmFL80RqlsnWEvz7h1tC-Ziq5A1va58alL2hrPwdZe8fTGzQmo87MUz_gLwdf8GHbGqVqgE_csavbFrPo1iHu6qZiIcI8CBYzRpXOZsILDlvjBjtuxQ1cJDSBkmTg1TUemU8yrbxoB4wcTxvgmDbe8QCCCJwyxbo4Ww8leQd0D3cCrhRHihs6bHjI2y9z00vOj-4Qj0JC20hGUW9EdZFuB8vmvwsyT34g\", Context=\"some context\", Version=\"1.0\"";
     
@@ -183,7 +185,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     s_registrationInformationToReturn = regInfo;
     __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
     
-    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     
     __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.HMgqNP2ZkDFZC7u_jo4Vlc6lMozr1x05rCTyMaJwvCIQx6vO9bPjhJ2f-fXrd_W9syrAa4TNRQZELfQPm-3dCVzHBpRJzDrH-Z3S3zYE4egWBq59BwNsrSbtgevlyeusd6h9z-WLDOVMZN1n79v4K6sSux0WEwaxGPjU0haTIBZmqaT0NEsLADDdeAMJCLN9Exd4VFi4GeZ9jsTw3_bzHS_2I8lyj5r8lr4yHUpPdxw0rFvOacJepbPqd_vW7jKl2tSZRVDw9iWRA9CxWWgVp3eZrPUesx7oLnkAnp7mIfKuhI4bL3yxAkg1ouErYqlIhJUgK7jR1OPZOKhBXSV98Q\", Context=\"some context\", Version=\"1.0\"";
     
@@ -198,6 +200,89 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
 }
 
+#if TARGET_OS_OSX
+- (void)testCreateDeviceAuthResponse_whenDeviceIsWPJWithExternalSSOContext_shouldCreateProperResponse
+{
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+"};
+    
+    s_registrationInformationToReturn = nil;
+    
+    MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
+    [keyPair setPrivateKey:[self privateKey]];
+    [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    
+    MSIDExternalSSOContextMock *ssoContextMock = [MSIDExternalSSOContextMock new];
+    ssoContextMock.mockedKeyPair = keyPair;
+    
+    __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:ssoContextMock context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIihudWxsKSIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.DUH5zaLjXfDfDZmxlQ15vh32Xc5t9vrGBlRUEY4S2wY7iJ1pGdPrAceL3lVffNW3bxvw7RXSOJaa8I2gMHwS3I-N_vtT-8nCuzKnN-Y40e3E7ygWXN2qOfSz1HRZQBYPn0eWNVBzaFfEN263knYZFU7w_zr3Luca2CWf5ARYL6b9v7ZkP7XEWZqvdVPHVRATGHw16jFC1htCJFe7NwQX_zeazLYpdc3F1sGWNpzxXeKK-NI2C09iPkpMQW33ejVPWxHa-nZwB40vbkZi4aUa5HF8cJ1vqKbZev14Xk_52QYRfIbRiIR_7j74RBdgbT83RDO26r8skzvlfmolVke1wg\", Context=\"some context\", Version=\"1.0\"";
+    
+    XCTAssertEqualObjects(expectedResponse, response);
+}
+
+- (void)testCreateDeviceAuthResponse_whenDeviceIsWPJWithExternalSSOContext_whenTenantIdSpecifiedAndMatches_shouldCreateProperResponse
+{
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+",
+                                  @"TenantId": @"contoso.com"
+    };
+    
+    s_registrationInformationToReturn = nil;
+    
+    MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
+    [keyPair setPrivateKey:[self privateKey]];
+    [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    
+    MSIDExternalSSOContextMock *ssoContextMock = [MSIDExternalSSOContextMock new];
+    ssoContextMock.mockedKeyPair = keyPair;
+    ssoContextMock.mockedTokenEndpointURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    
+    __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:ssoContextMock context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIihudWxsKSIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.DUH5zaLjXfDfDZmxlQ15vh32Xc5t9vrGBlRUEY4S2wY7iJ1pGdPrAceL3lVffNW3bxvw7RXSOJaa8I2gMHwS3I-N_vtT-8nCuzKnN-Y40e3E7ygWXN2qOfSz1HRZQBYPn0eWNVBzaFfEN263knYZFU7w_zr3Luca2CWf5ARYL6b9v7ZkP7XEWZqvdVPHVRATGHw16jFC1htCJFe7NwQX_zeazLYpdc3F1sGWNpzxXeKK-NI2C09iPkpMQW33ejVPWxHa-nZwB40vbkZi4aUa5HF8cJ1vqKbZev14Xk_52QYRfIbRiIR_7j74RBdgbT83RDO26r8skzvlfmolVke1wg\", Context=\"some context\", Version=\"1.0\"";
+    
+    XCTAssertEqualObjects(expectedResponse, response);
+}
+
+- (void)testCreateDeviceAuthResponse_whenDeviceIsWPJWithExternalSSOContext_whenTenantIdSpecifiedAndDoesntMatch_shouldNotCreateProperResponse
+{
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+",
+                                  @"TenantId": @"contoso2.com"
+    };
+    
+    s_registrationInformationToReturn = nil;
+        
+    MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
+    [keyPair setPrivateKey:[self privateKey]];
+    [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+        
+    MSIDExternalSSOContextMock *ssoContextMock = [MSIDExternalSSOContextMock new];
+    ssoContextMock.mockedKeyPair = keyPair;
+    ssoContextMock.mockedTokenEndpointURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    
+    __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:ssoContextMock context:nil];
+    
+    __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
+    XCTAssertEqualObjects(response, expectedResponse);
+}
+
+#endif
+
 - (void)testCreateDeviceAuthResponse_whenDeviceIsWPJAndAuthServerUrlWihtQueryParams_andCertAuthoritiesURLEncoded_shouldCreateProperResponse
 {
     __auto_type challengeData = @{@"Context": @"some context",
@@ -211,7 +296,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     s_registrationInformationToReturn = regInfo;
     __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
     
-    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     
     __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.HMgqNP2ZkDFZC7u_jo4Vlc6lMozr1x05rCTyMaJwvCIQx6vO9bPjhJ2f-fXrd_W9syrAa4TNRQZELfQPm-3dCVzHBpRJzDrH-Z3S3zYE4egWBq59BwNsrSbtgevlyeusd6h9z-WLDOVMZN1n79v4K6sSux0WEwaxGPjU0haTIBZmqaT0NEsLADDdeAMJCLN9Exd4VFi4GeZ9jsTw3_bzHS_2I8lyj5r8lr4yHUpPdxw0rFvOacJepbPqd_vW7jKl2tSZRVDw9iWRA9CxWWgVp3eZrPUesx7oLnkAnp7mIfKuhI4bL3yxAkg1ouErYqlIhJUgK7jR1OPZOKhBXSV98Q\", Context=\"some context\", Version=\"1.0\"";
     XCTAssertEqualObjects(expectedResponse, response);
@@ -234,7 +319,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
                                   @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
     __auto_type url = [[NSURL alloc] initWithString:@"https://someurl.com"];
     
-    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     
     __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
     
@@ -254,7 +339,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     s_registrationInformationToReturn = regInfo;
     __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
     
-    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     
     __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
 
@@ -278,7 +363,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     __auto_type url = [[NSURL alloc] initWithString:@"https://some.host.com/adfs/ls/someqp=qp"];
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     
-    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
         
     __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9zb21lLmhvc3QuY29tXC9hZGZzXC9sc1wvc29tZXFwPXFwIiwKICAibm9uY2UiIDogIlhObWU2WmxublpnSVM0Yk1IUHpZNFJpaGtIRnFDSDZzMWhuUmdqdjhZMFEiLAogICJpYXQiIDogIjUiCn0.rtB6Pk7Q-y7Hs2l1-74ho3qZTtj1XFzTh6R9aleY-a3IAL81V7Hklq-JIgt8Q8VwLTMtbOQ--J2U4MxKAy8YMLx7Oq4whnLmryqnE2czBG-aAppj4_cqgaw4XJTrFFMMtxZ2_8TVCg5FdyS78r14DMuB9kISkbaic4D0IEucNuPvI4e23-QWj4oygsC5qhDlfvO_xVYf73cXUnINIS_hMFShYljsH_R40HBZtmQGTA4i0wZlvYbOv3j3j-VutNB4v7W2dXVPPVsgbYvN0umNxU_Dcftg1IYtfAVWkemf4UK9Bd_wbP-wufS6iCwwkK9i8-1wvJjEY-7fkxrNpzyr4Q\", Context=\"some context\", Version=\"1.0\"";
     
@@ -292,7 +377,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     // Do not save telemetry for pkeyAuth requests to non-adfs requests
     [telemetryObject updateWithApiId:4 errorString:nil context:nil];
     url = [[NSURL alloc] initWithString:@"https://some.host.com/DeviceAuth?someqp=qp"];
-    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     serverTelemetry = [telemetryObject telemetryString];
     XCTAssertFalse([serverTelemetry containsString:@"ADFS_PKEYAUTH_CHLG"]);
     
@@ -301,7 +386,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     url = [[NSURL alloc] initWithString:@"https://some.host.com/adfs/ls/someqp=qp"];
     regInfo = nil;
     s_registrationInformationToReturn = regInfo;
-    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     serverTelemetry = [telemetryObject telemetryString];
     XCTAssertNotEqualObjects(expectedResponse, response);
     XCTAssertFalse([serverTelemetry containsString:@"ADFS_PKEYAUTH_CHLG"]);

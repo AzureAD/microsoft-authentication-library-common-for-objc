@@ -438,6 +438,7 @@
                                                                                                            claims:claims
                                                                                                      codeVerifier:pkceCodeVerifier
                                                                                                   extraParameters:parameters.extraTokenRequestParameters
+                                                                                                       ssoContext:parameters.ssoContext
                                                                                                           context:parameters];
     tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
     
@@ -456,6 +457,7 @@
                                                                                            refreshToken:refreshToken
                                                                                             redirectUri:parameters.redirectUri
                                                                                         extraParameters:parameters.extraTokenRequestParameters
+                                                                                             ssoContext:parameters.ssoContext
                                                                                                 context:parameters];
     tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
     

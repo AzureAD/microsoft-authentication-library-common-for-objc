@@ -36,6 +36,7 @@
 + (BOOL)handleChallenge:(NSString *)challengeUrl
                 context:(id<MSIDRequestContext>)context
           customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+     externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
       completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Handling PKeyAuth Challenge.");
@@ -57,6 +58,7 @@
     // Extract authority from submit url    
     NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:[NSURL URLWithString:submitUrl]
                                                           challengeData:queryParamsMap
+                                                     externalSSOContext:externalSSOContext
                                                                 context:context];
     
     // Attach client version to response url
@@ -92,6 +94,7 @@
 
 + (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
                          requestUrl:(NSURL *)requestUrl
+                 externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
                             context:(id<MSIDRequestContext>)context
                   completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler
 {
@@ -105,6 +108,7 @@
     NSError *error = nil;
     NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:requestUrl
                                                           challengeData:authHeaderParams
+                                                     externalSSOContext:externalSSOContext
                                                                 context:context];
     if (completionHandler)
     {

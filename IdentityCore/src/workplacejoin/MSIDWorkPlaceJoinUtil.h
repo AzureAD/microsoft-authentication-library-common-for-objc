@@ -27,6 +27,7 @@
 @class MSIDRegistrationInformation;
 @class MSIDWorkplaceJoinChallenge;
 @class MSIDWPJKeyPairWithCert;
+@class MSIDExternalSSOContext;
 
 @interface MSIDWorkPlaceJoinUtil : MSIDWorkPlaceJoinUtilBase
 
@@ -43,5 +44,9 @@
                                                      key:(nullable NSString *)key
                                                  context:(nullable id<MSIDRequestContext>)context
                                                    error:(NSError*__nullable*__nullable)error;
+
++ (nullable MSIDWPJKeyPairWithCert *)wpjKeyPairWithSSOContext:(nonnull MSIDExternalSSOContext *)ssoContext
+                                                     tenantId:(nullable NSString *)tenantId
+                                                      context:(nullable id<MSIDRequestContext>)context;
 
 @end

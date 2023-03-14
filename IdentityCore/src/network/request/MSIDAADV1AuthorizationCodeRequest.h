@@ -22,6 +22,8 @@
 
 #if !EXCLUDE_FROM_MSALCPP
 
+@class MSIDExternalSSOContext;
+
 #import "MSIDAADAuthorizationCodeRequest.h"
 
 @interface MSIDAADV1AuthorizationCodeRequest : MSIDAADAuthorizationCodeRequest
@@ -32,6 +34,7 @@
                                       scope:(nullable NSString *)scope
                                   loginHint:(nullable NSString *)loginHint
                                    resource:(nonnull NSString *)resource
+                                 ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                                     context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
@@ -39,6 +42,7 @@
                                 redirectUri:(nonnull NSString *)redirectUri
                                       scope:(nullable NSString *)scope
                                   loginHint:(nullable NSString *)loginHint
+                                 ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                                     context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end

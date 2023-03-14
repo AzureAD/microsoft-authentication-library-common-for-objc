@@ -23,16 +23,25 @@
 
 
 #import <Foundation/Foundation.h>
+#import "MSIDExternalSSOContext.h"
 
 @interface MSIDWebViewPlatformParams : NSObject
+
+@property (nonatomic, readonly) MSIDExternalSSOContext *externalSSOContext;
 
 #if TARGET_OS_OSX
 
 @property (nonatomic, readonly) NSRect customWindowRect;
+@property (nonatomic, readonly) BOOL customWindowRectIsSet;
 
 -(id)initWithCoustomWindowRect:(NSRect)customWindowRect;
 
+-(instancetype)initWithExternalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
+                         customWindowRect:(NSRect)customWindowRect;
+
 #endif
+
+-(instancetype)initWithExternalSSOContext:(MSIDExternalSSOContext *)externalSSOContext;
 
 @end
 
