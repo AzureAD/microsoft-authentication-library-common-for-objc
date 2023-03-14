@@ -45,12 +45,6 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
         
         _deviceID = [jsonDictionary msidObjectForKey:MSID_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
         
-        if (!_sessionKey)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize primary refresh token when missing session key field");
-            return nil;
-        }
-        
         _prtProtocolVersion = [jsonDictionary msidObjectForKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY ofClass:[NSString class]];
         
         if ([_prtProtocolVersion floatValue] < [kMinSupportedPRTVersion floatValue])
@@ -65,6 +59,12 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
         _expiryInterval = [tokenCacheItem.expiryInterval integerValue];
         
         _externalKeyLocationType = (MSIDExternalPRTKeyLocationType)[[jsonDictionary msidObjectForKey:MSID_PRT_EXTERNAL_KEY_TYPE_CACHE_KEY ofClass:[NSString class]] integerValue];
+        
+        if (!_sessionKey && _externalKeyLocationType == MSIDExternalPRTKeyLocationTypeNone)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize primary refresh token when missing session key field");
+            return nil;
+        }
     }
     
     return self;

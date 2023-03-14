@@ -140,6 +140,7 @@
     // Create MSIDPrimaryRefreshToken
     MSIDPrimaryRefreshToken *primaryRT = [self createToken];
     primaryRT.externalKeyLocationType = MSIDExternalPRTKeyLocationTypeSSO;
+    primaryRT.sessionKey = nil;
     
     // Convert MSIDPrimaryRefreshToken to cache item
     MSIDPRTCacheItem *cacheItem = (MSIDPRTCacheItem *) primaryRT.tokenCacheItem;
