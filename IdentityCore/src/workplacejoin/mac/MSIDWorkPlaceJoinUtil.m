@@ -28,10 +28,44 @@
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
+#import "MSIDExternalSSOContext.h"
+#import "MSIDAADAuthority.h"
 
 // Convenience macro to release CF objects
 
 @implementation MSIDWorkPlaceJoinUtil
+
++ (MSIDWPJKeyPairWithCert *)wpjKeyPairWithSSOContext:(MSIDExternalSSOContext *)ssoContext
+                                            tenantId:(NSString *)tenantId
+                                             context:(id<MSIDRequestContext>)context
+{
+    if (![NSString msidIsStringNilOrBlank:tenantId])
+    {
+        NSURL *tokenEndpointURL = ssoContext.tokenEndpointURL;
+        
+        if (tokenEndpointURL)
+        {
+            NSError *authorityURLError = nil;
+            MSIDAADAuthority *authorityURL = [[MSIDAADAuthority alloc] initWithURL:tokenEndpointURL
+                                                                         rawTenant:nil
+                                                                           context:context
+                                                                             error:&authorityURLError];
+            
+            if (!authorityURL)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to create authority URL with error %@", authorityURLError);
+                return nil;
+            }
+            else if (![authorityURL.tenant.rawTenant.lowercaseString isEqualToString:tenantId.lowercaseString])
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Tenant was specified for matching and it mismatches registration tenant, returning early. Specified tenant %@, registration tenant %@", tenantId, authorityURL.tenant.rawTenant);
+                return nil;
+            }
+        }
+    }
+    
+    return [ssoContext wpjKeyPairWithCertWithContext:context];
+}
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                      workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *)workplacejoinChallenge

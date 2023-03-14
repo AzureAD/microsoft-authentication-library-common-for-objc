@@ -271,10 +271,11 @@
     }
 
     MSIDAuthorizeWebRequestConfiguration *configuration = [[MSIDAuthorizeWebRequestConfiguration alloc] initWithStartURL:startURL
-                                                                                  endRedirectUri:endRedirectUri
-                                                                                            pkce:pkce
-                                                                                           state:oauthState
-                                                                              ignoreInvalidState:NO];
+                                                                                                          endRedirectUri:endRedirectUri
+                                                                                                                    pkce:pkce
+                                                                                                                   state:oauthState
+                                                                                                      ignoreInvalidState:NO
+                                                                                                              ssoContext:parameters.ssoContext];
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;
     configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;

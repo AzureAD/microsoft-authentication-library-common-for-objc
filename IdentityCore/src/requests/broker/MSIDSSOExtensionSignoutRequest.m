@@ -147,6 +147,7 @@
     [MSIDBrokerOperationRequest fillRequest:signoutRequest
                         keychainAccessGroup:self.requestParameters.keychainAccessGroup
                              clientMetadata:self.requestParameters.appRequestMetadata
+         clientBrokerKeyCapabilityNotSupported:signoutRequest.clientBrokerKeyCapabilityNotSupported
                                     context:self.requestParameters];
     
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];

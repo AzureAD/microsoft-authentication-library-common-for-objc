@@ -38,6 +38,7 @@
                           claims:(NSString *)claims
                     codeVerifier:(NSString *)codeVerifier
                  extraParameters:(NSDictionary *)extraParameters
+                      ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                          context:(nullable id<MSIDRequestContext>)context
 {
     self = [super initWithEndpoint:endpoint
@@ -49,6 +50,7 @@
                             claims:claims
                       codeVerifier:codeVerifier
                    extraParameters:extraParameters
+                        ssoContext:ssoContext
                            context:context];
     if (self)
     {
