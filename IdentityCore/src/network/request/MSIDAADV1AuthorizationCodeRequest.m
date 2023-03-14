@@ -32,6 +32,7 @@
                            scope:(NSString *)scope
                        loginHint:(NSString *)loginHint
                         resource:(NSString *)resource
+                      ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                          context:(nullable id<MSIDRequestContext>)context
 {
     self = [super initWithEndpoint:endpoint
@@ -39,6 +40,7 @@
                        redirectUri:redirectUri
                              scope:scope
                          loginHint:loginHint
+                        ssoContext:ssoContext
                            context:context];
     if (self)
     {

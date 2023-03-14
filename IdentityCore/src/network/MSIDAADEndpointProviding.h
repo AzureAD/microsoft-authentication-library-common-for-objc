@@ -29,6 +29,8 @@
 - (NSURL *)oauth2AuthorizeEndpointWithUrl:(NSURL *)baseUrl;
 
 - (NSURL *)oauth2TokenEndpointWithUrl:(NSURL *)baseUrl;
+- (NSURL *)oauth2IssuerWithUrl:(NSURL *)baseUrl;
+- (NSURL *)oauth2jwksEndpointWithUrl:(NSURL *)baseUrl;
 
 - (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type;
 

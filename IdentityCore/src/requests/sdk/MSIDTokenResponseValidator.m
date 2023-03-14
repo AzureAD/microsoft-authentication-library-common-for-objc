@@ -170,7 +170,7 @@
     }
 
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:brokerResponse.msidAuthority
-                                                                        redirectUri:nil
+                                                                        redirectUri:brokerResponse.redirectUri
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target
                                                            nestedAuthBrokerClientId:brokerResponse.nestedAuthBrokerClientId

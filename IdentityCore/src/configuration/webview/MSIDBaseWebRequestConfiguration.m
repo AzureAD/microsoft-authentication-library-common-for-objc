@@ -33,6 +33,7 @@
                   endRedirectUri:(NSString *)endRedirectUri
                            state:(NSString *)state
               ignoreInvalidState:(BOOL)ignoreInvalidState
+                      ssoContext:(MSIDExternalSSOContext *)ssoContext
 {
     self = [super init];
     
@@ -42,9 +43,22 @@
         _endRedirectUrl = endRedirectUri;
         _state = state;
         _ignoreInvalidState = ignoreInvalidState;
+        _ssoContext = ssoContext;
     }
     
     return self;
+}
+
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState
+{
+    return [self initWithStartURL:startURL
+                   endRedirectUri:endRedirectUri
+                            state:state
+               ignoreInvalidState:ignoreInvalidState
+                       ssoContext:nil];
 }
 
 - (MSIDWebviewResponse *)responseWithResultURL:(__unused NSURL *)url

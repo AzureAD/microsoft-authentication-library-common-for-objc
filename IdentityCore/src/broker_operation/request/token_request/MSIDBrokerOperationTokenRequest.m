@@ -47,6 +47,7 @@
     [self fillRequest:request
   keychainAccessGroup:parameters.keychainAccessGroup
        clientMetadata:parameters.appRequestMetadata
+clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSupported
               context:parameters];
     
     request.configuration = parameters.msidConfiguration;

@@ -38,6 +38,7 @@
                                 redirectUri:(nonnull NSString *)redirectUri
                                       scope:(nullable NSString *)scope
                                   loginHint:(nullable NSString *)loginHint
+                                 ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                                     context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable )init NS_UNAVAILABLE;

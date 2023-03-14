@@ -42,6 +42,7 @@
                                      claims:(nullable NSString *)claims
                                codeVerifier:(nullable NSString *)codeVerifier
                             extraParameters:(nullable NSDictionary *)extraParameters
+                                 ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                                     context:(nullable id<MSIDRequestContext>)context;
 
 @end

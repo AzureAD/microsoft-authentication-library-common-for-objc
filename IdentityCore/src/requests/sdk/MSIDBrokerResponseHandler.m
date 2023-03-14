@@ -136,12 +136,16 @@
     }
     
     MSIDAuthenticationScheme *authScheme = [self authSchemeFromResumeState:resumeState];
+    
+    // Get redirect uri from resume state
+    NSString *redirectUri = resumeState[MSID_OAUTH2_REDIRECT_URI];
 
     NSError *brokerError = nil;
     MSIDBrokerResponse *brokerResponse = [self brokerResponseFromEncryptedQueryParams:queryParamsMap
                                                                             oidcScope:oidcScope
                                                                         correlationId:correlationId
                                                                            authScheme:authScheme
+                                                                          redirectUri:redirectUri
                                                                                 error:&brokerError];
 
     if (!brokerResponse)
@@ -287,6 +291,7 @@
                                                      oidcScope:(__unused NSString *)oidcScope
                                                  correlationId:(__unused NSUUID *)correlationID
                                                     authScheme:(__unused MSIDAuthenticationScheme *)authScheme
+                                                   redirectUri:(__unused NSString *)redirectUri
                                                          error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
