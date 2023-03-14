@@ -25,6 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDJITTroubleshootingResponse.h"
 
 @implementation MSIDJITTroubleshootingResponse
@@ -79,3 +81,5 @@
     return returnError;
 }
 @end
+
+#endif

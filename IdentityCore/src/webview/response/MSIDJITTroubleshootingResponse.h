@@ -25,16 +25,20 @@
 //
 //------------------------------------------------------------------------------
 
+#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDWebviewResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDJITTroubleshootingResponse : MSIDWebviewResponse
 
-@property (atomic, readonly) NSNumber *status;
+@property (nonatomic, readonly) NSNumber *status;
 
 - (NSError *)getErrorFromResponseWithContext:(id <MSIDRequestContext>)context;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

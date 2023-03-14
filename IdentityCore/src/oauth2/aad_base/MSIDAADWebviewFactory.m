@@ -33,11 +33,14 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAuthority.h"
 #import "MSIDCBAWebAADAuthResponse.h"
-#import "MSIDJITTroubleshootingResponse.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+
+#if !EXCLUDE_FROM_MSALCPP
+#import "MSIDJITTroubleshootingResponse.h"
+#endif
 
 @implementation MSIDAADWebviewFactory
 
@@ -149,18 +152,21 @@
         }
     }
     
+#if !EXCLUDE_FROM_MSALCPP
     // Try to create JIT troubleshooting response
     MSIDJITTroubleshootingResponse *jitResponse = [[MSIDJITTroubleshootingResponse alloc] initWithURL:url context:context error:nil];
-    if (jitResponse && error)
+    if (jitResponse)
     {
         // Get error from response's status
         NSError *jitError = [jitResponse getErrorFromResponseWithContext:context];
-        if (jitError)
+        if (jitError && error)
         {
             *error = jitError;
-            return nil;
         }
+        
+        return nil;
     }
+#endif
     
 #endif
     
