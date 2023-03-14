@@ -136,7 +136,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     {
         [self swizzleIsKeyFromSecureEnclaveImp];
     }
-    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:[url absoluteString] publicKey:self.eccPublicKey isRsa:false];
 
 }
@@ -156,7 +156,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     s_registrationInformationToReturn = regInfo;
     __auto_type url = [[NSURL alloc] initWithString:@"https://someurl.com"];
     
-    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     
     __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9zb21ldXJsLmNvbSIsCiAgIm5vbmNlIiA6ICJYTm1lNlpsbm5aZ0lTNGJNSFB6WTRSaWhrSEZxQ0g2czFoblJnanY4WTBRIiwKICAiaWF0IiA6ICI1Igp9.NI9E37170Ykse1oRZlBqkzCn-VLbde3HGi6MdQOFlnkIopSDlzeh00Fc2-YAVcKMPbmmbHZRpOppoZGTFItRSzOyiDQkpVaC_l89w1ip2OdarOffdc2SmGmFL80RqlsnWEvz7h1tC-Ziq5A1va58alL2hrPwdZe8fTGzQmo87MUz_gLwdf8GHbGqVqgE_csavbFrPo1iHu6qZiIcI8CBYzRpXOZsILDlvjBjtuxQ1cJDSBkmTg1TUemU8yrbxoB4wcTxvgmDbe8QCCCJwyxbo4Ww8leQd0D3cCrhRHihs6bHjI2y9z00vOj-4Qj0JC20hGUW9EdZFuB8vmvwsyT34g\", Context=\"some context\", Version=\"1.0\"";
     
@@ -168,7 +168,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     {
         [self swizzleIsKeyFromSecureEnclaveImp];
     }
-    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     XCTAssertEqualObjects(@"PKeyAuth  Context=\"some context\", Version=\"1.0\"", response);
 }
 
@@ -196,7 +196,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     {
         [self swizzleIsKeyFromSecureEnclaveImp];
     }
-    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
 }
 
@@ -211,7 +211,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     s_registrationInformationToReturn = nil;
     
     MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
-    [keyPair setPrivateKey:[self privateKey]];
+    [keyPair setPrivateKey:self.rsaPrivateKey];
     [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
     
     MSIDExternalSSOContextMock *ssoContextMock = [MSIDExternalSSOContextMock new];
@@ -238,7 +238,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     s_registrationInformationToReturn = nil;
     
     MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
-    [keyPair setPrivateKey:[self privateKey]];
+    [keyPair setPrivateKey:self.rsaPrivateKey];
     [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
     
     MSIDExternalSSOContextMock *ssoContextMock = [MSIDExternalSSOContextMock new];
@@ -266,7 +266,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     s_registrationInformationToReturn = nil;
         
     MSIDWPJKeyPairWithCertMock *keyPair = [MSIDWPJKeyPairWithCertMock new];
-    [keyPair setPrivateKey:[self privateKey]];
+    [keyPair setPrivateKey:self.rsaPrivateKey];
     [keyPair setCertIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
         
     MSIDExternalSSOContextMock *ssoContextMock = [MSIDExternalSSOContextMock new];
@@ -306,7 +306,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     {
         [self swizzleIsKeyFromSecureEnclaveImp];
     }
-    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     [MSIDPkeyAuthHelperTests validatePKeyAuthResponseFromClientForChallengeData:challengeData response:response audience:@"https://login.microsoftonline.com/common/oauth2/v2.0/token" publicKey:self.eccPublicKey isRsa:false];
 }
 
@@ -345,7 +345,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
 
     [regInfo setPrivateKey:self.eccPrivateKey];
     s_registrationInformationToReturn = regInfo;
-    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData externalSSOContext:nil context:nil];
     XCTAssertEqualObjects(expectedResponse, response);
 }
 
