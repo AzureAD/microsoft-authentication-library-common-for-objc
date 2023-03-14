@@ -191,7 +191,7 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(primary refresh token=%@)", [_refreshToken msidSecretLoggingHash]];
+    return [baseDescription stringByAppendingFormat:@"(primary refresh token=%@, key location type %d)", [_refreshToken msidSecretLoggingHash], (int)_externalKeyLocationType];
 }
 
 #pragma mark - Utils
