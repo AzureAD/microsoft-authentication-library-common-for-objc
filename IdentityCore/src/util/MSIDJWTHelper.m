@@ -80,21 +80,13 @@
 + (NSData *)sign:(SecKeyRef)privateKey
             data:(NSData *)plainData
 {
-    if (@available(macOS 10.12, iOS 10.0, *))
+    SecKeyAlgorithm alg = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
+    NSString *signingAlg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:privateKey context:nil error:nil];
+    if (signingAlg == MSID_JWT_ALG_ES256)
     {
-        SecKeyAlgorithm alg = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
-        if ([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:privateKey])
-        {
-            alg = kSecKeyAlgorithmECDSASignatureMessageX962SHA256;
-        }
-        return [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:plainData privateKey:privateKey signingAlgorithm:alg context:nil error:nil];
+        alg = kSecKeyAlgorithmECDSASignatureMessageX962SHA256;
     }
-    else
-    {
-        // Use the existing way. This only supports RSA.
-        NSData *hashData = [plainData msidSHA256];
-        return [hashData msidSignHashWithPrivateKey:privateKey];
-    }
+    return [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:plainData privateKey:privateKey signingAlgorithm:alg context:nil error:nil];
 }
 
 + (NSString *)JSONFromDictionary:(NSDictionary *)dictionary

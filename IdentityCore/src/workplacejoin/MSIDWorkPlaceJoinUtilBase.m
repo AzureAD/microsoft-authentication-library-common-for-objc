@@ -246,6 +246,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (legacyKeys)
     {
         legacyKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV1;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning RSA private device key from legacy registration.");
         if ([NSString msidIsStringNilOrBlank:tenantId])
         {
             // ESTS didn't request a specific tenant, just return default one
@@ -263,12 +264,6 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         {
             return legacyKeys;
         }
-    }
-    
-    if (!tenantId)
-    {
-        // default registration should have a tenantId associated.
-        return legacyKeys;
     }
     
     NSString *tag = nil;
@@ -291,6 +286,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (defaultKeys)
     {
         defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning RSA private device key from default registration.");
         return defaultKeys;
     }
 #endif
@@ -301,6 +297,10 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:extraDefaultPrivateKeyAttributes];
     [privateKeyAttributes setObject:tagData forKey:(__bridge id)kSecAttrApplicationTag];
+    if (@available(macOS 10.15, *))
+    {
+        [privateKeyAttributes setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
+    }
     // Not including kSecAttrTokenIDSecureEnclave in query dict as in the future registrations maybe ECC based even in software keychain
     [privateKeyAttributes setObject:(__bridge id)kSecAttrKeyTypeECSECPrimeRandom forKey:(__bridge id)kSecAttrKeyType];
     [privateKeyAttributes setObject:@256 forKey:(__bridge id)kSecAttrKeySizeInBits];
@@ -308,9 +308,11 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (defaultKeys)
     {
         defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning EC private device key from default registration.");
         return defaultKeys;
     }
 
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning RSA private device key from legacy registration..");
     // Otherwise, return legacy Identity - this can happen if we couldn't match based on the tenantId, but Identity was there. It could be usable. We'll let ESTS to evaluate it and check.
     // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
     return legacyKeys;
