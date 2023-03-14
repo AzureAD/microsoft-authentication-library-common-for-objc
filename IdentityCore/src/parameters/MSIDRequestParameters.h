@@ -36,6 +36,7 @@
 #if !EXCLUDE_FROM_MSALCPP
 @class MSIDCurrentRequestTelemetry;
 #endif
+@class MSIDExternalSSOContext;
 
 @interface MSIDRequestParameters : NSObject <NSCopying, MSIDRequestContext>
 
@@ -60,6 +61,7 @@
 @property (nonatomic) BOOL extendedLifetimeEnabled;
 @property (nonatomic) BOOL instanceAware;
 @property (nonatomic) BOOL allowUsingLocalCachedRtWhenSsoExtFailed;
+@property (nonatomic) BOOL clientBrokerKeyCapabilityNotSupported;
 @property (nonatomic) NSString *intuneApplicationIdentifier;
 @property (nonatomic) MSIDRequestType requestType;
 #if !EXCLUDE_FROM_MSALCPP
@@ -89,6 +91,9 @@
 
 #pragma mark - Cache
 @property (nonatomic) NSString *keychainAccessGroup;
+
+#pragma mark - SSO context
+@property (nonatomic) MSIDExternalSSOContext *ssoContext;
 
 - (NSURL *)tokenEndpoint;
 

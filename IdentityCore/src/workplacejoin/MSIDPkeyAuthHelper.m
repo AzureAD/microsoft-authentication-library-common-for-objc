@@ -32,11 +32,13 @@
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDADFSAuthority.h"
+#import "MSIDExternalSSOContext.h"
 
 @implementation MSIDPkeyAuthHelper
 
 + (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
                                   challengeData:(nullable NSDictionary *)challengeData
+                             externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
                                         context:(nullable id<MSIDRequestContext>)context
 {
     NSString *authToken = @"";
@@ -44,8 +46,21 @@
     NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";
     NSString *challengeTenantId = challengeData ? [challengeData valueForKey:@"TenantId"] : @"";
     
-    MSIDWPJKeyPairWithCert *info = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:challengeTenantId context:context];
+    MSIDWPJKeyPairWithCert *info = nil;
     
+    if (externalSSOContext)
+    {
+        // First try reading WPJ from the SSO context if present
+        info = [MSIDWorkPlaceJoinUtil wpjKeyPairWithSSOContext:externalSSOContext tenantId:challengeTenantId context:context];
+    }
+    
+    if (!info)
+    {
+        // If no SSO context is present, or mismatches requested tenant, try using old way
+        // This will always be the case on iOS
+        info = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:challengeTenantId context:context];
+    }
+        
     if (!info)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No registration information found");

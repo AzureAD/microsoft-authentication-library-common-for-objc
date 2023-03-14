@@ -30,6 +30,7 @@
 
 @implementation MSIDBrokerOperationRequestTests
 
+#if !TARGET_OS_OSX
 - (void)testJsonDictionary_whenNoBrokerKey_shouldReturnNilJson
 {
     __auto_type request = [MSIDBrokerOperationRequest new];
@@ -39,6 +40,31 @@
     
     XCTAssertNil(json);
 }
+
+#else
+
+- (void)testJsonDictionary_whenNoBrokerKey_andRunTime_shouldReturnValidJson
+{
+    __auto_type request = [MSIDBrokerOperationRequest new];
+    request.protocolVersion = 99;
+    request.clientBrokerKeyCapabilityNotSupported = YES;
+    
+    NSDictionary *json = [request jsonDictionary];
+    
+    XCTAssertNotNil(json);
+}
+
+- (void)testJsonDictionary_whenNoBrokerKey_andNotRunTime_shouldReturnInvalidJson
+{
+    __auto_type request = [MSIDBrokerOperationRequest new];
+    request.protocolVersion = 99;
+    
+    NSDictionary *json = [request jsonDictionary];
+    
+    XCTAssertNil(json);
+}
+
+#endif
 
 - (void)testInitWithJSONDictionary_whenNoBrokerKey_shouldReturnError
 {
