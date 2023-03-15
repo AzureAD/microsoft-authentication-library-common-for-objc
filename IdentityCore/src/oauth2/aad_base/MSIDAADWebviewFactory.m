@@ -95,12 +95,19 @@
         return session;
     }
     
+    MSIDWebViewPlatformParams *platformParams = nil;
+    
+    if (configuration.ssoContext)
+    {
+        platformParams = [[MSIDWebViewPlatformParams alloc] initWithExternalSSOContext:configuration.ssoContext];
+    }
+    
      MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
        = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
                                                                   endURL:[NSURL URLWithString:configuration.endRedirectUrl]
                                                                  webview:webview
                                                            customHeaders:configuration.customHeaders
-                                                          platfromParams:nil
+                                                          platfromParams:platformParams
                                                                  context:context];
     
 #if TARGET_OS_IPHONE

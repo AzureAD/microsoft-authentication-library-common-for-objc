@@ -25,6 +25,8 @@
 #import "MSIDHttpRequestProtocol.h"
 #import "MSIDResponseSerialization.h"
 
+@class MSIDExternalSSOContext;
+
 @protocol MSIDHttpRequestErrorHandling <NSObject>
 
 - (void)handleError:(NSError * )error
@@ -32,6 +34,7 @@
                data:(NSData *)data
         httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
  responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
+ externalSSOContext:(MSIDExternalSSOContext *)ssoContext
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
 

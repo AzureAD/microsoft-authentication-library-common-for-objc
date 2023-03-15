@@ -112,6 +112,7 @@
                               data:nil
                        httpRequest:httpRequest
                 responseSerializer:[MSIDHttpResponseSerializer new]
+                externalSSOContext:nil
                            context:context
                    completionBlock:block];
 
@@ -144,6 +145,7 @@
                               data:nil
                        httpRequest:httpRequest
                 responseSerializer:[MSIDHttpResponseSerializer new]
+                externalSSOContext:nil
                            context:context
                    completionBlock:block];
 
@@ -181,6 +183,7 @@
                               data:data
                        httpRequest:httpRequest
                 responseSerializer:serializer
+                externalSSOContext:nil
                            context:context
                    completionBlock:block];
 
@@ -225,6 +228,7 @@
                               data:data
                        httpRequest:httpRequest
                 responseSerializer:serializer
+                externalSSOContext:nil
                            context:context
                    completionBlock:block];
 
@@ -263,6 +267,7 @@
                               data:nil
                        httpRequest:httpRequest
                 responseSerializer:serializer
+                externalSSOContext:nil
                            context:context
                    completionBlock:block];
 
@@ -296,6 +301,7 @@
                               data:nil
                        httpRequest:httpRequest
                 responseSerializer:serializer
+                externalSSOContext:nil
                            context:context
                    completionBlock:block];
 
@@ -333,6 +339,7 @@
                               data:responseData
                        httpRequest:httpRequest
                 responseSerializer:serializer
+                externalSSOContext:nil
                            context:context
                    completionBlock:block];
 

@@ -136,4 +136,44 @@ static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
     return keychainTeamId;
 }
 
+- (BOOL)isAppEntitled
+{
+    static dispatch_once_t once;
+    static BOOL appEntitled = NO;
+    
+    dispatch_once(&once, ^{
+        SecCodeRef selfCode = NULL;
+        SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
+        
+        if (selfCode)
+        {
+            CFDictionaryRef cfDic = NULL;
+            SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
+            
+            if (!cfDic)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve code signing information");
+            }
+            else
+            {
+                NSDictionary *signingDic = CFBridgingRelease(cfDic);
+                NSDictionary *entitlementsDictionary = [signingDic msidObjectForKey:(__bridge NSString*)kSecCodeInfoEntitlementsDict ofClass:[NSDictionary class]];
+                NSArray *keychainGroups = [entitlementsDictionary msidObjectForKey:@"keychain-access-groups" ofClass:[NSArray class]];
+                
+                for (id element in keychainGroups) {
+                    if ([element hasSuffix:@"com.microsoft.identity.universalstorage"])
+                    {
+                        appEntitled = YES;
+                        break;
+                    }
+                }
+            }
+            
+            CFRelease(selfCode);
+        }
+    });
+    
+    return appEntitled;
+}
+
 @end
