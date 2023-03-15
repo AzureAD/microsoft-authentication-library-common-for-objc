@@ -195,6 +195,10 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (certAttributes)
     {
         [mutableCertQuery addEntriesFromDictionary:certAttributes];
+        if (@available(macOS 10.15, *))
+        {
+            [mutableCertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
+        }
     }
     
     mutableCertQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassCertificate;

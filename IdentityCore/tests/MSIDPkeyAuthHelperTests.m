@@ -65,7 +65,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     {
         if (s_shouldGenerateEccKeyPair)
         {
-            self.eccKeyGenerator = [MSIDTestSecureEnclaveKeyPairGenerator new];
+            self.eccKeyGenerator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:nil useSecureEnclave:NO applicationTag:nil];
             self.eccPublicKey = self.eccKeyGenerator.eccPublicKey;
             self.eccPrivateKey = self.eccKeyGenerator.eccPrivateKey;
             self.isEcKeyMethodSwizzled = NO;

@@ -24,8 +24,15 @@
 #ifndef MSIDTestSecureEnclaveKeyPairGenerator_h
 #define MSIDTestSecureEnclaveKeyPairGenerator_h
 @interface MSIDTestSecureEnclaveKeyPairGenerator : NSObject
-    @property (readonly, nonatomic) SecKeyRef eccPrivateKey;
-    @property (readonly, nonatomic) SecKeyRef eccPublicKey;
+@property (readonly, nonatomic) SecKeyRef _Nullable eccPrivateKey;
+    @property (readonly, nonatomic) SecKeyRef _Nullable  eccPublicKey;
+    @property (nonatomic, readonly) NSString*  _Nullable sharedAccessGroup;
+    @property (nonatomic, readonly) NSString*  _Nullable applicationTag;
+    @property (nonatomic, readonly) BOOL useSecureEnclave;
+
+-(nullable instancetype)initWithSharedAccessGroup:(NSString *_Nullable)sharedAccessGroup
+                                 useSecureEnclave:(BOOL)useSecureEnclave
+                                   applicationTag:(NSString *_Nullable)applicationTag;
 @end
 
 #endif /* MSIDTestSecureEnclaveKeyPairGenerator_h */

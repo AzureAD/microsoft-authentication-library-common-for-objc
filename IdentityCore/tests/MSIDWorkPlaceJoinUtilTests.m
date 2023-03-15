@@ -27,8 +27,11 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDWPJKeyPairWithCert.h"
+#import "MSIDTestSecureEnclaveKeyPairGenerator.h"
 
 @interface MSIDWorkPlaceJoinUtilTests : XCTestCase
+@property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
+@property (nonatomic) BOOL useIosStyleKeychain;
 @end
 
 NSString * const dummyKeyIdendetifier = @"com.microsoft.workplacejoin.dummyKeyIdentifier";
@@ -53,16 +56,98 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    // Setting use iOS style keychain to true by default. Set it to NO in test cases that require ACL.
+    self.useIosStyleKeychain = YES;
 }
 
 - (void)tearDown
 {
-#if TARGET_OS_IPHONE
-    [self cleanWPJ:[self keychainGroup:YES]];
-    [self cleanWPJ:[self keychainGroup:NO]];
-#endif
+    if (self.useIosStyleKeychain)
+    {
+        [self cleanWPJ:[self keychainGroup:YES]];
+        [self cleanWPJ:[self keychainGroup:NO]];
+    }
 }
 
+#pragma mark Fetch Legacy and default registration tests
+// For now enabling these tests only on iOS. When CI/CD can be configured with specific mac instance & that instance is added to provisioned profiles, we should enable these for macOS
+#if TARGET_OS_IOS
+- (void)testGetWPJKeysWithTenantId_whenWPJMissing_shouldReturnNil
+{
+#if TARGET_OS_OSX
+    self.useIosStyleKeychain = NO;
+#endif
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    XCTAssertNil(result);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenWPJInLegacyWithDifferentTenant_shouldReturnLegacy
+{
+#if TARGET_OS_OSX
+    self.useIosStyleKeychain = NO;
+#endif
+    [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId1" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV1);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenWPJInLegacyWithSameTenant_shouldReturnLegacy
+{
+#if TARGET_OS_OSX
+    self.useIosStyleKeychain = NO;
+#endif
+    [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV1);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithDifferentTenant_shouldReturnNil
+{
+    [self insertDummyWPJInLegacyFormat:NO tenantIdentifier:@"tenantId1" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    XCTAssertNil(result);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithSameTenant_EccBasedRegNoSecureEnclave_shouldReturnDefault
+{
+    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:NO];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    CFStringRef cName = NULL;
+    SecCertificateCopyCommonName(result.certificateRef, &cName);
+    NSString *certId = [[NSString alloc] initWithData:[NSData msidDataFromBase64UrlEncodedString:kDummyTenant1CertIdentifier] encoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(CFBridgingRelease(cName), certId);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithSameTenant_EccBasedRegUsingSecureEnclave_shouldReturnDefault
+{
+    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    CFStringRef cName = NULL;
+    SecCertificateCopyCommonName(result.certificateRef, &cName);
+    NSString *certId = [[NSString alloc] initWithData:[NSData msidDataFromBase64UrlEncodedString:kDummyTenant1CertIdentifier] encoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(CFBridgingRelease(cName), certId);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithDifferentTenant_EccBasedRegNoSecureEnclave_shouldReturnNil
+{
+    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId1" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:NO];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    XCTAssertNil(result);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithDifferentTenant_EccBasedRegUsingSecureEnclave_shouldReturnNil
+{
+    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId1" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:NO];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    XCTAssertNil(result);
+}
+#endif
 - (void)testGetRegistrationInformation_withoutRegistrationInformation_andNoChallenge_shoudReturnNil
 {
     MSIDRegistrationInformation *registrationInfo = [MSIDWorkPlaceJoinUtil getRegistrationInformation:nil workplacejoinChallenge:nil];
@@ -190,11 +275,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 #pragma mark - iOS WPJ tests
 
 #if TARGET_OS_IPHONE
-- (void)testGetWPJKeysWithTenantId_whenWPJMissing_shouldReturnNil
-{
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
-    XCTAssertNil(result);
-}
 
 - (void)testGetWPJKeysWithTenantId_whenWPJInLegacyFormat_andTenantIdMatches_shouldReturnRegistrationV2
 {
@@ -288,9 +368,14 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     {
         NSMutableDictionary *deleteQuery = [[NSMutableDictionary alloc] init];
         [deleteQuery setObject:deleteClass forKey:(__bridge id)kSecClass];
-    #if TARGET_OS_IOS
-        [deleteQuery setObject:keychainGroup forKey:(__bridge id)kSecAttrAccessGroup];
-    #endif
+        if (self.useIosStyleKeychain)
+        {
+#if TARGET_OS_OSX
+        if (@available(macOS 10.15, *))
+        [deleteQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
+#endif
+            [deleteQuery setObject:keychainGroup forKey:(__bridge id)kSecAttrAccessGroup];
+        }
         OSStatus result = SecItemDelete((__bridge CFDictionaryRef)deleteQuery);
         XCTAssertTrue(result == errSecSuccess || result == errSecItemNotFound);
     }
@@ -331,6 +416,24 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 }
 
+- (OSStatus)insertDummyEccRegistrationForTenantIdentifier:(NSString *)tenantIdentifier
+                                           certIdentifier:(NSString *)certIdentifier
+                                        useSecureEnclave:(BOOL)useEncSecureEnclave
+{
+    SecCertificateRef certRef = [self dummyEccCertRef:certIdentifier];
+    XCTAssertTrue(certRef != NULL);
+    // Append Suffix kMSIDPrivateKeyIdentifier
+    NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, tenantIdentifier, @"-EC"];
+    SecKeyRef keyRef = [self createAndGetdummyEccPrivateKey:useEncSecureEnclave privateKeyTag:tag];
+    XCTAssertTrue(keyRef != NULL);
+    NSString *keychainGroup = [self keychainGroup:NO];
+    OSStatus status = [self insertDummyDRSIdentityIntoKeychain:certRef
+                                                 privateKeyRef:keyRef
+                                                 privateKeyTag:tag
+                                                   accessGroup:keychainGroup];
+    return status;
+}
+
 - (OSStatus)insertDummyDRSIdentityIntoKeychain:(SecCertificateRef)certRef
                                  privateKeyRef:(SecKeyRef)privateKeyRef
                                  privateKeyTag:(NSString *)privateKeyTag
@@ -341,14 +444,15 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     status = [self insertKeyIntoKeychain:privateKeyRef
                            privateKeyTag:privateKeyTag
                              accessGroup:accessGroup];
-    if (status != noErr)
+    if (status != noErr && status != errSecDuplicateItem)
     {
         return status;
     }
     
+    NSDictionary *attributes = (NSDictionary *)CFBridgingRelease(SecKeyCopyAttributes(privateKeyRef));
     return [self insertCertIntoKeychain:certRef
                             accessGroup:accessGroup
-                          publicKeyHash:nil];
+                          publicKeyHash:attributes[(__bridge id)kSecAttrApplicationLabel]];
 }
 
 - (OSStatus)insertKeyIntoKeychain:(SecKeyRef)keyRef
@@ -360,9 +464,14 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [keyInsertQuery setObject:(__bridge id)(keyRef) forKey:(__bridge id)kSecValueRef];
     [keyInsertQuery setObject:[NSData dataWithBytes:[keyTag UTF8String] length:keyTag.length] forKey:(__bridge id)kSecAttrApplicationTag];
 
-#if TARGET_OS_IOS
-    [keyInsertQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    if (self.useIosStyleKeychain)
+    {
+        [keyInsertQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+#if TARGET_OS_OSX
+        if (@available(macOS 10.15, *))
+        [keyInsertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
 #endif
+    }
     return SecItemAdd((__bridge CFDictionaryRef)keyInsertQuery, nil);
 }
 
@@ -373,10 +482,17 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     NSMutableDictionary *certInsertQuery = [[NSMutableDictionary alloc] init];
     [certInsertQuery setObject:(__bridge id)(kSecClassCertificate) forKey:(__bridge id)kSecClass];
     [certInsertQuery setObject:(__bridge id)(certRef) forKey:(__bridge id)kSecValueRef];
-#if TARGET_OS_IOS
-    [certInsertQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    [certInsertQuery setObject:publicKeyHash forKey:(__bridge id)kSecAttrPublicKeyHash];
+    if (self.useIosStyleKeychain)
+    {
+        [certInsertQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+#if TARGET_OS_OSX
+        if (@available(macOS 10.15, *))
+        [certInsertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
 #endif
-    return SecItemAdd((__bridge CFDictionaryRef)certInsertQuery, NULL);
+    }
+    OSStatus st = SecItemAdd((__bridge CFDictionaryRef)certInsertQuery, NULL);
+    return st;
 }
 
 - (SecCertificateRef)dummyCertRef:(NSString *)certIdentifier
@@ -386,9 +502,21 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     return SecCertificateCreateWithData(NULL, (__bridge CFDataRef)(certData));
 }
 
+- (SecCertificateRef)dummyEccCertRef:(NSString *)certIdentifier
+{
+    NSString *drsIssuedCertificate = [self dummyEccCertificate:certIdentifier];
+    NSData *certData = [NSData msidDataFromBase64UrlEncodedString:drsIssuedCertificate];
+    return SecCertificateCreateWithData(NULL, (__bridge CFDataRef)(certData));
+}
+
 - (NSString *)dummyCertificate:(NSString *)certIdentifier
 {
     return [NSString stringWithFormat: @"MIIEAjCCAuqgAwIBAgIQFc8t8z6QDoBGW1z8UDN+0zANBgkqhkiG9w0BAQsFADB4MXYwEQYKCZImiZPyLGQBGRYDbmV0MBUGCgmSJomT8ixkARkWB3dpbmRvd3MwHQYDVQQDExZNUy1Pcmdhbml6YXRpb24tQWNjZXNzMCsGA1UECxMkODJkYmFjYTQtM2U4MS00NmNhLTljNzMtMDk1MGMxZWFjYTk3MB4XDTE5MDgyOTIwMjU1NloXDTI5MDgyOTIwNTU1NlowLzEtMCsGA1UEAxMk%@MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1H1ZmEe+OrXboN63oF8i+H649IHZaPySEnjQYF61TXS6vg0j2EC5e43xql3AG43NgDVW7ZrwtFvm5xIvXKCnN3BoQCi6JtUN6K7eZCnFdQIdrAV2Pyq5zkl9RItziKKFg+Gf92Bz5TQVgP3i/mb2xZe5fabNa0Jdj9tMSlq1QppDTyV01NOqk+AfPNwJsFlMZegGFdjLC3thGIgJEywmCaJacg+SBx2Vp3DawnuFMhWp1WRHJweZWZScCTCApiE5HJY4zMI44NJPOLUkUnN6zc7Yzw0AXKIZBid99OWlhJ6jQ92ayQEzmfNZM0IRRtl1VeU5TOQ1NcvKSyQFQ5uyvQIDAQABo4HQMIHNMAwGA1UdEwEB/wQCMAAwFgYDVR0lAQH/BAwwCgYIKwYBBQUHAwIwDgYDVR0PAQH/BAQDAgeAMCIGCyqGSIb3FAEFghwCBBMEgRA78+WeSZfnQ5VngxjqQSVLMCIGCyqGSIb3FAEFghwDBBMEgRBP+CztBI6eSJZu39covAlhMCIGCyqGSIb3FAEFghwFBBMEgRCS4qJehkWISIVqoGYSGf2rMBQGCyqGSIb3FAEFghwIBAUEgQJOQTATBgsqhkiG9xQBBYIcBwQEBIEBMDANBgkqhkiG9w0BAQsFAAOCAQEAn6nzvuRd1moZ78aNfaZwFlxJx9ycNQNHRVljw4/Asqc9X2ySq4vE+f3zpqq2Q0c6lZ/yykb0KmZXeqWgyRK82uR48gWNAVvbPJr4l6B2cnTHAwkc+PLmADr7sE2WgBGH3uSqMcDKSbE/VpH3zOAnxeC8RByy/EEvGdC3YasjR9IGL4sSkyLHrZNO6Pz7oApL/BA713xJcp+EkzDIFF09JILuP1IANz8uW26GyNLBtBfdulKbbzv1i0tWMukN+s8upm9mWJyn8hXmz/LUa5NQtP0mBrRbw1d7NXPOgO54dr+DPpKZxrQw6zpwCJ/waeKIJjHAIDAF6h1BjFCaAulhJA==", certIdentifier];
+}
+
+- (NSString *)dummyEccCertificate:(NSString *)certIdentifier
+{
+    return [NSString stringWithFormat: @"MIIDNzCCAh-gAwIBAgIQKBcXojifRIxLIuut33ZknzANBgkqhkiG9w0BAQsFADB4MXYwEQYKCZImiZPyLGQBGRYDbmV0MBUGCgmSJomT8ixkARkWB3dpbmRvd3MwHQYDVQQDExZNUy1Pcmdhbml6YXRpb24tQWNjZXNzMCsGA1UECxMkODJkYmFjYTQtM2U4MS00NmNhLTljNzMtMDk1MGMxZWFjYTk3MB4XDTIzMDMxMzIxMjk0OFoXDTMzMDMxMzIxNTk0OFowLzEtMCsGA1UEAxMk%@MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEl-xbT_nXgQkkzQOX7NPrvh9vPMt7yrzLqBthSpZXuIjV77izK_GW91qHTzZImhwbvXG6AcVH9Qs7ilN-VIb9xaOB0DCBzTAMBgNVHRMBAf8EAjAAMBYGA1UdJQEB_wQMMAoGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIHgDAiBgsqhkiG9xQBBYIcAgQTBIEQo8MK5pvg9k-6UZTxtj7IITAiBgsqhkiG9xQBBYIcAwQTBIEQj-LgHz1F-kSyqt3J40Sn7zAiBgsqhkiG9xQBBYIcBQQTBIEQkq1F9o3jGk21ENGwmnSoyjAUBgsqhkiG9xQBBYIcCAQFBIECTkEwEwYLKoZIhvcUAQWCHAcEBASBATAwDQYJKoZIhvcNAQELBQADggEBAFYbeUHpPcZj6Z8BcPhQ59dOi3-aGSYKX6Ub6GBv1CgiqU9EJ-P6VOipCL5dR458nMXJ4j97_pOXwPT0sS1rSTJ8_x3YpGLIJXpvkqDEHIoUvX1sR1tOlvXhUiP0O6l35-sil1itUZAKqS7RZtd8TWnMIgw3rCHbDHA9OlagunL6o75YC5Y74VdedZbCUjTy-IuU_VKM5gpa3c6uf_QleYgdQFlDjMH9w4TkqaWNONNoYulLZI8AykT9QtYB0iAsFr4KRL58ot1svOhqMil9vKDTkDrixEyThCcHmyyHeNoBjmXtaubOAiE3cMoJs7bV7I1uOS9aAI-Hm0W9NV-CkeE", certIdentifier];
 }
 
 - (NSString *)dummyPrivateKeyForCert
@@ -406,9 +534,18 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     return SecKeyCreateWithData((__bridge CFDataRef)keyData, (__bridge CFDictionaryRef) keyAttr, NULL);
 }
 
+- (SecKeyRef)createAndGetdummyEccPrivateKey:(BOOL)useSecureEnclave privateKeyTag:(NSString *)privateKeyTag
+{
+    self.eccKeyGenerator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc]
+                            initWithSharedAccessGroup:[self keychainGroup:NO]
+                            useSecureEnclave:useSecureEnclave
+                            applicationTag:privateKeyTag];
+    XCTAssertNotNil(self.eccKeyGenerator);
+    return self.eccKeyGenerator.eccPrivateKey;
+}
+
 - (NSString *)keychainGroup:(BOOL)useLegacyFormat
 {
-#if TARGET_OS_IPHONE
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     XCTAssertNotNil(teamId);
 
@@ -418,9 +555,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     }
     
     return [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
-#else
-    return nil;
-#endif
 }
 
 + (OSStatus) insertDummyStringDataIntoKeychain: (NSString *) stringData

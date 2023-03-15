@@ -28,15 +28,40 @@
 @interface MSIDTestSecureEnclaveKeyPairGenerator()
     @property (readwrite, assign, nonatomic) SecKeyRef eccPrivateKey;
     @property (readwrite, assign, nonatomic) SecKeyRef eccPublicKey;
+
+-(nullable instancetype)initWithSharedAccessGroup:(NSString *)sharedAccessGroup
+                                 useSecureEnclave:(BOOL)useSecureEnclave
+                                   applicationTag:(NSString *)applicationTag;
 @end
 
 @implementation MSIDTestSecureEnclaveKeyPairGenerator : NSObject
 
 const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
 
+-(instancetype)initWithSharedAccessGroup:(NSString *)sharedAccessGroup
+                        useSecureEnclave:(BOOL)useSecureEnclave
+                          applicationTag:(NSString *)applicationTag
+{
+    self = [super init];
+    if (self)
+    {
+        if (sharedAccessGroup)
+        {
+            _sharedAccessGroup = sharedAccessGroup;
+        }
+        else
+        {
+            _sharedAccessGroup = [self getSharedAccessGroup];
+        }
+        _useSecureEnclave = useSecureEnclave;
+        _applicationTag = applicationTag ? applicationTag : kTestApplicationTag;
+    }
+    return self;
+}
+
 - (void)generateKeyPair
 {
-    NSString *sharedAccessGroup = [self sharedAccessGroup];
+    NSString *sharedAccessGroup = [self getSharedAccessGroup];
     [self queryKeysForAccessGroup:sharedAccessGroup];
     if (!_eccPublicKey)
     {
@@ -49,21 +74,31 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
                                                      NULL);
         }
         
-        NSData *tag = [kTestApplicationTag dataUsingEncoding:NSUTF8StringEncoding];
-        NSDictionary* attributes =
+        NSData *tag = [self.applicationTag dataUsingEncoding:NSUTF8StringEncoding];
+        NSMutableDictionary *privateKeyAttrs = [[NSMutableDictionary alloc] initWithDictionary:@{
+            (id)kSecAttrAccessGroup:sharedAccessGroup,
+            (id)kSecAttrAccessControl:(__bridge id)access,
+        }];
+        if (sharedAccessGroup)
+        {
+            [privateKeyAttrs removeObjectForKey:(__bridge id)kSecAttrAccessControl];
+        }
+        NSMutableDictionary* attributes = [[NSMutableDictionary alloc] initWithDictionary:
           @{ (id)kSecAttrKeyType:(id)kSecAttrKeyTypeECSECPrimeRandom,
              (id)kSecAttrKeySizeInBits:@256,
              (id)kSecAttrTokenID:(id)kSecAttrTokenIDSecureEnclave,
-             (id)kSecPrivateKeyAttrs:
-                 @{
-                     (id)kSecAttrIsPermanent:@YES,
-                     (id)kSecAttrApplicationTag:tag,
-                     (id)kSecAttrAccessGroup:sharedAccessGroup,
-                     (id)kSecAttrAccessControl:(__bridge id)access,
-                     (id)kSecAttrCanEncrypt:@NO
-                 }
-           };
+             (id)kSecAttrApplicationTag:tag,
+             (id)kSecPrivateKeyAttrs:privateKeyAttrs
+           }];
+        if (@available(macOS 10.15, *))
+        {
+            [attributes setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
+        }
         CFRelease(access);
+        if (!self.useSecureEnclave)
+        {
+            [attributes removeObjectForKey:(id)kSecAttrTokenID];
+        }
         CFErrorRef error = NULL;
         SecKeyRef privateKey = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes,
                                                      &error);
@@ -74,6 +109,9 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
             return;
         }
         XCTAssertTrue(error == NULL);
+        [self queryKeysForAccessGroup:sharedAccessGroup];
+        
+        
         self.eccPrivateKey = privateKey;
         self.eccPublicKey =  SecKeyCopyPublicKey(privateKey);
     }
@@ -83,7 +121,8 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
 {
     OSStatus status = errSecItemNotFound;
     CFTypeRef privateKeyCFDict = NULL;
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)[self keyDictionary], (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
+    NSDictionary *queryDict = [self keyDictionary];
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)queryDict, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
     if (status != errSecSuccess)
     {
         return;
@@ -105,8 +144,12 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
     }
 }
 
-- (NSString *)sharedAccessGroup
+- (NSString *)getSharedAccessGroup
 {
+    if (_sharedAccessGroup)
+    {
+        return _sharedAccessGroup;
+    }
     NSString *prefix = @"";
 #if TARGET_OS_IPHONE
     prefix = @"UBF8T346G9";
@@ -119,14 +162,21 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
 - (NSDictionary *)keyDictionary
 {
     NSMutableDictionary *queryPrivateKey = [NSMutableDictionary new];
-    queryPrivateKey[(__bridge id)kSecAttrApplicationTag] = [kTestApplicationTag dataUsingEncoding:NSUTF8StringEncoding];
+    queryPrivateKey[(__bridge id)kSecAttrApplicationTag] = [self.applicationTag dataUsingEncoding:NSUTF8StringEncoding];
     queryPrivateKey[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
     queryPrivateKey[(__bridge id)kSecReturnAttributes] = @YES;
     queryPrivateKey[(__bridge id)kSecReturnRef] = @YES;
-    queryPrivateKey[(__bridge id)kSecAttrTokenID] = (__bridge id)kSecAttrTokenIDSecureEnclave;
+    if (self.useSecureEnclave)
+    {
+        queryPrivateKey[(__bridge id)kSecAttrTokenID] = (__bridge id)kSecAttrTokenIDSecureEnclave;
+    }
+#if TARGET_OS_OSX
+        if (@available(macOS 10.15, *))
+        [queryPrivateKey setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
+#endif
     queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeECSECPrimeRandom;
     queryPrivateKey[(__bridge id)kSecAttrKeySizeInBits] = @256;
-    queryPrivateKey[(__bridge id)kSecAttrAccessGroup] = [self sharedAccessGroup];
+    queryPrivateKey[(__bridge id)kSecAttrAccessGroup] = [self getSharedAccessGroup];
     
     return queryPrivateKey;
 }
