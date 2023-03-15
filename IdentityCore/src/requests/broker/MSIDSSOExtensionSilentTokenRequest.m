@@ -172,7 +172,6 @@
         NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
                                                                                           error:nil];
         
-        self.requestSentDate = [NSDate date];
         self.operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                             providerType:self.providerType
                                                                                            enrollmentIds:enrollmentIds
