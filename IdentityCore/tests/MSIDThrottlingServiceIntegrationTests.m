@@ -345,7 +345,7 @@
         [expectation1 fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:200.0 handler:nil];
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
 
 
     NSError *subError = nil;
@@ -374,7 +374,7 @@
     }];
 
 
-    [self waitForExpectationsWithTimeout:200.0 handler:nil];
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
 
 
 }
