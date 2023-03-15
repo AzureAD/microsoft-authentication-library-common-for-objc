@@ -77,7 +77,7 @@ MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI = @"app_whitelist_foci";
     //If appID is present, append it to path to ensure querying specific apps results in going to the correct path
     if (self.appId)
     {
-        return [NSString stringWithFormat:@"%@/%@", @"app/", self.appId];
+        return [NSString stringWithFormat:@"app/%@", self.appId];
     }
     
     return @"App";
