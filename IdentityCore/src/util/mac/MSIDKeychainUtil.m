@@ -98,7 +98,7 @@ static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
     
     NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
 
-    if (!bundleId)
+    if ([NSString msidIsStringNilOrBlank:bundleId])
     {
         SecCodeRef selfCode = NULL;
         SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
