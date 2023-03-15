@@ -30,6 +30,9 @@
     @property (nonatomic, readonly) NSString*  _Nullable applicationTag;
     @property (nonatomic, readonly) BOOL useSecureEnclave;
 
+- (instancetype _Nullable )init NS_UNAVAILABLE;
++ (instancetype _Nullable )new NS_UNAVAILABLE;
+
 -(nullable instancetype)initWithSharedAccessGroup:(NSString *_Nullable)sharedAccessGroup
                                  useSecureEnclave:(BOOL)useSecureEnclave
                                    applicationTag:(NSString *_Nullable)applicationTag;
