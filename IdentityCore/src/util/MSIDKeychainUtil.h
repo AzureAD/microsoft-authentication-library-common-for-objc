@@ -28,7 +28,6 @@
 @interface MSIDKeychainUtil : NSObject
 
 @property (readonly, nullable) NSString *teamId;
-@property (readonly, nullable) NSString *applicationBundleIdentifier;
 
 + (nonnull MSIDKeychainUtil *)sharedInstance;
 
