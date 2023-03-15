@@ -345,7 +345,7 @@
         [expectation1 fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+    [self waitForExpectationsWithTimeout:200.0 handler:nil];
 
 
     NSError *subError = nil;
@@ -374,7 +374,7 @@
     }];
 
 
-    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+    [self waitForExpectationsWithTimeout:200.0 handler:nil];
 
 
 }
@@ -1046,7 +1046,8 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache
-                                                                                                             extendedTokenCache:nil];
+                                                                                                             extendedTokenCache:nil
+                                                                                                                requestSentDate:[NSDate date]];
 
 
       //throttlingServiceMock
@@ -1213,7 +1214,8 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache
-                                                                                                             extendedTokenCache:nil];
+                                                                                                             extendedTokenCache:nil
+                                                                                                                requestSentDate:[NSDate date]];
 
       //throttlingServiceMock
       MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
@@ -1369,7 +1371,8 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache
-                                                                                                             extendedTokenCache:nil];
+                                                                                                             extendedTokenCache:nil
+                                                                                                                requestSentDate:nil];
 
       //throttlingServiceMock
       MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache

@@ -123,7 +123,7 @@
 {
 #ifdef AD_THROTTLING_DISABLED
     #if AD_THROTTLING_DISABLED
-        return NO;
+        return YES;
     #else
         return YES;
     #endif

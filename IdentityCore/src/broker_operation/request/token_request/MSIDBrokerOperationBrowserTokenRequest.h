@@ -39,7 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSData *httpBody;
 @property (nonatomic, readonly) BOOL useSSOCookieFallback;
 @property (nonatomic, readonly) MSIDExternalSSOContext *ssoContext;
-@property (nonatomic, readonly) NSString *properties;
 
 - (instancetype)initWithRequest:(NSURL *)requestURL
                         headers:(NSDictionary *)headers

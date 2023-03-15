@@ -126,7 +126,8 @@
                                                                              tokenResponseValidator:self.tokenResponseValidator
                                                                                          tokenCache:self.tokenCache
                                                                                accountMetadataCache:self.accountMetadataCache
-                                                                                 extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
+                                                                                 extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource
+                                                                                    requestSentDate:[NSDate date]];
         return request;
     }
     
