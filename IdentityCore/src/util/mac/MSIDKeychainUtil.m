@@ -35,6 +35,7 @@ static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
     if (self)
     {
         self.teamId = [self getTeamId];
+        self.applicationBundleIdentifier = [self getApplicationBundleIdentifier];
     }
     
     return self;
@@ -91,6 +92,38 @@ static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
     return keychainTeamId;
 }
+
+- (NSString *)getApplicationBundleIdentifier
+{
+    
+    NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
+
+    if (!bundleId)
+    {
+        SecCodeRef selfCode = NULL;
+        SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
+        
+        if (selfCode)
+        {
+            CFDictionaryRef cfDic = NULL;
+            SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
+            
+            if (!cfDic)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve code signing information");
+            }
+            else
+            {
+                NSDictionary *signingDic = CFBridgingRelease(cfDic);
+                bundleId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoIdentifier];
+            }
+            CFRelease(selfCode);
+        }
+    }
+    
+    return bundleId;
+}
+
 
 - (NSString *)accessGroup:(NSString *)group
 {
