@@ -51,7 +51,7 @@
     _sharedAccessGroup = [NSString stringWithFormat:@"%@.%@", prefix, @"com.microsoft.MSIDTestsHostApp"]; // Using SGGM6D27TK as prefix for complete shared group
     if (!self.generator)
     {
-        self.generator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:_sharedAccessGroup useSecureEnclave:NO applicationTag:_testApplicationTag];
+        self.generator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:_sharedAccessGroup useSecureEnclave:YES applicationTag:_testApplicationTag];
     }
     self.eccPrivateKey = [self.generator eccPrivateKey];
     self.eccPublicKey = [self.generator eccPublicKey];
