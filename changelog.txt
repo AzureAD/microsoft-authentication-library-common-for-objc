@@ -1,4 +1,4 @@
-## TBD
+## 1.7.17
 * Fix function declaration without prototype on Xcode 14.3 (#1200)
 * Fix a crash when no additional info found in the device info json (#1203)
 
