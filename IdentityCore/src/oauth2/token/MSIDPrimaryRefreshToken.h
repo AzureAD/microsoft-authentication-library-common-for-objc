@@ -27,7 +27,7 @@
 typedef NS_ENUM(NSInteger, MSIDExternalPRTKeyLocationType)
 {
     MSIDExternalPRTKeyLocationTypeNone = 0, // Key isn't stored externally
-    MSIDExternalPRTKeyLocationTypeWPJ = 1, // WPJ device and STK keys stored in secure enclave are used for PRT operations (for device-bound cases)
+    MSIDExternalPRTKeyLocationTypeWPJSecureEnclave = 1, // WPJ device and STK keys stored in secure enclave are used for PRT operations (for device-bound cases)
     MSIDExternalPRTKeyLocationTypeSSO = 2, // External SSO keys are used for PRT operations
     MSIDExternalPRTKeyLocationTypeSecureEnclave = 3 // External secure enclave keys are used for PRT operations (for deviceless cases)
 };
