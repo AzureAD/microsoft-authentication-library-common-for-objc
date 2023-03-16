@@ -41,9 +41,10 @@
                               refreshToken:(nonnull NSString *)refreshToken
                                redirectUri:(NSString *)redirectUri
                            extraParameters:(nullable NSDictionary *)extraParameters
+                                ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                                    context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint authScheme:authScheme clientId:clientId scope:scope context:context];
+    self = [super initWithEndpoint:endpoint authScheme:authScheme clientId:clientId scope:scope ssoContext:ssoContext context:context];
     if (self)
     {
         NSParameterAssert(refreshToken);

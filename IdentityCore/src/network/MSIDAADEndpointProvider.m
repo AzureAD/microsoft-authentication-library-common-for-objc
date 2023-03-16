@@ -42,6 +42,21 @@
     return [baseUrl URLByAppendingPathComponent:[NSString stringWithFormat:@"/oauth2/%@token", apiVersion]];
 }
 
+- (NSURL *)oauth2IssuerWithUrl:(NSURL *)baseUrl
+{
+    __auto_type apiVersion = MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion;
+    
+    return [baseUrl URLByAppendingPathComponent:[NSString stringWithFormat:@"%@", apiVersion]];
+}
+
+- (NSURL *)oauth2jwksEndpointWithUrl:(NSURL *)baseUrl
+{
+    __auto_type apiVersion = [self aadApiVersionWithDelimiter];
+    
+    return [baseUrl URLByAppendingPathComponent:[NSString stringWithFormat:@"/discovery/%@keys", apiVersion]];
+}
+
+
 - (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type
 {
     if (type == MSIDDRSTypeOnPrem)

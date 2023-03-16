@@ -28,6 +28,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDAADAuthority;
+@class MSIDExternalSSOContext;
 
 @interface MSIDBrokerOperationBrowserTokenRequest : MSIDBaseBrokerOperationRequest
 
@@ -37,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSDictionary *headers;
 @property (nonatomic, readonly) NSData *httpBody;
 @property (nonatomic, readonly) BOOL useSSOCookieFallback;
+@property (nonatomic, readonly) MSIDExternalSSOContext *ssoContext;
 
 - (instancetype)initWithRequest:(NSURL *)requestURL
                         headers:(NSDictionary *)headers
@@ -44,6 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
                bundleIdentifier:(NSString *)bundleIdentifier
                requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
            useSSOCookieFallback:(BOOL)useSSOCookieFallback
+                     ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                           error:(NSError **)error;
 
 @end

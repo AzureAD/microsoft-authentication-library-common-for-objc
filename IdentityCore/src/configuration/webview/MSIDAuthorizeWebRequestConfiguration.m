@@ -36,11 +36,13 @@
                             pkce:(MSIDPkce *)pkce
                            state:(NSString *)state
               ignoreInvalidState:(BOOL)ignoreInvalidState
+                      ssoContext:(MSIDExternalSSOContext *)ssoContext
 {
     self = [super initWithStartURL:startURL
                     endRedirectUri:endRedirectUri
                              state:state
-                ignoreInvalidState:ignoreInvalidState];
+                ignoreInvalidState:ignoreInvalidState
+                        ssoContext:ssoContext];
     
     if (self)
     {

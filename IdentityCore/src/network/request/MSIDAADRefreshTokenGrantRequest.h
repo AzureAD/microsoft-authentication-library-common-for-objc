@@ -40,6 +40,7 @@
                               refreshToken:(nonnull NSString *)refreshToken
                                     claims:(nullable NSString *)claims
                            extraParameters:(nullable NSDictionary *)extraParameters
+                                ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
                                    context:(nullable id<MSIDRequestContext>)context;
 
 @end

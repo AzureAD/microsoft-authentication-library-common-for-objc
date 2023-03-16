@@ -48,4 +48,7 @@
 + (void)setIdValue:(NSString*)value
             forKey:(NSString*)key;
 
+/*! Returns OS version number */
++ (NSString *)deviceOSVersion;
+
 @end

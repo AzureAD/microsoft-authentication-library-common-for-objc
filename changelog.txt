@@ -1,4 +1,8 @@
-TBD
+## TBD
+* Fix function declaration without prototype on Xcode 14.3 (#1200)
+* Fix a crash when no additional info found in the device info json (#1203)
+
+Version 1.7.16
 * Add more detailed error codes for JIT (#1187)
 * Add support for nested auth protocol (#1175)
 * Return enrollmentId only if homeAccountId and legacyId are both empty (#1191)
