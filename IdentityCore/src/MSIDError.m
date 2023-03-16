@@ -103,6 +103,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     {   // Account Transfer session time out, When the token's time is expired
         return MSIDErrorUserCancel;
     }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"server_error"] == NSOrderedSame)
+    {
+        return MSIDErrorServerError;
+    }
     return defaultCode;
 }
 
@@ -123,10 +127,6 @@ MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString *oauthError, M
     if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && [subError caseInsensitiveCompare:@"user_skipped"] == NSOrderedSame)
     {   //Account Transfter, when user skips the QR code page.
         return MSIDErrorUserCancel;
-    }
-    if (oauthError && [oauthError caseInsensitiveCompare:@"server_error"] == NSOrderedSame && [subError caseInsensitiveCompare:@"server_error"] == NSOrderedSame)
-    {   //when the request could not be completed.
-        return MSIDErrorServerError;
     }
     return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
 }
@@ -203,6 +203,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorServerInvalidState),
                       @(MSIDErrorServerProtectionPoliciesRequired),
                       @(MSIDErrorAuthorizationFailed),
+                      @(MSIDErrorServerError),
                       ],
               MSIDHttpErrorCodeDomain : @[
                       @(MSIDErrorServerUnhandledResponse)
