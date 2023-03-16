@@ -63,6 +63,7 @@ MSIDTestAccountFederationProviderType MSIDTestAccountFederationProviderTypeADFSV
 MSIDTestAccountFederationProviderType MSIDTestAccountFederationProviderTypeADFS2019 = @"adfsv2019";
 MSIDTestAccountFederationProviderType MSIDTestAccountFederationProviderTypePing = @"ping";
 MSIDTestAccountFederationProviderType MSIDTestAccountFederationProviderTypeShibboleth = @"shibboleth";
+MSIDTestAccountFederationProviderType MSIDTestAccountFederationProviderTypeCIAM = @"ciam";
 
 #pragma mark - MSIDTestAccountEnvironmentType;
 MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeWWCloud = @"azurecloud";
