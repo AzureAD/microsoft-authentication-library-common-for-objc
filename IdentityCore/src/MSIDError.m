@@ -125,8 +125,8 @@ MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString *oauthError, M
         return MSIDErrorUserCancel;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"server_error"] == NSOrderedSame && [subError caseInsensitiveCompare:@"server_error"] == NSOrderedSame)
-    {   //Account Transfter, when the request could not be completed.
-        return MSIDErrorUserCancel;
+    {   //when the request could not be completed.
+        return MSIDErrorServerError;
     }
     return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
 }
