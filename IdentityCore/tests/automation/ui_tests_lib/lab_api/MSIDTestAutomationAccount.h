@@ -46,6 +46,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *overriddenTargetTenantId;
 @property (nonatomic, nullable) NSString *overriddenKeyvaultName;
 
+@property (nonatomic, nullable, readonly) NSString *associatedAppID;
+
 @end
 
 NS_ASSUME_NONNULL_END
