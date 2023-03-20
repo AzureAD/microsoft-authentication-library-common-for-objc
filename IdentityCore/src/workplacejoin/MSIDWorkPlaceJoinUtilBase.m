@@ -269,10 +269,25 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
             return legacyKeys;
         }
     }
-    
+     
     NSString *tag = nil;
     __unused MSIDWPJKeyPairWithCert *defaultKeys = nil;
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+    
+    // If tenantId is missing, the caller may have requested for primary registration. Query keychain to get the primary registration tenantId
+    if (tenantId == nil)
+    {
+        NSError *error;
+        NSString *primaryRegTenantId = [MSIDWorkPlaceJoinUtilBase getPrimaryEccTenantWithSharedAccessGroup:defaultSharedAccessGroup context:context error:&error];
+        if (!primaryRegTenantId)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, error.description, error.code);
+            // If tenantId for default primary registration is not found, default registration should have a tenantId associated with it, fast returning here.
+            return nil;
+        }
+        tenantId = primaryRegTenantId;
+    }
+   
     tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
     // Default registrations can be done using RSA/ECC in iOS and only ECC in macOS. 1st Looking for RSA device key in the keychain.
@@ -321,5 +336,46 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
     return legacyKeys;
 }
+
++ (NSString *)getPrimaryEccTenantWithSharedAccessGroup:(NSString *)sharedAccessGroup context:(id<MSIDRequestContext>_Nullable)context error:(NSError **)error
+{
+    NSString *res = nil;
+    NSMutableDictionary *query = [NSMutableDictionary new];
+    query[(__bridge id <NSCopying>) (kSecClass)] = (__bridge id) (kSecClassGenericPassword);
+    query[(__bridge id <NSCopying>) (kSecReturnAttributes)] = (id) kCFBooleanTrue;
+    query[(__bridge id <NSCopying>) (kSecAttrAccount)] = @"ecc_default_tenant";
+    query[(__bridge id <NSCopying>) (kSecAttrService)] = @"ecc_default_tenant";
+#if TARGET_OS_OSX
+    query[(__bridge id <NSCopying>) (kSecUseDataProtectionKeychain)] = @YES;
+#endif
+    query[(__bridge id) kSecAttrAccessGroup] = sharedAccessGroup;
+    CFDictionaryRef attributeDictCF = NULL;
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef) query, (CFTypeRef *) &attributeDictCF);
+    if (status == errSecSuccess && attributeDictCF)
+    {
+        NSDictionary *attributeDictionary = CFBridgingRelease(attributeDictCF);
+        NSString *primaryECCTenant = attributeDictionary[(__bridge id) kSecAttrDescription];
+        if (![NSString msidIsStringNilOrBlank:primaryECCTenant])
+        {
+            res = primaryECCTenant;
+        }
+        else
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Corrupted primary ECC tenant value", nil, nil, nil, context.correlationId, nil, NO);
+            }
+        }
+    }
+    else
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Could not get default primary registration tenantId.", nil, nil, nil, context.correlationId, nil, NO);
+        }
+    }
+    return res;
+}
+
 
 @end
