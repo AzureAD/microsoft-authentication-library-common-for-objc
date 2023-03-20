@@ -42,6 +42,9 @@
     [coder encodeObject:self.sessionKey forKey:@"sessionKey"];
     [coder encodeObject:self.deviceID forKey:@"deviceID"];
     [coder encodeObject:self.prtProtocolVersion forKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY];
+    
+    [coder encodeObject:[NSString stringWithFormat:@"%d", (int)self.externalKeyLocationType]
+                 forKey:MSID_PRT_EXTERNAL_KEY_TYPE_CACHE_KEY];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder
@@ -53,6 +56,7 @@
         self.deviceID = [decoder decodeObjectOfClass:[NSString class] forKey:@"deviceID"];
         self.credentialType = MSIDPrimaryRefreshTokenType;
         self.prtProtocolVersion = [decoder decodeObjectOfClass:[NSString class] forKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY];
+        self.externalKeyLocationType = (MSIDExternalPRTKeyLocationType) [[decoder decodeObjectOfClass:[NSString class] forKey:MSID_PRT_EXTERNAL_KEY_TYPE_CACHE_KEY] integerValue];
     }
     return self;
 }
@@ -69,9 +73,11 @@
     if ([json msidStringObjectForKey:MSID_SESSION_KEY_CACHE_KEY])
     {
         _sessionKey = [NSData msidDataFromBase64UrlEncodedString:[json msidStringObjectForKey:MSID_SESSION_KEY_CACHE_KEY]];
-        _deviceID = [json msidObjectForKey:MSID_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
-        _prtProtocolVersion = [json msidObjectForKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY ofClass:[NSString class]];
     }
+    
+    _deviceID = [json msidObjectForKey:MSID_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
+    _prtProtocolVersion = [json msidObjectForKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY ofClass:[NSString class]];
+    _externalKeyLocationType = (MSIDExternalPRTKeyLocationType)[[json msidObjectForKey:MSID_PRT_EXTERNAL_KEY_TYPE_CACHE_KEY ofClass:[NSString class]] integerValue];
     
     return self;
 }
@@ -88,6 +94,7 @@
     dictionary[MSID_SESSION_KEY_CACHE_KEY] = [self.sessionKey msidBase64UrlEncodedString];
     dictionary[MSID_DEVICE_ID_CACHE_KEY] = self.deviceID;
     dictionary[MSID_PRT_PROTOCOL_VERSION_CACHE_KEY] = self.prtProtocolVersion;
+    dictionary[MSID_PRT_EXTERNAL_KEY_TYPE_CACHE_KEY] = [NSString stringWithFormat:@"%d", (int)self.externalKeyLocationType];
     return dictionary;
 }
 
@@ -114,6 +121,7 @@
     result &= (!self.sessionKey && !item.sessionKey) || [self.sessionKey isEqualToData:item.sessionKey];
     result &= (!self.deviceID && !item.deviceID) || [self.deviceID isEqualToString:item.deviceID];
     result &= (!self.prtProtocolVersion && !item.prtProtocolVersion) || [self.prtProtocolVersion isEqualToString:item.prtProtocolVersion];
+    result &= self.externalKeyLocationType == item.externalKeyLocationType;
     return result;
 }
 
@@ -123,6 +131,7 @@
     hash = hash * 31 + self.sessionKey.hash;
     hash = hash * 31 + self.deviceID.hash;
     hash = hash * 31 + self.prtProtocolVersion.hash;
+    hash = hash * 31 + self.externalKeyLocationType;
     return hash;
 }
 

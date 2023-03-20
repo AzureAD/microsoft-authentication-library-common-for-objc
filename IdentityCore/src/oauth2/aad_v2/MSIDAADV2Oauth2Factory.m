@@ -143,7 +143,7 @@
     }
     
     // Cache redirect uri
-    if (configuration.isNestedAuthProtocol)
+    if (![NSString msidIsStringNilOrBlank:configuration.nestedAuthBrokerClientId])
     {
         accessToken.redirectUri = configuration.redirectUri;
     }
