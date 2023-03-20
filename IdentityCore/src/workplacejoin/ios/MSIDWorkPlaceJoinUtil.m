@@ -31,6 +31,13 @@
 
 @implementation MSIDWorkPlaceJoinUtil
 
++ (MSIDWPJKeyPairWithCert *)wpjKeyPairWithSSOContext:(MSIDExternalSSOContext *)ssoContext
+                                            tenantId:(NSString *)tenantId
+                                             context:(id<MSIDRequestContext>)context
+{
+    return nil;
+}
+
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                      workplacejoinChallenge:(__unused MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
 {

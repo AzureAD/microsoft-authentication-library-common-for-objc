@@ -33,6 +33,7 @@
 #import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDADFSAuthority.h"
 #import "MSIDKeyOperationUtil.h"
+#import "MSIDExternalSSOContext.h"
 
 @implementation MSIDPkeyAuthHelper
 
