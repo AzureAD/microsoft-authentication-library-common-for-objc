@@ -77,6 +77,7 @@
                                                      oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
                                                     authScheme:(MSIDAuthenticationScheme *)authScheme
+                                                   redirectUri:(__unused NSString *)redirectUri
                                                          error:(NSError **)error
 {
     // Successful case
