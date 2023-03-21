@@ -71,6 +71,7 @@
                                                      oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
                                                     authScheme:(MSIDAuthenticationScheme *)authScheme
+                                                   redirectUri:(NSString *)redirectUri
                                                          error:(NSError **)error
 {
     MSIDTokenResult *tokenResult = nil;
@@ -139,6 +140,14 @@
     if ([NSString msidIsStringNilOrBlank:decryptedResponse[@"broker_error_domain"]]
         && [decryptedResponse[@"success"] boolValue])
     {
+        // Add redirectUri from resume state only if not present in broker response
+        if (redirectUri && [NSString msidIsStringNilOrBlank:decryptedResponse[MSID_OAUTH2_REDIRECT_URI]])
+        {
+            NSMutableDictionary *tempDecryptedResponseDict = [decryptedResponse mutableCopy];
+            tempDecryptedResponseDict[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
+            decryptedResponse = tempDecryptedResponseDict;
+        }
+        
         return [[MSIDAADV2BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
     }
     

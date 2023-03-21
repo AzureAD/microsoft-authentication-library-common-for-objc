@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,18 +20,37 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDRegistrationInformation.h"
 
-@class MSIDExternalSSOContext;
+#import "MSIDExternalSSOContextMock.h"
 
-@interface MSIDPkeyAuthHelper : NSObject
+@implementation MSIDWPJKeyPairWithCertMock
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
-                                  challengeData:(nullable NSDictionary *)challengeData
-                             externalSSOContext:(nullable MSIDExternalSSOContext *)externalSSOContext
-                                        context:(nullable id<MSIDRequestContext>)context;
+- (void)setPrivateKey:(SecKeyRef)privateKey
+{
+    self->_privateKeyRef = privateKey;
+    self->_certificateRef = (SecCertificateRef)@"";
+}
+
+- (void)setCertIssuer:(NSString *)issuer
+{
+    self->_certificateIssuer = issuer;
+}
+
+@end
+
+@implementation MSIDExternalSSOContextMock
+
+- (MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(id<MSIDRequestContext>)context
+{
+    self.wpjCertWithContextCalledCount++;
+    return self.mockedKeyPair;
+}
+
+- (nullable NSURL *)tokenEndpointURL
+{
+    return self.mockedTokenEndpointURL;
+}
 
 @end

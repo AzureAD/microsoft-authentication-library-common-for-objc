@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,18 +20,27 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDRegistrationInformation.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
-@class MSIDExternalSSOContext;
+@class MSIDWPJKeyPairWithCert;
 
-@interface MSIDPkeyAuthHelper : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
-                                  challengeData:(nullable NSDictionary *)challengeData
-                             externalSSOContext:(nullable MSIDExternalSSOContext *)externalSSOContext
-                                        context:(nullable id<MSIDRequestContext>)context;
+@interface MSIDExternalSSOContext : NSObject
+
+#if TARGET_OS_OSX
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
+@property (nonatomic, nullable, strong) ASAuthorizationProviderExtensionLoginManager *loginManager API_AVAILABLE(macos(13.0));
+#endif
+#endif
+
+- (nullable MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(nullable id<MSIDRequestContext>)context;
+- (nullable NSURL *)tokenEndpointURL;
 
 @end
+
+NS_ASSUME_NONNULL_END

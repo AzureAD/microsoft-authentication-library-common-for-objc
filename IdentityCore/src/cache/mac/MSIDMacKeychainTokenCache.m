@@ -46,6 +46,7 @@
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDConstants.h"
 #import "MSIDLoginKeychainUtil.h"
+#import "MSIDKeychainUtil+MacInternal.h"
 
 /**
  This Mac cache stores serialized cache credentials in the macOS "login" Keychain.
@@ -345,7 +346,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
     if (!defaultKeychainGroup)
     {
-        defaultKeychainGroup = [[NSBundle mainBundle] bundleIdentifier];
+        defaultKeychainGroup = [[MSIDKeychainUtil sharedInstance] applicationBundleIdentifier];
     }
 
     s_defaultKeychainGroup = [defaultKeychainGroup copy];
@@ -364,46 +365,6 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 #pragma mark - init
 
-- (BOOL)isAppEntitled
-{
-    static dispatch_once_t once;
-    static BOOL appEntitled = NO;
-    
-    dispatch_once(&once, ^{
-        SecCodeRef selfCode = NULL;
-        SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
-        
-        if (selfCode)
-        {
-            CFDictionaryRef cfDic = NULL;
-            SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
-            
-            if (!cfDic)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve code signing information");
-            }
-            else
-            {
-                NSDictionary *signingDic = CFBridgingRelease(cfDic);
-                NSDictionary *entitlementsDictionary = [signingDic msidObjectForKey:(__bridge NSString*)kSecCodeInfoEntitlementsDict ofClass:[NSDictionary class]];
-                NSArray *keychainGroups = [entitlementsDictionary msidObjectForKey:@"keychain-access-groups" ofClass:[NSArray class]];
-                
-                for (id element in keychainGroups) {
-                    if ([element hasSuffix:@"com.microsoft.identity.universalstorage"])
-                    {
-                        appEntitled = YES;
-                        break;
-                    }
-                }
-            }
-            
-            CFRelease(selfCode);
-        }
-    });
-    
-    return appEntitled;
-}
-
 - (BOOL)shouldUseLoginKeychain
 {
     if (@available(macOS 10.15, *))
@@ -412,7 +373,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
         {
 #if MS_INTERNAL_BUILD
-            return ![self isAppEntitled];
+            return ![MSIDKeychainUtil sharedInstance].isAppEntitled;
 #else
             return NO;
 #endif
@@ -469,7 +430,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         
         if (!keychainGroup)
         {
-            keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
+            keychainGroup = [[MSIDKeychainUtil sharedInstance] applicationBundleIdentifier];
         }
 
         MSIDKeychainUtil *keychainUtil = [MSIDLoginKeychainUtil sharedInstance];
@@ -504,7 +465,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
             return nil;
         }
         
-        self.appIdentifier = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+        self.appIdentifier = [NSString stringWithFormat:@"%@;%d", [[MSIDKeychainUtil sharedInstance] applicationBundleIdentifier],
                               NSProcessInfo.processInfo.processIdentifier];
 
         self.defaultCacheQuery = @{
@@ -963,7 +924,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     else
     {
         // Non-Shareable item attributes: <keychainGroup>-<app_bundle_id>
-        [attributes setObject:[NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]] forKey:(id)kSecAttrAccount];
+        [attributes setObject:[NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[MSIDKeychainUtil sharedInstance] applicationBundleIdentifier]] forKey:(id)kSecAttrAccount];
         [attributes setObject:self.accessControlForNonSharedItems forKey:(id)kSecAttrAccess];
     }
     

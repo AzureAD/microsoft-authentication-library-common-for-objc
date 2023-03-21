@@ -37,6 +37,7 @@
                data:(NSData *)data
         httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
  responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
+ externalSSOContext:(MSIDExternalSSOContext *)ssoContext
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
@@ -73,6 +74,7 @@
         {
             [MSIDPKeyAuthHandler handleWwwAuthenticateHeader:wwwAuthValue
                                                   requestUrl:httpRequest.urlRequest.URL
+                                          externalSSOContext:ssoContext
                                                      context:context
                                            completionHandler:^void (NSString *authHeader, NSError *completionError){
                                                if (![NSString msidIsStringNilOrBlank:authHeader])
