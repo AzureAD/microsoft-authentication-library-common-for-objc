@@ -146,7 +146,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithDifferentTenant_EccBasedRegUsingSecureEnclave_shouldReturnNil
 {
-    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId1" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:NO];
+    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId1" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
     XCTAssertNil(result);
 }
