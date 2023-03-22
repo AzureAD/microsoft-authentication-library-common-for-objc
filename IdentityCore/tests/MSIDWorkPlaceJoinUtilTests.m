@@ -359,6 +359,26 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     NSString *expectedSubject = [kDummyTenant3CertIdentifier msidBase64UrlDecode];
     XCTAssertEqualObjects(expectedSubject, result.certificateSubject);
 }
+
+- (void)testGetWPJKeysWithNilTenantId_WithSecureEnclave_shouldReturnPrimaryRegistration
+{
+    [self addPrimaryEccDefaultRegistrationForTenantId:@"primaryTenantId" sharedAccessGroup:[self keychainGroup:NO] certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:nil];
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion == MSIDWPJKeychainAccessGroupV2, TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue");
+    NSString *expectedSubject = [kDummyTenant1CertIdentifier msidBase64UrlDecode];
+    XCTAssertEqualObjects(expectedSubject, result.certificateSubject);
+}
+
+- (void)testGetWPJKeysWithNilTenantId_WithNoSecureEnclave_shouldReturnPrimaryRegistration
+{
+    [self addPrimaryEccDefaultRegistrationForTenantId:@"primaryTenantId" sharedAccessGroup:[self keychainGroup:NO] certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:NO];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:nil];
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion == MSIDWPJKeychainAccessGroupV2, TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue");
+    NSString *expectedSubject = [kDummyTenant1CertIdentifier msidBase64UrlDecode];
+    XCTAssertEqualObjects(expectedSubject, result.certificateSubject);
+}
 #endif
 
 #pragma mark - Helpers
@@ -605,6 +625,34 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 #endif
 
     return SecItemDelete((__bridge CFDictionaryRef)(deleteStringDataQuery));
+}
+
+- (OSStatus)addPrimaryEccDefaultRegistrationForTenantId:(NSString *)tenantId
+                                      sharedAccessGroup:(NSString *)sharedAccessGroup
+                                         certIdentifier:(NSString *)certIdentifier
+                                       useSecureEnclave:(BOOL)useSecureEnclave
+{
+    // Add tenantId for primary registration to keychain.
+    NSMutableDictionary *query = [NSMutableDictionary new];
+    query[(__bridge id <NSCopying>) (kSecClass)] = (__bridge id) (kSecClassGenericPassword);
+    query[(__bridge id <NSCopying>) (kSecReturnAttributes)] = (id) kCFBooleanTrue;
+    query[(__bridge id <NSCopying>) (kSecAttrAccount)] = @"ecc_default_tenant";
+    query[(__bridge id <NSCopying>) (kSecAttrService)] = @"ecc_default_tenant";
+    query[(__bridge id <NSCopying>) (kSecAttrDescription)] = tenantId;
+#if TARGET_OS_OSX
+    if (@available(macOS 10.15, *)) {
+        query[(__bridge id <NSCopying>) (kSecUseDataProtectionKeychain)] = @YES;
+    }
+#endif
+    query[(__bridge id) kSecAttrAccessGroup] = sharedAccessGroup;
+    CFDictionaryRef attributeDictCF = NULL;
+    OSStatus status = SecItemAdd((__bridge CFDictionaryRef) query, (CFTypeRef *) &attributeDictCF);
+    
+    if (status != errSecSuccess || status == errSecDuplicateItem)
+    {
+        return status;
+    }
+    return [self insertDummyEccRegistrationForTenantIdentifier:tenantId certIdentifier:certIdentifier useSecureEnclave:useSecureEnclave];
 }
 
 @end

@@ -195,10 +195,12 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (certAttributes)
     {
         [mutableCertQuery addEntriesFromDictionary:certAttributes];
+#if TARGET_OS_OSX
         if (@available(macOS 10.15, *))
         {
             [mutableCertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
         }
+#endif
     }
     
     mutableCertQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassCertificate;
@@ -316,10 +318,12 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:extraDefaultPrivateKeyAttributes];
     [privateKeyAttributes setObject:tagData forKey:(__bridge id)kSecAttrApplicationTag];
+#if TARGET_OS_OSX
     if (@available(macOS 10.15, *))
     {
         [privateKeyAttributes setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
     }
+#endif
     // Not including kSecAttrTokenIDSecureEnclave in query dict as in the future registrations maybe ECC based even in software keychain
     [privateKeyAttributes setObject:(__bridge id)kSecAttrKeyTypeECSECPrimeRandom forKey:(__bridge id)kSecAttrKeyType];
     [privateKeyAttributes setObject:@256 forKey:(__bridge id)kSecAttrKeySizeInBits];
@@ -346,7 +350,9 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     query[(__bridge id <NSCopying>) (kSecAttrAccount)] = @"ecc_default_tenant";
     query[(__bridge id <NSCopying>) (kSecAttrService)] = @"ecc_default_tenant";
 #if TARGET_OS_OSX
-    query[(__bridge id <NSCopying>) (kSecUseDataProtectionKeychain)] = @YES;
+    if (@available(macOS 10.15, *)) {
+        query[(__bridge id <NSCopying>) (kSecUseDataProtectionKeychain)] = @YES;
+    }
 #endif
     query[(__bridge id) kSecAttrAccessGroup] = sharedAccessGroup;
     CFDictionaryRef attributeDictCF = NULL;
