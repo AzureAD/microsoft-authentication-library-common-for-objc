@@ -1046,8 +1046,7 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache
-                                                                                                             extendedTokenCache:nil
-                                                                                                                requestSentDate:[NSDate date]];
+                                                                                                             extendedTokenCache:nil];
 
 
       //throttlingServiceMock
@@ -1214,8 +1213,7 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache
-                                                                                                             extendedTokenCache:nil
-                                                                                                                requestSentDate:[NSDate date]];
+                                                                                                             extendedTokenCache:nil];
 
       //throttlingServiceMock
       MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
@@ -1371,8 +1369,7 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache
-                                                                                                             extendedTokenCache:nil
-                                                                                                                requestSentDate:nil];
+                                                                                                             extendedTokenCache:nil];
 
       //throttlingServiceMock
       MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache

@@ -73,7 +73,6 @@
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
                      accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                        extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
-                          requestSentDate:(nullable NSDate *)requestSentDate
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
@@ -87,7 +86,6 @@
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __typeof__(self) __weak weakSelf = self;
-        _requestSentDate = requestSentDate;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
             __typeof__(self) strongSelf = weakSelf;
@@ -171,7 +169,7 @@
 
         NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
                                                                                           error:nil];
-        
+        self.requestSentDate = [NSDate date];
         self.operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                             providerType:self.providerType
                                                                                            enrollmentIds:enrollmentIds

@@ -45,7 +45,6 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
                               accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                 extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
-                                   requestSentDate:(nullable NSDate *)requestSentDate
                                 NS_DESIGNATED_INITIALIZER;
 
 @end
