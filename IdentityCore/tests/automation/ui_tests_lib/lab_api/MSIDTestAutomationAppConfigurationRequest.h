@@ -54,7 +54,8 @@ extern MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI;
 @property (nonatomic) MSIDTestAppAudience testAppAudience;
 @property (nonatomic) NSDictionary *additionalQueryParameters;
 @property (nonatomic) MSIDTestAppWhiteListType appWhiteListType;
- 
+@property (nonatomic) NSString *appId;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -346,7 +346,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
     if (!defaultKeychainGroup)
     {
-        defaultKeychainGroup = [[NSBundle mainBundle] bundleIdentifier];
+        defaultKeychainGroup = [[MSIDKeychainUtil sharedInstance] applicationBundleIdentifier];
     }
 
     s_defaultKeychainGroup = [defaultKeychainGroup copy];
@@ -430,7 +430,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         
         if (!keychainGroup)
         {
-            keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
+            keychainGroup = [[MSIDKeychainUtil sharedInstance] applicationBundleIdentifier];
         }
 
         MSIDKeychainUtil *keychainUtil = [MSIDLoginKeychainUtil sharedInstance];
@@ -465,7 +465,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
             return nil;
         }
         
-        self.appIdentifier = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+        self.appIdentifier = [NSString stringWithFormat:@"%@;%d", [[MSIDKeychainUtil sharedInstance] applicationBundleIdentifier],
                               NSProcessInfo.processInfo.processIdentifier];
 
         self.defaultCacheQuery = @{
@@ -924,7 +924,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     else
     {
         // Non-Shareable item attributes: <keychainGroup>-<app_bundle_id>
-        [attributes setObject:[NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]] forKey:(id)kSecAttrAccount];
+        [attributes setObject:[NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[MSIDKeychainUtil sharedInstance] applicationBundleIdentifier]] forKey:(id)kSecAttrAccount];
         [attributes setObject:self.accessControlForNonSharedItems forKey:(id)kSecAttrAccess];
     }
     
