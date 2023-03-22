@@ -1,6 +1,7 @@
 ## TBD
 * Fix function declaration without prototype on Xcode 14.3 (#1200)
 * Fix a crash when no additional info found in the device info json (#1203)
+* Add support PKeyAuthPlus and ECC based JWT signature generation. (#1044)
 
 Version 1.7.16
 * Add more detailed error codes for JIT (#1187)
