@@ -206,18 +206,6 @@
 
 #pragma mark - Lookup by private key
 
-+ (MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(__unused NSString *)tenantId context:(__unused id<MSIDRequestContext>)context
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No cert authorities provided in the request. Looking up default WPJ certificate");
-    return [self findDefaultWPJRegistrationInfoWithContext:context];
-}
-
-+ (MSIDWPJKeyPairWithCert *)findDefaultWPJRegistrationInfoWithContext:(id<MSIDRequestContext>)context
-{
-    NSDictionary *extraAttributes = @{ (__bridge id)kSecAttrApplicationTag: kMSIDPrivateKeyIdentifier };
-    return [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraAttributes certAttributes:nil context:context];
-}
-
 + (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                              context:(id<MSIDRequestContext>_Nullable)context
                                                error:(NSError*__nullable*__nullable)error
