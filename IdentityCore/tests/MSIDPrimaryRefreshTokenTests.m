@@ -135,6 +135,44 @@
     XCTAssertEqualObjects(prt.prtProtocolVersion, @"3.8");
 }
 
+- (void)testSerializeDeserialize_whenExternalKeyTypeIsSetToNonDefault_shouldReturnCorrectInfo
+{
+    // Create MSIDPrimaryRefreshToken
+    MSIDPrimaryRefreshToken *primaryRT = [self createToken];
+    primaryRT.externalKeyLocationType = MSIDExternalPRTKeyLocationTypeSSO;
+    primaryRT.sessionKey = nil;
+    
+    // Convert MSIDPrimaryRefreshToken to cache item
+    MSIDPRTCacheItem *cacheItem = (MSIDPRTCacheItem *) primaryRT.tokenCacheItem;
+    XCTAssertEqual(cacheItem.externalKeyLocationType, primaryRT.externalKeyLocationType);
+    
+    // Convert cache item to JSON
+    NSDictionary *serializedCacheItem = [cacheItem jsonDictionary];
+    XCTAssertEqualObjects(serializedCacheItem[MSID_PRT_EXTERNAL_KEY_TYPE_CACHE_KEY], @"2");
+    
+    // Convert JSON back to cache item
+    NSError *error;
+    MSIDPRTCacheItem *deserializedCacheItem = [[MSIDPRTCacheItem alloc] initWithJSONDictionary:serializedCacheItem error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(deserializedCacheItem);
+    XCTAssertEqual(deserializedCacheItem.externalKeyLocationType, primaryRT.externalKeyLocationType);
+    
+    // Convert cache item to archived data
+    NSData *encodedCacheItem = [NSKeyedArchiver archivedDataWithRootObject:deserializedCacheItem requiringSecureCoding:YES error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(encodedCacheItem);
+    
+    // Convert archived data back to cache item
+    MSIDPRTCacheItem *deserializedCacheItem2 = [NSKeyedUnarchiver unarchivedObjectOfClass:[MSIDPRTCacheItem  class] fromData:encodedCacheItem error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(deserializedCacheItem2);
+    XCTAssertEqual(deserializedCacheItem2.externalKeyLocationType, primaryRT.externalKeyLocationType);
+    
+    // Convert deserialized cache data back to MSIDPrimaryRefreshToken
+    MSIDPrimaryRefreshToken *primaryRT2 = [[MSIDPrimaryRefreshToken alloc] initWithTokenCacheItem:deserializedCacheItem];
+    XCTAssertEqual(primaryRT2.externalKeyLocationType, primaryRT.externalKeyLocationType);
+}
+
 #pragma mark - Private
 
 - (MSIDPrimaryRefreshToken *)createToken
