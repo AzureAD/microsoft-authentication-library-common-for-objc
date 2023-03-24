@@ -60,8 +60,11 @@
     response.additionalTokenResponse = tokenResponse;
     
     NSDictionary *json = [response jsonDictionary];
-    
+#if TARGET_OS_OSX
+    XCTAssertEqual(21, json.allKeys.count);
+#else
     XCTAssertEqual(20, json.allKeys.count);
+#endif
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
@@ -103,8 +106,11 @@
     response.tokenResponse = tokenResponse;
     
     NSDictionary *json = [response jsonDictionary];
-    
+#if TARGET_OS_OSX
+    XCTAssertEqual(20, json.allKeys.count);
+#else
     XCTAssertEqual(19, json.allKeys.count);
+#endif
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
@@ -172,8 +178,12 @@
     response.additionalTokenResponse = tokenResponse;
     
     NSDictionary *json = [response jsonDictionary];
-    
+#if TARGET_OS_OSX
+    XCTAssertEqual(20, json.allKeys.count);
+#else
     XCTAssertEqual(19, json.allKeys.count);
+#endif
+
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");
@@ -208,8 +218,11 @@
     response.tokenResponse = tokenResponse;
     
     NSDictionary *json = [response jsonDictionary];
-    
+#if TARGET_OS_OSX
+    XCTAssertEqual(19, json.allKeys.count);
+#else
     XCTAssertEqual(18, json.allKeys.count);
+#endif
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");
