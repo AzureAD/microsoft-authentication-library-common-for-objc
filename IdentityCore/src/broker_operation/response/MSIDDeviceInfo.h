@@ -58,6 +58,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
 @property (nonatomic, nullable) NSString *brokerVersion;
 @property (nonatomic) NSDictionary *additionalExtensionData;
+
+#if TARGET_OS_OSX
+@property (nonatomic) MSIDPlatformSSOStatus platformSSOStatus;
+#endif
+
 // New property to return additional device Info
 @property (nonatomic) NSDictionary *extraDeviceInfo;
 
