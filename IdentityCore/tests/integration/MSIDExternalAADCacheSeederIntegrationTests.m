@@ -45,6 +45,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 @interface MSIDExternalAADCacheSeederIntegrationTests : XCTestCase
 
@@ -146,7 +147,7 @@
     headers[@"x-app-ver"] = [MSIDTestRequireValueSentinel sentinel];
     headers[@"client-request-id"] = [MSIDTestRequireValueSentinel sentinel];
     headers[@"return-client-request-id"] = @"true";
-    headers[@"x-ms-PkeyAuth"] = [MSIDTestRequireValueSentinel sentinel];
+    headers[kMSIDPKeyAuthHeader] = [MSIDTestRequireValueSentinel sentinel];
     NSMutableDictionary *requestBody = [@{
                                           @"client_id": @"some id",
                                           @"client_info": @"1",

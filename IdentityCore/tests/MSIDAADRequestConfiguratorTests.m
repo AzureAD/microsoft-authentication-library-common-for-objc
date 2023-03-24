@@ -28,6 +28,7 @@
 #import "MSIDTestContext.h"
 #import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDHttpResponseSerializer.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 @interface MSIDAADRequestConfiguratorTests : XCTestCase
 
@@ -76,7 +77,7 @@
     XCTAssertNotNil(headers[@"x-client-OS"]);
     XCTAssertNotNil(headers[@"x-client-SKU"]);
     XCTAssertNotNil(headers[@"x-client-Ver"]);
-    XCTAssertNotNil(headers[@"x-ms-PkeyAuth"]);
+    XCTAssertNotNil(headers[kMSIDPKeyAuthHeader]);
 #if TARGET_OS_IPHONE
     XCTAssertNotNil(headers[@"x-client-DM"]);
 #endif
