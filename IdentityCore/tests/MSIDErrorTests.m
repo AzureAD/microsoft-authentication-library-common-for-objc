@@ -175,12 +175,12 @@
                                                               MSIDErrorUserCancel,
                                                               errorWithAccessDeniedAndUserSkipped.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
 }
-- (void)testMSIDErrorWithServerErrorAndSubErrorServerErroThenShouldServerError
+- (void)testMSIDErrorWithServerErrorAndSubErrorServerErrorThenShouldServerError
 {
     NSError *errorServerErrorAndServerError = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"server_error", @"server_error", nil, nil, nil, NO);
     XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorServerErrorAndServerError.userInfo[MSIDOAuthErrorKey],
                                                               MSIDErrorServerError,
-                                                              errorServerErrorAndServerError.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
+                                                              errorServerErrorAndServerError.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorServerError);
 }
 - (void)testMSIDErrorWithTransferTokenFailedShouldReturnUserCanceled
 {
