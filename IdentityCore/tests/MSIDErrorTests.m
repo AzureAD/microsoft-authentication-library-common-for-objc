@@ -179,7 +179,7 @@
 {
     NSError *errorServerErrorAndServerError = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"server_error", @"server_error", nil, nil, nil, NO);
     XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorServerErrorAndServerError.userInfo[MSIDOAuthErrorKey],
-                                                              MSIDErrorUserCancel,
+                                                              MSIDErrorServerError,
                                                               errorServerErrorAndServerError.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorUserCancel);
 }
 - (void)testMSIDErrorWithTransferTokenFailedShouldReturnUserCanceled
