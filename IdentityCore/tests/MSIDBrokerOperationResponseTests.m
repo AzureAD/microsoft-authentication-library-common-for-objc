@@ -69,8 +69,11 @@
     response.deviceInfo = [[MSIDDeviceInfo alloc] initWithDeviceMode:MSIDDeviceModeShared ssoExtensionMode:MSIDSSOExtensionModeSilentOnly isWorkPlaceJoined:YES brokerVersion:@"1.2.3"];
     
     NSDictionary *json = [response jsonDictionary];
-    
+#if TARGET_OS_OSX
+    XCTAssertEqual(9, json.allKeys.count);
+#else
     XCTAssertEqual(8, json.allKeys.count);
+#endif
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"test_response");
@@ -88,8 +91,11 @@
     response.success = true;
     
     NSDictionary *json = [response jsonDictionary];
-    
+#if TARGET_OS_OSX
+    XCTAssertEqual(7, json.allKeys.count);
+#else
     XCTAssertEqual(6, json.allKeys.count);
+#endif
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"test_response");
     XCTAssertEqualObjects(json[@"success"], @"1");
