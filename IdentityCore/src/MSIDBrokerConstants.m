@@ -84,4 +84,4 @@ NSString *const MSID_PRIMARY_REGISTRATION_DEVICE_ID = @"primary_registration_met
 NSString *const MSID_PRIMARY_REGISTRATION_TENANT_ID = @"primary_registration_metadata_tenant_id";
 NSString *const MSID_PRIMARY_REGISTRATION_CLOUD = @"primary_registration_metadata_cloud_host";
 NSString *const MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT = @"primary_registration_metadata_certificate_thumbprint";
-
+NSString *const MSID_PLATFORM_SSO_STATUS_KEY = @"platform_sso_status";
