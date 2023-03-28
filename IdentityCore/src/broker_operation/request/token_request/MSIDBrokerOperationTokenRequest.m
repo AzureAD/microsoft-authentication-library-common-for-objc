@@ -33,6 +33,7 @@
 #import "MSIDJsonSerializer.h"
 #import "NSDictionary+MSIDJsonSerializable.h"
 #import "MSIDClaimsRequest.h"
+#import "NSDate+MSIDExtensions.h"
 
 @implementation MSIDBrokerOperationTokenRequest
 
@@ -41,6 +42,7 @@
        providerType:(MSIDProviderType)providerType
       enrollmentIds:(NSDictionary *)enrollmentIds
        mamResources:(NSDictionary *)mamResources
+    requestSentDate:(NSDate *)requestSentDate
 {
     [self fillRequest:request
   keychainAccessGroup:parameters.keychainAccessGroup
@@ -57,6 +59,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.mamResources = mamResources;
     request.clientCapabilities = parameters.clientCapabilities;
     request.claimsRequest = parameters.claimsRequest;
+    request.requestSentDate = requestSentDate;
         
     return YES;
 }
@@ -102,6 +105,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
             _claimsRequest = (MSIDClaimsRequest *)[[MSIDJsonSerializer new] fromJsonString:claimsStr ofType:MSIDClaimsRequest.class context:nil error:nil];
         }
         
+        _requestSentDate = [NSDate msidDateFromTimeStamp:json[MSID_BROKER_REQUEST_SENT_TIMESTAMP]];
     }
     
     return self;
@@ -128,7 +132,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     json[MSID_BROKER_INTUNE_MAM_RESOURCE_KEY] = [self.mamResources msidJSONSerializeWithContext:nil];
     json[MSID_BROKER_CLIENT_CAPABILITIES_KEY] = [self.clientCapabilities componentsJoinedByString:@","];
     json[MSID_BROKER_CLAIMS_KEY] = [[self.claimsRequest jsonDictionary] msidJSONSerializeWithContext:nil];
-
+    json[MSID_BROKER_REQUEST_SENT_TIMESTAMP] = [self.requestSentDate msidDateToFractionalTimestamp:10];
     return json;
 }
 
