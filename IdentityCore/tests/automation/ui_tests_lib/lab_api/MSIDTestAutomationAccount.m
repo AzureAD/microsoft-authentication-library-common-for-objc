@@ -65,6 +65,7 @@ static NSDictionary *s_tenantMappingDictionary;
     {
         _objectId = [json msidStringObjectForKey:@"objectId"];
         _userType = [json msidStringObjectForKey:@"userType"];
+        _associatedAppID = [json msidStringObjectForKey:@"appId"];
         
         NSString *homeUPN = [json msidStringObjectForKey:@"homeUPN"];
         NSString *guestUPN = [json msidStringObjectForKey:@"upn"];

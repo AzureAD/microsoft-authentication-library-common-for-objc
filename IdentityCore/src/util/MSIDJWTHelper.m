@@ -29,6 +29,7 @@
 #import "MSIDLogger+Internal.h"
 #import "NSData+JWT.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDKeyOperationUtil.h"
 
 @implementation MSIDJWTHelper
 
@@ -79,9 +80,13 @@
 + (NSData *)sign:(SecKeyRef)privateKey
             data:(NSData *)plainData
 {
-
-    NSData *hashData = [plainData msidSHA256];
-    return [hashData msidSignHashWithPrivateKey:privateKey];
+    SecKeyAlgorithm alg = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
+    NSString *signingAlg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:privateKey context:nil error:nil];
+    if (signingAlg == MSID_JWT_ALG_ES256)
+    {
+        alg = kSecKeyAlgorithmECDSASignatureMessageX962SHA256;
+    }
+    return [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:plainData privateKey:privateKey signingAlgorithm:alg context:nil error:nil];
 }
 
 + (NSString *)JSONFromDictionary:(NSDictionary *)dictionary

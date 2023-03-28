@@ -21,17 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDWorkPlaceJoinConstants.h"
+typedef NSString *const MSIDJwtAlgorithm NS_TYPED_ENUM;
+// Asymmetric signature Algorithms values as defined in https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-algorithms-36#section-3.1
 
-NSString *const kMSIDPrivateKeyIdentifier               = @"com.microsoft.workplacejoin.privatekey\0";
-NSString *const kMSIDTenantKeyIdentifier                = @"com.microsoft.workplacejoin.tenantId";
-NSString *const kMSIDUPNKeyIdentifier                   = @"com.microsoft.workplacejoin.registeredUserPrincipalName";
-NSString *const kMSIDProtectionSpaceDistinguishedName   = @"MS-Organization-Access";
-NSString *const kMSIDPKeyAuthUrn                        = @"urn:http-auth:PKeyAuth?";
-// ADFS doesn't understand PKeyAuth+, so the client still needs to advertise PKeyAuth via user-agent.
-// Keeping the header as x-ms-PKeyAuth+ and the user-agent as PKeyAuth/1.0 so that Pkeyauth challenges are provided by ADFS and PKeyAuth+ challenges are provided by ESTS.
-NSString *const kMSIDPKeyAuthHeader                     = @"x-ms-PkeyAuth+";
-NSString *const kMSIDPKeyAuthKeyWordForUserAgent        = @"PKeyAuth/1.0";
-NSString *const kMSIDPKeyAuthHeaderVersion              = @"1.0";
-NSString *const kMSIDWwwAuthenticateHeader              = @"WWW-Authenticate";
-NSString *const kMSIDPKeyAuthName                       = @"PKeyAuth";
+extern MSIDJwtAlgorithm const MSID_JWT_ALG_RS256;    // RSASSA-PKCS-v1_5 using SHA-256
+extern MSIDJwtAlgorithm const MSID_JWT_ALG_ES256;    // ECDSA using P-256 and SHA-256
