@@ -54,6 +54,7 @@
 @property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
 @property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
+@property (nonatomic) NSDate *requestSentDate;
 
 @end
 
@@ -145,10 +146,12 @@
         NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
                                                                                           error:nil];
         
+        self.requestSentDate = [NSDate date];
         __auto_type operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                                  providerType:self.providerType
                                                                                                 enrollmentIds:enrollmentIds
-                                                                                                 mamResources:mamResources];
+                                                                                                 mamResources:mamResources
+                                                                                              requestSentDate:self.requestSentDate];
     
         ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
         ssoRequest.requestedOperation = [operationRequest.class operation];
