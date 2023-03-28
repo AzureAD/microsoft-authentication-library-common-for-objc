@@ -276,6 +276,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     NSString *tag = nil;
     __unused MSIDWPJKeyPairWithCert *defaultKeys = nil;
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+    extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
     
     // In macOS, default registrations can only be ECC. Skip checking default RSA registration for macOS.
 #if !TARGET_OS_OSX
@@ -289,7 +290,6 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                                             (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup,
                                                             (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
         
-        extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using RSA key.");
         defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraDefaultPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
 
@@ -319,7 +319,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     }
    
     // Since the defualt RSA search returned nil in iOS, the key might be an ECC key. Use the tag specific for EC device key and re-try
-    tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
+    tag = [NSString stringWithFormat:@"%@#%@%@", kWPJPrivateKeyIdentifier, tenantId, kECPrivateKeyTagSuffix];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
     
     NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:@{ (__bridge id)kSecAttrApplicationTag : tagData,
