@@ -21,17 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDWorkPlaceJoinConstants.h"
+#import "MSIDJwtAlgorithm.h"
 
-NSString *const kMSIDPrivateKeyIdentifier               = @"com.microsoft.workplacejoin.privatekey\0";
-NSString *const kMSIDTenantKeyIdentifier                = @"com.microsoft.workplacejoin.tenantId";
-NSString *const kMSIDUPNKeyIdentifier                   = @"com.microsoft.workplacejoin.registeredUserPrincipalName";
-NSString *const kMSIDProtectionSpaceDistinguishedName   = @"MS-Organization-Access";
-NSString *const kMSIDPKeyAuthUrn                        = @"urn:http-auth:PKeyAuth?";
-// ADFS doesn't understand PKeyAuth+, so the client still needs to advertise PKeyAuth via user-agent.
-// Keeping the header as x-ms-PKeyAuth+ and the user-agent as PKeyAuth/1.0 so that Pkeyauth challenges are provided by ADFS and PKeyAuth+ challenges are provided by ESTS.
-NSString *const kMSIDPKeyAuthHeader                     = @"x-ms-PkeyAuth+";
-NSString *const kMSIDPKeyAuthKeyWordForUserAgent        = @"PKeyAuth/1.0";
-NSString *const kMSIDPKeyAuthHeaderVersion              = @"1.0";
-NSString *const kMSIDWwwAuthenticateHeader              = @"WWW-Authenticate";
-NSString *const kMSIDPKeyAuthName                       = @"PKeyAuth";
+MSIDJwtAlgorithm MSID_JWT_ALG_RS256 = @"RS256";
+MSIDJwtAlgorithm MSID_JWT_ALG_ES256 = @"ES256";

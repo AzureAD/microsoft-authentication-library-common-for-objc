@@ -29,6 +29,7 @@
 #import "NSURL+MSIDExtensions.h"
 #import "NSURL+MSIDTestUtil.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 @implementation MSIDTestURLResponse
 
@@ -46,7 +47,7 @@
         headers[@"x-app-name"] = @"UnitTestHost";
         headers[@"x-app-ver"] = @"1.0";
         
-        headers[@"x-ms-PkeyAuth"] = @"1.0";
+        headers[kMSIDPKeyAuthHeader] = @"1.0";
         
         // TODO: This really shouldn't be a default header...
         headers[@"Content-Type"] = @"application/x-www-form-urlencoded";

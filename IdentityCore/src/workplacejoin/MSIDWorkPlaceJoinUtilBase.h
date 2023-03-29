@@ -49,6 +49,9 @@
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
                                                                                        context:(nullable id<MSIDRequestContext>)context;
 
+// MSIDWPJKeyPairWithCert only contains keys and cert - no IdentityRef. Can be used for PkeyAuth challenges, but not for Client TLS challenges
++ (nullable MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(nullable NSString *)tenantId
+                                                    context:(nullable id<MSIDRequestContext>)context;
 @end
 
 #endif /* MSIDWorkPlaceJoinUtilBase_h */
