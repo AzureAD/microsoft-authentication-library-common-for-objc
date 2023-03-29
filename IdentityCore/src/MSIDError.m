@@ -103,6 +103,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     {   // Account Transfer session time out, When the token's time is expired
         return MSIDErrorUserCancel;
     }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"server_error"] == NSOrderedSame)
+    {
+        return MSIDErrorServerError;
+    }
     return defaultCode;
 }
 
@@ -199,6 +203,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorServerInvalidState),
                       @(MSIDErrorServerProtectionPoliciesRequired),
                       @(MSIDErrorAuthorizationFailed),
+                      @(MSIDErrorServerError),
                       ],
               MSIDHttpErrorCodeDomain : @[
                       @(MSIDErrorServerUnhandledResponse)
