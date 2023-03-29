@@ -121,8 +121,6 @@
     return [self fromJsonData:jsonData ofType:klass context:context error:error];
 }
 
-#pragma mark - Private
-
 - (NSDictionary *)deserializeJSON:(NSData *)data error:(NSError *__autoreleasing *)error
 {
     if (!data)
