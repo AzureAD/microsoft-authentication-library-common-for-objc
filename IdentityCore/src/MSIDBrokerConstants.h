@@ -87,3 +87,5 @@ extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_DEVICE_ID;
 extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_TENANT_ID;
 extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_CLOUD;
 extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT;
+extern NSString * _Nonnull const MSID_PLATFORM_SSO_STATUS_KEY;
+extern NSString * _Nonnull const MSID_BROKER_REQUEST_SENT_TIMESTAMP;

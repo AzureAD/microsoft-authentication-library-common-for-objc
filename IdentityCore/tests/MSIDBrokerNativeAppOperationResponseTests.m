@@ -82,8 +82,11 @@
     response.requestReceivedTimeStamp = [NSDate dateWithTimeIntervalSince1970:50];
     
     NSDictionary *json = [response jsonDictionary];
-    
+#if TARGET_OS_OSX
+    XCTAssertEqual(10, json.allKeys.count);
+#else
     XCTAssertEqual(9, json.allKeys.count);
+#endif
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"operation_generic_response");

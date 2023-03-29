@@ -62,9 +62,10 @@
 
             return nil;
         }
-
+       
         _tokenRequestProvider = tokenRequestProvider;
         _fallbackController = fallbackController;
+        
     }
 
     return self;

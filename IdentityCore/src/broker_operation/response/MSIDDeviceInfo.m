@@ -63,6 +63,10 @@ static NSArray *deviceModeEnumString;
         _wpjStatus = [self wpjStatusEnumFromString:[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY]];
         _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
         
+#if TARGET_OS_OSX
+        _platformSSOStatus = [self platformSSOStatusEnumFromString:[json msidStringObjectForKey:MSID_PLATFORM_SSO_STATUS_KEY]];
+#endif
+        
         NSString *jsonDataString = [json msidStringObjectForKey:MSID_ADDITIONAL_EXTENSION_DATA_KEY];
         if (jsonDataString)
         {
@@ -89,6 +93,9 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_SSO_EXTENSION_MODE_KEY] = [self ssoExtensionModeStringFromEnum:self.ssoExtensionMode];
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
+#if TARGET_OS_OSX
+    json[MSID_PLATFORM_SSO_STATUS_KEY] = [self platformSSOStatusStringFromEnum:self.platformSSOStatus];
+#endif
     json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] = [self.additionalExtensionData msidJSONSerializeWithContext:nil];
     if (self.extraDeviceInfo)
     {
@@ -156,6 +163,30 @@ static NSArray *deviceModeEnumString;
     if ([wpjStatusString isEqualToString:@"joined"])    return MSIDWorkPlaceJoinStatusJoined;
 
     return MSIDWorkPlaceJoinStatusNotJoined;
+}
+
+- (NSString *)platformSSOStatusStringFromEnum:(MSIDPlatformSSOStatus)platformSSOStatus
+{
+    switch (platformSSOStatus) {
+        case MSIDPlatformSSONotEnabled:
+            return @"platformSSONotEnabled";
+        case MSIDPlatformSSOEnabledNotRegistered:
+            return @"platformSSOEnabledNotRegistered";
+        case MSIDPlatformSSOEnabledAndRegistered:
+            return @"platformSSOEnabledAndRegistered";
+        
+        default:
+            return nil;
+    }
+}
+
+- (MSIDPlatformSSOStatus)platformSSOStatusEnumFromString:(NSString *)platformSSOStatusString
+{
+    if ([platformSSOStatusString isEqualToString:@"platformSSONotEnabled"])    return MSIDPlatformSSONotEnabled;
+    if ([platformSSOStatusString isEqualToString:@"platformSSOEnabledNotRegistered"])  return MSIDPlatformSSOEnabledNotRegistered;
+    if ([platformSSOStatusString isEqualToString:@"platformSSOEnabledAndRegistered"])  return MSIDPlatformSSOEnabledAndRegistered;
+    
+    return MSIDPlatformSSONotEnabled;
 }
 
 @end

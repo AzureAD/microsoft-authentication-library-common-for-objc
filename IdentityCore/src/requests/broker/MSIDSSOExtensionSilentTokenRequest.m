@@ -169,11 +169,12 @@
 
         NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
                                                                                           error:nil];
-
+        self.requestSentDate = [NSDate date];
         self.operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                             providerType:self.providerType
                                                                                            enrollmentIds:enrollmentIds
-                                                                                            mamResources:mamResources];
+                                                                                            mamResources:mamResources
+                                                                                  requestSentDate:self.requestSentDate];
         if (![MSIDThrottlingService isThrottlingEnabled])
         {
             [self executeRequestImplWithCompletionBlock:completionBlock];
@@ -222,7 +223,6 @@
     self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
     self.authorizationController.delegate = self.extensionDelegate;
     
-    self.requestSentDate = [NSDate date];
     [self.authorizationController msidPerformRequests];
 
     self.requestCompletionBlock = completionBlock;

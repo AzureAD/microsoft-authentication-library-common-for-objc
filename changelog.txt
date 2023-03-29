@@ -1,4 +1,5 @@
 Version 1.7.18
+* Updated extraDeviceInfo to include platform sso status on macOS
 * Add support PKeyAuthPlus and ECC based JWT signature generation. (#1044)
 
 Version 1.7.17
