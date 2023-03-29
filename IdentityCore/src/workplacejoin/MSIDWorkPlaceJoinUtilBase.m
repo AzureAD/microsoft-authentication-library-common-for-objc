@@ -271,12 +271,40 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
             return legacyKeys;
         }
     }
-     
+    
+    // Default registrations can be done using RSA/ECC in iOS and only ECC in macOS.
     NSString *tag = nil;
     __unused MSIDWPJKeyPairWithCert *defaultKeys = nil;
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+    extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
     
-    // If tenantId is missing, the caller may have requested for primary registration. Query keychain to get the primary registration tenantId
+    // In macOS, default registrations can only be ECC. Skip checking default RSA registration for macOS.
+#if !TARGET_OS_OSX
+    // When checking for RSA default registration, a tenantId is required to be known
+    if (tenantId != nil)
+    {
+        tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
+        tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
+         // 1st Looking for RSA device key in the keychain.
+        __unused NSDictionary *extraDefaultPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag : tagData,
+                                                            (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup,
+                                                            (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using RSA key.");
+        defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraDefaultPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
+
+        // If secondary Identity was found, return it
+        if (defaultKeys)
+        {
+            defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning RSA private device key from default registration.");
+            return defaultKeys;
+        }
+    }
+#endif
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using ECC key.");
+    // If tenantId is missing, the caller may have requested for ECC primary registration. Query keychain to get the ECC primary registration tenantId
     if (tenantId == nil)
     {
         NSError *error;
@@ -290,43 +318,22 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         tenantId = primaryRegTenantId;
     }
    
-    tag = [NSString stringWithFormat:@"%@#%@", kWPJPrivateKeyIdentifier, tenantId];
-    tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
-    // Default registrations can be done using RSA/ECC in iOS and only ECC in macOS. 1st Looking for RSA device key in the keychain.
-    __unused NSDictionary *extraDefaultPrivateKeyAttributes = @{ (__bridge id)kSecAttrApplicationTag : tagData,
-                                                        (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup,
-                                                        (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
-    
-    extraCertAttributes = @{ (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup };
-    // In macOS, default registrations can only be ECC. Skip checking default RSA registration for macOS.
-#if !TARGET_OS_OSX
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using RSA key.");
-    defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraDefaultPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
-
-    // If secondary Identity was found, return it
-    if (defaultKeys)
-    {
-        defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning RSA private device key from default registration.");
-        return defaultKeys;
-    }
-#endif
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using ECC key.");
     // Since the defualt RSA search returned nil in iOS, the key might be an ECC key. Use the tag specific for EC device key and re-try
-    tag = [NSString stringWithFormat:@"%@%@", tag, kECPrivateKeyTagSuffix];
+    tag = [NSString stringWithFormat:@"%@#%@%@", kWPJPrivateKeyIdentifier, tenantId, kECPrivateKeyTagSuffix];
     tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
-    NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:extraDefaultPrivateKeyAttributes];
-    [privateKeyAttributes setObject:tagData forKey:(__bridge id)kSecAttrApplicationTag];
+    
+    NSMutableDictionary *privateKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:@{ (__bridge id)kSecAttrApplicationTag : tagData,
+                                                                                                   (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup,
+                                                                                                   // Not including kSecAttrTokenIDSecureEnclave in query dict as in the future registrations maybe ECC based even in software keychain
+                                                                                                   (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeECSECPrimeRandom,
+                                                                                                   (__bridge id)kSecAttrKeySizeInBits : @256
+                                                                                                }];
 #if TARGET_OS_OSX
     if (@available(macOS 10.15, *))
     {
         [privateKeyAttributes setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
     }
 #endif
-    // Not including kSecAttrTokenIDSecureEnclave in query dict as in the future registrations maybe ECC based even in software keychain
-    [privateKeyAttributes setObject:(__bridge id)kSecAttrKeyTypeECSECPrimeRandom forKey:(__bridge id)kSecAttrKeyType];
-    [privateKeyAttributes setObject:@256 forKey:(__bridge id)kSecAttrKeySizeInBits];
     defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes certAttributes:extraCertAttributes context:context];
     if (defaultKeys)
     {
