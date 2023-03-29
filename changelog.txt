@@ -1,7 +1,7 @@
 Version 1.7.18
 * Add support PKeyAuthPlus and ECC based JWT signature generation. (#1213)
 
-## 1.7.17
+Version 1.7.17
 * Fix function declaration without prototype on Xcode 14.3 (#1200)
 * Fix a crash when no additional info found in the device info json (#1203)
 
