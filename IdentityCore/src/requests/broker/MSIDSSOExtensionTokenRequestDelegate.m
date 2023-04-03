@@ -92,6 +92,10 @@
             dispatchBlock();
         });
     }
+    else
+    {
+        dispatchBlock();
+    }
 }
 
 @end
