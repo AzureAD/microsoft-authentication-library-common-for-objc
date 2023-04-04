@@ -272,6 +272,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorServerDeclinedScopes";
         case MSIDErrorServerAccessDenied:
             return @"MSIDErrorServerAccessDenied";
+        case MSIDErrorServerError:
+            return @"MSIDErrorServerError";
         case MSIDErrorServerInvalidState:
             return @"MSIDErrorServerInvalidState";
         case MSIDErrorServerProtectionPoliciesRequired:
