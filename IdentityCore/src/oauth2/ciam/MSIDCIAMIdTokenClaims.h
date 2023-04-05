@@ -22,15 +22,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDAADV2IdTokenClaims.h"
 
 @interface MSIDCIAMIdTokenClaims : MSIDAADV2IdTokenClaims
-
-// This is the name of the policy that was used to acquire the ID token.
-//@property (readonly) NSString *ciam;
 
 @end
 

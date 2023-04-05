@@ -30,8 +30,6 @@
 
 @implementation MSIDCIAMIdTokenClaims
 
-//MSID_JSON_ACCESSOR(@"tfp", tfp)
-
 - (void)initDerivedProperties
 {
     [super initDerivedProperties];

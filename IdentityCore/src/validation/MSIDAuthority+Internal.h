@@ -26,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDAuthority.h"
-#import "MSIDAuthorityResolving.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
