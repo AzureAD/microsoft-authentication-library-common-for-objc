@@ -26,6 +26,7 @@
 #import "MSIDSSOExtensionRequestDelegate+Internal.h"
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDBrokerConstants.h"
 
 @implementation MSIDSSOExtensionTokenRequestDelegate
 
@@ -67,16 +68,34 @@
         return;
     }
     
-    __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&error];
+    BOOL forceRunOnBackgroundQueue = [[json objectForKey:MSID_BROKER_OPERATION_KEY] isEqualToString:@"refresh"];
+    [self forceRunOnBackgroundQueue:forceRunOnBackgroundQueue dispatchBlock:^{
+        NSError *innerError;
+        __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&innerError];
 
-    if (!operationResponse)
+        if (!operationResponse)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"operationResponse is nill, error %@", innerError);
+            completionBlockWrapper(nil, innerError);
+            return;
+        }
+        
+        completionBlockWrapper(operationResponse, nil);
+    }];
+}
+
+- (void)forceRunOnBackgroundQueue:(BOOL)forceOnBackgroundQueue dispatchBlock:(void (^)(void))dispatchBlock {
+    if (forceOnBackgroundQueue && [NSThread isMainThread])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"operationResponse is nill, error %@", error);
-        completionBlockWrapper(nil, error);
-        return;
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, @"Refresh returns on mainthread, dispatching to global queue");
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            dispatchBlock();
+        });
     }
-    
-    completionBlockWrapper(operationResponse, nil);
+    else
+    {
+        dispatchBlock();
+    }
 }
 
 @end
