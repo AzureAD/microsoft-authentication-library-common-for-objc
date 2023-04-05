@@ -44,9 +44,11 @@
                               providerType:(MSIDProviderType)providerType
                              enrollmentIds:(NSDictionary *)enrollmentIds
                               mamResources:(NSDictionary *)mamResources
+                           requestSentDate:(NSDate *)requestSentDate
 {
     __auto_type request = [MSIDBrokerOperationInteractiveTokenRequest new];
-    [self fillRequest:request withParameters:parameters providerType:providerType enrollmentIds:enrollmentIds mamResources:mamResources];
+    [self fillRequest:request
+       withParameters:parameters providerType:providerType enrollmentIds:enrollmentIds mamResources:mamResources requestSentDate:requestSentDate];
     
     request.accountIdentifier = parameters.accountIdentifier;
     if (!request.accountIdentifier && parameters.loginHint)

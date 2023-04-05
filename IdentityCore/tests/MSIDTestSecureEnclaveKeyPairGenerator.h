@@ -21,27 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDProviderType.h"
-#import "MSIDThumbprintCalculatable.h"
+#ifndef MSIDTestSecureEnclaveKeyPairGenerator_h
+#define MSIDTestSecureEnclaveKeyPairGenerator_h
+@interface MSIDTestSecureEnclaveKeyPairGenerator : NSObject
+@property (readonly, nonatomic) SecKeyRef _Nullable eccPrivateKey;
+    @property (readonly, nonatomic) SecKeyRef _Nullable  eccPublicKey;
+    @property (nonatomic, readonly) NSString*  _Nullable sharedAccessGroup;
+    @property (nonatomic, readonly) NSString*  _Nullable applicationTag;
+    @property (nonatomic, readonly) BOOL useSecureEnclave;
 
-@class MSIDConfiguration;
-@class MSIDAccountIdentifier;
+- (instancetype _Nullable )init NS_UNAVAILABLE;
++ (instancetype _Nullable )new NS_UNAVAILABLE;
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest <MSIDThumbprintCalculatable>
-
-@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                          requestSentDate:(NSDate *)requestSentDate;
-
+-(nullable instancetype)initWithSharedAccessGroup:(NSString *_Nullable)sharedAccessGroup
+                                 useSecureEnclave:(BOOL)useSecureEnclave
+                                   applicationTag:(NSString *_Nullable)applicationTag;
 @end
 
-NS_ASSUME_NONNULL_END
-#endif
+#endif /* MSIDTestSecureEnclaveKeyPairGenerator_h */

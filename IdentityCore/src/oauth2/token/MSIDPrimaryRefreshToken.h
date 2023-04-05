@@ -24,6 +24,14 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacyCredentialCacheCompatible.h"
 
+typedef NS_ENUM(NSInteger, MSIDExternalPRTKeyLocationType)
+{
+    MSIDExternalPRTKeyLocationTypeNone = 0, // Key isn't stored externally
+    MSIDExternalPRTKeyLocationTypeWPJSecureEnclave = 1, // WPJ device and STK keys stored in secure enclave are used for PRT operations (for device-bound cases)
+    MSIDExternalPRTKeyLocationTypeSSO = 2, // External SSO keys are used for PRT operations
+    MSIDExternalPRTKeyLocationTypeSecureEnclave = 3 // External secure enclave keys are used for PRT operations (for deviceless cases)
+};
+
 @class MSIDLegacyTokenCacheItem;
 
 @interface MSIDPrimaryRefreshToken : MSIDLegacyRefreshToken <MSIDLegacyCredentialCacheCompatible>
@@ -36,6 +44,7 @@
 @property (nonatomic) NSUInteger expiryInterval;
 @property (nonatomic, readonly) NSUInteger refreshInterval;
 @property (nonatomic) NSDate *lastRecoveryAttempt;
+@property (nonatomic) MSIDExternalPRTKeyLocationType externalKeyLocationType;
  
 - (BOOL)isDevicelessPRT;
 - (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval;
