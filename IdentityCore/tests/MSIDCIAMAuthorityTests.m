@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,19 +20,34 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
+#import "MSIDAuthority.h"
+#import "MSIDCIAMAuthority.h"
+#import "NSString+MSIDTestUtil.h"
+#import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDCIAMAuthority.h"
 
-extern NSString * _Nonnull const MSID_PROVIDER_TYPE_JSON_KEY;
+@interface MSIDCIAMAuthorityTests : XCTestCase
 
-typedef NS_ENUM(NSInteger, MSIDProviderType)
+@end
+
+@implementation MSIDCIAMAuthorityTests
+
+#pragma mark - init
+
+- (void)testInitCIAMAuthority_whenUrlSchemeIsNotHttps_shouldReturnError
 {
-    MSIDProviderTypeAADV2,
-    MSIDProviderTypeAADV1,
-    MSIDProviderTypeB2C,
-    MSIDProviderTypeCIAM
-};
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"http://tenant.ciamlogin.com"];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertNil(authority);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(@"authority must use HTTPS.", error.userInfo[MSIDErrorDescriptionKey]);
+}
 
-extern NSString * _Nonnull MSIDProviderTypeToString(MSIDProviderType type);
-extern MSIDProviderType MSIDProviderTypeFromString(NSString * _Nonnull providerTypeString);
+@end

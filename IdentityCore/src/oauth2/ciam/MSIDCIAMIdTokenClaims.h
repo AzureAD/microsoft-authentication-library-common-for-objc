@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,19 +20,18 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
 
-extern NSString * _Nonnull const MSID_PROVIDER_TYPE_JSON_KEY;
+#if !EXCLUDE_FROM_MSALCPP
 
-typedef NS_ENUM(NSInteger, MSIDProviderType)
-{
-    MSIDProviderTypeAADV2,
-    MSIDProviderTypeAADV1,
-    MSIDProviderTypeB2C,
-    MSIDProviderTypeCIAM
-};
+#import "MSIDAADV2IdTokenClaims.h"
 
-extern NSString * _Nonnull MSIDProviderTypeToString(MSIDProviderType type);
-extern MSIDProviderType MSIDProviderTypeFromString(NSString * _Nonnull providerTypeString);
+@interface MSIDCIAMIdTokenClaims : MSIDAADV2IdTokenClaims
+
+// This is the name of the policy that was used to acquire the ID token.
+//@property (readonly) NSString *ciam;
+
+@end
+
+#endif
