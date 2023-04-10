@@ -31,6 +31,8 @@
 #endif
 
 extern NSString * _Nonnull const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY;
+extern NSString * _Nonnull const MSID_BROKER_OPERATION_JSON_KEY;
+extern NSString * _Nonnull const MSID_BROKER_OPERATION_RESULT_JSON_KEY;
 
 NS_ASSUME_NONNULL_BEGIN
 

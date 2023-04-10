@@ -44,3 +44,4 @@ MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_ADFS = @"provider_adfs";
 MSIDJsonSerializableType MSID_JSON_TYPE_AADV1_TOKEN_RESPONSE = @"token_response_aad_v1";
 MSIDJsonSerializableType MSID_JSON_TYPE_AADV2_TOKEN_RESPONSE = @"token_response_aad_v2";
 MSIDJsonSerializableType MSID_JSON_TYPE_B2C_TOKEN_RESPONSE = @"token_response_b2c";
+MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_EXTENSION_DATA = @"extension_data";
