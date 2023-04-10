@@ -21,27 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDProviderType.h"
-#import "MSIDThumbprintCalculatable.h"
+typedef NSString *const MSIDJwtAlgorithm NS_TYPED_ENUM;
+// Asymmetric signature Algorithms values as defined in https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-algorithms-36#section-3.1
 
-@class MSIDConfiguration;
-@class MSIDAccountIdentifier;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest <MSIDThumbprintCalculatable>
-
-@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                          requestSentDate:(NSDate *)requestSentDate;
-
-@end
-
-NS_ASSUME_NONNULL_END
-#endif
+extern MSIDJwtAlgorithm const MSID_JWT_ALG_RS256;    // RSASSA-PKCS-v1_5 using SHA-256
+extern MSIDJwtAlgorithm const MSID_JWT_ALG_ES256;    // ECDSA using P-256 and SHA-256

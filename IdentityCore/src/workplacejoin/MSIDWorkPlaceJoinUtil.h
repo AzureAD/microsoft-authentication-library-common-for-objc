@@ -35,10 +35,6 @@
 + (nullable MSIDRegistrationInformation *)getRegistrationInformation:(nullable id<MSIDRequestContext>)context
                                               workplacejoinChallenge:(nullable MSIDWorkplaceJoinChallenge *)workplacejoinChallenge;
 
-// MSIDWPJKeyPairWithCert only contains keys and cert - no IdentityRef. Can be used for PkeyAuth challenges, but not for Client TLS challenges
-+ (nullable MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(nullable NSString *)tenantId
-                                                    context:(nullable id<MSIDRequestContext>)context;
-
 + (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                              context:(nullable id<MSIDRequestContext>)context
                                                error:(NSError*__nullable*__nullable)error;

@@ -21,27 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDProviderType.h"
-#import "MSIDThumbprintCalculatable.h"
+#import "MSIDJwtAlgorithm.h"
 
-@class MSIDConfiguration;
-@class MSIDAccountIdentifier;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest <MSIDThumbprintCalculatable>
-
-@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                          requestSentDate:(NSDate *)requestSentDate;
-
-@end
-
-NS_ASSUME_NONNULL_END
-#endif
+MSIDJwtAlgorithm MSID_JWT_ALG_RS256 = @"RS256";
+MSIDJwtAlgorithm MSID_JWT_ALG_ES256 = @"ES256";
