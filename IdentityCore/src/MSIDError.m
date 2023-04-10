@@ -378,6 +378,10 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorJITWPJAccountIdentifierNil";
         case MSIDErrorJITWPJAcquireTokenError:
             return @"MSIDErrorJITWPJAcquireTokenError";
+        case MSIDErrorJITUnknownStatusWebCP:
+            return @"MSIDErrorJITUnknownStatusWebCP";
+        case MSIDErrorJITRetryRequired:
+            return @"MSIDErrorJITRetryRequired";
             // Throttling errors
         case MSIDErrorThrottleCacheNoRecord:
             return @"MSIDErrorThrottleCacheNoRecord";
