@@ -1,5 +1,6 @@
 TBD
 * Updated extraDeviceInfo to include platform sso status on macOS
+* Return account validation as YES when did mismatch but UPN match for same utid
 
 Version 1.7.18
 * Add support PKeyAuthPlus and ECC based JWT signature generation. (#1213)
