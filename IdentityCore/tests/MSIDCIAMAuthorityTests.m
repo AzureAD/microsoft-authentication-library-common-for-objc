@@ -28,7 +28,6 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDAuthority+Internal.h"
-#import "MSIDCIAMAuthority.h"
 
 @interface MSIDCIAMAuthorityTests : XCTestCase
 

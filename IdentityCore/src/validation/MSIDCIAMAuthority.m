@@ -22,7 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDCIAMAuthority.h"
@@ -33,6 +32,7 @@
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDProviderType.h"
 #import "MSIDAADTenant.h"
+#import "MSIDAADAuthority.h"
 #import "NSString+MSIDExtensions.h"
 
 @implementation MSIDCIAMAuthority
@@ -56,7 +56,10 @@
         {
             if ([self.class isAuthorityFormatValid:url context:context error:nil])
             {
-                _url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], rawTenant, url.pathComponents[3]]];
+                for(int a = 0; a < url.pathComponents.count; a = a + 1 ) {
+                    NSLog(@"value of path component %d: %@\n", a, url.pathComponents[a]);
+                   }
+                _url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [url msidHostWithPortIfNecessary], rawTenant]];
                 _realm = rawTenant;
             }
         }
@@ -73,27 +76,18 @@
     self = [super initWithURL:url validateFormat:validateFormat context:context error:error];
     
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
-    NSString *completedPath = [NSString stringWithFormat: @"https://%@.%@.com/%@.onmicrosoftonline.com/dc=ESTS-PUB-EUS-AZ1-FD000-TEST1", hostComponents[0], hostComponents[1], hostComponents[0]];
 
     //If we have the URL tenant.ciamlogin.com
     if (url.pathComponents.count == 0)
     {
         url = [url URLByAppendingPathComponent:hostComponents[0]];
         url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoftonline.com"]];
-        url = [url URLByAppendingPathComponent:@"dc=ESTS-PUB-EUS-AZ1-FD000-TEST1"];
-    }
-    
-    //If we have tenant.ciamlogin.com/{GUID}{tenantName} or completedPath
-    else if (self.realm != nil || [[url absoluteString] isEqualToString:completedPath])
-    {
-        //Append just the DC parameter, leave rest of the URL as is
-        url = [url URLByAppendingPathComponent:@"dc=ESTS-PUB-EUS-AZ1-FD000-TEST1"];
     }
     
     if (self)
     {
         _url = url;
-        _url = [self.class normalizedAuthorityUrl:url formatValidated:validateFormat context:context error:error];
+        _url = [MSIDAADAuthority normalizedAuthorityUrl:url context:context error:error];
         if (!_url) return nil;
         self.url = url;
     }
@@ -115,16 +109,7 @@
     if (![super isAuthorityFormatValid:url context:context error:error]) return NO;
     
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
-   
-    if (![hostComponents[1]  isEqual: @"ciamlogin"])
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"It is not CIAM authority.", nil, nil, nil, context.correlationId, nil, YES);
-        }
-        return NO;
-    }
-    
+
     if (hostComponents.count < 3)
     {
         if (error)
@@ -132,6 +117,15 @@
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.<host>.<com>...)", nil, nil, nil, context.correlationId, nil, YES);
         }
         
+        return NO;
+    }
+    
+    if (![hostComponents[1]  isEqual: @"ciamlogin"])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"It is not CIAM authority.", nil, nil, nil, context.correlationId, nil, YES);
+        }
         return NO;
     }
     
@@ -148,6 +142,12 @@
     return YES;
 }
 
+#pragma mark - NSCopying
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDCIAMAuthority *authority = [super copyWithZone:zone];
+    return authority;
+}
 
 - (id<MSIDAuthorityResolving>)resolver
 {
@@ -164,47 +164,6 @@
 }
 
 #pragma mark - Private
-
-+  (NSURL *)normalizedAuthorityUrl:(NSURL *)url
-                   formatValidated:(BOOL)formatValidated
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error
-{
-    if (!url)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is nil.", nil, nil, nil, context.correlationId, nil, YES);
-        }
-        return nil;
-    }
-    
-    // remove query and fragments
-    if (!formatValidated)
-    {
-        NSURLComponents *urlComp = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-        urlComp.query = nil;
-        urlComp.fragment = nil;
-        
-        return urlComp.URL;
-    }
-    
-    // This is just for safety net. If formatValidated, it should satisfy the following condition.
-    if (url.pathComponents.count < 4)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is not a valid format to be normalized.", nil, nil, nil, context.correlationId, nil, YES);
-        }
-        return nil;
-    }
-    
-    // normalize further for validated formats
-    NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1].msidURLEncode, url.pathComponents[2].msidURLEncode, url.pathComponents[3].msidURLEncode];
-    return [NSURL URLWithString:normalizedAuthorityUrl];
-    
-}
-
 + (MSIDAADTenant *)tenantFromAuthorityUrl:(NSURL *)url
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
