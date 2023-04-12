@@ -31,16 +31,6 @@
 
 @implementation MSIDBrokerOperationExtensionDataResponse
 
-+ (void)load
-{
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
-}
-
-+ (NSString *)responseType
-{
-    return MSID_JSON_TYPE_OPERATION_REQUEST_EXTENSION_DATA;
-}
-
 - (instancetype)initWithExtensionData:(NSDictionary *)extensionData error:(NSError **)error
 {
     self = [super initWithJSONDictionary:@{MSID_BROKER_OPERATION_JSON_KEY : MSID_JSON_TYPE_OPERATION_REQUEST_EXTENSION_DATA,
