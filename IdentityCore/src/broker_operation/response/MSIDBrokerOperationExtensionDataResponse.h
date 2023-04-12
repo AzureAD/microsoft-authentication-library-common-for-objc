@@ -24,4 +24,10 @@
 
 #import "MSIDBrokerNativeAppOperationResponse.h"
 @interface MSIDBrokerOperationExtensionDataResponse : MSIDBrokerNativeAppOperationResponse
+@property (nonatomic) NSDictionary *extensionData;
+- (instancetype)initWithExtensionData:(NSDictionary *)extensionData error:(NSError **)error;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error NS_UNAVAILABLE;
 @end

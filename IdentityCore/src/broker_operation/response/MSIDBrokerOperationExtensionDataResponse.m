@@ -26,21 +26,63 @@
 #import <Foundation/Foundation.h>
 #import "MSIDBrokerOperationExtensionDataResponse.h"
 #import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 #import "MSIDBrokerNativeAppOperationResponse.h"
 
 @implementation MSIDBrokerOperationExtensionDataResponse
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
++ (void)load
 {
-    NSMutableDictionary *jsonCopy = [json mutableCopy];
-    if (json)
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
+}
+
++ (NSString *)responseType
+{
+    return MSID_JSON_TYPE_OPERATION_REQUEST_EXTENSION_DATA;
+}
+
+- (instancetype)initWithExtensionData:(NSDictionary *)extensionData error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:@{MSID_BROKER_OPERATION_JSON_KEY : MSID_JSON_TYPE_OPERATION_REQUEST_EXTENSION_DATA,
+                                           MSID_BROKER_OPERATION_RESULT_JSON_KEY : @1}
+                                   error:error];
+    if (!self)
     {
-        jsonCopy[MSID_BROKER_OPERATION_JSON_KEY] = MSID_JSON_TYPE_OPERATION_REQUEST_EXTENSION_DATA;
-        jsonCopy[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = @1;
+        return nil;
     }
-    if (![NSJSONSerialization isValidJSONObject:jsonCopy]) return nil;
-    self = [super initWithJSONDictionary:jsonCopy error:error];
+    if (!extensionData)
+    {
+        if(error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No extension data obtained from extension.", nil, nil, nil, nil, nil, YES);
+        }
+        return nil;
+    }
+    
+    if (![NSJSONSerialization isValidJSONObject:extensionData])
+    {
+        if(error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Obtained extension data but it is not a valid json object.", nil, nil, nil, nil, nil, YES);
+        }
+        return nil;
+    }
+    
+    self.extensionData = extensionData;
     return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
+    json[MSID_JSON_TYPE_OPERATION_REQUEST_EXTENSION_DATA] = [self.extensionData msidJSONSerializeWithContext:nil];
+    return json;
+}
+
+- (MSIDDeviceInfo *)deviceInfo
+{
+    return nil;
 }
 
 @end
