@@ -28,7 +28,7 @@
 #if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDCIAMTokenResponse.h"
-#import "MSIDCIAMIdTokenClaims.h"
+#import "MSIDAADV2IdTokenClaims.h"
 #import "MSIDTokenResponse+Internal.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDJsonSerializableFactory.h"
@@ -43,7 +43,7 @@
 
 - (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
 {
-    return [[MSIDCIAMIdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
+    return [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 + (MSIDProviderType)providerType
