@@ -29,6 +29,7 @@
 #import "MSIDDeviceInfo.h"
 #import "MSIDLastRequestTelemetry.h"
 #import "NSDate+MSIDTestUtil.h"
+#import "MSIDBrokerOperationExtensionDataResponse.h"
 
 @interface MSIDLastRequestTelemetry(Test)
 
@@ -218,4 +219,40 @@
     XCTAssertEqualWithAccuracy(telemetryMock.ipcResponsePerfNumber, 0, 1.0);
 }
 
+-(void)testInitializingExtensionDataResponse_shouldReturnValidResponse
+{
+    NSError *error;
+    MSIDBrokerOperationExtensionDataResponse *response = [[MSIDBrokerOperationExtensionDataResponse alloc] initWithExtensionData:@{@"key1" : @"value1",
+                                                                                                                                   @"key2" : @"value2",
+                                                                                                                                   @"key3" : @"value3"
+                                                                                                                                 } error:&error];
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertTrue(response.success);
+    XCTAssertEqualObjects(response.operation, @"extension_data");
+    XCTAssertNil(response.deviceInfo);
+    XCTAssertNotNil(response.extensionData);
+    XCTAssertEqual(response.extensionData.count, 3);
+    XCTAssertEqualObjects(response.extensionData[@"key1"], @"value1");
+    XCTAssertEqualObjects(response.extensionData[@"key2"], @"value2");
+    XCTAssertEqualObjects(response.extensionData[@"key3"], @"value3");
+}
+
+-(void)testInitializingExtensionDataResponse_whenExtensionDataIsNil_shouldReturnError
+{
+    NSError *error;
+    MSIDBrokerOperationExtensionDataResponse *response = [[MSIDBrokerOperationExtensionDataResponse alloc] initWithExtensionData:nil error:&error];
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertTrue([error.description containsString:@"No extension data obtained from extension"]);
+}
+
+-(void)testInitializingExtensionDataResponse_whenExtensionDataIsInvalidJson_shouldReturnError
+{
+    NSError *error;
+    MSIDBrokerOperationExtensionDataResponse *response = [[MSIDBrokerOperationExtensionDataResponse alloc] initWithExtensionData:@{@"key1" : [[NSObject alloc] init]} error:&error];
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertTrue([error.description containsString:@"Obtained extension data but it is not a valid json object."]);
+}
 @end

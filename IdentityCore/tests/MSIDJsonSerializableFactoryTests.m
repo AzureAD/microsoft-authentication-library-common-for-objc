@@ -24,6 +24,8 @@
 #import <XCTest/XCTest.h>
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializable.h"
+#import "MSIDBrokerOperationRequest.h"
+#import "MSIDBrokerOperationExtensionDataRequest.h"
 
 @interface MSIDJsonSerializableMock : NSObject<MSIDJsonSerializable>
 
@@ -175,6 +177,25 @@
     XCTAssertNil(error);
     XCTAssertTrue([instance isKindOfClass:MSIDJsonSerializableMock.class]);
     XCTAssertEqualObjects(json, instance.receivedJson);
+}
+
+- (void)testCreateFromJSONDictionary_whenRequstOperationIsGetExtensionData_shouldReturnValidRequest
+{
+    NSDictionary *json = @{
+        @"authority" : @"https://login.microsoftonline.com/common",
+        @"broker_key" : @"some-broker-key",
+        @"provider_type" : @"provider_aad_v2"
+    };
+    
+    NSError *error;
+    __auto_type instance = [MSIDJsonSerializableFactory createFromJSONDictionary:json
+                                                                       classType:@"extension_data"
+                                                               assertKindOfClass:MSIDBrokerOperationRequest.class
+                                                                           error:&error];
+    
+    XCTAssertNotNil(instance);
+    XCTAssertTrue([instance isKindOfClass:MSIDBrokerOperationExtensionDataRequest.class]);
+    XCTAssertNil(error);
 }
 
 @end
