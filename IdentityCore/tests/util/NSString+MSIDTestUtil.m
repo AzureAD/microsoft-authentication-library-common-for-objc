@@ -23,6 +23,7 @@
 
 #import "MSIDAADAuthority.h"
 #import "MSIDB2CAuthority.h"
+#import "MSIDCIAMAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "MSIDAuthority+Internal.h"
 
@@ -40,6 +41,14 @@
 {
     __auto_type authorityUrl = [[NSURL alloc] initWithString:self];
     __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:nil];
+    
+    return authority;
+}
+
+- (MSIDAuthority *)ciamAuthority
+{
+    __auto_type authorityUrl = [[NSURL alloc] initWithString:self];
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:nil];
     
     return authority;
 }

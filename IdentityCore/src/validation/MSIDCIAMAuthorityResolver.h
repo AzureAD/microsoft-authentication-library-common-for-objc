@@ -26,8 +26,6 @@
 
 #import "MSIDAadAuthorityResolver.h"
 
-// TODO: should we inherit from NSObject <MSIDAuthorityResolving> instead?
-
 @interface MSIDCIAMAuthorityResolver : MSIDAadAuthorityResolver
 
 @end

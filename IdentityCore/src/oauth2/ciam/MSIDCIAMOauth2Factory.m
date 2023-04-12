@@ -109,12 +109,6 @@
         return NO;
     }
 
-    // CIAM should return preferred_username claim
-    if ([NSString msidIsStringNilOrBlank:response.idTokenObj.preferredUsername])
-    {
-        account.username = MSID_PREFERRED_USERNAME_MISSING;
-    }
-
     return YES;
 }
 
