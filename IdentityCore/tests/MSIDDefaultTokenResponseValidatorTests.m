@@ -201,5 +201,41 @@
     XCTAssertEqual(error.code, MSIDErrorMismatchedAccount);
 }
 
+- (void)testValidateAccount_whenUIDMismatch_ForDeletedAndRecreatedUser_shouldReturnYES
+{
+    __auto_type correlationID = [NSUUID new];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"some_uri"
+                                                                           clientId:@"myclient"
+                                                                             target:DEFAULT_TEST_SCOPE];
+    
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:nil
+                                                                   idToken:response.idToken
+                                                                   account:account
+                                                                 authority:authority
+                                                             correlationId:correlationID
+                                                             tokenResponse:response];
+    
+    NSError *error;
+    XCTAssertEqualObjects(result.account.accountIdentifier.uid, @"fedcba98-7654-3210-0000-000000000000");
+    XCTAssertEqualObjects(result.account.accountIdentifier.utid, @"00000000-0000-1234-5678-90abcdefffff");
+    XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
+    BOOL validated = [self.validator validateAccount:[[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                                            homeAccountId:@"some-other-uid-other-than-fedcba98-7654-3210-0000-000000000000.00000000-0000-1234-5678-90abcdefffff"]
+                                         tokenResult:result
+                                       correlationID:correlationID
+                                               error:&error];
+    
+    XCTAssertTrue(validated);
+    XCTAssertNil(error);
+}
+
 
 @end
