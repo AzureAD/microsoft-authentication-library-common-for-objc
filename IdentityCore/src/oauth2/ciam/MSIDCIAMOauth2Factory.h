@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDCIAMOauth2Factory : MSIDAADV2Oauth2Factory
 
+
 @end
 
 NS_ASSUME_NONNULL_END
