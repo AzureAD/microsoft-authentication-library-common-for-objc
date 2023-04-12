@@ -74,8 +74,8 @@
     
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
     
-    //If we have the URL tenant.ciamlogin.com
-    			
+    //If we have the URL https://tenant.ciamlogin.com or https://tenant.ciamlogin.com/
+    if (url.pathComponents.count == 0 || ((url.pathComponents.count == 1) && [[url lastPathComponent] isEqual:@"/"]))
     {
         url = [url URLByAppendingPathComponent:hostComponents[0]];
         url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
