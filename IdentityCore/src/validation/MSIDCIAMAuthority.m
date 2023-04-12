@@ -75,7 +75,7 @@
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
     
     //If we have the URL tenant.ciamlogin.com
-    if (url.pathComponents.count == 0 || [[url lastPathComponent] isEqual:@"/"])
+    			
     {
         url = [url URLByAppendingPathComponent:hostComponents[0]];
         url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
@@ -83,7 +83,6 @@
     
     if (self)
     {
-        _url = url;
         _url = [MSIDAADAuthority normalizedAuthorityUrl:url context:context error:error];
         if (!_url) return nil;
         self.url = url;
@@ -106,7 +105,6 @@
     if (![super isAuthorityFormatValid:url context:context error:error]) return NO;
     
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
-    NSString *ciamTenant = hostComponents[1];
     
     if (hostComponents.count < 3)
     {
@@ -117,6 +115,9 @@
         
         return NO;
     }
+    
+    NSString *ciamTenant = hostComponents[1];
+    
     if (![ciamTenant.lowercaseString isEqualToString:@"ciamlogin".lowercaseString])
     {
         if (error)
