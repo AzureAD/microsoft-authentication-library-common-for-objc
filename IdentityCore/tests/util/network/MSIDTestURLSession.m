@@ -175,7 +175,7 @@ static NSMutableArray* s_responses = nil;
 }
 
 // This method has been required by 1DS library while logging event in Unit Tests as we sizziling the NSURLSession with MSIDTestURLSession class
-- (NSURLSessionUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromData:(nullable NSData *)bodyData completionHandler:(void (NS_SWIFT_SENDABLE ^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler
+- (NSURLSessionUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromData:(nullable NSData *)bodyData completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler
 {
     MSIDTestURLSessionUploadTask *task = [[MSIDTestURLSessionUploadTask alloc] initWithRequest:request
                                                                                       fromData:bodyData
