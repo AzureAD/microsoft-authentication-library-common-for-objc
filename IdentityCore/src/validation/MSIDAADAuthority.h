@@ -38,4 +38,8 @@
                                              context:(nullable id<MSIDRequestContext>)context
                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
++ (nullable NSURL *)normalizedAuthorityUrl:(nonnull NSURL *)url
+                                        context:(nullable id<MSIDRequestContext>)context
+                                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
 @end
