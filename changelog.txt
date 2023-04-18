@@ -1,8 +1,9 @@
-TBD
+Version 1.7.19
 * Updated extraDeviceInfo to include platform sso status on macOS
 * Add support PKeyAuthPlus and ECC based JWT signature generation. (#1044)
 * Created CIAM authority for MSAL (#1227)
 * Return account validation as YES when did mismatch but UPN match for same utid
+* Fix CBA in SSO ext flow #1233
 
 Version 1.7.18
 * Add support PKeyAuthPlus and ECC based JWT signature generation. (#1213)

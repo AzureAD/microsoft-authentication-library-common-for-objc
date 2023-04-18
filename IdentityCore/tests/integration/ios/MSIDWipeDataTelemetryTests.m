@@ -103,7 +103,7 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
 
-    BOOL result = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
+    BOOL result __attribute__((unused)) = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                              response:[MSIDTestTokenResponse v1DefaultTokenResponse]
                                                               factory:[MSIDAADV1Oauth2Factory new]
                                                               context:reqContext
@@ -166,7 +166,7 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
+    BOOL result __attribute__((unused)) = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                              response:[MSIDTestTokenResponse v1DefaultTokenResponse]
                                                               factory:[MSIDAADV1Oauth2Factory new]
                                                               context:reqContext
@@ -230,7 +230,7 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
 
-    BOOL result = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
+    BOOL result __attribute__((unused)) = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                               response:[MSIDTestTokenResponse v1DefaultTokenResponse]
                                                                factory:factory
                                                                context:reqContext
@@ -293,7 +293,7 @@
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
     NSError *error = nil;
     
-    BOOL result = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
+    BOOL result __attribute__((unused)) = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                               response:[MSIDTestTokenResponse v1DefaultTokenResponse]
                                                                factory:[MSIDAADV1Oauth2Factory new]
                                                                context:reqContext
