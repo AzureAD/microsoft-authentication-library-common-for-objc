@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,17 +22,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTestURLSessionUploadTask.h"
 
-extern NSString * _Nonnull const MSID_PROVIDER_TYPE_JSON_KEY;
+@interface MSIDTestURLSessionUploadTask()
 
-typedef NS_ENUM(NSInteger, MSIDProviderType)
+@property (nonatomic, copy) void (^ _Nullable completionHandler)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error);
+
+@end
+
+@implementation MSIDTestURLSessionUploadTask
+
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                       fromData:(nullable NSData *)bodyData
+              completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler
 {
-    MSIDProviderTypeAADV2,
-    MSIDProviderTypeAADV1,
-    MSIDProviderTypeB2C,
-    MSIDProviderTypeCIAM
-};
+    self = [super init];
+    if (self)
+    {
+        // Store the completion handler for later use
+        self.completionHandler = completionHandler;
+    }
+    
+    return self;
+}
 
-extern NSString * _Nonnull MSIDProviderTypeToString(MSIDProviderType type);
-extern MSIDProviderType MSIDProviderTypeFromString(NSString * _Nonnull providerTypeString);
+- (void)resume {
+    // Call the completion handler with nil data, nil response, and a error as we no need to make a network call
+    NSError* error = [NSError errorWithDomain:NSURLErrorDomain
+                                         code:NSURLErrorNotConnectedToInternet
+                                     userInfo:nil];
+    self.completionHandler(nil, nil, error);
+}
+
+
+@end
+

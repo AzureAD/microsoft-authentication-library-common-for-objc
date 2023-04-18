@@ -23,15 +23,10 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString * _Nonnull const MSID_PROVIDER_TYPE_JSON_KEY;
+@interface MSIDTestURLSessionUploadTask : NSObject
 
-typedef NS_ENUM(NSInteger, MSIDProviderType)
-{
-    MSIDProviderTypeAADV2,
-    MSIDProviderTypeAADV1,
-    MSIDProviderTypeB2C,
-    MSIDProviderTypeCIAM
-};
+- (nonnull instancetype)initWithRequest:(nonnull NSURLRequest *)request
+                               fromData:(nullable NSData *)bodyData
+                      completionHandler:(void (^_Nullable)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler;
 
-extern NSString * _Nonnull MSIDProviderTypeToString(MSIDProviderType type);
-extern MSIDProviderType MSIDProviderTypeFromString(NSString * _Nonnull providerTypeString);
+@end

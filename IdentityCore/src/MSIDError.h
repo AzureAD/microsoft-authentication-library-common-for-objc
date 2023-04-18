@@ -139,6 +139,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerUnauthorizedClient   = -51414,
     MSIDErrorServerDeclinedScopes       = -51415,
     MSIDErrorServerAccessDenied         = -51416,
+    MSIDErrorServerError                = -51417,
     
     // State verification has failed
     MSIDErrorServerInvalidState         = -51420,
@@ -310,3 +311,5 @@ extern NSDictionary<NSString *, NSArray *> * _Nonnull MSIDErrorDomainsAndCodes(v
 extern void MSIDFillAndLogError(NSError * _Nullable __autoreleasing * _Nullable error, MSIDErrorCode errorCode, NSString * _Nullable errorDescription, NSUUID * _Nullable correlationID);
 
 #define MSIDException(name, message, info) [NSException exceptionWithName:name reason:[NSString stringWithFormat:@"%@ (function:%s line:%i)", message, __PRETTY_FUNCTION__, __LINE__]  userInfo:info]
+
+extern NSString * _Nullable MSIDErrorCodeToString(MSIDErrorCode errorCode);

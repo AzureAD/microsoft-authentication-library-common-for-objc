@@ -136,29 +136,27 @@ static BOOL s_disableCertBasedAuth = NO;
     NSDictionary *queryItemsDict = [NSDictionary msidDictionaryFromQueryItems:queryItems];
     NSString *redirectURI = queryItemsDict[MSID_OAUTH2_REDIRECT_URI];
 
-    if (s_redirectScheme)
+    NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
+    newQueryItems[MSID_BROKER_IS_PERFORMING_CBA] = @"true";
+    
+    for (NSURLQueryItem *item in queryItems)
     {
-        NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
-        NSString *redirectSchemePrefix = [NSString stringWithFormat:@"%@://", s_redirectScheme];
-        
-        newQueryItems[MSID_BROKER_IS_PERFORMING_CBA] = @"true";
-        for (NSURLQueryItem *item in queryItems)
+        if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI] && !s_useAuthSession && s_redirectScheme != nil)
         {
-            if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
-                && ![item.value.lowercaseString hasPrefix:redirectSchemePrefix.lowercaseString]
-                && !s_useAuthSession)
+            NSString *redirectSchemePrefix = [NSString stringWithFormat:@"%@://", s_redirectScheme];
+            if (![item.value.lowercaseString hasPrefix:redirectSchemePrefix.lowercaseString])
             {
                 newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value.msidURLEncode];
-            }
-            else
-            {
-                newQueryItems[item.name] = item.value;
+                continue;
             }
         }
-        requestURLComponents.percentEncodedQuery = [newQueryItems msidURLEncode];
-        requestURL = requestURLComponents.URL;
-        redirectURI = newQueryItems[MSID_OAUTH2_REDIRECT_URI];
+        
+        newQueryItems[item.name] = item.value;
     }
+    
+    requestURLComponents.percentEncodedQuery = [newQueryItems msidURLEncode];
+    requestURL = requestURLComponents.URL;
+    redirectURI = newQueryItems[MSID_OAUTH2_REDIRECT_URI];
     
     s_systemWebViewController = nil;
     s_certAuthInProgress = YES;

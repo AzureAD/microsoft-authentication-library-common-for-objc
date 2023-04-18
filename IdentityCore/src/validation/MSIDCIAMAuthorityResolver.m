@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,19 +20,39 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
+#if !EXCLUDE_FROM_MSALCPP
 
-extern NSString * _Nonnull const MSID_PROVIDER_TYPE_JSON_KEY;
+#import "MSIDCIAMAuthorityResolver.h"
+#import "MSIDCIAMAuthority.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAADEndpointProviding.h"
 
-typedef NS_ENUM(NSInteger, MSIDProviderType)
+@implementation MSIDCIAMAuthorityResolver
+
+- (void)resolveAuthority:(MSIDCIAMAuthority *)authority
+       userPrincipalName:(__unused NSString *)upn
+                validate:(BOOL)validate
+                 context:(id<MSIDRequestContext>)context
+         completionBlock:(MSIDAuthorityInfoBlock)completionBlock
 {
-    MSIDProviderTypeAADV2,
-    MSIDProviderTypeAADV1,
-    MSIDProviderTypeB2C,
-    MSIDProviderTypeCIAM
-};
+    
+    NSParameterAssert([authority isKindOfClass:MSIDCIAMAuthority.self]);
+    
+    if (validate && ![authority isKnown])
+    {
+        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"Authority validation is not supported for this type of authority", nil, nil, nil, context.correlationId, nil, YES);
+        if (completionBlock) completionBlock(nil, NO, error);
+        return;
+    }
+    
+    __auto_type endpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider openIdConfigurationEndpointWithUrl:authority.url];
+    
+    if (completionBlock) completionBlock(endpoint, validate, nil);
+}
 
-extern NSString * _Nonnull MSIDProviderTypeToString(MSIDProviderType type);
-extern MSIDProviderType MSIDProviderTypeFromString(NSString * _Nonnull providerTypeString);
+@end
+
+#endif
+
