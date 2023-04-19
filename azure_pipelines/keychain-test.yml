@@ -1,6 +1,7 @@
 pool:
-  name: Azure Pipelines
+  name: 'Azure Pipelines'
   demands:
+  - AgentName
   - AgentName -equals Agent50 # equals check for Agent50 in Azure Pipelines pool
 
 # Pipeline will be triggered for PR & any updates on the PR on all branches 
