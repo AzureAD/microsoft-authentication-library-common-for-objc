@@ -1,5 +1,5 @@
 pool:
-  name: KeyChainTest
+  name: Azure Pipelines
   demands:
   - AgentName -equals Agent50 # equals check for Agent50 in Azure Pipelines pool
 
