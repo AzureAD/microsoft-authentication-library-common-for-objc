@@ -1,0 +1,32 @@
+pool:
+  name: KeyChainTest
+  demands:
+  - AgentName -equals Agent50 # equals check for Agent50 in Azure Pipelines pool
+
+# Pipeline will be triggered for PR & any updates on the PR on all branches 
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - '*'
+  drafts: true
+
+# Not triggering for CI since it is triggered for PRs 
+trigger: none
+
+# Define parallel jobs that run build script for specified targets
+jobs:
+- job: 'Validate_Pull_Request'
+  displayName: Validate Pull Request
+  pool:
+    vmImage: 'macos-12'
+    timeOutInMinutes: 30
+
+  steps:
+  - task: Bash@3
+    displayName: Test Bash script
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo 'Test'
+  
