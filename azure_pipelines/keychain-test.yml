@@ -2,7 +2,7 @@ pool:
   name: 'Azure Pipelines'
   demands:
   - AgentName
-  - AgentName -equals Agent50 # equals check for Agent50 in Azure Pipelines pool
+  - Agent.Name -equals Azure Pipelines 50
 
 # Pipeline will be triggered for PR & any updates on the PR on all branches 
 pr:
@@ -22,6 +22,8 @@ jobs:
   pool:
     vmImage: 'macos-12'
     timeOutInMinutes: 30
+    demands:
+    - AgentName -equals Agent50
 
   steps:
   - task: Bash@3
