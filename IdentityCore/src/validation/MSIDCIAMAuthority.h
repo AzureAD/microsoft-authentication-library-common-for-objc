@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,17 +22,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#if !EXCLUDE_FROM_MSALCPP
 
-extern NSString * _Nonnull const MSID_PROVIDER_TYPE_JSON_KEY;
+#import "MSIDAuthority.h"
+#import "MSIDAADAuthority.h"
 
-typedef NS_ENUM(NSInteger, MSIDProviderType)
-{
-    MSIDProviderTypeAADV2,
-    MSIDProviderTypeAADV1,
-    MSIDProviderTypeB2C,
-    MSIDProviderTypeCIAM
-};
+@interface MSIDCIAMAuthority : MSIDAuthority
 
-extern NSString * _Nonnull MSIDProviderTypeToString(MSIDProviderType type);
-extern MSIDProviderType MSIDProviderTypeFromString(NSString * _Nonnull providerTypeString);
+- (nullable instancetype)initWithURL:(nonnull NSURL *)url
+                      validateFormat:(BOOL)validateFormat
+                             context:(nullable id<MSIDRequestContext>)context
+                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
+- (nullable instancetype)initWithURL:(nonnull NSURL *)url
+                      validateFormat:(BOOL)validateFormat
+                           rawTenant:(nullable NSString *)rawTenant
+                             context:(nullable id<MSIDRequestContext>)context
+                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
++ (BOOL)isAuthorityFormatValid:(nonnull NSURL *)url
+                       context:(nullable id<MSIDRequestContext>)context
+                         error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
+@end
+
+#endif

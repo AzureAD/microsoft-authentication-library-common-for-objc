@@ -84,6 +84,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (BOOL)isKnown;
 
+- (BOOL)excludeFromAuthorityValidation;
+
 - (BOOL)supportsBrokeredAuthentication;
 
 // Only certain authorities support passing clientID as an allowed scope

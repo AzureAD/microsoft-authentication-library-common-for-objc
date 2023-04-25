@@ -29,6 +29,7 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDB2CAuthority.h"
+#import "MSIDCIAMAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDJsonSerializableFactory.h"
@@ -190,6 +191,16 @@
         if (error)
         {
             __auto_type message = [NSString stringWithFormat:@"Trying to initialize AAD authority with B2C authority url."];
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil, YES);
+        }
+        return NO;
+    }
+    
+    if ([MSIDCIAMAuthority isAuthorityFormatValid:url context:context error:nil])
+    {
+        if (error)
+        {
+            __auto_type message = [NSString stringWithFormat:@"Trying to initialize AAD authority with CIAM authority url."];
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;

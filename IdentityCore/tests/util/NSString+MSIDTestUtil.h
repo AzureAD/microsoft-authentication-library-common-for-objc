@@ -27,6 +27,7 @@
 
 - (MSIDAuthority *)aadAuthority;
 - (MSIDAuthority *)b2cAuthority;
+- (MSIDAuthority *)ciamAuthority;
 - (MSIDAuthority *)adfsAuthority;
 - (NSURL *)msidUrl;
 - (NSData *)msidData;
