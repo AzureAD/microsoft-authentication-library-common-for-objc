@@ -31,5 +31,6 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
+        system_profiler SPHardwareDataType | awk '/UUID/ {print $3;}'
         echo 'Test'
   
