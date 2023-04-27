@@ -81,6 +81,14 @@
         url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
     }
     
+    if ([_realm length] > 0)
+    {
+        if ([[_realm substringToIndex:1] isEqualToString:@"/"])
+        {
+            _realm = [_realm substringFromIndex:1];
+        }
+    }
+    
     if (self)
     {
         _url = [MSIDAADAuthority normalizedAuthorityUrl:url context:context error:error];
