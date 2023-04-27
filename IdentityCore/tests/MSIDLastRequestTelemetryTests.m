@@ -95,7 +95,7 @@
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
-    NSString *result = [telemetryObject telemetryString];
+    NSString *result __attribute__((unused)) = [telemetryObject telemetryString];
     
     XCTAssertEqualObjects(result, @"4|0|30,00000000-0000-0000-0000-000000000001|error|");
 }
@@ -109,7 +109,7 @@
     [telemetryObject updateWithApiId:60 errorString:@"error4" context:self.context];
     [telemetryObject updateWithApiId:70 errorString:@"error5" context:self.context];
     
-    NSString *result = [telemetryObject telemetryString];
+    NSString *result __attribute__((unused)) = [telemetryObject telemetryString];
     
     XCTAssertEqualObjects(result, @"4|0|30,00000000-0000-0000-0000-000000000001,40,00000000-0000-0000-0000-000000000001,50,00000000-0000-0000-0000-000000000001,60,00000000-0000-0000-0000-000000000001,70,00000000-0000-0000-0000-000000000001|error,error2,error3,error4,error5|");
 }
@@ -312,7 +312,7 @@
     dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
     MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     
-    NSString *result = [restoredTelemetryObject telemetryString];
+    NSString *result __attribute__((unused)) = [restoredTelemetryObject telemetryString];
     // Simulates a successful request to server, string up to limit size is sent to server
     [restoredTelemetryObject updateWithApiId:0 errorString:nil context:self.context];
     
