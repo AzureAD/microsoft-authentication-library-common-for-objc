@@ -162,37 +162,18 @@
 }
 
 #pragma mark - Private
-+ (MSIDAADTenant *)tenantFromAuthorityUrl:(NSURL *)url
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
-{
-    NSArray *paths = url.pathComponents;
-    
-    if ([paths count] < 2)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have AAD tenant.", nil, nil, nil, context.correlationId, nil, YES);
-        }
-        
-        return nil;
-    }
-    
-    NSString *rawTenant = [paths[1] lowercaseString];
-    return [[MSIDAADTenant alloc] initWithRawTenant:rawTenant context:context error:error];
-}
-
 + (NSString *)realmFromURL:(NSURL *)url
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    if ([self isAuthorityFormatValid:url context:context error:error])
+    //If there is a path component, return it, else return just URL
+    if ([self isAuthorityFormatValid:url context:context error:error] && url.pathComponents.count > 1)
     {
-        return [self tenantFromAuthorityUrl:url context:context error:error].rawTenant;
+        return url.pathComponents[1];
     }
     
-    // We don't support non standard AAD authority formats
-    return nil;
+    // We do support non standard CIAM authority formats
+    return url.path;
 }
 
 @end
