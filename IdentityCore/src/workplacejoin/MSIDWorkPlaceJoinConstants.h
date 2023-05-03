@@ -28,6 +28,8 @@
 extern NSString *const kMSIDPrivateKeyIdentifier;
 extern NSString *const kMSIDTenantKeyIdentifier;
 extern NSString *const kMSIDUPNKeyIdentifier;
+extern NSString *const kMSIDWPJThumbprintIdentifier;
+extern NSString *const kMSIDWPJCertificateCommonNameIdentifier;
 extern NSString *const kMSIDProtectionSpaceDistinguishedName;
 extern NSString *const kMSIDPKeyAuthUrn;
 extern NSString *const kMSIDPKeyAuthHeader;
@@ -35,3 +37,4 @@ extern NSString *const kMSIDPKeyAuthHeaderVersion;
 extern NSString *const kMSIDWwwAuthenticateHeader;
 extern NSString *const kMSIDPKeyAuthName;
 extern NSString *const kMSIDPKeyAuthKeyWordForUserAgent;
+extern NSString *const kMSIDWPJKeychainGroupV2;
