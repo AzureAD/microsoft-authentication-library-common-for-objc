@@ -80,15 +80,7 @@
         url = [url URLByAppendingPathComponent:hostComponents[0]];
         url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
     }
-    
-    if ([_realm length] > 0)
-    {
-        if ([[_realm substringToIndex:1] isEqualToString:@"/"])
-        {
-            _realm = [_realm substringFromIndex:1];
-        }
-    }
-    
+   
     if (self)
     {
         _url = [MSIDAADAuthority normalizedAuthorityUrl:url context:context error:error];
@@ -189,5 +181,19 @@
     NSString *rawTenant = [paths[1] lowercaseString];
     return [[MSIDAADTenant alloc] initWithRawTenant:rawTenant context:context error:error];
 }
+
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    if ([self isAuthorityFormatValid:url context:context error:error])
+    {
+        return [self tenantFromAuthorityUrl:url context:context error:error].rawTenant;
+    }
+    
+    // We don't support non standard AAD authority formats
+    return nil;
+}
+
 @end
 #endif
