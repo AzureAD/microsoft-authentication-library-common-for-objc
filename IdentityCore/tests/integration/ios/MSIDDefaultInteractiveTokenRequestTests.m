@@ -322,7 +322,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user1@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
     parameters.shouldValidateResultAccount = YES;
 

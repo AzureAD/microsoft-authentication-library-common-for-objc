@@ -26,6 +26,7 @@
 MSIDJsonSerializableType MSID_JSON_TYPE_AAD_AUTHORITY = @"authority_aad";
 MSIDJsonSerializableType MSID_JSON_TYPE_ADFS_AUTHORITY = @"authority_adfs";
 MSIDJsonSerializableType MSID_JSON_TYPE_B2C_AUTHORITY = @"authority_b2c";
+MSIDJsonSerializableType MSID_JSON_TYPE_CIAM_AUTHORITY = @"authority_ciam";
 
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_REMOVE_ACCOUNT = @"remove_account_operation";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_SIGNOUT_ACCOUNT = @"signout_account_operation";
@@ -40,7 +41,9 @@ MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GET_SSO_COOKIES_RESPONS
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_AADV1 = @"provider_aad_v1";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_AADV2 = @"provider_aad_v2";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_B2C = @"provider_b2c";
+MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_CIAM = @"provider_ciam";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_ADFS = @"provider_adfs";
 MSIDJsonSerializableType MSID_JSON_TYPE_AADV1_TOKEN_RESPONSE = @"token_response_aad_v1";
 MSIDJsonSerializableType MSID_JSON_TYPE_AADV2_TOKEN_RESPONSE = @"token_response_aad_v2";
 MSIDJsonSerializableType MSID_JSON_TYPE_B2C_TOKEN_RESPONSE = @"token_response_b2c";
+MSIDJsonSerializableType MSID_JSON_TYPE_CIAM_TOKEN_RESPONSE = @"token_response_ciam";

@@ -134,6 +134,7 @@ NSString *const MSID_TELEMETRY_VALUE_CANCELLED                       = @"cancell
 NSString *const MSID_TELEMETRY_VALUE_UNKNOWN                         = @"unknown";
 NSString *const MSID_TELEMETRY_VALUE_AUTHORITY_AAD                   = @"aad";
 NSString *const MSID_TELEMETRY_VALUE_AUTHORITY_ADFS                  = @"adfs";
-NSString *const MSID_TELEMETRY_VALUE_AUTHORITY_B2C                  = @"b2c";
+NSString *const MSID_TELEMETRY_VALUE_AUTHORITY_B2C                   = @"b2c";
+NSString *const MSID_TELEMETRY_VALUE_AUTHORITY_CIAM                   = @"ciam";
 
 #endif
