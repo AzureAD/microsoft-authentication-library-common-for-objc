@@ -101,6 +101,7 @@
         _wpjRegistrationTenantId = json[@"wpj_registration_tid"];
         _wpjRegistrationUpn = json[@"wpj_registration_upn"];
         _operateOnPrimaryWPJ = [json[@"wpj_operate_on_primary_reg"] boolValue];
+        _useMostSecureStorageForWpj = [json[@"use_most_secure_storage"] boolValue];
     }
 
     return self;
@@ -177,6 +178,7 @@
     json[@"wpj_registration_tid"] = _wpjRegistrationTenantId;
     json[@"wpj_registration_upn"] = _wpjRegistrationUpn;
     json[@"wpj_operate_on_primary_reg"] = @(_operateOnPrimaryWPJ);
+    json[@"use_most_secure_storage"] = @(_useMostSecureStorageForWpj);
     
     return json;
 }
