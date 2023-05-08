@@ -190,6 +190,9 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorJITWPJAcquireTokenError),
                       @(MSIDErrorJITRetryRequired),
                       @(MSIDErrorJITUnknownStatusWebCP),
+                      @(MSIDErrorJITTroubleshootingRequired),
+                      @(MSIDErrorJITTroubleshootingCreateController),
+                      @(MSIDErrorJITTroubleshootingResultUnknown),
 
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
@@ -382,6 +385,12 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorJITUnknownStatusWebCP";
         case MSIDErrorJITRetryRequired:
             return @"MSIDErrorJITRetryRequired";
+        case MSIDErrorJITTroubleshootingRequired:
+            return @"MSIDErrorJITTroubleshootingRequired";
+        case MSIDErrorJITTroubleshootingCreateController:
+            return @"MSIDErrorJITTroubleshootingCreateController";
+        case MSIDErrorJITTroubleshootingResultUnknown:
+            return @"MSIDErrorJITTroubleshootingResultUnknown";
             // Throttling errors
         case MSIDErrorThrottleCacheNoRecord:
             return @"MSIDErrorThrottleCacheNoRecord";
