@@ -162,20 +162,5 @@
 #endif
 }
 
-#pragma mark - Private
-+ (NSString *)realmFromURL:(NSURL *)url
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
-{
-    //If there is a path component, return it, else return just URL
-    if ([self isAuthorityFormatValid:url context:context error:error] && url.pathComponents.count > 1)
-    {
-        return url.pathComponents[1];
-    }
-    
-    // We do support non standard CIAM authority formats
-    return url.path;
-}
-
 @end
 #endif
