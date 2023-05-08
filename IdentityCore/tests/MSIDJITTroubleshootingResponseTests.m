@@ -26,6 +26,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDJITTroubleshootingResponse.h"
+#import "MSIDBrokerConstants.h"
 
 @interface MSIDJITTroubleshootingResponseTests : XCTestCase
 
@@ -131,6 +132,26 @@
     XCTAssertNotNil(errorFromResponse);
     XCTAssertEqual(errorFromResponse.code, MSIDErrorJITRetryRequired);
 }
+
+- (void)testIsJITTroubleshootingResponse_whenIsJITTroubleshootingResponse_shouldReturnStatusAndJITTTroubleshootingRequiredError
+{
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", JIT_TROUBLESHOOTING_HOST]];
+    NSError *error;
+    MSIDJITTroubleshootingResponse *response = [[MSIDJITTroubleshootingResponse alloc] initWithURL:url context:nil error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertEqual([response.status intValue], 0);
+    XCTAssertNil(error);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+    NSError *errorFromResponse = [response getErrorFromResponseWithContext:nil];
+#pragma clang diagnostic pop
+
+    XCTAssertNotNil(errorFromResponse);
+    XCTAssertEqual(errorFromResponse.code, MSIDErrorJITTroubleshootingRequired);
+}
+
 
 @end
 
