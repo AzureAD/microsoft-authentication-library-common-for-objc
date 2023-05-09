@@ -309,6 +309,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // JIT - Troubleshooting - Result unknown
     MSIDErrorJITTroubleshootingResultUnknown       =   -51835,
     
+    // JIT - Troubleshooting - Acquire token error
+    MSIDErrorJITTroubleshootingAcquireToken        =   -51836,
+    
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,
