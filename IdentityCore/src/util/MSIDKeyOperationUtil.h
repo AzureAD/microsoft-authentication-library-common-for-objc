@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "MSIDJwtAlgorithm.h"
+#import "MSIDRequestContext.h"
+
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDKeyOperationUtil : NSObject
 
