@@ -144,7 +144,7 @@
 
 #pragma mark - universalAuthorityURL
 
-- (void)testUniversalAuthorityURL_whenB2CAuhority_shouldReturnOriginalAuthority
+- (void)testUniversalAuthorityURL_whenB2CAuthority_shouldReturnOriginalAuthority
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/tfp/tenant/policy"];
     
@@ -155,7 +155,7 @@
 
 #pragma mark - cacheUrlWithContext
 
-- (void)testCacheUrlWithContext_whenB2CAuhority_shouldReturnOriginalAuthority
+- (void)testCacheUrlWithContext_whenB2CAuthority_shouldReturnOriginalAuthority
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://contoso.com:8080/tfp/tenant/policy"];
     
@@ -166,7 +166,7 @@
 
 #pragma mark - networkUrlWithContext
 
-- (void)testNetworkUrlWithContext_whenB2CAuhority_shouldReturnOriginalAuthority
+- (void)testNetworkUrlWithContext_whenB2CAuthority_shouldReturnOriginalAuthority
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://contoso.com:8080/tfp/tenant/policy"];
     
@@ -177,7 +177,7 @@
 
 #pragma mark - legacyAccessTokenLookupAuthorities
 
-- (void)testLegacyAccessTokenLookupAuthorities_whenB2CAuhority_shouldReturnOriginalAuthority
+- (void)testLegacyAccessTokenLookupAuthorities_whenB2CAuthority_shouldReturnOriginalAuthority
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://contoso.com:8080/tfp/tenant/policy"];
     __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
@@ -201,7 +201,7 @@
 
 #pragma mark - isKnownHost
 
-- (void)testIsKnownHost_whenB2CAuhorityAndHostInListOfKnownHost_shouldReturnYes
+- (void)testIsKnownHost_whenB2CAuthorityAndHostInListOfKnownHost_shouldReturnYes
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/tfp/tenant/policy"];
     __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
@@ -236,7 +236,7 @@
     XCTAssertTrue([authority isKnown]);
 }
 
-- (void)testIsKnownHost_whenB2CAuhorityAndHostIsNotInListOfKnownHost_shouldReturnNo
+- (void)testIsKnownHost_whenB2CAuthorityAndHostIsNotInListOfKnownHost_shouldReturnNo
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://some.net/tfp/tenant/policy"];
     __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:nil];

@@ -38,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
                               providerType:(MSIDProviderType)providerType
                              enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources;
+                              mamResources:(nullable NSDictionary *)mamResources
+                          requestSentDate:(NSDate *)requestSentDate;
 
 @end
 

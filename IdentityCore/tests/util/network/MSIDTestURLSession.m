@@ -26,6 +26,7 @@
 #import "MSIDTestURLSessionDataTask.h"
 #import "MSIDTestURLResponse.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDTestURLSessionUploadTask.h"
 
 #include <assert.h>
 #include <stdbool.h>
@@ -171,6 +172,16 @@ static NSMutableArray* s_responses = nil;
                                                                                    session:self];
 
     return (NSURLSessionDataTask *)task;
+}
+
+// This method has been required by 1DS library while logging event in Unit Tests as we sizziling the NSURLSession with MSIDTestURLSession class
+- (NSURLSessionUploadTask *)uploadTaskWithRequest:(NSURLRequest *)request fromData:(nullable NSData *)bodyData completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler
+{
+    MSIDTestURLSessionUploadTask *task = [[MSIDTestURLSessionUploadTask alloc] initWithRequest:request
+                                                                                      fromData:bodyData
+                                                                             completionHandler:completionHandler];
+
+    return (NSURLSessionUploadTask *)task;
 }
 
 + (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request
