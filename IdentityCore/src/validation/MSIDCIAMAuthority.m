@@ -80,7 +80,7 @@
         url = [url URLByAppendingPathComponent:hostComponents[0]];
         url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
     }
-    
+   
     if (self)
     {
         _url = [MSIDAADAuthority normalizedAuthorityUrl:url context:context error:error];
@@ -162,24 +162,19 @@
 }
 
 #pragma mark - Private
-+ (MSIDAADTenant *)tenantFromAuthorityUrl:(NSURL *)url
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
 {
-    NSArray *paths = url.pathComponents;
-    
-    if ([paths count] < 2)
+    //If there is a path component, return it, else return just URL
+    if ([self isAuthorityFormatValid:url context:context error:error] && url.pathComponents.count > 1)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have AAD tenant.", nil, nil, nil, context.correlationId, nil, YES);
-        }
-        
-        return nil;
+        return url.pathComponents[1];
     }
-    
-    NSString *rawTenant = [paths[1] lowercaseString];
-    return [[MSIDAADTenant alloc] initWithRawTenant:rawTenant context:context error:error];
+
+    // We do support non standard CIAM authority formats
+    return url.path;
 }
+
 @end
 #endif
