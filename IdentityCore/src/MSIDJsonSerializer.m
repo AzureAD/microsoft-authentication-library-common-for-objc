@@ -121,6 +121,46 @@
     return [self fromJsonData:jsonData ofType:klass context:context error:error];
 }
 
+#pragma mark - serialize and deserialize convenience APIs
+
+- (NSString *)serializeToJsonString:(NSDictionary *)jsonDictionary error:(NSError *__autoreleasing *)error
+{
+    NSData *jsonData = [self serializeToJsonData:jsonDictionary error:error];
+    if (!jsonData) return nil;
+    
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
+
+- (NSData *)serializeToJsonData:(NSDictionary *)jsonDictionary error:(NSError *__autoreleasing *)error
+{
+    if (!jsonDictionary)
+    {
+        return nil;
+    }
+    
+    NSError *internalError;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                                   options:0
+                                                     error:&internalError];
+    if (internalError)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to serialize to json data, error: %@", MSID_PII_LOG_MASKABLE(internalError));
+        if (error) *error = internalError;
+        return nil;
+    }
+    
+    return data;
+}
+
+
+- (NSDictionary *)deserializeFromJSONString:(NSString *)jsonString error:(NSError *__autoreleasing *)error
+{
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    return [self deserializeJSON:jsonData error:error];
+}
+
+
 - (NSDictionary *)deserializeJSON:(NSData *)data error:(NSError *__autoreleasing *)error
 {
     if (!data)

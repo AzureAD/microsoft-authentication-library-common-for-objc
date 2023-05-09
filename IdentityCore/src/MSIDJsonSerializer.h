@@ -28,6 +28,12 @@
 
 @property (nonatomic) BOOL normalizeJSON;
 
+- (NSString *)serializeToJsonString:(NSDictionary *)jsonDictionary error:(NSError *__autoreleasing *)error;
+
+- (NSData *)serializeToJsonData:(NSDictionary *)jsonDictionary error:(NSError *__autoreleasing *)error;
+
+- (NSDictionary *)deserializeFromJSONString:(NSString *)jsonString error:(NSError *__autoreleasing *)error;
+
 - (NSDictionary *)deserializeJSON:(NSData *)data error:(NSError *__autoreleasing *)error;
 
 @end
