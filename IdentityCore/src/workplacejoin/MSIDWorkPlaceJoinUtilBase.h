@@ -33,7 +33,8 @@
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context;
 
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
-                                                         tenantId:(nullable NSString *)tenantId;
+                                                         tenantId:(nullable NSString *)tenantId
+                                                 usePrimaryFormat:(BOOL)usePrimaryFormat;
 
 /**
     Helper API to lookup both the private key and the associated certificate from the keychain.
