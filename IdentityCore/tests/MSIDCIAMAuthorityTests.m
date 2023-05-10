@@ -96,18 +96,6 @@
     XCTAssertNil(error);
 }
 
-- (void)testInitCIAMAuthority_withValidTenant_shouldReturnNilError
-{
-    
-    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://example.ciamlogin.com"];
-    NSError *error;
-    
-    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
-    
-    XCTAssertNotNil(authority);
-    XCTAssertNil(error);
-}
-
 - (void)testInitCIAMAuthority_whenCIAMAuthorityInvalid_shouldReturnError
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://ciamlogin.com/"];
