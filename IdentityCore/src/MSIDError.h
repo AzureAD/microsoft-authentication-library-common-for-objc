@@ -270,7 +270,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // JIT - Compliance Check - CP timeout
     MSIDErrorJITComplianceCheckResultTimeout       =   -51822,
     
-    // JIT - Compliance Check - Device unknown
+    // JIT - Compliance Check - Result unknown
     MSIDErrorJITComplianceCheckResultUnknown       =   -51823,
     
     // JIT - Compliance Check - Invalid linkPayload from SSO configuration
@@ -293,6 +293,24 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
 
     // JIT - WPJ - Failed to acquire broker token
     MSIDErrorJITWPJAcquireTokenError               =   -51830,
+    
+    // JIT - Retry JIT process (WPJ or Link)
+    MSIDErrorJITRetryRequired                      =   -51831,
+    
+    // JIT - Unexpected status received from webCP troubleshooting flow
+    MSIDErrorJITUnknownStatusWebCP                 =   -51832,
+
+    // JIT - Troubleshooting flow needed
+    MSIDErrorJITTroubleshootingRequired            =   -51833,
+
+    // JIT - Troubleshooting - Could not create web view controller
+    MSIDErrorJITTroubleshootingCreateController    =   -51834,
+
+    // JIT - Troubleshooting - Result unknown
+    MSIDErrorJITTroubleshootingResultUnknown       =   -51835,
+    
+    // JIT - Troubleshooting - Acquire token error
+    MSIDErrorJITTroubleshootingAcquireToken        =   -51836,
     
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,

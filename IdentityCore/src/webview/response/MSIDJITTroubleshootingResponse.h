@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,30 +22,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDAuthorizationCodeResult.h"
-#import "MSIDOAuth2EmbeddedWebviewController.h"
+#if !EXCLUDE_FROM_MSALCPP
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDWebWPJResponse;
-
-typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
+#import "MSIDWebviewResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDInteractiveAuthorizationCodeRequest : NSObject
+@interface MSIDJITTroubleshootingResponse : MSIDWebviewResponse
 
-@property (nonatomic, readonly) MSIDInteractiveTokenRequestParameters *requestParameters;
-@property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
+@property (nonatomic, readonly) NSNumber *status;
+@property (nonatomic, readonly) BOOL isRetryResponse;
 
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory;
-
-- (void)getAuthCodeWithCompletion:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock;
+- (NSError *)getErrorFromResponseWithContext:(id <MSIDRequestContext>)context;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,31 +20,30 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDAuthorizationCodeResult.h"
-#import "MSIDOAuth2EmbeddedWebviewController.h"
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDWebWPJResponse;
+#import "MSIDWKNavigationActionMock.h"
 
-typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
+@interface MSIDWKNavigationActionMock ()
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDInteractiveAuthorizationCodeRequest : NSObject
-
-@property (nonatomic, readonly) MSIDInteractiveTokenRequestParameters *requestParameters;
-@property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
-
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory;
-
-- (void)getAuthCodeWithCompletion:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock;
+@property (nonatomic, readonly, copy) NSURLRequest *requestMock;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDWKNavigationActionMock
+
+- (instancetype)initWithRequest:(NSURLRequest *)request
+{
+    self = [super init];
+    _requestMock = request;
+
+    return self;
+}
+
+- (NSURLRequest *)request
+{
+    return self.requestMock;
+}
+
+@end
