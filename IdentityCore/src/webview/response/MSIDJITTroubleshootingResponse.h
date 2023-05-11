@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDJITTroubleshootingResponse : MSIDWebviewResponse
 
 @property (nonatomic, readonly) NSNumber *status;
+@property (nonatomic, readonly) BOOL isRetryResponse;
 
 - (NSError *)getErrorFromResponseWithContext:(id <MSIDRequestContext>)context;
 

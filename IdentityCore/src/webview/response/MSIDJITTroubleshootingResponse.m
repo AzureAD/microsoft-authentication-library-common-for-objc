@@ -28,6 +28,7 @@
 #if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDJITTroubleshootingResponse.h"
+#import "MSIDBrokerConstants.h"
 
 @implementation MSIDJITTroubleshootingResponse
 
@@ -35,14 +36,14 @@
                     context:(id <MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    // Check for JIT troubleshooting response
-    if (![self isJITTroubleshootingResponse:url])
+    // Check for JIT retry response
+    if (![self isJITRetryResponse:url] && ![self isJITTroubleshootingResponse:url])
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                     MSIDErrorServerInvalidResponse,
-                    @"MSAuth JIT troubleshooting response should have msauth as a scheme and compliance_status as a host",
+                    @"MSAuth JIT retry response should have msauth as a scheme and compliance_status or jit_troubleshooting as a host",
                     nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
@@ -57,25 +58,44 @@
     return self;
 }
 
+- (BOOL)isJITRetryResponse:(NSURL *)url
+{
+    if (!url) return NO;
+    if ([@"msauth" caseInsensitiveCompare:url.scheme] == NSOrderedSame && [@"compliance_status" caseInsensitiveCompare:url.host] == NSOrderedSame)
+    {
+        _isRetryResponse = YES;
+        return YES;
+    }
+
+    return NO;
+}
+
 - (BOOL)isJITTroubleshootingResponse:(NSURL *)url
 {
     if (!url) return NO;
-    return ([@"msauth" caseInsensitiveCompare:url.scheme] == NSOrderedSame && [@"compliance_status" caseInsensitiveCompare:url.host] == NSOrderedSame);
+    return ([@"msauth" caseInsensitiveCompare:url.scheme] == NSOrderedSame && [JIT_TROUBLESHOOTING_HOST caseInsensitiveCompare:url.host] == NSOrderedSame);
 }
 
 - (NSError *)getErrorFromResponseWithContext:(id <MSIDRequestContext>)context
 {
     NSError *returnError = nil;
 
-    switch ([self.status intValue])
+    if (self.isRetryResponse)
     {
-        case 4:
-            returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorJITRetryRequired, @"JIT: Retrying JIT", nil, nil, nil, context.correlationId, nil, NO);
-            break;
+        switch ([self.status intValue])
+        {
+            case 4:
+                returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorJITRetryRequired, @"JIT: Retrying JIT", nil, nil, nil, context.correlationId, nil, NO);
+                break;
 
-        default:
-            returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorJITUnknownStatusWebCP, [NSString stringWithFormat:@"JIT: Unexpected status received from webCP troubleshooting flow: %@.", self.status], nil, nil, nil, context.correlationId, nil, YES);
-            break;
+            default:
+                returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorJITUnknownStatusWebCP, [NSString stringWithFormat:@"JIT: Unexpected status received from webCP troubleshooting flow: %@.", self.status], nil, nil, nil, context.correlationId, nil, YES);
+                break;
+        }
+    }
+    else
+    {
+        returnError = MSIDCreateError(MSIDErrorDomain, MSIDErrorJITTroubleshootingRequired, @"JIT: Troubleshooting JIT", nil, nil, nil, context.correlationId, nil, NO);
     }
 
     return returnError;
