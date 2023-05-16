@@ -53,23 +53,7 @@
                  error:(NSError **)error
 {
     __auto_type jsonDictionary = [serializable jsonDictionary];
-    if (!jsonDictionary)
-    {
-        return nil;
-    }
-    
-    NSError *internalError;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:jsonDictionary
-                                                   options:0
-                                                     error:&internalError];
-    if (internalError)
-    {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to serialize to json data, error: %@", MSID_PII_LOG_MASKABLE(internalError));
-        if (error) *error = internalError;
-        return nil;
-    }
-    
-    return data;
+    return [self serializeToJsonData:jsonDictionary error:error];
 }
 
 - (id<MSIDJsonSerializable>)fromJsonData:(NSData *)data
