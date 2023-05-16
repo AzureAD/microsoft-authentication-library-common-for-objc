@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorizationCodeResult.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDOauth2Factory;
@@ -36,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) MSIDInteractiveTokenRequestParameters *requestParameters;
 @property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
 
 - (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory;

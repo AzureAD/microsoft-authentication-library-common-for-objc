@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 @protocol MSIDRequestContext;
 @class MSIDAuthorizeWebRequestConfiguration;
@@ -41,10 +42,12 @@
 
 - (NSObject<MSIDWebviewInteracting> *)webViewWithConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
                                              requestParameters:(MSIDInteractiveRequestParameters *)requestParameters
+                          externalDecidePolicyForBrowserAction:(MSIDExternalDecidePolicyForBrowserActionBlock)externalDecidePolicyForBrowserAction
                                                        context:(id<MSIDRequestContext>)context;
 
 - (NSObject<MSIDWebviewInteracting> *)embeddedWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
                                                          customWebview:(WKWebView *)webview
+                                  externalDecidePolicyForBrowserAction:(MSIDExternalDecidePolicyForBrowserActionBlock)externalDecidePolicyForBrowserAction
                                                                context:(id<MSIDRequestContext>)context;
 
 #endif

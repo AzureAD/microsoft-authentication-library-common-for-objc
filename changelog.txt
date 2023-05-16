@@ -1,3 +1,7 @@
+1.7.21
+* Add troubleshooting flow when doing Just in Time registration in native apps flow (#1188)
+* Support read device info when ecc is on (#1240)
+
 Version 1.7.20
 * Minor fix, added missing header in MSIDKeyOperationUtil.h to fix CPP build
 

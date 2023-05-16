@@ -43,6 +43,8 @@
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDWebviewInteracting.h"
+
 #endif
 
 @interface MSIDInteractiveAuthorizationCodeRequest()
@@ -207,6 +209,7 @@
 {
     NSObject<MSIDWebviewInteracting> *webView = [self.oauthFactory.webviewFactory webViewWithConfiguration:self.webViewConfiguration
                                                                                          requestParameters:self.requestParameters
+                                                                      externalDecidePolicyForBrowserAction:self.externalDecidePolicyForBrowserAction
                                                                                                    context:self.requestParameters];
     
     if (!webView)

@@ -97,6 +97,7 @@
     
     NSObject<MSIDWebviewInteracting> *webView = [self.oauthFactory.webviewFactory webViewWithConfiguration:configuration
                                                                                          requestParameters:self.requestParameters
+                                                                      externalDecidePolicyForBrowserAction:nil
                                                                                                    context:self.requestParameters];
     
     if (!webView)

@@ -358,5 +358,38 @@
     XCTAssertNotNil(error.userInfo[MSID_SSO_NONCE_QUERY_PARAM_KEY]);
     XCTAssertEqualObjects(error.userInfo[MSID_SSO_NONCE_QUERY_PARAM_KEY], @"SERVER_SSO_NONCE");
 }
+
+- (void)testResponseWithURL_whenReceivedRetryUrlButInvalidStatus_shouldReturnNilAndErrorJITRetryRequired
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://compliance_status?status=7854"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorJITUnknownStatusWebCP);
+}
+
+- (void)testResponseWithURL_whenReceivedRetryUrl_shouldReturnNilAndErrorJITRetryRequired
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://compliance_status?status=4"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorJITRetryRequired);
+}
+
 #endif
 @end

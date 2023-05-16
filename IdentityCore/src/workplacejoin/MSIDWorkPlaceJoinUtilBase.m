@@ -28,6 +28,7 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDKeyOperationUtil.h"
+#import "MSIDBrokerConstants.h"
 
 NSString *const MSID_DEVICE_INFORMATION_UPN_ID_KEY        = @"userPrincipalName";
 NSString *const MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY = @"aadDeviceIdentifier";
@@ -35,6 +36,43 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 
 static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
 static NSString *kECPrivateKeyTagSuffix = @"-EC";
+
+@interface MSIDWPJMetadata : NSObject
+
+@property (nonatomic) NSString *certificateThumbprint;
+@property (nonatomic) NSString *cloudHost;
+@property (nonatomic) NSString *deviceID;
+@property (nonatomic) NSString *tenantIdentifier;
+@property (nonatomic) NSString *upn;
+
+- (NSDictionary *)serializeWithFormat:(BOOL)usePrimaryFormat;
+
+@end
+
+@implementation MSIDWPJMetadata
+
+- (NSDictionary *)serializeWithFormat:(BOOL)usePrimaryFormat
+{
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    if (usePrimaryFormat)
+    {
+        result[MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT] = self.certificateThumbprint;
+        result[MSID_PRIMARY_REGISTRATION_CLOUD] = self.cloudHost;
+        result[MSID_PRIMARY_REGISTRATION_DEVICE_ID] = self.deviceID;
+        result[MSID_PRIMARY_REGISTRATION_TENANT_ID] = self.tenantIdentifier;
+        result[MSID_PRIMARY_REGISTRATION_UPN] = self.upn;
+    }
+    else
+    {
+        result[MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY] = self.deviceID;
+        result[MSID_DEVICE_INFORMATION_UPN_ID_KEY] = self.upn;
+        result[MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY] = self.tenantIdentifier;
+    }
+    
+    return result;
+}
+
+@end
 
 @implementation MSIDWorkPlaceJoinUtilBase
 
@@ -111,39 +149,64 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
 {
-    return [self getRegisteredDeviceMetadataInformation:context tenantId:nil];
+    return [self getRegisteredDeviceMetadataInformation:context tenantId:nil usePrimaryFormat:YES];
 }
 
-+ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context tenantId:(nullable NSString *)tenantId
++ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
+                                                         tenantId:(nullable NSString *)tenantId
+                                                 usePrimaryFormat:(BOOL)usePrimaryFormat
 {
+    if (tenantId == nil)
+    {
+        NSString *accessGroup = [[MSIDKeychainUtil sharedInstance] accessGroup:kMSIDWPJKeychainGroupV2];
+        if (!accessGroup) return nil;
+        
+        // If tenantId is nil, the caller requested primary registration. Query keychain to get the ECC primary registration first.
+        NSString* primaryEccTenantId = [self getPrimaryEccTenantWithSharedAccessGroup:accessGroup context:context error:nil];
+        
+        if (primaryEccTenantId)
+        {
+            // ECC primary registration was found. Fill the data and return.
+            MSIDWPJMetadata *metadata = [self readWPJMetadataWithSharedAccessGroup:accessGroup
+                                                                  tenantIdentifier:primaryEccTenantId
+                                                                        domainName:nil
+                                                                           context:context
+                                                                             error:nil];
+            return [metadata serializeWithFormat:usePrimaryFormat];
+        }
+    }
+ 
     MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
-    NSString *userPrincipalName;
-    NSString *fetchedTenantId;
     if (wpjCerts)
     {
-        if (wpjCerts.keyChainVersion != MSIDWPJKeychainAccessGroupV2)
+        MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
+        
+        if (wpjCerts.keyChainVersion != MSIDWPJKeychainAccessGroupV2) //v1
         {
-            userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
-            fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+            metadata.upn = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
+            metadata.tenantIdentifier = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+            metadata.certificateThumbprint = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDWPJThumbprintIdentifier context:context error:nil];
+            metadata.cloudHost = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDWPJCloudEnvironmentIdentifier context:context error:nil];
+            metadata.deviceID = wpjCerts.certificateSubject;
         }
-        else
+        else //v2
         {
-            NSString *formattedKeyForUPN = (__bridge NSString * )kSecAttrLabel;
-            NSString *formattedKeyForTenantId = (__bridge NSString *)kSecAttrService;
-            userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDUPNKeyIdentifier key:formattedKeyForUPN context:context error:nil];
-            fetchedTenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataFromV2ForTenantId:tenantId identifier:kMSIDTenantKeyIdentifier key:formattedKeyForTenantId context:context error:nil];
+            NSString *accessGroup = [[MSIDKeychainUtil sharedInstance] accessGroup:kMSIDWPJKeychainGroupV2];
+            if (!accessGroup) return nil;
+            
+            metadata = [self readWPJMetadataWithSharedAccessGroup:accessGroup
+                                                 tenantIdentifier:tenantId
+                                                       domainName:nil
+                                                          context:context
+                                                            error:nil];
         }
-        NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
-
-        // Certificate subject is nothing but the AAD deviceID
-        [registrationInfoMetadata setValue:wpjCerts.certificateSubject forKey:MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY];
-        [registrationInfoMetadata setValue:userPrincipalName forKey:MSID_DEVICE_INFORMATION_UPN_ID_KEY];
-        [registrationInfoMetadata setValue:fetchedTenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
-        return registrationInfoMetadata;
+        
+        return [metadata serializeWithFormat:usePrimaryFormat];
     }
 
     return nil;
 }
+
 + (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
                                                                                        context:(nullable id<MSIDRequestContext>)context
@@ -390,5 +453,47 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     return res;
 }
 
-
++ (MSIDWPJMetadata *)readWPJMetadataWithSharedAccessGroup:(NSString *)sharedAccessGroup
+                                      tenantIdentifier:(NSString *)tenantIdentifier
+                                            domainName:(NSString *)domainName
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
+{
+    NSMutableDictionary *query = [NSMutableDictionary new];
+    query[(id)kSecClass] = (id)kSecClassGenericPassword;
+    query[(id)kSecAttrService] = tenantIdentifier;
+    query[(id)kSecAttrAccount] = domainName;
+    query[(id)kSecAttrAccessGroup] = sharedAccessGroup;
+    query[(id)kSecReturnAttributes] = (id)kCFBooleanTrue;
+    query[(id)kSecReturnData] = (id)kCFBooleanTrue;
+    
+    CFDictionaryRef attributeDictCF = NULL;
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query,(CFTypeRef *)&attributeDictCF);
+    
+    NSDictionary *attributeDictionary = CFBridgingRelease(attributeDictCF);
+    NSData *metadataBlob = [attributeDictionary objectForKey:(__bridge id)kSecValueData];
+    
+    NSError *subError = nil;
+    NSDictionary *decodedDataDict = [NSJSONSerialization JSONObjectWithData:metadataBlob
+                                                                    options:0
+                                                                      error:&subError];
+    if (!decodedDataDict || subError)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"WPJ metadata deserialization failed.", nil, nil, subError, context.correlationId, nil, NO);
+        }
+        
+        return nil;
+    }
+    
+    MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
+    metadata.certificateThumbprint = decodedDataDict[kMSIDWPJThumbprintIdentifier];
+    metadata.cloudHost = attributeDictionary[(__bridge id)kSecAttrDescription];
+    metadata.deviceID = decodedDataDict[kMSIDWPJCertificateCommonNameIdentifier];
+    metadata.upn = attributeDictionary[(__bridge id)kSecAttrLabel];
+    metadata.tenantIdentifier = tenantIdentifier;
+    
+    return metadata;
+}
 @end
