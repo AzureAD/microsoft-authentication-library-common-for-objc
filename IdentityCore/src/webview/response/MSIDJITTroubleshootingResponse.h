@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,22 +22,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#if !EXCLUDE_FROM_MSALCPP
 
-#pragma once
+#import "MSIDWebviewResponse.h"
 
-extern NSString *const kMSIDPrivateKeyIdentifier;
-extern NSString *const kMSIDTenantKeyIdentifier;
-extern NSString *const kMSIDUPNKeyIdentifier;
-extern NSString *const kMSIDWPJThumbprintIdentifier;
-extern NSString *const kMSIDWPJCertificateCommonNameIdentifier;
-extern NSString *const kMSIDWPJCloudEnvironmentIdentifier;
-extern NSString *const kMSIDProtectionSpaceDistinguishedName;
-extern NSString *const kMSIDPKeyAuthUrn;
-extern NSString *const kMSIDPKeyAuthHeader;
-extern NSString *const kMSIDPKeyAuthHeaderVersion;
-extern NSString *const kMSIDWwwAuthenticateHeader;
-extern NSString *const kMSIDPKeyAuthName;
-extern NSString *const kMSIDPKeyAuthKeyWordForUserAgent;
-extern NSString *const kMSIDWPJKeychainGroupV2;
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDJITTroubleshootingResponse : MSIDWebviewResponse
+
+@property (nonatomic, readonly) NSNumber *status;
+@property (nonatomic, readonly) BOOL isRetryResponse;
+
+- (NSError *)getErrorFromResponseWithContext:(id <MSIDRequestContext>)context;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+#endif

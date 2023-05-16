@@ -188,6 +188,12 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorJITWPJDeviceRegistrationFailed),
                       @(MSIDErrorJITWPJAccountIdentifierNil),
                       @(MSIDErrorJITWPJAcquireTokenError),
+                      @(MSIDErrorJITRetryRequired),
+                      @(MSIDErrorJITUnknownStatusWebCP),
+                      @(MSIDErrorJITTroubleshootingRequired),
+                      @(MSIDErrorJITTroubleshootingCreateController),
+                      @(MSIDErrorJITTroubleshootingResultUnknown),
+                      @(MSIDErrorJITTroubleshootingAcquireToken),
 
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
@@ -376,6 +382,18 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorJITWPJAccountIdentifierNil";
         case MSIDErrorJITWPJAcquireTokenError:
             return @"MSIDErrorJITWPJAcquireTokenError";
+        case MSIDErrorJITUnknownStatusWebCP:
+            return @"MSIDErrorJITUnknownStatusWebCP";
+        case MSIDErrorJITRetryRequired:
+            return @"MSIDErrorJITRetryRequired";
+        case MSIDErrorJITTroubleshootingRequired:
+            return @"MSIDErrorJITTroubleshootingRequired";
+        case MSIDErrorJITTroubleshootingCreateController:
+            return @"MSIDErrorJITTroubleshootingCreateController";
+        case MSIDErrorJITTroubleshootingResultUnknown:
+            return @"MSIDErrorJITTroubleshootingResultUnknown";
+        case MSIDErrorJITTroubleshootingAcquireToken:
+            return @"MSIDErrorJITTroubleshootingAcquireToken";
             // Throttling errors
         case MSIDErrorThrottleCacheNoRecord:
             return @"MSIDErrorThrottleCacheNoRecord";
