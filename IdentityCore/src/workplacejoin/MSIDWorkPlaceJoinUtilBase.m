@@ -166,13 +166,18 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         
         if (primaryEccTenantId)
         {
+            NSError *subError;
+            
             // ECC primary registration was found. Fill the data and return.
             MSIDWPJMetadata *metadata = [self readWPJMetadataWithSharedAccessGroup:accessGroup
                                                                   tenantIdentifier:primaryEccTenantId
                                                                         domainName:nil
                                                                            context:context
-                                                                             error:nil];
-            return [metadata serializeWithFormat:usePrimaryFormat];
+                                                                             error:&subError];
+            if (metadata && !subError)
+            {
+                return [metadata serializeWithFormat:usePrimaryFormat];
+            }
         }
     }
  
@@ -180,6 +185,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (wpjCerts)
     {
         MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
+        NSError *subError;
         
         if (wpjCerts.keyChainVersion != MSIDWPJKeychainAccessGroupV2) //v1
         {
@@ -193,15 +199,19 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         {
             NSString *accessGroup = [[MSIDKeychainUtil sharedInstance] accessGroup:kMSIDWPJKeychainGroupV2];
             if (!accessGroup) return nil;
-            
+    
+
             metadata = [self readWPJMetadataWithSharedAccessGroup:accessGroup
                                                  tenantIdentifier:tenantId
                                                        domainName:nil
                                                           context:context
-                                                            error:nil];
+                                                            error:&subError];
         }
-        
-        return [metadata serializeWithFormat:usePrimaryFormat];
+    
+        if (metadata && !subError)
+        {
+            return [metadata serializeWithFormat:usePrimaryFormat];
+        }
     }
 
     return nil;
@@ -469,31 +479,50 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     
     CFDictionaryRef attributeDictCF = NULL;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query,(CFTypeRef *)&attributeDictCF);
-    
-    NSDictionary *attributeDictionary = CFBridgingRelease(attributeDictCF);
-    NSData *metadataBlob = [attributeDictionary objectForKey:(__bridge id)kSecValueData];
-    
-    NSError *subError = nil;
-    NSDictionary *decodedDataDict = [NSJSONSerialization JSONObjectWithData:metadataBlob
-                                                                    options:0
-                                                                      error:&subError];
-    if (!decodedDataDict || subError)
+    if (status == errSecSuccess && attributeDictCF && CFGetTypeID(attributeDictCF) == CFDictionaryGetTypeID())
     {
-        if (error)
+        NSDictionary *attributeDictionary = CFBridgingRelease(attributeDictCF);
+        NSData *metadataBlob = [attributeDictionary objectForKey:(__bridge id)kSecValueData];
+    
+        NSError *subError = nil;
+        if (!metadataBlob)
         {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"WPJ metadata deserialization failed.", nil, nil, subError, context.correlationId, nil, NO);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"WPJ metadata is invalid or removed.", nil, nil, subError, context.correlationId, nil, NO);
+            }
+    
+            return nil;
         }
-        
-        return nil;
+
+        NSDictionary *decodedDataDict = [NSJSONSerialization JSONObjectWithData:metadataBlob
+                                                                        options:0
+                                                                          error:&subError];
+        if (!decodedDataDict || subError)
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"WPJ metadata deserialization failed.", nil, nil, subError, context.correlationId, nil, NO);
+            }
+    
+            return nil;
+        }
+        MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
+        metadata.certificateThumbprint = decodedDataDict[kMSIDWPJThumbprintIdentifier];
+        metadata.cloudHost = attributeDictionary[(__bridge id) kSecAttrDescription];
+        metadata.deviceID = decodedDataDict[kMSIDWPJCertificateCommonNameIdentifier];
+        metadata.upn = attributeDictionary[(__bridge id) kSecAttrLabel];
+        metadata.tenantIdentifier = tenantIdentifier;
+        return metadata;
     }
-    
-    MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
-    metadata.certificateThumbprint = decodedDataDict[kMSIDWPJThumbprintIdentifier];
-    metadata.cloudHost = attributeDictionary[(__bridge id)kSecAttrDescription];
-    metadata.deviceID = decodedDataDict[kMSIDWPJCertificateCommonNameIdentifier];
-    metadata.upn = attributeDictionary[(__bridge id)kSecAttrLabel];
-    metadata.tenantIdentifier = tenantIdentifier;
-    
-    return metadata;
+    else
+    {
+        if (error && status != errSecItemNotFound)
+        {
+            NSString *errorMessage = [NSString stringWithFormat:@"keychain read with SecItemCopyMatching failed with status : %d",(int)status];
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, errorMessage, nil, nil, nil, context.correlationId, nil, NO);
+        }
+    }
+    return nil;
 }
 @end
