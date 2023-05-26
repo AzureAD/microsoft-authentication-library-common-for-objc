@@ -289,9 +289,9 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [MSIDTestSwizzle classMethod:@selector(getPrimaryEccTenantWithSharedAccessGroup:context:error:)
                            class:[MSIDWorkPlaceJoinUtil class]
                            block:(id) ^(id obj, NSString *sharedAccessGroup, id <MSIDRequestContext> context, NSError **error)
-                           {
-                               return @"PrimaryTenantId";
-                           }];
+    {
+        return @"PrimaryTenantId";
+    }];
     
     [MSIDTestSwizzle classMethod:@selector(readWPJMetadataWithSharedAccessGroup:tenantIdentifier:domainName:context:error:)
                            class:[MSIDWorkPlaceJoinUtil class]
@@ -300,17 +300,17 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
                                         NSString *domainName,
                                         id <MSIDRequestContext> context,
                                         NSError **error)
-                           {
-                               return nil;
-                           }];
-    
+    {
+        return nil;
+    }];
+   
     
     [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
                            class:[MSIDWorkPlaceJoinUtil class]
                            block:(id) ^(id obj, NSString *tenantId, id <MSIDRequestContext> context)
-                           {
-                               return nil;
-                           }];
+    {
+        return nil;
+    }];
     
     NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
     XCTAssertNil(deviceRegMetaDataInfo);
