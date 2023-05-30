@@ -253,6 +253,39 @@
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
 }
 
+- (void)testJsonDictionaryFromOldSDK_whenDeserialize_shouldGenerateCorrectJson {
+    MSIDDeviceInfo *deviceInfo = [MSIDDeviceInfo new];
+    deviceInfo.deviceMode = MSIDDeviceModeShared;
+    deviceInfo.wpjStatus = MSIDWorkPlaceJoinStatusJoined;
+    deviceInfo.brokerVersion = @"1.2.3";
+    
+    NSDictionary *additionalData = @{@"feature_flag1":@1,@"token":@"",@"dict":@{@"key":@"value"}};
+    deviceInfo.additionalExtensionData = additionalData;
+#if TARGET_OS_IPHONE
+    deviceInfo.extraDeviceInfo = @{MSID_BROKER_MDM_ID_KEY:@"mdmId",MSID_ENROLLED_USER_OBJECT_ID_KEY:@"objectId"};
+#endif
+#if TARGET_OS_OSX
+    NSDictionary *expectedJson = @{
+        MSID_BROKER_DEVICE_MODE_KEY : @"shared",
+        MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"full",
+        MSID_BROKER_WPJ_STATUS_KEY : @"joined",
+        MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
+        MSID_PLATFORM_SSO_STATUS_KEY : @"platformSSONotEnabled",
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}"
+    };
+#else
+    NSDictionary *expectedJson = @{
+        MSID_BROKER_DEVICE_MODE_KEY : @"shared",
+        MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"full",
+        MSID_BROKER_WPJ_STATUS_KEY : @"joined",
+        MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
+        MSID_EXTRA_DEVICE_INFO_KEY:@"{\"mdm_id\":\"mdmId\",\"object_id\":\"objectId\"}"
+    };
+#endif
+    XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
+}
+
 #if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
 - (void)testInitWithJSONDictionary_whenJsonValid_PlatformSSOEnabled_shouldInitWithJsonWithPlatformSSOStatus {
     NSDictionary *json = @{
