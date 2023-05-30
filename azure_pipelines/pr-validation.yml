@@ -1,11 +1,10 @@
 # Pipeline will be triggered for PR & any updates on the PR on all branches 
-pr: none
-  # autoCancel: true
-  # branches:
-  #   include:
-  #   - '*'
-  # drafts: true
-  # turn off for now until making sure it is working
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - '*'
+  drafts: true
 
 # Not triggering for CI since it is triggered for PRs 
 trigger: none
