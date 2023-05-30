@@ -282,7 +282,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testWPJMetaDataDeviceInfoWithRequestParameters_withMetadataNil_shouldReturnNil
 {
-    
     MSIDRequestParameters *requestParams = [MSIDRequestParameters new];
     requestParams.validateAuthority = YES;
     
