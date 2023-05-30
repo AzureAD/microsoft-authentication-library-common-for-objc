@@ -294,11 +294,11 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     [MSIDTestSwizzle classMethod:@selector(readWPJMetadataWithSharedAccessGroup:tenantIdentifier:domainName:context:error:)
                            class:[MSIDWorkPlaceJoinUtil class]
-                           block:(id) ^(id obj, NSString *sharedAccessGroup,
-                                        NSString *tenantIdentifier,
-                                        NSString *domainName,
-                                        id <MSIDRequestContext> context,
-                                        NSError **error)
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup,
+                                        __unused NSString *tenantIdentifier,
+                                        __unused NSString *domainName,
+                                        __unused id <MSIDRequestContext> context,
+                                        __unused NSError **error)
     {
         return nil;
     }];
