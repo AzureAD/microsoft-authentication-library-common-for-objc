@@ -287,7 +287,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     [MSIDTestSwizzle classMethod:@selector(getPrimaryEccTenantWithSharedAccessGroup:context:error:)
                            class:[MSIDWorkPlaceJoinUtil class]
-                           block:(id) ^(id obj, NSString *sharedAccessGroup, id <MSIDRequestContext> context, NSError **error)
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup, __unused id <MSIDRequestContext> context, __unused NSError **error)
     {
         return @"PrimaryTenantId";
     }];
@@ -306,7 +306,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
                            class:[MSIDWorkPlaceJoinUtil class]
-                           block:(id) ^(id obj, NSString *tenantId, id <MSIDRequestContext> context)
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
     {
         return nil;
     }];
@@ -330,10 +330,10 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     [MSIDTestSwizzle classMethod:@selector(readWPJMetadataWithSharedAccessGroup:tenantIdentifier:domainName:context:error:)
                            class:[MSIDWorkPlaceJoinUtil class]
-                           block:(id) ^(id obj, NSString *sharedAccessGroup,
-                                        NSString *tenantIdentifier,
-                                        NSString *domainName,
-                                        id <MSIDRequestContext> context,
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup,
+                                        __unused NSString *tenantIdentifier,
+                                        __unused NSString *domainName,
+                                        __unused id <MSIDRequestContext> context,
                                         NSError **error)
     {
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Error reading metadata", nil, nil, nil, nil, nil, NO);
@@ -347,7 +347,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
                            class:[MSIDWorkPlaceJoinUtil class]
-                           block:(id) ^(id obj, NSString *tenantId, id <MSIDRequestContext> context)
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
     {
         return keyPairWithCert;
     }];
@@ -364,14 +364,14 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     [MSIDTestSwizzle classMethod:@selector(getPrimaryEccTenantWithSharedAccessGroup:context:error:)
                            class:[MSIDWorkPlaceJoinUtil class]
-                           block:(id) ^(id obj, NSString *sharedAccessGroup, id <MSIDRequestContext> context, NSError **error)
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup, __unused id <MSIDRequestContext> context, __unused NSError **error)
     {
         return nil;
     }];
     
     [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
                            class:[MSIDWorkPlaceJoinUtil class]
-                           block:(id) ^(id obj, NSString *tenantId, id <MSIDRequestContext> context)
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
     {
         return nil;
     }];
