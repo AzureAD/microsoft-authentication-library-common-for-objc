@@ -323,7 +323,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     [MSIDTestSwizzle classMethod:@selector(getPrimaryEccTenantWithSharedAccessGroup:context:error:)
                            class:[MSIDWorkPlaceJoinUtil class]
-                           block:(id) ^(id obj, NSString *sharedAccessGroup, id <MSIDRequestContext> context, NSError **error)
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup, __unused id <MSIDRequestContext> context, __unused NSError **error)
     {
         return @"PrimaryTenantId";
     }];
