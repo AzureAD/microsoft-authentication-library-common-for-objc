@@ -47,7 +47,7 @@
                                                           error:(NSError *_Nullable *_Nullable)error;
 
 
-+ (MSIDWPJMetadata *_Nullable)readWPJMetadataWithSharedAccessGroup:(NSString *_Nullable)sharedAccessGroup
++ (nullable MSIDWPJMetadata *)readWPJMetadataWithSharedAccessGroup:(NSString *_Nullable)sharedAccessGroup
                                                   tenantIdentifier:(NSString *_Nullable)tenantIdentifier
                                                         domainName:(NSString *_Nullable)domainName
                                                            context:(id <MSIDRequestContext> _Nullable)context

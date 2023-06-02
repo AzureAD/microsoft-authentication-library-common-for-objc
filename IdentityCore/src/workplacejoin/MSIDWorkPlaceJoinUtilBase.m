@@ -465,6 +465,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     
             return nil;
         }
+
         MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
         metadata.certificateThumbprint = decodedDataDict[kMSIDWPJThumbprintIdentifier];
         metadata.cloudHost = attributeDictionary[(__bridge id) kSecAttrDescription];

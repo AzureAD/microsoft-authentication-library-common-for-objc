@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MSIDWPJMetadata : NSObject
 
 @property (nonatomic) NSString *certificateThumbprint;
@@ -31,6 +33,8 @@
 @property (nonatomic) NSString *tenantIdentifier;
 @property (nonatomic) NSString *upn;
 
-- (NSDictionary *)serializeWithFormat:(BOOL)usePrimaryFormat;
+- (nonnull NSDictionary *)serializeWithFormat:(BOOL)usePrimaryFormat;
 
 @end
+
+NS_ASSUME_NONNULL_END
