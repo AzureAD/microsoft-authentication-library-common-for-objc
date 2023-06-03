@@ -1,4 +1,5 @@
 # Pipeline will be triggered for PR & any updates on the PR on all branches 
+
 pr:
   autoCancel: true
   branches:
@@ -21,7 +22,7 @@ jobs:
         target: "mac_library"
   displayName: Validate Pull Request
   pool:
-    vmImage: 'macos-12'
+    vmImage: 'macos-13'
     timeOutInMinutes: 30
 
   steps:
