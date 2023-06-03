@@ -102,6 +102,9 @@
         _wpjRegistrationUpn = json[@"wpj_registration_upn"];
         _operateOnPrimaryWPJ = [json[@"wpj_operate_on_primary_reg"] boolValue];
         _useMostSecureStorageForWpj = [json[@"use_most_secure_storage"] boolValue];
+        _shouldExpirePRT = [json[@"should_expire_prt"] boolValue];
+        _isSsoSeedingCompleted = [json[@"is_sso_seeding_completed"] boolValue];
+        _shouldOnlyDeleteSeedingPrt = [json[@"should_only_delete_seeding_prt"] boolValue];
     }
 
     return self;
@@ -179,6 +182,9 @@
     json[@"wpj_registration_upn"] = _wpjRegistrationUpn;
     json[@"wpj_operate_on_primary_reg"] = @(_operateOnPrimaryWPJ);
     json[@"use_most_secure_storage"] = @(_useMostSecureStorageForWpj);
+    json[@"should_expire_prt"] = @(_shouldExpirePRT);
+    json[@"is_sso_seeding_completed"] = @(_isSsoSeedingCompleted);
+    json[@"should_only_delete_seeding_prt"] = @(_shouldOnlyDeleteSeedingPrt);
     
     return json;
 }
