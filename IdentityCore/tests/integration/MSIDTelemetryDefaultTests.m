@@ -250,7 +250,7 @@
     __auto_type defaultEventPropertyNames = [[NSSet alloc] initWithArray:[eventInfo allKeys]];
     
 #if TARGET_OS_IPHONE
-    XCTAssertEqual([defaultEventPropertyNames count], piiEnabled ? 9 : 6);
+    XCTAssertEqual([defaultEventPropertyNames count], piiEnabled ? 8 : 6);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
 #else
     XCTAssertEqual([defaultEventPropertyNames count], piiEnabled ? 8 : 5);
@@ -266,8 +266,9 @@
     XCTAssertTrue([defaultEventPropertyNames containsObject:@"Microsoft.Test.application_name"]);
 #if TARGET_OS_IPHONE
     XCTAssertTrue([defaultEventPropertyNames containsObject:@"Microsoft.Test.application_version"]);
-#endif
+#else
     XCTAssertTrue([defaultEventPropertyNames containsObject:@"Microsoft.Test.device_id"]);
+#endif
 }
 
 - (void)assertAPIEvent:(NSDictionary *)eventInfo

@@ -158,7 +158,7 @@ void MSIDDeviceCopySerialNumber(CFStringRef *serialNumber)
 + (NSString *)deviceTelemetryId
 {
 #if TARGET_OS_IPHONE
-    return [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    return nil;
 #else
     CFStringRef macSerialNumber = nil;
     MSIDDeviceCopySerialNumber(&macSerialNumber);

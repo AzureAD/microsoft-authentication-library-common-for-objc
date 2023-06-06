@@ -187,12 +187,16 @@
         
         s_defaultParameters = [NSMutableDictionary new];
         
+#if !TARGET_OS_IPHONE
         NSString *deviceId = [MSIDDeviceId deviceTelemetryId];
-        NSString *applicationName = [MSIDDeviceId applicationName];
-        NSString *applicationVersion = [MSIDDeviceId applicationVersion];
         
         [s_defaultParameters msidSetObjectIfNotNil:deviceId
                                             forKey:MSID_TELEMETRY_KEY_DEVICE_ID];
+#endif
+        
+        NSString *applicationName = [MSIDDeviceId applicationName];
+        NSString *applicationVersion = [MSIDDeviceId applicationVersion];
+        
         [s_defaultParameters msidSetObjectIfNotNil:applicationName
                                             forKey:MSID_TELEMETRY_KEY_APPLICATION_NAME];
         [s_defaultParameters msidSetObjectIfNotNil:applicationVersion
