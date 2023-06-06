@@ -29,7 +29,4 @@
                                payload:(NSDictionary *)payload
                             signingKey:(SecKeyRef)signingKey;
 
-+ (NSString *)decryptJWT:(NSData *)jwtData
-           decryptionKey:(SecKeyRef)decryptionKey;
-
 @end

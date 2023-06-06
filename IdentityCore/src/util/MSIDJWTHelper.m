@@ -47,36 +47,6 @@
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
 }
 
-+ (NSString *)decryptJWT:(NSData *)jwtData
-           decryptionKey:(SecKeyRef)decryptionKey
-{
-#if TARGET_OS_IPHONE
-    size_t cipherBufferSize = SecKeyGetBlockSize(decryptionKey);
-#endif // TARGET_OS_IPHONE
-    size_t keyBufferSize = [jwtData length];
-
-    NSMutableData *bits = [NSMutableData dataWithLength:keyBufferSize];
-    OSStatus status = errSecAuthFailed;
-#if TARGET_OS_IPHONE
-    status = SecKeyDecrypt(decryptionKey,
-                           kSecPaddingPKCS1,
-                           (const uint8_t *) [jwtData bytes],
-                           cipherBufferSize,
-                           [bits mutableBytes],
-                           &keyBufferSize);
-#else // !TARGET_OS_IPHONE
-    (void)decryptionKey;
-    // TODO: SecKeyDecrypt is not available on OS X
-#endif // TARGET_OS_IPHONE
-    if(status != errSecSuccess)
-    {
-        return nil;
-    }
-
-    [bits setLength:keyBufferSize];
-    return [[NSString alloc] initWithData:bits encoding:NSUTF8StringEncoding];
-}
-
 + (NSData *)sign:(SecKeyRef)privateKey
             data:(NSData *)plainData
 {
