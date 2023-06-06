@@ -25,7 +25,6 @@
 #import "MSIDKeyOperationUtil.h"
 #import "MSIDJwtAlgorithm.h"
 #import "NSData+MSIDTestUtil.h"
-#import "NSData+JWT.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDTestSecureEnclaveKeyPairGenerator.h"
 

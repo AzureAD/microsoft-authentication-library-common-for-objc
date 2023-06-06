@@ -27,7 +27,6 @@
 #import <Security/SecKey.h>
 #import "NSString+MSIDExtensions.h"
 #import "MSIDLogger+Internal.h"
-#import "NSData+JWT.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDKeyOperationUtil.h"
 
