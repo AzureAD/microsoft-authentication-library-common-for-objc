@@ -58,8 +58,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
 
-- (nullable NSString *)signData:(nonnull NSString *)message;
-
 @end
 
 NS_ASSUME_NONNULL_END

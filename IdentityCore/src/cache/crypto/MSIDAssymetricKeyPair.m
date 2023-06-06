@@ -222,20 +222,6 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     return [encryptedMessage msidDecryptedDataWithAlgorithm:kSecKeyAlgorithmRSAEncryptionOAEPSHA1 privateKey:self.privateKeyRef];
 }
 
-- (NSString *)signData:(NSString *)message
-{
-    if ([message length] == 0)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Message to sign was empty");
-        return nil;
-    }
-    
-    NSData *hashedData = [[message dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
-    NSData *signedData = [hashedData msidSignHashWithPrivateKey:self.privateKeyRef];
-    NSString *signedEncodedDataString = [NSString msidBase64UrlEncodedStringFromData:signedData];
-    return signedEncodedDataString;
-}
-
 - (NSDate *)creationDate
 {
     if (!_creationDate)
