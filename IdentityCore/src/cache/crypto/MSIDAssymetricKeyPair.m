@@ -23,6 +23,7 @@
 
 #import "MSIDAssymetricKeyPair.h"
 #import "NSData+MSIDExtensions.h"
+#import "NSData+JWT.h"
 
 static NSString *s_jwkTemplate = @"{\"e\":\"%@\",\"kty\":\"RSA\",\"n\":\"%@\"}";
 static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
