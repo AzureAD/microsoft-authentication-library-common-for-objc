@@ -23,43 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@interface NSData (JWT)
 
-@interface MSIDAssymetricKeyPair : NSObject
-{
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
-    
-@protected
-    NSDate *_creationDate;
-    
-}
-
-@property (nonatomic, nullable, readonly) NSString *keyExponent;
-@property (nonatomic, nullable, readonly) NSString *keyModulus;
-@property (nonatomic, nullable, readonly) NSData *keyData;
-
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-@property (nonatomic, readonly) NSString *jsonWebKey;
-
-/*
- The kid holds the public key thumbprint
- */
-@property (nonatomic, readonly) NSString *kid;
-@property (nonatomic, nullable, readonly) NSDate *creationDate;
-@property (nonatomic, readonly) NSString *stkJwk;
-
-@property (nonatomic, readonly) NSDictionary *privateKeyDict;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey
-                             privateKeyDict:(NSDictionary *)keyDict;
-
-- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
-
-- (nullable NSString *)signData:(nonnull NSString *)message;
+- (NSData *)msidSignHashWithPrivateKey:(SecKeyRef)privateKey;
 
 @end
-
-NS_ASSUME_NONNULL_END
