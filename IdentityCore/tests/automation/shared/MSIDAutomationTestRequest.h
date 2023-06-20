@@ -84,6 +84,10 @@ typedef NS_ENUM(NSUInteger, MSIDAutomationWPJRegistrationAPIMode)
 @property (nonatomic) NSString *wpjRegistrationTenantId;
 @property (nonatomic) NSString *wpjRegistrationUpn;
 @property (nonatomic) BOOL operateOnPrimaryWPJ;
+@property (nonatomic) BOOL useMostSecureStorageForWpj;
+@property (nonatomic) BOOL shouldExpirePRT;
+@property (nonatomic) BOOL isSsoSeedingCompleted;
+@property (nonatomic) BOOL shouldOnlyDeleteSeedingPrt;
 
 - (BOOL)usesEmbeddedWebView;
 

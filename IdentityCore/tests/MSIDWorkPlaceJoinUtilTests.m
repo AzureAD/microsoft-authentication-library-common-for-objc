@@ -28,6 +28,11 @@
 #import "NSData+MSIDExtensions.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDTestSecureEnclaveKeyPairGenerator.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDTestParametersProvider.h"
+#import "MSIDTestSwizzle.h"
+#import "MSIDWorkPlaceJoinUtilBase+Internal.h"
+#import "MSIDWPJMetadata.h"
 
 @interface MSIDWorkPlaceJoinUtilTests : XCTestCase
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
@@ -273,6 +278,106 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
     NSString *keyData = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:dummyKeyIdendetifier context:nil error:nil];
     XCTAssertNil(keyData);
+}
+
+- (void)testWPJMetaDataDeviceInfoWithRequestParameters_withMetadataNil_shouldReturnNil
+{
+    MSIDRequestParameters *requestParams = [MSIDRequestParameters new];
+    requestParams.validateAuthority = YES;
+    
+    [MSIDTestSwizzle classMethod:@selector(getPrimaryEccTenantWithSharedAccessGroup:context:error:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup, __unused id <MSIDRequestContext> context, __unused NSError **error)
+    {
+        return @"PrimaryTenantId";
+    }];
+    
+    [MSIDTestSwizzle classMethod:@selector(readWPJMetadataWithSharedAccessGroup:tenantIdentifier:domainName:context:error:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup,
+                                        __unused NSString *tenantIdentifier,
+                                        __unused NSString *domainName,
+                                        __unused id <MSIDRequestContext> context,
+                                        __unused NSError **error)
+    {
+        return nil;
+    }];
+   
+    
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
+    {
+        return nil;
+    }];
+    
+    NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
+    XCTAssertNil(deviceRegMetaDataInfo);
+}
+
+- (void)testWPJMetaDataDeviceInfoWithRequestParameters_withMetadataQueryErrorButValidMetadata_shouldReturnNil
+{
+    
+    MSIDRequestParameters *requestParams = [MSIDRequestParameters new];
+    requestParams.validateAuthority = YES;
+    
+    [MSIDTestSwizzle classMethod:@selector(getPrimaryEccTenantWithSharedAccessGroup:context:error:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup, __unused id <MSIDRequestContext> context, __unused NSError **error)
+    {
+        return @"PrimaryTenantId";
+    }];
+    
+    [MSIDTestSwizzle classMethod:@selector(readWPJMetadataWithSharedAccessGroup:tenantIdentifier:domainName:context:error:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup,
+                                        __unused NSString *tenantIdentifier,
+                                        __unused NSString *domainName,
+                                        __unused id <MSIDRequestContext> context,
+                                        NSError **error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Error reading metadata", nil, nil, nil, nil, nil, NO);
+        MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
+        return metadata;
+    }];
+    
+    [self insertDummyWPJInLegacyFormat:NO tenantIdentifier:@"tenantId1" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
+    MSIDWPJKeyPairWithCert *keyPairWithCert = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    keyPairWithCert.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
+    
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
+    {
+        return keyPairWithCert;
+    }];
+    
+    NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
+    XCTAssertNil(deviceRegMetaDataInfo);
+}
+
+- (void)testWPJMetaDataDeviceInfoWithRequestParameters_withPrimaryEccTenantNil_shouldReturnNil
+{
+    
+    MSIDRequestParameters *requestParams = [MSIDRequestParameters new];
+    requestParams.validateAuthority = YES;
+    
+    [MSIDTestSwizzle classMethod:@selector(getPrimaryEccTenantWithSharedAccessGroup:context:error:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup, __unused id <MSIDRequestContext> context, __unused NSError **error)
+    {
+        return nil;
+    }];
+    
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
+    {
+        return nil;
+    }];
+
+    NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
+    XCTAssertNil(deviceRegMetaDataInfo);
 }
 
 #pragma mark - iOS WPJ tests

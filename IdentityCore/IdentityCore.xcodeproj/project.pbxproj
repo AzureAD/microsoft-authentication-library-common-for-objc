@@ -1692,12 +1692,12 @@
 		B4A5ACCD21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A5ACCB21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h */; };
 		B4A5ACCF21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */; };
 		B4A5ACD221F7F25400D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */; };
-		B4E3BB9829AD911400A59B47 /* MSIDJITTroubleshootingResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B4E3BB9729AD90DB00A59B47 /* MSIDJITTroubleshootingResponse.h */; };
-		B4E3BB9A29AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E3BB9929AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m */; };
-		B4E3BB9B29AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E3BB9929AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m */; };
 		B4C8501629E79E220055B0D3 /* MSIDTestURLSessionUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C8501429E79E140055B0D3 /* MSIDTestURLSessionUploadTask.m */; };
 		B4C8501729E79E230055B0D3 /* MSIDTestURLSessionUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C8501429E79E140055B0D3 /* MSIDTestURLSessionUploadTask.m */; };
 		B4C8501829E79E250055B0D3 /* MSIDTestURLSessionUploadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C8501329E79E050055B0D3 /* MSIDTestURLSessionUploadTask.h */; };
+		B4E3BB9829AD911400A59B47 /* MSIDJITTroubleshootingResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B4E3BB9729AD90DB00A59B47 /* MSIDJITTroubleshootingResponse.h */; };
+		B4E3BB9A29AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E3BB9929AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m */; };
+		B4E3BB9B29AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E3BB9929AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m */; };
 		B86FA7D42383757100E5195A /* MSIDMacACLKeychainAccessorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B86FA7C62383748000E5195A /* MSIDMacACLKeychainAccessorTests.m */; };
 		B86FA7D52383757600E5195A /* MSIDMacTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B86FA7C72383748000E5195A /* MSIDMacTokenCacheTests.m */; };
 		B86FA7D62383757A00E5195A /* MSIDMacKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B86FA7C82383748000E5195A /* MSIDMacKeychainTokenCacheTests.m */; };
@@ -1753,6 +1753,9 @@
 		E75DD08B25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */; };
 		E75DD08C25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */; };
 		E7B67294257ED6E30053773F /* MSIDLRUCache.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67293257ED6E30053773F /* MSIDLRUCache.h */; };
+		F7AB2212E4C82BF809D126F6 /* MSIDWPJMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = F7AB272FEBCF984722F26558 /* MSIDWPJMetadata.m */; };
+		F7AB25B36873F2E237D26F68 /* MSIDWPJMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = F7AB272FEBCF984722F26558 /* MSIDWPJMetadata.m */; };
+		F7AB29D8B906BEA5B6EB8F8C /* MSIDWPJMetadata.h in Headers */ = {isa = PBXBuildFile; fileRef = F7AB2563ADFC286EF6D81445 /* MSIDWPJMetadata.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3044,10 +3047,10 @@
 		B41163BB29BAC9DE00E64619 /* MSIDWKNavigationActionMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWKNavigationActionMock.h; sourceTree = "<group>"; };
 		B4A5ACCB21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDAccountCacheItem+MSIDAccountMatchers.h"; sourceTree = "<group>"; };
 		B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDAccountCacheItem+MSIDAccountMatchers.m"; sourceTree = "<group>"; };
-		B4E3BB9729AD90DB00A59B47 /* MSIDJITTroubleshootingResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJITTroubleshootingResponse.h; sourceTree = "<group>"; };
-		B4E3BB9929AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJITTroubleshootingResponse.m; sourceTree = "<group>"; };
 		B4C8501329E79E050055B0D3 /* MSIDTestURLSessionUploadTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestURLSessionUploadTask.h; sourceTree = "<group>"; };
 		B4C8501429E79E140055B0D3 /* MSIDTestURLSessionUploadTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestURLSessionUploadTask.m; sourceTree = "<group>"; };
+		B4E3BB9729AD90DB00A59B47 /* MSIDJITTroubleshootingResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJITTroubleshootingResponse.h; sourceTree = "<group>"; };
+		B4E3BB9929AD91CC00A59B47 /* MSIDJITTroubleshootingResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJITTroubleshootingResponse.m; sourceTree = "<group>"; };
 		B86FA7C62383748000E5195A /* MSIDMacACLKeychainAccessorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDMacACLKeychainAccessorTests.m; sourceTree = "<group>"; };
 		B86FA7C72383748000E5195A /* MSIDMacTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDMacTokenCacheTests.m; sourceTree = "<group>"; };
 		B86FA7C82383748000E5195A /* MSIDMacKeychainTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDMacKeychainTokenCacheTests.m; sourceTree = "<group>"; };
@@ -3112,6 +3115,8 @@
 		E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceMock.m; sourceTree = "<group>"; };
 		E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheRecord.h; sourceTree = "<group>"; };
 		E7B67293257ED6E30053773F /* MSIDLRUCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLRUCache.h; sourceTree = "<group>"; };
+		F7AB2563ADFC286EF6D81445 /* MSIDWPJMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDWPJMetadata.h; sourceTree = "<group>"; };
+		F7AB272FEBCF984722F26558 /* MSIDWPJMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDWPJMetadata.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3826,6 +3831,8 @@
 				600D19BA20964D5C0004CD43 /* mac */,
 				B2FF082D245E4C89001C7F3B /* MSIDWorkplaceJoinChallenge.h */,
 				B2FF082E245E4C89001C7F3B /* MSIDWorkplaceJoinChallenge.m */,
+				F7AB272FEBCF984722F26558 /* MSIDWPJMetadata.m */,
+				F7AB2563ADFC286EF6D81445 /* MSIDWPJMetadata.h */,
 			);
 			path = workplacejoin;
 			sourceTree = "<group>";
@@ -5899,6 +5906,7 @@
 				B2F671E32467A30400649855 /* MSIDInteractiveAuthorizationCodeRequest.h in Headers */,
 				1E707FE02407336300716148 /* MSIDBrokerBrowserOperationResponse.h in Headers */,
 				B4A5ACCD21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h in Headers */,
+				F7AB29D8B906BEA5B6EB8F8C /* MSIDWPJMetadata.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6997,6 +7005,7 @@
 				239FE697236A507700D846AC /* MSIDJsonSerializableTypes.m in Sources */,
 				2306D2BA20AD07C400F875A3 /* MSIDURLSessionManager.m in Sources */,
 				23FB5C472255A13A002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.m in Sources */,
+				F7AB2212E4C82BF809D126F6 /* MSIDWPJMetadata.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7631,6 +7640,7 @@
 				960196FC208E579600D962D3 /* MSIDSafariViewController.m in Sources */,
 				A0C7DEC325D4C8B600F5B5B6 /* MSIDThrottlingModel429.m in Sources */,
 				B297E1E720A12BDE00F370EC /* MSIDDefaultAccountCacheKey.m in Sources */,
+				F7AB25B36873F2E237D26F68 /* MSIDWPJMetadata.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

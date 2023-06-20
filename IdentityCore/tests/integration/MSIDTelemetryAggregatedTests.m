@@ -367,7 +367,7 @@
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
 #if TARGET_OS_IPHONE
-    XCTAssertEqual(eventInfo.count, 14);
+    XCTAssertEqual(eventInfo.count, 13);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_version"]);
 #else
@@ -384,7 +384,9 @@
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_name"]);
+#if !TARGET_OS_IPHONE
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.device_id"]);
+#endif
 }
 
 - (void)testFlush_whenThereIsOneBrokerEvent_shouldSendAggregatedEvent
@@ -500,7 +502,7 @@
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
 #if TARGET_OS_IPHONE
-    XCTAssertEqual(eventInfo.count, 13);
+    XCTAssertEqual(eventInfo.count, 12);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_version"]);
 #else
@@ -516,7 +518,9 @@
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_name"]);
+#if !TARGET_OS_IPHONE
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.device_id"]);
+#endif
 }
 
 - (void)testFlush_whenThereIsEventAndObserverRemoved_shouldNotSendEvents

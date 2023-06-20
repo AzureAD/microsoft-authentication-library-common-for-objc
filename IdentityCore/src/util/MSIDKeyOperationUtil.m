@@ -23,7 +23,6 @@
 
 #import "MSIDKeyOperationUtil.h"
 #import "MSIDJwtAlgorithm.h"
-#import "NSData+JWT.h"
 #import "NSData+MSIDExtensions.h"
 
 @implementation MSIDKeyOperationUtil
