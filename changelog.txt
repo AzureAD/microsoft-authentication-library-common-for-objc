@@ -1,4 +1,4 @@
-Version TBD
+Version 1.7.22
 * Remove references to deprecated api. (#1252)
 
 Version 1.7.21
