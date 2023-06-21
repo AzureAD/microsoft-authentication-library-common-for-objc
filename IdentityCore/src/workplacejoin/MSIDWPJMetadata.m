@@ -21,12 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDWPJMetadata.h"
+#import "MSIDBrokerConstants.h"
 
-@interface MSIDJWTHelper : NSObject
+NSString *const MSID_DEVICE_INFORMATION_UPN_ID_KEY = @"userPrincipalName";
+NSString *const MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY = @"aadDeviceIdentifier";
+NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifier";
 
-+ (NSString *)createSignedJWTforHeader:(NSDictionary *)header
-                               payload:(NSDictionary *)payload
-                            signingKey:(SecKeyRef)signingKey;
+@implementation MSIDWPJMetadata
+
+- (NSDictionary *)serializeWithFormat:(BOOL)usePrimaryFormat
+{
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    if (usePrimaryFormat)
+    {
+        result[MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT] = self.certificateThumbprint;
+        result[MSID_PRIMARY_REGISTRATION_CLOUD] = self.cloudHost;
+        result[MSID_PRIMARY_REGISTRATION_DEVICE_ID] = self.deviceID;
+        result[MSID_PRIMARY_REGISTRATION_TENANT_ID] = self.tenantIdentifier;
+        result[MSID_PRIMARY_REGISTRATION_UPN] = self.upn;
+    }
+    else
+    {
+        result[MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY] = self.deviceID;
+        result[MSID_DEVICE_INFORMATION_UPN_ID_KEY] = self.upn;
+        result[MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY] = self.tenantIdentifier;
+    }
+    
+    return result;
+}
 
 @end

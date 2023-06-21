@@ -23,10 +23,18 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDJWTHelper : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-+ (NSString *)createSignedJWTforHeader:(NSDictionary *)header
-                               payload:(NSDictionary *)payload
-                            signingKey:(SecKeyRef)signingKey;
+@interface MSIDWPJMetadata : NSObject
+
+@property (nonatomic) NSString *certificateThumbprint;
+@property (nonatomic) NSString *cloudHost;
+@property (nonatomic) NSString *deviceID;
+@property (nonatomic) NSString *tenantIdentifier;
+@property (nonatomic) NSString *upn;
+
+- (nonnull NSDictionary *)serializeWithFormat:(BOOL)usePrimaryFormat;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -32,7 +32,6 @@
 
 - (NSData *)msidSignHashWithPrivateKey:(SecKeyRef)privateKey
 {
-    NSData *signedHash = nil;
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
     uint8_t *signedHashBytes = calloc(signedHashBytesSize, 1);
 
@@ -40,28 +39,24 @@
     {
         return nil;
     }
+    
+    CFErrorRef subError = NULL;
+    NSData *signature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
+                                                                          kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256,
+                                                                          (__bridge CFDataRef)self,
+                                                                          &subError));
 
-    OSStatus status = errSecAuthFailed;
-
-    status = SecKeyRawSign(privateKey,
-                           kSecPaddingPKCS1SHA256,
-                           [self bytes],
-                           CC_SHA256_DIGEST_LENGTH,
-                           signedHashBytes,
-                           &signedHashBytesSize);
-
-    if (status != errSecSuccess)
+    if (!signature)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to sign JWT %d", (int)status);
-        free(signedHashBytes);
-        return nil;
+        NSError *signingError;
+        if (subError)
+        {
+            signingError = CFBridgingRelease(subError);
+        }
+        
+        MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to sign JWT data with key.", nil, nil, signingError, nil, nil, YES);
     }
-
-    signedHash = [NSData dataWithBytes:signedHashBytes
-                                length:(NSUInteger)signedHashBytesSize];
-
-    free(signedHashBytes);
-    return signedHash;
+    return signature;
 }
 
 #else
