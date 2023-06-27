@@ -113,6 +113,13 @@
                             error:(NSError * _Nullable * _Nullable)error;
 
 /*
+ Removes credentials matching parameters specified in the query
+ */
+- (BOOL)removeExpiredAccessTokensCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
+                          context:(nullable id<MSIDRequestContext>)context
+                            error:(NSError * _Nullable * _Nullable)error;
+
+/*
  Removes a credential
 */
 - (BOOL)removeCredential:(nonnull MSIDCredentialCacheItem *)credential
