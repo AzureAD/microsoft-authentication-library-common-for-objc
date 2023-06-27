@@ -313,6 +313,51 @@
                                 error:error];
 }
 
+// Remove credentials
+- (BOOL)removeExpiredAccessTokensCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
+                          context:(nullable id<MSIDRequestContext>)context
+                            error:(NSError * _Nullable * _Nullable)error
+{
+    assert(cacheQuery);
+    cacheQuery.targetMatchingOptions = MSIDAny;
+    cacheQuery.matchAnyCredentialType = NO;
+    NSDate *currentDataAndTime = [NSDate date];
+    NSMutableArray *resultsToDelete = [NSMutableArray array];
+    NSString *className = NSStringFromClass(self.class);
+
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing expired credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId));
+
+    if (cacheQuery.exactMatch)
+    {
+        return NO;
+    }
+    
+    if (cacheQuery.credentialType != MSIDAccessTokenType)
+    {
+        return NO;
+    }
+
+    NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery context:context error:error];
+    
+    if (!matchedCredentials) return NO;
+    
+    // Check for expiry here to leave only expired ones in matchedCredentials
+    for (MSIDCredentialCacheItem *cacheItem in matchedCredentials)
+    {
+        NSComparisonResult result = [currentDataAndTime compare:[cacheItem expiresOn]];
+        if (result == NSOrderedDescending)
+        {
+            [resultsToDelete addObject:cacheItem];
+        }
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) removing %ld expired AT cached credentials", className, (long)resultsToDelete.count);
+    
+    return [self removeAllCredentials:resultsToDelete
+                              context:context
+                                error:error];
+}
+
 - (BOOL)removeCredential:(nonnull MSIDCredentialCacheItem *)credential
                  context:(nullable id<MSIDRequestContext>)context
                    error:(NSError * _Nullable * _Nullable)error
