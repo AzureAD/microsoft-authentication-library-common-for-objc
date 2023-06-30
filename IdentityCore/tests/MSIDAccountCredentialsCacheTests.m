@@ -2759,7 +2759,7 @@
 {
     MSIDCredentialCacheItem *token1 = [self createTestAccessTokenCacheItem];
     token1.homeAccountId = @"uid.utid1";
-    token1.expiresOn = [NSDate date];
+    token1.expiresOn = [NSDate dateWithTimeIntervalSinceNow:-5.0];
     [self saveItem:token1];
 
     MSIDCredentialCacheItem *token2 = [self createTestAccessTokenCacheItem];
@@ -2770,8 +2770,6 @@
 
     [self saveItem:[self createTestRefreshTokenCacheItem]];
     
-    [NSThread sleepForTimeInterval:5.0];
-
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.matchAnyCredentialType = YES;
     query.environment = @"login.microsoftonline.com";
