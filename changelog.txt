@@ -1,3 +1,6 @@
+Version 1.7.23
+* Added code that removes expired AT for Apple storage.
+
 Version 1.7.22
 * Remove references to deprecated api. (#1252)
 
