@@ -339,7 +339,7 @@
 
     NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery context:context error:error];
     
-    if (!matchedCredentials) return NO;
+    if (!matchedCredentials.count) return NO;
     
     // Check for expiry here to leave only expired ones in matchedCredentials
     for (MSIDCredentialCacheItem *cacheItem in matchedCredentials)
