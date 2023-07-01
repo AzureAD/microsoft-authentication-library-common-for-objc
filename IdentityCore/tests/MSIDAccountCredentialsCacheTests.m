@@ -2782,10 +2782,10 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    NSArray *remainignItems = [self.cache getAllItemsWithContext:nil error:&error];
+    NSArray *remainingItems = [self.cache getAllItemsWithContext:nil error:&error];
     XCTAssertNil(error);
-    XCTAssertNotNil(remainignItems);
-    XCTAssertTrue([remainignItems count] == 2);
+    XCTAssertNotNil(remainingItems);
+    XCTAssertTrue([remainingItems count] == 2);
 }
 
 - (void)testRemoveCredentialsWithQuery_whenQueryIsNotExactMatch_andATPopAccessTokensQuery_shouldRemoveAllItems
