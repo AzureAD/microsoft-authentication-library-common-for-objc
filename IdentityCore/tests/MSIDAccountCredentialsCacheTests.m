@@ -2755,6 +2755,39 @@
     XCTAssertTrue([remainignItems count] == 0);
 }
 
+- (void)testRemoveCredentialsWithQuery_whenQueryIsNotExactMatch_andAccessTokensQuery_shouldRemoveAllExpiredItems
+{
+    MSIDCredentialCacheItem *token1 = [self createTestAccessTokenCacheItem];
+    token1.homeAccountId = @"uid.utid1";
+    token1.expiresOn = [NSDate dateWithTimeIntervalSinceNow:-5.0];
+    [self saveItem:token1];
+
+    MSIDCredentialCacheItem *token2 = [self createTestAccessTokenCacheItem];
+    token2.homeAccountId = @"uid.utid1";
+    token2.realm = @"contoso2.com";
+    token2.expiresOn = [[NSDate date] dateByAddingTimeInterval:60];
+    [self saveItem:token2];
+
+    [self saveItem:[self createTestRefreshTokenCacheItem]];
+    
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.matchAnyCredentialType = YES;
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.credentialType = MSIDAccessTokenType;
+    XCTAssertFalse(query.exactMatch);
+
+    NSError *error = nil;
+    BOOL result = [self.cache removeExpiredAccessTokensCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *remainingItems = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(remainingItems);
+    XCTAssertTrue([remainingItems count] == 2);
+}
+
 - (void)testRemoveCredentialsWithQuery_whenQueryIsNotExactMatch_andATPopAccessTokensQuery_shouldRemoveAllItems
 {
     [self saveItem:[self createTestATPopAccessTokenCacheItem]];

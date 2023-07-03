@@ -29,7 +29,8 @@ typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
     MSIDExactStringMatch,
     MSIDSubSet,
     MSIDIntersect,
-    MSIDSuperSet
+    MSIDSuperSet,
+    MSIDAny
 };
 
 @interface MSIDDefaultCredentialCacheQuery : MSIDDefaultCredentialCacheKey

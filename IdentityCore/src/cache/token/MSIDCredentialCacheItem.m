@@ -272,6 +272,8 @@
             return [inputSet isSubsetOfOrderedSet:tokenSet];
         case MSIDIntersect:
             return [inputSet intersectsOrderedSet:tokenSet];
+        case MSIDAny:
+            return YES;
         case MSIDExactStringMatch:
         default:
             return NO;
@@ -340,6 +342,14 @@
         return YES;
     }
     
+    if (matchingOptions == MSIDAny)
+    {
+        if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString]))
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item any match; actual client ID: %@, expected client ID: %@, actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.clientId, clientId, self.familyId, familyId);
+            return YES;
+        }
+    }
     if (!([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) && !([self.requestedClaims isEqualToString:requestedClaims]))
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have valid requestedClaims.", NSStringFromClass(self.class));
