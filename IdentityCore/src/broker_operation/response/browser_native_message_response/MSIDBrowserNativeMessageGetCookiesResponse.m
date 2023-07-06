@@ -43,27 +43,16 @@
     self = [super init];
     if (self)
     {
-        if (!cookiesResponse) return nil; // TODO: log error.
+        if (!cookiesResponse)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create browser 'GetCookies' response: sso cookies response is nil. ");
+            return nil;
+        }
         
         _cookiesResponse = cookiesResponse;
     }
     
     return self;
-}
-
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
-{
-//    __auto_type ssoCookiesResponse = [[MSIDBrokerOperationGetSsoCookiesResponse alloc] initWithJSONDictionary:json error:error];
-//
-//    if (!ssoCookiesResponse) return nil;
-//
-//    return [self initCookiesResponse:ssoCookiesResponse];
-    
-    // TODO: this ^ logic is wrong
-    self = [self init];
-    return nil;
 }
 
 - (NSDictionary *)jsonDictionary
@@ -78,8 +67,15 @@
         NSString *name = credential.info.name;
         NSString *value = credential.info.value;
         
-        if ([NSString msidIsStringNilOrBlank:name] || [NSString msidIsStringNilOrBlank:value]) {
-            // TODO: log
+        if ([NSString msidIsStringNilOrBlank:name])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to serialize json for credential: 'name' is nil or empty. ");
+            continue;
+        }
+        
+        if ([NSString msidIsStringNilOrBlank:value])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to serialize json for credential: 'value' is nil or empty. ");
             continue;
         }
 

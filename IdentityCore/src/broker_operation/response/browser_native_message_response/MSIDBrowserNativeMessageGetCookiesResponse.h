@@ -24,18 +24,19 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
 
 @class MSIDBrokerOperationGetSsoCookiesResponse;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrowserNativeMessageGetCookiesResponse : NSObject <MSIDJsonSerializable>
+@interface MSIDBrowserNativeMessageGetCookiesResponse : NSObject
 
 - (instancetype _Nullable)initCookiesResponse:(nonnull MSIDBrokerOperationGetSsoCookiesResponse *)cookiesResponse NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 + (instancetype _Nullable)new NS_UNAVAILABLE;
+
+- (NSDictionary *)jsonDictionary;
 
 @end
 

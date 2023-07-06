@@ -27,6 +27,8 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 
+NSString *const BROWSER_NATIVE_MESSAGE_RESPONSE_PAYLOAD_KEY = @"payload";
+
 @implementation MSIDBrokerOperationBrowserNativeMessageResponse
 
 + (void)load
@@ -47,8 +49,8 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:@"payload" required:YES error:error]) return nil;
-        NSString *payload = json[@"payload"];
+        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_RESPONSE_PAYLOAD_KEY required:YES error:error]) return nil;
+        NSString *payload = json[BROWSER_NATIVE_MESSAGE_RESPONSE_PAYLOAD_KEY];
         if ([NSString msidIsStringNilOrBlank:payload])
         {
             if (error)
@@ -72,7 +74,7 @@
     if (!json) return nil;
     if ([NSString msidIsStringNilOrBlank:self.payload]) return nil;
     
-    json[@"payload"] = self.payload;
+    json[BROWSER_NATIVE_MESSAGE_RESPONSE_PAYLOAD_KEY] = self.payload;
     
     return json;
 }

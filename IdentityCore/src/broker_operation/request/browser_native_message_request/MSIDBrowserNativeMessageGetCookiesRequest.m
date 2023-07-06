@@ -25,6 +25,9 @@
 
 #import "MSIDBrowserNativeMessageGetCookiesRequest.h"
 
+NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
+NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender";
+
 @implementation MSIDBrowserNativeMessageGetCookiesRequest
 
 + (NSString *)method
@@ -40,11 +43,11 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:@"uri" required:YES error:error]) return nil;
-        _uri = json[@"uri"];
+        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
+        _uri = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
         
-        if (![json msidAssertType:NSString.class ofKey:@"sender" required:YES error:error]) return nil;
-        _sender = json[@"sender"];
+        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY required:YES error:error]) return nil;
+        _sender = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY];
     }
     
     return self;
@@ -55,10 +58,10 @@
     NSMutableDictionary *json = [NSMutableDictionary new];
     
     if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
-    json[@"uri"] = self.uri;
+    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
     
     if ([NSString msidIsStringNilOrBlank:self.sender]) return nil;
-    json[@"sender"] = self.sender;
+    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY] = self.sender;
     
     return json;
 }
