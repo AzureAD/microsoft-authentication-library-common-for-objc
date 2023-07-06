@@ -26,6 +26,7 @@
 #import "MSIDBrokerOperationBrowserNativeMessageRequest.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @implementation MSIDBrokerOperationBrowserNativeMessageRequest
 
@@ -51,17 +52,27 @@
     {
         if (![json msidAssertType:NSString.class ofKey:@"payload" required:YES error:error]) return nil;
         NSString *payload = json[@"payload"];
-        if ([NSString msidIsStringNilOrBlank:payload])
+        
+        _payloadJson = [NSDictionary msidDictionaryFromJSONString:payload];
+        if (!_payloadJson)
         {
             if (error)
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"payload is nil or emtpy.", nil, nil, nil, nil, nil, YES);
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize payload.", nil, nil, nil, nil, nil, YES);
             }
             
             return nil;
         }
         
-        _payload = payload;
+        if (!_payloadJson[@"method"])
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Payload is invalid: no 'method' found.", nil, nil, nil, nil, nil, YES);
+            }
+            
+            return nil;
+        }
     }
     
     return self;
@@ -71,9 +82,9 @@
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     if (!json) return nil;
-    if ([NSString msidIsStringNilOrBlank:self.payload]) return nil;
+    if (!self.payloadJson) return nil;
     
-    json[@"payload"] = self.payload;
+    json[@"payload"] = [self.payloadJson msidJSONSerializeWithContext:nil];
     
     return json;
 }

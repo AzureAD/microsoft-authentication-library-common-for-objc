@@ -23,14 +23,44 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBrokerOperationRequest.h"
+#import "MSIDBrowserNativeMessageGetCookiesRequest.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDBrowserNativeMessageGetCookiesRequest
 
-@interface MSIDBrokerOperationBrowserNativeMessageRequest : MSIDBrokerOperationRequest
++ (NSString *)method
+{
+    return @"GetCookies";
+}
 
-@property (nonatomic) NSDictionary *payloadJson;
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [self init];
+    
+    if (self)
+    {
+        if (![json msidAssertType:NSString.class ofKey:@"uri" required:YES error:error]) return nil;
+        _uri = json[@"uri"];
+        
+        if (![json msidAssertType:NSString.class ofKey:@"sender" required:YES error:error]) return nil;
+        _sender = json[@"sender"];
+    }
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    
+    if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
+    json[@"uri"] = self.uri;
+    
+    if ([NSString msidIsStringNilOrBlank:self.sender]) return nil;
+    json[@"sender"] = self.sender;
+    
+    return json;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
