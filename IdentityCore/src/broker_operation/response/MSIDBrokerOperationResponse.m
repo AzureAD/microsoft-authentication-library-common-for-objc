@@ -23,6 +23,37 @@
 
 #import "MSIDBrokerOperationResponse.h"
 
+NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
+
 @implementation MSIDBrokerOperationResponse
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super init];
+    
+    if (self)
+    {
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_JSON_KEY required:YES error:error]) return nil;
+        _operation = json[MSID_BROKER_OPERATION_JSON_KEY];
+    }
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    if (!self.operation)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, operation is nil.", self.class);
+        return nil;
+    }
+    
+    json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
+    
+    return json;
+}
 
 @end

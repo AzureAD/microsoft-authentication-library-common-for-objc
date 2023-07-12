@@ -38,6 +38,11 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
     [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
+- (NSString *)method
+{
+    return self.payloadJson[BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY];
+}
+
 #pragma mark - MSIDBrokerOperationRequest
 
 + (NSString *)operation

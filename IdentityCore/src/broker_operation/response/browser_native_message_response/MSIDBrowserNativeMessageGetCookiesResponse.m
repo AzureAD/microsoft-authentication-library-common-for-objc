@@ -40,7 +40,7 @@
 
 - (instancetype)initCookiesResponse:(MSIDBrokerOperationGetSsoCookiesResponse *)cookiesResponse
 {
-    self = [super init];
+    self = [super initWithDeviceInfo:cookiesResponse.deviceInfo];
     if (self)
     {
         if (!cookiesResponse)
@@ -55,6 +55,17 @@
     return self;
 }
 
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    
+    @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
+    
+    return nil;
+}
+
 - (NSDictionary *)jsonDictionary
 {
     NSArray<MSIDCredentialHeader *> *prtHeaders = self.cookiesResponse.prtHeaders;
@@ -62,6 +73,7 @@
     NSArray<MSIDCredentialHeader *> *credentials = [prtHeaders arrayByAddingObjectsFromArray:deviceHeaders];
     
     NSMutableArray *credentialsJson = [NSMutableArray new];
+    
     for (MSIDCredentialHeader *credential in credentials) {
         
         NSString *name = credential.info.name;

@@ -23,14 +23,12 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDBrokerOperationRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrowserNativeMessageGetCookiesRequest : NSObject <MSIDJsonSerializable>
+@interface MSIDBrowserNativeMessageGetCookiesRequest : MSIDBrokerOperationRequest
 
-@property (nonatomic, class, readonly) NSString *method;
 @property (nonatomic) NSString *uri;
 @property (nonatomic) NSString *sender;
 

@@ -23,20 +23,15 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
+#import "MSIDBrokerNativeAppOperationResponse.h"
 
 @class MSIDBrokerOperationGetSsoCookiesResponse;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrowserNativeMessageGetCookiesResponse : NSObject
+@interface MSIDBrowserNativeMessageGetCookiesResponse : MSIDBrokerNativeAppOperationResponse
 
-- (instancetype _Nullable)initCookiesResponse:(nonnull MSIDBrokerOperationGetSsoCookiesResponse *)cookiesResponse NS_DESIGNATED_INITIALIZER;
-
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
-
-- (NSDictionary *)jsonDictionary;
+- (instancetype _Nullable)initCookiesResponse:(nonnull MSIDBrokerOperationGetSsoCookiesResponse *)cookiesResponse;
 
 @end
 

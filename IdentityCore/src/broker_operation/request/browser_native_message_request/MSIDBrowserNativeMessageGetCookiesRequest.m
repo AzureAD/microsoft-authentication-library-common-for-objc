@@ -24,13 +24,19 @@
 
 
 #import "MSIDBrowserNativeMessageGetCookiesRequest.h"
+#import "MSIDJsonSerializableFactory.h"
 
 NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
 NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender";
 
 @implementation MSIDBrowserNativeMessageGetCookiesRequest
 
-+ (NSString *)method
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+}
+
++ (NSString *)operation
 {
     return @"GetCookies";
 }
