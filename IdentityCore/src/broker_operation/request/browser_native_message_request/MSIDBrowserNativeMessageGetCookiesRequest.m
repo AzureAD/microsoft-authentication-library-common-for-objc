@@ -45,7 +45,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [self init];
+    self = [super initWithJSONDictionary:json error:error];
     
     if (self)
     {
@@ -61,7 +61,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [NSMutableDictionary new];
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
     if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
     json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
