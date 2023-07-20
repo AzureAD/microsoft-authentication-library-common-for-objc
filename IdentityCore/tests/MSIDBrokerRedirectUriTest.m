@@ -102,9 +102,14 @@
     XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"myscheme://"]] == MSIDRedirectUriValidationResultHostNilOrEmpty);
 }
 
-- (void)test_checkRedirect_uri_msal_format_miss_scheme
+- (void)test_checkRedirect_uri_msal_format_miss_host
 {
     XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"msauth.com.microsoft.MSIDTestsHostApp://"]] == MSIDRedirectUriValidationResultMSALFormatHostNilOrEmpty);
+}
+
+- (void)test_checkRedirect_uri_msal_format_miss_scheme
+{
+    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"://auth"]] == MSIDRedirectUriValidationResultSchemeNilOrEmpty);
 }
 
 @end
