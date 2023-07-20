@@ -40,7 +40,6 @@
 #import "MSIDLastRequestTelemetry.h"
 #endif
 
-NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
 NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_response_type";
 NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
@@ -94,13 +93,10 @@ NSString *const MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP = @"request_received_time
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super init];
+    self = [super initWithJSONDictionary:json error:error];
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_JSON_KEY required:YES error:error]) return nil;
-        self.operation = json[MSID_BROKER_OPERATION_JSON_KEY];
-        
         if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_BROKER_OPERATION_RESULT_JSON_KEY required:YES error:error]) return nil;
         _success = [json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] boolValue];
         _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_APP_VERSION_JSON_KEY];
@@ -114,14 +110,8 @@ NSString *const MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP = @"request_received_time
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [NSMutableDictionary new];
-    if (!self.operation)
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, operation is nil.", self.class);
-        return nil;
-    }
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
-    json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
     json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
     json[MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY] = self.class.responseType;
     json[MSID_BROKER_APP_VERSION_JSON_KEY] = self.clientAppVersion;

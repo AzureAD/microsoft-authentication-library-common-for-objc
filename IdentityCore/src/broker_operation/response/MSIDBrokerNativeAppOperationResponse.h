@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL success;
 @property (nonatomic, nullable) NSString *clientAppVersion;
 
-@property (nonatomic) MSIDDeviceInfo *deviceInfo;
+@property (nonatomic, nullable) MSIDDeviceInfo *deviceInfo;
 
 @property (nonatomic) NSNumber *httpStatusCode;
 @property (nonatomic, class, readonly) NSNumber *defaultHttpStatusCode;
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSDate *responseGenerationTimeStamp;
 @property (nonatomic) NSDate *requestReceivedTimeStamp;
 
-- (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo;
+- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 

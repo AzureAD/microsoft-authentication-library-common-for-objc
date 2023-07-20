@@ -1,4 +1,5 @@
-Version 1.7.23
+TBD
+* Add native message sso ext request. #1253
 * Added code that removes expired AT for Apple storage.
 
 Version 1.7.22
