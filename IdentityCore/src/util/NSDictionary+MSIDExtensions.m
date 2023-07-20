@@ -156,6 +156,12 @@
 + (NSDictionary *)msidDictionaryFromJSONString:(NSString *)jsonString
 {
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if (!jsonData)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to deserialize: jsonData is nil.");
+        return nil;
+    }
 
     NSError *error = nil;
     NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:jsonData

@@ -38,7 +38,7 @@
 
 @implementation MSIDBrowserNativeMessageGetCookiesResponse
 
-- (instancetype)initCookiesResponse:(MSIDBrokerOperationGetSsoCookiesResponse *)cookiesResponse
+- (instancetype)initWithCookiesResponse:(MSIDBrokerOperationGetSsoCookiesResponse *)cookiesResponse
 {
     self = [super initWithDeviceInfo:cookiesResponse.deviceInfo];
     if (self)

@@ -31,7 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrowserNativeMessageGetCookiesResponse : MSIDBrokerNativeAppOperationResponse
 
-- (instancetype _Nullable)initCookiesResponse:(nonnull MSIDBrokerOperationGetSsoCookiesResponse *)cookiesResponse;
+- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
+- (instancetype _Nullable)initWithCookiesResponse:(nonnull MSIDBrokerOperationGetSsoCookiesResponse *)cookiesResponse;
 
 @end
 
