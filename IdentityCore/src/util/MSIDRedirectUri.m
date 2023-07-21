@@ -96,32 +96,32 @@
     // Add extra validation on why redirect_uri is not capable
     if ([redirectUri.scheme isEqualToString:@"http"] || [redirectUri.scheme isEqualToString:@"https"])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri has http scheme, and is not supported");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is (http(s)://host), and is not supported");
         return MSIDRedirectUriValidationResultHttpFormatNotSupport;
     }
     else if ([redirectUri.host isEqualToString:@"auth"] && [redirectUri.absoluteString hasPrefix:@"msauth"])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri has msauth prefix, but bundle_id could mismatch");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is MSAL format, but bundle_id could mismatch");
         return MSIDRedirectUriValidationResultMSALFormatBundleIdMismatched;
     }
     else if ([redirectUri.absoluteString hasPrefix:@"msauth"])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri has msauth prefix, but auth host is missing");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is as (msauth.bundle_id), and auth host is missing");
         return MSIDRedirectUriValidationResultMSALFormatHostNilOrEmpty;
     }
     else if ([NSString msidIsStringNilOrBlank:redirectUri.scheme])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri misses scheme");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is as (://host) without schema");
         return MSIDRedirectUriValidationResultSchemeNilOrEmpty;
     }
     else if ([NSString msidIsStringNilOrBlank:redirectUri.host])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri misses host");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is as (scheme://) without host");
         return MSIDRedirectUriValidationResultHostNilOrEmpty;
     }
     else if ([redirectUri.absoluteString isEqualToString:@"urn:ietf:wg:oauth:2.0:oob"])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is urn:ietf:wg:oauth:2.0:oob, and not broker capable");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is urn:ietf:wg:oauth:2.0:oob, and not supported");
         return MSIDRedirectUriValidationResultoauth20FormatNotSupport;
     }
 
