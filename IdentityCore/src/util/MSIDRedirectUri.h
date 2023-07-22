@@ -25,6 +25,20 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSInteger, MSIDRedirectUriValidationResult)
+{
+    MSIDRedirectUriValidationResultMatched = 0,
+    MSIDRedirectUriValidationResultNilOrEmpty,
+    MSIDRedirectUriValidationResultSchemeNilOrEmpty,
+    MSIDRedirectUriValidationResultHostNilOrEmpty,
+    MSIDRedirectUriValidationResultHttpFormatNotSupport,
+    MSIDRedirectUriValidationResultMSALFormatBundleIdMismatched,
+    MSIDRedirectUriValidationResultMSALFormatHostNilOrEmpty,
+    MSIDRedirectUriValidationResultoauth20FormatNotSupport,
+    MSIDRedirectUriValidationResultUnknownNotMatched
+};
+
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -54,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable NSURL *)defaultBrokerCapableRedirectUri;
 
-+ (BOOL)redirectUriIsBrokerCapable:(NSURL *)redirectUri;
++ (MSIDRedirectUriValidationResult)redirectUriIsBrokerCapable:(NSURL *)redirectUri;
 
 @end
 
