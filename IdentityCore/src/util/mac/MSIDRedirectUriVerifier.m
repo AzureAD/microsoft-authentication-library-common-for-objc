@@ -42,7 +42,7 @@
             return nil;
         }
         
-        BOOL isBrokerCapable = [MSIDRedirectUri redirectUriIsBrokerCapable:customRedirectURL] || bypassRedirectValidation;
+        BOOL isBrokerCapable = [MSIDRedirectUri redirectUriIsBrokerCapable:customRedirectURL] == MSIDRedirectUriValidationResultMatched || bypassRedirectValidation;
         return [[MSIDRedirectUri alloc] initWithRedirectUri:customRedirectURL
                                               brokerCapable:isBrokerCapable];
     }
