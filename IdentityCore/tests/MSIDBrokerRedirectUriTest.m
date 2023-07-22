@@ -51,9 +51,14 @@
     XCTAssertNotNil(redirectUri);
 }
 
-- (void)test_redirectUri_is_broker_capable_with_invalid_url
+- (void)test_check_empty_redirectUri
 {
-    XCTAssertFalse([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"https://fakeurl.contoso.com"]]);
+    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@""]] == MSIDRedirectUriValidationResultNilOrEmpty);
+}
+
+- (void)test_redirectUri_is_broker_capable_with_https_url
+{
+    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"https://fakeurl.contoso.com"]] == MSIDRedirectUriValidationResultHttpFormatNotSupport);
 }
 
 - (void)test_check_default_redirect_msal_format
@@ -64,7 +69,7 @@
 #else
     url = [NSURL URLWithString:@"msauth.com.apple.dt.xctest.tool://auth"];
 #endif
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url]);
+    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url] == MSIDRedirectUriValidationResultMatched);
 
 }
 
@@ -76,7 +81,7 @@
 #else
     url = [NSURL URLWithString:@"myscheme://com.apple.dt.xctest.tool"];
 #endif
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url]);
+    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url] == MSIDRedirectUriValidationResultMatched);
 
 }
 
@@ -88,8 +93,23 @@
 #else
     url = [NSURL URLWithString:@"com.apple.dt.xctest.tool"];
 #endif
-    XCTAssertFalse([MSIDRedirectUri redirectUriIsBrokerCapable:url]);
+    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url] == MSIDRedirectUriValidationResultSchemeNilOrEmpty);
 
+}
+
+- (void)test_checkRedirect_uri_miss_host
+{
+    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"myscheme://"]] == MSIDRedirectUriValidationResultHostNilOrEmpty);
+}
+
+- (void)test_checkRedirect_uri_msal_format_miss_host
+{
+    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"msauth.com.microsoft.MSIDTestsHostApp://"]] == MSIDRedirectUriValidationResultMSALFormatHostNilOrEmpty);
+}
+
+- (void)test_checkRedirect_uri_msal_format_miss_scheme
+{
+    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"://auth"]] == MSIDRedirectUriValidationResultSchemeNilOrEmpty);
 }
 
 @end
