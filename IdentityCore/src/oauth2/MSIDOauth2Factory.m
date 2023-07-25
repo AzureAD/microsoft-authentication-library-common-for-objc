@@ -72,8 +72,9 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorInternal, @"processTokenResponse called without a response dictionary", nil, nil, nil, context.correlationId, nil, YES);
+            NSMutableDictionary *additionalUserInfo = [NSMutableDictionary new];
+            additionalUserInfo[MSIDErrorMethodAndLineKey] = METHODANDLINE;
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"processTokenResponse called without a response dictionary", nil, nil, nil, context.correlationId, additionalUserInfo, YES);
         }
         return NO;
     }
