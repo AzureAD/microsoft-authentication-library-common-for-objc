@@ -78,6 +78,11 @@ extern NSString * _Nonnull MSIDInvalidTokenResultKey;
  */
 extern NSInteger const MSIDSSOExtensionUnderlyingError;
 
+/*!
+ This flag will be set to log the method and line number where the error occcured.
+ */
+extern NSString * _Nonnull MSIDErrorMethodAndLineKey;
+
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
     /*!
