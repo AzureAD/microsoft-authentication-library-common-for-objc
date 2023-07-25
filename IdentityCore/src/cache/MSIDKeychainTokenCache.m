@@ -36,7 +36,7 @@
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "MSIDJsonObject.h"
-
+#import "MSIDConstants.h"
 
 #if TARGET_OS_IPHONE
     NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
@@ -811,7 +811,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil, NO);
+            NSMutableDictionary *additionalUserInfo = [NSMutableDictionary new];
+            additionalUserInfo[MSIDErrorMethodAndLineKey] = METHODANDLINE;
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, additionalUserInfo, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to find keychain item (status: %d)", (int)status);
         return nil;

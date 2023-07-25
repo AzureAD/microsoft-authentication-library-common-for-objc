@@ -101,7 +101,9 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Authentication response received without expected accessToken and idToken", nil, nil, nil, context.correlationId, nil, YES);
+            NSMutableDictionary *additionalUserInfo = [NSMutableDictionary new];
+            additionalUserInfo[MSIDErrorMethodAndLineKey] = METHODANDLINE;
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Authentication response received without expected accessToken and idToken", nil, nil, nil, context.correlationId, additionalUserInfo, YES);
         }
         return NO;
     }
