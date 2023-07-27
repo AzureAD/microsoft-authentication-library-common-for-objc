@@ -1,3 +1,6 @@
+Version 1.7.25
+* Update broker redirect_uri validation with more information in invalid scenario (#1264)
+
 Version 1.7.24
 * Added method name with line number for errors in telemetry (#1266)
 
