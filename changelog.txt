@@ -1,3 +1,6 @@
+Version 1.7.25
+* Update broker redirect_uri validation with more information in invalid scenario
+
 Version 1.7.23
 * Added code that removes expired AT for Apple storage.
 
