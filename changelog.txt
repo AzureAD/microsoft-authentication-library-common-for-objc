@@ -1,3 +1,6 @@
+TBD
+* Add native message sso ext request. #1253
+
 Version 1.7.24
 * Added method name with line number for errors in telemetry (#1266)
 
