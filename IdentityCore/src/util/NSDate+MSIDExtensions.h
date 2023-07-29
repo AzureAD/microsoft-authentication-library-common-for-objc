@@ -28,6 +28,7 @@
 - (NSString *)msidToString;
 - (NSString *)msidDateToTimestamp;
 - (NSString *)msidDateToFractionalTimestamp:(int)precision;
+- (BOOL)msidIsDateBetween:(NSDate *)dateBefore dateAfter:(NSDate *)dateAfter;
 + (NSDate *)msidDateFromTimeStamp:(NSString *)timeStamp;
 + (NSDate *)msidDateFromRetryHeader:(NSString *)retryHeaderString;
 @end
