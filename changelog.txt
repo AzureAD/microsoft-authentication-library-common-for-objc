@@ -1,5 +1,11 @@
 TBD
 * Add native message sso ext request. (#1253)
+* Filter expired certs in the certificate picker (#1278)
+
+Version 1.7.24
+* Added method name with line number for errors in telemetry (#1266)
+
+Version 1.7.23
 * Added code that removes expired AT for Apple storage.
 * Filter expired certs in the certificate picker (#1278)
 
