@@ -1,5 +1,8 @@
 This library contains code shared between the [Active Directory Authentication Library (ADAL) for Objective-C](https://github.com/AzureAD/azure-activedirectory-library-for-objc) and the [Microsoft Authentication Library (MSAL) for iOS and macOS](https://github.com/AzureAD/microsoft-authentication-library-for-objc). This library includes only internal classes and is NOT part of the public API. The contents of this library are subject to change without notice.
 
+## Master branch deprercation
+The master branch has been copied over to main branch. The master branch will contain updates only until version 1.7.24, for further releases please refer to 'main' branch instead of 'master'.
+
 ## Issues
 
 We encourage users of ADAL and MSAL to file issues against the library that they are using rather than against common. This helps us understand the version of the common library in use based on the version of ADAL or MSAL against which you report the issue. With that said, if you determine that the issue is indeed with common please go ahead and create it within this repo. Likewise if you have a suggestion, request and/or other feedback relative to common please file it here.
