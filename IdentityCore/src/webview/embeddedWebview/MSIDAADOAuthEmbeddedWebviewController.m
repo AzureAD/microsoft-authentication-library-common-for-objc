@@ -60,6 +60,12 @@
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
                            decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
+    // Added to test passkeys - Begin
+    if ([NSString msidIsStringNilOrBlank:self.webView.customUserAgent]) {
+        self.webView.customUserAgent = @"Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Mobile/15E148 Safari/604.1";
+    }
+    // Added to test passkeys - End
+    
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
     
