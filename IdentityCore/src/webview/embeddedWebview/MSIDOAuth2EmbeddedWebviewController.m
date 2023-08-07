@@ -472,12 +472,12 @@
 - (BOOL)shouldSendNavigationNotification:(NSURL *)requestURL
 {
     NSString *requestURLString = [requestURL.absoluteString lowercaseString];
-    if (![requestURLString isEqualToString:@"about:blank"] && ![requestURLString isEqualToString:@"about:srcdoc"])
+    if ([requestURLString isEqualToString:@"about:blank"] || [requestURLString isEqualToString:@"about:srcdoc"])
     {
-        return YES;
+        return NO;
     }
     
-    return NO;
+    return YES;
 }
 
 @end
