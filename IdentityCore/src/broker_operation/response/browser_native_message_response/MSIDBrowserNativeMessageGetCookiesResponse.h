@@ -23,24 +23,16 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import <AuthenticationServices/AuthenticationServices.h>
+#import "MSIDBrokerNativeAppOperationResponse.h"
 
-@class MSIDWPJKeyPairWithCert;
-@protocol MSIDRequestContext;
+@class MSIDBrokerOperationGetSsoCookiesResponse;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDExternalSSOContext : NSObject
+@interface MSIDBrowserNativeMessageGetCookiesResponse : MSIDBrokerNativeAppOperationResponse
 
-#if TARGET_OS_OSX
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
-@property (nonatomic, nullable, strong) ASAuthorizationProviderExtensionLoginManager *loginManager API_AVAILABLE(macos(13.0));
-#endif
-#endif
-
-- (nullable MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(nullable id<MSIDRequestContext>)context;
-- (nullable NSURL *)tokenEndpointURL;
+- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
+- (instancetype _Nullable)initWithCookiesResponse:(nonnull MSIDBrokerOperationGetSsoCookiesResponse *)cookiesResponse;
 
 @end
 
