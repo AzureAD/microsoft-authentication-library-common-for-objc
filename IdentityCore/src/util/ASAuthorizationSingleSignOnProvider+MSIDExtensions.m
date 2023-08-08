@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if MSID_ENABLE_SSO_EXTENSION
+//#if MSID_ENABLE_SSO_EXTENSION
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDConstants.h"
 #import "MSIDBrokerOperationRequest.h"
@@ -77,4 +77,4 @@
 }
 
 @end
-#endif
+//#endif

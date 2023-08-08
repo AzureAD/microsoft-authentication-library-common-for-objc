@@ -35,6 +35,7 @@ MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_DEVICE_INFO = @"ge
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_PRT = @"get_prt";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_SSO_COOKIES = @"get_sso_cookies";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_BROWSER_NATIVE_MESSAGE = @"browser_native_message_operation";
+MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_PASSKEY_ASSERTION = @"passkey_assertion";
 
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_BROWSER_NATIVE_MESSAGE_RESPONSE = @"operation_browser_native_message_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GET_ACCOUNTS_RESPONSE = @"operation_get_accounts_response";

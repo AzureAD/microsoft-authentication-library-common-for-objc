@@ -32,6 +32,30 @@
 #import "MSIDError.h"
 #import "MSIDOAuth2Constants.h"
 
+
+//#ifdef AUTOFILL_EXTENSION
+//
+//#define ENABLE_FOR_AUTOFILL_EXT 1
+//
+//#else
+//
+//#define ENABLE_FOR_AUTOFILL_EXT 0
+//
+//#endif
+//
+//#if MSID_EXCLUDE_WEBKIT
+//
+//#define JUAN 1
+//
+//#endif
+//
+//#ifdef JUANXXX
+//
+//#define ANDRES 1
+//
+//#endif
+
+
 // Utility macros for convience classes wrapped around dictionaries
 #define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
 - (NSString *)GETTER \
@@ -47,4 +71,7 @@
 - (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
 
 #define STRING_CASE(_CASE) case _CASE: return @#_CASE
+//#define MSID_ENABLE_SSO_EXTENSION ((__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500) && !MSID_EXCLUDE_WEBKIT) || ENABLE_FOR_AUTOFILL_EXT
+
 #define MSID_ENABLE_SSO_EXTENSION ((__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500) && !MSID_EXCLUDE_WEBKIT)
+
