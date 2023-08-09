@@ -180,6 +180,10 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJStringDataForIdentifier_withKeychainV2Item_shouldReturnValidValue
 {
+#if TARGET_OS_MAC
+    XCTSkip(@"Skip keychain tests on MacOS since they conflict with production records.");
+#endif
+    
     NSString *sharedAccessGroup = [self keychainGroup:NO];
 
     // Insert dummy UPN value.
@@ -200,6 +204,10 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJStringDataForIdentifier_withKeychainItemV2_shouldReturnValidValue_WithMultipleEntries
 {
+#if TARGET_OS_MAC
+    XCTSkip(@"Skip keychain tests on MacOS since they conflict with production records.");
+#endif
+    
     NSString *sharedAccessGroup = [self keychainGroup:NO];
     
     // Insert dummy UPN values
@@ -230,6 +238,10 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJStringDataForIdentifierV2_withKeychainItem_shouldReturnValidValueDepiteMultipleEntriesInV1AndV2
 {
+#if TARGET_OS_MAC
+    XCTSkip(@"Skip keychain tests on MacOS since they conflict with production records.");
+#endif
+    
     NSString *dummyKeyIdentifierValue = @"dummyupn@dummytenant.com";
     NSString *sharedAccessGroup = [self keychainGroup:YES];
 
