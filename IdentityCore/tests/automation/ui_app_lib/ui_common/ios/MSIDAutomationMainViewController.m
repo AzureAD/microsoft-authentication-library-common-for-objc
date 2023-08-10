@@ -101,6 +101,9 @@
 #if TARGET_OS_SIMULATOR
     [resultJson writeToFile:[MSIDAutomationActionConstants resultPipelinePath] atomically:YES encoding:NSUTF8StringEncoding error:nil];
     [resultLogs writeToFile:[MSIDAutomationActionConstants logsPipelinePath] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+
+    NSLog(@"ResultJson: %@",resultJson);
+    NSLog(@"resultLogs: %@",resultLogs);
 #else
     [self performSegueWithIdentifier:MSID_SHOW_RESULT_SEGUE sender:@{MSID_RESULT_INFO_SEGUE_KEY:resultJson ? resultJson : @"",
                                                                      MSID_RESULT_LOGS_SEGUE_KEY:resultLogs ? resultLogs : @""}];

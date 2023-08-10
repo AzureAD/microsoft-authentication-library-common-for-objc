@@ -119,7 +119,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 {
     NSDictionary *result;
 #if TARGET_OS_SIMULATOR
-    int timeout = 60;
+    int timeout = 100;
     __auto_type resultPipelineExpectation = [[XCTestExpectation alloc] initWithDescription:@"Wait for result pipeline."];
     
     // Wait till file appears.
@@ -132,7 +132,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
             break;
         }
         
-        sleep(1);
+        [NSThread sleepForTimeInterval:1];
         i++;
     }
     
@@ -140,7 +140,8 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
     // Read json from file.
     NSString *jsonString = [NSString stringWithContentsOfFile:[MSIDAutomationActionConstants resultPipelinePath] encoding:NSUTF8StringEncoding error:nil];
-
+    NSLog(@"Result#> %@", jsonString);
+    
     NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     result = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
 #else
@@ -208,6 +209,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 #if TARGET_OS_SIMULATOR
     if (jsonString)
     {
+        NSLog(@"Request#>%@", jsonString);
         [jsonString writeToFile:[MSIDAutomationActionConstants requestPipelinePath] atomically:YES encoding:NSUTF8StringEncoding error:nil];
     }
     
@@ -385,7 +387,10 @@ static MSIDTestConfigurationProvider *s_confProvider;
         XCTAssertTrue(results.count >= 1);
         
         XCTestExpectation *passwordLoadExpecation = [self expectationWithDescription:@"Get password"];
-        passwordLoadExpecation.expectedFulfillmentCount = results.count;
+        if (results.count)
+        {
+            passwordLoadExpecation.expectedFulfillmentCount = results.count;
+        }
         
         for (MSIDTestAutomationAccount *account in results)
         {

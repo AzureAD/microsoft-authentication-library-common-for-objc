@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <XCTest/XCTest.h>
 #import "MSIDAutomationOperationAPIRequestHandler.h"
 #import "MSIDAutomation-Swift.h"
 #import "MSIDClientCredentialHelper.h"
@@ -137,7 +138,8 @@
               
               return;
           }
-          
+          [MSIDAutomationOperationAPIRequestHandler.class logError:httpResponse
+                                                      withResponse:data];
           dispatch_async(dispatch_get_main_queue(), ^{
                 completionHandler(nil, error);
           });
@@ -145,4 +147,13 @@
       }] resume];
 }
 
++(void)logError:(NSHTTPURLResponse *)httpResponse
+   withResponse:(NSData *)data
+{
+    NSError *error;
+    id jsonResponse = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    
+    NSString *output =  [NSString stringWithFormat:@"\nRequest\n %@ \n Response:\n%@", httpResponse, jsonResponse];
+    NSLog(@"%@",output);
+}
 @end
