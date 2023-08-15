@@ -1,4 +1,5 @@
-TBD
+Version 1.7.25
+* Stop sending web auth start notifications for certain redirects. (#1280)
 * Add native message sso ext request. (#1253)
 * Filter expired certs in the certificate picker (#1278)
 
