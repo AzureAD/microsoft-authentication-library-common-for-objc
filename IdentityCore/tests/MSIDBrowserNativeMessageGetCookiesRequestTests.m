@@ -57,13 +57,9 @@
 {
     __auto_type request = [MSIDBrowserNativeMessageGetCookiesRequest new];
     request.uri = @"uri";
-    request.sender = @"sender";
-    request.brokerKey = @"some key";
-    request.protocolVersion = 1;
+    request.sender = @"sender";;
 
     __auto_type expectedJson = @{
-        @"broker_key": @"some key",
-        @"msg_protocol_ver": @"1",
         @"sender": @"sender",
         @"uri": @"uri"
     };
