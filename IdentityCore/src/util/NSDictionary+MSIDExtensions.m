@@ -153,6 +153,31 @@
     return YES;
 }
 
++ (NSDictionary *)msidDictionaryFromJSONString:(NSString *)jsonString
+{
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if (!jsonData)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to deserialize: jsonData is nil.");
+        return nil;
+    }
+
+    NSError *error = nil;
+    NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                               options:NSJSONReadingMutableContainers
+                                                                 error:&error];
+
+    
+    if (error)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to deserialize data with error %@", MSID_PII_LOG_MASKABLE(error));
+        return nil;
+    }
+    
+    return dictionary;
+}
+
 - (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context
 {
     NSError *serializationError = nil;

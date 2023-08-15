@@ -261,8 +261,11 @@
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-decidePolicyForNavigationAction host: %@", MSID_PII_LOG_TRACKABLE(requestURL.host));
     
-    [MSIDNotifications notifyWebAuthDidStartLoad:requestURL userInfo:webView ? @{@"webview" : webView} : nil];
-    
+    if ([self shouldSendNavigationNotification:requestURL])
+    {
+        [MSIDNotifications notifyWebAuthDidStartLoad:requestURL userInfo:webView ? @{@"webview" : webView} : nil];
+    }
+
     [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
 
@@ -457,13 +460,24 @@
     [self dismissLoadingIndicator];
 }
 
--(void)notifyFinishedNavigation:(NSURL *)url webView:(WKWebView *)webView
+- (void)notifyFinishedNavigation:(NSURL *)url webView:(WKWebView *)webView
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-didFinishNavigation host: %@", MSID_PII_LOG_TRACKABLE(url.host));
     
     [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
     
     [self stopSpinner];
+}
+
+- (BOOL)shouldSendNavigationNotification:(NSURL *)requestURL
+{
+    NSString *requestURLString = [requestURL.absoluteString lowercaseString];
+    if ([requestURLString isEqualToString:@"about:blank"] || [requestURLString isEqualToString:@"about:srcdoc"])
+    {
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end

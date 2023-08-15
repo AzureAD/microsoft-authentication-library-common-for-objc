@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,13 +20,26 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDBrokerOperationResponse.h"
 
-NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
+#import "MSIDBrowserNativeMessageGetCookiesRequest.h"
+#import "MSIDJsonSerializableFactory.h"
 
-@implementation MSIDBrokerOperationResponse
+NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
+NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender";
+
+@implementation MSIDBrowserNativeMessageGetCookiesRequest
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+}
+
++ (NSString *)operation
+{
+    return @"GetCookies";
+}
 
 #pragma mark - MSIDJsonSerializable
 
@@ -35,8 +49,11 @@ NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_JSON_KEY required:YES error:error]) return nil;
-        _operation = json[MSID_BROKER_OPERATION_JSON_KEY];
+        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
+        _uri = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
+        
+        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY required:YES error:error]) return nil;
+        _sender = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY];
     }
     
     return self;
@@ -45,13 +62,12 @@ NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
-    if (!self.operation)
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, operation is nil.", self.class);
-        return nil;
-    }
     
-    json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
+    if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
+    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
+    
+    if ([NSString msidIsStringNilOrBlank:self.sender]) return nil;
+    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY] = self.sender;
     
     return json;
 }

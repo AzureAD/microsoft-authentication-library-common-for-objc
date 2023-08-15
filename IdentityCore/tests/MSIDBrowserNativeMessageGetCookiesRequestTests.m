@@ -23,25 +23,47 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import <AuthenticationServices/AuthenticationServices.h>
+#import <XCTest/XCTest.h>
+#import "MSIDBrowserNativeMessageGetCookiesRequest.h"
 
-@class MSIDWPJKeyPairWithCert;
-@protocol MSIDRequestContext;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDExternalSSOContext : NSObject
-
-#if TARGET_OS_OSX
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
-@property (nonatomic, nullable, strong) ASAuthorizationProviderExtensionLoginManager *loginManager API_AVAILABLE(macos(13.0));
-#endif
-#endif
-
-- (nullable MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(nullable id<MSIDRequestContext>)context;
-- (nullable NSURL *)tokenEndpointURL;
+@interface MSIDBrowserNativeMessageGetCookiesRequestTests : XCTestCase
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDBrowserNativeMessageGetCookiesRequestTests
+
+- (void)setUp
+{
+
+}
+
+- (void)tearDown
+{
+}
+
+- (void)testOperation_shouldBeCorrect
+{
+    XCTAssertEqualObjects(@"GetCookies", [MSIDBrowserNativeMessageGetCookiesRequest operation]);
+}
+
+- (void)testJsonDictionary_whenNoPayload_shouldBeNil
+{
+    __auto_type request = [MSIDBrowserNativeMessageGetCookiesRequest new];
+
+    XCTAssertNil([request jsonDictionary]);
+}
+
+- (void)testJsonDictionary_whenAllPropertiesExists_shouldReturnCorrectJson
+{
+    __auto_type request = [MSIDBrowserNativeMessageGetCookiesRequest new];
+    request.uri = @"uri";
+    request.sender = @"sender";;
+
+    __auto_type expectedJson = @{
+        @"sender": @"sender",
+        @"uri": @"uri"
+    };
+    XCTAssertEqualObjects(expectedJson, [request jsonDictionary]);
+}
+
+@end
