@@ -112,6 +112,9 @@ static MSIDTestConfigurationProvider *s_confProvider;
     {
         [application.buttons[@"Done"] msidTap];
     }
+    
+    
+    
 #endif
 }
 
