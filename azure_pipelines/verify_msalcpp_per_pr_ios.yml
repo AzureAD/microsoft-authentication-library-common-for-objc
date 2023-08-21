@@ -10,7 +10,7 @@ pr:
     - '*'
 
 pool:
-  vmImage: 'macOS-11'
+  vmImage: 'macOS-12'
 
 resources:
  repositories:
