@@ -10,7 +10,7 @@ pr:
     - '*'
 
 pool:
-  vmImage: 'macOS-13'
+  vmImage: 'macOS-11'
 
 resources:
  repositories:
@@ -48,9 +48,9 @@ jobs:
      arguments: '--skip-checkout --msal-common-repo $(Agent.BuildDirectory)/CommonCore --remote-ref $(commit_number)'
 
   - task: UsePythonVersion@0
-    displayName: 'Switch to use Xcode 14.3'
+    displayName: 'Switch to use Xcode 14.1'
   - script: |
-     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_14.3.app"
+     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_14.1.app"
 
   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
   
