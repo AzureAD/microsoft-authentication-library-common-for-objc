@@ -10,7 +10,7 @@ pr:
     - '*'
 
 pool:
-  vmImage: 'macOS-11'
+  vmImage: 'macOS-12'
 
 resources:
  repositories:
@@ -35,7 +35,7 @@ jobs:
     path: s
 
   - task: UsePythonVersion@0
-    displayName: 'Use Python 3.x'
+    displayName: 'Get latest commit number'
   - script: |
      cd $(Agent.BuildDirectory)/CommonCore
      commit_number=$(git rev-parse HEAD)
@@ -49,10 +49,10 @@ jobs:
      arguments: '--skip-checkout --msal-common-repo $(Agent.BuildDirectory)/CommonCore --remote-ref $(commit_number)'
 
   - task: UsePythonVersion@0
-    displayName: 'Use Python 3.x'
+    displayName: 'Switch to use Xcode 14.3'
   - script: |
-     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_13.0.app"
-    displayName: 'Switch to use Xcode 13'
+     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_14.3.app"
+    displayName: 'Switch to use Xcode 14.3'
 
   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
   
