@@ -10,7 +10,7 @@ pr:
     - '*'
 
 pool:
-  vmImage: 'macOS-12'
+  vmImage: 'macOS-13'
 
 resources:
  repositories:
@@ -40,7 +40,6 @@ jobs:
      cd $(Agent.BuildDirectory)/CommonCore
      commit_number=$(git rev-parse HEAD)
      echo "##vso[task.setvariable variable=commit_number]$(git rev-parse HEAD)"
-    displayName: 'Get latest commit number'
 
   - task: PythonScript@0
     displayName: Update subtree and rename files
@@ -52,7 +51,6 @@ jobs:
     displayName: 'Switch to use Xcode 14.3'
   - script: |
      /bin/bash -c "sudo xcode-select -s /Applications/Xcode_14.3.app"
-    displayName: 'Switch to use Xcode 14.3'
 
   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
   
