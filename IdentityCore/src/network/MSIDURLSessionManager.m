@@ -25,7 +25,7 @@
 #import "MSIDURLSessionDelegate.h"
 
 static MSIDURLSessionManager *s_defaultManager = nil;
-static NSURLSessionConfiguration *s_sessionConfiguration = nil;
+static NSTimeInterval s_timeoutIntervalForResource = 0;
 
 @implementation MSIDURLSessionManager
 
@@ -52,7 +52,11 @@ static NSURLSessionConfiguration *s_sessionConfiguration = nil;
 {
     if (!s_defaultManager)
     {
-        __auto_type configuration = s_sessionConfiguration == nil ? [NSURLSessionConfiguration defaultSessionConfiguration] : s_sessionConfiguration;
+        __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        if (s_timeoutIntervalForResource != 0)
+        {
+            configuration.timeoutIntervalForResource = s_timeoutIntervalForResource;
+        }
 
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.networking.delegateQueue-%@", [NSUUID UUID].UUIDString];
         __auto_type delegateQueue = [NSOperationQueue new];
@@ -81,14 +85,14 @@ static NSURLSessionConfiguration *s_sessionConfiguration = nil;
     s_defaultManager = defaultManager;
 }
 
-+ (NSURLSessionConfiguration *)sessionConfiguration
++ (NSTimeInterval)timeoutIntervalForResource
 {
-    return s_sessionConfiguration;
+    return s_timeoutIntervalForResource;
 }
 
-+ (void)setSessionConfiguration:(NSURLSessionConfiguration *)sessionConfiguration
++ (void)setTimeoutIntervalForResource:(NSTimeInterval)timeoutIntervalForResource
 {
-    s_sessionConfiguration = sessionConfiguration;
+    s_timeoutIntervalForResource = timeoutIntervalForResource;
 }
 
 @end
