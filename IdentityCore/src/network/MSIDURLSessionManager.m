@@ -50,8 +50,8 @@ static NSTimeInterval s_timeoutIntervalForResource = 0;
 
 + (MSIDURLSessionManager *)defaultManager
 {
-    if (!s_defaultManager)
-    {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
         if (s_timeoutIntervalForResource != 0)
         {
@@ -75,7 +75,7 @@ static NSTimeInterval s_timeoutIntervalForResource = 0;
         s_defaultManager = [[MSIDURLSessionManager alloc] initWithConfiguration:configuration
                                                                        delegate:[MSIDURLSessionDelegate new]
                                                                   delegateQueue:delegateQueue];
-    }
+    });
     
     return s_defaultManager;
 }
