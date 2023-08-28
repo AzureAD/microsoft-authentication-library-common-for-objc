@@ -51,7 +51,7 @@ static NSTimeInterval s_timeoutIntervalForResource = 0;
 + (MSIDURLSessionManager *)defaultManager
 {
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    dispatch_once(&onceToken, ^{        
         __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
         if (s_timeoutIntervalForResource != 0)
         {
