@@ -1,3 +1,6 @@
+Version 1.7.27
+* Expose APIs for manually setting time_Interval for request and session resource. (#1288)
+
 Version 1.7.26
 * Stop sending web auth start notifications for certain redirects. (#1280)
 * Add native message sso ext request. (#1253)
