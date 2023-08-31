@@ -27,6 +27,9 @@
 #import "MSIDAutomationActionManager.h"
 #import "MSIDAutomationTestResult.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationRequestViewController.h"
+#import "MSIDAutomationResultViewController.h"
+#import "MSIDAutomationActionConstants.h"
 
 @interface MSIDAutomationMainViewController ()
 
@@ -196,6 +199,14 @@ static NSMutableString *s_resultLogs = nil;
                         completionBlock:^(MSIDAutomationTestResult *result) {
                             [self showResultViewWithResult:result.jsonDictionary logs:self.class.resultLogs];
                         }];
+}
+#pragma mark - Private
+
+- (NSString *)getConfigJsonString
+{
+    NSString *jsonString = [NSString stringWithContentsOfFile:[MSIDAutomationActionConstants requestPipelinePath] encoding:NSUTF8StringEncoding error:nil];
+
+    return jsonString;
 }
 
 @end

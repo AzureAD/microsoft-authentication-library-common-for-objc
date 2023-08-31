@@ -65,6 +65,8 @@ typedef NS_ENUM(NSUInteger, MSIDAutomationWPJRegistrationAPIMode)
 @property (nonatomic) BOOL instanceAware;
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIViewController *parentController;
+#else
+@property (nonatomic) NSViewController *parentController;
 #endif
 @property (nonatomic) BOOL isIntuneMAMCACapable;
 @property (nonatomic) NSString *targetTenantId;
