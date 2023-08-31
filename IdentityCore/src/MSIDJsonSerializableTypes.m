@@ -42,6 +42,7 @@ MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GET_ACCOUNTS_RESPONSE =
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GENERIC_RESPONSE = @"operation_generic_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_TOKEN_RESPONSE = @"operation_token_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GET_SSO_COOKIES_RESPONSE = @"operation_get_sso_cookies_response";
+MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_PASSKEY_ASSERTION_RESPONSE = @"operation_get_passkey_assertion_response";
 
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_AADV1 = @"provider_aad_v1";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_AADV2 = @"provider_aad_v2";

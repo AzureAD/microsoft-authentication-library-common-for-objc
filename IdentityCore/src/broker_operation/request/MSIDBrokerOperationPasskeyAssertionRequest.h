@@ -25,9 +25,20 @@
 
 #import "MSIDBrokerOperationRequest.h"
 
+@class MSIDAccountIdentifier;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationPasskeyAssertionRequest : MSIDBrokerOperationRequest
+
+@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) NSString *fidoChallenge;
+@property (nonatomic) NSData *clientDataHash;
+@property (nonatomic) NSString *relyingPartyId;
+@property (nonatomic) NSData *keyId;
+@property (nonatomic) NSData *userHandle;
+
+@property (nonatomic) BOOL isRegistration;
 
 @end
 

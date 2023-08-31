@@ -60,28 +60,8 @@
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
                            decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    // Needed for AAD security keys
-    if ([NSString msidIsStringNilOrBlank:self.webView.customUserAgent]) {
-        self.webView.customUserAgent = @"Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Mobile/15E148 Safari/604.1";
-    }
-    
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
-    
-    BOOL test = NO;
-    if (test && ![requestURL.absoluteString hasSuffix:@"beta.catzolab.net/passwordless"])
-    {
-        //requestURL = [[NSURL alloc] initWithString:@"https://outlook.office365.us"];
-
-        //        requestURL = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/authorize?client_id=00000002-0000-0ff1-ce00-000000000000&redirect_uri=https%3a%2f%2foutlook.office.com%2fowa%2f&resource=00000002-0000-0ff1-ce00-000000000000&response_mode=form_post&response_type=code+id_token&scope=openid&msafed=1&msaredir=1&client-request-id=2585cd29-5376-75c9-3225-5a55a932e8a4&protectedtoken=true&claims=%7b%22id_token%22%3a%7b%22xms_cc%22%3a%7b%22values%22%3a%5b%22CP1%22%5d%7d%7d%7d&nonce=638131397747062116.23406027-16aa-4fb2-af0b-2f0db1bba76f&state=Dcs7DoBACABRVuNxcPlsQI8DMbSWXl-KN90MANjb1gZ1wE0vVtbbfTmZMNspushIHNkicFUKRlGiFD3JmeFWo99jvl_MHw&dc=ESTS-PUB-WUS2-AZ1-FD000-TEST2&slice=testslice"];
-    
-        requestURL = [[NSURL alloc] initWithString:@"https://beta.catzolab.net/passwordless"];
-        
-        NSURLRequest *challengeResponse = [[NSURLRequest alloc] initWithURL:requestURL];
-        decisionHandler(WKNavigationActionPolicyCancel);
-        [self loadRequest:challengeResponse];
-        return YES;
-    }
     
     // Stop at broker or browser
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;

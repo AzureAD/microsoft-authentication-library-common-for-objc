@@ -24,60 +24,65 @@
 
 #import "MSIDSSOExtensionPasskeyAssertionRequest.h"
 #import "MSIDBrokerOperationPasskeyAssertionRequest.h"
-#import "MSIDBrokerOperationGetSsoCookiesResponse.h"
+#import "MSIDBrokerOperationGetPasskeyAssertionResponse.h"
 #import "MSIDSSOExtensionGetDataBaseRequest+Internal.h"
-#import "MSIDTokenResult.h"
+#import "MSIDPasskeyAssertion.h"
 
 @interface MSIDSSOExtensionPasskeyAssertionRequest()
 
-@property (nonatomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
+@property (nonatomic, copy) MSIDPasskeyAssertionRequestCompletionBlock requestCompletionBlock;
 
 @end
 
 @implementation MSIDSSOExtensionPasskeyAssertionRequest
 
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                            headerTypes:(NSArray<NSNumber *>*)headerTypes
                         accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                   ssoUrl:(NSString *)ssoUrl
+                           clientDataHash:(NSData *)clientDataHash
+                           relyingPartyId:(NSString *)relyingPartyId
+                                    keyId:(NSData *)keyId
+                               userHandle:(NSData *)userHandle
                             correlationId:(NSUUID *)correlationId
+                           isRegistration:(BOOL)isRegistration
                                     error:(NSError **)error{
     self = [super initWithRequestParameters:requestParameters error:error];
     if (self)
     {
         _accountIdentifier = accountIdentifier;
-        _ssoUrl = ssoUrl;
+        _clientDataHash = clientDataHash;
+        _relyingPartyId = relyingPartyId;
+        _keyId = keyId;
+        _userHandle = userHandle;
         _correlationId = correlationId;
-        _types = [headerTypes componentsJoinedByString:@", "];
+        
+        _isRegistration = isRegistration;
         
         __typeof__(self) __weak weakSelf = self;
         self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
         {
             __strong __typeof__(self) strongSelf = weakSelf;
-            NSArray *prtHeaders = nil;
-            NSArray *deviceHeaders = nil;
+            MSIDPasskeyAssertion *passkeyAssertion = nil;
             
             if (!operationResponse.success)
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Finished get sso cookies request with error %@", MSID_PII_LOG_MASKABLE(resultError));
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Finished get passkey assertion request with error %@", MSID_PII_LOG_MASKABLE(resultError));
             }
-            else if (![operationResponse isKindOfClass:[MSIDBrokerOperationGetSsoCookiesResponse class]])
+            else if (![operationResponse isKindOfClass:[MSIDBrokerOperationGetPasskeyAssertionResponse class]])
             {
-                resultError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Received incorrect response type for the get sso cookies request", nil, nil, nil, nil, nil, YES);
+                resultError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Received incorrect response type for the get passkey assertion request", nil, nil, nil, nil, nil, YES);
             }
             else
             {
-                MSIDBrokerOperationGetSsoCookiesResponse *response = (MSIDBrokerOperationGetSsoCookiesResponse *)operationResponse;
-                prtHeaders = response.prtHeaders;
-                deviceHeaders = response.deviceHeaders;
+                MSIDBrokerOperationGetPasskeyAssertionResponse *response = (MSIDBrokerOperationGetPasskeyAssertionResponse *)operationResponse;
+//                NSDictionary *passkey = [NSDictionary msidDictionaryFromJSONString:response.passkeyAssertion];
+//                passkeyAssertion = [[MSIDPasskeyAssertion alloc] initWithJSONDictionary:passkey error:&resultError];
+                passkeyAssertion = response.passkeyAssertion;
             }
             
-            MSIDRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+            MSIDPasskeyAssertionRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
             strongSelf.requestCompletionBlock = nil;
             
-            // JUAN: Use correct return result
-            MSIDTokenResult *tempResult = [[MSIDTokenResult alloc] init];
-            if (completionBlock) completionBlock(tempResult, resultError);
+            if (completionBlock) completionBlock(passkeyAssertion, resultError);
         };
         
         self.ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
@@ -86,13 +91,18 @@
     return self;
 }
 
-- (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(MSIDPasskeyAssertionRequestCompletionBlock)completionBlock
 {
     MSIDBrokerOperationPasskeyAssertionRequest *passkeyAssertionRequest = [MSIDBrokerOperationPasskeyAssertionRequest new];
-//    passkeyAssertionRequest.accountIdentifier = self.accountIdentifier;
-//    passkeyAssertionRequest.ssoUrl = self.ssoUrl;
+    passkeyAssertionRequest.accountIdentifier = self.accountIdentifier;
+    passkeyAssertionRequest.clientDataHash = self.clientDataHash;
+    passkeyAssertionRequest.relyingPartyId = self.relyingPartyId;
+    passkeyAssertionRequest.keyId = self.keyId;
+    passkeyAssertionRequest.userHandle = self.userHandle;
     passkeyAssertionRequest.correlationId = self.correlationId ?: [NSUUID UUID];
-//    passkeyAssertionRequest.headerTypes = self.types;
+    
+    passkeyAssertionRequest.isRegistration = self.isRegistration;
+    
     self.requestCompletionBlock = completionBlock;
     [self executeBrokerOperationRequest:passkeyAssertionRequest requiresUI:NO errorBlock:^(NSError *error) {
         if(completionBlock) completionBlock(nil, error);

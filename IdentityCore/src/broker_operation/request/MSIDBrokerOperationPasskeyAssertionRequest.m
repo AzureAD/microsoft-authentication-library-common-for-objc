@@ -24,8 +24,12 @@
 
 
 #import "MSIDBrokerOperationPasskeyAssertionRequest.h"
+#import "MSIDAccountIdentifier.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
+#import "MSIDConstants.h"
+#import "NSString+MSIDExtensions.h"
+#import "NSData+MSIDExtensions.h"
 
 @implementation MSIDBrokerOperationPasskeyAssertionRequest
 
@@ -47,12 +51,46 @@
 {
     self = [super initWithJSONDictionary:json error:error];
     
+    if (self)
+    {
+        _fidoChallenge = [json msidStringObjectForKey:MSID_BROKER_FIDO_CHALLENGE];
+        if ([NSString msidIsStringNilOrBlank:_fidoChallenge])
+        {
+            // fidoChallenge is not needed, can be removed
+        }
+        
+        _clientDataHash = [[json msidStringObjectForKey:@"clientDataHash"] msidHexData];
+        _relyingPartyId = [json msidStringObjectForKey:@"relyingPartyId"];
+        _keyId = [[json msidStringObjectForKey:@"keyId"] msidHexData];
+        _userHandle = [[json msidStringObjectForKey:@"userHandle"] dataUsingEncoding:NSUTF8StringEncoding];
+        
+        _isRegistration = [json msidBoolObjectForKey:@"isRegistration"];
+        
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:nil];
+        if (_accountIdentifier && [NSString msidIsStringNilOrBlank:_accountIdentifier.homeAccountId])
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Passkey Assertion Request - Account is provided, but no homeAccountId is provided from account identifier.", nil, nil, nil, nil, nil, YES);
+            }
+            
+            return  nil;
+        }
+    }
+    
     return self;
 }
 
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    
+    json[@"clientDataHash"] = [self.clientDataHash msidHexString];
+    json[@"relyingPartyId"] = self.relyingPartyId;
+    json[@"keyId"] = [self.keyId msidHexString];
+    json[@"userHandle"] = [[NSString alloc] initWithData:self.userHandle encoding:NSUTF8StringEncoding];
+    
+    json[@"isRegistration"] = [@(self.isRegistration) stringValue];
     
     return json;
 }

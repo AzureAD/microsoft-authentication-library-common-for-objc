@@ -31,33 +31,37 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0), macos(10.15))
+API_AVAILABLE(ios(13.0), macos(14.0))
 @interface MSIDSSOExtensionPasskeyAssertionRequest: MSIDSSOExtensionGetDataBaseRequest
 
 @property (nonatomic, readonly) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic, readonly) NSString *ssoUrl;
+@property (nonatomic, readonly) NSData *clientDataHash;
+@property (nonatomic, readonly) NSString *relyingPartyId;
+@property (nonatomic, readonly) NSData *keyId;
+@property (nonatomic, readonly) NSData *userHandle;
 @property (nonatomic, readonly) NSUUID *correlationId;
-@property (nonatomic, readonly) NSString *types;
+
+@property (nonatomic, readonly) BOOL isRegistration;
 
 /**
  This is to init get sso cookies request
  @param requestParameters the MSIDRequestParameters
- @param headerTypes an array of type of header the request is looking for, please refers to MSIDHeaderType
  @param accountIdentifier MSIDAccountIdentifier, it is optional
- @param ssoUrl NSString, this is required, and will be used to filter out Prts
  @param correlationId NSUUID, Passed from upper layer for end to end trace
  @param error NSErrorr possible errors during the request
  @returns instance of MSIDSSOExtensionGetSsoCookiesRequest
  */
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                       headerTypes:(NSArray<NSNumber *>*)headerTypes
                                  accountIdentifier:(nullable MSIDAccountIdentifier *)accountIdentifier
-                                            ssoUrl:(NSString *)ssoUrl
+                                    clientDataHash:(NSData *)clientDataHash
+                                    relyingPartyId:(NSString *)relyingPartyId
+                                             keyId:(NSData *)keyId
+                                        userHandle:(NSData *)userHandle
                                      correlationId:(nullable NSUUID *)correlationId
+                                    isRegistration:(BOOL)isRegistration
                                              error:(NSError * _Nullable * _Nullable)error;
 
-// JUAN: MSIDRequestCompletionBlock could be changed to something else more specific to what we need
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (void)executeRequestWithCompletion:(nonnull MSIDPasskeyAssertionRequestCompletionBlock)completionBlock;
 
 @end
 
