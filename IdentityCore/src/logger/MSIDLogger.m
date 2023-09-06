@@ -132,6 +132,32 @@ static NSDateFormatter *s_dateFormatter = nil;
 }
 
 - (void)logWithLevel:(MSIDLogLevel)level
+             context:(id<MSIDRequestContext> _Nullable)context
+       correlationId:(NSUUID * _Nullable)correlationId
+         containsPII:(BOOL)containsPII
+            filename:(NSString *)filename
+          lineNumber:(NSUInteger)lineNumber
+            function:(NSString *)function
+              format:(NSString *)format
+          formatArgs:(va_list)args
+{
+    if (!format) return;
+    
+    if (![self shouldLog:level]) return;
+    
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    
+    [self logWithLevel:level
+               context:context
+         correlationId:correlationId
+           containsPII:containsPII
+              filename:filename
+            lineNumber:lineNumber
+              function:function
+               message:message];
+}
+    
+- (void)logWithLevel:(MSIDLogLevel)level
              context:(id<MSIDRequestContext>)context
        correlationId:(NSUUID *)correlationId
          containsPII:(BOOL)containsPII
@@ -142,21 +168,33 @@ static NSDateFormatter *s_dateFormatter = nil;
 {
     if (!format) return;
     
-    BOOL shouldLog = level <= self.level;
-    __typeof__(self.loggerConnector) loggerConnector = self.loggerConnector;
-    if (loggerConnector)
-    {
-        shouldLog = [loggerConnector shouldLog:level];
-    }
+    if (![self shouldLog:level]) return;
     
-    if (!shouldLog) return;
-    
-    if (!self.callback && !self.nsLoggingEnabled && !loggerConnector) return;
-
     va_list args;
     va_start(args, format);
     NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
+    
+    [self logWithLevel:level
+               context:context
+         correlationId:correlationId
+           containsPII:containsPII
+              filename:filename
+            lineNumber:lineNumber
+              function:function
+               message:message];
+}
+
+- (void)logWithLevel:(MSIDLogLevel)level
+             context:(id<MSIDRequestContext>)context
+       correlationId:(NSUUID *)correlationId
+         containsPII:(BOOL)containsPII
+            filename:(NSString *)filename
+          lineNumber:(NSUInteger)lineNumber
+            function:(NSString *)function
+             message:(NSString *)message
+{
+    __typeof__(self.loggerConnector) loggerConnector = self.loggerConnector;
     
     __uint64_t tid;
     pthread_threadid_np(NULL, &tid);
@@ -251,6 +289,22 @@ static NSDateFormatter *s_dateFormatter = nil;
     }
     
     logBlock();
+}
+
+- (BOOL)shouldLog:(MSIDLogLevel)level
+{
+    BOOL shouldLog = level <= self.level;
+    __typeof__(self.loggerConnector) loggerConnector = self.loggerConnector;
+    if (loggerConnector)
+    {
+        shouldLog = [loggerConnector shouldLog:level];
+    }
+    
+    if (!shouldLog) return NO;
+    
+    if (!self.callback && !self.nsLoggingEnabled && !loggerConnector) return NO;
+    
+    return YES;
 }
 
 - (NSString*)stringForLogLevel:(MSIDLogLevel)level

@@ -58,12 +58,12 @@
                                       configuration:(nonnull MSIDConfiguration *)configuration
                                      requestAccount:(nullable MSIDAccountIdentifier *)accountIdentifier
                                       correlationID:(nonnull NSUUID *)correlationID
-                                              error:(NSError * _Nullable * _Nullable)error;
+                                              error:(NSError * _Nullable * _Nullable)error NS_SWIFT_NOTHROW;
 
 - (BOOL)validateAccount:(nonnull MSIDAccountIdentifier *)accountIdentifier
             tokenResult:(nonnull MSIDTokenResult *)tokenResult
           correlationID:(nonnull NSUUID *)correlationID
-                  error:(NSError * _Nullable * _Nullable)error;
+                  error:(NSError * _Nullable * _Nullable)error NS_SWIFT_NOTHROW;
 
 - (BOOL)validateTokenResult:(nonnull MSIDTokenResult *)tokenResult
               configuration:(nonnull MSIDConfiguration *)configuration
