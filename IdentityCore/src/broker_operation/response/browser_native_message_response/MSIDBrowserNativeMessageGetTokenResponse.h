@@ -23,45 +23,17 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBrowserNativeMessageGetCookiesRequest.h"
-#import "MSIDJsonSerializableFactory.h"
+#import "MSIDBrokerNativeAppOperationResponse.h"
 
-NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
+@class MSIDBrokerOperationTokenResponse;
 
-@implementation MSIDBrowserNativeMessageGetCookiesRequest
+NS_ASSUME_NONNULL_BEGIN
 
-+ (void)load
-{
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
-}
+@interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
 
-+ (NSString *)operation
-{
-    return @"GetCookies";
-}
-
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    self = [super initWithJSONDictionary:json error:error];
-    if (!self) return nil;
-    
-    if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
-    _uri = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
-    if (!json) return nil;
-    
-    if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
-    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
-    
-    return json;
-}
+- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
+- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
 
 @end
+
+NS_ASSUME_NONNULL_END

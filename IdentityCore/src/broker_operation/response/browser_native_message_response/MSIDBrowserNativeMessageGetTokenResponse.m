@@ -23,21 +23,34 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBrowserNativeMessageGetCookiesRequest.h"
-#import "MSIDJsonSerializableFactory.h"
+#import "MSIDBrowserNativeMessageGetTokenResponse.h"
+#import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDTokenResponse.h"
+#import "MSIDOAuth2Constants.h"
 
-NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
+@interface MSIDBrowserNativeMessageGetTokenResponse()
 
-@implementation MSIDBrowserNativeMessageGetCookiesRequest
+@property (nonatomic) MSIDBrokerOperationTokenResponse *operationTokenResponse;
 
-+ (void)load
+@end
+
+@implementation MSIDBrowserNativeMessageGetTokenResponse
+
+- (instancetype)initWithTokenResponse:(MSIDBrokerOperationTokenResponse *)operationTokenResponse
 {
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
-}
-
-+ (NSString *)operation
-{
-    return @"GetCookies";
+    self = [super initWithDeviceInfo:operationTokenResponse.deviceInfo];
+    if (self)
+    {
+        if (!operationTokenResponse)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create browser 'GetToken' response: operation token response is nil. ");
+            return nil;
+        }
+        
+        _operationTokenResponse = operationTokenResponse;
+    }
+    
+    return self;
 }
 
 #pragma mark - MSIDJsonSerializable
@@ -45,23 +58,29 @@ NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
     self = [super initWithJSONDictionary:json error:error];
-    if (!self) return nil;
     
-    if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
-    _uri = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
+    @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
     
-    return self;
+    return nil;
 }
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
-    if (!json) return nil;
+    __auto_type tokenResponse = self.operationTokenResponse.tokenResponse;
+    NSMutableDictionary *response = [[tokenResponse jsonDictionary] mutableCopy];
+    if (!response) {
+        // TODO: log error.
+        return nil;
+    }
     
-    if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
-    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
+    __auto_type accountJson = [NSMutableDictionary new];
+    accountJson[@"userName"] = tokenResponse.idTokenObj.username;
+    accountJson[@"id"] = tokenResponse.accountIdentifier;
     
-    return json;
+    response[@"account"] = accountJson;
+    
+    return response;
 }
 
 @end
+

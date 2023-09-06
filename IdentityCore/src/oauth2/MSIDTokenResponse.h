@@ -80,6 +80,8 @@
 
 @property (nonatomic, class, readonly) MSIDProviderType providerType;
 
+@property (nonatomic, readonly, nullable) NSString *accountIdentifier;
+
 - (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
                                    refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token
                                           error:(NSError * _Nullable __autoreleasing *_Nullable)error;

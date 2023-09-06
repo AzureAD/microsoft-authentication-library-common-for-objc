@@ -23,43 +23,39 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBrowserNativeMessageGetCookiesRequest.h"
-#import "MSIDJsonSerializableFactory.h"
+#import "MSIDBrowserNativeMessageRequest.h"
+#import "MSIDBrokerConstants.h"
 
-NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
+NSString *const BROWSER_NATIVE_MESSAGE_SENDER_KEY = @"sender";
+NSString *const BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
 
-@implementation MSIDBrowserNativeMessageGetCookiesRequest
 
-+ (void)load
-{
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
-}
-
-+ (NSString *)operation
-{
-    return @"GetCookies";
-}
+@implementation MSIDBrowserNativeMessageRequest
 
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super initWithJSONDictionary:json error:error];
-    if (!self) return nil;
+    self = [super init];
     
-    if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
-    _uri = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
+    if (self)
+    {
+        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_SENDER_KEY required:YES error:error]) return nil;
+        _sender = json[BROWSER_NATIVE_MESSAGE_SENDER_KEY];
+    }
     
     return self;
 }
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
-    if (!json) return nil;
+    NSMutableDictionary *json = [NSMutableDictionary new];
     
-    if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
-    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
+    if ([NSString msidIsStringNilOrBlank:self.sender]) return nil;
+    json[BROWSER_NATIVE_MESSAGE_SENDER_KEY] = self.sender;
+    
+    if ([NSString msidIsStringNilOrBlank:self.class.operation]) return nil;
+    json[BROWSER_NATIVE_MESSAGE_METHOD_KEY] = self.class.operation;
     
     return json;
 }

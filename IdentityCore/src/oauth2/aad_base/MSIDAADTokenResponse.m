@@ -71,6 +71,12 @@
     
     return nil;
 }
+
+- (NSString *)accountIdentifier
+{
+    return self.clientInfo.accountIdentifier;
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
