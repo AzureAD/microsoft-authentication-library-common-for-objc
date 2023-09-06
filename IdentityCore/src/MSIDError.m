@@ -400,6 +400,10 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorThrottleCacheNoRecord";
         case MSIDErrorThrottleCacheInvalidSignature:
             return @"MSIDErrorThrottleCacheInvalidSignature";
+        case MSIDErrorBrokerAppIsInactive:
+            return @"MSIDErrorBrokerAppIsInactive";
+        case MSIDErrorBrokerAppIsInBackground:
+            return @"MSIDErrorBrokerAppIsInBackground";
     }
     return @"Unknown";
 }
