@@ -26,6 +26,7 @@
 #import "MSIDExternalSSOContext.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDKeychainUtil.h"
+#import "MSIDJsonSerializer.h"
 
 @implementation MSIDExternalSSOContext
 
@@ -42,6 +43,22 @@
         }
         
         SecIdentityRef identityRef = [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning]; // +1
+        
+#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
+    if (@available(macOS 14.0, *))
+    {
+        if ([self isMigrationFlagSetInLoginManager])
+        {
+            identityRef = [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning]; // +1
+        }
+        else
+        {
+            identityRef = [self.loginManager  copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeCurrentDeviceSigning]; // +1
+        }
+    }
+#else
+    identityRef = [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning]; // +1
+#endif
         
         if (!identityRef)
         {
@@ -108,4 +125,34 @@
     return nil;
 }
 
+- (BOOL)isMigrationFlagSetInLoginManager
+{
+#if TARGET_OS_OSX
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
+    if (@available(macOS 13.0, *))
+    {
+        if (!self.loginManager)
+        {
+            return NO;
+        }
+    }
+    if (@available(macOS 14.0, *))
+    {
+        if (!self.loginManager.loginConfiguration.deviceContext)
+        {
+            return NO;
+        }
+        NSError *subError;
+        NSDictionary *deviceContextJson = [[MSIDJsonSerializer new] deserializeJSON:self.loginManager.loginConfiguration.deviceContext error:&subError];
+        if (!deviceContextJson || subError)
+        {
+            return NO;
+        }
+        return [[deviceContextJson objectForKey:@"IsMigrationFlagSet"] boolValue];
+    }
+#endif
+#endif
+    
+    return NO;
+}
 @end
