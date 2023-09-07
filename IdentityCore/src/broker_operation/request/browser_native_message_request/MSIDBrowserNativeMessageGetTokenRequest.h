@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *authority;
 
 /// List of scopes.
-@property (nonatomic) NSString *scope;
+@property (nonatomic) NSString *scopes;
 
 /// The redirect uri of the app.
 @property (nonatomic) NSString *redirectUri;
@@ -70,8 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// All parameters in this dictionary will be passed on the server-side against both token and authorization endpoints.
 @property (nonatomic, nullable) NSDictionary *extraParameters;
-
-- (MSIDInteractiveTokenRequestParameters *)interactiveTokenRequestParameters;
 
 @end
 
