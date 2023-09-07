@@ -104,12 +104,14 @@
 
 -(void)dealloc
 {
-    if ([self.webView.navigationDelegate isEqual:self])
-    {
-        [self.webView setNavigationDelegate:nil];
-    }
-    
-    self.webView = nil;
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        if ([self.webView.navigationDelegate isEqual:self])
+        {
+            [self.webView setNavigationDelegate:nil];
+        }
+        
+        self.webView = nil;
+    }];
 }
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
