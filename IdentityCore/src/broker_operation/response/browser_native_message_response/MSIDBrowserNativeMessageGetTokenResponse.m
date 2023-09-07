@@ -43,7 +43,7 @@
     {
         if (!operationTokenResponse)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create browser 'GetToken' response: operation token response is nil. ");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create browser 'GetToken' response: operation token response is nil.");
             return nil;
         }
         
@@ -68,8 +68,9 @@
 {
     __auto_type tokenResponse = self.operationTokenResponse.tokenResponse;
     NSMutableDictionary *response = [[tokenResponse jsonDictionary] mutableCopy];
-    if (!response) {
-        // TODO: log error.
+    if (!response)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create token json response.");
         return nil;
     }
     
