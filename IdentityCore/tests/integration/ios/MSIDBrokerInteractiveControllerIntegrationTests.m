@@ -1087,7 +1087,7 @@
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
-    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable __unused result, NSError * _Nullable acquireTokenError) {
 
         if (acquireTokenError.code == MSIDErrorBrokerAppIsInactive)
         {
@@ -1131,7 +1131,7 @@
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
-    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable __unused result, NSError * _Nullable acquireTokenError) {
 
         if (acquireTokenError.code == MSIDErrorBrokerAppIsInBackground)
         {
