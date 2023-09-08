@@ -45,5 +45,5 @@
 // Derived properties
 @property (nonatomic, readonly, nullable) NSDate *extendedExpiresOnDate;
 @property (nonatomic, readonly, nullable) NSDate *refreshOnDate;
-
+@property (nonatomic, nullable) NSString *ccsRequestId;
 @end
