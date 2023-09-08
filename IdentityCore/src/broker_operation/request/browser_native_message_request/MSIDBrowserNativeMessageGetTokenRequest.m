@@ -30,7 +30,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_CORRELATION_KEY = @"correlationId";
 NSString *const BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY = @"accountId";
 NSString *const BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY = @"clientId";
 NSString *const BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY = @"authority";
-NSString *const BROWSER_NATIVE_MESSAGE_SCOPE_KEY = @"scopes";// TODO: should be "scope"
+NSString *const BROWSER_NATIVE_MESSAGE_SCOPE_KEY = @"scope";
 NSString *const BROWSER_NATIVE_MESSAGE_REDIRECT_URI_KEY = @"redirectUri";
 NSString *const BROWSER_NATIVE_MESSAGE_PROMPT_KEY = @"prompt";
 NSString *const BROWSER_NATIVE_MESSAGE_NONCE_KEY = @"nonce";
@@ -87,10 +87,9 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
     if (![requestJson msidAssertType:NSDictionary.class ofKey:BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY required:NO error:error]) return nil;
     _extraParameters = requestJson[BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY];
 
-    if (![requestJson msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_CORRELATION_KEY required:YES error:error]) return nil;
+    if (![requestJson msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_CORRELATION_KEY required:NO error:error]) return nil;
     NSString *uuidString = requestJson[BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
-    _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
-    if (!_correlationId) return nil; // TODO: should it be required?
+    _correlationId = uuidString ? [[NSUUID alloc] initWithUUIDString:uuidString] : [NSUUID UUID];
     
     return self;
 }
