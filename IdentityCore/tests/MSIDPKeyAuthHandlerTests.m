@@ -117,6 +117,8 @@
 
 - (void)testHandleChallengeWithRefreshToken_happyPath_shouldReturnSuccess
 {
+    [self makeAppV2GroupEntitled:YES];
+    
     __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
     NSString *value = @"FakeRefreshToken";
     NSDictionary<NSString *, NSString *> *customHeaders = @{ MSID_REFRESH_TOKEN_CREDENTIAL : value};
@@ -143,6 +145,8 @@
 
 - (void)testHandleChallengeNilRefreshToken_shouldProceedWithSuccess
 {
+    [self makeAppV2GroupEntitled:YES];
+    
     __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
 
     __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
@@ -167,12 +171,7 @@
 }
 - (void)testHandleChallengeWithEmptyCustomHeaders_shouldProceedWithSuccess
 {
-    [MSIDTestSwizzle classMethod:@selector(v2AccessGroupAllowedWithContext:)
-                           class:[MSIDWorkPlaceJoinUtil class]
-                           block:(id) ^(__unused id obj, __unused id context)
-    {
-        return NO;
-    }];
+    [self makeAppV2GroupEntitled:NO];
         
     __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
 
@@ -197,6 +196,16 @@
     }];
     XCTAssertTrue(callback);
     XCTAssertTrue(handleResult);
+}
+
+- (void)makeAppV2GroupEntitled:(BOOL)entitled
+{
+    [MSIDTestSwizzle classMethod:@selector(v2AccessGroupAllowedWithContext:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused id context)
+    {
+        return entitled;
+    }];
 }
 
 @end
