@@ -320,6 +320,10 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,
+    
+    // App state while failed to open broker error
+    MSIDErrorBrokerAppIsInactive = -51902,
+    MSIDErrorBrokerAppIsInBackground = -51903,
 
 };
 
