@@ -87,10 +87,9 @@
 #endif
     BOOL v2GroupEntitled = [MSIDWorkPlaceJoinUtil v2AccessGroupAllowedWithContext:context];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"v2 WPJ group is allowed %d", v2GroupEntitled);
-    
+#if !EXCLUDE_FROM_MSALCPP
     NSMutableArray *platformFields = [NSMutableArray new];
     [platformFields addObject:v2GroupEntitled ? MSID_WPJ_V2_TELEMETRY_KEY : MSID_WPJ_V1_TELEMETRY_KEY];
-#if !EXCLUDE_FROM_MSALCPP
     telemetry.platformFields = platformFields;
     NSString *currentRequestTelemetryString = [telemetry telemetryString];
     [responseReq setValue:currentRequestTelemetryString forHTTPHeaderField:MSID_CURRENT_TELEMETRY_HEADER_NAME];
