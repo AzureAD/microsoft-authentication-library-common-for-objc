@@ -491,15 +491,18 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     if (!self.fallbackController || !shouldFallbackToLocalController)
     {
         NSString *applicationState = @"";
+        MSIDErrorCode openBrokerErrorCode = MSIDErrorInternal;
         switch ([MSIDAppExtensionUtil sharedApplication].applicationState)
         {
             case UIApplicationStateActive:
                 applicationState = @"active";
                 break;
             case UIApplicationStateInactive:
+                openBrokerErrorCode = MSIDErrorBrokerAppIsInactive;
                 applicationState = @"inactive";
                 break;
             case UIApplicationStateBackground:
+                openBrokerErrorCode = MSIDErrorBrokerAppIsInBackground;
                 applicationState = @"background";
                 break;
             default:
@@ -507,7 +510,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Should fallback to local controller %d, Application is %@", (int)shouldFallbackToLocalController, applicationState);
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, [NSString stringWithFormat:@"Failed to open broker URL. Application is %@", applicationState], nil, nil, nil, nil, nil, NO);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, openBrokerErrorCode, [NSString stringWithFormat:@"Failed to open broker URL. Application is %@", applicationState], nil, nil, nil, nil, nil, NO);
         if (completionBlock) completionBlock(nil, error);
         return;
     }

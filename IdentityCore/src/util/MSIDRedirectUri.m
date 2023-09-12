@@ -114,15 +114,15 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is as (://host) without schema");
         return MSIDRedirectUriValidationResultSchemeNilOrEmpty;
     }
-    else if ([NSString msidIsStringNilOrBlank:redirectUri.host])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is as (scheme://) without host");
-        return MSIDRedirectUriValidationResultHostNilOrEmpty;
-    }
     else if ([redirectUri.absoluteString isEqualToString:@"urn:ietf:wg:oauth:2.0:oob"])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is urn:ietf:wg:oauth:2.0:oob, and not supported");
         return MSIDRedirectUriValidationResultoauth20FormatNotSupport;
+    }
+    else if ([NSString msidIsStringNilOrBlank:redirectUri.host])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is as (scheme://) without host");
+        return MSIDRedirectUriValidationResultHostNilOrEmpty;
     }
 
     return MSIDRedirectUriValidationResultUnknownNotMatched;

@@ -110,6 +110,22 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     return [self getRegisteredDeviceMetadataInformation:context tenantId:nil usePrimaryFormat:YES];
 }
 
++ (BOOL)v2AccessGroupAllowedWithContext:(nullable id<MSIDRequestContext>)context
+{
+    NSString *accessGroup = [[MSIDKeychainUtil sharedInstance] accessGroup:kMSIDWPJKeychainGroupV2];
+    if (!accessGroup) return NO;
+    
+    NSError *error;
+    [MSIDWorkPlaceJoinUtilBase getPrimaryEccTenantWithSharedAccessGroup:accessGroup context:context error:&error];
+    
+    if (error && [error.domain isEqual:MSIDKeychainErrorDomain] && error.code == errSecMissingEntitlement)
+    {
+        return NO;
+    }
+    
+    return YES;
+}
+
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
                                                          tenantId:(nullable NSString *)tenantId
                                                  usePrimaryFormat:(BOOL)usePrimaryFormat

@@ -51,12 +51,26 @@
 #import "MSIDTestBrokerResponseHelper.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDTestBrokerKeyProviderHelper.h"
+#import "MSIDTestSwizzle.h"
+#import "MSIDAppExtensionUtil.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
 @end
 
 @implementation MSIDBrokerInteractiveControllerIntegrationTests
+
+- (NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *)swizzleStacks
+{
+    static dispatch_once_t once;
+    static NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *swizzleStacks = nil;
+    
+    dispatch_once(&once, ^{
+        swizzleStacks = [NSMutableDictionary new];
+    });
+    
+    return swizzleStacks;
+}
 
 - (void)setUp
 {
@@ -68,6 +82,7 @@
 
 - (void)tearDown
 {
+    [MSIDTestSwizzle resetWithSwizzleArray:[self.swizzleStacks objectForKey:self.name]];
     // Clear keychain
     NSDictionary *query = @{(id)kSecClass : (id)kSecClassKey,
                             (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric};
@@ -1032,6 +1047,96 @@
         XCTAssertEqualObjects(result.accessToken, testResult.accessToken);
 
         [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+#endif
+
+#if !AD_BROKER
+- (void)testAcquireToken_whenFailedToLaunchBrokerWhileAppIsInactive_andNoFallbackController_shouldErrorOutWithCorrectCode
+{
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:nil];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
+                                                                                                                 tokenRequestProvider:provider
+                                                                                                                   fallbackController:nil
+                                                                                                                                error:&error];
+    
+    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(applicationState)
+                              class:[UIApplication class]
+                              block:(id)^(void)
+    {
+        return UIApplicationStateInactive;
+    }];
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options)
+    {
+
+        XCTAssertEqualObjects(url, brokerRequestURL);
+        return NO;
+    }];
+    
+    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Failed with inactive error code"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable __unused result, NSError * _Nullable acquireTokenError) {
+
+        if (acquireTokenError.code == MSIDErrorBrokerAppIsInactive)
+        {
+            [expectation fulfill];
+        }
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenFailedToLaunchBrokerWhileAppIsInBackground_andNoFallbackController_shouldErrorOutWithCorrectCode
+{
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:nil];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
+                                                                                                                 tokenRequestProvider:provider
+                                                                                                                   fallbackController:nil
+                                                                                                                                error:&error];
+    
+    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(applicationState)
+                              class:[UIApplication class]
+                              block:(id)^(void)
+    {
+        return UIApplicationStateBackground;
+    }];
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options)
+    {
+
+        XCTAssertEqualObjects(url, brokerRequestURL);
+        return NO;
+    }];
+    
+    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Failed with background error code"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable __unused result, NSError * _Nullable acquireTokenError) {
+
+        if (acquireTokenError.code == MSIDErrorBrokerAppIsInBackground)
+        {
+            [expectation fulfill];
+        }
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
