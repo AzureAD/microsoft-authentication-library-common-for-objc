@@ -26,8 +26,8 @@
 #import "MSIDBrowserNativeMessageGetCookiesRequest.h"
 #import "MSIDJsonSerializableFactory.h"
 
-NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
-NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender";
 
 @implementation MSIDBrowserNativeMessageGetCookiesRequest
 
@@ -49,11 +49,11 @@ NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
-        _uri = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
+        _uri = json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
         
-        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY required:YES error:error]) return nil;
-        _sender = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY];
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY required:YES error:error]) return nil;
+        _sender = json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY];
     }
     
     return self;
@@ -64,10 +64,10 @@ NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender
     NSMutableDictionary *json = [NSMutableDictionary new];
     
     if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
-    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
+    json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
     
     if ([NSString msidIsStringNilOrBlank:self.sender]) return nil;
-    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY] = self.sender;
+    json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY] = self.sender;
     
     return json;
 }
