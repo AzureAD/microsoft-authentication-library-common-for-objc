@@ -36,6 +36,8 @@
                                                          tenantId:(nullable NSString *)tenantId
                                                  usePrimaryFormat:(BOOL)usePrimaryFormat;
 
++ (BOOL)v2AccessGroupAllowedWithContext:(nullable id<MSIDRequestContext>)context;
+
 /**
     Helper API to lookup both the private key and the associated certificate from the keychain.
     Functionality of the API can be customized by specifying custom private and cert lookup attributes.

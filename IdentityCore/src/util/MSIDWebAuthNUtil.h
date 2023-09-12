@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,14 +20,14 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#if !EXCLUDE_FROM_MSALCPP
+#import <Foundation/Foundation.h>
 
-extern NSInteger const HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION;
-extern NSString* const MSID_CURRENT_TELEMETRY_HEADER_NAME;
-extern NSString* const MSID_LAST_TELEMETRY_HEADER_NAME;
-extern NSString* const MSID_WPJ_V2_TELEMETRY_KEY;
-extern NSString* const MSID_WPJ_V1_TELEMETRY_KEY;
+@interface MSIDWebAuthNUtil : NSObject
 
-#endif
++ (BOOL)amIRunningInExtension;
+
++ (void)setAmIRunningInExtension:(BOOL)amIRunningInExtension;
+
+@end
