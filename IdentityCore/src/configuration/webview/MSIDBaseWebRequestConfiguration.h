@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 @property (nonatomic, readonly) NSString *state;
-@property (nonatomic, readonly) MSIDExternalSSOContext *ssoContext;
+@property (nullable, nonatomic, readonly) MSIDExternalSSOContext *ssoContext;
 
 // State verification
 // Set this to YES to have the request continue even at state verification failure.
