@@ -94,7 +94,7 @@
         _extendedExpiresOn = [json msidIntegerObjectForKey:@"ext_expires_on"];
         _refreshIn = [json msidIntegerObjectForKey:MSID_OAUTH2_REFRESH_IN];
         _refreshOn = [json msidIntegerObjectForKey:MSID_OAUTH2_REFRESH_ON];
-        _ccsRequestId = [json msidStringObjectForKey:MSID_CCS_REQUEST_ID_RESPONSE];
+        self.ccsRequestId = [json msidStringObjectForKey:MSID_CCS_REQUEST_ID_RESPONSE];
     }
     
     return self;
