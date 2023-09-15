@@ -128,7 +128,7 @@
 
 - (NSString *)accountIdentifier
 {
-    return nil;
+    return self.idTokenObj.uniqueId;
 }
 
 #pragma mark - Protected
