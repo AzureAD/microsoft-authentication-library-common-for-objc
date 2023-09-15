@@ -29,6 +29,7 @@
 #import <Security/Security.h>
 #import "MSIDPkeyAuthHelper.h"
 #import "MSIDBasicContext.h"
+#import "MSIDTestSwizzle.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 
 @interface MSIDPKeyAuthHandlerTests : XCTestCase
@@ -39,10 +40,12 @@
 
 - (void)setUp
 {
+    [MSIDTestSwizzle reset];
 }
 
 - (void)tearDown
 {
+    [MSIDTestSwizzle reset];
 }
 
 #pragma mark - Tests
@@ -114,6 +117,8 @@
 
 - (void)testHandleChallengeWithRefreshToken_happyPath_shouldReturnSuccess
 {
+    [self makeAppV2GroupEntitled:YES];
+    
     __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
     NSString *value = @"FakeRefreshToken";
     NSDictionary<NSString *, NSString *> *customHeaders = @{ MSID_REFRESH_TOKEN_CREDENTIAL : value};
@@ -129,6 +134,8 @@
                                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
         XCTAssertNotNil(challengeResponse);
         XCTAssertTrue([[[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL] isEqual:value], @"RefreshToken should be valid");
+        NSString *currentTelemetry = [[challengeResponse allHTTPHeaderFields] objectForKey:@"x-client-current-telemetry"];
+        XCTAssertEqualObjects(currentTelemetry, @"4|0,0|wpj-v2");
         XCTAssertNil(error);
         callback = YES;
     }];
@@ -138,6 +145,8 @@
 
 - (void)testHandleChallengeNilRefreshToken_shouldProceedWithSuccess
 {
+    [self makeAppV2GroupEntitled:YES];
+    
     __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
 
     __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
@@ -151,6 +160,9 @@
                                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
         XCTAssertNotNil(challengeResponse);
         XCTAssertNil([[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"RefreshToken should be nil");
+        
+        NSString *currentTelemetry = [[challengeResponse allHTTPHeaderFields] objectForKey:@"x-client-current-telemetry"];
+        XCTAssertEqualObjects(currentTelemetry, @"4|0,0|wpj-v2");
         XCTAssertNil(error);
         callback = YES;
     }];
@@ -159,6 +171,8 @@
 }
 - (void)testHandleChallengeWithEmptyCustomHeaders_shouldProceedWithSuccess
 {
+    [self makeAppV2GroupEntitled:NO];
+        
     __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
 
     __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
@@ -175,11 +189,23 @@
                                            completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
         XCTAssertNotNil(challengeResponse);
         XCTAssertNil([[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"RefreshToken should be nil");
+        NSString *currentTelemetry = [[challengeResponse allHTTPHeaderFields] objectForKey:@"x-client-current-telemetry"];
+        XCTAssertEqualObjects(currentTelemetry, @"4|0,0|wpj-v1");
         XCTAssertNil(error);
         callback = YES;
     }];
     XCTAssertTrue(callback);
     XCTAssertTrue(handleResult);
+}
+
+- (void)makeAppV2GroupEntitled:(BOOL)entitled
+{
+    [MSIDTestSwizzle classMethod:@selector(v2AccessGroupAllowedWithContext:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused id context)
+    {
+        return entitled;
+    }];
 }
 
 @end

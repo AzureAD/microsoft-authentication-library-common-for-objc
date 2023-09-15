@@ -80,6 +80,9 @@
 
 @property (nonatomic, class, readonly) MSIDProviderType providerType;
 
+// CCS Request ID if the request is served by CCS
+@property (nonatomic, nullable) NSString *ccsRequestId;
+
 @property (nonatomic, readonly, nullable) NSString *accountIdentifier;
 
 - (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json

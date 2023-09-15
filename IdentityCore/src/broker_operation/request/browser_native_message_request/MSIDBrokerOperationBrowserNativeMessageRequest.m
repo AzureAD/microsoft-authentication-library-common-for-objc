@@ -28,8 +28,8 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "NSDictionary+MSIDExtensions.h"
 
-NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY = @"payload";
-NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY = @"payload";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
 
 @implementation MSIDBrokerOperationBrowserNativeMessageRequest
 
@@ -40,7 +40,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
 
 - (NSString *)method
 {
-    return self.payloadJson[BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY];
+    return self.payloadJson[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY];
 }
 
 #pragma mark - MSIDBrokerOperationRequest
@@ -58,8 +58,8 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY required:YES error:error]) return nil;
-        NSString *payload = json[BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY];
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY required:YES error:error]) return nil;
+        NSString *payload = json[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY];
         
         _payloadJson = [NSDictionary msidDictionaryFromJSONString:payload];
         if (!_payloadJson)
@@ -72,7 +72,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
             return nil;
         }
         
-        if (!_payloadJson[BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY])
+        if (!_payloadJson[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY])
         {
             if (error)
             {
@@ -92,7 +92,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
     if (!json) return nil;
     if (!self.payloadJson) return nil;
     
-    json[BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY] = [self.payloadJson msidJSONSerializeWithContext:nil];
+    json[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY] = [self.payloadJson msidJSONSerializeWithContext:nil];
     
     return json;
 }

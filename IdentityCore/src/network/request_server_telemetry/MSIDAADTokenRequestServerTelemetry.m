@@ -27,6 +27,7 @@
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDLastRequestTelemetry.h"
 #import "NSError+MSIDServerTelemetryError.h"
+#import "MSIDRequestTelemetryConstants.h"
 
 @interface MSIDAADTokenRequestServerTelemetry()
 
@@ -73,8 +74,8 @@
     NSString *lastRequestTelemetryString = [self.lastRequestTelemetry telemetryString];
     
     NSMutableURLRequest *mutableUrlRequest = [request.urlRequest mutableCopy];
-    [mutableUrlRequest setValue:currentRequestTelemetryString forHTTPHeaderField:@"x-client-current-telemetry"];
-    [mutableUrlRequest setValue:lastRequestTelemetryString forHTTPHeaderField:@"x-client-last-telemetry"];
+    [mutableUrlRequest setValue:currentRequestTelemetryString forHTTPHeaderField:MSID_CURRENT_TELEMETRY_HEADER_NAME];
+    [mutableUrlRequest setValue:lastRequestTelemetryString forHTTPHeaderField:MSID_LAST_TELEMETRY_HEADER_NAME];
     
     request.urlRequest = mutableUrlRequest;
 }

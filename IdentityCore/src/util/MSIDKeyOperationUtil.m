@@ -139,7 +139,7 @@
 {
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, underlyingError, context.correlationId, nil, YES);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, underlyingError, context.correlationId, nil, NO);
     }
 }
 
