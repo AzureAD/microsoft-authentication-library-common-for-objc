@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBrowserNativeMessageRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>
 
 /// Url of the request sender.
-@property (nonatomic) NSString *sender;
+@property (nonatomic) NSURL *sender;
 
 @end
 

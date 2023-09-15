@@ -55,13 +55,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
-    if (!json) return nil;
-    
-    if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
-    json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
-    
-    return json;
+    @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
 }
 
 @end

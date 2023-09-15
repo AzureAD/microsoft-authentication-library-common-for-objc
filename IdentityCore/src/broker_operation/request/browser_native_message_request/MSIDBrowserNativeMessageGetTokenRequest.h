@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// List of scopes.
 @property (nonatomic) NSString *scopes;
 
-/// The redirect uri of the app.
+/// The redirect uri.
 @property (nonatomic) NSString *redirectUri;
 
 // TODO: use from parent class

@@ -41,7 +41,14 @@ NSString *const BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
     if (self)
     {
         if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_SENDER_KEY required:YES error:error]) return nil;
-        _sender = json[BROWSER_NATIVE_MESSAGE_SENDER_KEY];
+        NSString *senderString = json[BROWSER_NATIVE_MESSAGE_SENDER_KEY];
+        _sender = [NSURL URLWithString:senderString];
+        
+        if (!_sender)
+        {
+            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to create URL from sender param.", nil, nil, nil, nil, nil, YES);
+            return nil;
+        }
     }
     
     return self;
@@ -49,15 +56,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [NSMutableDictionary new];
-    
-    if ([NSString msidIsStringNilOrBlank:self.sender]) return nil;
-    json[BROWSER_NATIVE_MESSAGE_SENDER_KEY] = self.sender;
-    
-    if ([NSString msidIsStringNilOrBlank:self.class.operation]) return nil;
-    json[BROWSER_NATIVE_MESSAGE_METHOD_KEY] = self.class.operation;
-    
-    return json;
+    @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
 }
 
 @end
