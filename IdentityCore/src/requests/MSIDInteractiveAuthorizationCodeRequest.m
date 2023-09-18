@@ -207,6 +207,8 @@
 
 - (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
+    self.webViewConfiguration.startURL = [NSURL URLWithString:@"https://aka.ms/simple-auth-demo"];
+    
     NSObject<MSIDWebviewInteracting> *webView = [self.oauthFactory.webviewFactory webViewWithConfiguration:self.webViewConfiguration
                                                                                          requestParameters:self.requestParameters
                                                                       externalDecidePolicyForBrowserAction:self.externalDecidePolicyForBrowserAction

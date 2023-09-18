@@ -109,6 +109,11 @@
         [self.webView setNavigationDelegate:nil];
     }
     
+    if ([self.webView.UIDelegate isEqual:self])
+    {
+        [self.webView setUIDelegate:nil];
+    }
+    
     self.webView = nil;
 }
 
@@ -175,6 +180,15 @@
     BOOL result = [super loadView:error];
     
     self.webView.navigationDelegate = self;
+    
+    self.webView.UIDelegate = self;
+    
+#if DEBUG
+    if (@available(iOS 16.4, *)) {
+        //self.webView.isInspectable = YES;
+        [self.webView setInspectable:YES];
+    }
+#endif
     
     return result;
 }
@@ -478,6 +492,16 @@
     }
     
     return YES;
+}
+
+- (void) webView:(WKWebView *)webView
+     requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin
+     initiatedByFrame:(WKFrameInfo *)frame type:(WKMediaCaptureType)type
+     decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler
+     API_AVAILABLE(ios(15.0))
+{
+    decisionHandler(WKPermissionDecisionGrant);
+ 
 }
 
 @end
