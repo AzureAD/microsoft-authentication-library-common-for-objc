@@ -25,7 +25,7 @@
 
 #import "MSIDBrowserNativeMessageRequest.h"
 
-@class MSIDInteractiveTokenRequestParameters;
+@class MSIDAADAuthority;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,17 +38,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *clientId;
 
 ///If it is passed, broker will respect authority, otherwise broker will use default authority.
-@property (nonatomic, nullable) NSString *authority;
+@property (nonatomic, nullable) MSIDAADAuthority *authority;
 
 /// List of scopes.
 @property (nonatomic) NSString *scopes;
 
 /// The redirect uri.
 @property (nonatomic) NSString *redirectUri;
-
-// TODO: use from parent class
-/// Correlation ID to track the request.
-//@property (nonatomic, nullable) NSString *correlationId;
 
 /// Indicates the type of user interaction that is required. Valid values are login, none, consent, and select_account.
 @property (nonatomic, nullable) NSString *prompt;

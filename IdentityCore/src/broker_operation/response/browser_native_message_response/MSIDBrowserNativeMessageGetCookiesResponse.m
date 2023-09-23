@@ -59,11 +59,7 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super initWithJSONDictionary:json error:error];
-    
     @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
-    
-    return nil;
 }
 
 - (NSDictionary *)jsonDictionary

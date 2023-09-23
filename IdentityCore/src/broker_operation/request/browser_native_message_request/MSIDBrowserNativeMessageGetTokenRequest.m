@@ -25,6 +25,7 @@
 
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDAADAuthority.h"
 
 NSString *const BROWSER_NATIVE_MESSAGE_CORRELATION_KEY = @"correlationId";
 NSString *const BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY = @"accountId";
@@ -60,16 +61,44 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
     self = [super initWithJSONDictionary:json error:error];
     if (!self) return nil;
     
-    
     if (![json msidAssertType:NSDictionary.class ofKey:BROWSER_NATIVE_MESSAGE_REQUEST_KEY required:YES error:error]) return nil;
     NSDictionary *requestJson = json[BROWSER_NATIVE_MESSAGE_REQUEST_KEY];
     
     _accountId = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY];
     
+    if (_accountId)
+    {
+        NSArray *accountComponents = [_accountId componentsSeparatedByString:@"."];
+        if ([accountComponents count] != 2)
+        {
+            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"accountId is invalid.", nil, nil, nil, nil, nil, YES);
+            
+            return nil;
+        }
+    }
+    
     if (![requestJson msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY required:YES error:error]) return nil;
     _clientId = requestJson[BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY];
 
-    _authority = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY];
+    NSString *authorityString = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY];
+    
+    if (authorityString)
+    {
+        NSError *localError;
+        _authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:authorityString] rawTenant:nil context:nil error:&localError];
+        
+        if (!_authority)
+        {
+            if (localError)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Non AAD authorities are not supported in broker - %@", MSID_PII_LOG_MASKABLE(localError));
+            }
+            
+            if (error) *error = localError;
+            
+            return nil;
+        }
+    }
     
     if (![requestJson msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_SCOPE_KEY required:YES error:error]) return nil;
     _scopes = requestJson[BROWSER_NATIVE_MESSAGE_SCOPE_KEY];
