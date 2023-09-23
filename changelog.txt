@@ -1,3 +1,6 @@
+TBD
+* ADD get token operation for BrowserCore (#1293)
+
 Version 1.7.27
 * Expose APIs for manually setting time_Interval for request and session resource. (#1288)
 
