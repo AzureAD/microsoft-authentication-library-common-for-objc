@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,30 +20,14 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDTokenResponse.h"
-#import "MSIDClientInfo.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDAADTokenResponse : MSIDTokenResponse
+@interface MSIDWebAuthNUtil : NSObject
 
-// Default properties for an AAD error response
-@property (nonatomic, nullable) NSString *correlationId;
++ (BOOL)amIRunningInExtension;
 
-// Default properties for an AAD successful response
-@property (nonatomic) NSInteger extendedExpiresIn;
-@property (nonatomic) NSInteger extendedExpiresOn;
-@property (nonatomic) NSInteger refreshIn;
-@property (nonatomic) NSInteger refreshOn;
-@property (nonatomic, nullable) MSIDClientInfo *clientInfo;
-@property (nonatomic, nullable) NSString *familyId;
-@property (nonatomic, nullable) NSString *suberror;
-@property (nonatomic, nullable) NSString *additionalUserId;
++ (void)setAmIRunningInExtension:(BOOL)amIRunningInExtension;
 
-// Custom properties that ADAL/MSAL handles
-@property (nonatomic, nullable) NSString *speInfo;
-
-// Derived properties
-@property (nonatomic, readonly, nullable) NSDate *extendedExpiresOnDate;
-@property (nonatomic, readonly, nullable) NSDate *refreshOnDate;
 @end

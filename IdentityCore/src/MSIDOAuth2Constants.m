@@ -163,3 +163,7 @@ NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the to
 
 NSString *const MSIDServerErrorClientMismatch            = @"client_mismatch";
 NSString *const MSIDServerErrorBadToken                  = @"bad_token";
+
+NSString *const MSID_CCS_REQUEST_ID_KEY                  = @"x-ms-ccs-requestid";
+NSString *const MSID_CCS_REQUEST_ID_RESPONSE             = @"ccs-requestid";
+

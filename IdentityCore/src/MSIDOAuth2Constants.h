@@ -163,3 +163,6 @@ extern NSString *const MSID_PREFERRED_USERNAME_MISSING;
 
 extern NSString *const MSIDServerErrorClientMismatch;
 extern NSString *const MSIDServerErrorBadToken;
+
+extern NSString *const MSID_CCS_REQUEST_ID_KEY;
+extern NSString *const MSID_CCS_REQUEST_ID_RESPONSE;
