@@ -29,10 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDHttpRequestServerTelemetryHandling <NSObject>
 
-- (void)handleError:(NSError *)error
+- (void)handleError:(nullable NSError *)error
             context:(id<MSIDRequestContext>)context;
 
-- (void)handleError:(NSError *)error
+- (void)handleError:(nullable NSError *)error
         errorString:(NSString *)errorString
             context:(id<MSIDRequestContext>)context;
 

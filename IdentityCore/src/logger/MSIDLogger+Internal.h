@@ -77,6 +77,18 @@
             function:(NSString *)function
               format:(NSString *)format, ... NS_FORMAT_FUNCTION(8, 9);
 
+// Same functionality as above, used for Swift to Objective-C interoperability
+// as Swift cannot call variadic functions
+- (void)logWithLevel:(MSIDLogLevel)level
+             context:(id<MSIDRequestContext>)context
+       correlationId:(NSUUID *)correlationId
+         containsPII:(BOOL)containsPII
+            filename:(NSString *)filename
+          lineNumber:(NSUInteger)lineNumber
+            function:(NSString *)function
+              format:(NSString *)format
+          formatArgs:(va_list)args;
+
 - (void)logToken:(NSString *)token
        tokenType:(NSString *)tokenType
    expiresOnDate:(NSDate *)expiresOn
