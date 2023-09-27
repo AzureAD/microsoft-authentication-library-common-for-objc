@@ -1,6 +1,13 @@
 TBD
 * ADD get token operation for BrowserCore (#1293)
 
+Version 1.7.28
+* Report WPJ v2 telemetry capability. (#1297)
+* Add separate error code for OneAuth telemetry purpose (#1292)
+* Logging improvements (#1290)
+* Rename some internal macro (#1300)
+* Added ccs request id flag (#1296)
+
 Version 1.7.27
 * Expose APIs for manually setting time_Interval for request and session resource. (#1288)
 
