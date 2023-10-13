@@ -26,6 +26,7 @@
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDAccountIdentifier.h"
 
 NSString *const BROWSER_NATIVE_MESSAGE_CORRELATION_KEY = @"correlationId";
 NSString *const BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY = @"accountId";
@@ -64,11 +65,12 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
     if (![json msidAssertType:NSDictionary.class ofKey:BROWSER_NATIVE_MESSAGE_REQUEST_KEY required:YES error:error]) return nil;
     NSDictionary *requestJson = json[BROWSER_NATIVE_MESSAGE_REQUEST_KEY];
     
-    _accountId = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY];
+    _loginHint = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_LOGIN_HINT_KEY];
+    NSString *homeAccountId = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY];
     
-    if (_accountId)
+    if (homeAccountId)
     {
-        NSArray *accountComponents = [_accountId componentsSeparatedByString:@"."];
+        NSArray *accountComponents = [homeAccountId componentsSeparatedByString:@"."];
         if ([accountComponents count] != 2)
         {
             if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"accountId is invalid.", nil, nil, nil, nil, nil, YES);
@@ -76,6 +78,8 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
             return nil;
         }
     }
+    
+    _accountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:_loginHint homeAccountId:homeAccountId];
     
     if (![requestJson msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY required:YES error:error]) return nil;
     _clientId = requestJson[BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY];
@@ -110,7 +114,6 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
     _nonce = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_NONCE_KEY];
     _isSts = [requestJson msidBoolObjectForKey:BROWSER_NATIVE_MESSAGE_IS_STS_KEY];
     _state = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_STATE_KEY];
-    _loginHint = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_LOGIN_HINT_KEY];
     _instanceAware = [requestJson msidBoolObjectForKey:BROWSER_NATIVE_MESSAGE_INSTANCE_AWARE_KEY];
     
     if (![requestJson msidAssertType:NSDictionary.class ofKey:BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY required:NO error:error]) return nil;

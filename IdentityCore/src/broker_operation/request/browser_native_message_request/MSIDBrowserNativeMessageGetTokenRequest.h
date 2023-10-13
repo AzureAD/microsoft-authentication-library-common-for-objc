@@ -26,13 +26,14 @@
 #import "MSIDBrowserNativeMessageRequest.h"
 
 @class MSIDAADAuthority;
+@class MSIDAccountIdentifier;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrowserNativeMessageGetTokenRequest : MSIDBrowserNativeMessageRequest
 
 /// uid.utid
-@property (nonatomic, nullable) NSString *accountId;
+@property (nonatomic, nullable) MSIDAccountIdentifier *accountId;
 
 /// Identifies an application that requests a token.
 @property (nonatomic) NSString *clientId;

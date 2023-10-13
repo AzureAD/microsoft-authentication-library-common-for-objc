@@ -26,6 +26,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDBrowserNativeMessageGetTokenRequestTests : XCTestCase
 
@@ -84,7 +85,8 @@
     XCTAssertNil(error);
     XCTAssertNotNil(request);
     XCTAssertEqualObjects(@"https://login.microsoft.com", request.sender.absoluteString);
-    XCTAssertEqualObjects(@"uid.utid", request.accountId);
+    XCTAssertEqualObjects(@"uid", request.accountId.uid);
+    XCTAssertEqualObjects(@"utid", request.accountId.utid);
     XCTAssertEqualObjects(@"29a788ca-7bcf-4732-b23c-c8d294347e5b", request.clientId);
     XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.authority.url.absoluteString);
     XCTAssertEqualObjects(@"user.read openid profile offline_access", request.scopes);
