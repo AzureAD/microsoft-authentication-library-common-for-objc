@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
 - (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
 
+@property (nonatomic, nullable) NSString *state;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -75,6 +75,7 @@
     accountJson[@"id"] = tokenResponse.accountIdentifier;
     
     response[@"account"] = accountJson;
+    response[@"state"] = self.state;
     
     return response;
 }
