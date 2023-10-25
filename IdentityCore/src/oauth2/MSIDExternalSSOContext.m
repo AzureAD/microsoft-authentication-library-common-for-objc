@@ -26,6 +26,7 @@
 #import "MSIDExternalSSOContext.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDKeychainUtil.h"
+#import "MSIDJsonSerializer.h"
 
 @implementation MSIDExternalSSOContext
 
@@ -41,7 +42,7 @@
             return nil;
         }
         
-        SecIdentityRef identityRef = [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning]; // +1
+        SecIdentityRef identityRef = [self getPlatformSSOIdentity]; // +1
         
         if (!identityRef)
         {
@@ -106,6 +107,58 @@
 #endif
     
     return nil;
+}
+
+- (BOOL)isMigrationFlagSetInLoginManager
+{
+#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
+    if (@available(macOS 14.0, *))
+    {
+        if (!self.loginManager.loginConfiguration.deviceContext)
+        {
+            return NO;
+        }
+        NSError *subError;
+        NSDictionary *deviceContextJson = [[MSIDJsonSerializer new] deserializeJSON:self.loginManager.loginConfiguration.deviceContext error:&subError];
+        if (!deviceContextJson)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to deserialize device context from login manager with error %@", subError);
+            return NO;
+        }
+        return [[deviceContextJson objectForKey:@"IsMigrationFlagSet"] boolValue];
+    }
+    
+#endif
+
+    return NO;
+}
+
+- (SecIdentityRef)getPlatformSSOIdentity API_AVAILABLE(macos(13.0))
+{
+    SecIdentityRef deviceIdentityRef = nil;
+    
+#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
+    if (@available(macOS 14.0, *))
+    {
+        if ([self isMigrationFlagSetInLoginManager])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Migration flag set, returning UserDeviceSigning key ");
+            deviceIdentityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
+        }
+        else
+        {
+            deviceIdentityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeCurrentDeviceSigning];
+        }
+    }
+    else
+    {
+        deviceIdentityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
+    }
+#else
+    deviceIdentityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
+#endif
+    
+    return deviceIdentityRef;
 }
 
 @end
