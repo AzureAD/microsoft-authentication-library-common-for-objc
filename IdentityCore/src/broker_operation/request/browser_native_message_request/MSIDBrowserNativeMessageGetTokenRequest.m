@@ -79,7 +79,10 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
         }
     }
     
-    _accountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:_loginHint homeAccountId:homeAccountId];
+    if (homeAccountId || _loginHint)
+    {
+        _accountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:_loginHint homeAccountId:homeAccountId];
+    }
     
     if (![requestJson msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY required:YES error:error]) return nil;
     _clientId = requestJson[BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY];
