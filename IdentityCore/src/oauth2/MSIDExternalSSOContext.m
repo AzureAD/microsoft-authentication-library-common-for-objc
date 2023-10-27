@@ -137,6 +137,8 @@
 {
     SecIdentityRef deviceIdentityRef = nil;
     
+#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
+    
 #if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
     if (@available(macOS 14.0, *))
     {
@@ -156,6 +158,7 @@
     }
 #else
     deviceIdentityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
+#endif
 #endif
     
     return deviceIdentityRef;
