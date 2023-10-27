@@ -47,9 +47,14 @@
     return self;
 }
 
-- (void)handleError:(NSError *)error
+- (void)handleError:(nullable NSError *)error
             context:(id<MSIDRequestContext>)context
 {
+    if (error == nil) {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to handle telemetry. Error is nil");
+        return;
+    }
+
     NSString *errorString = [error msidServerTelemetryErrorString];
     
     [self handleError:error
@@ -57,10 +62,15 @@
               context:context];
 }
 
-- (void)handleError:(NSError *)error
+- (void)handleError:(nullable NSError *)error
         errorString:(NSString *)errorString
             context:(id<MSIDRequestContext>)context
 {
+    if (error == nil) {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to handle telemetry. Error is nil");
+        return;
+    }
+
     [self.lastRequestTelemetry updateWithApiId:self.currentRequestTelemetry.apiId
                                    errorString:errorString
                                        context:context];
