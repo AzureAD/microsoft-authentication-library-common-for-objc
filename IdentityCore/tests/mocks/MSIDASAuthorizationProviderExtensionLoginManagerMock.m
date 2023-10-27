@@ -46,7 +46,7 @@ API_AVAILABLE(macos(13.0))
     {
         self.copyIdentityForKeyTypeUserDeviceSigningKeyInvokedCount++;
     }
-#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
+#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
     if (@available(macOS 14.0, *))
     {
         if (keyType == ASAuthorizationProviderExtensionKeyTypeCurrentDeviceSigning)
