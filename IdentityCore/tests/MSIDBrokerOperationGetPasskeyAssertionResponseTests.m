@@ -81,7 +81,10 @@
                                 @"device_mode": @"personal",
                                 @"sso_extension_mode": @"full",
                                 @"wpj_status": @"notJoined",
-                                @"platform_sso_status": @"platformSSONotEnabled"};
+#if TARGET_OS_OSX
+                                @"platform_sso_status": @"platformSSONotEnabled"
+#endif
+    };
     
     __auto_type response = [[MSIDBrokerOperationGetPasskeyAssertionResponse alloc] initWithJSONDictionary:initialJson error:nil];
     
