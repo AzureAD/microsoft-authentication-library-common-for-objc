@@ -26,7 +26,7 @@
 #import "MSIDBrowserNativeMessageGetCookiesRequest.h"
 #import "MSIDJsonSerializableFactory.h"
 
-NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
 
 @implementation MSIDBrowserNativeMessageGetCookiesRequest
 
@@ -47,8 +47,8 @@ NSString *const BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
     self = [super initWithJSONDictionary:json error:error];
     if (!self) return nil;
     
-    if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
-    _uri = json[BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
+    if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
+    _uri = json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
     
     return self;
 }
