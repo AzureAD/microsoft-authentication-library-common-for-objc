@@ -83,6 +83,8 @@
 // CCS Request ID if the request is served by CCS
 @property (nonatomic, nullable) NSString *ccsRequestId;
 
+@property (nonatomic, readonly, nullable) NSString *accountIdentifier;
+
 - (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
                                    refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token
                                           error:(NSError * _Nullable __autoreleasing *_Nullable)error;
