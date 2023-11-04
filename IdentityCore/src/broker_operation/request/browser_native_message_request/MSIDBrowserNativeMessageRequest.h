@@ -23,39 +23,16 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBrowserNativeMessageGetCookiesRequest.h"
-#import "MSIDJsonSerializableFactory.h"
+#import "MSIDBaseBrokerOperationRequest.h"
+#import "MSIDJsonSerializable.h"
 
-NSString *const MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation MSIDBrowserNativeMessageGetCookiesRequest
+@interface MSIDBrowserNativeMessageRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>
 
-+ (void)load
-{
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
-}
-
-+ (NSString *)operation
-{
-    return @"GetCookies";
-}
-
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    self = [super initWithJSONDictionary:json error:error];
-    if (!self) return nil;
-    
-    if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
-    _uri = json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
-}
+/// Url of the request sender.
+@property (nonatomic) NSURL *sender;
 
 @end
+
+NS_ASSUME_NONNULL_END

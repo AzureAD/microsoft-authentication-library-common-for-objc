@@ -1,5 +1,6 @@
 TBD
 * Introduce a way to inject external WKWebviewConfiguration for MSIDWebviewUIController - needed for MSAL C++ (#1308)
+* ADD get token operation for BrowserCore (#1293)
 
 Version 1.7.28
 * Report WPJ v2 telemetry capability. (#1297)
