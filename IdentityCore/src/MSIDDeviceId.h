@@ -52,6 +52,6 @@
 + (NSString *)deviceOSVersion;
 
 /*! Returns device hardware type */
-+ (NSString *)deviceHardwareType
++ (NSString *)deviceHardwareType;
 
 @end
