@@ -42,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSArray *clientCapabilities;
 @property (nonatomic, nullable) MSIDClaimsRequest *claimsRequest;
 @property (nonatomic) NSDate *requestSentDate;
+@property (nonatomic) NSString *nonce;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
