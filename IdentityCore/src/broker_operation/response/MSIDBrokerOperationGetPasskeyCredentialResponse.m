@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDBrokerOperationGetPasskeyCredentialResponse.h"
 #import "MSIDPasskeyCredential.h"
@@ -50,8 +51,20 @@
     {
         if (self.success)
         {
-            _passkeyCredential =[[MSIDPasskeyCredential alloc] initWithJSONDictionary:json error:nil];
-            if (!_passkeyCredential) return nil;
+            _passkeyCredential =[[MSIDPasskeyCredential alloc] initWithJSONDictionary:json error:error];
+            if (!_passkeyCredential)
+            {
+                if (error)
+                {
+                    MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to deserialize passkey credential with error: %@", *error);
+                }
+                else
+                {
+                    MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to deserialize passkey credential.");
+                }
+                
+                return nil;
+            }
         }
     }
 
@@ -78,3 +91,5 @@
 }
 
 @end
+
+#endif

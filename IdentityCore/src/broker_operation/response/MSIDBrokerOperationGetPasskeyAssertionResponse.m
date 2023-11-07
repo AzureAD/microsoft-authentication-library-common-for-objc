@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDBrokerOperationGetPasskeyAssertionResponse.h"
 #import "MSIDPasskeyAssertion.h"
@@ -50,8 +51,20 @@
     {
         if (self.success)
         {
-            _passkeyAssertion =[[MSIDPasskeyAssertion alloc] initWithJSONDictionary:json error:nil];
-            if (!_passkeyAssertion) return nil;
+            _passkeyAssertion =[[MSIDPasskeyAssertion alloc] initWithJSONDictionary:json error:error];
+            if (!_passkeyAssertion)
+            {
+                if (error)
+                {
+                    MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to deserialize passkey assertion with error: %@", *error);
+                }
+                else
+                {
+                    MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to deserialize passkey assertion.");
+                }
+                
+                return nil;
+            }
         }
     }
 
@@ -78,3 +91,5 @@
 }
 
 @end
+
+#endif

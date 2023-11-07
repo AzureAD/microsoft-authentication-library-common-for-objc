@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDPasskeyCredential.h"
 #import "NSString+MSIDExtensions.h"
@@ -58,6 +59,10 @@ NSString *const MSID_BROKER_PASSKEY_CREDENTIAL_USERNAME_JSON_KEY = @"userName";
 
     if (self)
     {
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_PASSKEY_CREDENTIAL_USER_HANDLE_JSON_KEY required:YES error:error]) return nil;
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_PASSKEY_CREDENTIAL_CREDENTIAL_KEY_ID_JSON_KEY required:YES error:error]) return nil;
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_PASSKEY_CREDENTIAL_USERNAME_JSON_KEY required:YES error:error]) return nil;
+        
         _userHandle = [[json msidStringObjectForKey:MSID_BROKER_PASSKEY_CREDENTIAL_USER_HANDLE_JSON_KEY] msidHexData];
         _credentialKeyId = [[json msidStringObjectForKey:MSID_BROKER_PASSKEY_CREDENTIAL_CREDENTIAL_KEY_ID_JSON_KEY] msidHexData];
         _userName = [json msidStringObjectForKey:MSID_BROKER_PASSKEY_CREDENTIAL_USERNAME_JSON_KEY];
@@ -78,3 +83,5 @@ NSString *const MSID_BROKER_PASSKEY_CREDENTIAL_USERNAME_JSON_KEY = @"userName";
 }
 
 @end
+
+#endif

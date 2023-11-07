@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDBrokerOperationPasskeyAssertionRequest.h"
 #import "MSIDJsonSerializableFactory.h"
@@ -75,3 +76,5 @@ NSString *const MSID_PASSKEY_ASSERTION_KEY_ID_KEY = @"keyId";
 }
 
 @end
+
+#endif

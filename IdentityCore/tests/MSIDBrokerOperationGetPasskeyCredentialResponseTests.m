@@ -69,6 +69,101 @@
     XCTAssertEqualObjects(expectedJson, [response jsonDictionary]);
 }
 
+- (void)testJsonDictionary_whenInitWithDictionaryMissingCredentialKeyId_shouldReturnNilAndError
+{
+    __auto_type initialJson = @{@"operation": @"passkey_credential_operation",
+                                @"operation_response_type": @"operation_get_passkey_credential_response",
+                                @"success": @"1",
+                                @"userHandle": @"73616d706c6520757365722068616e646c65",
+                                @"userName": @"sampleUserName",
+                                @"device_mode": @"personal",
+                                @"sso_extension_mode": @"full",
+                                @"wpj_status": @"notJoined",
+#if TARGET_OS_OSX
+                                @"platform_sso_status": @"platformSSONotEnabled"
+#endif
+    };
+    
+    NSError *error;
+    __auto_type response = [[MSIDBrokerOperationGetPasskeyCredentialResponse alloc] initWithJSONDictionary:initialJson error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertEqualObjects(error.domain, @"MSIDErrorDomain");
+    XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"credentialKeyId key is missing in dictionary.");
+}
+
+- (void)testJsonDictionary_whenInitWithDictionaryMissingUserHandle_shouldReturnNilAndError
+{
+    __auto_type initialJson = @{@"operation": @"passkey_credential_operation",
+                                @"operation_response_type": @"operation_get_passkey_credential_response",
+                                @"success": @"1",
+                                @"credentialKeyId": @"73616d706c652063726564656e7469616c206b6579206964",
+                                @"userName": @"sampleUserName",
+                                @"device_mode": @"personal",
+                                @"sso_extension_mode": @"full",
+                                @"wpj_status": @"notJoined",
+#if TARGET_OS_OSX
+                                @"platform_sso_status": @"platformSSONotEnabled"
+#endif
+    };
+    
+    NSError *error;
+    __auto_type response = [[MSIDBrokerOperationGetPasskeyCredentialResponse alloc] initWithJSONDictionary:initialJson error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertEqualObjects(error.domain, @"MSIDErrorDomain");
+    XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"userHandle key is missing in dictionary.");
+}
+
+- (void)testJsonDictionary_whenInitWithDictionaryMissingUserName_shouldReturnNilAndError
+{
+    __auto_type initialJson = @{@"operation": @"passkey_credential_operation",
+                                @"operation_response_type": @"operation_get_passkey_credential_response",
+                                @"success": @"1",
+                                @"credentialKeyId": @"73616d706c652063726564656e7469616c206b6579206964",
+                                @"userHandle": @"73616d706c6520757365722068616e646c65",
+                                @"device_mode": @"personal",
+                                @"sso_extension_mode": @"full",
+                                @"wpj_status": @"notJoined",
+#if TARGET_OS_OSX
+                                @"platform_sso_status": @"platformSSONotEnabled"
+#endif
+    };
+    
+    NSError *error;
+    __auto_type response = [[MSIDBrokerOperationGetPasskeyCredentialResponse alloc] initWithJSONDictionary:initialJson error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertEqualObjects(error.domain, @"MSIDErrorDomain");
+    XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"userName key is missing in dictionary.");
+}
+
+- (void)testJsonDictionary_whenInitWithDictionaryMissingData_shouldReturnNil
+{
+    __auto_type initialJson = @{@"operation": @"passkey_credential_operation",
+                                @"operation_response_type": @"operation_get_passkey_credential_response",
+                                @"success": @"1",
+                                @"credentialKeyId": @"73616d706c652063726564656e7469616c206b6579206964",
+                                @"userName": @"sampleUserName",
+                                @"device_mode": @"personal",
+                                @"sso_extension_mode": @"full",
+                                @"wpj_status": @"notJoined",
+#if TARGET_OS_OSX
+                                @"platform_sso_status": @"platformSSONotEnabled"
+#endif
+    };
+    
+    __auto_type response = [[MSIDBrokerOperationGetPasskeyCredentialResponse alloc] initWithJSONDictionary:initialJson error:nil];
+    
+    XCTAssertNil(response);
+}
+
 - (void)testJsonDictionary_whenInitWithDictionary_shouldBeConvertedBackToDictionary
 {
     __auto_type initialJson = @{@"operation": @"passkey_credential_operation",
@@ -85,9 +180,11 @@
 #endif
     };
     
+    NSError *error;
     __auto_type response = [[MSIDBrokerOperationGetPasskeyCredentialResponse alloc] initWithJSONDictionary:initialJson error:nil];
     
     XCTAssertEqualObjects(initialJson, [response jsonDictionary]);
+    XCTAssertNil(error);
 }
 
 @end

@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#if !EXCLUDE_FROM_MSALCPP
 
 #import "MSIDSSOExtensionGetDataBaseRequest.h"
 
@@ -61,4 +62,6 @@ API_AVAILABLE(macos(14.0))
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
+
 #endif
