@@ -1,4 +1,4 @@
-TBD
+Version 1.7.29
 * Introduce a way to inject external WKWebviewConfiguration for MSIDWebviewUIController - needed for MSAL C++ (#1308)
 
 Version 1.7.28
