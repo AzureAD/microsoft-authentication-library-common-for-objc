@@ -25,6 +25,7 @@
 #import "MSIDVersion.h"
 #import "MSIDConstants.h"
 #import "MSIDOAuth2Constants.h"
+#import "sys/utsname.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
@@ -196,6 +197,15 @@ void MSIDDeviceCopySerialNumber(CFStringRef *serialNumber)
             forKey:(NSString *)key
 {
     [(NSMutableDictionary *)[self deviceId] setObject:value forKey:key];
+}
+
++ (NSString *)deviceHardwareType
+{
+    struct utsname sysinfo;
+    int retVal = uname(&sysinfo);
+    if (EXIT_SUCCESS != retVal) return nil;
+    
+    return [NSString stringWithUTF8String:sysinfo.machine];
 }
 
 @end
