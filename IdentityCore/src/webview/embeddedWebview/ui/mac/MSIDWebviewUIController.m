@@ -43,6 +43,8 @@ static WKWebViewConfiguration *s_webConfig;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        // initialize method can never be called simultaneously with any other MSAIMSIDWebviewUIController method
+        // hence there is no need to synchronize access to s_webConfig here
         s_webConfig = [MSIDWebviewUIController defaultWKWebviewConfiguration];
     });
 }
@@ -57,6 +59,13 @@ static WKWebViewConfiguration *s_webConfig;
         webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
     }
     return webConfig;
+}
+
++ (void)setSharedWKWebviewConfiguration:(WKWebViewConfiguration *)configuration
+{
+    @synchronized(self) {
+        s_webConfig = configuration;
+    }
 }
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
