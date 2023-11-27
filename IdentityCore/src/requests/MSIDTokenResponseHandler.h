@@ -52,6 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
        accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
             validateAccount:(BOOL)validateAccount
            saveSSOStateOnly:(BOOL)saveSSOStateOnly
+           brokerAppVersion:(nullable NSString *)brokerAppVersion
                       error:(nullable NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
