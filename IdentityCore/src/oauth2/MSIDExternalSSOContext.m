@@ -20,12 +20,13 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 
 #import "MSIDExternalSSOContext.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDKeychainUtil.h"
+#import "MSIDJsonSerializer.h"
 
 @implementation MSIDExternalSSOContext
 
@@ -46,7 +47,7 @@
         
         if (!identityRef)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to copy identity for the ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning keytype");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to copy identity from loginManager");
             return nil;
         }
         
@@ -109,6 +110,30 @@
     return nil;
 }
 
+- (BOOL)isMigrationFlagSetInLoginManager
+{
+#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
+    if (@available(macOS 14.0, *))
+    {
+        if (!self.loginManager.loginConfiguration.deviceContext)
+        {
+            return NO;
+        }
+        NSError *subError;
+        NSDictionary *deviceContextJson = [[MSIDJsonSerializer new] deserializeJSON:self.loginManager.loginConfiguration.deviceContext error:&subError];
+        if (!deviceContextJson)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to deserialize device context from login manager with error %@", subError);
+            return NO;
+        }
+        return [[deviceContextJson objectForKey:@"IsMigrationFlagSet"] boolValue];
+    }
+
+#endif
+
+    return NO;
+}
+
 - (void)getPlatformSSOIdentity:(SecIdentityRef _Nullable *_Nullable)identityRef API_AVAILABLE(macos(13.0))
 {
     
@@ -121,10 +146,18 @@
 #if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
     if (@available(macOS 14.0, *))
     {
+        if ([self isMigrationFlagSetInLoginManager])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Migration flag set, returning UserDeviceSigning key ");
+            *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
+            return;
+        }
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Copying CurrentDeviceSigning key ");
         *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeCurrentDeviceSigning];
         return;
     }
 #endif
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Copying UserDeviceSigning key ");
     *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
 #endif
 
