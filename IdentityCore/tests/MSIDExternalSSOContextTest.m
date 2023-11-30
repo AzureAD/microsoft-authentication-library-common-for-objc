@@ -35,7 +35,7 @@
 
 @interface MSIDExternalSSOContext()
 
-- (SecIdentityRef)getPlatformSSOIdentity API_AVAILABLE(macos(13.0));
+- (void)getPlatformSSOIdentity:(SecIdentityRef _Nullable *_Nullable)identityRef API_AVAILABLE(macos(13.0));
 - (BOOL)isMigrationFlagSetInLoginManager;
 
 @end
@@ -62,7 +62,8 @@
 #endif
         MSIDExternalSSOContext *ssoContext = [MSIDExternalSSOContext new];
         [ssoContext setValue:loginManagerMock forKey:@"loginManager"];
-        [ssoContext getPlatformSSOIdentity];
+        SecIdentityRef identityRef = nil;
+        [ssoContext getPlatformSSOIdentity:&identityRef];
         
 #if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
         if (@available(macOS 14.0, *))
