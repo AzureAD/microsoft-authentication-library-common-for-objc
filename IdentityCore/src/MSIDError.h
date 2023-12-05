@@ -317,6 +317,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // JIT - Troubleshooting - Acquire token error
     MSIDErrorJITTroubleshootingAcquireToken        =   -51836,
     
+    // Device is not PSSO registered
+    MSIDErrorDeviceNotPSSORegistered               =   -51837,
+    
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,

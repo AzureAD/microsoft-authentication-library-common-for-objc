@@ -1,5 +1,6 @@
 TBD
 * ADD get token operation for BrowserCore (#1293)
+* Add support to get Passkey assertion and credentials (#1306)
 
 Version 1.7.29
 * Introduce a way to inject external WKWebviewConfiguration for MSIDWebviewUIController - needed for MSAL C++ (#1308)
