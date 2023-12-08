@@ -66,6 +66,9 @@
 /*! Check if current string is included in the array - case insensitive */
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases;
 
+/*! Converts from hex string */
+- (NSData *)msidHexData;
+
 /*!
  =============================================================================
  String constructors

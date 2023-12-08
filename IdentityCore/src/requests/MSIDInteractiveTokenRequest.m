@@ -122,6 +122,7 @@
                                   accountMetadataCache:self.accountMetadataCache
                                        validateAccount:self.requestParameters.shouldValidateResultAccount
                                       saveSSOStateOnly:NO
+                                      brokerAppVersion:nil
                                                  error:error
                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
          {
