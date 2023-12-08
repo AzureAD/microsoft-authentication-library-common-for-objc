@@ -126,6 +126,11 @@
     @throw MSIDException(MSIDGenericException, @"Abstract method was invoked.", nil);
 }
 
+- (NSString *)accountIdentifier
+{
+    return self.idTokenObj.uniqueId;
+}
+
 #pragma mark - Protected
 
 - (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error

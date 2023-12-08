@@ -195,7 +195,8 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorJITTroubleshootingCreateController),
                       @(MSIDErrorJITTroubleshootingResultUnknown),
                       @(MSIDErrorJITTroubleshootingAcquireToken),
-
+                      @(MSIDErrorDeviceNotPSSORegistered),
+                      
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
                       @(MSIDErrorServerOauth),
@@ -395,6 +396,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorJITTroubleshootingResultUnknown";
         case MSIDErrorJITTroubleshootingAcquireToken:
             return @"MSIDErrorJITTroubleshootingAcquireToken";
+        case MSIDErrorDeviceNotPSSORegistered:
+            return @"MSIDErrorDeviceNotPSSORegistered";
             // Throttling errors
         case MSIDErrorThrottleCacheNoRecord:
             return @"MSIDErrorThrottleCacheNoRecord";

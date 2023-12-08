@@ -27,7 +27,6 @@
 #import "MSIDJsonSerializableFactory.h"
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri";
-NSString *const MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"sender";
 
 @implementation MSIDBrowserNativeMessageGetCookiesRequest
 
@@ -45,31 +44,18 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY = @"s
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super init];
+    self = [super initWithJSONDictionary:json error:error];
+    if (!self) return nil;
     
-    if (self)
-    {
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
-        _uri = json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY required:YES error:error]) return nil;
-        _sender = json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY];
-    }
+    if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY required:YES error:error]) return nil;
+    _uri = json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY];
     
     return self;
 }
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [NSMutableDictionary new];
-    
-    if ([NSString msidIsStringNilOrBlank:self.uri]) return nil;
-    json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY] = self.uri;
-    
-    if ([NSString msidIsStringNilOrBlank:self.sender]) return nil;
-    json[MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_SENDER_KEY] = self.sender;
-    
-    return json;
+    @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
 }
 
 @end

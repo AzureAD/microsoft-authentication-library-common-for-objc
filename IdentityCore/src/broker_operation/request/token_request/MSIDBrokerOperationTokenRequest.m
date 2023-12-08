@@ -60,6 +60,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.clientCapabilities = parameters.clientCapabilities;
     request.claimsRequest = parameters.claimsRequest;
     request.requestSentDate = requestSentDate;
+    request.nonce = parameters.nonce;
         
     return YES;
 }
@@ -106,6 +107,8 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
         }
         
         _requestSentDate = [NSDate msidDateFromTimeStamp:json[MSID_BROKER_REQUEST_SENT_TIMESTAMP]];
+        
+        _nonce = [json msidStringObjectForKey:@"nonce"];
     }
     
     return self;
@@ -133,6 +136,8 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     json[MSID_BROKER_CLIENT_CAPABILITIES_KEY] = [self.clientCapabilities componentsJoinedByString:@","];
     json[MSID_BROKER_CLAIMS_KEY] = [[self.claimsRequest jsonDictionary] msidJSONSerializeWithContext:nil];
     json[MSID_BROKER_REQUEST_SENT_TIMESTAMP] = [self.requestSentDate msidDateToFractionalTimestamp:10];
+    json[@"nonce"] = self.nonce;
+    
     return json;
 }
 

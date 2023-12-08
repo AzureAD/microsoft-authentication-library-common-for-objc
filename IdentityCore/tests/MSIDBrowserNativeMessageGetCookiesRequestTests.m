@@ -46,24 +46,55 @@
     XCTAssertEqualObjects(@"GetCookies", [MSIDBrowserNativeMessageGetCookiesRequest operation]);
 }
 
-- (void)testJsonDictionary_whenNoPayload_shouldBeNil
+- (void)testJsonDictionary_shouldThrow
 {
     __auto_type request = [MSIDBrowserNativeMessageGetCookiesRequest new];
 
-    XCTAssertNil([request jsonDictionary]);
+    XCTAssertThrows([request jsonDictionary]);
 }
 
-- (void)testJsonDictionary_whenAllPropertiesExists_shouldReturnCorrectJson
+- (void)testInitWithJSONDictionary_whenJsonValid_shouldInit
 {
-    __auto_type request = [MSIDBrowserNativeMessageGetCookiesRequest new];
-    request.uri = @"uri";
-    request.sender = @"sender";;
-
-    __auto_type expectedJson = @{
-        @"sender": @"sender",
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
         @"uri": @"uri"
     };
-    XCTAssertEqualObjects(expectedJson, [request jsonDictionary]);
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetCookiesRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(@"https://login.microsoft.com", request.sender.absoluteString);
+    XCTAssertEqualObjects(@"uri", request.uri);
+}
+
+- (void)testInitWithJSONDictionary_whenNoSender_shouldFail
+{
+    __auto_type json = @{
+        @"uri": @"uri"
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetCookiesRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"sender key is missing in dictionary.");
+}
+
+- (void)testInitWithJSONDictionary_whenNoUri_shouldFail
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetCookiesRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"uri key is missing in dictionary.");
 }
 
 @end
