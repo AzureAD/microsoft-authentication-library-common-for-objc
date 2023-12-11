@@ -167,3 +167,5 @@ NSString *const MSIDServerErrorBadToken                  = @"bad_token";
 NSString *const MSID_CCS_REQUEST_ID_KEY                  = @"x-ms-ccs-requestid";
 NSString *const MSID_CCS_REQUEST_ID_RESPONSE             = @"ccs-requestid";
 
+NSString *const MSID_CCS_REQUEST_SEQUENCE_KEY            = @"x-ms-srs";
+NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE       = @"ccs-request-sequence";
