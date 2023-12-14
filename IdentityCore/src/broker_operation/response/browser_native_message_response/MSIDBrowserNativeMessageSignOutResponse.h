@@ -23,41 +23,12 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBrowserNativeMessageRequest.h"
-#import "MSIDBrokerConstants.h"
+#import "MSIDBrokerNativeAppOperationResponse.h"
 
-NSString *const BROWSER_NATIVE_MESSAGE_SENDER_KEY = @"sender";
-NSString *const BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
+NS_ASSUME_NONNULL_BEGIN
 
-
-@implementation MSIDBrowserNativeMessageRequest
-
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    self = [super init];
-    
-    if (self)
-    {
-        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_SENDER_KEY required:YES error:error]) return nil;
-        NSString *senderString = json[BROWSER_NATIVE_MESSAGE_SENDER_KEY];
-        senderString = @"https://lemon-glacier-0fa89f11e.1.azurestaticapps.net/";
-        _sender = [NSURL URLWithString:senderString];
-        
-        if (!_sender)
-        {
-            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to create URL from sender param.", nil, nil, nil, nil, nil, YES);
-            return nil;
-        }
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
-}
+@interface MSIDBrowserNativeMessageSignOutResponse : MSIDBrokerNativeAppOperationResponse
 
 @end
+
+NS_ASSUME_NONNULL_END
