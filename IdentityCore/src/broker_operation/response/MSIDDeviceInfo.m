@@ -62,7 +62,7 @@ static NSArray *deviceModeEnumString;
         _ssoExtensionMode = [self ssoExtensionModeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_SSO_EXTENSION_MODE_KEY]];
         _wpjStatus = [self wpjStatusEnumFromString:[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY]];
         _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
-        _qrPinAvailability = [self qrPinAvailabilityEnumFromString:[json msidStringObjectForKey:MSID_BROKER_QR_PIN_AVAILABILITY_KEY]];
+        _preferredAuthConfig = [self preferredAuthConfigurationEnumFromString:[json msidStringObjectForKey:MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY]];
         
 #if TARGET_OS_OSX
         _platformSSOStatus = [self platformSSOStatusEnumFromString:[json msidStringObjectForKey:MSID_PLATFORM_SSO_STATUS_KEY]];
@@ -94,7 +94,7 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_SSO_EXTENSION_MODE_KEY] = [self ssoExtensionModeStringFromEnum:self.ssoExtensionMode];
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
-    json[MSID_BROKER_QR_PIN_AVAILABILITY_KEY] = [self qrPinAvailabilityStringFromEnum:self.qrPinAvailability];
+    json[MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY] = [self preferredAuthConfigurationStringFromEnum:self.preferredAuthConfig];
 #if TARGET_OS_OSX
     json[MSID_PLATFORM_SSO_STATUS_KEY] = [self platformSSOStatusStringFromEnum:self.platformSSOStatus];
 #endif
@@ -191,25 +191,25 @@ static NSArray *deviceModeEnumString;
     return MSIDPlatformSSONotEnabled;
 }
 
-- (NSString *)qrPinAvailabilityStringFromEnum:(MSIDQRPinAvailability)qrPinAvailability
+- (NSString *)preferredAuthConfigurationStringFromEnum:(MSIDPreferredAuthConfiguration)preferredAuthConfiguration
 {
-    switch (qrPinAvailability) {
-        case MSIDQRPinNotAvailable:
-            return @"qrPinNotAvailable";
-        case MSIDQRPinAvailable:
-            return @"qrPinAvailable";
+    switch (preferredAuthConfiguration) {
+        case MSIDPreferredAuthConfigurationNotConfigured:
+            return @"preferredAuthNotConfigured";
+        case MSIDPreferredAuthConfigurationQRPIN:
+            return @"preferredAuthQRPIN";
         
         default:
             return nil;
     }
 }
 
-- (MSIDQRPinAvailability)qrPinAvailabilityEnumFromString:(NSString *)qrPinAvailabilityString
+- (MSIDPreferredAuthConfiguration)preferredAuthConfigurationEnumFromString:(NSString *)preferredAuthConfigurationString
 {
-    if ([qrPinAvailabilityString isEqualToString:@"qrPinNotAvailable"])    return MSIDQRPinNotAvailable;
-    if ([qrPinAvailabilityString isEqualToString:@"qrPinAvailable"])       return MSIDQRPinAvailable;
+    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthNotConfigured"])    return MSIDPreferredAuthConfigurationNotConfigured;
+    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthQRPIN"])            return MSIDPreferredAuthConfigurationQRPIN;
     
-    return MSIDQRPinNotAvailable;
+    return MSIDPreferredAuthConfigurationNotConfigured;
 }
 
 @end

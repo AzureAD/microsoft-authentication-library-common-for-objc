@@ -48,10 +48,10 @@ typedef NS_ENUM(NSInteger, MSIDPlatformSSOStatus)
     MSIDPlatformSSOEnabledAndRegistered = 2, //Platform SSO Enabled in sso config and registered
 };
 
-typedef NS_ENUM(NSInteger, MSIDQRPinAvailability)
+typedef NS_ENUM(NSInteger, MSIDPreferredAuthConfiguration)
 {
-    MSIDQRPinNotAvailable = 0,
-    MSIDQRPinAvailable
+    MSIDPreferredAuthConfigurationNotConfigured = 0,
+    MSIDPreferredAuthConfigurationQRPIN
 };
 
 
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
 @property (nonatomic, nullable) NSString *brokerVersion;
 @property (nonatomic) NSDictionary *additionalExtensionData;
-@property (nonatomic) MSIDQRPinAvailability qrPinAvailability;
+@property (nonatomic) MSIDPreferredAuthConfiguration preferredAuthConfig;
 
 #if TARGET_OS_OSX
 @property (nonatomic) MSIDPlatformSSOStatus platformSSOStatus;
