@@ -1,4 +1,4 @@
-Version [TBD]
+Version 1.7.31
 * Add additional error codes for PSSO KeyId missmatch (#1322)
 
 Version 1.7.30
