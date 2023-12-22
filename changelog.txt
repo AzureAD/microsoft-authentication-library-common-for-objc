@@ -1,3 +1,6 @@
+Version 1.7.31
+* Add additional error codes for PSSO KeyId missmatch (#1322)
+
 Version 1.7.30
 * ADD get token operation for BrowserCore (#1293)
 * Add support to get Passkey assertion and credentials (#1306)
