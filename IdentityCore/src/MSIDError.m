@@ -196,7 +196,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorJITTroubleshootingResultUnknown),
                       @(MSIDErrorJITTroubleshootingAcquireToken),
                       @(MSIDErrorDeviceNotPSSORegistered),
-                      @(MSIDErrorPSSOKeyIdMissmatch),
+                      @(MSIDErrorPSSOKeyIdMismatch),
                       
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
@@ -399,8 +399,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorJITTroubleshootingAcquireToken";
         case MSIDErrorDeviceNotPSSORegistered:
             return @"MSIDErrorDeviceNotPSSORegistered";
-        case MSIDErrorPSSOKeyIdMissmatch:
-            return @"MSIDErrorPSSOKeyIdMissmatch";
+        case MSIDErrorPSSOKeyIdMismatch:
+            return @"MSIDErrorPSSOKeyIdMismatch";
             // Throttling errors
         case MSIDErrorThrottleCacheNoRecord:
             return @"MSIDErrorThrottleCacheNoRecord";
