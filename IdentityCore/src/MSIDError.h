@@ -321,7 +321,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorDeviceNotPSSORegistered               =   -51837,
     
     // In PSSO, KeyId stored in passkey provider storage does not match NGC key, needs to configure and retry
-    MSIDErrorPSSOKeyIdMissmatch                    =   -51838,
+    MSIDErrorPSSOKeyIdMismatch                     =   -51838,
     
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
