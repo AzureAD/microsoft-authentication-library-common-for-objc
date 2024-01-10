@@ -54,8 +54,6 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker extension flow.");
     
-    [self addQRPINParamIfNeeded];
-    
     MSIDInteractiveTokenRequest *request = [self.tokenRequestProvider interactiveSSOExtensionTokenRequestWithParameters:self.interactiveRequestParamaters];
 
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
@@ -117,16 +115,6 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"SSO extension controller should fallback: %@", shouldFallback ? @"YES" : @"NO");
     
     return shouldFallback;
-}
-
-- (void)addQRPINParamIfNeeded
-{
-    if (self.interactiveRequestParamaters.preferredAuthMethod == MSIDPreferredAuthMethodQRPIN)
-    {
-        NSMutableDictionary *paramDict = [[NSMutableDictionary alloc] initWithDictionary:self.interactiveRequestParamaters.extraAuthorizeURLQueryParameters];
-        [paramDict setObject:MSID_PREFERRED_AUTH_METHOD_QR_PIN forKey:MSID_PREFERRED_AUTH_METHOD_KEY];
-        self.interactiveRequestParamaters.extraAuthorizeURLQueryParameters = paramDict;
-    }
 }
 
 @end
