@@ -34,9 +34,8 @@
 #import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAADAuthority.h"
-
-@interface MSIDAADRequestConfigurator()
-@end
+#import "MSIDBrokerConstants.h"
+#import "MSIDBrokerConstants.h"
 
 @implementation MSIDAADRequestConfigurator
 
@@ -65,10 +64,13 @@
     mutableUrlRequest.URL = requestUrl;
     [mutableUrlRequest setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [mutableUrlRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    if ([request.experimentBag msidBoolObjectForKey:MSID_EXP_ENABLE_CONNECTION_ALIVE])
+    {
+        [mutableUrlRequest setValue:@"close" forKey:@"Connection"];
+    }
     
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
     [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-
     if ([request.context.appRequestMetadata count])
     {
         [headers addEntriesFromDictionary:request.context.appRequestMetadata];

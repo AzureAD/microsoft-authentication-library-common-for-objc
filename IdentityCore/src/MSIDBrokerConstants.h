@@ -91,3 +91,5 @@ extern NSString * _Nonnull const MSID_PLATFORM_SSO_STATUS_KEY;
 extern NSString * _Nonnull const MSID_BROKER_REQUEST_SENT_TIMESTAMP;
 extern NSString * _Nonnull const JIT_TROUBLESHOOTING_HOST;
 extern NSString * _Nonnull const MSID_IS_CALLER_MANAGED_KEY;
+extern NSString * _Nonnull const MSID_EXP_RETRY_ON_NETWORK;
+extern NSString * _Nonnull const MSID_EXP_ENABLE_CONNECTION_ALIVE;

@@ -32,6 +32,7 @@
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDOAuthRequestConfigurator.h"
 #import "MSIDHttpRequestServerTelemetryHandling.h"
+#import "MSIDBrokerConstants.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -123,7 +124,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
           if (error)
           {
-              if ([self.experimentBag msidBoolObjectForKey:@"test"] == YES)
+              if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_RETRY_ON_NETWORK])
               {
                   [self.errorHandler handleError:error
                                     httpResponse:nil
