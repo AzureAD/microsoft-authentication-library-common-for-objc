@@ -41,7 +41,18 @@
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    if (!httpResponse)
+    BOOL shouldRetryNetworkingFailure = NO;
+    if (error)
+    {
+        // Networking errors errors (-1003. -1004. -1005. -1009)
+        shouldRetryNetworkingFailure = error.code == NSURLErrorCannotFindHost || error.code == NSURLErrorCannotConnectToHost || error.code == NSURLErrorNetworkConnectionLost  || error.code == NSURLErrorNotConnectedToInternet;
+        if (!shouldRetryNetworkingFailure)
+        {
+            if (completionBlock) completionBlock(nil, error);
+            return;
+        }
+    }
+    else if (!httpResponse)
     {
         if (completionBlock) completionBlock(nil, error);
         return;
@@ -50,8 +61,8 @@
     BOOL shouldRetry = YES;
     shouldRetry &= httpRequest.retryCounter > 0;
     // 5xx Server errors.
-    shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
-
+    BOOL shoudlHanle5xxError = httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
+    shouldRetry &= (shoudlHanle5xxError || shouldRetryNetworkingFailure);
     if (shouldRetry)
     {
         httpRequest.retryCounter--;

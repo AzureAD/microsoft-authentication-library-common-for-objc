@@ -123,7 +123,21 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
           if (error)
           {
-              completeBlockWrapper(nil, error);
+              if ([self.experimentBag msidBoolObjectForKey:@"test"] == YES)
+              {
+                  [self.errorHandler handleError:error
+                                    httpResponse:nil
+                                            data:nil
+                                     httpRequest:self
+                              responseSerializer:nil
+                              externalSSOContext:nil
+                                         context:self.context
+                                 completionBlock:completeBlockWrapper];
+              }
+              else
+              {
+                  if (completeBlockWrapper) completeBlockWrapper(nil, error);
+              }
           }
           else if (httpResponse.statusCode == 200)
           {
@@ -137,7 +151,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                   [self setCachedResponse:cachedResponse forRequest:self.urlRequest];
               }
 
-              completeBlockWrapper(responseObject, error);
+              if (completeBlockWrapper) completeBlockWrapper(responseObject, error);
           }
           else
           {
@@ -156,7 +170,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
               }
               else
               {
-                  completeBlockWrapper(nil, error);
+                  if (completeBlockWrapper) completeBlockWrapper(nil, error);
               }
           }
 
