@@ -46,7 +46,7 @@
     BOOL shouldRetryNetworkingFailure = NO;
     if (!httpResponse && error)
     {
-        // Networking errors errors (-1003. -1004. -1005. -1009)
+        // Networking errors (-1003. -1004. -1005. -1009)
         shouldRetryNetworkingFailure = shouldRetry && (error.code == NSURLErrorCannotFindHost || error.code == NSURLErrorCannotConnectToHost || error.code == NSURLErrorNetworkConnectionLost  || error.code == NSURLErrorNotConnectedToInternet);
         if (!shouldRetryNetworkingFailure)
         {
