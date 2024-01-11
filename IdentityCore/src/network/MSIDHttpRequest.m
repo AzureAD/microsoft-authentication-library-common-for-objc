@@ -135,7 +135,6 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
           {
               if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_RETRY_ON_NETWORK])
               {
-                  NSLog(@"Start to retry on no networking");
                   [self.errorHandler handleError:error
                                     httpResponse:nil
                                             data:nil
