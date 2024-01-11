@@ -32,7 +32,6 @@
     NSMutableURLRequest *mutableRequest = [request mutableCopy];
     NSMutableDictionary *requestHeaders = [NSMutableDictionary new];
     
-//    [requestHeaders setObject:@"close" forKey:@"Connection"];
     if ([headers count])
     {
         [requestHeaders addEntriesFromDictionary:headers];

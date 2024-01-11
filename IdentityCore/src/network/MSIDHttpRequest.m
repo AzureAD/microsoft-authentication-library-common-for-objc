@@ -71,8 +71,17 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
-
-    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
+    if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_ENABLE_CONNECTION_CLOSE])
+    {
+        NSMutableDictionary *localHeaders = self.headers ? [self.headers mutableCopy] : [NSMutableDictionary dictionary];
+        [localHeaders setValue:@"close" forKey:@"Connection"];
+        self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:[NSDictionary dictionaryWithDictionary:localHeaders]];
+    }
+    else
+    {
+        self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
+    }
+    
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
     {
@@ -126,6 +135,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
           {
               if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_RETRY_ON_NETWORK])
               {
+                  NSLog(@"Start to retry on no networking");
                   [self.errorHandler handleError:error
                                     httpResponse:nil
                                             data:nil

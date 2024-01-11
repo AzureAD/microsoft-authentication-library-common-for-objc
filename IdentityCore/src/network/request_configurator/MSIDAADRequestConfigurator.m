@@ -64,10 +64,6 @@
     mutableUrlRequest.URL = requestUrl;
     [mutableUrlRequest setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [mutableUrlRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    if ([request.experimentBag msidBoolObjectForKey:MSID_EXP_ENABLE_CONNECTION_ALIVE])
-    {
-        [mutableUrlRequest setValue:@"close" forKey:@"Connection"];
-    }
     
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
     [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
