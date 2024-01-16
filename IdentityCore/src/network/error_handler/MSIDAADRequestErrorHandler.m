@@ -44,25 +44,27 @@
     BOOL shouldRetry = YES;
     shouldRetry &= httpRequest.retryCounter > 0;
     BOOL shouldRetryNetworkingFailure = NO;
-    if (!httpResponse && error)
+    if (!httpResponse)
     {
-        // Networking errors (-1003. -1004. -1005. -1009)
-        shouldRetryNetworkingFailure = shouldRetry && (error.code == NSURLErrorCannotFindHost || error.code == NSURLErrorCannotConnectToHost || error.code == NSURLErrorNetworkConnectionLost  || error.code == NSURLErrorNotConnectedToInternet);
-        if (!shouldRetryNetworkingFailure)
+        if (shouldRetry && error)
+        {
+            // Networking errors (-1003. -1004. -1005. -1009)
+            shouldRetryNetworkingFailure = error.code == NSURLErrorCannotFindHost || error.code == NSURLErrorCannotConnectToHost || error.code == NSURLErrorNetworkConnectionLost || error.code == NSURLErrorNotConnectedToInternet;
+        }
+
+        shouldRetry &= shouldRetryNetworkingFailure;
+        if (!shouldRetry)
         {
             if (completionBlock) completionBlock(nil, error);
             return;
         }
     }
-    else if (!httpResponse)
+    else if (shouldRetry)
     {
-        if (completionBlock) completionBlock(nil, error);
-        return;
+        // 5xx Server errors.
+        shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
     }
     
-    // 5xx Server errors.
-    BOOL shoudlHanle5xxError = httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
-    shouldRetry &= (shoudlHanle5xxError || shouldRetryNetworkingFailure);
     if (shouldRetry)
     {
         httpRequest.retryCounter--;
