@@ -183,7 +183,7 @@
 
 #if DEBUG
     // Allows debugging using Safari Web Tools when physical device connected to Mac
-    if (@available(iOS 16.4, *)) {
+    if (@available(iOS 16.4, macOS 13.3, *)) {
         [self.webView setInspectable:YES];
     }
 #endif
@@ -490,18 +490,6 @@
     }
     
     return YES;
-}
-
-- (void)webView:(WKWebView *)webView
-requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin
-initiatedByFrame:(WKFrameInfo *)frame
-           type:(WKMediaCaptureType)type
-decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler
-API_AVAILABLE(ios(15.0))
-{
-    // This setting controls the consent in the webview IN ADDITION to the OS prompt. In other
-    // words, this setting states that our webview should not show a separate prompt after the OS prompt.
-    decisionHandler(WKPermissionDecisionGrant);
 }
 
 @end
