@@ -48,12 +48,35 @@
     XCTAssertEqualObjects(@"authority must use HTTPS.", error.userInfo[MSIDErrorDescriptionKey]);
 }
 
+- (void)testInitCustomCIAMAuthority_whenUrlSchemeIsNotHttps_shouldReturnError
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"http://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc"];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
+    
+    XCTAssertNil(authority);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(@"authority must use HTTPS.", error.userInfo[MSIDErrorDescriptionKey]);
+}
+
 - (void)testInitCIAMAuthority_withValidUrl_shouldReturnNilError
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://msidlab1.ciamlogin.com"];
     NSError *error;
     
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertNotNil(authority);
+    XCTAssertNil(error);
+}
+
+- (void)testInitCustomCIAMAuthority_withValidUrl_shouldReturnNilError
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc"];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
     
     XCTAssertNotNil(authority);
     XCTAssertNil(error);
@@ -70,12 +93,34 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitCustomCIAMAuthority_withValidUrlAndSlash_shouldReturnNilError
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/"];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
+    
+    XCTAssertNotNil(authority);
+    XCTAssertNil(error);
+}
+
 - (void)testInitCIAMAuthority_withValidUrlAndTenant_shouldReturnNilError
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://msidlab1.ciamlogin.com/msidlab1.onmicrosoft.com"];
     NSError *error;
     
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertNotNil(authority);
+    XCTAssertNil(error);
+}
+
+- (void)testInitCustomCIAMAuthority_withValidUrlAndTenant_shouldReturnNilError
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/logintenantciam20230530"];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
     
     XCTAssertNotNil(authority);
     XCTAssertNil(error);
@@ -105,7 +150,7 @@
     
     XCTAssertNil(authority);
     XCTAssertNotNil(error);
-    XCTAssertEqualObjects(@"CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqualObjects(@"Non-custom CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", error.userInfo[MSIDErrorDescriptionKey]);
 }
 
 - (void)testInitCIAMAuthority_withValidUrlNonCIAMAuthority_shouldReturnError
@@ -139,6 +184,17 @@
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
     
     XCTAssertEqualObjects(authority.url, [@"https://msidlab1.ciamlogin.com/msidlab1.onmicrosoft.com" msidUrl]);
+    XCTAssertNil(error);
+}
+
+- (void)testInitCustomCIAMAuthority_whenCustomCIAMAuthorityValid_shouldReturnNoExtraNormalization
+{
+    __auto_type authorityUrl = [@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/logintenantciam20230530" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.url, [@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/logintenantciam20230530" msidUrl]);
     XCTAssertNil(error);
 }
 
@@ -183,6 +239,17 @@
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
     
     XCTAssertEqualObjects(authority.environment, @"msidlab1.ciamlogin.com");
+    XCTAssertNil(error);
+}
+
+- (void)testInitCustomCIAMAuthority_whenValidUrlAndTenant_shouldParseEnvironment
+{
+    __auto_type authorityUrl = [@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/logintenantciam20230530" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.environment, @"logintenantciam20230530.ciamextensibility.com");
     XCTAssertNil(error);
 }
 

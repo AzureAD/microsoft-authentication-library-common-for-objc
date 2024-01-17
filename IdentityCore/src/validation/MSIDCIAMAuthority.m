@@ -74,16 +74,20 @@
     
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
     
-    //If we have the URL https://tenant.ciamlogin.com or https://tenant.ciamlogin.com/
-    if (url.pathComponents.count == 0 || ((url.pathComponents.count == 1) && [[url lastPathComponent] isEqual:@"/"]))
+    NSString *ciamTenant = hostComponents[1];
+    if ([ciamTenant.lowercaseString isEqualToString:@"ciamlogin".lowercaseString])
     {
-        url = [url URLByAppendingPathComponent:hostComponents[0]];
-        url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
+        //If we have the URL https://tenant.ciamlogin.com or https://tenant.ciamlogin.com/
+        if (url.pathComponents.count == 0 || ((url.pathComponents.count == 1) && [[url lastPathComponent] isEqual:@"/"]))
+        {
+            url = [url URLByAppendingPathComponent:hostComponents[0]];
+            url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
+        }
     }
-   
+    
     if (self)
     {
-        _url = [MSIDAADAuthority normalizedAuthorityUrl:url context:context error:error];
+        _url = [self.class normalizedAuthorityUrl:url formatValidated:validateFormat context:context error:error];
         if (!_url) return nil;
         self.url = url;
     }
@@ -110,7 +114,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", nil, nil, nil, context.correlationId, nil, YES);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Non-custom CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return NO;
@@ -140,10 +144,42 @@
     return YES;
 }
 
++ (NSURL *)normalizedAuthorityUrl:(NSURL *)url
+                  formatValidated:(BOOL)formatValidated
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    
+    if (!url)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is nil.", nil, nil, nil, context.correlationId, nil, YES);
+        }
+        return nil;
+    }
+    
+    // remove query and fragments
+    if (!formatValidated)
+    {
+        if (![super isAuthorityFormatValid:url context:context error:error]) return nil;
+        NSURLComponents *urlComp = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+        urlComp.query = nil;
+        urlComp.fragment = nil;
+        
+        return urlComp.URL;
+    }
+    
+    return [MSIDAADAuthority normalizedAuthorityUrl:url context:context error:error];
+}
+
 #pragma mark - NSCopying
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDCIAMAuthority *authority = [super copyWithZone:zone];
+    MSIDCIAMAuthority *authority = [[self.class allocWithZone:zone] initWithURL:[_url copyWithZone:zone]
+                                                                validateFormat:NO context:nil error:nil];
+    authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
+    authority.metadata = self.metadata;
     return authority;
 }
 
