@@ -43,9 +43,9 @@
 {
     BOOL shouldRetry = YES;
     shouldRetry &= httpRequest.retryCounter > 0;
-    BOOL shouldRetryNetworkingFailure = NO;
     if (!httpResponse)
     {
+        BOOL shouldRetryNetworkingFailure = NO;
         if (shouldRetry && error)
         {
             // Networking errors (-1003. -1004. -1005. -1009)
@@ -59,10 +59,10 @@
             return;
         }
     }
-    else if (shouldRetry)
+    else
     {
         // 5xx Server errors.
-        shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
+        if (shouldRetry) shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
     }
     
     if (shouldRetry)
