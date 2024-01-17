@@ -248,7 +248,8 @@
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_PLATFORM_SSO_STATUS_KEY : @"platformSSONotEnabled",
-        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}"
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
+        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured"
     };
 #else
     NSDictionary *expectedJson = @{
@@ -282,7 +283,8 @@
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_PLATFORM_SSO_STATUS_KEY : @"platformSSONotEnabled",
-        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}"
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
+        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured"
     };
 #else
     NSDictionary *expectedJson = @{
@@ -341,7 +343,8 @@
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_PLATFORM_SSO_STATUS_KEY :
             @"platformSSOEnabledAndRegistered",
-        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
+        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}"
     };
     
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
