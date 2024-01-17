@@ -50,6 +50,7 @@ NSWindowController
 #endif
 
 + (WKWebViewConfiguration *)defaultWKWebviewConfiguration;
++ (void)setSharedWKWebviewConfiguration:(WKWebViewConfiguration *)configuration;
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;
 

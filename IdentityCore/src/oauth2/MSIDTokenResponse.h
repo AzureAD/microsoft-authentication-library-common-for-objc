@@ -83,6 +83,11 @@
 // CCS Request ID if the request is served by CCS
 @property (nonatomic, nullable) NSString *ccsRequestId;
 
+// CCS Request Sequence details the order the services were requested if the request is serviced by CCS
+@property (nonatomic, nullable) NSString *ccsRequestSequence;
+
+@property (nonatomic, readonly, nullable) NSString *accountIdentifier;
+
 - (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
                                    refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token
                                           error:(NSError * _Nullable __autoreleasing *_Nullable)error;

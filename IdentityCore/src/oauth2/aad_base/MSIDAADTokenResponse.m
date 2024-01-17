@@ -48,7 +48,8 @@
                              @"url",
                              @"ext_expires_on",
                              MSID_OAUTH2_SUB_ERROR,
-                             MSID_CCS_REQUEST_ID_RESPONSE];
+                             MSID_CCS_REQUEST_ID_RESPONSE,
+                             MSID_CCS_REQUEST_SEQUENCE_RESPONSE];
     
     NSDictionary *additionalInfo = [additionalServerInfo msidDictionaryByRemovingFields:knownFields];
     
@@ -72,6 +73,12 @@
     
     return nil;
 }
+
+- (NSString *)accountIdentifier
+{
+    return self.clientInfo.accountIdentifier;
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
@@ -95,6 +102,7 @@
         _refreshIn = [json msidIntegerObjectForKey:MSID_OAUTH2_REFRESH_IN];
         _refreshOn = [json msidIntegerObjectForKey:MSID_OAUTH2_REFRESH_ON];
         self.ccsRequestId = [json msidStringObjectForKey:MSID_CCS_REQUEST_ID_RESPONSE];
+        self.ccsRequestSequence = [json msidStringObjectForKey:MSID_CCS_REQUEST_SEQUENCE_RESPONSE];
     }
     
     return self;
@@ -112,6 +120,7 @@
     json[@"adi"] = self.additionalUserId;
     json[MSID_OAUTH2_CLIENT_INFO] = self.clientInfo.rawClientInfo;
     json[MSID_CCS_REQUEST_ID_RESPONSE] = self.ccsRequestId;
+    json[MSID_CCS_REQUEST_SEQUENCE_RESPONSE] = self.ccsRequestSequence;
     if (!self.error)
     {
         json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];

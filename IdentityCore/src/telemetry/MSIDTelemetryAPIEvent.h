@@ -44,6 +44,7 @@
 
 - (void)setLoginHint:(NSString *)loginHint;
 - (void)setErrorCode:(NSUInteger)errorCode;
+- (void)setErrorCodeString:(NSString *)errorCode;
 - (void)setPromptType:(MSIDPromptType)promptType;
 
 - (void)setIsSuccessfulStatus:(NSString *)successStatus;

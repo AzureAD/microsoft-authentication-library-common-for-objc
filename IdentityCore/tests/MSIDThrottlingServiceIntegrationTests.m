@@ -702,6 +702,7 @@
                                             accountMetadataCache:
                                                  validateAccount:
                                                 saveSSOStateOnly:
+                                                brokerAppVersion:
                                                            error:
                                                  completionBlock:)
                              class:[MSIDTokenResponseHandler class]
@@ -716,6 +717,7 @@
                                          __unused MSIDAccountMetadataCacheAccessor *accountMetadataCache,
                                          __unused BOOL validateAccount,
                                          __unused BOOL saveSSOStateOnly,
+                                         __unused NSString *brokerAppVersion,
                                          __unused NSError *error,
                                          MSIDRequestCompletionBlock completionBlock)
     {
@@ -846,6 +848,7 @@
                                             accountMetadataCache:
                                                  validateAccount:
                                                 saveSSOStateOnly:
+                                                 brokerAppVersion:
                                                            error:
                                                  completionBlock:)
                              class:[MSIDTokenResponseHandler class]
@@ -860,6 +863,7 @@
                                          __unused MSIDAccountMetadataCacheAccessor *accountMetadataCache,
                                          __unused BOOL validateAccount,
                                          __unused BOOL saveSSOStateOnly,
+                                         __unused NSString *brokerAppVersion,
                                          __unused NSError *error,
                                          MSIDRequestCompletionBlock completionBlock)
     {

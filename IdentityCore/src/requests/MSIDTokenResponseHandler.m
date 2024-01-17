@@ -44,6 +44,7 @@
        accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
             validateAccount:(BOOL)validateAccount
            saveSSOStateOnly:(BOOL)saveSSOStateOnly
+           brokerAppVersion:(NSString *)brokerAppVersion
                       error:(NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
@@ -88,6 +89,7 @@
         return;
     }
     
+    tokenResult.brokerAppVersion = brokerAppVersion;
     void (^validateAccountAndCompleteBlock)(void) = ^
     {
         if (validateAccount)
