@@ -87,7 +87,7 @@
 @property (class, nonatomic, readwrite) NSInteger retryCountSetting;
 @property (class, nonatomic, readwrite) NSTimeInterval retryIntervalSetting;
 @property (class, nonatomic, readwrite) NSTimeInterval requestTimeoutInterval;
-@property (class, nonatomic, nullable) NSDictionary *experimentBagSetting;
+@property (class, atomic, nullable) NSDictionary *experimentBagSetting;
 
 @property (nonatomic, nonnull) NSURLCache *cache;
 
