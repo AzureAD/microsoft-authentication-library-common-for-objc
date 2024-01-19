@@ -37,6 +37,7 @@
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
 static NSTimeInterval s_requestTimeoutInterval = 300;
+static NSDictionary *s_experimentBag = @{};
 
 @implementation MSIDHttpRequest
 
@@ -56,6 +57,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 #endif
         _retryCounter = s_retryCount;
         _retryInterval = s_retryInterval;
+        _experimentBag = s_experimentBag;
         _requestTimeoutInterval = s_requestTimeoutInterval;
         _cache = [NSURLCache sharedURLCache];
         _shouldCacheResponse = NO;
@@ -187,10 +189,12 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 + (NSInteger)retryCountSetting { return s_retryCount; }
 + (void)setRetryCountSetting:(NSInteger)retryCountSetting { s_retryCount = retryCountSetting; }
 
-+ (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
 + (void)setRetryIntervalSetting:(NSTimeInterval)retryIntervalSetting { s_retryInterval = retryIntervalSetting; }
++ (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
 + (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval { s_requestTimeoutInterval = requestTimeoutInterval; }
 + (NSTimeInterval)requestTimeoutInterval { return s_requestTimeoutInterval; }
++ (void)setExperimentBagSetting:(NSDictionary *)experimentBagSetting { s_experimentBag = experimentBagSetting; }
++ (NSDictionary *)experimentBagSetting { return s_experimentBag; }
 
 - (NSCachedURLResponse *)cachedResponse
 {

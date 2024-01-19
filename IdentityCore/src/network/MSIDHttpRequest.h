@@ -79,15 +79,16 @@
 
 @property (nonatomic, nullable) MSIDExternalSSOContext *externalSSOContext;
 
-@property (nonatomic, nullable) NSDictionary *experimentBag;
-
 @property (nonatomic) NSInteger retryCounter;
 @property (nonatomic) NSTimeInterval retryInterval;
 @property (nonatomic) NSTimeInterval requestTimeoutInterval;
+@property (nonatomic, nullable) NSDictionary *experimentBag;
 
 @property (class, nonatomic, readwrite) NSInteger retryCountSetting;
 @property (class, nonatomic, readwrite) NSTimeInterval retryIntervalSetting;
 @property (class, nonatomic, readwrite) NSTimeInterval requestTimeoutInterval;
+@property (class, nonatomic, nullable) NSDictionary *experimentBagSetting;
+
 @property (nonatomic, nonnull) NSURLCache *cache;
 
 @end
