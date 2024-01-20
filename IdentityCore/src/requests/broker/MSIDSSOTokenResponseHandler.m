@@ -78,6 +78,7 @@
          accountMetadataCache:accountMetadataCache
               validateAccount:validateAccount
              saveSSOStateOnly:saveSSOStateOnly
+             brokerAppVersion:[operationResponse.deviceInfo brokerVersion]
                         error:error
               completionBlock:completionBlock];
 }
