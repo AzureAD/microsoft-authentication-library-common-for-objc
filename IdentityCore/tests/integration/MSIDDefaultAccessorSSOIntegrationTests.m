@@ -78,7 +78,7 @@
 
     MSIDAccountMetadataCacheAccessor *_accountMetadataCache;
 }
-
+ 
 @end
 
 @implementation MSIDDefaultAccessorSSOIntegrationTests
