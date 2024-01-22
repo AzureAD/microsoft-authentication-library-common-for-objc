@@ -37,7 +37,7 @@
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
 static NSTimeInterval s_requestTimeoutInterval = 300;
-static NSDictionary *s_experimentBag = @{};
+static NSDictionary *s_experimentBag = nil;
 
 @implementation MSIDHttpRequest
 
