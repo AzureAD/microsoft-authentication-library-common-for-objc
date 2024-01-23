@@ -412,5 +412,5 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorBrokerAppIsInBackground";
     }
     
-    return [NSString stringWithFormat:@"%@", @(errorCode)];
+    return [NSString stringWithFormat:@"Unknown: %@", @(errorCode)];
 }
