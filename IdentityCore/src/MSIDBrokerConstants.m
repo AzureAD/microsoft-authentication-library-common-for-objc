@@ -89,3 +89,9 @@ NSString *const MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT = @"primary_reg
 NSString *const MSID_PLATFORM_SSO_STATUS_KEY = @"platform_sso_status";
 NSString *const JIT_TROUBLESHOOTING_HOST = @"jit_troubleshooting";
 NSString *const MSID_IS_CALLER_MANAGED_KEY = @"isCallerAppManaged";
+// Experiments
+NSString *const MSID_EXP_RETRY_ON_NETWORK = @"exp_retry_on_network";
+NSString *const MSID_EXP_ENABLE_CONNECTION_CLOSE = @"exp_enable_connection_close";
+// Http header
+NSString *const MSID_HTTP_CONNECTION = @"Connection";
+NSString *const MSID_HTTP_CONNECTION_VALUE = @"close";
