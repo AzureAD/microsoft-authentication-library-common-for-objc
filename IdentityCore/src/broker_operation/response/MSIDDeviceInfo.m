@@ -191,12 +191,12 @@ static NSArray *deviceModeEnumString;
     return MSIDPlatformSSONotEnabled;
 }
 
-- (NSString *)preferredAuthConfigurationStringFromEnum:(MSIDPreferredAuthConfiguration)preferredAuthConfiguration
+- (NSString *)preferredAuthConfigurationStringFromEnum:(MSIDPreferredAuthMethod)preferredAuthConfiguration
 {
     switch (preferredAuthConfiguration) {
-        case MSIDPreferredAuthConfigurationNotConfigured:
+        case MSIDPreferredAuthMethodNotConfigured:
             return @"preferredAuthNotConfigured";
-        case MSIDPreferredAuthConfigurationQRPIN:
+        case MSIDPreferredAuthMethodQRPIN:
             return @"preferredAuthQRPIN";
         
         default:
@@ -204,12 +204,12 @@ static NSArray *deviceModeEnumString;
     }
 }
 
-- (MSIDPreferredAuthConfiguration)preferredAuthConfigurationEnumFromString:(NSString *)preferredAuthConfigurationString
+- (MSIDPreferredAuthMethod)preferredAuthConfigurationEnumFromString:(NSString *)preferredAuthConfigurationString
 {
-    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthNotConfigured"])    return MSIDPreferredAuthConfigurationNotConfigured;
-    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthQRPIN"])            return MSIDPreferredAuthConfigurationQRPIN;
+    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthNotConfigured"])    return MSIDPreferredAuthMethodNotConfigured;
+    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthQRPIN"])            return MSIDPreferredAuthMethodQRPIN;
     
-    return MSIDPreferredAuthConfigurationNotConfigured;
+    return MSIDPreferredAuthMethodNotConfigured;
 }
 
 @end
