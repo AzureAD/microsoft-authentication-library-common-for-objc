@@ -526,7 +526,7 @@
 - (MSIDAccount *)getAccountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                authority:(MSIDAuthority *)authority
                                realmHint:(NSString *)realmHint
-           dualHeadedAccountTenantIDHint:(NSString *)dualHeadedAccountTenantIDHint
+                     accountHomeTenantId:(NSString *)accountHomeTenantId
                      accountSelectionLog:(NSString **)accountSelectionLog
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
@@ -574,9 +574,9 @@
         
         if (!firstAccount)
         {
-            if (dualHeadedAccountTenantIDHint)
+            if (accountHomeTenantId)
             {
-                if ([account.accountIdentifier.homeAccountId hasSuffix:dualHeadedAccountTenantIDHint])
+                if ([account.accountIdentifier.homeAccountId hasSuffix:accountHomeTenantId])
                 {
                     firstAccount = account;
                     matchedByDualHeadedHint = YES;
@@ -591,8 +591,8 @@
     
     if ([accountCacheItems count] > 1 && accountSelectionLog)
     {
-        *accountSelectionLog = [NSString stringWithFormat:@"%ld,%d,%d,%d", (NSUInteger)[accountCacheItems count], realmHint != nil, dualHeadedAccountTenantIDHint != nil, (int)matchedByDualHeadedHint];
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"(Default accessor) Account ambiguity detected. Count of accounts in cache %ld, realm hint %@, dual headed account hint %@, matched by dual headed hint %d", (NSUInteger)[accountCacheItems count], realmHint, dualHeadedAccountTenantIDHint, (int)matchedByDualHeadedHint);
+        *accountSelectionLog = [NSString stringWithFormat:@"%ld,%d,%d,%d", (NSUInteger)[accountCacheItems count], realmHint != nil, accountHomeTenantId != nil, (int)matchedByDualHeadedHint];
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"(Default accessor) Account ambiguity detected. Count of accounts in cache %ld, realm hint %@, dual headed account hint %@, matched by dual headed hint %d", (NSUInteger)[accountCacheItems count], realmHint, accountHomeTenantId, (int)matchedByDualHeadedHint);
     }
 
     CONDITIONAL_STOP_CACHE_EVENT(event, nil, YES, context);

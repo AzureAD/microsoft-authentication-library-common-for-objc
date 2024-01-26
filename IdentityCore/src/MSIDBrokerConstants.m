@@ -75,7 +75,7 @@ NSString *const MSID_BROKER_SSO_URL = @"sso_url";
 NSString *const MSID_BROKER_ACCOUNT_IDENTIFIER = @"account_identifier";
 NSString *const MSID_BROKER_TYPES_OF_HEADER = @"types_of_header";
 NSString *const MSID_BROKER_REQUEST_SENT_TIMESTAMP = @"request_sent_timestamp";
-NSString *const MSID_BROKER_DUAL_HEADED_TENANT_HINT = @"dual_headed_tenant_hint";
+NSString *const MSID_BROKER_ACCOUNT_HOME_TENANT_ID = @"account_home_tenant_id";
 
 NSString *const MSID_ADDITIONAL_EXTENSION_DATA_KEY = @"additional_extension_data";
 NSString *const MSID_SSO_NONCE_QUERY_PARAM_KEY = @"sso_nonce";

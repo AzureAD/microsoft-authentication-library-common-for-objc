@@ -158,7 +158,7 @@
     request.promptType = MSIDPromptTypeSelectAccount;
     request.accountIdentifier =  [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                         homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
-    request.dualHeadedTenantIdHint = @"aad.tid.hint";
+    request.accountHomeTenantId = @"aad.tid.hint";
     
     NSDictionary *json = [request jsonDictionary];
     
@@ -171,7 +171,7 @@
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v1");
     XCTAssertEqualObjects(json[@"home_account_id"], DEFAULT_TEST_HOME_ACCOUNT_ID);
     XCTAssertEqualObjects(json[@"username"], @"user@contoso.com");
-    XCTAssertEqualObjects(json[@"dual_headed_tenant_hint"], @"aad.tid.hint");
+    XCTAssertEqualObjects(json[@"account_home_tenant_id"], @"aad.tid.hint");
 }
 
 - (void)testInitWithJSONDictionary_whenAllProperties_shouldInitRequest
@@ -278,7 +278,7 @@
         @"scope": @"scope scope2",
         @"home_account_id": @"uid.utid",
         @"username": @"username@contoso.com",
-        @"dual_headed_tenant_hint": @"aad.tid.hint"
+        @"account_home_tenant_id": @"aad.tid.hint"
     };
     
     NSError *error;
@@ -296,7 +296,7 @@
     XCTAssertEqual(MSIDPromptTypeSelectAccount, request.promptType);
     XCTAssertEqualObjects(request.accountIdentifier.displayableId, @"username@contoso.com");
     XCTAssertEqualObjects(request.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(request.dualHeadedTenantIdHint, @"aad.tid.hint");
+    XCTAssertEqualObjects(request.accountHomeTenantId, @"aad.tid.hint");
 }
 
 @end

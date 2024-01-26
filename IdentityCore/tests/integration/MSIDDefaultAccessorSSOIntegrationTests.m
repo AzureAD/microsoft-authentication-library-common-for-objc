@@ -1977,7 +1977,7 @@
                                                                                  homeAccountId:@"home.id"];
 
     MSIDAuthority *authority = [@"https://login.windows.net/common" aadAuthority];
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil dualHeadedAccountTenantIDHint:nil accountSelectionLog:nil context:nil error:&error];
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil accountHomeTenantId:nil accountSelectionLog:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNil(account);
@@ -2005,7 +2005,7 @@
     MSIDAuthority *authority = [@"https://login.windows.net/contoso.com" aadAuthority];
 
     NSString *accountSelectionLog = nil;
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil dualHeadedAccountTenantIDHint:nil accountSelectionLog:&accountSelectionLog context:nil error:&error];
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil accountHomeTenantId:nil accountSelectionLog:&accountSelectionLog context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNil(accountSelectionLog);
@@ -2036,7 +2036,7 @@
     NSError *error = nil;
     
     NSString *accountSelectionLog = nil;
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"non.matching.realm" dualHeadedAccountTenantIDHint:@"aad.utid" accountSelectionLog:&accountSelectionLog context:nil error:&error];
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"non.matching.realm" accountHomeTenantId:@"aad.utid" accountSelectionLog:&accountSelectionLog context:nil error:&error];
     
     XCTAssertNil(error);
     XCTAssertNil(account);
@@ -2079,7 +2079,7 @@
     NSError *error = nil;
     
     NSString *accountSelectionLog = nil;
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"non.matching.realm2" dualHeadedAccountTenantIDHint:@"aad.utid" accountSelectionLog:&accountSelectionLog context:nil error:&error];
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"non.matching.realm2" accountHomeTenantId:@"aad.utid" accountSelectionLog:&accountSelectionLog context:nil error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(account);
@@ -2123,7 +2123,7 @@
     NSError *error = nil;
     
     NSString *accountSelectionLog = nil;
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" dualHeadedAccountTenantIDHint:nil accountSelectionLog:&accountSelectionLog context:nil error:&error];
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" accountHomeTenantId:nil accountSelectionLog:&accountSelectionLog context:nil error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(account);
@@ -2155,7 +2155,7 @@
     NSError *error = nil;
     
     NSString *accountSelectionLog = nil;
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" dualHeadedAccountTenantIDHint:nil accountSelectionLog:&accountSelectionLog context:nil error:&error];
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" accountHomeTenantId:nil accountSelectionLog:&accountSelectionLog context:nil error:&error];
     
     XCTAssertNil(error);
     XCTAssertNil(accountSelectionLog);
