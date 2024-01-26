@@ -34,9 +34,8 @@
 #import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAADAuthority.h"
-
-@interface MSIDAADRequestConfigurator()
-@end
+#import "MSIDBrokerConstants.h"
+#import "MSIDBrokerConstants.h"
 
 @implementation MSIDAADRequestConfigurator
 
@@ -68,7 +67,6 @@
     
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
     [headers addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-
     if ([request.context.appRequestMetadata count])
     {
         [headers addEntriesFromDictionary:request.context.appRequestMetadata];
