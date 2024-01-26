@@ -34,7 +34,11 @@
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
 #import "UIApplication+MSIDExtensions.h"
+
+#if !TARGET_OS_VISION
 #import "MSIDSafariViewController.h"
+#endif
+
 #import "MSIDURLResponseHandling.h"
 #endif
 #import "MSIDTelemetry+Internal.h"
@@ -224,7 +228,7 @@
                                                                            context:self.context];
     }
         
-#if TARGET_OS_IPHONE
+#if !TARGET_OS_VISION && TARGET_OS_IPHONE
         
     if (safariAllowed)
     {
@@ -237,7 +241,7 @@
         return safariController;
     }
 #else
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Couldn't create session on macOS. Safari allowed flag %d", safariAllowed);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Couldn't create session on macOS or visionOS. Safari allowed flag %d", safariAllowed);
 #endif
     
     return nil;

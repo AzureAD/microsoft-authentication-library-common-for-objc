@@ -81,11 +81,15 @@
             default:
                 break;
         }
-    
+
+#if !MSID_EXCLUDE_SYSTEMWV
     return [self systemWebviewFromConfiguration:configuration
                        useAuthenticationSession:useSession
                       allowSafariViewController:allowSafariViewController
                                         context:context];
+#else
+    return nil;
+#endif
 }
 
 - (NSObject<MSIDWebviewInteracting> *)embeddedWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration

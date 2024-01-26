@@ -29,6 +29,60 @@
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDMainThreadUtil.h"
 
+#if TARGET_OS_VISION
+static inline CGRect ActiveScreenBounds(void)
+{
+    // this code is also compiled for extensions where UIApplication.sharedApplication is not available
+    UIApplication *sharedApp = nil;
+    if ([UIApplication respondsToSelector:NSSelectorFromString(@"sharedApplication")])
+    {
+        sharedApp = [UIApplication performSelector:NSSelectorFromString(@"sharedApplication")];
+    }
+    
+    UIWindowScene *activeScene = nil;
+    for (UIWindowScene *scene in sharedApp.connectedScenes)
+    {
+        if (scene.activationState == UISceneActivationStateForegroundActive)
+        {
+            activeScene = scene;
+            break;
+        }
+    }
+
+    if ((activeScene == nil) && (sharedApp.connectedScenes.count > 0))
+    {
+        activeScene = (UIWindowScene *)sharedApp.connectedScenes.anyObject;
+    }
+
+    if (activeScene != nil)
+    {
+        return activeScene.coordinateSpace.bounds;
+    }
+#if !TARGET_OS_VISION
+    else
+    {
+        return UIScreen.mainScreen.bounds;
+    }
+#endif
+    return CGRectMake(0, 0, 0, 0);//CGRectZero;
+
+}
+
+
+static inline CGRect ActiveSceneBoundsForView(UIView *view)
+{
+    UIWindowScene *activeScene = view.window.windowScene;
+    if(activeScene != nil)
+    {
+        return activeScene.coordinateSpace.bounds;
+    }
+    
+    return ActiveScreenBounds();
+}
+#endif
+
+// end MS_TEAMS_CHANGE
+
 static WKWebViewConfiguration *s_webConfig;
 
 @interface MSIDWebviewUIController ()
@@ -120,7 +174,13 @@ static WKWebViewConfiguration *s_webConfig;
         return NO;
     }
     UIView *rootView = [self view];
-    [rootView setFrame:[[UIScreen mainScreen] bounds]];
+#if !TARGET_OS_VISION //VisionOS
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+#else
+    CGRect screenBounds = ActiveSceneBoundsForView(rootView);
+#endif
+    [rootView setFrame:screenBounds]; //VisionOS
+    
     [rootView setAutoresizesSubviews:YES];
     [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     

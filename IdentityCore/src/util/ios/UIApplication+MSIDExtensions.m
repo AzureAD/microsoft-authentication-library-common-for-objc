@@ -36,7 +36,16 @@
     
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return nil;
     
-    for (UIWindow *window in [MSIDAppExtensionUtil sharedApplication].windows)
+    NSArray *scenes; NSArray *windows;
+    
+    scenes = [[[UIApplication sharedApplication] connectedScenes] allObjects];
+    
+    if (scenes && scenes.count != 0)
+    {
+        windows = [[scenes objectAtIndex:0] windows];
+    }
+    
+    for (UIWindow *window in windows)
     {
         if (window.isKeyWindow)
         {
