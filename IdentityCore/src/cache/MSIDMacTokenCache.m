@@ -378,7 +378,7 @@ return NO; \
         userId = @"";
     }
     
-    NSMutableDictionary *userTokens = [(NSDictionary *)self.cache[@"tokens"] objectForKey:userId];
+    NSMutableDictionary *userTokens = [(NSMutableDictionary *)self.cache[@"tokens"] objectForKey:userId];
     if (!userTokens)
     {
         return YES;
