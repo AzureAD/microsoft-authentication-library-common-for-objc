@@ -99,7 +99,7 @@
     {
         return authSession;
     }
-#if !TARGET_OS_VISION
+#if !TARGET_OS_VISION && !MSID_EXCLUDE_SYSTEMWV
     return [[MSIDSafariViewController alloc] initWithURL:startURL
                                         parentController:parentController
                                         presentationType:presentationType

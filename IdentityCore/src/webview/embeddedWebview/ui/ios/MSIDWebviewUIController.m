@@ -32,7 +32,6 @@
 #if TARGET_OS_VISION
 static inline CGRect ActiveScreenBounds(void)
 {
-    // this code is also compiled for extensions where UIApplication.sharedApplication is not available
     UIApplication *sharedApp = nil;
     if ([UIApplication respondsToSelector:NSSelectorFromString(@"sharedApplication")])
     {
@@ -64,10 +63,9 @@ static inline CGRect ActiveScreenBounds(void)
         return UIScreen.mainScreen.bounds;
     }
 #endif
-    return CGRectMake(0, 0, 0, 0);//CGRectZero;
+    return CGRectZero;
 
 }
-
 
 static inline CGRect ActiveSceneBoundsForView(UIView *view)
 {
@@ -81,7 +79,6 @@ static inline CGRect ActiveSceneBoundsForView(UIView *view)
 }
 #endif
 
-// end MS_TEAMS_CHANGE
 
 static WKWebViewConfiguration *s_webConfig;
 
@@ -174,12 +171,12 @@ static WKWebViewConfiguration *s_webConfig;
         return NO;
     }
     UIView *rootView = [self view];
-#if !TARGET_OS_VISION //VisionOS
+#if !TARGET_OS_VISION
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
 #else
     CGRect screenBounds = ActiveSceneBoundsForView(rootView);
 #endif
-    [rootView setFrame:screenBounds]; //VisionOS
+    [rootView setFrame:screenBounds];
     
     [rootView setAutoresizesSubviews:YES];
     [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
