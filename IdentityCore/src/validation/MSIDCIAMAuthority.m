@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 #if !EXCLUDE_FROM_MSALCPP
 
@@ -48,7 +48,7 @@
                            rawTenant:(nullable NSString *)rawTenant
                              context:(nullable id<MSIDRequestContext>)context
                                error:(NSError **)error
-{    
+{
     self = [self initWithURL:url validateFormat:validateFormat context:context error:error];
     if (self)
     {
@@ -102,7 +102,7 @@
     return [self initWithURL:url validateFormat:YES context:context error:error];
 }
 
-+ (BOOL)isAuthorityFormatValid:(NSURL *)url
++ (BOOL) isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
@@ -110,24 +110,13 @@
     
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
     
-    if (hostComponents.count < 3)
+    if (hostComponents.count < 2)
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Non-custom CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", nil, nil, nil, context.correlationId, nil, YES);
         }
         
-        return NO;
-    }
-    
-    NSString *ciamTenant = hostComponents[1];
-    
-    if (![ciamTenant.lowercaseString isEqualToString:@"ciamlogin".lowercaseString])
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"It is not CIAM authority.", nil, nil, nil, context.correlationId, nil, YES);
-        }
         return NO;
     }
     
@@ -149,7 +138,6 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    
     if (!url)
     {
         if (error)
