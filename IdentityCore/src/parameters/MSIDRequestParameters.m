@@ -369,6 +369,8 @@
     parameters->_oidcScope = [_oidcScope copyWithZone:zone];
     parameters->_accountIdentifier = [_accountIdentifier copyWithZone:zone];
     parameters->_validateAuthority = _validateAuthority;
+    parameters->_clientSku = [_clientSku copyWithZone:zone];
+    parameters->_skipValidateResultAccount = _skipValidateResultAccount;
     parameters->_extraTokenRequestParameters = [_extraTokenRequestParameters copyWithZone:zone];
     parameters->_extraURLQueryParameters = [_extraURLQueryParameters copyWithZone:zone];
     parameters->_tokenExpirationBuffer = _tokenExpirationBuffer;
