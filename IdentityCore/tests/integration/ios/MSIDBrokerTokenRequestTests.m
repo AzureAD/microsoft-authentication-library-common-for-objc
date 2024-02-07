@@ -342,13 +342,6 @@
     MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:@[@"capability1", @"capability2"] error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
-    
-    NSString *clientSku = nil;
-#if TARGET_OS_OSX
-    clientSku = MSID_CLIENT_SKU_MSAL_OSX;
-#else
-    clientSku = MSID_CLIENT_SKU_MSAL_IOS;
-#endif
 
     NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
                                       @"client_id": @"my_client_id",
