@@ -56,6 +56,8 @@
     jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
     
     jsonObject[MSID_CCS_REQUEST_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_CCS_REQUEST_ID_KEY];
+
+    jsonObject[MSID_CCS_REQUEST_SEQUENCE_RESPONSE] = httpResponse.allHeaderFields[MSID_CCS_REQUEST_SEQUENCE_KEY];
     
     NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
     if (![NSString msidIsStringNilOrBlank:clientTelemetry])

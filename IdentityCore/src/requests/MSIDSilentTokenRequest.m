@@ -592,6 +592,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                   accountMetadataCache:self.metadataCache
                                        validateAccount:NO
                                       saveSSOStateOnly:NO
+                                      brokerAppVersion:nil
                                                  error:nil
                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
          {
