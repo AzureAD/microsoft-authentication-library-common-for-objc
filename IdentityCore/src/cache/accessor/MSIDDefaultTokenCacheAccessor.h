@@ -58,6 +58,8 @@
 - (MSIDAccount *)getAccountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                authority:(MSIDAuthority *)authority
                                realmHint:(NSString *)realmHint
+                     accountHomeTenantId:(NSString *)accountHomeTenantId
+                     accountSelectionLog:(NSString **)accountSelectionLog
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 

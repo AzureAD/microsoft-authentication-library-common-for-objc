@@ -342,7 +342,7 @@ return NO; \
         {
             // On the second level we're expecting NSDictionaries keyed off of the user ids (an NSString*)
             RETURN_ERROR_IF_CONDITION_FALSE([userId isKindOfClass:[NSString class]], MSIDErrorCacheBadFormat, @"User ID key is not of the expected class type.");
-            id userDict = [tokens objectForKey:userId];
+            NSDictionary *userDict = [tokens objectForKey:userId];
             RETURN_ERROR_IF_CONDITION_FALSE([userDict isKindOfClass:[NSMutableDictionary class]], MSIDErrorCacheBadFormat, @"User ID should have mutable dictionaries in the cache.");
             
             for (id key in userDict)
@@ -378,7 +378,7 @@ return NO; \
         userId = @"";
     }
     
-    NSMutableDictionary *userTokens = [self.cache[@"tokens"] objectForKey:userId];
+    NSMutableDictionary *userTokens = [(NSMutableDictionary *)self.cache[@"tokens"] objectForKey:userId];
     if (!userTokens)
     {
         return YES;
@@ -386,7 +386,7 @@ return NO; \
 
     if (!key.service)
     {
-        [self.cache[@"tokens"] removeObjectForKey:userId];
+        [(NSMutableDictionary *)self.cache[@"tokens"] removeObjectForKey:userId];
         return YES;
     }
     
@@ -400,7 +400,7 @@ return NO; \
     // Check to see if we need to remove the overall dict
     if (!userTokens.count)
     {
-        [self.cache[@"tokens"] removeObjectForKey:userId];
+        [(NSMutableDictionary *)self.cache[@"tokens"] removeObjectForKey:userId];
     }
     
     return YES;

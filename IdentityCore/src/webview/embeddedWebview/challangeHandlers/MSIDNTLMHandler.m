@@ -71,7 +71,7 @@
              {
                  NSURLCredential *credential = [NSURLCredential credentialWithUser:username
                                                                           password:password
-                                                                       persistence:NSURLCredentialPersistenceForSession];
+                                                                       persistence:[self getCredentialPersistence]];
                  
                  completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
                  
@@ -81,6 +81,11 @@
     }//@synchronized
     
     return YES;
+}
+
++ (NSURLCredentialPersistence)getCredentialPersistence
+{
+    return NSURLCredentialPersistenceForSession;
 }
 
 @end

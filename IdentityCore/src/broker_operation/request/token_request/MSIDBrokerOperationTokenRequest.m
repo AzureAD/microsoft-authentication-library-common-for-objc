@@ -109,6 +109,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
         _requestSentDate = [NSDate msidDateFromTimeStamp:json[MSID_BROKER_REQUEST_SENT_TIMESTAMP]];
         
         _nonce = [json msidStringObjectForKey:@"nonce"];
+        _accountHomeTenantId = [json msidStringObjectForKey:MSID_BROKER_ACCOUNT_HOME_TENANT_ID];
     }
     
     return self;
@@ -137,6 +138,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     json[MSID_BROKER_CLAIMS_KEY] = [[self.claimsRequest jsonDictionary] msidJSONSerializeWithContext:nil];
     json[MSID_BROKER_REQUEST_SENT_TIMESTAMP] = [self.requestSentDate msidDateToFractionalTimestamp:10];
     json[@"nonce"] = self.nonce;
+    json[MSID_BROKER_ACCOUNT_HOME_TENANT_ID] = self.accountHomeTenantId;
     
     return json;
 }
