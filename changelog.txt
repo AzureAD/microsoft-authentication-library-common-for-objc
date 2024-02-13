@@ -1,3 +1,6 @@
+TBD:
+* Implement sign out request for browser sso #1328
+
 Version 1.7.31
 * Add additional error codes for PSSO KeyId mismatch (#1322)
 
