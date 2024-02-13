@@ -30,11 +30,11 @@
 #import "MSIDDeviceHeader.h"
 #import "MSIDCredentialInfo.h"
 
-@interface MSIDMSIDBrowserNativeMessageGetCookiesResponseTests : XCTestCase
+@interface MSIDBrowserNativeMessageGetCookiesResponseTests : XCTestCase
 
 @end
 
-@implementation MSIDMSIDBrowserNativeMessageGetCookiesResponseTests
+@implementation MSIDBrowserNativeMessageGetCookiesResponseTests
 
 - (void)testResponseType_shouldBeGenericResponse
 {
