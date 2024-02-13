@@ -32,7 +32,7 @@
 
 + (void)load
 {
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+//    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
 + (NSString *)operation
