@@ -28,6 +28,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDConstants.h"
+#import "MSIDPromptType_Internal.h"
 
 NSString *const BROWSER_NATIVE_MESSAGE_CORRELATION_KEY = @"correlationId";
 NSString *const BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY = @"clientId";
@@ -103,7 +104,9 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
     if (![requestJson msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_REDIRECT_URI_KEY required:YES error:error]) return nil;
     _redirectUri = requestJson[BROWSER_NATIVE_MESSAGE_REDIRECT_URI_KEY];
     
-    _prompt = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_PROMPT_KEY];
+    NSString *promptString = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_PROMPT_KEY];
+    _prompt = MSIDPromptTypeFromString(promptString);
+    
     _nonce = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_NONCE_KEY];
     _isSts = [requestJson msidBoolObjectForKey:BROWSER_NATIVE_MESSAGE_IS_STS_KEY];
     _state = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_STATE_KEY];

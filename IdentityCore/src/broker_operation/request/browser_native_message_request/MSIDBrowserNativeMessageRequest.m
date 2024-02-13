@@ -42,7 +42,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
     {
         if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_SENDER_KEY required:YES error:error]) return nil;
         NSString *senderString = json[BROWSER_NATIVE_MESSAGE_SENDER_KEY];
-        senderString = @"https://lemon-glacier-0fa89f11e.1.azurestaticapps.net/";
+        
         _sender = [NSURL URLWithString:senderString];
         
         if (!_sender)
