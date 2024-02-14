@@ -27,9 +27,10 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDConstants.h"
+#import "MSIDPromptType_Internal.h"
 
 NSString *const BROWSER_NATIVE_MESSAGE_CORRELATION_KEY = @"correlationId";
-NSString *const BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY = @"accountId";
 NSString *const BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY = @"clientId";
 NSString *const BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY = @"authority";
 NSString *const BROWSER_NATIVE_MESSAGE_SCOPE_KEY = @"scope";
@@ -47,7 +48,7 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
 
 + (void)load
 {
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+//    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
 + (NSString *)operation
@@ -66,18 +67,8 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
     NSDictionary *requestJson = json[BROWSER_NATIVE_MESSAGE_REQUEST_KEY];
     
     _loginHint = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_LOGIN_HINT_KEY];
-    NSString *homeAccountId = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY];
-    
-    if (homeAccountId)
-    {
-        NSArray *accountComponents = [homeAccountId componentsSeparatedByString:@"."];
-        if ([accountComponents count] != 2)
-        {
-            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"accountId is invalid.", nil, nil, nil, nil, nil, YES);
-            
-            return nil;
-        }
-    }
+    NSString *homeAccountId = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY];
+    if (homeAccountId != nil && ![MSIDAccountIdentifier isAccountIdValid:homeAccountId error:error]) return nil;
     
     if (homeAccountId || _loginHint)
     {
@@ -113,7 +104,9 @@ NSString *const BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
     if (![requestJson msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_REDIRECT_URI_KEY required:YES error:error]) return nil;
     _redirectUri = requestJson[BROWSER_NATIVE_MESSAGE_REDIRECT_URI_KEY];
     
-    _prompt = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_PROMPT_KEY];
+    NSString *promptString = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_PROMPT_KEY];
+    _prompt = MSIDPromptTypeFromString(promptString);
+    
     _nonce = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_NONCE_KEY];
     _isSts = [requestJson msidBoolObjectForKey:BROWSER_NATIVE_MESSAGE_IS_STS_KEY];
     _state = [requestJson msidStringObjectForKey:BROWSER_NATIVE_MESSAGE_STATE_KEY];

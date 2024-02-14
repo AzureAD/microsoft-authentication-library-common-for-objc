@@ -52,5 +52,6 @@ typedef NS_ENUM(NSInteger, MSIDLegacyAccountIdentifierType)
 + (NSString *)legacyAccountIdentifierTypeAsString:(MSIDLegacyAccountIdentifierType)type;
 + (MSIDLegacyAccountIdentifierType)legacyAccountIdentifierTypeFromString:(NSString *)typeString;
 + (NSString *)homeAccountIdentifierFromUid:(NSString *)uid utid:(NSString *)utid;
++ (BOOL)isAccountIdValid:(NSString *)accountId error:(NSError **)error;
 
 @end
