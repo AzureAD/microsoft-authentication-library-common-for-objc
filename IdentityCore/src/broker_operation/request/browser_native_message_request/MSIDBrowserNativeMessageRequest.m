@@ -26,9 +26,8 @@
 #import "MSIDBrowserNativeMessageRequest.h"
 #import "MSIDBrokerConstants.h"
 
-NSString *const BROWSER_NATIVE_MESSAGE_SENDER_KEY = @"sender";
-NSString *const BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
-
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY = @"sender";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
 
 @implementation MSIDBrowserNativeMessageRequest
 
@@ -40,8 +39,8 @@ NSString *const BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:BROWSER_NATIVE_MESSAGE_SENDER_KEY required:YES error:error]) return nil;
-        NSString *senderString = json[BROWSER_NATIVE_MESSAGE_SENDER_KEY];
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY required:YES error:error]) return nil;
+        NSString *senderString = json[MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY];
         
         _sender = [NSURL URLWithString:senderString];
         
