@@ -186,7 +186,9 @@
         queryDictionary[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = self.requestParameters.nestedAuthBrokerClientId;
         queryDictionary[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = self.requestParameters.nestedAuthBrokerRedirectUri;
     }
-
+    
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
     return queryDictionary;
 }
 
@@ -214,6 +216,8 @@
         [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedAuthBrokerRedirectUri forKey:MSID_NESTED_AUTH_BROKER_REDIRECT_URI];
     }
     
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
     return resumeDictionary;
 }
 

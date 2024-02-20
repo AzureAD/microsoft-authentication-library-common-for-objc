@@ -32,10 +32,12 @@
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDOAuthRequestConfigurator.h"
 #import "MSIDHttpRequestServerTelemetryHandling.h"
+#import "MSIDBrokerConstants.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
 static NSTimeInterval s_requestTimeoutInterval = 300;
+static NSDictionary *s_experimentBag = nil;
 
 @implementation MSIDHttpRequest
 
@@ -55,6 +57,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 #endif
         _retryCounter = s_retryCount;
         _retryInterval = s_retryInterval;
+        _experimentBag = s_experimentBag;
         _requestTimeoutInterval = s_requestTimeoutInterval;
         _cache = [NSURLCache sharedURLCache];
         _shouldCacheResponse = NO;
@@ -70,8 +73,14 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
+    NSMutableDictionary *localHeaders = nil;
+    if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_ENABLE_CONNECTION_CLOSE])
+    {
+        localHeaders = self.headers ? [self.headers mutableCopy] : [NSMutableDictionary dictionary];
+        [localHeaders setValue:MSID_HTTP_CONNECTION_VALUE forKey:MSID_HTTP_CONNECTION];
+    }
 
-    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
+    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:localHeaders ?: self.headers];
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
     {
@@ -123,7 +132,21 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
           if (error)
           {
-              completeBlockWrapper(nil, error);
+              if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_RETRY_ON_NETWORK])
+              {
+                  [self.errorHandler handleError:error
+                                    httpResponse:nil
+                                            data:nil
+                                     httpRequest:self
+                              responseSerializer:nil
+                              externalSSOContext:nil
+                                         context:self.context
+                                 completionBlock:completeBlockWrapper];
+              }
+              else
+              {
+                  if (completeBlockWrapper) completeBlockWrapper(nil, error);
+              }
           }
           else if (httpResponse.statusCode == 200)
           {
@@ -137,7 +160,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                   [self setCachedResponse:cachedResponse forRequest:self.urlRequest];
               }
 
-              completeBlockWrapper(responseObject, error);
+              if (completeBlockWrapper) completeBlockWrapper(responseObject, error);
           }
           else
           {
@@ -156,7 +179,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
               }
               else
               {
-                  completeBlockWrapper(nil, error);
+                  if (completeBlockWrapper) completeBlockWrapper(nil, error);
               }
           }
 
@@ -166,10 +189,12 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 + (NSInteger)retryCountSetting { return s_retryCount; }
 + (void)setRetryCountSetting:(NSInteger)retryCountSetting { s_retryCount = retryCountSetting; }
 
-+ (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
 + (void)setRetryIntervalSetting:(NSTimeInterval)retryIntervalSetting { s_retryInterval = retryIntervalSetting; }
++ (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
 + (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval { s_requestTimeoutInterval = requestTimeoutInterval; }
 + (NSTimeInterval)requestTimeoutInterval { return s_requestTimeoutInterval; }
++ (void)setExperimentBagSetting:(NSDictionary *)experimentBagSetting { s_experimentBag = experimentBagSetting; }
++ (NSDictionary *)experimentBagSetting { return s_experimentBag; }
 
 - (NSCachedURLResponse *)cachedResponse
 {

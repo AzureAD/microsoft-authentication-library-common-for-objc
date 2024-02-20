@@ -107,7 +107,7 @@
 
     [self keyValueObservingExpectationForObject:httpRequest keyPath:@"sendWithBlockCounter" expectedValue:@1];
 
-    [self.errorHandler handleError:[NSError new]
+    [self.errorHandler handleError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNetworkConnectionLost userInfo:nil]
                       httpResponse:httpResponse
                               data:nil
                        httpRequest:httpRequest
@@ -347,6 +347,64 @@
 
     XCTAssertEqualObjects(errorResponse.errorDescription, @"Invalid format for 'authorization_endpoint' value.");
     XCTAssertEqualObjects(errorResponse.error, @"invalid_request");
+}
+
+- (void)testHandleError_whenItIsNoNetworkError_shouldRetryRequestAndDecreseRetryCounter
+{
+    NSError *networkError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNetworkConnectionLost userInfo:nil];
+    __auto_type httpRequest = [MSIDHttpTestRequest new];
+    __auto_type context = [MSIDTestContext new];
+    __block BOOL isBlockInvoked = NO;
+    __auto_type block = ^(__unused id response, __unused NSError *error) {
+        isBlockInvoked = YES;
+    };
+
+    [self keyValueObservingExpectationForObject:httpRequest keyPath:@"sendWithBlockCounter" expectedValue:@1];
+
+    [self.errorHandler handleError:networkError
+                      httpResponse:nil
+                              data:nil
+                       httpRequest:httpRequest
+                responseSerializer:[MSIDHttpResponseSerializer new]
+                externalSSOContext:nil
+                           context:context
+                   completionBlock:block];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
+    XCTAssertEqualObjects(block, httpRequest.passedBlock);
+    XCTAssertEqual(1, httpRequest.sendWithBlockCounter);
+    XCTAssertEqual(0, httpRequest.retryCounter);
+    XCTAssertFalse(isBlockInvoked);
+}
+
+- (void)testHandleError_whenItIsNotNoNetworkError_shouldNotRetryRequestAndDecreseRetryCounter
+{
+    NSError *networkError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+    __auto_type httpRequest = [MSIDHttpTestRequest new];
+    __auto_type context = [MSIDTestContext new];
+    __block BOOL isBlockInvoked = NO;
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
+    __auto_type block = ^(__unused id response, __unused NSError *error) {
+        isBlockInvoked = YES;
+        [expectation fulfill];
+    };
+
+    [self.errorHandler handleError:networkError
+                      httpResponse:nil
+                              data:nil
+                       httpRequest:httpRequest
+                responseSerializer:[MSIDHttpResponseSerializer new]
+                externalSSOContext:nil
+                           context:context
+                   completionBlock:block];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
+    XCTAssertNil(httpRequest.passedBlock);
+    XCTAssertEqual(0, httpRequest.sendWithBlockCounter);
+    XCTAssertEqual(1, httpRequest.retryCounter);
+    XCTAssertTrue(isBlockInvoked);
 }
 
 @end
