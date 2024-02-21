@@ -48,5 +48,6 @@ typedef NS_ENUM(NSInteger, MSIDExternalPRTKeyLocationType)
  
 - (BOOL)isDevicelessPRT;
 - (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval;
+- (NSString *)prtId;
 
 @end

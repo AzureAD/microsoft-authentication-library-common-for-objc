@@ -231,4 +231,11 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     return kDefaultPRTRefreshInterval;
 }
 
+- (NSString *)prtId
+{
+    NSString *accountId = self.accountIdentifier.homeAccountId ?: @"";
+    NSString *deviceId = self.deviceID ?: @"";
+    return [NSString stringWithFormat:@"%@%@", accountId, deviceId];
+}
+
 @end
