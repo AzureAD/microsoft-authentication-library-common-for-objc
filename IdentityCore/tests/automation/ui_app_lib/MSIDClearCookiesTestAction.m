@@ -55,6 +55,20 @@
         count++;
     }
 
+    // new cookie storage maybe?
+#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
+    NSString *ADB_BROKER_SHARED_APP_GROUP = @"group.com.microsoft.azureauthenticator.sso";
+#elif TARGET_OS_OSX
+    NSString *ADB_BROKER_SHARED_APP_GROUP = @"com.microsoft.identity.ssoextensiongroup";
+#endif
+    
+    NSHTTPCookieStorage *separatedStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:ADB_BROKER_SHARED_APP_GROUP];
+    for (NSHTTPCookie *cookie in separatedStorage.cookies)
+    {
+        [separatedStorage deleteCookie:cookie];
+        count++;
+    }
+
     // Clear WKWebView cookies
     WKWebsiteDataStore *dateStore = [WKWebsiteDataStore defaultDataStore];
     
