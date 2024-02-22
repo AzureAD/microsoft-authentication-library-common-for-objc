@@ -57,3 +57,4 @@ for i in range(len(contents)):
 # write into file
 with open(file_path, "w") as f:
     f.write("\n".join(contents))
+ 
