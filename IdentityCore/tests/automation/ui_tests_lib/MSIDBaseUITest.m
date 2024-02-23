@@ -382,6 +382,21 @@ static MSIDTestConfigurationProvider *s_confProvider;
         XCTAssertTrue([result isKindOfClass:[NSArray class]]);
         
         results = (NSArray *)result;
+        
+        if (!results.count)
+        {
+            // Try again because Lab API is sometimes flaky
+            [self.class.confProvider.operationAPIRequestHandler executeAPIRequest:accountRequest
+                                                                  responseHandler:responseHandler
+                                                                completionHandler:^(id secondResult, __unused NSError *secondError)
+            {
+                XCTAssertNotNil(secondResult);
+                XCTAssertTrue([secondResult isKindOfClass:[NSArray class]]);
+                results = (NSArray *)secondResult;
+                XCTAssertTrue(results.count >= 1);
+            }];
+        }
+        
         XCTAssertTrue(results.count >= 1);
         
         XCTestExpectation *passwordLoadExpecation = [self expectationWithDescription:@"Get password"];

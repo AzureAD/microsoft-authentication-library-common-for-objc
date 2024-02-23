@@ -48,29 +48,45 @@
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
     NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    int count = 0;
+    __block int count = 0;
     for (NSHTTPCookie *cookie in cookieStore.cookies)
     {
         [cookieStore deleteCookie:cookie];
         count++;
     }
-
-    // Clear WKWebView cookies
-    WKWebsiteDataStore *dateStore = [WKWebsiteDataStore defaultDataStore];
     
-    [dateStore fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
-                     completionHandler:^(NSArray<WKWebsiteDataRecord *> *records) {
-        for (WKWebsiteDataRecord *record in records) {
-            [dateStore removeDataOfTypes:record.dataTypes forDataRecords:@[record] completionHandler:^{}];
+    WKWebsiteDataStore *wkWebsiteStorage = [WKWebsiteDataStore defaultDataStore];
+    WKHTTPCookieStore *wkStorage = wkWebsiteStorage.httpCookieStore;
+    
+    dispatch_group_t cookieClearingGroup = dispatch_group_create();
+    
+    [wkStorage getAllCookies:^void (NSArray<NSHTTPCookie *> *wkCookies)
+    {
+        for (NSHTTPCookie *wkCookie in wkCookies)
+        {
+            dispatch_group_enter(cookieClearingGroup);
+            count++;
+            [wkStorage deleteCookie:wkCookie completionHandler:^{
+                dispatch_group_leave(cookieClearingGroup);
+            }];
         }
     }];
-    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
-                                                                                    success:YES
-                                                                             additionalInfo:@{@"cleared_items_count":@(count)}];
-    if (completionBlock)
-    {
-        completionBlock(testResult);
-    }
+    
+    dispatch_group_wait(cookieClearingGroup, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC)));
+    
+    NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+    [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
+                                               modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
+                                           completionHandler:
+     ^{
+        MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
+                                                                                        success:YES
+                                                                                 additionalInfo:@{@"cleared_items_count":@(count)}];
+        if (completionBlock)
+        {
+            completionBlock(testResult);
+        }
+    }];
 }
 
 @end
