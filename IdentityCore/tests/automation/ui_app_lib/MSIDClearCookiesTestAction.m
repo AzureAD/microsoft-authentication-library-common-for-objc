@@ -70,16 +70,15 @@
     NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
     [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
                                                modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
-                                           completionHandler:
-     ^{
-        MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
-                                                                                        success:YES
-                                                                                 additionalInfo:@{@"cleared_items_count":@(count)}];
-        if (completionBlock)
-        {
-            completionBlock(testResult);
-        }
-    }];
+                                           completionHandler:nil];
+    
+    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
+                                                                                    success:YES
+                                                                             additionalInfo:@{@"cleared_items_count":@(count)}];
+    if (completionBlock)
+    {
+        completionBlock(testResult);
+    }
 }
 
 @end
