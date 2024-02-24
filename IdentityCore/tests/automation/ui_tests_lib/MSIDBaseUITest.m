@@ -383,7 +383,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
         
         results = (NSArray *)result;
         
-        if (!results.count)
+        if (!results.count) 
         {
             // Try again because Lab API is sometimes flaky
             [self.class.confProvider.operationAPIRequestHandler executeAPIRequest:accountRequest
