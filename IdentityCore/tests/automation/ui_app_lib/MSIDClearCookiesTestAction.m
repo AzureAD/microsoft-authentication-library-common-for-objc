@@ -57,23 +57,16 @@
     
     WKWebsiteDataStore *wkWebsiteStorage = [WKWebsiteDataStore defaultDataStore];
     WKHTTPCookieStore *wkStorage = wkWebsiteStorage.httpCookieStore;
-    
-    dispatch_group_t cookieClearingGroup = dispatch_group_create();
-    
+        
     [wkStorage getAllCookies:^void (NSArray<NSHTTPCookie *> *wkCookies)
     {
         for (NSHTTPCookie *wkCookie in wkCookies)
         {
-            dispatch_group_enter(cookieClearingGroup);
             count++;
-            [wkStorage deleteCookie:wkCookie completionHandler:^{
-                dispatch_group_leave(cookieClearingGroup);
-            }];
+            [wkStorage deleteCookie:wkCookie completionHandler:nil];
         }
     }];
-    
-    dispatch_group_wait(cookieClearingGroup, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10.0 * NSEC_PER_SEC)));
-    
+        
     NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
     [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
                                                modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
