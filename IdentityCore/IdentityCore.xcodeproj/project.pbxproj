@@ -2831,6 +2831,18 @@
 		656E666029BD81B000368F0A /* MSIDAADEndpointProviderTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADEndpointProviderTests.m; sourceTree = "<group>"; };
 		6599299C26296AA600830FD5 /* MSIDRequestTelemetryConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDRequestTelemetryConstants.h; sourceTree = "<group>"; };
 		659929AA26296B0200830FD5 /* MSIDRequestTelemetryConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDRequestTelemetryConstants.m; sourceTree = "<group>"; };
+		6DD793862B8D37C5002BA788 /* identitycore__tests__vision.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__vision.xcconfig; sourceTree = "<group>"; };
+		6DD793872B8D37C5002BA788 /* identitycore__common__vision.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__common__vision.xcconfig; sourceTree = "<group>"; };
+		6DD793882B8D37C5002BA788 /* identitycore__lib__common__vision.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__lib__common__vision.xcconfig; sourceTree = "<group>"; };
+		6DD793892B8D37C5002BA788 /* identitycore__automation__vision.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__vision.xcconfig; sourceTree = "<group>"; };
+		6DD7938A2B8D37C5002BA788 /* identitycore__idlib__vision.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__idlib__vision.xcconfig; sourceTree = "<group>"; };
+		6DD7938B2B8D37C5002BA788 /* identitycore__testlib__vision.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__testlib__vision.xcconfig; sourceTree = "<group>"; };
+		6DF3FE572B8DCA94002A9FE6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6DF3FE592B8DCA94002A9FE6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6DF3FE5B2B8DCAAA002A9FE6 /* MSIDThrottlingModelFactoryTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingModelFactoryTest.m; sourceTree = "<group>"; };
+		6DF3FE5C2B8DCAAA002A9FE6 /* MSIDThrottlingMetaDataTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingMetaDataTest.m; sourceTree = "<group>"; };
+		6DF3FE5D2B8DCAAA002A9FE6 /* MSIDThrottlingModel429Test.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingModel429Test.m; sourceTree = "<group>"; };
+		6DF3FE5E2B8DCAAA002A9FE6 /* MSIDThrottlingModelNonRecoverableServerError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingModelNonRecoverableServerError.m; sourceTree = "<group>"; };
 		6E4F658B24D488010070CA36 /* MSIDSymmetricKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSymmetricKey.h; sourceTree = "<group>"; };
 		6E4F658D24D4883A0070CA36 /* MSIDSymmetricKey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSymmetricKey.m; sourceTree = "<group>"; };
 		6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSymmetricKeyTests.m; sourceTree = "<group>"; };
@@ -4448,6 +4460,34 @@
 			path = ui;
 			sourceTree = "<group>";
 		};
+		6DF3FE562B8DCA94002A9FE6 /* vision */ = {
+			isa = PBXGroup;
+			children = (
+				6DF3FE572B8DCA94002A9FE6 /* Info.plist */,
+			);
+			path = vision;
+			sourceTree = "<group>";
+		};
+		6DF3FE582B8DCA94002A9FE6 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				6DF3FE592B8DCA94002A9FE6 /* Info.plist */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		6DF3FE5A2B8DCAAA002A9FE6 /* throttling */ = {
+			isa = PBXGroup;
+			children = (
+				6DF3FE5B2B8DCAAA002A9FE6 /* MSIDThrottlingModelFactoryTest.m */,
+				6DF3FE5C2B8DCAAA002A9FE6 /* MSIDThrottlingMetaDataTest.m */,
+				6DF3FE5D2B8DCAAA002A9FE6 /* MSIDThrottlingModel429Test.m */,
+				6DF3FE5E2B8DCAAA002A9FE6 /* MSIDThrottlingModelNonRecoverableServerError.m */,
+			);
+			name = throttling;
+			path = tests/throttling;
+			sourceTree = SOURCE_ROOT;
+		};
 		8878C61B29DC9DB2002F5F4B /* ciam */ = {
 			isa = PBXGroup;
 			children = (
@@ -5563,26 +5603,32 @@
 		D626FF751FBA7A6600EE4487 /* xcconfig */ = {
 			isa = PBXGroup;
 			children = (
-				D6CF4E9D1FC3626B00CD70C5 /* identitycore__common__ios.xcconfig */,
-				D6CF4E921FC3626900CD70C5 /* identitycore__common__mac.xcconfig */,
-				D6CF4E941FC3626A00CD70C5 /* identitycore__common.xcconfig */,
-				D6CF4E931FC3626A00CD70C5 /* identitycore__debug.xcconfig */,
-				D6CF4E9E1FC3626B00CD70C5 /* identitycore__idlib__common.xcconfig */,
-				D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */,
-				D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */,
-				D6CF4E9F1FC3626B00CD70C5 /* identitycore__lib__common__ios.xcconfig */,
-				D6CF4E911FC3626900CD70C5 /* identitycore__lib__common__mac.xcconfig */,
-				D6CF4E951FC3626A00CD70C5 /* identitycore__lib__common.xcconfig */,
-				D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */,
-				D6CF4EA11FC3626C00CD70C5 /* identitycore__testlib__common.xcconfig */,
-				D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */,
-				D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */,
-				D6CF4E9A1FC3626B00CD70C5 /* identitycore__tests__common.xcconfig */,
-				D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */,
-				D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */,
-				B27551E120817AF400AA7A38 /* identitycore__automation__common.xcconfig */,
+				6DD793892B8D37C5002BA788 /* identitycore__automation__vision.xcconfig */,
+				6DD793872B8D37C5002BA788 /* identitycore__common__vision.xcconfig */,
+				6DD7938A2B8D37C5002BA788 /* identitycore__idlib__vision.xcconfig */,
+				6DD793882B8D37C5002BA788 /* identitycore__lib__common__vision.xcconfig */,
+				6DD7938B2B8D37C5002BA788 /* identitycore__testlib__vision.xcconfig */,
+				6DD793862B8D37C5002BA788 /* identitycore__tests__vision.xcconfig */,
 				B27551E320817AF400AA7A38 /* identitycore__automation__ios.xcconfig */,
+				D6CF4E9D1FC3626B00CD70C5 /* identitycore__common__ios.xcconfig */,
+				D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */,
+				D6CF4E9F1FC3626B00CD70C5 /* identitycore__lib__common__ios.xcconfig */,
+				D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */,
+				D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */,
 				B27551E220817AF400AA7A38 /* identitycore__automation__mac.xcconfig */,
+				D6CF4E921FC3626900CD70C5 /* identitycore__common__mac.xcconfig */,
+				D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */,
+				D6CF4E911FC3626900CD70C5 /* identitycore__lib__common__mac.xcconfig */,
+				D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */,
+				D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */,
+				D6CF4E941FC3626A00CD70C5 /* identitycore__common.xcconfig */,
+				D6CF4E9E1FC3626B00CD70C5 /* identitycore__idlib__common.xcconfig */,
+				D6CF4E951FC3626A00CD70C5 /* identitycore__lib__common.xcconfig */,
+				D6CF4EA11FC3626C00CD70C5 /* identitycore__testlib__common.xcconfig */,
+				D6CF4E9A1FC3626B00CD70C5 /* identitycore__tests__common.xcconfig */,
+				B27551E120817AF400AA7A38 /* identitycore__automation__common.xcconfig */,
+				D6CF4E931FC3626A00CD70C5 /* identitycore__debug.xcconfig */,
+				D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */,
 			);
 			path = xcconfig;
 			sourceTree = "<group>";
@@ -5798,6 +5844,14 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				6DF3FE582B8DCA94002A9FE6 /* ios */,
+				B86FA7C52383748000E5195A /* mac */,
+				6DF3FE562B8DCA94002A9FE6 /* vision */,
+				B2C758FE207EE58200C1FE74 /* automation */,
+				231CE9BD1FE8710A00E95D3E /* integration */,
+				23642AB32187D88C00F97009 /* mocks */,
+				6DF3FE5A2B8DCAAA002A9FE6 /* throttling */,
+				D626FFE91FBD200A00EE4487 /* util */,
 				A0410E4F25E88B5E004D80FD /* MSIDThrottlingMetaDataTest.m */,
 				A0410E1925E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m */,
 				A0410E0725E81C5D004D80FD /* MSIDThrottlingModel429Test.m */,
@@ -5814,10 +5868,6 @@
 				A08D09DB24A85A1C00C9193D /* MSIDRefreshTokenGrantRequestTest.m */,
 				A08D09E824A85A1E00C9193D /* MSIDSilentTokenRequestTest.m */,
 				A08D09E224A85A1D00C9193D /* MSIDTokenRequestTest.m */,
-				B2C758FE207EE58200C1FE74 /* automation */,
-				231CE9BD1FE8710A00E95D3E /* integration */,
-				B86FA7C52383748000E5195A /* mac */,
-				23642AB32187D88C00F97009 /* mocks */,
 				23AE9D9B213A06EF00B285F3 /* MSIDAadAuthorityCacheTests.m */,
 				232C658B2138BED0002A41FE /* MSIDAADAuthorityMetadataResponseSerializerTests.m */,
 				8878C60629DBB2C9002F5F4B /* MSIDCIAMAuthorityTests.m */,
@@ -5942,7 +5992,6 @@
 				96CD652F20C8ACBE004813EE /* MSIDWebviewResponseTests.m */,
 				80B6BF3B2480A3E30031BFE8 /* MSIDWorkPlaceJoinUtilTests.m */,
 				583BFCB024D907410035B901 /* MSIDRedirectUriVerifierTests.m */,
-				D626FFE91FBD200A00EE4487 /* util */,
 				1E0B144E24CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.h */,
 				1E0B144F24CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.m */,
 				6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */,
@@ -6854,6 +6903,7 @@
 			targets = (
 				D68FB4861FBA698A005308BB /* IdentityCore iOS */,
 				D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */,
+				917A6EB42B6332CD005D855F /* IdentityCore visionOS */,
 				D626FFD21FBD1F2B00EE4487 /* IdentityTest iOS */,
 				D626FFDF1FBD1F5700EE4487 /* IdentityTest Mac */,
 				D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */,
@@ -6864,7 +6914,6 @@
 				B2ED1BA52204D24700A24E82 /* IdentityAutomationTestLib iOS */,
 				B2ED1BB22204D26700A24E82 /* IdentityAutomationTestLib Mac */,
 				1EE8FF5524F4BB3800CA1445 /* IdentityCoreSwift */,
-				917A6EB42B6332CD005D855F /* IdentityCore visionOS */,
 			);
 		};
 /* End PBXProject section */
@@ -8959,7 +9008,7 @@
 		};
 		917A701F2B6332CD005D855F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
+			baseConfigurationReference = 6DD7938A2B8D37C5002BA788 /* identitycore__idlib__vision.xcconfig */;
 			buildSettings = {
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -8977,7 +9026,7 @@
 		};
 		917A70202B6332CD005D855F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
+			baseConfigurationReference = 6DD7938A2B8D37C5002BA788 /* identitycore__idlib__vision.xcconfig */;
 			buildSettings = {
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -9643,6 +9692,7 @@
 				GCC_WARN_SHADOW = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Debug;
 		};
@@ -9658,6 +9708,7 @@
 				GCC_WARN_SHADOW = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Release;
 		};

@@ -1,0 +1,13 @@
+#include "identitycore__automation__common.xcconfig"
+#include "identitycore__common__vision.xcconfig"
+
+INFOPLIST_FILE = tests/vision/Info.plist
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @loader_path/Frameworks
+DEFINES_MODULE = YES
+SWIFT_VERSION = 4.1
+SDKROOT = xros
+CODE_SIGN_IDENTITY = "Apple Development"
+XROS_DEPLOYMENT_TARGET = 1.0
+TARGETED_DEVICE_FAMILY = 7
+ENABLE_BITCODE = YES
+SKIP_INSTALL = YES
