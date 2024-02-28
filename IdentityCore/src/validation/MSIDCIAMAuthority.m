@@ -102,7 +102,7 @@
     return [self initWithURL:url validateFormat:YES context:context error:error];
 }
 
-+ (BOOL) isAuthorityFormatValid:(NSURL *)url
++ (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
@@ -110,13 +110,24 @@
     
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
     
-    if (hostComponents.count < 2)
+    if (hostComponents.count < 3)
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Non-custom CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", nil, nil, nil, context.correlationId, nil, YES);
         }
         
+        return NO;
+    }
+    
+    NSString *ciamTenant = hostComponents[1];
+    
+    if (![ciamTenant.lowercaseString isEqualToString:@"ciamlogin".lowercaseString])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"It is not CIAM authority.", nil, nil, nil, context.correlationId, nil, YES);
+        }
         return NO;
     }
     
@@ -138,6 +149,7 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
+    
     if (!url)
     {
         if (error)
