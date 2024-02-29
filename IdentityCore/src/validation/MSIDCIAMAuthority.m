@@ -74,8 +74,18 @@
     
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
     
+    // Check if there are at least two components
+    if (hostComponents.count < 2) {
+        if (error) {
+            *error = [NSError errorWithDomain:MSIDErrorDomain
+                                         code:MSIDErrorInternal
+                                     userInfo:@{NSLocalizedDescriptionKey: @"Invalid URL format: Missing host components."}];
+        }
+        return nil;
+    }
+    
     NSString *ciamTenant = hostComponents[1];
-    if ([ciamTenant.lowercaseString isEqualToString:@"ciamlogin".lowercaseString])
+    if ([ciamTenant.lowercaseString isEqualToString:@"ciamlogin"])
     {
         //If we have the URL https://tenant.ciamlogin.com or https://tenant.ciamlogin.com/
         if (url.pathComponents.count == 0 || ((url.pathComponents.count == 1) && [[url lastPathComponent] isEqual:@"/"]))
@@ -177,7 +187,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDCIAMAuthority *authority = [[self.class allocWithZone:zone] initWithURL:[_url copyWithZone:zone]
-                                                                validateFormat:NO context:nil error:nil];
+                                                                 validateFormat:NO context:nil error:nil];
     authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
     authority.metadata = self.metadata;
     return authority;

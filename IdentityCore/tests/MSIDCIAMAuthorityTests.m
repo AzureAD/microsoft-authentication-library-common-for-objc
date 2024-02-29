@@ -50,7 +50,7 @@
 
 - (void)testInitCustomCIAMAuthority_whenUrlSchemeIsNotHttps_shouldReturnError
 {
-    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"http://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc"];
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"http://tenantname.ciamextensibility.com/tenantID"];
     NSError *error;
     
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
@@ -73,7 +73,7 @@
 
 - (void)testInitCustomCIAMAuthority_withValidUrl_shouldReturnNilError
 {
-    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc"];
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://tenantname.ciamextensibility.com/tenantID"];
     NSError *error;
     
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
@@ -95,7 +95,7 @@
 
 - (void)testInitCustomCIAMAuthority_withValidUrlAndSlash_shouldReturnNilError
 {
-    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/"];
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://tenantname.ciamextensibility.com/tenantID/"];
     NSError *error;
     
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
@@ -117,7 +117,7 @@
 
 - (void)testInitCustomCIAMAuthority_withValidUrlAndTenant_shouldReturnNilError
 {
-    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/logintenantciam20230530"];
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://tenantname.ciamextensibility.com/tenantID/tenantname"];
     NSError *error;
     
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
@@ -189,12 +189,12 @@
 
 - (void)testInitCustomCIAMAuthority_whenCustomCIAMAuthorityValid_shouldReturnNoExtraNormalization
 {
-    __auto_type authorityUrl = [@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/logintenantciam20230530" msidUrl];
+    __auto_type authorityUrl = [@"https://tenantname.ciamextensibility.com/tenantID/tenantname" msidUrl];
     NSError *error;
     
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
     
-    XCTAssertEqualObjects(authority.url, [@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/logintenantciam20230530" msidUrl]);
+    XCTAssertEqualObjects(authority.url, [@"https://tenantname.ciamextensibility.com/tenantID/tenantname" msidUrl]);
     XCTAssertNil(error);
 }
 
@@ -244,12 +244,12 @@
 
 - (void)testInitCustomCIAMAuthority_whenValidUrlAndTenant_shouldParseEnvironment
 {
-    __auto_type authorityUrl = [@"https://logintenantciam20230530.ciamextensibility.com/7b634a48-21e6-4eb3-8da2-a48f4b6340bc/logintenantciam20230530" msidUrl];
+    __auto_type authorityUrl = [@"https://tenantname.ciamextensibility.com/tenantID/tenantname" msidUrl];
     NSError *error;
     
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
     
-    XCTAssertEqualObjects(authority.environment, @"logintenantciam20230530.ciamextensibility.com");
+    XCTAssertEqualObjects(authority.environment, @"tenantname.ciamextensibility.com");
     XCTAssertNil(error);
 }
 
