@@ -23,33 +23,34 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBrowserNativeMessageRequest.h"
-#import "MSIDBrokerConstants.h"
+#import "MSIDBrowserNativeMessageSignOutRequest.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDConstants.h"
 
-NSString *const MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY = @"sender";
-NSString *const MSID_BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
+@implementation MSIDBrowserNativeMessageSignOutRequest
 
-@implementation MSIDBrowserNativeMessageRequest
++ (void)load
+{
+//    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+}
+
++ (NSString *)operation
+{
+    return @"SignOut";
+}
 
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super init];
+    self = [super initWithJSONDictionary:json error:error];
+    if (!self) return nil;
     
-    if (self)
-    {
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY required:YES error:error]) return nil;
-        NSString *senderString = json[MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY];
-        
-        _sender = [NSURL URLWithString:senderString];
-        
-        if (!_sender)
-        {
-            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to create URL from sender param.", nil, nil, nil, nil, nil, YES);
-            return nil;
-        }
-    }
+    NSString *homeAccountId = [json msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY];
+    if (![MSIDAccountIdentifier isAccountIdValid:homeAccountId error:error]) return nil;
+
+    _accountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:homeAccountId];
     
     return self;
 }
