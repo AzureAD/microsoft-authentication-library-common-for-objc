@@ -27,7 +27,7 @@
 
 @interface MSIDClaimsRequest()
 
-@property (nonatomic) NSMutableDictionary *claimsRequestsDict;
+@property (nonatomic) NSMutableDictionary<NSNumber *, NSMutableSet *> *claimsRequestsDict;
 
 @end
 
@@ -191,7 +191,7 @@
     
     for (NSNumber *target in self.claimsRequestsDict.allKeys)
     {
-        NSArray *requests = self.claimsRequestsDict[target];
+        NSSet *requests = self.claimsRequestsDict[target];
         if (requests.count == 0) continue;
         
         __auto_type requestsJson = [NSMutableDictionary new];

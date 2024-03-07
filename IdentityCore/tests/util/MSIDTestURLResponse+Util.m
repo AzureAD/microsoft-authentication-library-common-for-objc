@@ -45,7 +45,8 @@
         headers[@"x-app-ver"] = [MSIDTestRequireValueSentinel new];
         headers[kMSIDPKeyAuthHeader] = [MSIDTestRequireValueSentinel new];
         headers[@"X-AnchorMailbox"] = [MSIDTestIgnoreSentinel new];
-
+        headers[@"Connection"] = [MSIDTestIgnoreSentinel sentinel];
+        
         s_msidHeaders = [headers copy];
     });
 
