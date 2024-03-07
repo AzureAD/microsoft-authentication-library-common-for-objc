@@ -59,6 +59,13 @@
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
     
+#if TARGET_OS_OSX
+    parameters.clientSku = MSID_CLIENT_SKU_MSAL_OSX;
+#else
+    parameters.clientSku = MSID_CLIENT_SKU_MSAL_IOS;
+#endif
+    
+    parameters.skipValidateResultAccount = NO;
     MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
     parameters.brokerInvocationOptions = brokerOptions;
     return parameters;
@@ -73,6 +80,17 @@
     };
     parameters.authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
     return parameters;
+}
+
+- (NSString *)clientSku
+{
+    NSString *clientSku = nil;
+#if TARGET_OS_OSX
+    clientSku = MSID_CLIENT_SKU_MSAL_OSX;
+#else
+    clientSku = MSID_CLIENT_SKU_MSAL_IOS;
+#endif
+    return clientSku;
 }
 
 #pragma mark - Error cases
@@ -157,7 +175,9 @@
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -174,7 +194,9 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -200,7 +222,9 @@
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
                                       @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
-                                      @"token_type" : @"Pop"
+                                      @"token_type" : @"Pop",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
     };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -219,7 +243,9 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"broker_nonce": brokerNonce,
                                                @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
-                                               @"token_type" : @"Pop"
+                                               @"token_type" : @"Pop",
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
     };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -244,7 +270,9 @@
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -279,7 +307,9 @@
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -296,7 +326,9 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -321,7 +353,9 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
-                                      @"sdk_broker_capabilities": @"capability1,capability2"
+                                      @"sdk_broker_capabilities": @"capability1,capability2",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -338,7 +372,9 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -400,7 +436,9 @@
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -417,7 +455,9 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -483,7 +523,9 @@
             @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
             @"application_token" : @"brokerApplicationToken",
             @"brk_client_id" : @"123-456-7890-123",
-            @"brk_redirect_uri" : @"msauth.com.app.id://auth"
+            @"brk_redirect_uri" : @"msauth.com.app.id://auth",
+            @"client_sku" : [self clientSku],
+            @"skip_validate_result_account" : @"NO"
     };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -502,7 +544,9 @@
             @"keychain_group": @"com.microsoft.mygroup",
             @"broker_nonce": brokerNonce,
             @"brk_client_id" : @"123-456-7890-123",
-            @"brk_redirect_uri" : @"msauth.com.app.id://auth"
+            @"brk_redirect_uri" : @"msauth.com.app.id://auth",
+            @"client_sku" : [self clientSku],
+            @"skip_validate_result_account" : @"NO"
     };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);

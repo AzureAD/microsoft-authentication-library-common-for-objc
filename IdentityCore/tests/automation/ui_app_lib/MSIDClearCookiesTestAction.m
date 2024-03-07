@@ -48,22 +48,30 @@
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
     NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    int count = 0;
+    __block int count = 0;
     for (NSHTTPCookie *cookie in cookieStore.cookies)
     {
         [cookieStore deleteCookie:cookie];
         count++;
     }
-
-    // Clear WKWebView cookies
-    WKWebsiteDataStore *dateStore = [WKWebsiteDataStore defaultDataStore];
     
-    [dateStore fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
-                     completionHandler:^(NSArray<WKWebsiteDataRecord *> *records) {
-        for (WKWebsiteDataRecord *record in records) {
-            [dateStore removeDataOfTypes:record.dataTypes forDataRecords:@[record] completionHandler:^{}];
+    WKWebsiteDataStore *wkWebsiteStorage = [WKWebsiteDataStore defaultDataStore];
+    WKHTTPCookieStore *wkStorage = wkWebsiteStorage.httpCookieStore;
+        
+    [wkStorage getAllCookies:^void (NSArray<NSHTTPCookie *> *wkCookies)
+    {
+        for (NSHTTPCookie *wkCookie in wkCookies)
+        {
+            count++;
+            [wkStorage deleteCookie:wkCookie completionHandler:nil];
         }
     }];
+        
+    NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
+    [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
+                                               modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
+                                           completionHandler:^{}];
+    
     MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
                                                                                     success:YES
                                                                              additionalInfo:@{@"cleared_items_count":@(count)}];

@@ -24,6 +24,7 @@
 
 
 #import "MSIDBrowserNativeMessageRequest.h"
+#import "MSIDConstants.h"
 
 @class MSIDAADAuthority;
 @class MSIDAccountIdentifier;
@@ -48,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *redirectUri;
 
 /// Indicates the type of user interaction that is required. Valid values are login, none, consent, and select_account.
-@property (nonatomic, nullable) NSString *prompt;
+@property (nonatomic) MSIDPromptType prompt;
 
 /// When this flag is true, broker must take "sender" property and do the authority validation. If it is valid, this call comes from ESTS.
 @property (nonatomic) BOOL isSts;

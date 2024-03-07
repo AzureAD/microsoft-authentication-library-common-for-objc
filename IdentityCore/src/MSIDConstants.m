@@ -67,4 +67,6 @@ NSString *const MSID_CLIENT_SKU_CPP_IOS            = @"MSAL.xplat.iOS";
 NSString *const MSID_CLIENT_SKU_CPP_OSX            = @"MSAL.xplat.macOS";
 NSString *const MSID_CLIENT_SKU_ADAL_IOS           = @"iOS";
 
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY = @"accountId";
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

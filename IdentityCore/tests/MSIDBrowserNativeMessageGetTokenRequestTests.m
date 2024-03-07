@@ -92,7 +92,7 @@
     XCTAssertEqualObjects(@"user.read openid profile offline_access", request.scopes);
     XCTAssertEqualObjects(@"https://login.microsoft.com", request.redirectUri);
     XCTAssertEqualObjects(@"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D", request.correlationId.UUIDString);
-    XCTAssertEqualObjects(@"login", request.prompt);
+    XCTAssertEqual(MSIDPromptTypeLogin, request.prompt);
     XCTAssertTrue(request.isSts);
     XCTAssertEqualObjects(@"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47", request.nonce);
     XCTAssertEqualObjects(@"state1", request.state);
@@ -160,7 +160,7 @@
     
     XCTAssertNil(request);
     XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"accountId is invalid.");
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"account Id is invalid.");
 }
 
 
