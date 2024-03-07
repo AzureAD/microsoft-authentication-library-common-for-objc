@@ -108,10 +108,6 @@
     {
         [self.webView setNavigationDelegate:nil];
     }
-    if ([self.webView.UIDelegate isEqual:self])
-    {
-        [self.webView setUIDelegate:nil];
-    }
     
     self.webView = nil;
 }
@@ -179,7 +175,6 @@
     BOOL result = [super loadView:error];
     
     self.webView.navigationDelegate = self;
-    self.webView.UIDelegate = self;
 
 #if DEBUG
     // Allows debugging using Safari Web Tools when physical device connected to Mac
