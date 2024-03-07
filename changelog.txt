@@ -1,3 +1,6 @@
+Version 1.7.33
+* Support for QR+PIN #1317
+
 Version 1.7.32
 * Implement sign out request for browser sso #1328
 
