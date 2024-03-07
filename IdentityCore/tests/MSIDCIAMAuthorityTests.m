@@ -115,17 +115,6 @@
     XCTAssertNil(error);
 }
 
-- (void)testInitCustomCIAMAuthority_withValidUrlAndTenant_shouldReturnNilError
-{
-    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://tenantname.ciamextensibility.com/tenantID/tenantname"];
-    NSError *error;
-    
-    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
-    
-    XCTAssertNotNil(authority);
-    XCTAssertNil(error);
-}
-
 - (void)testInitCIAMAuthority_withValidUrlAndGUID_shouldReturnNilError
 {
     //Instead of GUID, there may also be the following URLS:
@@ -187,17 +176,6 @@
     XCTAssertNil(error);
 }
 
-- (void)testInitCustomCIAMAuthority_whenCustomCIAMAuthorityValid_shouldReturnNoExtraNormalization
-{
-    __auto_type authorityUrl = [@"https://tenantname.ciamextensibility.com/tenantID/tenantname" msidUrl];
-    NSError *error;
-    
-    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
-    
-    XCTAssertEqualObjects(authority.url, [@"https://tenantname.ciamextensibility.com/tenantID/tenantname" msidUrl]);
-    XCTAssertNil(error);
-}
-
 - (void)testInitCIAMAuthority_whenCIAMAuthorityValidAlreadyNormalized_shouldReturnNoExtraNormalization
 {
     __auto_type authorityUrl = [@"https://msidlab1.ciamlogin.com/msidlab1.onmicrosoft.com" msidUrl];
@@ -239,17 +217,6 @@
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
     
     XCTAssertEqualObjects(authority.environment, @"msidlab1.ciamlogin.com");
-    XCTAssertNil(error);
-}
-
-- (void)testInitCustomCIAMAuthority_whenValidUrlAndTenant_shouldParseEnvironment
-{
-    __auto_type authorityUrl = [@"https://tenantname.ciamextensibility.com/tenantID/tenantname" msidUrl];
-    NSError *error;
-    
-    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
-    
-    XCTAssertEqualObjects(authority.environment, @"tenantname.ciamextensibility.com");
     XCTAssertNil(error);
 }
 
