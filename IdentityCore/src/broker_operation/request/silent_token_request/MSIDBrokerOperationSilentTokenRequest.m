@@ -132,7 +132,9 @@ static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
                                            MSID_BROKER_CLIENT_APP_NAME_KEY,
                                            MSID_BROKER_CORRELATION_ID_KEY,
                                            MSID_BROKER_KEY,
-                                           MSID_BROKER_REQUEST_SENT_TIMESTAMP]];
+                                           MSID_BROKER_REQUEST_SENT_TIMESTAMP,
+                                           MSID_CLIENT_SKU_KEY,
+                                           MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY]];
     });
     return excludeSet;
     

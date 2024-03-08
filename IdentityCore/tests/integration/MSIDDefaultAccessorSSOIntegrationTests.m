@@ -78,7 +78,7 @@
 
     MSIDAccountMetadataCacheAccessor *_accountMetadataCache;
 }
-
+ 
 @end
 
 @implementation MSIDDefaultAccessorSSOIntegrationTests
@@ -1977,7 +1977,7 @@
                                                                                  homeAccountId:@"home.id"];
 
     MSIDAuthority *authority = [@"https://login.windows.net/common" aadAuthority];
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil context:nil error:&error];
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil accountHomeTenantId:nil accountSelectionLog:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNil(account);
@@ -2004,12 +2004,87 @@
 
     MSIDAuthority *authority = [@"https://login.windows.net/contoso.com" aadAuthority];
 
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil context:nil error:&error];
+    NSString *accountSelectionLog = nil;
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil accountHomeTenantId:nil accountSelectionLog:&accountSelectionLog context:nil error:&error];
 
     XCTAssertNil(error);
+    XCTAssertNil(accountSelectionLog);
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"home.contoso.com");
     XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"legacy.id");
+}
+
+- (void)testGetAccount_whenMSAAccountPresent_andAADDualHeadedHintProvided_shouldReturnNoAccount
+{
+    [self saveResponseWithUPN:@"legacy.id"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/non.matching.realm"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"home"
+                         utid:@"msa.utid"
+                     tenantId:@"matching.realm"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:nil
+                     accessor:_defaultAccessor];
+    
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id"
+                                                                               homeAccountId:nil];
+    
+    NSError *error = nil;
+    
+    NSString *accountSelectionLog = nil;
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"non.matching.realm" accountHomeTenantId:@"aad.utid" accountSelectionLog:&accountSelectionLog context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNil(account);
+    XCTAssertNil(accountSelectionLog);
+}
+
+- (void)testGetAccount_whenMultipleAccountsPresent_andAADDualHeadedHintProvided_shouldReturnCorrectAccount
+{
+    [self saveResponseWithUPN:@"legacy.id"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/non.matching.realm"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"home"
+                         utid:@"msa.utid"
+                     tenantId:@"non.matching.realm"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:nil
+                     accessor:_defaultAccessor];
+    
+    [self saveResponseWithUPN:@"legacy.id"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/non.matching.realm"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"home"
+                         utid:@"aad.utid"
+                     tenantId:@"non.matching.realm"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:nil
+                     accessor:_defaultAccessor];
+    
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id"
+                                                                               homeAccountId:nil];
+    
+    NSError *error = nil;
+    
+    NSString *accountSelectionLog = nil;
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"non.matching.realm2" accountHomeTenantId:@"aad.utid" accountSelectionLog:&accountSelectionLog context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(account);
+    XCTAssertEqualObjects(accountSelectionLog, @"2,1,1,1");
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"home.aad.utid");
 }
 
 - (void)testGetAccount_whenMultipleAccountsPresent_andRealmHintProvided_shouldReturnMatchingAccount
@@ -2027,8 +2102,8 @@
                      familyId:nil
                 appIdentifier:nil
                      accessor:_defaultAccessor];
-
-     [self saveResponseWithUPN:@"legacy.id"
+    
+    [self saveResponseWithUPN:@"legacy.id"
                      clientId:@"test_client_id"
                     authority:@"https://login.windows.net/matching.realm"
                responseScopes:@"user.read user.write"
@@ -2041,22 +2116,24 @@
                      familyId:nil
                 appIdentifier:nil
                      accessor:_defaultAccessor];
-
-     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
-                                                                                 homeAccountId:@"home.contoso.com"];
-
-     NSError *error = nil;
-
-     MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" context:nil error:&error];
-
+    
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
+                                                                               homeAccountId:@"home.contoso.com"];
+    
+    NSError *error = nil;
+    
+    NSString *accountSelectionLog = nil;
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" accountHomeTenantId:nil accountSelectionLog:&accountSelectionLog context:nil error:&error];
+    
     XCTAssertNil(error);
     XCTAssertNotNil(account);
+    XCTAssertNil(accountSelectionLog);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"home.contoso.com");
     XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"legacy.id");
     XCTAssertEqualObjects(account.realm, @"matching.realm");
 }
 
- - (void)testGetAccount_whenMultipleAccountsPresent_andNonMatchingRealmHintProvided_shouldReturnAnyAccount
+- (void)testGetAccount_whenMultipleAccountsPresent_andNonMatchingRealmHintProvided_shouldReturnAnyAccount
 {
     [self saveResponseWithUPN:@"legacy.id"
                      clientId:@"test_client_id"
@@ -2071,15 +2148,17 @@
                      familyId:nil
                 appIdentifier:nil
                      accessor:_defaultAccessor];
-
-     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
-                                                                                 homeAccountId:@"home.contoso.com"];
-
-     NSError *error = nil;
-
-     MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" context:nil error:&error];
-
-     XCTAssertNil(error);
+    
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
+                                                                               homeAccountId:@"home.contoso.com"];
+    
+    NSError *error = nil;
+    
+    NSString *accountSelectionLog = nil;
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" accountHomeTenantId:nil accountSelectionLog:&accountSelectionLog context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNil(accountSelectionLog);
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"home.contoso.com");
     XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"legacy.id");

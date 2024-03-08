@@ -77,6 +77,22 @@
     return object;
 }
 
+- (id)copyAndReplaceObjectForKey:(id)key
+                      withObject:(id)obj
+{
+    if (!key)
+    {
+        return nil;
+    }
+    
+    __block id objectFound;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        objectFound = self.container[key];
+        self.container[key] = obj;
+    });
+    return objectFound;
+}
+
 - (void)setObject:(id)obj forKey:(id)key
 {
     dispatch_barrier_sync(self.synchronizationQueue, ^{
