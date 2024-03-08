@@ -61,7 +61,7 @@
             }
         }
     }
-
+    
     return self;
 }
 
@@ -75,11 +75,11 @@
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
     
     // Check if there are at least two components
-    if (hostComponents.count < 2) {
-        if (error) {
-            *error = [NSError errorWithDomain:MSIDErrorDomain
-                                         code:MSIDErrorInternal
-                                     userInfo:@{NSLocalizedDescriptionKey: @"Invalid URL format: Missing host components."}];
+    if (hostComponents.count < 2)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Invalid URL format: Missing host components.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return nil;
     }
@@ -104,7 +104,7 @@
     
     return self;
 }
-    
+
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
@@ -217,7 +217,7 @@
     {
         return url.pathComponents[1];
     }
-
+    
     // We do support non standard CIAM authority formats
     return url.path;
 }
