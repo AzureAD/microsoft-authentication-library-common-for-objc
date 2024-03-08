@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 #if !EXCLUDE_FROM_MSALCPP
 
@@ -48,7 +48,7 @@
                            rawTenant:(nullable NSString *)rawTenant
                              context:(nullable id<MSIDRequestContext>)context
                                error:(NSError **)error
-{    
+{
     self = [self initWithURL:url validateFormat:validateFormat context:context error:error];
     if (self)
     {
@@ -61,7 +61,7 @@
             }
         }
     }
-
+    
     return self;
 }
 
@@ -74,23 +74,37 @@
     
     NSArray *hostComponents = [url.msidHostWithPortIfNecessary componentsSeparatedByString:@"."];
     
-    //If we have the URL https://tenant.ciamlogin.com or https://tenant.ciamlogin.com/
-    if (url.pathComponents.count == 0 || ((url.pathComponents.count == 1) && [[url lastPathComponent] isEqual:@"/"]))
+    // Check if there are at least two components
+    if (hostComponents.count < 2)
     {
-        url = [url URLByAppendingPathComponent:hostComponents[0]];
-        url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Invalid URL format: Missing host components.", nil, nil, nil, context.correlationId, nil, YES);
+        }
+        return nil;
     }
-   
+    
+    NSString *ciamTenant = hostComponents[1];
+    if ([ciamTenant.lowercaseString isEqualToString:@"ciamlogin"])
+    {
+        //If we have the URL https://tenant.ciamlogin.com or https://tenant.ciamlogin.com/
+        if (url.pathComponents.count == 0 || ((url.pathComponents.count == 1) && [[url lastPathComponent] isEqual:@"/"]))
+        {
+            url = [url URLByAppendingPathComponent:hostComponents[0]];
+            url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
+        }
+    }
+    
     if (self)
     {
-        _url = [MSIDAADAuthority normalizedAuthorityUrl:url context:context error:error];
+        _url = [self.class normalizedAuthorityUrl:url formatValidated:validateFormat context:context error:error];
         if (!_url) return nil;
         self.url = url;
     }
     
     return self;
 }
-    
+
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
@@ -110,7 +124,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", nil, nil, nil, context.correlationId, nil, YES);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Non-custom CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return NO;
@@ -140,10 +154,42 @@
     return YES;
 }
 
++ (NSURL *)normalizedAuthorityUrl:(NSURL *)url
+                  formatValidated:(BOOL)formatValidated
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    
+    if (!url)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is nil.", nil, nil, nil, context.correlationId, nil, YES);
+        }
+        return nil;
+    }
+    
+    // remove query and fragments
+    if (!formatValidated)
+    {
+        if (![super isAuthorityFormatValid:url context:context error:error]) return nil;
+        NSURLComponents *urlComp = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+        urlComp.query = nil;
+        urlComp.fragment = nil;
+        
+        return urlComp.URL;
+    }
+    
+    return [MSIDAADAuthority normalizedAuthorityUrl:url context:context error:error];
+}
+
 #pragma mark - NSCopying
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDCIAMAuthority *authority = [super copyWithZone:zone];
+    MSIDCIAMAuthority *authority = [[self.class allocWithZone:zone] initWithURL:[_url copyWithZone:zone]
+                                                                 validateFormat:NO context:nil error:nil];
+    authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
+    authority.metadata = self.metadata;
     return authority;
 }
 
@@ -171,7 +217,7 @@
     {
         return url.pathComponents[1];
     }
-
+    
     // We do support non standard CIAM authority formats
     return url.path;
 }
