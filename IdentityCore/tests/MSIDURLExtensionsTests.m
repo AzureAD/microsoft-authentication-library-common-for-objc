@@ -50,7 +50,7 @@
     //Missing or invalid fragment:
     XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com"]).msidFragmentParameters);
     XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar"]).msidFragmentParameters);
-    if (@available(iOS 17.0, *))
+    if (@available(iOS 17.0, macOS 14.0, *))
     {
         XCTAssertEqualObjects(@{@"bar":@"foo#"}, ((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar=foo#"]).msidFragmentParameters);
         XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar"]).msidFragmentParameters);
