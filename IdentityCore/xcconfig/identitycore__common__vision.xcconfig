@@ -1,0 +1,7 @@
+SDKROOT = xros
+CODE_SIGN_IDENTITY = "Apple Developement"
+XROS_DEPLOYMENT_TARGET = 1.0
+LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks"
+TARGETED_DEVICE_FAMILY = 7
+ENABLE_BITCODE = YES
+SKIP_INSTALL = YES
