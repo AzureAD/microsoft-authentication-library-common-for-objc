@@ -42,7 +42,7 @@ ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUI
 default_workspace = "IdentityCore.xcworkspace"
 default_config = "Debug"
 
-use_xcpretty = True
+use_xcpretty = False
 show_build_settings = False
 
 class ColorValues:
