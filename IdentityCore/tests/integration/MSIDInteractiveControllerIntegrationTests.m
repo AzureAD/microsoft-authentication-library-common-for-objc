@@ -153,7 +153,7 @@
     XCTAssertNotNil(interactiveController);
     XCTAssertNil(error);
 
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"1 - Acquire token"];
 
     [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
@@ -219,7 +219,7 @@
     XCTAssertNotNil(interactiveController);
     XCTAssertNil(error);
 
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"2 - Acquire token"];
 
     [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
@@ -307,7 +307,7 @@
         return YES;
     }];
 
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"3 - Acquire token"];
 
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
     [MSIDTestURLSession addResponse:discoveryResponse];
@@ -386,7 +386,7 @@
     XCTAssertNotNil(interactiveController);
     XCTAssertNil(error);
 
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"4 - Acquire token"];
 
     [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
@@ -450,7 +450,7 @@
     XCTAssertNotNil(interactiveController);
     XCTAssertNil(error);
 
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"5 - Acquire token"];
 
     [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
