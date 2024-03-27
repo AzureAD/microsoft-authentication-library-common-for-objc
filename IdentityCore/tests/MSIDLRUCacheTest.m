@@ -324,7 +324,7 @@
     });
     
 
-    [self waitForExpectations:expectationsAdd timeout:20];
+    [self waitForExpectations:expectationsAdd timeout:5];
     XCTAssertEqual(customLRUCache.numCacheRecords,(unsigned)100);
 
 
@@ -378,7 +378,7 @@
         [expectation4 fulfill];
     });
     
-    [self waitForExpectations:expectationsRemove timeout:20];
+    [self waitForExpectations:expectationsRemove timeout:5];
 
     XCTAssertEqual(customLRUCache.numCacheRecords,customLRUCache.cacheAddCount - customLRUCache.cacheRemoveCount);
 }

@@ -36,7 +36,7 @@ from timeit import default_timer as timer
 script_start_time = timer()
 
 ios_sim_device = "iPhone 15"
-ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=17.0.1'"
+ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=17.2'"
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 default_workspace = "IdentityCore.xcworkspace"
