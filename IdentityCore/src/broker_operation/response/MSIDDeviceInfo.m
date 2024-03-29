@@ -62,6 +62,7 @@ static NSArray *deviceModeEnumString;
         _ssoExtensionMode = [self ssoExtensionModeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_SSO_EXTENSION_MODE_KEY]];
         _wpjStatus = [self wpjStatusEnumFromString:[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY]];
         _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
+        _preferredAuthConfig = [self preferredAuthConfigurationEnumFromString:[json msidStringObjectForKey:MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY]];
         
 #if TARGET_OS_OSX
         _platformSSOStatus = [self platformSSOStatusEnumFromString:[json msidStringObjectForKey:MSID_PLATFORM_SSO_STATUS_KEY]];
@@ -93,6 +94,7 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_SSO_EXTENSION_MODE_KEY] = [self ssoExtensionModeStringFromEnum:self.ssoExtensionMode];
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
+    json[MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY] = [self preferredAuthConfigurationStringFromEnum:self.preferredAuthConfig];
 #if TARGET_OS_OSX
     json[MSID_PLATFORM_SSO_STATUS_KEY] = [self platformSSOStatusStringFromEnum:self.platformSSOStatus];
 #endif
@@ -187,6 +189,27 @@ static NSArray *deviceModeEnumString;
     if ([platformSSOStatusString isEqualToString:@"platformSSOEnabledAndRegistered"])  return MSIDPlatformSSOEnabledAndRegistered;
     
     return MSIDPlatformSSONotEnabled;
+}
+
+- (NSString *)preferredAuthConfigurationStringFromEnum:(MSIDPreferredAuthMethod)preferredAuthConfiguration
+{
+    switch (preferredAuthConfiguration) {
+        case MSIDPreferredAuthMethodNotConfigured:
+            return @"preferredAuthNotConfigured";
+        case MSIDPreferredAuthMethodQRPIN:
+            return @"preferredAuthQRPIN";
+        
+        default:
+            return nil;
+    }
+}
+
+- (MSIDPreferredAuthMethod)preferredAuthConfigurationEnumFromString:(NSString *)preferredAuthConfigurationString
+{
+    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthNotConfigured"])    return MSIDPreferredAuthMethodNotConfigured;
+    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthQRPIN"])            return MSIDPreferredAuthMethodQRPIN;
+    
+    return MSIDPreferredAuthMethodNotConfigured;
 }
 
 @end
