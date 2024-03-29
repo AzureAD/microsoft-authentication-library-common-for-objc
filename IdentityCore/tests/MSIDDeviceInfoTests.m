@@ -56,7 +56,6 @@
     XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeSilentOnly);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
     
     NSDictionary *expectedAdditionalData = @{@"feature_flag1":@1,@"token":@"",@"dict":@{@"key":@"value"}};
     XCTAssertEqualObjects(deviceInfo.additionalExtensionData, expectedAdditionalData);
@@ -82,7 +81,6 @@
     XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeSilentOnly);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
     XCTAssertNil(deviceInfo.additionalExtensionData);
     NSDictionary *expectedExtraDeviceInfo = @{@"mdm_id":@"mdmId",@"object_id":@"objectId"};
     XCTAssertEqualObjects(deviceInfo.extraDeviceInfo, expectedExtraDeviceInfo);
@@ -102,7 +100,6 @@
     XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
 }
 
 - (void)testInitWithJSONDictionary_whenDeviceInfoCorruptedValue_shouldInitWithDefaultValue {
@@ -121,7 +118,6 @@
     XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
 }
 
 - (void)testInitWithJSONDictionary_whenDeviceInfoWrongValueType_shouldInitWithDefaultValue {
@@ -140,7 +136,6 @@
     XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
 }
 
 - (void)testInitWithJSONDictionary_whenDeviceInfoEmptyString_shouldInitWithDefaultValue {
@@ -159,7 +154,6 @@
     XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
 }
 
 - (void)testInitWithJSONDictionary_whenWPJStatusMissing_shouldInitWithDefaultValue {
@@ -176,7 +170,6 @@
     XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusNotJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
 }
 
 - (void)testInitWithJSONDictionary_whenWPJStatusCorruptedValue_shouldInitWithDefaultValue {
@@ -193,7 +186,6 @@
     XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModePersonal);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusNotJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
 }
 
 - (void)testInitWithJSONDictionary_whenWPJStatusWrongValueType_shouldInitWithDefaultValue {
@@ -210,7 +202,6 @@
     XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModeShared);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusNotJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
 }
 
 - (void)testInitWithJSONDictionary_whenWPJStatusEmptyString_shouldInitWithDefaultValue {
@@ -227,7 +218,6 @@
     XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModeShared);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusNotJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodNotConfigured);
 }
 
 - (void)testJsonDictionary_whenDeserialize_shouldGenerateCorrectJson {
@@ -248,8 +238,7 @@
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_PLATFORM_SSO_STATUS_KEY : @"platformSSONotEnabled",
-        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
-        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured"
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}"
     };
 #else
     NSDictionary *expectedJson = @{
@@ -258,8 +247,7 @@
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
-        MSID_EXTRA_DEVICE_INFO_KEY:@"{\"isCallerAppManaged\":\"1\",\"mdm_id\":\"mdmId\",\"object_id\":\"objectId\"}",
-        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured"
+        MSID_EXTRA_DEVICE_INFO_KEY:@"{\"isCallerAppManaged\":\"1\",\"mdm_id\":\"mdmId\",\"object_id\":\"objectId\"}"
     };
 #endif
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
@@ -283,8 +271,7 @@
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_PLATFORM_SSO_STATUS_KEY : @"platformSSONotEnabled",
-        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
-        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured"
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}"
     };
 #else
     NSDictionary *expectedJson = @{
@@ -293,8 +280,7 @@
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
-        MSID_EXTRA_DEVICE_INFO_KEY:@"{\"mdm_id\":\"mdmId\",\"object_id\":\"objectId\"}",
-        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured"
+        MSID_EXTRA_DEVICE_INFO_KEY:@"{\"mdm_id\":\"mdmId\",\"object_id\":\"objectId\"}"
     };
 #endif
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
@@ -343,33 +329,11 @@
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_PLATFORM_SSO_STATUS_KEY :
             @"platformSSOEnabledAndRegistered",
-        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
-        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}"
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
     };
     
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
 }
 #endif
-
-- (void)testInitWithJSONDictionary_whenPreferredAuthConfigIncluded_shouldInitWithJson {
-    NSDictionary *json = @{
-        MSID_BROKER_DEVICE_MODE_KEY : @"shared",
-        MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"silent_only",
-        MSID_BROKER_WPJ_STATUS_KEY : @"joined",
-        MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
-        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthQRPIN"
-    };
-    
-    NSError *error;
-    MSIDDeviceInfo *deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:json error:&error];
-    
-    
-    XCTAssertNil(error);
-    XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModeShared);
-    XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeSilentOnly);
-    XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
-    XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
-    XCTAssertEqual(deviceInfo.preferredAuthConfig, MSIDPreferredAuthMethodQRPIN);
-}
 
 @end

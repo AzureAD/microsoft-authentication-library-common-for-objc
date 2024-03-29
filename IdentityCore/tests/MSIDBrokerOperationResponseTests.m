@@ -70,9 +70,9 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(10, json.allKeys.count);
-#else
     XCTAssertEqual(9, json.allKeys.count);
+#else
+    XCTAssertEqual(8, json.allKeys.count);
 #endif
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"operation"], @"login");
@@ -82,7 +82,6 @@
     XCTAssertEqualObjects(json[MSID_BROKER_SSO_EXTENSION_MODE_KEY], @"silent_only");
     XCTAssertEqualObjects(json[MSID_BROKER_WPJ_STATUS_KEY], @"joined");
     XCTAssertEqualObjects(json[MSID_BROKER_BROKER_VERSION_KEY], @"1.2.3");
-    XCTAssertEqualObjects(json[MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY], @"preferredAuthNotConfigured");
 }
 
 - (void)testJsonDictionary_whenRequiredPropertiesSet_shouldReturnJson
@@ -93,9 +92,9 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(8, json.allKeys.count);
-#else
     XCTAssertEqual(7, json.allKeys.count);
+#else
+    XCTAssertEqual(6, json.allKeys.count);
 #endif
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"test_response");

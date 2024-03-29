@@ -92,6 +92,7 @@ typedef NS_ENUM(NSInteger, MSIDHeaderType)
     MSIDHeaderTypeDeviceRegistration
 };
 
+
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
@@ -148,9 +149,6 @@ extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION;
 
 extern NSString * _Nonnull const MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY;
-
-extern NSString * _Nonnull const MSID_PREFERRED_AUTH_METHOD_KEY;
-extern NSString * _Nonnull const MSID_PREFERRED_AUTH_METHOD_QR_PIN;
 
 extern NSString * _Nonnull const MSID_CLIENT_SKU_MSAL_IOS;
 extern NSString * _Nonnull const MSID_CLIENT_SKU_MSAL_OSX;

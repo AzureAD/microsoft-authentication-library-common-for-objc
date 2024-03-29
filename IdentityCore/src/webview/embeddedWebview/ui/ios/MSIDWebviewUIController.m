@@ -108,13 +108,6 @@ static WKWebViewConfiguration *s_webConfig;
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
     webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
     webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
-    
-    // QR+PIN auth inside a WKWebView requires these settings
-    // This allows the camera to be automatically triggered when redirected to the QR scanning page, instead
-    // of a user action like a button press
-    webConfig.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
-    // This allows the camera to show inline, otherwise it defaults to showing up fullscreen
-    webConfig.allowsInlineMediaPlayback = YES;
 
     return webConfig;
 }

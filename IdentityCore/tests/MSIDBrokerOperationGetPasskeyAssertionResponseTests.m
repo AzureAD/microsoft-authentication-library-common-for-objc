@@ -176,7 +176,6 @@
                                 @"device_mode": @"personal",
                                 @"sso_extension_mode": @"full",
                                 @"wpj_status": @"notJoined",
-                                @"preferred_auth_config": @"preferredAuthNotConfigured",
 #if TARGET_OS_OSX
                                 @"platform_sso_status": @"platformSSONotEnabled"
 #endif
