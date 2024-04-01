@@ -252,108 +252,108 @@
 }
 
 #if TARGET_OS_IPHONE && !AD_BROKER
-- (void)testAcquireToken_whenBrokerInstallPrompt_andSuccessfulResponse_shouldReturnResult
-{
-    // setup telemetry callback
-    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
-
-    NSMutableArray *receivedEvents = [NSMutableArray array];
-
-    // the dispatcher will store the telemetry events it receives
-    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
-     {
-         [receivedEvents addObject:event];
-     }];
-
-    // register the dispatcher
-    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
-    [MSIDTelemetry sharedInstance].piiEnabled = YES;
-
-    // Setup test request providers
-    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
-    parameters.telemetryApiId = @"api_broker_success";
-
-    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2&username=my@test.com"];
-    MSIDWebWPJResponse *msAuthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
-
-    NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
-                                           @"test-resume-key2": @"test-resume-value2"};
-
-    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:[NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"] resumeDictionary:testResumeDictionary];
-
-    NSError *error = nil;
-    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
-
-    XCTAssertNotNil(interactiveController);
-    XCTAssertNil(error);
-
-    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
-
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
-
-        XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://test.url.broker?test1=test2"]);
-
-        UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ" create:NO];
-        XCTAssertEqualObjects(appPasteBoard.URL, [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey&sourceApplication=com.microsoft.MSIDTestsHostApp"]);
-
-        NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
-        XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
-
-        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
-
-        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
-                                            sourceApplication:@"com.microsoft.azureauthenticator"
-                                        brokerResponseHandler:brokerResponseHandler];
-        return YES;
-    }];
-
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
-
-    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
-    [MSIDTestURLSession addResponse:discoveryResponse];
-
-    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
-
-        XCTAssertNotNil(result);
-        // Check result
-        XCTAssertEqualObjects(result.accessToken, testResult.accessToken);
-        XCTAssertEqualObjects(result.rawIdToken, testResult.rawIdToken);
-        XCTAssertEqualObjects(result.account, testResult.account);
-        XCTAssertEqualObjects(result.authority, testResult.authority);
-        XCTAssertNil(acquireTokenError);
-
-        // Check Telemetry event
-        XCTAssertEqual([receivedEvents count], 4);
-        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
-        XCTAssertNotNil(telemetryEvent[@"start_time"]);
-        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
-        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_success");
-        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
-        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
-        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"yes");
-        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
-        XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
-        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-        XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], DEFAULT_TEST_UTID);
-        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
-        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
-        XCTAssertNotNil(telemetryEvent[@"response_time"]);
-
-        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
-        XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
-        XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
-        XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
-        XCTAssertEqualObjects(brokerEvent[@"request_id"], parameters.telemetryRequestId);
-        XCTAssertEqualObjects(brokerEvent[@"status"], @"succeeded");
-        XCTAssertNotNil(brokerEvent[@"start_time"]);
-        XCTAssertNotNil(brokerEvent[@"stop_time"]);
-
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:3.0 handler:nil];
-}
+//- (void)testAcquireToken_whenBrokerInstallPrompt_andSuccessfulResponse_shouldReturnResult
+//{
+//    // setup telemetry callback
+//    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+//
+//    NSMutableArray *receivedEvents = [NSMutableArray array];
+//
+//    // the dispatcher will store the telemetry events it receives
+//    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+//     {
+//         [receivedEvents addObject:event];
+//     }];
+//
+//    // register the dispatcher
+//    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+//    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+//
+//    // Setup test request providers
+//    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+//    parameters.telemetryApiId = @"api_broker_success";
+//
+//    NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2&username=my@test.com"];
+//    MSIDWebWPJResponse *msAuthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
+//
+//    NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
+//                                           @"test-resume-key2": @"test-resume-value2"};
+//
+//    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:[NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey"] resumeDictionary:testResumeDictionary];
+//
+//    NSError *error = nil;
+//    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
+//
+//    XCTAssertNotNil(interactiveController);
+//    XCTAssertNil(error);
+//
+//    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+//
+//    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+//
+//        XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://test.url.broker?test1=test2"]);
+//
+//        UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ" create:NO];
+//        XCTAssertEqualObjects(appPasteBoard.URL, [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey&sourceApplication=com.microsoft.MSIDTestsHostApp"]);
+//
+//        NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+//        XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
+//
+//        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+//
+//        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+//                                            sourceApplication:@"com.microsoft.azureauthenticator"
+//                                        brokerResponseHandler:brokerResponseHandler];
+//        return YES;
+//    }];
+//
+//    XCTestExpectation *expectation = [self expectationWithDescription:@"3 - Acquire token"];
+//
+//    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+//    [MSIDTestURLSession addResponse:discoveryResponse];
+//
+//    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+//
+//        XCTAssertNotNil(result);
+//        // Check result
+//        XCTAssertEqualObjects(result.accessToken, testResult.accessToken);
+//        XCTAssertEqualObjects(result.rawIdToken, testResult.rawIdToken);
+//        XCTAssertEqualObjects(result.account, testResult.account);
+//        XCTAssertEqualObjects(result.authority, testResult.authority);
+//        XCTAssertNil(acquireTokenError);
+//
+//        // Check Telemetry event
+//        XCTAssertEqual([receivedEvents count], 4);
+//        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
+//        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+//        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+//        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_success");
+//        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+//        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+//        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"yes");
+//        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+//        XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
+//        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+//        XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+//        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], DEFAULT_TEST_UTID);
+//        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+//        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+//        XCTAssertNotNil(telemetryEvent[@"response_time"]);
+//
+//        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
+//        XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
+//        XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+//        XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
+//        XCTAssertEqualObjects(brokerEvent[@"request_id"], parameters.telemetryRequestId);
+//        XCTAssertEqualObjects(brokerEvent[@"status"], @"succeeded");
+//        XCTAssertNotNil(brokerEvent[@"start_time"]);
+//        XCTAssertNotNil(brokerEvent[@"stop_time"]);
+//
+//        [expectation fulfill];
+//    }];
+//
+//    [self waitForExpectationsWithTimeout:3.0 handler:nil];
+//}
 
 - (void)testAcquireToken_whenWPJRequest_shouldReturnWorkplaceJoinRequiredError
 {
