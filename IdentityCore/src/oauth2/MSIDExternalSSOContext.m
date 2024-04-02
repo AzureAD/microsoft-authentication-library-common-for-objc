@@ -49,7 +49,7 @@ static NSString *const MSID_PLATFORM_SSO_DEVICE_REGISTRATION_COMPLETED_KEY = @"p
             return nil;
         }
         
-        if (self.loginManager.isDeviceRegistered && ![MSIDExternalSSOContext isPlatformSSORegisteredFlagSetInUserDefaults])
+        if (!self.loginManager.isDeviceRegistered || (self.loginManager.isDeviceRegistered && ![MSIDExternalSSOContext isPlatformSSORegisteredFlagSetInUserDefaults]))
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No valid PSSO registration found on device, returning early");
             return nil;
