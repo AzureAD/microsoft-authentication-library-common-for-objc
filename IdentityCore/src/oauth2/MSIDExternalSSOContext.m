@@ -48,10 +48,10 @@ static NSString *const MSID_PLATFORM_SSO_DEVICE_REGISTRATION_COMPLETED_KEY = @"p
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Loginmanager not present, returning early");
             return nil;
         }
-        
-        if (!self.loginManager.isDeviceRegistered || (self.loginManager.isDeviceRegistered && ![MSIDExternalSSOContext isPlatformSSORegisteredFlagSetInUserDefaults]))
+        BOOL isPSSORegisteredFlagSetInUserDefaults = [MSIDExternalSSOContext isPlatformSSORegisteredFlagSetInUserDefaults];
+        if (!self.loginManager.isDeviceRegistered || !isPSSORegisteredFlagSetInUserDefaults)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No valid PSSO registration found on device, returning early");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No valid PSSO registration found on device, returning early. loginManager.isDeviceRegistered : %@, isPSSORegisteredFlagSetInUserDefaults : %@", self.loginManager.isDeviceRegistered ? @"YES": @"NO", isPSSORegisteredFlagSetInUserDefaults ? @"YES" : @"NO");
             return nil;
         }
         
