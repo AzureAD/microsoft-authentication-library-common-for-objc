@@ -148,6 +148,14 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     return hash;
 }
 
+- (NSUInteger)prtId
+{
+    NSUInteger hash = 0;
+    hash = hash * 31 + self.accountIdentifier.homeAccountId.hash;
+    hash = hash * 31 + self.deviceID.hash;
+    return hash;
+}
+
 - (BOOL)isEqualToItem:(MSIDPrimaryRefreshToken *)token
 {
     if (!token)

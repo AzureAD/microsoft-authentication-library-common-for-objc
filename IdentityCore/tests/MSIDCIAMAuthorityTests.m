@@ -48,6 +48,18 @@
     XCTAssertEqualObjects(@"authority must use HTTPS.", error.userInfo[MSIDErrorDescriptionKey]);
 }
 
+- (void)testInitCustomCIAMAuthority_whenUrlSchemeIsNotHttps_shouldReturnError
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"http://tenantname.ciamextensibility.com/tenantID"];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
+    
+    XCTAssertNil(authority);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(@"authority must use HTTPS.", error.userInfo[MSIDErrorDescriptionKey]);
+}
+
 - (void)testInitCIAMAuthority_withValidUrl_shouldReturnNilError
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://msidlab1.ciamlogin.com"];
@@ -59,12 +71,34 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitCustomCIAMAuthority_withValidUrl_shouldReturnNilError
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://tenantname.ciamextensibility.com/tenantID"];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
+    
+    XCTAssertNotNil(authority);
+    XCTAssertNil(error);
+}
+
 - (void)testInitCIAMAuthority_withValidUrlAndSlash_shouldReturnNilError
 {
     NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://msidlab1.ciamlogin.com/"];
     NSError *error;
     
     __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertNotNil(authority);
+    XCTAssertNil(error);
+}
+
+- (void)testInitCustomCIAMAuthority_withValidUrlAndSlash_shouldReturnNilError
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://tenantname.ciamextensibility.com/tenantID/"];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
     
     XCTAssertNotNil(authority);
     XCTAssertNil(error);
@@ -105,7 +139,7 @@
     
     XCTAssertNil(authority);
     XCTAssertNotNil(error);
-    XCTAssertEqualObjects(@"CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqualObjects(@"Non-custom CIAM authority should have at least 3 segments in the path (i.e. https://<tenant>.ciamlogin.com...)", error.userInfo[MSIDErrorDescriptionKey]);
 }
 
 - (void)testInitCIAMAuthority_withValidUrlNonCIAMAuthority_shouldReturnError

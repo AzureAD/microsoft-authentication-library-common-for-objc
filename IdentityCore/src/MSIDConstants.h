@@ -92,7 +92,6 @@ typedef NS_ENUM(NSInteger, MSIDHeaderType)
     MSIDHeaderTypeDeviceRegistration
 };
 
-
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
@@ -150,10 +149,15 @@ extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION;
 
 extern NSString * _Nonnull const MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY;
 
+extern NSString * _Nonnull const MSID_PREFERRED_AUTH_METHOD_KEY;
+extern NSString * _Nonnull const MSID_PREFERRED_AUTH_METHOD_QR_PIN;
+
 extern NSString * _Nonnull const MSID_CLIENT_SKU_MSAL_IOS;
 extern NSString * _Nonnull const MSID_CLIENT_SKU_MSAL_OSX;
 extern NSString * _Nonnull const MSID_CLIENT_SKU_CPP_IOS;
 extern NSString * _Nonnull const MSID_CLIENT_SKU_CPP_OSX;
 extern NSString * _Nonnull const MSID_CLIENT_SKU_ADAL_IOS;
+
+extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

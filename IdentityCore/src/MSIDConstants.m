@@ -61,10 +61,15 @@ NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";
 
 NSString *const MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY = @"SHARED_MODE_CURRENT_ACCOUNT_CHANGED";
 
+NSString *const MSID_PREFERRED_AUTH_METHOD_KEY     = @"pc";
+NSString *const MSID_PREFERRED_AUTH_METHOD_QR_PIN  = @"18";
+
 NSString *const MSID_CLIENT_SKU_MSAL_IOS           = @"MSAL.iOS";
 NSString *const MSID_CLIENT_SKU_MSAL_OSX           = @"MSAL.OSX";
 NSString *const MSID_CLIENT_SKU_CPP_IOS            = @"MSAL.xplat.iOS";
 NSString *const MSID_CLIENT_SKU_CPP_OSX            = @"MSAL.xplat.macOS";
 NSString *const MSID_CLIENT_SKU_ADAL_IOS           = @"iOS";
+
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY = @"accountId";
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

@@ -62,7 +62,9 @@
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -86,6 +88,8 @@
                                                @"broker_nonce": brokerNonce,
                                                @"instance_aware" : @"NO",
                                                @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -117,7 +121,9 @@
                                       @"msg_protocol_ver" : @"3",
                                       //if account set, both of the following should be set
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -155,7 +161,9 @@
                                       @"home_account_id" : @"myhomeaccountid",
                                       @"username" : @"user",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -179,6 +187,8 @@
                                                @"broker_nonce" : brokerNonce,
                                                @"instance_aware" : @"NO",
                                                @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -210,7 +220,9 @@
                                       //login hint should be set
                                       @"login_hint" : @"myuser",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -233,6 +245,8 @@
                                                @"sdk_name" : @"msal-objc",
                                                @"broker_nonce": brokerNonce,
                                                @"instance_aware" : @"NO",
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -264,7 +278,9 @@
                                       //extra scopes should be set
                                       @"extra_consent_scopes" : @"extraScope1 extraScope2",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -287,6 +303,8 @@
                                                @"sdk_name" : @"msal-objc",
                                                @"broker_nonce": brokerNonce,
                                                @"instance_aware" : @"NO",
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -309,7 +327,20 @@
     parameters.promptType = MSIDPromptTypeSelectAccount;
     parameters.oidcScope = @"oidcscope1 oidcscope2";
     parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
+    parameters.clientSku = [self clientSku];
+    parameters.skipValidateResultAccount = NO;
     return parameters;
+}
+
+- (NSString *)clientSku
+{
+    NSString *clientSku = nil;
+#if TARGET_OS_OSX
+    clientSku = MSID_CLIENT_SKU_MSAL_OSX;
+#else
+    clientSku = MSID_CLIENT_SKU_MSAL_IOS;
+#endif
+    return clientSku;
 }
 
 @end
