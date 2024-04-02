@@ -63,7 +63,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.nonce = parameters.nonce;
     request.clientSku = parameters.clientSku;
     request.skipValidateResultAccount = parameters.skipValidateResultAccount;
-        
+    request.forceRefresh = parameters.forceRefresh;
     return YES;
 }
 
@@ -146,7 +146,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     json[MSID_BROKER_ACCOUNT_HOME_TENANT_ID] = self.accountHomeTenantId;
     json[MSID_CLIENT_SKU_KEY] = self.clientSku;
     json[MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY] = [@(self.skipValidateResultAccount) stringValue];
-    
+    json[MSID_FORCE_REFRESH_KEY] = [@(self.forceRefresh) stringValue];
     return json;
 }
 

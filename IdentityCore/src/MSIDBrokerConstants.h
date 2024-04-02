@@ -100,3 +100,5 @@ extern NSString * _Nonnull const MSID_EXP_RETRY_ON_NETWORK;
 extern NSString * _Nonnull const MSID_EXP_ENABLE_CONNECTION_CLOSE;
 extern NSString * _Nonnull const MSID_HTTP_CONNECTION;
 extern NSString * _Nonnull const MSID_HTTP_CONNECTION_VALUE;
+extern NSString * _Nonnull const MSID_FORCE_REFRESH_KEY;
+
