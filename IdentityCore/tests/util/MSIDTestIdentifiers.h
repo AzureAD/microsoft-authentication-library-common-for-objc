@@ -40,6 +40,6 @@
 #define DEFAULT_TEST_ID_TOKEN @"id_token"
 #define DEFAULT_TEST_FAMILY_ID @"family"
 #define DEFAULT_TEST_ID_TOKEN_SUBJECT @"sub"
-#define DEFAULT_TEST_REDIRECT_SCHEME   @"msid"DEFAULT_TEST_CLIENT_ID
+#define DEFAULT_TEST_REDIRECT_SCHEME   @"msidtest-client-id"
 #define DEFAULT_TEST_REDIRECT_URI      DEFAULT_TEST_REDIRECT_SCHEME"://auth"
 #define DEFAULT_TEST_SLICE_PARAMS_DICT  @{ @"slice" : @"myslice" }
