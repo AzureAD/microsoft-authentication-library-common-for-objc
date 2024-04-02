@@ -39,6 +39,11 @@
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDSSOTokenResponseHandler.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
+#import "MSIDXPCServiceEndpointAccessory.h"
+#import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDBrokerCryptoProvider.h"
+#import "NSData+MSIDExtensions.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
@@ -48,6 +53,7 @@
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic, copy) MSIDInteractiveRequestCompletionBlock requestCompletionBlock;
+@property (nonatomic, copy) MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @property (nonatomic, readonly) MSIDProviderType providerType;
@@ -55,6 +61,7 @@
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
 @property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
 @property (nonatomic) NSDate *requestSentDate;
+@property (nonatomic) MSIDBrokerOperationInteractiveTokenRequest *operationRequest;
 
 @end
 
@@ -80,7 +87,8 @@
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __typeof__(self) __weak weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
+//        _extensionDelegate.completionBlock
+        self.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
 #if TARGET_OS_IPHONE
             [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
@@ -135,11 +143,11 @@
                                              completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
                                                                __unused BOOL validated, NSError *error)
      {
-         if (error)
-         {
-             completionBlock(nil, error, nil);
-             return;
-         }
+        if (error)
+        {
+            completionBlock(nil, error, nil);
+            return;
+        }
         
         NSDictionary *enrollmentIds = [self.enrollmentIdsCache enrollmentIdsJsonDictionaryWithContext:self.requestParameters
                                                                                                 error:nil];
@@ -147,17 +155,18 @@
                                                                                           error:nil];
         
         self.requestSentDate = [NSDate date];
-        __auto_type operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
+        NSRect frame = self.requestParameters.parentViewController.view.window.frame;
+        self.operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                                  providerType:self.providerType
                                                                                                 enrollmentIds:enrollmentIds
                                                                                                  mamResources:mamResources
                                                                                               requestSentDate:self.requestSentDate];
-    
+        
         ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
-        ssoRequest.requestedOperation = [operationRequest.class operation];
+        ssoRequest.requestedOperation = [self.operationRequest.class operation];
         [ASAuthorizationSingleSignOnProvider setRequiresUI:YES forRequest:ssoRequest];
         
-        NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
+        NSDictionary *jsonDictionary = [self.operationRequest jsonDictionary];
         
         if (!jsonDictionary)
         {
@@ -166,18 +175,20 @@
             return;
         }
         
-        __auto_type queryItems = [jsonDictionary msidQueryItems];
-        ssoRequest.authorizationOptions = queryItems;
+        [self nativeXpcFlow:jsonDictionary parentViewFrame:frame];
         
-#if TARGET_OS_IPHONE
-        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-#endif
-        
-        self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
-        self.authorizationController.delegate = self.extensionDelegate;
-        self.authorizationController.presentationContextProvider = self;
-        [self.authorizationController msidPerformRequests];
-        
+//        __auto_type queryItems = [jsonDictionary msidQueryItems];
+//        ssoRequest.authorizationOptions = queryItems;
+//        
+//#if TARGET_OS_IPHONE
+//        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+//#endif
+//        
+//        self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+//        self.authorizationController.delegate = self.extensionDelegate;
+//        self.authorizationController.presentationContextProvider = self;
+//        [self.authorizationController msidPerformRequests];
+//        
         self.requestCompletionBlock = completionBlock;
      }];
 }
@@ -214,5 +225,45 @@
 #endif
 }
 
-@end
-#endif
+- (void)nativeXpcFlow:(NSDictionary *)ssoRequest parentViewFrame:(NSRect)frame
+ {
+     // Get the bundle object for the main bundle
+     NSBundle *mainBundle = [NSBundle mainBundle];
+
+     // Retrieve the bundle identifier
+     NSString *bundleIdentifier = [mainBundle bundleIdentifier]; // source_application
+     NSDictionary *input = @{@"source_application": bundleIdentifier,
+                             @"sso_request_param": ssoRequest,
+                             @"is_silent": @(NO),
+                             @"sso_request_operation": [self.operationRequest.class operation],
+                             @"sso_request_id": [[NSUUID UUID] UUIDString]};
+ //    NSDate *innerStartTime = [NSDate date];
+     MSIDXPCServiceEndpointAccessory *accessory = [MSIDXPCServiceEndpointAccessory new];
+     [accessory getXpcService:^(id<ADBChildBrokerProtocol>  _Nonnull xpcService) {
+         [xpcService acquireTokenSilentlyFromBroker:input parentViewFrame:frame completionBlock:^(NSDictionary *replyParam, NSDate* __unused xpcStartDate, NSString __unused *processId, NSError *error) {
+ //            NSDate *replyDate = [NSDate date];
+             MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:[NSData msidDataFromBase64UrlEncodedString:self.operationRequest.brokerKey]];
+             NSDictionary *jsonResponse = [cryptoProvider decryptBrokerResponse:replyParam correlationId:nil error:nil];
+             if (error)
+             {
+                 NSLog(@"[Entra broker] CLIENT Time spent, received operationResponse with error: %@", error.description);
+                 self.completionBlock(nil, error);
+                 return;
+             }
+             NSError *innerError = nil;
+             __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:jsonResponse classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&innerError];
+
+             if (!operationResponse)
+             {
+                 NSLog(@"[Entra broker] CLIENT Time spent, received operationResponse: %@", operationResponse.jsonDictionary);
+             }
+             else
+             {
+                 self.completionBlock(operationResponse, error);
+             }
+         }];
+     }];
+ }
+ @end
+ #endif
+

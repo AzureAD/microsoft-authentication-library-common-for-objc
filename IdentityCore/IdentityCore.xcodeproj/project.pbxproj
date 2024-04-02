@@ -511,6 +511,8 @@
 		58543C8B24930FBC00F7AC14 /* MSIDMacKeychainTokenCache+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = 58543C8A24930FBC00F7AC14 /* MSIDMacKeychainTokenCache+Test.h */; };
 		586CD77E293FD77100550710 /* MSIDRequestControllerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CD77B293FD76100550710 /* MSIDRequestControllerFactoryTests.m */; };
 		586CD77F293FD77200550710 /* MSIDRequestControllerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CD77B293FD76100550710 /* MSIDRequestControllerFactoryTests.m */; };
+		587DC2062B9A844500509219 /* MSIDXPCServiceEndpointAccessory.h in Headers */ = {isa = PBXBuildFile; fileRef = 587DC2042B9A844500509219 /* MSIDXPCServiceEndpointAccessory.h */; };
+		587DC2072B9A844500509219 /* MSIDXPCServiceEndpointAccessory.m in Sources */ = {isa = PBXBuildFile; fileRef = 587DC2052B9A844500509219 /* MSIDXPCServiceEndpointAccessory.m */; };
 		589842472525447B0075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 5898422025253FE00075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.m */; };
 		58984254252544850075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 5898422025253FE00075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.m */; };
 		5898426D2525448A0075DFED /* MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 5898421025253F050075DFED /* MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams.m */; };
@@ -2334,6 +2336,8 @@
 		585337DF272775110080935B /* MSIDSSOExtensionGetDataBaseRequest+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDSSOExtensionGetDataBaseRequest+Internal.h"; sourceTree = "<group>"; };
 		58543C8A24930FBC00F7AC14 /* MSIDMacKeychainTokenCache+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDMacKeychainTokenCache+Test.h"; sourceTree = "<group>"; };
 		586CD77B293FD76100550710 /* MSIDRequestControllerFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDRequestControllerFactoryTests.m; sourceTree = "<group>"; };
+		587DC2042B9A844500509219 /* MSIDXPCServiceEndpointAccessory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXPCServiceEndpointAccessory.h; sourceTree = "<group>"; };
+		587DC2052B9A844500509219 /* MSIDXPCServiceEndpointAccessory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXPCServiceEndpointAccessory.m; sourceTree = "<group>"; };
 		589841EF25253DF30075DFED /* MSIDAccountMetadataCacheMockUpdateAuthorityParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheMockUpdateAuthorityParameters.h; sourceTree = "<group>"; };
 		589841F025253DF30075DFED /* MSIDAccountMetadataCacheMockUpdateAuthorityParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheMockUpdateAuthorityParameters.m; sourceTree = "<group>"; };
 		589841FF25253E9F0075DFED /* MSIDAccountMetadataCacheMockGetAuthorityParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheMockGetAuthorityParameters.h; sourceTree = "<group>"; };
@@ -4977,6 +4981,8 @@
 				B49323A02AD4DB2700E0CBC0 /* MSIDSSOExtensionPasskeyAssertionRequest.m */,
 				B443EFF02AD6299300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.h */,
 				B443EFF12AD629A300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.m */,
+				587DC2042B9A844500509219 /* MSIDXPCServiceEndpointAccessory.h */,
+				587DC2052B9A844500509219 /* MSIDXPCServiceEndpointAccessory.m */,
 			);
 			path = broker;
 			sourceTree = "<group>";
@@ -5886,6 +5892,7 @@
 				96CE53E920C73E3A002E24C9 /* MSIDWebviewFactory.h in Headers */,
 				232173EA2182B195009852C6 /* MSIDIntuneUserDefaultsCacheDataSource.h in Headers */,
 				B2AF1D38218BCF140080C1A0 /* MSIDRequestControllerFactory.h in Headers */,
+				587DC2062B9A844500509219 /* MSIDXPCServiceEndpointAccessory.h in Headers */,
 				B2964BE1205103920000BC95 /* MSIDTokenFilteringHelper.h in Headers */,
 				232173E12182A998009852C6 /* NSDictionary+MSIDJsonSerializable.h in Headers */,
 				B26A0B7D2071ADCE006BD95A /* MSIDOauth2Factory.h in Headers */,
@@ -6990,6 +6997,7 @@
 				238E19CE2086FC87004DF483 /* MSIDUrlRequestSerializer.m in Sources */,
 				232C658A2138BDC5002A41FE /* MSIDAADAuthorityMetadataResponse.m in Sources */,
 				96CD695E1FE84A0300D41938 /* MSIDJsonObject.m in Sources */,
+				587DC2072B9A844500509219 /* MSIDXPCServiceEndpointAccessory.m in Sources */,
 				23985AA92390A33600942308 /* MSIDSSOTokenResponseHandler.m in Sources */,
 				23B39A92209A85EB000AA905 /* MSIDWebFingerRequest.m in Sources */,
 				B297E1DE20A0F5D600F370EC /* MSIDDefaultCredentialCacheQuery.m in Sources */,

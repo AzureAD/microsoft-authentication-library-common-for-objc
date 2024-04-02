@@ -56,8 +56,8 @@
     {
         if (@available(macOS 10.15, *))
         {
-            if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
-            {
+//            if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+//            {
                 MSIDSilentController *localController = nil;
                 if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
                 {
@@ -73,7 +73,7 @@
                                                                                               tokenRequestProvider:tokenRequestProvider
                                                                                      fallbackInteractiveController:localController
                                                                                                              error:error];
-            }
+//            }
         }
     }
     
@@ -225,13 +225,13 @@
 {
     if (@available(macOS 10.15, *))
     {
-        if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
-        {
+//        if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
+//        {
             return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
                                                                                               tokenRequestProvider:tokenRequestProvider
                                                                                                 fallbackController:fallbackController
                                                                                                              error:error];
-        }
+//        }
     }
     
     return nil;
