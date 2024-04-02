@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "F4D9A5D7-FF71-408D-AD79-490805B3047D",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:IdentityCore.xcodeproj",
+        "identifier" : "91F9551B2BB4994B00999532",
+        "name" : "IdentityCoreTests visionOS"
+      }
+    }
+  ],
+  "version" : 1
+}
