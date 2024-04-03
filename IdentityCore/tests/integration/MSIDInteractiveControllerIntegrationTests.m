@@ -186,70 +186,74 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    
+    receivedEvents = nil;
 }
 
-//- (void)testAcquireToken_whenFailingInteractiveRequest_shouldReturnFailure
-//{
-//    // setup telemetry callback
-//    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
-//
-//    NSMutableArray *receivedEvents = [NSMutableArray array];
-//
-//    // the dispatcher will store the telemetry events it receives
-//    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
-//     {
-//         [receivedEvents addObject:event];
-//     }];
-//
-//    // register the dispatcher
-//    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
-//    [MSIDTelemetry sharedInstance].piiEnabled = YES;
-//
-//    // Setup test request providers
-//    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
-//    parameters.telemetryApiId = @"api_prompt_fail";
-//
-//    NSError *testError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
-//
-//    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
-//
-//    NSError *error = nil;
-//    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
-//
-//    XCTAssertNotNil(interactiveController);
-//    XCTAssertNil(error);
-//
-//    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
-//
-//    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
-//
-//        XCTAssertNil(result);
-//        XCTAssertNotNil(acquireTokenError);
-//        XCTAssertEqualObjects(acquireTokenError, testError);
-//
-//        // Check Telemetry event
-//        XCTAssertEqual([receivedEvents count], 1);
-//        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
-//        XCTAssertNotNil(telemetryEvent[@"start_time"]);
-//        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
-//        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_prompt_fail");
-//        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
-//        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
-//        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");
-//        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
-//        XCTAssertEqualObjects(telemetryEvent[@"status"], @"failed");
-//        XCTAssertNotNil(telemetryEvent[@"response_time"]);
-//        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"-51433");
-//        XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
-//        XCTAssertEqualObjects(telemetryEvent[@"error_protocol_code"], @"invalid_grant");
-//        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-//        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
-//
-//        [expectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1.0 handler:nil];
-//}
+- (void)testAcquireToken_whenFailingInteractiveRequest_shouldReturnFailure
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+
+    // Setup test request providers
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_prompt_fail";
+
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider error:&error];
+
+    XCTAssertNotNil(interactiveController);
+    XCTAssertNil(error);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqualObjects(acquireTokenError, testError);
+
+        // Check Telemetry event
+        XCTAssertEqual([receivedEvents count], 1);
+        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_prompt_fail");
+        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");
+        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(telemetryEvent[@"status"], @"failed");
+        XCTAssertNotNil(telemetryEvent[@"response_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_error_code"], @"-51433");
+        XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
+        XCTAssertEqualObjects(telemetryEvent[@"error_protocol_code"], @"invalid_grant");
+        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    
+    receivedEvents = nil;
+}
 
 #if TARGET_OS_IPHONE && !AD_BROKER
 - (void)testAcquireToken_whenBrokerInstallPrompt_andSuccessfulResponse_shouldReturnResult
@@ -353,6 +357,8 @@
     }];
 
     [self waitForExpectationsWithTimeout:3.0 handler:nil];
+    
+    receivedEvents = nil;
 }
 
 - (void)testAcquireToken_whenWPJRequest_shouldReturnWorkplaceJoinRequiredError
@@ -416,6 +422,8 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    
+    receivedEvents = nil;
 }
 
 - (void)testAcquireToken_whenInvalidBrokerInstallRequest_shouldReturnError
@@ -479,6 +487,8 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    
+    receivedEvents = nil;
 }
 #endif
 
