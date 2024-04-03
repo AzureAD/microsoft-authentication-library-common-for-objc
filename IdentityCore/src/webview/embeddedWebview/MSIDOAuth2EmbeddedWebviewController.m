@@ -175,6 +175,15 @@
     BOOL result = [super loadView:error];
     
     self.webView.navigationDelegate = self;
+
+#if !EXCLUDE_FROM_MSALCPP
+#if DEBUG
+    // Allows debugging using Safari Web Tools when physical device connected to Mac
+    if (@available(iOS 16.4, macOS 13.3, *)) {
+        [self.webView setInspectable:YES];
+    }
+#endif
+#endif
     
     return result;
 }

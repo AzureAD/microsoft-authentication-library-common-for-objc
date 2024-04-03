@@ -1,3 +1,7 @@
+Version 1.7.33
+* Implement support for Custom URL Domains (CUD) for CIAM authorities (#1347)
+* Support for QR+PIN (#1317)
+
 Version 1.7.32.1
 * Fix pkey auth for server side removal case
 
