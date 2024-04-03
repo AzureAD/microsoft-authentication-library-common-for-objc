@@ -115,6 +115,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
 
         _clientSku = [json msidStringObjectForKey:MSID_CLIENT_SKU_KEY];
         _skipValidateResultAccount = [json msidBoolObjectForKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+        _forceRefresh = [json msidBoolObjectForKey:MSID_FORCE_REFRESH_KEY];
     }
     
     return self;
