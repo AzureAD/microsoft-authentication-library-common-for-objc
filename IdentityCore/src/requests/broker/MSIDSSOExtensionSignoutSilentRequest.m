@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,9 +20,10 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDSSOExtensionSignoutRequest.h"
+
+#import "MSIDSSOExtensionSignoutSilentRequest.h"
 
 #if MSID_ENABLE_SSO_EXTENSION
 #import <AuthenticationServices/AuthenticationServices.h>
@@ -40,40 +42,42 @@
 #import "MSIDLastRequestTelemetry.h"
 #endif
 
-@interface MSIDSSOExtensionSignoutRequest() <ASAuthorizationControllerDelegate>
+@interface MSIDSSOExtensionSignoutSilentRequest() <ASAuthorizationControllerDelegate>
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic, copy) MSIDSignoutRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @property (nonatomic, readonly) MSIDProviderType providerType;
-@property (nonatomic) BOOL shouldSignoutFromBrowser;
 @property (nonatomic) BOOL clearSSOExtensionCookies;
 @property (nonatomic) BOOL shouldWipeCacheForAllAccounts;
 @property (nonatomic) NSDate *requestSentDate;
+@property (nonatomic, nonnull) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic, nonnull) MSIDOauth2Factory *oauthFactory;
 #if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
+@property (nonatomic) BOOL shouldSignoutFromBrowser;
 #endif
 
 @end
 
-@implementation MSIDSSOExtensionSignoutRequest
+@implementation MSIDSSOExtensionSignoutSilentRequest
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                  shouldWipeAccount:(BOOL)shouldWipeAccount
                           clearSSOExtensionCookies:(BOOL)clearSSOExtensionCookies
                      shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
 {
     self = [self initWithRequestParameters:parameters oauthFactory:oauthFactory];
     
     if (self)
     {
-        _shouldSignoutFromBrowser = shouldSignoutFromBrowser;
         _clearSSOExtensionCookies = clearSSOExtensionCookies;
         _shouldWipeAccount = shouldWipeAccount;
         _shouldWipeCacheForAllAccounts = shouldWipeCacheForAllAccounts;
+        _shouldSignoutFromBrowser = shouldSignoutFromBrowser;
     }
     
     return self;
@@ -82,10 +86,12 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
 {
-    self = [super initWithRequestParameters:parameters oauthFactory:oauthFactory];
+    self = [super init];
     
     if (self)
     {
+        _requestParameters = parameters;
+        _oauthFactory = oauthFactory;
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = parameters;
         __typeof__(self) __weak weakSelf = self;
@@ -112,7 +118,6 @@
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
         _providerType = [[oauthFactory class] providerType];
-        _shouldSignoutFromBrowser = YES;
         
 #if !EXCLUDE_FROM_MSALCPP
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
@@ -167,12 +172,18 @@
     __auto_type queryItems = [jsonDictionary msidQueryItems];
     ssoRequest.authorizationOptions = queryItems;
     
+    self.requestSentDate = [NSDate date];
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
-    self.requestSentDate = [NSDate date];
+    [self authorizationControllerExtraConfig];
     [self.authorizationController msidPerformRequests];
     
     self.requestCompletionBlock = completionBlock;
+}
+
+- (void)authorizationControllerExtraConfig
+{
+    NSLog(@"Test");
 }
 
 #pragma mark - AuthenticationServices
