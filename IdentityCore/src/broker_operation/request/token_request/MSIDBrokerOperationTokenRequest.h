@@ -46,6 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *accountHomeTenantId;
 @property (nonatomic, nullable) NSString *clientSku;
 @property (nonatomic) BOOL skipValidateResultAccount;
+@property (nonatomic) BOOL forceRefresh;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
