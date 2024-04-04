@@ -29,6 +29,14 @@
 
 @implementation MSIDExternalSSOContext
 
+#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
+static NSString *const MSID_BROKER_SHARED_APP_GROUP = @"group.com.microsoft.azureauthenticator.sso";
+#elif TARGET_OS_OSX
+static NSString *const MSID_BROKER_SHARED_APP_GROUP = @"com.microsoft.identity.ssoextensiongroup";
+#endif
+
+static NSString *const MSID_PLATFORM_SSO_DEVICE_REGISTRATION_COMPLETED_KEY = @"psso_device_registration_completed";
+
 - (MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(id<MSIDRequestContext>)context
 {
 #if TARGET_OS_OSX
@@ -38,6 +46,12 @@
         if (!self.loginManager)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Loginmanager not present, returning early");
+            return nil;
+        }
+        BOOL isPSSORegisteredFlagSetInUserDefaults = [MSIDExternalSSOContext isPlatformSSORegisteredFlagSetInUserDefaults];
+        if (!self.loginManager.isDeviceRegistered || !isPSSORegisteredFlagSetInUserDefaults)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No valid PSSO registration found on device, returning early. loginManager.isDeviceRegistered : %@, isPSSORegisteredFlagSetInUserDefaults : %@", self.loginManager.isDeviceRegistered ? @"YES": @"NO", isPSSORegisteredFlagSetInUserDefaults ? @"YES" : @"NO");
             return nil;
         }
         
@@ -128,6 +142,39 @@
     *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
 #endif
 
+}
+
++ (NSUserDefaults *)getSSOUserDefaults
+{
+    static NSUserDefaults *ssoUserDefault = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        /**
+         NSUserDefaults on MacOS need to add TeamID explicitly in the app shared group string.
+         This link for extension/main app sharing:
+         https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/ExtensionScenarios.html#//apple_ref/doc/uid/TP40014214-CH21-SW1
+         This link for app to app sharing:
+         https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html#//apple_ref/doc/uid/TP40011195-CH4-SW19
+         */
+        
+        NSString *sharedAppGroup;
+        
+        #if TARGET_OS_IPHONE
+            sharedAppGroup = MSID_BROKER_SHARED_APP_GROUP;
+        #elif TARGET_OS_OSX
+            sharedAppGroup = [NSString stringWithFormat:@"%@.%@",[[MSIDKeychainUtil sharedInstance] teamId], MSID_BROKER_SHARED_APP_GROUP];
+        #endif
+        
+        ssoUserDefault = [[NSUserDefaults alloc] initWithSuiteName:sharedAppGroup];
+    });
+    
+    return ssoUserDefault;
+}
+
++ (BOOL)isPlatformSSORegisteredFlagSetInUserDefaults
+{
+    return [[MSIDExternalSSOContext getSSOUserDefaults] boolForKey:MSID_PLATFORM_SSO_DEVICE_REGISTRATION_COMPLETED_KEY];
 }
 
 @end
