@@ -186,8 +186,6 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
-    
-    receivedEvents = nil;
 }
 
 - (void)testAcquireToken_whenFailingInteractiveRequest_shouldReturnFailure
@@ -251,8 +249,6 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
-    
-    receivedEvents = nil;
 }
 
 #if TARGET_OS_IPHONE && !AD_BROKER
@@ -311,7 +307,7 @@
         return YES;
     }];
 
-    XCTestExpectation *expectation = [self expectationWithDescription:@"3 - Acquire token"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
     [MSIDTestURLSession addResponse:discoveryResponse];
@@ -356,9 +352,7 @@
         [expectation fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:10.0 handler:nil];
-    
-    receivedEvents = nil;
+    [self waitForExpectationsWithTimeout:6.0 handler:nil];
 }
 
 - (void)testAcquireToken_whenWPJRequest_shouldReturnWorkplaceJoinRequiredError
@@ -422,8 +416,6 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
-    
-    receivedEvents = nil;
 }
 
 - (void)testAcquireToken_whenInvalidBrokerInstallRequest_shouldReturnError
@@ -487,8 +479,6 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
-    
-    receivedEvents = nil;
 }
 #endif
 
