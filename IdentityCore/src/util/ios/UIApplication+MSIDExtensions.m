@@ -38,7 +38,7 @@
     
     NSArray *scenes; NSArray *windows;
     
-    scenes = [[[UIApplication sharedApplication] connectedScenes] allObjects];
+    scenes = [[[MSIDAppExtensionUtil sharedApplication] connectedScenes] allObjects];
     
     if (scenes && scenes.count != 0)
     {
