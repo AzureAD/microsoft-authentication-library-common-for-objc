@@ -56,6 +56,8 @@
 @property (nonatomic) NSString *nonce;
 @property (nonatomic) NSString *clientSku;
 @property (nonatomic) BOOL skipValidateResultAccount;
+@property (nonatomic) BOOL forceRefresh;
+
 // Additional body parameters that will be appended to all token requests
 @property (nonatomic) NSDictionary *extraTokenRequestParameters;
 // Additional URL query parameters that will be added to both token and authorize requests

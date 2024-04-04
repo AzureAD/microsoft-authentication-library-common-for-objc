@@ -95,7 +95,7 @@
 
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(24, json.allKeys.count);
+    XCTAssertEqual(25, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"claims"], @"{\"id_token\":{\"nickname\":null}}");
@@ -120,6 +120,7 @@
     XCTAssertEqualObjects(json[@"username"], @"user@contoso.com");
     XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
     XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"0");
+    XCTAssertEqualObjects(json[@"force_refresh"], @"0");
 }
 
 - (void)testJsonDictionary_whenRequiredPropertiesSet_shouldReturnJson
@@ -140,7 +141,7 @@
     
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(11, json.allKeys.count);
+    XCTAssertEqual(12, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"client_id"], @"client id");
@@ -149,6 +150,8 @@
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v1");
     XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
     XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"0");
+    XCTAssertEqualObjects(json[@"force_refresh"], @"0");
+
 }
 
 - (void)testJsonDictionary_whenBothAccountId_andTenantHintSet_shouldReturnJsonWithBoth
@@ -172,7 +175,7 @@
     
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(14, json.allKeys.count);
+    XCTAssertEqual(15, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"client_id"], @"client id");
@@ -184,6 +187,7 @@
     XCTAssertEqualObjects(json[@"account_home_tenant_id"], @"aad.tid.hint");
     XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
     XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"0");
+    XCTAssertEqualObjects(json[@"force_refresh"], @"0");
 }
 
 - (void)testInitWithJSONDictionary_whenAllProperties_shouldInitRequest
