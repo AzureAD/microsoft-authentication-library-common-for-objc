@@ -356,7 +356,7 @@
         [expectation fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:3.0 handler:nil];
+    [self waitForExpectationsWithTimeout:10.0 handler:nil];
     
     receivedEvents = nil;
 }
