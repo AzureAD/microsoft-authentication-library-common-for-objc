@@ -94,6 +94,8 @@ NSString *const MSID_PLATFORM_SSO_STATUS_KEY = @"platform_sso_status";
 NSString *const JIT_TROUBLESHOOTING_HOST = @"jit_troubleshooting";
 NSString *const MSID_IS_CALLER_MANAGED_KEY = @"isCallerAppManaged";
 NSString *const MSID_BROKER_SDM_WPJ_ATTEMPTED = @"sdm_reg_attempted";
+NSString *const MSID_FORCE_REFRESH_KEY = @"force_refresh";
+
 // Experiments
 NSString *const MSID_EXP_RETRY_ON_NETWORK = @"exp_retry_on_network";
 NSString *const MSID_EXP_ENABLE_CONNECTION_CLOSE = @"exp_enable_connection_close";
