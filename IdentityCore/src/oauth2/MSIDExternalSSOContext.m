@@ -40,9 +40,10 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Loginmanager not present, returning early");
             return nil;
         }
-        if (!self.loginManager.isDeviceRegistered || !self.isDeviceRegistered)
+        /* psso wil mark device as registered in loginManager only after deviceRegistration callback is completed with success. But we need pkey auth to be performed for device patching which happens before the call back completion, so the check for loginManager.isDeviceRegistered will break this when pkey auth is performed during a fresh registration step, hence removed that check.*/
+        if (!self.isDeviceRegistered)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No valid PSSO registration found on device, returning early. loginManager.isDeviceRegistered : %@, isDeviceRegisteredFlagSet : %@", self.loginManager.isDeviceRegistered ? @"YES": @"NO", self.isDeviceRegistered ? @"YES" : @"NO");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No valid PSSO registration found on device, returning early.  isDeviceRegisteredFlagSet : %@", self.isDeviceRegistered ? @"YES" : @"NO");
             return nil;
         }
         
