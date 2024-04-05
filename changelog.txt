@@ -5,6 +5,9 @@ Version 1.7.33
 * Implement support for Custom URL Domains (CUD) for CIAM authorities (#1347)
 * Support for QR+PIN (#1317)
 
+Version 1.7.32-b
+* Fix pkey auth after server side removal of registration to use isDeviceRegistered flag from ssoContext
+
 Version 1.7.32-a
 * Fix pkey auth for server side removal case
 
