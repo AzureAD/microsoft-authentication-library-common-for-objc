@@ -141,10 +141,11 @@
                                                                         homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     request.clientSku = @"MSAL.iOS";
     request.skipValidateResultAccount = YES;
-
+    request.forceRefresh = YES;
+    
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(22, json.allKeys.count);
+    XCTAssertEqual(23, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"claims"], @"{\"id_token\":{\"nickname\":null}}");
@@ -167,6 +168,8 @@
     XCTAssertEqualObjects(json[@"username"], @"user@contoso.com");
     XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
     XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"1");
+    XCTAssertEqualObjects(json[@"force_refresh"], @"1");
+
 }
 
 - (void)testJsonDictionary_whenRequiredPropertiesSet_shouldReturnJson
@@ -188,7 +191,7 @@
     
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(12, json.allKeys.count);
+    XCTAssertEqual(13, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"client_id"], @"client id");
@@ -201,6 +204,7 @@
     XCTAssertEqualObjects(json[@"username"], @"user@contoso.com");
     XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
     XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"0");
+    XCTAssertEqualObjects(json[@"force_refresh"], @"0");
 }
 
 - (void)testInitWithJSONDictionary_whenRequiredPropertiesWithHomeAccountId_shouldInitRequest
