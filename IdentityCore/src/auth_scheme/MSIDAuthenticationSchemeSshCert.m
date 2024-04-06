@@ -105,7 +105,7 @@
         return nil;
     }
     
-    NSString *keyId = json[@"keyId"];
+    NSString *keyId = json[@"key_id"];
     if ([NSString msidIsStringNilOrBlank:authScheme])
     {
         NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: key_id is nil", self.class];
@@ -113,7 +113,7 @@
         return nil;
     }
     
-    [schemeParameters setObject:keyId forKey:@"keyId"];
+    [schemeParameters setObject:keyId forKey:@"key_id"];
     [schemeParameters setObject:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
     [schemeParameters setObject:authScheme forKey:MSID_OAUTH2_TOKEN_TYPE];
     
@@ -148,6 +148,14 @@
     json[@"key_id"] = self.keyId;
     
     return json;
+}
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAuthenticationSchemeSshCert *authScheme = [super copyWithZone:zone];
+    authScheme->_keyId = [_keyId copyWithZone:zone];
+    authScheme->_req_cnf = [_req_cnf copyWithZone:zone];
+    return authScheme;
 }
 
 @end

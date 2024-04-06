@@ -31,7 +31,7 @@ NSString * MSIDAuthSchemeParamFromType(MSIDAuthScheme type)
         case MSIDAuthSchemeBearer:
             return @"Bearer";
         case MSIDAuthSchemeSshCert:
-            return @"SshCert";
+            return @"ssh-cert";
         default:
             return @"Bearer";
     }
@@ -46,6 +46,10 @@ MSIDAuthScheme MSIDAuthSchemeTypeFromString(NSString *authSchemeString)
     else if ([authSchemeString isEqualToString:@"Bearer"])
     {
         return MSIDAuthSchemeBearer;
+    }
+    else if ([authSchemeString isEqualToString:@"ssh-cert"])
+    {
+        return MSIDAuthSchemeSshCert;
     }
 
     return MSIDAuthSchemeBearer;
