@@ -47,6 +47,7 @@
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAADTokenRequestServerTelemetry.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -148,6 +149,11 @@
     if (![NSString msidIsStringNilOrBlank:configuration.nestedAuthBrokerClientId])
     {
         accessToken.redirectUri = configuration.redirectUri;
+    }
+    
+    if ([MSID_OAUTH2_SSH_CERT isEqualToString:configuration.authScheme.tokenType])
+    {
+        accessToken.tokenType = configuration.authScheme.tokenType;
     }
 
     return YES;
