@@ -151,9 +151,10 @@
         accessToken.redirectUri = configuration.redirectUri;
     }
     
+    // Map token_type as "ssh-cert" flow for Azure CLI
     if ([MSID_OAUTH2_SSH_CERT isEqualToString:configuration.authScheme.tokenType])
     {
-        accessToken.tokenType = configuration.authScheme.tokenType;
+        accessToken.tokenType = MSID_OAUTH2_SSH_CERT;
     }
 
     return YES;

@@ -60,10 +60,10 @@
             return nil;
         }
         
-        _keyId = [_schemeParameters msidObjectForKey:@"key_id" ofClass:[NSString class]];
+        _keyId = [_schemeParameters msidObjectForKey:MSID_OAUTH2_SSH_CERT_KEY_ID ofClass:[NSString class]];
         if ([NSString msidIsStringNilOrBlank:_keyId])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read _keyId from scheme parameters.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read key_id from scheme parameters.");
             return nil;
         }
     }
@@ -105,7 +105,7 @@
         return nil;
     }
     
-    NSString *keyId = json[@"key_id"];
+    NSString *keyId = json[MSID_OAUTH2_SSH_CERT_KEY_ID];
     if ([NSString msidIsStringNilOrBlank:authScheme])
     {
         NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: key_id is nil", self.class];
@@ -113,7 +113,7 @@
         return nil;
     }
     
-    [schemeParameters setObject:keyId forKey:@"key_id"];
+    [schemeParameters setObject:keyId forKey:MSID_OAUTH2_SSH_CERT_KEY_ID];
     [schemeParameters setObject:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
     [schemeParameters setObject:authScheme forKey:MSID_OAUTH2_TOKEN_TYPE];
     
@@ -141,11 +141,11 @@
     
     if ([NSString msidIsStringNilOrBlank:self.keyId])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: req_cnf is nil.", self.class);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: key_id is nil.", self.class);
         return nil;
     }
     
-    json[@"key_id"] = self.keyId;
+    json[MSID_OAUTH2_SSH_CERT_KEY_ID] = self.keyId;
     
     return json;
 }
