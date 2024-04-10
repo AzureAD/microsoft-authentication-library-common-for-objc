@@ -56,7 +56,6 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 @interface MSIDSilentTokenRequest()
 
 @property (nonatomic) MSIDRequestParameters *requestParameters;
-@property (nonatomic) BOOL forceRefresh;
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
