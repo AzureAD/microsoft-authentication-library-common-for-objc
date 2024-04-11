@@ -97,6 +97,83 @@
     XCTAssertEqualObjects(remainingObject, @"v1");
 }
 
+- (void)testCopyAndReplaceObject_whenKeyIsNil_shouldReturnNil
+{
+    MSIDCache *cache = [MSIDCache new];
+    id key = nil;
+    
+    id result = [cache copyAndReplaceObjectForKey:key withObject:@"o1"];
+    
+    XCTAssertNil(result);
+}
+
+- (void)testCopyAndReplaceObject_whenObjectDoesNotExist_shouldSetNewObject
+{
+    MSIDCache *cache = [MSIDCache new];
+    [cache setObject:@"o1" forKey:@"k1"];
+    
+    id key = @"k2";
+    id result = [cache copyAndReplaceObjectForKey:key withObject:@"o2"];
+    
+    XCTAssertNil(result);
+    XCTAssertEqual([cache count], 2);
+    id object1 = [cache objectForKey:@"k1"];
+    XCTAssertEqualObjects(object1, @"o1");
+    id object2 = [cache objectForKey:@"k2"];
+    XCTAssertEqualObjects(object2, @"o2");
+}
+
+- (void)testCopyAndReplaceObject_whenObjectExists_shouldReplaceObject
+{
+    MSIDCache *cache = [MSIDCache new];
+    [cache setObject:@"o1" forKey:@"k1"];
+    [cache setObject:@"o2" forKey:@"k2"];
+    
+    id key = @"k2";
+    id result = [cache copyAndReplaceObjectForKey:key withObject:@"o2_"];
+    
+    XCTAssertEqualObjects(result, @"o2");
+    XCTAssertEqual([cache count], 2);
+    
+    id object1 = [cache objectForKey:@"k1"];
+    XCTAssertEqualObjects(object1, @"o1");
+    id object2 = [cache objectForKey:@"k2"];
+    XCTAssertEqualObjects(object2, @"o2_");
+}
+
+- (void)testCopyAndReplaceObject_whenObjectExists_andNewObjectNil_shouldRemoveObject
+{
+    MSIDCache *cache = [MSIDCache new];
+    [cache setObject:@"o1" forKey:@"k1"];
+    [cache setObject:@"o2" forKey:@"k2"];
+    
+    id key = @"k2";
+    id obj = nil;
+    id result = [cache copyAndReplaceObjectForKey:key withObject:obj];
+    
+    XCTAssertEqualObjects(result, @"o2");
+    XCTAssertEqual([cache count], 1);
+    
+    id object1 = [cache objectForKey:@"k1"];
+    XCTAssertEqualObjects(object1, @"o1");
+}
+
+- (void)testCopyAndReplaceObject_whenObjectNotExist_andNewObjectNil_shouldDoNothing
+{
+    MSIDCache *cache = [MSIDCache new];
+    [cache setObject:@"o1" forKey:@"k1"];
+    
+    id key = @"k2";
+    id obj = nil;
+    id result = [cache copyAndReplaceObjectForKey:key withObject:obj];
+    
+    XCTAssertNil(result);
+    XCTAssertEqual([cache count], 1);
+    
+    id object1 = [cache objectForKey:@"k1"];
+    XCTAssertEqualObjects(object1, @"o1");
+}
+
 - (void)testSetObject_whenSetSuccessfully_shouldReturnSameOnObjectForKey
 {
     __auto_type cache = [MSIDCache new];

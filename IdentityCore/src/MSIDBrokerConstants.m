@@ -75,6 +75,7 @@ NSString *const MSID_BROKER_SSO_URL = @"sso_url";
 NSString *const MSID_BROKER_ACCOUNT_IDENTIFIER = @"account_identifier";
 NSString *const MSID_BROKER_TYPES_OF_HEADER = @"types_of_header";
 NSString *const MSID_BROKER_REQUEST_SENT_TIMESTAMP = @"request_sent_timestamp";
+NSString *const MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY = @"preferred_auth_config";
 NSString *const MSID_BROKER_ACCOUNT_HOME_TENANT_ID = @"account_home_tenant_id";
 NSString *const MSID_CLIENT_SKU_KEY = @"client_sku";
 NSString *const MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY = @"skip_validate_result_account";
@@ -93,6 +94,8 @@ NSString *const MSID_PLATFORM_SSO_STATUS_KEY = @"platform_sso_status";
 NSString *const JIT_TROUBLESHOOTING_HOST = @"jit_troubleshooting";
 NSString *const MSID_IS_CALLER_MANAGED_KEY = @"isCallerAppManaged";
 NSString *const MSID_BROKER_SDM_WPJ_ATTEMPTED = @"sdm_reg_attempted";
+NSString *const MSID_FORCE_REFRESH_KEY = @"force_refresh";
+
 // Experiments
 NSString *const MSID_EXP_RETRY_ON_NETWORK = @"exp_retry_on_network";
 NSString *const MSID_EXP_ENABLE_CONNECTION_CLOSE = @"exp_enable_connection_close";
