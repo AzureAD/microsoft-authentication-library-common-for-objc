@@ -29,7 +29,7 @@
 
 @interface MSIDAuthenticationSchemeSshCert()
 
-@property (nonatomic) NSString *keyId;
+@property (nonatomic) NSString *key_id;
 @property (nonatomic) NSString *req_cnf;
 
 @end
@@ -60,8 +60,8 @@
             return nil;
         }
         
-        _keyId = [_schemeParameters msidObjectForKey:MSID_OAUTH2_SSH_CERT_KEY_ID ofClass:[NSString class]];
-        if ([NSString msidIsStringNilOrBlank:_keyId])
+        _key_id = [_schemeParameters msidObjectForKey:MSID_OAUTH2_SSH_CERT_KEY_ID ofClass:[NSString class]];
+        if ([NSString msidIsStringNilOrBlank:_key_id])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read key_id from scheme parameters.");
             return nil;
@@ -71,19 +71,20 @@
     return self;
 }
 
-- (MSIDCredentialType)credentialType
-{
-    return MSIDCredentialTypeOther;
-}
-
 - (NSString *)tokenType
 {
     return MSIDAuthSchemeParamFromType(self.authScheme);
 }
 
-- (MSIDAuthScheme)authSchemeFromParameters:(__unused NSDictionary *)schemeParameters
+- (MSIDAuthScheme)authSchemeFromParameters:(NSDictionary *)schemeParameters
 {
-    return MSIDAuthSchemeSshCert;
+    NSString *scheme = [schemeParameters msidObjectForKey:MSID_OAUTH2_TOKEN_TYPE ofClass:[NSString class]];
+    if (!scheme)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read auth_scheme from scheme parameters.");
+    }
+    
+    return MSIDAuthSchemeTypeFromString(scheme);
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
@@ -106,7 +107,7 @@
     }
     
     NSString *keyId = json[MSID_OAUTH2_SSH_CERT_KEY_ID];
-    if ([NSString msidIsStringNilOrBlank:authScheme])
+    if ([NSString msidIsStringNilOrBlank:keyId])
     {
         NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: key_id is nil", self.class];
         if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
@@ -139,13 +140,13 @@
     
     json[MSID_OAUTH2_REQUEST_CONFIRMATION] = self.req_cnf;
     
-    if ([NSString msidIsStringNilOrBlank:self.keyId])
+    if ([NSString msidIsStringNilOrBlank:self.key_id])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: key_id is nil.", self.class);
         return nil;
     }
     
-    json[MSID_OAUTH2_SSH_CERT_KEY_ID] = self.keyId;
+    json[MSID_OAUTH2_SSH_CERT_KEY_ID] = self.key_id;
     
     return json;
 }
@@ -153,7 +154,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAuthenticationSchemeSshCert *authScheme = [super copyWithZone:zone];
-    authScheme->_keyId = [_keyId copyWithZone:zone];
+    authScheme->_key_id = [_key_id copyWithZone:zone];
     authScheme->_req_cnf = [_req_cnf copyWithZone:zone];
     return authScheme;
 }
