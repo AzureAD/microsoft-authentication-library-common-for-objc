@@ -34,7 +34,7 @@
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
 #import "UIApplication+MSIDExtensions.h"
-#if defined TARGET_OS_VISION && !TARGET_OS_VISION
+#if !defined TARGET_OS_VISION || !TARGET_OS_VISION
 #import "MSIDSafariViewController.h"
 #endif
 #import "MSIDURLResponseHandling.h"
