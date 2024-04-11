@@ -34,7 +34,7 @@
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
 #import "UIApplication+MSIDExtensions.h"
-#if !TARGET_OS_VISION
+#if !defined TARGET_OS_VISION || !TARGET_OS_VISION
 #import "MSIDSafariViewController.h"
 #endif
 #import "MSIDURLResponseHandling.h"
@@ -225,8 +225,12 @@
                                                                 useEmpheralSession:self.prefersEphemeralWebBrowserSession
                                                                            context:self.context];
     }
+    
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
+    return nil;
+#else
         
-#if !TARGET_OS_VISION && TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
         
     if (safariAllowed)
     {
@@ -243,6 +247,7 @@
 #endif
     
     return nil;
+#endif
 }
 
 - (void)notifyEndWebAuthWithURL:(NSURL *)url
