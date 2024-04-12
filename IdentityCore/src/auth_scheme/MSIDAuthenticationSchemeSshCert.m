@@ -26,6 +26,7 @@
 #import "MSIDAuthenticationSchemeSshCert.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDAuthScheme.h"
+#import "MSIDAccessTokenWithAuthScheme.h"
 
 @interface MSIDAuthenticationSchemeSshCert()
 
@@ -149,6 +150,19 @@
     json[MSID_OAUTH2_SSH_CERT_KEY_ID] = self.key_id;
     
     return json;
+}
+
+- (MSIDCredentialType)credentialType
+{
+    return MSIDAccessTokenWithAuthSchemeType;
+}
+
+- (MSIDAccessToken *)accessToken
+{
+    MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
+    accessToken.tokenType = self.tokenType;
+    accessToken.kid = self.key_id;
+    return accessToken;
 }
 
 - (id)copyWithZone:(NSZone *)zone

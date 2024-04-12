@@ -131,7 +131,7 @@
     XCTAssertNotNil([scheme valueForKey:MSID_OAUTH2_SSH_CERT_KEY_ID]);
     XCTAssertNotNil([scheme valueForKey:MSID_OAUTH2_REQUEST_CONFIRMATION]);
     XCTAssertEqual(scheme.authScheme, MSIDAuthSchemeSshCert);
-    XCTAssertEqual(scheme.credentialType, MSIDAccessTokenType);
+    XCTAssertEqual(scheme.credentialType, MSIDAccessTokenWithAuthSchemeType);
     XCTAssertEqual(scheme.tokenType, MSID_OAUTH2_SSH_CERT);
 }
 
