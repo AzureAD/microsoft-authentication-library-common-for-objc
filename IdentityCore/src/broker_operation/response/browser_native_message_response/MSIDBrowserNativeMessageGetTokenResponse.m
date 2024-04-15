@@ -77,6 +77,11 @@
     response[@"account"] = accountJson;
     response[@"state"] = self.state;
     
+    __auto_type propertiesJson = [NSMutableDictionary new];
+    // TODO: once ests follow the latest protocol, this should be removed. Account ID should be read from accountJson.
+    propertiesJson[@"UPN"] = tokenResponse.idTokenObj.username;
+    response[@"properties"] = propertiesJson;
+    
     return response;
 }
 
