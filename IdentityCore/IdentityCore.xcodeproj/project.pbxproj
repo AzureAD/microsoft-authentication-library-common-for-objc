@@ -9924,7 +9924,7 @@
 		};
 		91F955F62BB4994B00999532 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
+			baseConfigurationReference = 91F955032BB498C700999532 /* identitycore__tests__vision.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -9947,13 +9947,13 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 7;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MSIDTestsHostApp";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
 			name = Debug;
 		};
 		91F955F72BB4994B00999532 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
+			baseConfigurationReference = 91F955032BB498C700999532 /* identitycore__tests__vision.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -9974,17 +9974,18 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests iOS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 7;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MSIDTestsHostApp";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
 			name = Release;
 		};
 		91F956302BB4998500999532 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */;
+			baseConfigurationReference = 91F955022BB4989F00999532 /* identitycore__testlib__vision.xcconfig */;
 			buildSettings = {
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = IdentityTest;
 				SDKROOT = xros;
 				TARGETED_DEVICE_FAMILY = 7;
@@ -9993,10 +9994,11 @@
 		};
 		91F956312BB4998500999532 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */;
+			baseConfigurationReference = 91F955022BB4989F00999532 /* identitycore__testlib__vision.xcconfig */;
 			buildSettings = {
 				ENABLE_BITCODE = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = IdentityTest;
 				SDKROOT = xros;
 				TARGETED_DEVICE_FAMILY = 7;
