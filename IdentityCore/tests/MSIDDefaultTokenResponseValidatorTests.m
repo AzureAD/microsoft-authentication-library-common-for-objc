@@ -98,6 +98,86 @@
     XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], grantedScopes);
 }
 
+- (void)testValidateTokenResult_whenEmailScopesNotIncludedByServer_shouldReturnValidResult
+{
+    __auto_type defaultOidcScope = @"openid profile offline_access";
+    __auto_type correlationID = [NSUUID new];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"some_uri"
+                                                                           clientId:@"myclient"
+                                                                             target:@"email user.read user.write"];
+    NSDictionary *testResponse = [MSIDTestURLResponse tokenResponseWithAT:nil
+                                                               responseRT:nil
+                                                               responseID:nil
+                                                            responseScope:@"User.Read User.Write"
+                                                       responseClientInfo:nil
+                                                                expiresIn:nil
+                                                                     foci:nil
+                                                             extExpiresIn:nil];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDTokenResponse *response = [factory tokenResponseFromJSON:testResponse context:nil error:nil];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:nil
+                                                                   idToken:response.idToken
+                                                                   account:account
+                                                                 authority:authority
+                                                             correlationId:correlationID
+                                                             tokenResponse:response];
+    NSError *error;
+    
+    BOOL validated = [self.validator validateTokenResult:result
+                                           configuration:configuration
+                                               oidcScope:defaultOidcScope
+                                           correlationID:correlationID
+                                                   error:&error];
+    
+    XCTAssertTrue(validated);
+    XCTAssertNil(error);
+}
+
+- (void)testValidateTokenResult_whenEmailScopesIncludedByServer_shouldReturnValidResult
+{
+    __auto_type defaultOidcScope = @"openid profile offline_access";
+    __auto_type correlationID = [NSUUID new];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"some_uri"
+                                                                           clientId:@"myclient"
+                                                                             target:@"email user.read user.write"];
+    NSDictionary *testResponse = [MSIDTestURLResponse tokenResponseWithAT:nil
+                                                               responseRT:nil
+                                                               responseID:nil
+                                                            responseScope:@"email User.Read User.Write"
+                                                       responseClientInfo:nil
+                                                                expiresIn:nil
+                                                                     foci:nil
+                                                             extExpiresIn:nil];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDTokenResponse *response = [factory tokenResponseFromJSON:testResponse context:nil error:nil];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:nil
+                                                                   idToken:response.idToken
+                                                                   account:account
+                                                                 authority:authority
+                                                             correlationId:correlationID
+                                                             tokenResponse:response];
+    NSError *error;
+    
+    BOOL validated = [self.validator validateTokenResult:result
+                                           configuration:configuration
+                                               oidcScope:defaultOidcScope
+                                           correlationID:correlationID
+                                                   error:&error];
+    
+    XCTAssertTrue(validated);
+    XCTAssertNil(error);
+}
+
 - (void)testValidateTokenResult_whenWithValidResponse_shouldReturnValidResult
 {
     __auto_type defaultOidcScope = @"openid profile offline_access";
