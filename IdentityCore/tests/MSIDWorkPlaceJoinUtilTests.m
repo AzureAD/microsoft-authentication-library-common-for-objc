@@ -706,7 +706,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [insertStringDataQuery setObject:dataIdentifier forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
     [insertStringDataQuery setObject:stringData forKey:(__bridge id<NSCopying>)(kSecAttrService)];
 
-#if TARGET_OS_IOS || TARGET_OS_VISION
+#if !TARGET_OS_OSX
     [insertStringDataQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
     return SecItemAdd((__bridge CFDictionaryRef)insertStringDataQuery, NULL);
@@ -723,7 +723,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [insertStringDataQuery setObject:stringData forKey:(__bridge id<NSCopying>)(kSecAttrLabel)];
     [insertStringDataQuery setObject:tenantIdentifier forKey:(__bridge id<NSCopying>)(kSecAttrService)];
 
-#if TARGET_OS_IOS
+#if !TARGET_OS_OSX
     [insertStringDataQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #endif
     return SecItemAdd((__bridge CFDictionaryRef)insertStringDataQuery, NULL);

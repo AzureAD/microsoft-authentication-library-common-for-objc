@@ -3175,7 +3175,6 @@
 		91F955022BB4989F00999532 /* identitycore__testlib__vision.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__testlib__vision.xcconfig; sourceTree = "<group>"; };
 		91F955032BB498C700999532 /* identitycore__tests__vision.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__tests__vision.xcconfig; sourceTree = "<group>"; };
 		91F955082BB4991200999532 /* MSIDTestsHostApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MSIDTestsHostApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		91F9550B2BB4991200999532 /* RealityKitContent */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = RealityKitContent; sourceTree = "<group>"; };
 		91F9550E2BB4991200999532 /* MSIDTestHostAppVisionOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDTestHostAppVisionOSApp.swift; sourceTree = "<group>"; };
 		91F955102BB4991200999532 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		91F955122BB4991500999532 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -4837,14 +4836,6 @@
 			path = MSIDTestHostAppVisionOS;
 			sourceTree = "<group>";
 		};
-		91F9550A2BB4991200999532 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				91F9550B2BB4991200999532 /* RealityKitContent */,
-			);
-			path = Packages;
-			sourceTree = "<group>";
-		};
 		91F955142BB4991500999532 /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
@@ -6069,7 +6060,6 @@
 				231CE99E1FE86EA300E95D3E /* MSIDTestsHostApp */,
 				1EE8FF5724F4BB3800CA1445 /* IdentityCoreSwift */,
 				91F955092BB4991200999532 /* MSIDTestHostAppVisionOS */,
-				91F9550A2BB4991200999532 /* Packages */,
 				D68FB4881FBA698A005308BB /* Products */,
 				D6D9A4C21FBE718C00EFA430 /* Frameworks */,
 				B214C39A1FE851F20070C4F2 /* Recovered References */,
