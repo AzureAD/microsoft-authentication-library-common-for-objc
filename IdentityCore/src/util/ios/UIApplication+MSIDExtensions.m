@@ -36,13 +36,13 @@
     
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return nil;
     
-    NSArray *scenes; NSArray *windows;
+    NSArray<UIScene *> *scenes; NSArray<UIWindow *> *windows;
     
     scenes = [[[MSIDAppExtensionUtil sharedApplication] connectedScenes] allObjects];
     
     if (scenes && scenes.count != 0)
     {
-        windows = [[scenes objectAtIndex:0] windows];
+        windows = [(UIWindowScene *)[scenes objectAtIndex:0] windows];
     }
     
     for (UIWindow *window in windows)

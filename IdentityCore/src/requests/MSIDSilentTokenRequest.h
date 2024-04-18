@@ -45,6 +45,7 @@
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, nullable) MSIDThrottlingService *throttlingService;
 @property (nonatomic) BOOL skipLocalRt;
+@property (nonatomic) BOOL forceRefresh;
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
