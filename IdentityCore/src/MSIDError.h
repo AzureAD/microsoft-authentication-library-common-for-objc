@@ -323,6 +323,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // In PSSO, KeyId stored in passkey provider storage does not match NGC key, needs to configure and retry
     MSIDErrorPSSOKeyIdMismatch                     =   -51838,
     
+    // Workplacejoin migrate current registration is required to proceed
+    MSIDErrorWorkplaceJoinMigrateDevice            =   -51840,
+    
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,
