@@ -29,7 +29,6 @@
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDMainThreadUtil.h"
 
-// begin MS_TEAMS_CHANGE
 static inline CGRect ActiveScreenBounds(void)
 {
     // this code is also compiled for extensions where UIApplication.sharedApplication is not available
@@ -78,8 +77,6 @@ static inline CGRect ActiveSceneBoundsForView(UIView *view)
     
     return ActiveScreenBounds();
 }
-
-// end MS_TEAMS_CHANGE
 
 static WKWebViewConfiguration *s_webConfig;
 
@@ -179,12 +176,12 @@ static WKWebViewConfiguration *s_webConfig;
         return NO;
     }
     UIView *rootView = [self view];
-#if !TARGET_OS_VISION // MS_TEAMS_CHANGE
+#if !TARGET_OS_VISION
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
 #else
     CGRect screenBounds = ActiveSceneBoundsForView(rootView);
 #endif
-    [rootView setFrame:screenBounds]; // MS_TEAMS_CHANGE
+    [rootView setFrame:screenBounds];
     [rootView setAutoresizesSubviews:YES];
     [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     
