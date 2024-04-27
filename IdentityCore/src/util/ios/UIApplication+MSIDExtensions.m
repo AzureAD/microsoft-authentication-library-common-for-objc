@@ -36,6 +36,7 @@
     
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return nil;
     
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
     NSArray<UIScene *> *scenes; NSArray<UIWindow *> *windows;
     
     scenes = [[[MSIDAppExtensionUtil sharedApplication] connectedScenes] allObjects];
@@ -46,6 +47,9 @@
     }
     
     for (UIWindow *window in windows)
+#else
+    for (UIWindow *window in [MSIDAppExtensionUtil sharedApplication].windows)
+#endif
     {
         if (window.isKeyWindow)
         {
