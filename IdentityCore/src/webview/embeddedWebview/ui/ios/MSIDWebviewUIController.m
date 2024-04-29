@@ -29,6 +29,7 @@
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDMainThreadUtil.h"
 
+#if TARGET_OS_VISION
 static inline CGRect ActiveScreenBounds(void)
 {
     // this code is also compiled for extensions where UIApplication.sharedApplication is not available
@@ -57,14 +58,8 @@ static inline CGRect ActiveScreenBounds(void)
     {
         return activeScene.coordinateSpace.bounds;
     }
-#if !TARGET_OS_VISION
-    else
-    {
-        return UIScreen.mainScreen.bounds;
-    }
-#endif
-    return CGRectZero;
 
+    return CGRectZero;
 }
 
 static inline CGRect ActiveSceneBoundsForView(UIView *view)
@@ -77,6 +72,7 @@ static inline CGRect ActiveSceneBoundsForView(UIView *view)
     
     return ActiveScreenBounds();
 }
+#endif
 
 static WKWebViewConfiguration *s_webConfig;
 
