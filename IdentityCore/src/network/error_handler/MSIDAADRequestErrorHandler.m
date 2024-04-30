@@ -30,6 +30,12 @@
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDMainThreadUtil.h"
 
+static const NSArray *retryErrorPool = @[@(NSURLErrorTimedOut),
+                                         @(NSURLErrorCannotFindHost),
+                                         @(NSURLErrorCannotConnectToHost),
+                                         @(NSURLErrorNetworkConnectionLost),
+                                         @(NSURLErrorNotConnectedToInternet)];
+
 @implementation MSIDAADRequestErrorHandler
 
 - (void)handleError:(NSError *)error
@@ -48,8 +54,8 @@
         BOOL shouldRetryNetworkingFailure = NO;
         if (shouldRetry && error)
         {
-            // Networking errors (-1003. -1004. -1005. -1009)
-            shouldRetryNetworkingFailure = error.code == NSURLErrorCannotFindHost || error.code == NSURLErrorCannotConnectToHost || error.code == NSURLErrorNetworkConnectionLost || error.code == NSURLErrorNotConnectedToInternet;
+            // Networking errors (-1001, -1003. -1004. -1005. -1009)
+            shouldRetryNetworkingFailure = [retryErrorPool containsObject:@(error.code)];
         }
 
         shouldRetry &= shouldRetryNetworkingFailure;
@@ -139,5 +145,16 @@
     
     if (completionBlock) completionBlock(nil, httpError);
 }
+
+//- (BOOL)shouldRetyOn:(NSInteger)errorCode {
+//    NSArray *retryErrorPool = @[
+//        @(NSURLErrorTimedOut),
+//        @(NSURLErrorCannotFindHost),
+//        @(NSURLErrorCannotConnectToHost),
+//        @(NSURLErrorNetworkConnectionLost),
+//        @(NSURLErrorNotConnectedToInternet)
+//    ];
+//    return [retryErrorPool containsObject:@(errorCode)];
+//}
 
 @end
