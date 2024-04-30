@@ -29,7 +29,7 @@
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDMainThreadUtil.h"
 
-#if TARGET_OS_VISION
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
 static inline CGRect ActiveScreenBounds(void)
 {
     // this code is also compiled for extensions where UIApplication.sharedApplication is not available
@@ -172,7 +172,7 @@ static WKWebViewConfiguration *s_webConfig;
         return NO;
     }
     UIView *rootView = [self view];
-#if !TARGET_OS_VISION
+#if defined TARGET_OS_VISION && !TARGET_OS_VISION
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
 #else
     CGRect screenBounds = ActiveSceneBoundsForView(rootView);
