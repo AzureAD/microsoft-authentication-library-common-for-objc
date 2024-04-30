@@ -146,15 +146,4 @@ static const NSArray *retryErrorPool = @[@(NSURLErrorTimedOut),
     if (completionBlock) completionBlock(nil, httpError);
 }
 
-//- (BOOL)shouldRetyOn:(NSInteger)errorCode {
-//    NSArray *retryErrorPool = @[
-//        @(NSURLErrorTimedOut),
-//        @(NSURLErrorCannotFindHost),
-//        @(NSURLErrorCannotConnectToHost),
-//        @(NSURLErrorNetworkConnectionLost),
-//        @(NSURLErrorNotConnectedToInternet)
-//    ];
-//    return [retryErrorPool containsObject:@(errorCode)];
-//}
-
 @end
