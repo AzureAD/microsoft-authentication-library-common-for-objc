@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef MSIDERROR_H
+#define MSIDERROR_H
 extern NSString * _Nonnull MSIDErrorDescriptionKey;
 extern NSString * _Nonnull MSIDOAuthErrorKey;
 extern NSString * _Nonnull MSIDOAuthSubErrorKey;
@@ -346,3 +348,4 @@ extern void MSIDFillAndLogError(NSError * _Nullable __autoreleasing * _Nullable 
 #define MSIDException(name, message, info) [NSException exceptionWithName:name reason:[NSString stringWithFormat:@"%@ (function:%s line:%i)", message, __PRETTY_FUNCTION__, __LINE__]  userInfo:info]
 
 extern NSString * _Nullable MSIDErrorCodeToString(MSIDErrorCode errorCode);
+#endif

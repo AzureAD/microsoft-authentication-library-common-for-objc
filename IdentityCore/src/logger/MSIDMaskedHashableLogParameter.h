@@ -21,6 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef MSIDMaskedHashableLogParameter_H
+#define MSIDMaskedHashableLogParameter_H
+
 #import "MSIDMaskedLogParameter.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,3 +33,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

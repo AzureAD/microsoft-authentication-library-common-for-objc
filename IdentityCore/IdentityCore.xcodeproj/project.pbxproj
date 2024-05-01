@@ -8817,6 +8817,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */;
 			buildSettings = {
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = NO;
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -8827,6 +8828,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E971FC3626A00CD70C5 /* identitycore__testlib__ios.xcconfig */;
 			buildSettings = {
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = NO;
 				ENABLE_BITCODE = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 			};
@@ -8859,6 +8861,7 @@
 					"$(MSID_WEBKIT)",
 					"$(MSID_SYSTEMWV)",
 				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_SHADOW = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
@@ -8874,6 +8877,7 @@
 					"$(MSID_SYSTEMWV)",
 					"$(MSID_WEBKIT)",
 				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_WARN_SHADOW = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
