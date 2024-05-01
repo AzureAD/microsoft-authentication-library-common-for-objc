@@ -373,7 +373,7 @@
     return [self saveItemData:serializedItem
                           key:key
                     cacheKeys:_tokenKeys
-                 cacheContent:_tokenKeys
+                 cacheContent:_tokenContents
                       context:context
                         error:error];
 }
