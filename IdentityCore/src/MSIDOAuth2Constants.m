@@ -60,6 +60,7 @@ NSString *const MSID_OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-
 NSString *const MSID_OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
 NSString *const MSID_OAUTH2_SCOPE_OPENID_VALUE = @"openid";
 NSString *const MSID_OAUTH2_SCOPE_PROFILE_VALUE = @"profile";
+NSString *const MSID_OAUTH2_SCOPE_EMAIL_VALUE = @"email";
 NSString *const MSID_OAUTH2_SCOPE_OFFLINE_ACCESS_VALUE = @"offline_access";
 NSString *const MSID_OAUTH2_CLIENT_TELEMETRY    = @"x-ms-clitelem";
 NSString *const MSID_OAUTH2_PROMPT              = @"prompt";
