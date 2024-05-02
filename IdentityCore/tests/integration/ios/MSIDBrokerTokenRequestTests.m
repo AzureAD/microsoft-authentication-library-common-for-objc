@@ -35,6 +35,7 @@
 #import "MSIDClaimsRequest.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthenticationSchemeSshCert.h"
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
 @end
@@ -79,6 +80,20 @@
         @"req_cnf":@"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0"
     };
     parameters.authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
+    return parameters;
+}
+
+- (MSIDInteractiveTokenRequestParameters *)defaultTestParametersSshCert
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    NSString *modulus = @"2tNr73xwcj6lH7bqRZrFzgSLj7OeLfbn8";
+    NSString *exponent = @"AQAB";
+    NSDictionary *schemeParams = @{
+        @"token_type":@"ssh-cert",
+        @"key_id":@"key_id_value",
+        @"req_cnf":[NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent]
+    };
+    parameters.authScheme = [[MSIDAuthenticationSchemeSshCert alloc] initWithSchemeParameters:schemeParams];
     return parameters;
 }
 
@@ -244,6 +259,59 @@
                                                @"broker_nonce": brokerNonce,
                                                @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
                                                @"token_type" : @"Pop",
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
+    };
+    
+    XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
+}
+
+- (void)testInitBrokerRequest_whenValidParameters_shouldReturnValidPayload_SshCertFlow
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParametersSshCert];
+    
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    
+    NSString *modulus = @"2tNr73xwcj6lH7bqRZrFzgSLj7OeLfbn8";
+    NSString *exponent = @"AQAB";
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"key_id":@"key_id_value",
+                                      @"req_cnf" : [NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent],
+                                      @"token_type" : @"ssh-cert",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
+    };
+    
+    NSURL *actualURL = request.brokerRequestURL;
+    
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
+    
+    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id": @"my_client_id",
+                                               @"correlation_id": [parameters.correlationId UUIDString],
+                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"broker_nonce": brokerNonce,
+                                               @"key_id":@"key_id_value",
+                                               @"req_cnf" : [NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent],
+                                               @"token_type" : @"ssh-cert",
                                                @"client_sku" : [self clientSku],
                                                @"skip_validate_result_account" : @"NO"
     };

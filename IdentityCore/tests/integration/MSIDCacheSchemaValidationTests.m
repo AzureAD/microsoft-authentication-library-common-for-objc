@@ -38,6 +38,8 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAccessTokenWithAuthScheme.h"
+#import "MSIDAuthenticationSchemeSshCert.h"
+
 /*
  Those tests validate full schema compliance to test cases defined in the schema spec
  */
@@ -84,6 +86,23 @@
     return response;
 }
 
+- (MSIDTokenResponse *)aadTestTokenResponseATSshCert
+{
+    NSString *jsonResponse = @"{\"token_type\": \"ssh-cert\",\"scope\": \"https://pas.windows.net/CheckMyAccess/Linux/user_impersonation https://pas.windows.net/CheckMyAccess/Linux/.default\",\"expires_in\": 3600,\"ext_expires_in\": 262800,\"access_token\": \"<removed_at>\",\"refresh_token\": \"<removed_rt\",\"id_token\": \"eyJ0eXAiOiJKV1QiLCJyaCI6IjAuQW84RGtxMUY5bzNqR2syMUVOR3dtblNveXBWM3NBVGJqUnBHdS00Qy1lR19lMFljQURvLiIsImFsZyI6IlJTMjU2Iiwia2lkIjoicS0yM2ZhbGV2WmhoRDNobTlDUWJrUDVNUXlVIn0.eyJhdWQiOiIwNGIwNzc5NS04ZGRiLTQ2MWEtYmJlZS0wMmY5ZTFiZjdiNDYiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhL3YyLjAiLCJpYXQiOjE3MTI4ODk3NTUsIm5iZiI6MTcxMjg4OTc1NSwiZXhwIjoxNzEyODkzNjU1LCJhaW8iOiJBVFFBeS84V0FBQUFmbnBPQXBXTnJJT05RZXQySDRHc3R4RE4xN3N6NERUalRIRlllYzEvUXNuN3NpczlLZFJNN3JwZGxTNDI3WWNNIiwibmFtZSI6IkJBU0lDIElETEFCUyBDbG91ZCBVc2VyIiwib2lkIjoiOWY0ODgwZDgtODBiYS00YzQwLTk3YmMtZjdhMjNjNzAzMDg0IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiaWRsYWJAbXNpZGxhYjQub25taWNyb3NvZnQuY29tIiwicHVpZCI6IjEwMDM3RkZFQTdFQ0ZBMjIiLCJyaCI6IkkiLCJzdWIiOiI1Z3I3c3lMYm0yb21zWmlzUWVuTTVhQ18xTkhlZWtKN2JaeEhDeHhhVVJVIiwidGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIiwidXRpIjoiYVo1aEFoc1JtMHVUa25PaHlIOEhBQSIsInZlciI6IjIuMCJ9.-xDMINJOW7qvf_911OZ-rKobJusbs9eMU8jU1TJsFr2LVnEckttRDa_ja5cR_4Ynghg-AtzgLcpHvB5gmbjvYs8YuhfZC7rwrfanLLjwAtT4bZCAXfzK-8IzgPU7PWYL5PA-paCq_zlVSjy_6gxVG7YCLTHuI5C0bd02eXmldACRO7Y_doAy41PLettl1EUp8d7_fAM2Iex6Qi-t4tdK4KzXgMNvADPd-i0oyflRBLaRMfGDHn1Qm3Aav8wwMHi6o51rjg4WvmBXCQGtnObg-noVAcsgBGRKiwEiRHDW9umD6Gstq1f6EgKsfg2WABnH5kXRjw_rVxbIlEcy3NtPrg\",\"client_info\": \"eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0\"}";
+    
+    NSError *responseError = nil;
+    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDAADV2TokenResponse *response = [serializer fromJsonData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding]
+                                                         ofType:MSIDAADV2TokenResponse.class
+                                                        context:nil
+                                                          error:&responseError];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(responseError);
+    
+    return response;
+}
+
 - (MSIDConfiguration *)aadTestConfiguration
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
@@ -108,6 +127,25 @@
         @"req_cnf":@"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0"
     };
     configuration.authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
+    return configuration;
+}
+
+- (MSIDConfiguration *)aadTestConfigurationATSshCert
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"msalb6c69a37-df96-4db0-9088-2ab96e1d8215://auth"
+                                                                           clientId:@"b6c69a37-df96-4db0-9088-2ab96e1d8215"
+                                                                             target:@"https://pas.windows.net/CheckMyAccess/Linux/.default"];
+    NSString *modulus = @"2tNr73xwcj6lH7bqRZrFzgSLj7OeLfbn8";
+    NSString *exponent = @"AQAB";
+    NSDictionary *schemeParams = @{
+        @"key_id":@"key1",
+        @"token_type":@"ssh-cert",
+        @"req_cnf":[NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent]
+    };
+    configuration.authScheme = [[MSIDAuthenticationSchemeSshCert alloc] initWithSchemeParameters:schemeParams];
     return configuration;
 }
 
@@ -209,6 +247,62 @@
     key.target = credential.target;
     
     NSString *expectedServiceKey = @"accesstoken_with_authscheme-b6c69a37-df96-4db0-9088-2ab96e1d8215-f645ad92-e38d-4d1a-b510-d1b09a74a8ca-calendars.read openid profile tasks.read user.read email";
+    XCTAssertEqualObjects(key.service, expectedServiceKey);
+    
+    NSString *expectedAccountKey = @"9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca-login.microsoftonline.com";
+    XCTAssertEqualObjects(key.account, expectedAccountKey);
+    
+    NSString *expectedGenericKey = @"accesstoken_with_authscheme-b6c69a37-df96-4db0-9088-2ab96e1d8215-f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+    XCTAssertEqualObjects(key.generic, [expectedGenericKey dataUsingEncoding:NSUTF8StringEncoding]);
+    
+    XCTAssertEqualObjects(key.type, @2007);
+}
+
+- (void)testSchemaComplianceForAccessToken_whenMSSTSResponse_withAADAccount_ATSshCert
+{
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:[self aadTestTokenResponseATSshCert]
+                                                      configuration:[self aadTestConfigurationATSshCert]];
+    accessToken.tokenType = @"ssh-cert";
+    
+    MSIDCredentialCacheItem *credential = accessToken.tokenCacheItem;
+    NSDictionary *accessTokenJSON = credential.jsonDictionary;
+    
+    NSDate *currentDate = [NSDate new];
+    NSString *expiresOn = [NSString stringWithFormat:@"%ld", (long)([currentDate timeIntervalSince1970] + 3600)];
+    NSString *extExpiresOn = [NSString stringWithFormat:@"%ld", (long)([currentDate timeIntervalSince1970] + 262800)];
+    NSString *cachedAt = [NSString stringWithFormat:@"%ld", (long)[currentDate timeIntervalSince1970]];
+    
+    // 1. Verify payload
+    NSDictionary *expectedJSON = @{
+        @"token_type": @"ssh-cert",
+        @"secret": @"<removed_at>",
+        @"target": @"https://pas.windows.net/CheckMyAccess/Linux/user_impersonation https://pas.windows.net/CheckMyAccess/Linux/.default",
+        @"extended_expires_on": extExpiresOn,
+        @"credential_type": @"AccessToken_With_AuthScheme",
+        @"environment": @"login.microsoftonline.com",
+        @"realm": @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
+        @"expires_on": expiresOn,
+        @"cached_at": cachedAt,
+        @"client_id": @"b6c69a37-df96-4db0-9088-2ab96e1d8215",
+        @"home_account_id": @"9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
+        @"kid" : @"key1"
+    };
+    
+    XCTAssertEqualObjects(accessTokenJSON, expectedJSON);
+    
+    // 2. Verify cache key
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
+                                                                                          environment:credential.environment
+                                                                                             clientId:credential.clientId
+                                                                                       credentialType:credential.credentialType];
+    
+    key.familyId = credential.familyId;
+    key.realm = credential.realm;
+    key.target = credential.target;
+    
+    NSString *expectedServiceKey = @"accesstoken_with_authscheme-b6c69a37-df96-4db0-9088-2ab96e1d8215-f645ad92-e38d-4d1a-b510-d1b09a74a8ca-https://pas.windows.net/checkmyaccess/linux/user_impersonation https://pas.windows.net/checkmyaccess/linux/.default";
     XCTAssertEqualObjects(key.service, expectedServiceKey);
     
     NSString *expectedAccountKey = @"9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca-login.microsoftonline.com";
