@@ -32,6 +32,7 @@ NSString *const MSID_OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const MSID_OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
 NSString *const MSID_OAUTH2_BEARER             = @"Bearer";
 NSString *const MSID_OAUTH2_POP                = @"Pop";
+NSString *const MSID_OAUTH2_SSH_CERT           = @"ssh-cert";
 NSString *const MSID_OAUTH2_CLIENT_ID          = @"client_id";
 NSString *const MSID_OAUTH2_CLAIMS             = @"claims";
 NSString *const MSID_OAUTH2_CODE               = @"code";
@@ -68,6 +69,7 @@ NSString *const MSID_OAUTH2_PROMPT_NONE         = @"none";
 NSString *const MSID_OAUTH2_SIGNOUT_REDIRECT_URI    = @"post_logout_redirect_uri";
 NSString *const MSID_OAUTH2_REQUEST_CONFIRMATION = @"req_cnf";
 NSString *const MSID_OAUTH2_REQUEST_ENDPOINT = @"endpointUrl";
+NSString *const MSID_OAUTH2_SSH_CERT_KEY_ID = @"key_id";
 
 NSString *const MSID_OAUTH2_EXPIRES_ON          = @"expires_on";
 NSString *const MSID_OAUTH2_REFRESH_IN          = @"refresh_in";
