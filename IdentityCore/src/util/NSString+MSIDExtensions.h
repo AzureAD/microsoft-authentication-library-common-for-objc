@@ -21,6 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef NSSTRING_MSIDEXTENSIONS_H
+#define NSSTRING_MSIDEXTENSIONS_H
+
 #import <Foundation/Foundation.h>
 
 @interface NSString (MSIDExtensions)
@@ -121,3 +124,5 @@
 - (NSString *)msidSanitizedDomainName;
 
 @end
+
+#endif

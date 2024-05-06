@@ -24,6 +24,8 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
+#ifndef MSIDLOGGER_INTERNAL_H
+#define MSIDLOGGER_INTERNAL_H
 
 #import "MSIDLogger.h"
 #import "MSIDRequestContext.h"
@@ -97,3 +99,4 @@
 
 @end
 
+#endif
