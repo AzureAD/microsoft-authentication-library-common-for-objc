@@ -1,5 +1,6 @@
 Version TBD
 * Include email as scope returned if it was requested and server did not include it. (#1364)
+* Fix throttling bug in fallback legacy broker interactive controller. (#1371)
 
 Version 1.7.34
 * Ignore local cache in broker request
