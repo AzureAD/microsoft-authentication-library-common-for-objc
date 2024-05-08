@@ -302,14 +302,14 @@
     __block int count = 0;
     [MSIDTestSwizzle classMethod:@selector(updateLastRefreshTimeDatasource:context:error:)
                            class:[MSIDThrottlingService class]
-                           block:(id)^(id obj)
+                           block:(id)^(__unused id obj)
      {
         count++;
         return YES;
     }];
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
-    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+    [brokerController acquireToken:^(__unused MSIDTokenResult * _Nullable result, __unused NSError * _Nullable acquireTokenError) {
         
         XCTAssertEqual(count, 1);
         [expectation fulfill];
