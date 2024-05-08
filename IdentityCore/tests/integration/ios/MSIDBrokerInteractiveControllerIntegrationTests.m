@@ -53,6 +53,10 @@
 #import "MSIDTestBrokerKeyProviderHelper.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDThrottlingService.h"
+#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
@@ -244,6 +248,73 @@
         [expectation fulfill];
     }];
 
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenSuccessfulBrokerResponse_shouldUpdateThrottleLastRefresh
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+    
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+    
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+        [receivedEvents addObject:event];
+    }];
+    
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+    
+    // Setup test request providers
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_broker_success";
+       
+    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                              defaultAccessor:[MSIDDefaultTokenCacheAccessor new]
+                                                                                      accountMetadataAccessor:[MSIDAccountMetadataCacheAccessor new]
+                                                                                       tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                                                 tokenRequestProvider:provider
+                                                                                                                   fallbackController:nil
+                                                                                                                                error:&error];
+    
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+    
+    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+    
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:@"com.microsoft.azureauthenticator"
+                                        brokerResponseHandler:brokerResponseHandler];
+        return YES;
+    }];
+    
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+    __block int count = 0;
+    [MSIDTestSwizzle classMethod:@selector(updateLastRefreshTimeDatasource:context:error:)
+                           class:[MSIDThrottlingService class]
+                           block:(id)^(id obj)
+     {
+        count++;
+        return YES;
+    }];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        
+        XCTAssertEqual(count, 1);
+        [expectation fulfill];
+    }];
+    
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
