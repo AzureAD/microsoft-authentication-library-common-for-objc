@@ -83,6 +83,7 @@ typedef NS_ENUM(NSInteger, MSIDAuthScheme)
 {
     MSIDAuthSchemeBearer,
     MSIDAuthSchemePop,
+    MSIDAuthSchemeSshCert,
 };
 
 typedef NS_ENUM(NSInteger, MSIDHeaderType)
