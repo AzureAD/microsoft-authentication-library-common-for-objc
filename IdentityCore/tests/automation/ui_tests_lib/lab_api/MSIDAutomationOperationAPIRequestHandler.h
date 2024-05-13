@@ -43,6 +43,8 @@
 @property (nonatomic) id<MSIDAutomationOperationAPICacheHandler> apiCacheHandler;
 
 - (instancetype)initWithAPIPath:(NSString *)apiPath
+             encodedCertificate:(NSString *)encodedCertificate
+            certificatePassword:(NSString *)certificatePassword
       operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration;
 
 - (void)executeAPIRequest:(MSIDAutomationBaseApiRequest *)apiRequest
