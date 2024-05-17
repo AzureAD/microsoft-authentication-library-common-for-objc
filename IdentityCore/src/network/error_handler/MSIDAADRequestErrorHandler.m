@@ -48,8 +48,8 @@
         BOOL shouldRetryNetworkingFailure = NO;
         if (shouldRetry && error)
         {
-            // Networking errors (-1003. -1004. -1005. -1009)
-            shouldRetryNetworkingFailure = error.code == NSURLErrorCannotFindHost || error.code == NSURLErrorCannotConnectToHost || error.code == NSURLErrorNetworkConnectionLost || error.code == NSURLErrorNotConnectedToInternet;
+            // Networking errors (-1001, -1003. -1004. -1005. -1009)
+            shouldRetryNetworkingFailure = [self shouldRetryNetworkingFailure:error.code];
         }
 
         shouldRetry &= shouldRetryNetworkingFailure;
@@ -138,6 +138,20 @@
     NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, nil, context.correlationId, additionalInfo, YES);
     
     if (completionBlock) completionBlock(nil, httpError);
+}
+
+- (BOOL)shouldRetryNetworkingFailure:(NSInteger)errorCode
+{
+    switch (errorCode) {
+        case NSURLErrorTimedOut:
+        case NSURLErrorCannotFindHost:
+        case NSURLErrorCannotConnectToHost:
+        case NSURLErrorNetworkConnectionLost:
+        case NSURLErrorNotConnectedToInternet:
+            return YES;
+        default:
+            return NO;
+    }
 }
 
 @end

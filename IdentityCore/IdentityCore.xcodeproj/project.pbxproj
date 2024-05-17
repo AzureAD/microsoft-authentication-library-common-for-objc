@@ -517,6 +517,11 @@
 		58543C8B24930FBC00F7AC14 /* MSIDMacKeychainTokenCache+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = 58543C8A24930FBC00F7AC14 /* MSIDMacKeychainTokenCache+Test.h */; };
 		586CD77E293FD77100550710 /* MSIDRequestControllerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CD77B293FD76100550710 /* MSIDRequestControllerFactoryTests.m */; };
 		586CD77F293FD77200550710 /* MSIDRequestControllerFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 586CD77B293FD76100550710 /* MSIDRequestControllerFactoryTests.m */; };
+		586DE2A82BC884600082137F /* MSIDAuthenticationSchemeSshCertTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 586DE2A72BC884600082137F /* MSIDAuthenticationSchemeSshCertTest.m */; };
+		586DE2A92BC884600082137F /* MSIDAuthenticationSchemeSshCertTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 586DE2A72BC884600082137F /* MSIDAuthenticationSchemeSshCertTest.m */; };
+		5887EBF12BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.h in Headers */ = {isa = PBXBuildFile; fileRef = 5887EBEF2BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.h */; };
+		5887EBF22BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.m in Sources */ = {isa = PBXBuildFile; fileRef = 5887EBF02BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.m */; };
+		5887EBF32BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.m in Sources */ = {isa = PBXBuildFile; fileRef = 5887EBF02BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.m */; };
 		589842472525447B0075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 5898422025253FE00075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.m */; };
 		58984254252544850075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 5898422025253FE00075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.m */; };
 		5898426D2525448A0075DFED /* MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 5898421025253F050075DFED /* MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams.m */; };
@@ -2344,6 +2349,9 @@
 		585337DF272775110080935B /* MSIDSSOExtensionGetDataBaseRequest+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDSSOExtensionGetDataBaseRequest+Internal.h"; sourceTree = "<group>"; };
 		58543C8A24930FBC00F7AC14 /* MSIDMacKeychainTokenCache+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDMacKeychainTokenCache+Test.h"; sourceTree = "<group>"; };
 		586CD77B293FD76100550710 /* MSIDRequestControllerFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDRequestControllerFactoryTests.m; sourceTree = "<group>"; };
+		586DE2A72BC884600082137F /* MSIDAuthenticationSchemeSshCertTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthenticationSchemeSshCertTest.m; sourceTree = "<group>"; };
+		5887EBEF2BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthenticationSchemeSshCert.h; sourceTree = "<group>"; };
+		5887EBF02BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthenticationSchemeSshCert.m; sourceTree = "<group>"; };
 		589841EF25253DF30075DFED /* MSIDAccountMetadataCacheMockUpdateAuthorityParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheMockUpdateAuthorityParameters.h; sourceTree = "<group>"; };
 		589841F025253DF30075DFED /* MSIDAccountMetadataCacheMockUpdateAuthorityParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheMockUpdateAuthorityParameters.m; sourceTree = "<group>"; };
 		589841FF25253E9F0075DFED /* MSIDAccountMetadataCacheMockGetAuthorityParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheMockGetAuthorityParameters.h; sourceTree = "<group>"; };
@@ -3425,6 +3433,8 @@
 				1E36589A247EF3260044A072 /* MSIDAuthenticationSchemePop.m */,
 				1E5319A624A425B7007BCF30 /* MSIDAuthenticationScheme.h */,
 				1E5319A724A425B7007BCF30 /* MSIDAuthenticationScheme.m */,
+				5887EBEF2BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.h */,
+				5887EBF02BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.m */,
 			);
 			path = auth_scheme;
 			sourceTree = "<group>";
@@ -5602,6 +5612,7 @@
 				B431B5252AF05B3F0020CD3D /* MSIDBrokerOperationPasskeyCredentialRequestTests.m */,
 				B431B5282AF05C890020CD3D /* MSIDBrokerOperationGetPasskeyAssertionResponseTests.m */,
 				B431B52B2AF19E230020CD3D /* MSIDBrokerOperationGetPasskeyCredentialResponseTests.m */,
+				586DE2A72BC884600082137F /* MSIDAuthenticationSchemeSshCertTest.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -5912,6 +5923,7 @@
 				B20657C81FC926AE00412B7D /* MSIDTelemetryHttpEvent.h in Headers */,
 				23B39A7E20990E5E000AA905 /* MSIDAuthorityResolving.h in Headers */,
 				58E2A1FC24E497400027A28A /* MSIDWebResponseOperationConstants.h in Headers */,
+				5887EBF12BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.h in Headers */,
 				B2AF1D2E218BCEDE0080C1A0 /* MSIDInteractiveTokenRequest.h in Headers */,
 				1E707FE22407337300716148 /* MSIDBrokerOperationResponse.h in Headers */,
 				B251CC48204105A7005E0179 /* MSIDBaseToken.h in Headers */,
@@ -6817,6 +6829,7 @@
 				238A04792088561100989EE0 /* MSIDHttpRequestIntegrationTests.m in Sources */,
 				B41163B929BAC9BF00E64619 /* MSIDWKNavigationActionMock.m in Sources */,
 				96928CEB2220C14600E8EA4E /* MSIDCBAWebAADAuthResponseTests.m in Sources */,
+				586DE2A82BC884600082137F /* MSIDAuthenticationSchemeSshCertTest.m in Sources */,
 				B24130DC247A1C5E002E70C4 /* MSIDPrimaryRefreshTokenTests.m in Sources */,
 				B233F8D5219FA4AD00DC90E3 /* MSIDBrokerTokenRequestTests.m in Sources */,
 				B431B53F2AF1C6BB0020CD3D /* MSIDSSOExtensionPasskeyAssertionRequestMock.m in Sources */,
@@ -6932,6 +6945,7 @@
 				2352AF342AA7C7B700FA2253 /* MSIDBrowserNativeMessageGetTokenResponse.m in Sources */,
 				589BDB292718F18800BF3799 /* MSIDCredentialHeader.m in Sources */,
 				B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
+				5887EBF32BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.m in Sources */,
 				B2C7088F2198E48E00D917B8 /* NSData+AES.m in Sources */,
 				96F21B3320A65896002B87C3 /* MSIDWebviewAuthorization.m in Sources */,
 				B27893832470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m in Sources */,
@@ -7434,6 +7448,7 @@
 				B431B5302AF1BCF10020CD3D /* MSIDSSOExtensionPasskeyAssertionRequestTests.m in Sources */,
 				58E2A1F924E492C30027A28A /* MSIDWebResponseOperationFactoryTests.m in Sources */,
 				B20657D01FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
+				586DE2A92BC884600082137F /* MSIDAuthenticationSchemeSshCertTest.m in Sources */,
 				B2AE0FDB2427E96800B8FAF1 /* MSIDKeychainUtilTests.m in Sources */,
 				B26A0B972072B9CB006BD95A /* MSIDAADV1Oauth2FactoryTests.m in Sources */,
 				B208854C29ADC0FD00A50B88 /* MSIDPkeyAuthHelperTests.m in Sources */,
@@ -7820,6 +7835,7 @@
 				B239564927A8DF6B00684CA5 /* MSIDWPJKeyPairWithCert.m in Sources */,
 				58BC23BD271F6B9D008A77BE /* MSIDSSOExtensionGetDataBaseRequest.m in Sources */,
 				2371A6192A4BAB43008A71F3 /* MSIDBrowserNativeMessageGetCookiesResponse.m in Sources */,
+				5887EBF22BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.m in Sources */,
 				B297E1DD20A0F5D600F370EC /* MSIDDefaultCredentialCacheQuery.m in Sources */,
 				60A504702374917B00648AC5 /* MSIDBrokerOperationGetAccountsResponse.m in Sources */,
 				1E37AAD4252196CC00EBED3B /* NSData+JWT.m in Sources */,
