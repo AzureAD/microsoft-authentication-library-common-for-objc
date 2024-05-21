@@ -21,6 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
+#ifndef MSIDLOGGERCONNECTING_H
+#define MSIDLOGGERCONNECTING_H
+
 #import <Foundation/Foundation.h>
 
 @protocol MSIDLoggerConnecting;
@@ -96,3 +100,4 @@ typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL cont
 - (void)setCallback:(MSIDLogCallback)callback;
 
 @end
+#endif
