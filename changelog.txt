@@ -1,6 +1,8 @@
-Version TBD
+Version 1.7.35
 * Include email as scope returned if it was requested and server did not include it. (#1364)
 * Fix throttling bug in fallback legacy broker interactive controller. (#1371)
+* Fix crash in cert chooser (#1344).
+* Add a new retry condition when request is idle and timeout(#1367).
 
 Version 1.7.34
 * Ignore local cache in broker request
