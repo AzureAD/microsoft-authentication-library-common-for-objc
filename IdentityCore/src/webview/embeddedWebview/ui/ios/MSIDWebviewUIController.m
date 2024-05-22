@@ -172,10 +172,10 @@ static WKWebViewConfiguration *s_webConfig;
         return NO;
     }
     UIView *rootView = [self view];
-#if defined TARGET_OS_VISION && !TARGET_OS_VISION
-    CGRect screenBounds = [[UIScreen mainScreen] bounds];
-#else
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
     CGRect screenBounds = ActiveSceneBoundsForView(rootView);
+#else
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
 #endif
     [rootView setFrame:screenBounds];
     [rootView setAutoresizesSubviews:YES];
