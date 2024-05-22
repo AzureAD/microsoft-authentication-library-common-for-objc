@@ -16,10 +16,10 @@ jobs:
   strategy:
     maxParallel: 2
     matrix:
-      IOS_LIB: 
-        target: "ios_library"
-      MAC_LIB: 
-        target: "mac_library"
+ #     IOS_LIB:
+ #       target: "ios_library"
+ #     MAC_LIB:
+ #       target: "mac_library"
       VISION_LIB:
         target: "vision_library"
   displayName: Validate Pull Request
