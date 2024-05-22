@@ -35,6 +35,7 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDJsonObject.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -320,19 +321,61 @@
                                           context:(__unused id<MSIDRequestContext>)context
                                             error:(__unused NSError *__autoreleasing *)error
 {
-    // TODO
-    return nil;
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    NSMutableArray *resultItems = [NSMutableArray array];
+    
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:_tokenKeys
+                                contentDictionary:_tokenContents
+                                          context:context
+                                            error:error];
+    
+    for (NSData *itemData in items)
+    {
+        MSIDJsonObject *jsonObject = (MSIDJsonObject *)[serializer deserializeCacheItem:itemData ofClass:[MSIDJsonObject class]];
+        
+        if (jsonObject)
+        {
+            [resultItems addObject:jsonObject];
+        }
+    }
+    
+    return resultItems;
 }
 
 
-- (BOOL)saveJsonObject:(__unused MSIDJsonObject *)jsonObject
-            serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
-                   key:(__unused MSIDCacheKey *)key
-               context:(__unused id<MSIDRequestContext>)context
-                 error:(__unused NSError *__autoreleasing *)error
+- (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject
+            serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                   key:(MSIDCacheKey *)key
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError **)error
 {
-    // TODO
-    return NO;
+    if (!jsonObject || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return NO;
+    }
+    
+    NSData *serializedItem = [serializer serializeCacheItem:jsonObject];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_tokenKeys
+                 cacheContent:_tokenContents
+                      context:context
+                        error:error];
 }
 
 
