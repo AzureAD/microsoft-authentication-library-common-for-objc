@@ -35,9 +35,13 @@ from timeit import default_timer as timer
 
 script_start_time = timer()
 
-ios_sim_device = "iPhone 14"
-ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=16.4'"
+ios_sim_device = "iPhone 15"
+ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=17.2'"
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
+
+vision_sim_device = "Apple Vision Pro"
+vision_sim_dest = "-destination 'platform=visionOS Simulator,name=" + ios_sim_device + ",OS=1.0'"
+vision_sim_flags = "-sdk xrsimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 default_workspace = "IdentityCore.xcworkspace"
 default_config = "Debug"
@@ -69,6 +73,14 @@ target_specifiers = [
         "operations" : [ "build", "test" ],
         "min_warn_codecov" : 70.0,
         "platform" : "Mac"
+    },
+        {
+        "name" : "Vision Library",
+        "target" : "vision_library",
+        "scheme" : "IdentityCore iOS",
+        "operations" : [ "build", "test" ],
+        "min_warn_codecov" : 70.0,
+        "platform" : "visionOS"
     },
 ]
 
@@ -140,6 +152,9 @@ class BuildTarget:
 
         if (self.platform == "iOS") :
             command += " " + ios_sim_flags + " " + ios_sim_dest
+            
+        if (self.platform == "visionOS") :
+            command += " " + vision_sim_flags + " " + vision_sim_dest
         
         if (xcpretty) :
             command += " | xcpretty"
@@ -228,11 +243,14 @@ class BuildTarget:
     def get_device_guid(self) :
         if (self.platform == "iOS") :
             return device_guids.get_ios(ios_sim_device)
+            
+        if (self.platform == "visionOS") :
+            return device_guids.get_ios(vision_sim_device)
         
         if (self.platform == "Mac") :
             return device_guids.get_mac().decode(sys.stdout.encoding)
         
-        raise Exception("Unsupported platform: \"" + "\", valid platforms are \"iOS\" and \"Mac\"")
+        raise Exception("Unsupported platform: \"" + "\", valid platforms are \"iOS\", \"visionOS\", and \"Mac\"")
     
     def do_codecov(self) :
         """
@@ -306,7 +324,7 @@ class BuildTarget:
         return exit_code
     
     def requires_simulator(self) :
-        if self.platform != "iOS" :
+        if self.platform == "Mac" :
             return False
         if "test" in self.operations :
             return True
