@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,38 +20,29 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAuthScheme.h"
 
-NSString * MSIDAuthSchemeParamFromType(MSIDAuthScheme type)
+#import <XCTest/XCTest.h>
+#import "MSIDBrowserNativeMessageSignOutResponse.h"
+
+@interface MSIDBrowserNativeMessageSignOutResponseTests : XCTestCase
+
+@end
+
+@implementation MSIDBrowserNativeMessageSignOutResponseTests
+
+- (void)testResponseType_shouldBeGenericResponse
 {
-    switch (type) {
-        case MSIDAuthSchemePop:
-            return @"Pop";
-        case MSIDAuthSchemeBearer:
-            return @"Bearer";
-        case MSIDAuthSchemeSshCert:
-            return @"ssh-cert";
-        default:
-            return @"Bearer";
-    }
+    // We don't use this operation directly, it is wrapped by "BrokerOperationBrowserNativeMessage" operation, so we don't care about response type and return generic response.
+    XCTAssertEqualObjects(@"operation_generic_response", [MSIDBrowserNativeMessageSignOutResponse responseType]);
 }
 
-MSIDAuthScheme MSIDAuthSchemeTypeFromString(NSString *authSchemeString)
+- (void)testJsonDictionary_shouldBeEmptyJson
 {
-    if ([authSchemeString isEqualToString:@"Pop"])
-    {
-        return MSIDAuthSchemePop;
-    }
-    else if ([authSchemeString isEqualToString:@"Bearer"])
-    {
-        return MSIDAuthSchemeBearer;
-    }
-    else if ([authSchemeString isEqualToString:@"ssh-cert"])
-    {
-        return MSIDAuthSchemeSshCert;
-    }
-
-    return MSIDAuthSchemeBearer;
+    __auto_type response = [[MSIDBrowserNativeMessageSignOutResponse alloc] initWithDeviceInfo:nil];
+    
+    XCTAssertNotNil([response jsonDictionary]);
+    XCTAssertEqualObjects(@{}, [response jsonDictionary]);
 }
+@end
