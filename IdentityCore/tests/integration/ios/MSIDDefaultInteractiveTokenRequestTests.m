@@ -841,7 +841,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !(defined TARGET_OS_VISION && TARGET_OS_VISION)
 - (void)testInteractiveRequestFlow_whenOpenBrowserResponse_shouldOpenLink
 {
     __block NSUUID *correlationId = [NSUUID new];
