@@ -50,8 +50,19 @@
 
     NSOrderedSet *grantedScopes = tokenResult.accessToken.scopes;
     NSOrderedSet *normalizedGrantedScopes = grantedScopes.normalizedScopeSet;
+    NSOrderedSet *requestedScopes = configuration.scopes;
+    NSOrderedSet *normalizedRequestedScopes = requestedScopes.normalizedScopeSet;
+    
+    // Include email as scope returned if it was requested and server did not include it.
+    if ([normalizedRequestedScopes containsObject:MSID_OAUTH2_SCOPE_EMAIL_VALUE] &&
+        ![normalizedGrantedScopes containsObject:MSID_OAUTH2_SCOPE_EMAIL_VALUE])
+    {
+        NSMutableOrderedSet *extendedScopes = [normalizedGrantedScopes mutableCopy];
+        [extendedScopes addObject:MSID_OAUTH2_SCOPE_EMAIL_VALUE];
+        normalizedGrantedScopes = extendedScopes;
+    }
 
-    if (![configuration.scopes.normalizedScopeSet isSubsetOfOrderedSet:normalizedGrantedScopes])
+    if (![normalizedRequestedScopes isSubsetOfOrderedSet:normalizedGrantedScopes])
     {
         if (error)
         {

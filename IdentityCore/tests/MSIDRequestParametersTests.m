@@ -28,6 +28,7 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthenticationSchemeSshCert.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDRequestParametersTests : XCTestCase
@@ -41,6 +42,7 @@
 {
     [self testInitParameters_withValidParameters_shouldInitReturnNonNil_withAuthScheme:[MSIDAuthenticationScheme new]];
     [self testInitParameters_withValidParameters_shouldInitReturnNonNil_withAuthScheme:[MSIDAuthenticationSchemePop new]];
+    [self testInitParameters_withValidParameters_shouldInitReturnNonNil_withAuthScheme:[MSIDAuthenticationSchemeSshCert new]];
 }
 
 - (void)testInitParameters_withValidParameters_shouldInitReturnNonNil_withAuthScheme:(MSIDAuthenticationScheme *)authScheme
@@ -80,7 +82,7 @@
 {
     [self testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil_withAuthScheme:[MSIDAuthenticationScheme new]];
     [self testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil_withAuthScheme:[MSIDAuthenticationSchemePop new]];
-
+    [self testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil_withAuthScheme:[MSIDAuthenticationSchemeSshCert new]];
 }
 
 - (void)testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil_withAuthScheme:(MSIDAuthenticationScheme *)authScheme

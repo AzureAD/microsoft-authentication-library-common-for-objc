@@ -29,6 +29,8 @@
 
 @property (nonatomic) NSString *labAPIPath;
 @property (nonatomic) NSDictionary *configurationParams;
+@property (nonatomic) NSString *encodedCertificate;
+@property (nonatomic) NSString *certificatePassword;
 
 @end
 
@@ -37,6 +39,8 @@
 #pragma mark - Init
 
 - (instancetype)initWithAPIPath:(NSString *)apiPath
+             encodedCertificate:(NSString *)encodedCertificate
+            certificatePassword:(NSString *)certificatePassword
       operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration
 {
     self = [super init];
@@ -45,6 +49,8 @@
     {
         _labAPIPath = apiPath;
         _configurationParams = operationAPIConfiguration;
+        _encodedCertificate = encodedCertificate;
+        _certificatePassword = certificatePassword;
     }
     
     return self;
@@ -81,25 +87,33 @@
                     responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
                   completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
+    NSData *base64EncodedCert = [[NSData alloc] initWithBase64EncodedString:self.encodedCertificate options:0];
+    if (!base64EncodedCert || base64EncodedCert.length == 0) {
+        NSLog(@"Couldn't fetch certificate data, make sure certificate path is correct");
+        return;
+    }
+    
     [MSIDClientCredentialHelper getAccessTokenForAuthority:self.configurationParams[@"operation_api_authority"]
                                                   resource:self.configurationParams[@"operation_api_resource"]
                                                   clientId:self.configurationParams[@"operation_api_client_id"]
-                                          clientCredential:self.configurationParams[@"operation_api_client_secret"]
-                                         completionHandler:^(NSString *accessToken, NSError *error) {
-                                             
-                                             if (!accessToken)
-                                             {
-                                                 dispatch_async(dispatch_get_main_queue(), ^{
-                                                     completionHandler(nil, error);
-                                                 });
-                                                 return;
-                                             }
-                                             
-                                             [self executeAPIRequestImpl:request
-                                                         responseHandler:responseHandler
-                                                             accessToken:accessToken
-                                                       completionHandler:completionHandler];
-                                         }];
+                                               certificate:base64EncodedCert 
+                                       certificatePassword:self.certificatePassword
+                                         completionHandler:^(NSString *accessToken, NSError *error)
+     {
+        
+        if (!accessToken)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(nil, error);
+            });
+            return;
+        }
+
+        [self executeAPIRequestImpl:request
+                responseHandler:responseHandler
+                    accessToken:accessToken
+              completionHandler:completionHandler];
+    }];
 }
 
 #pragma mark - Execute request
