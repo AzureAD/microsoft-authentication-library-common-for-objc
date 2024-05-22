@@ -53,6 +53,36 @@
     return s_msidHeaders;
 }
 
++ (NSMutableDictionary *)msidIgnoreRequestHeaders
+{
+    static NSMutableDictionary *s_msidHeaders = nil;
+    static dispatch_once_t headersOnce;
+
+    dispatch_once(&headersOnce, ^{
+        NSDictionary *headers =
+        @{
+                @"Accept" : [[MSIDTestIgnoreSentinel alloc] init],
+                @"Content-Length" : [[MSIDTestIgnoreSentinel alloc] init],
+                @"Content-Type" : [[MSIDTestIgnoreSentinel alloc] init],
+                @"User-Agent" : [[MSIDTestIgnoreSentinel alloc] init],
+                @"x-client-SKU": [[MSIDTestIgnoreSentinel alloc] init],
+                @"x-client-OS": [[MSIDTestIgnoreSentinel alloc] init],
+                @"x-app-name": [[MSIDTestIgnoreSentinel alloc] init],
+                @"x-ms-PkeyAuth+": [[MSIDTestIgnoreSentinel alloc] init],
+                @"x-client-Ver": [[MSIDTestIgnoreSentinel alloc] init],
+                @"x-client-CPU": [[MSIDTestIgnoreSentinel alloc] init],
+                @"x-app-ver": [[MSIDTestIgnoreSentinel alloc] init],
+                @"x-client-DM": [[MSIDTestIgnoreSentinel alloc] init],
+                @"Connection": [MSIDTestIgnoreSentinel sentinel],
+        };
+        
+        
+        s_msidHeaders = [headers mutableCopy];
+    });
+
+    return s_msidHeaders;
+}
+
 + (MSIDTestURLResponse *)discoveryResponseForAuthority:(NSString *)authority
 {
     NSURL *authorityURL = [NSURL URLWithString:authority];
