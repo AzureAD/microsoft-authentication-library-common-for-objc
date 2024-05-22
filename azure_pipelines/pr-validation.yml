@@ -24,7 +24,7 @@ jobs:
         target: "vision_library"
   displayName: Validate Pull Request
   pool:
-    vmImage: 'macos-14-arm64'
+    vmImage: 'macos-13-arm64'
     timeOutInMinutes: 30
 
   steps:
