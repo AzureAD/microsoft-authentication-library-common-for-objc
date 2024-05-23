@@ -349,6 +349,11 @@
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing target parameter", self.correlationId);
         return NO;
     }
+    
+    if (self.skipSendRedirectUri)
+    {
+        self.redirectUri = nil;
+    }
 
     return YES;
 }
