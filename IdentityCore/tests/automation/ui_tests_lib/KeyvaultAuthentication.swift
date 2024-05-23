@@ -28,7 +28,7 @@ public class KeyvaultAuthentication : NSObject {
     private var certificateContents : String
     private var certificateData : Data
     private var certificatePassword : String
-    private let clientId = "b71232ea-9ba1-4974-b9a6-e4682dd0ab6c"
+    private let clientId = "f62c5ae3-bf3a-4af5-afa8-a68b800396e9"
 
     @objc public init?(certContents: String, certPassword: String) {
 

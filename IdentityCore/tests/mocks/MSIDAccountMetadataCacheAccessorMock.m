@@ -119,4 +119,17 @@
     return self.removeAccountMetadataForHomeAccountIdResult;
 }
 
+- (BOOL)updateSignInStateForHomeAccountId:(NSString *)homeAccountId
+                                 clientId:(NSString *)clientId
+                                    state:(MSIDAccountMetadataState)state
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
+{
+    self.updateSignInStateForHomeAccountIdInvokedCount++;
+    
+    if (error) *error = self.updateSignInStateForHomeAccountIdError;
+    
+    return self.updateSignInStateForHomeAccountIdResult;
+}
+
 @end
