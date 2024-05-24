@@ -332,7 +332,7 @@
         return NO;
     }
 
-    if (!self.redirectUri)
+    if (!self.redirectUri && !self.bypassRedirectURIValidation)
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing redirectUri parameter", self.correlationId);
         return NO;
@@ -348,11 +348,6 @@
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing target parameter", self.correlationId);
         return NO;
-    }
-    
-    if (self.skipSendRedirectUri)
-    {
-        self.redirectUri = nil;
     }
 
     return YES;
