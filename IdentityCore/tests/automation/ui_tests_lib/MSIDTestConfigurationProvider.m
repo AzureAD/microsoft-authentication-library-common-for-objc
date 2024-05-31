@@ -76,6 +76,8 @@
         MSIDAutomationOperationAPIInMemoryCacheHandler *cacheHandler = [[MSIDAutomationOperationAPIInMemoryCacheHandler alloc] initWithDictionary:additionalConfigurations];
         
         _operationAPIRequestHandler = [[MSIDAutomationOperationAPIRequestHandler alloc] initWithAPIPath:operationAPIConfiguration[@"operation_api_path"]
+                                                                                     encodedCertificate:certificate
+                                                                                    certificatePassword:password
                                                                               operationAPIConfiguration:operationAPIConfiguration];
         _operationAPIRequestHandler.apiCacheHandler = cacheHandler;
         

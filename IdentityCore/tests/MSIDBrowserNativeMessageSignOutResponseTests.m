@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,18 +20,29 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#ifndef MSIDMASKEDHASHABLELOGPARAMETER_H
-#define MSIDMASKEDHASHABLELOGPARAMETER_H
 
-#import "MSIDMaskedLogParameter.h"
+#import <XCTest/XCTest.h>
+#import "MSIDBrowserNativeMessageSignOutResponse.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDMaskedHashableLogParameter : MSIDMaskedLogParameter
+@interface MSIDBrowserNativeMessageSignOutResponseTests : XCTestCase
 
 @end
 
-NS_ASSUME_NONNULL_END
-#endif
+@implementation MSIDBrowserNativeMessageSignOutResponseTests
+
+- (void)testResponseType_shouldBeGenericResponse
+{
+    // We don't use this operation directly, it is wrapped by "BrokerOperationBrowserNativeMessage" operation, so we don't care about response type and return generic response.
+    XCTAssertEqualObjects(@"operation_generic_response", [MSIDBrowserNativeMessageSignOutResponse responseType]);
+}
+
+- (void)testJsonDictionary_shouldBeEmptyJson
+{
+    __auto_type response = [[MSIDBrowserNativeMessageSignOutResponse alloc] initWithDeviceInfo:nil];
+    
+    XCTAssertNotNil([response jsonDictionary]);
+    XCTAssertEqualObjects(@{}, [response jsonDictionary]);
+}
+@end
