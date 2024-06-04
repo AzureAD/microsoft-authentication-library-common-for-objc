@@ -8773,7 +8773,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests iOS-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -8796,7 +8796,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests iOS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
@@ -8943,6 +8943,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
+				SUPPORTS_MACCATALYST = NO;
 			};
 			name = Debug;
 		};
@@ -8957,6 +8958,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
+				SUPPORTS_MACCATALYST = NO;
 			};
 			name = Release;
 		};
