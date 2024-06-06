@@ -26,6 +26,7 @@
 #import "MSIDClientCredentialHelper.h"
 #import "MSIDAutomationTemporaryAccountRequest.h"
 #import "MSIDAutomationResetAPIRequest.h"
+#import "MSIDAutomationDeleteDeviceAPIRequest.h"
 
 @interface MSIDAutomationOperationAPIRequestHandler()
 
@@ -132,7 +133,9 @@
             completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
     NSURL *resultURL = nil;
-    if ([request isKindOfClass:[MSIDAutomationTemporaryAccountRequest class]] || [request isKindOfClass:[MSIDAutomationResetAPIRequest class]])
+    if ([request isKindOfClass:[MSIDAutomationTemporaryAccountRequest class]] 
+        || [request isKindOfClass:[MSIDAutomationResetAPIRequest class]]
+        || [request isKindOfClass:[MSIDAutomationDeleteDeviceAPIRequest class]])
     {
         resultURL = [request requestURLWithAPIPath:self.funcAppAPIPath apiCode:self.funcAppAPICode];
     }
