@@ -332,7 +332,7 @@
         return NO;
     }
 
-    if (!self.redirectUri)
+    if (!self.redirectUri && !self.bypassRedirectURIValidation)
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing redirectUri parameter", self.correlationId);
         return NO;
