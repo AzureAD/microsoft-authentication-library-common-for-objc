@@ -73,4 +73,54 @@
     return telemetryDict;
 }
 
++ (NSString *)msidAddPlatformSequenceParamWithName:(NSString *)name version:(NSString *)version toSequence:(NSString *)sequence
+{
+    NSMutableArray *sequenceItems;
+    static const int kSequenceItemsCount = 6;
+    static NSString *const kDelimeter = @",";
+    
+    if ([NSString msidIsStringNilOrBlank:sequence])
+    {
+        sequenceItems = [NSMutableArray new];
+        [sequenceItems addObject:@""]; //Src-SKU
+        [sequenceItems addObject:@""]; //Src-SKU-Ver
+        [sequenceItems addObject:@""]; //Msal-Runtime-Ver
+        [sequenceItems addObject:@""]; //Browser-Ext-Sku
+        [sequenceItems addObject:@""]; //Browser-Ext-Ver
+        [sequenceItems addObject:@""]; //BrowserCore-Ver
+    }
+    else
+    {
+        sequenceItems = [[sequence componentsSeparatedByString:kDelimeter] mutableCopy];
+    }
+    
+    // Validate count.
+    if (sequenceItems.count != kSequenceItemsCount)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to add add platfrom sequence param: sequence count %d is invalid.", kSequenceItemsCount);
+        return nil;
+    }
+    
+    // Validate name.
+    if ([NSString msidIsStringNilOrBlank:name])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to add add platfrom sequence param: name is empty/nil.");
+        return sequence;
+    }
+    
+    // Validate version.
+    if ([NSString msidIsStringNilOrBlank:version])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to add add platfrom sequence param: version is empty/nil.");
+        return sequence;
+    }
+    
+    sequenceItems[0] = name;
+    sequenceItems[1] = version;
+    
+    NSString *resultSequence = [sequenceItems componentsJoinedByString:kDelimeter];
+    
+    return resultSequence;
+}
+
 @end

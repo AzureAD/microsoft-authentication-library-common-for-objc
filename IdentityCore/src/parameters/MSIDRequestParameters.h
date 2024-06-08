@@ -58,6 +58,9 @@
 @property (nonatomic) BOOL skipValidateResultAccount;
 @property (nonatomic) BOOL forceRefresh;
 
+// Telemetry metadata
+@property (nonatomic) NSString *platformSequence;
+
 // Additional body parameters that will be appended to all token requests
 @property (nonatomic) NSDictionary *extraTokenRequestParameters;
 // Additional URL query parameters that will be added to both token and authorize requests
