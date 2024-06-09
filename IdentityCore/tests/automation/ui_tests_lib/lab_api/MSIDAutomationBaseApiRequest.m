@@ -23,6 +23,12 @@
 
 #import "MSIDAutomationBaseApiRequest.h"
 
+@interface MSIDAutomationBaseApiRequest()
+
+@property(nonatomic) NSDictionary *requestOperationCode;
+
+@end
+
 @implementation MSIDAutomationBaseApiRequest
 
 #pragma mark - NSCopying
@@ -34,6 +40,12 @@
 }
 
 #pragma mark - MSIDTestAutomationRequest
+
+- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath apiCode:(NSDictionary *)apiCode
+{
+    self.requestOperationCode = apiCode;
+    return [self requestURLWithAPIPath:apiPath];
+}
 
 - (NSURL *)requestURLWithAPIPath:(NSString *)apiPath
 {
@@ -56,6 +68,13 @@
         return nil;
     }
     
+    
+    if (![NSString msidIsStringNilOrBlank:[self requestOperationCodeKey]]
+        && ![NSString msidIsStringNilOrBlank:self.requestOperationCode[[self requestOperationCodeKey]]])
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"code" value:self.requestOperationCode[[self requestOperationCodeKey]]]];
+    }
+    
     [queryItems addObjectsFromArray:extraQueryItems];
     components.queryItems = queryItems;
     NSURL *resultURL = [components URL];
@@ -67,6 +86,12 @@
 - (NSString *)requestOperationPath
 {
     NSAssert(NO, @"Abstract method, implement in subclasses");
+    return nil;
+}
+
+- (NSString *)requestOperationCodeKey
+{
+    //Implement in subclasses, otherwise leave as nil
     return nil;
 }
 
