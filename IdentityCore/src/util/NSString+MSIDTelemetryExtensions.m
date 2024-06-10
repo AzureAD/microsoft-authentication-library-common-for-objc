@@ -97,7 +97,7 @@
     // Validate count.
     if (sequenceItems.count != kSequenceItemsCount)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to add add platfrom sequence param: sequence count %d is invalid.", kSequenceItemsCount);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to add platform sequence param: sequence count %d is invalid.", kSequenceItemsCount);
         return nil;
     }
     
