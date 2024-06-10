@@ -111,7 +111,7 @@
     // Validate version.
     if ([NSString msidIsStringNilOrBlank:version])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to add add platfrom sequence param: version is empty/nil.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to add platform sequence param: version is empty/nil.");
         return sequence;
     }
     
