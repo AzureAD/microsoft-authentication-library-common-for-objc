@@ -142,4 +142,43 @@
     XCTAssertEqualObjects([parsedTelemetry objectForKey:MSID_TELEMETRY_KEY_SPE_INFO], @"I");
 }
 
+- (void)testMsidUpdatePlatformSequenceParamWithName_whenValidNameAndVersionNewSequence_shouldCreateValidSequence
+{
+    NSString *platformSequence = [NSString msidUpdatePlatformSequenceParamWithName:@"name" version:@"v1" toSequence:nil];
+    
+    XCTAssertNotNil(platformSequence);
+    XCTAssertEqualObjects(platformSequence, @"name,v1,,,,");
+}
+
+- (void)testMsidUpdatePlatformSequenceParamWithName_whenValidNameAndVersionAndInvalidSequence_shouldReturnNil
+{
+    NSString *platformSequence = [NSString msidUpdatePlatformSequenceParamWithName:@"name" version:@"v1" toSequence:@"0,1,2,3,4"];
+    
+    XCTAssertNil(platformSequence);
+}
+
+- (void)testMsidUpdatePlatformSequenceParamWithName_whenValidNameAndVersionAndValidSequence_shouldReturnNil
+{
+    NSString *platformSequence = [NSString msidUpdatePlatformSequenceParamWithName:@"name" version:@"v1" toSequence:@"0,1,2,3,4,5"];
+    
+    XCTAssertNotNil(platformSequence);
+    XCTAssertEqualObjects(platformSequence, @"name,v1,2,3,4,5");
+}
+
+- (void)testMsidUpdatePlatformSequenceParamWithName_whenValidNameAndNilVersionAndValidSequence_shouldUpdateNameOnly
+{
+    NSString *platformSequence = [NSString msidUpdatePlatformSequenceParamWithName:@"name" version:nil toSequence:@"0,1,2,3,4,5"];
+    
+    XCTAssertNotNil(platformSequence);
+    XCTAssertEqualObjects(platformSequence, @"name,1,2,3,4,5");
+}
+
+- (void)testMsidUpdatePlatformSequenceParamWithName_whenNilNameAndValidVersionAndValidSequence_shouldReturnOriginalSequence
+{
+    NSString *platformSequence = [NSString msidUpdatePlatformSequenceParamWithName:nil version:@"v1" toSequence:@"0,1,2,3,4,5"];
+    
+    XCTAssertNotNil(platformSequence);
+    XCTAssertEqualObjects(platformSequence, @"0,1,2,3,4,5");
+}
+
 @end

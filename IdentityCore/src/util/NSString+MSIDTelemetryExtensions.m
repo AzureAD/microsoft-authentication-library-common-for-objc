@@ -24,6 +24,7 @@
 #import "NSString+MSIDTelemetryExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDVersion.h"
+#import "MSIDConstants.h"
 
 #define MSID_CLIENT_TELEMETRY_VERSION_NUMBER @"1"
 
@@ -73,21 +74,19 @@
     return telemetryDict;
 }
 
-+ (NSString *)msidAddPlatformSequenceParamWithName:(NSString *)name version:(NSString *)version toSequence:(NSString *)sequence
++ (NSString *)msidUpdatePlatformSequenceParamWithName:(NSString *)name version:(NSString *)version toSequence:(NSString *)sequence
 {
-    NSMutableArray *sequenceItems;
-    static const int kSequenceItemsCount = 6;
     static NSString *const kDelimeter = @",";
-    
+
+    NSMutableArray *sequenceItems;
     if ([NSString msidIsStringNilOrBlank:sequence])
     {
+        // Init array of empty items.
         sequenceItems = [NSMutableArray new];
-        [sequenceItems addObject:@""]; //Src-SKU
-        [sequenceItems addObject:@""]; //Src-SKU-Ver
-        [sequenceItems addObject:@""]; //Msal-Runtime-Ver
-        [sequenceItems addObject:@""]; //Browser-Ext-Sku
-        [sequenceItems addObject:@""]; //Browser-Ext-Ver
-        [sequenceItems addObject:@""]; //BrowserCore-Ver
+        for (NSInteger key= 0; key <= MSIDPlatformSequenceKeyLast; key++) 
+        {
+            [sequenceItems addObject:@""];
+        }
     }
     else
     {
@@ -95,9 +94,9 @@
     }
     
     // Validate count.
-    if (sequenceItems.count != kSequenceItemsCount)
+    if (sequenceItems.count <= MSIDPlatformSequenceKeyLast)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to add platform sequence param: sequence count %d is invalid.", kSequenceItemsCount);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to add platform sequence param: sequence count %lu is invalid.", (unsigned long)sequenceItems.count);
         return nil;
     }
     
@@ -112,11 +111,14 @@
     if ([NSString msidIsStringNilOrBlank:version])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to add platform sequence param: version is empty/nil.");
-        return sequence;
     }
     
-    sequenceItems[0] = name;
-    sequenceItems[1] = version;
+    sequenceItems[MSIDPlatformSequenceKeySrcSku] = name;
+    
+    if (![NSString msidIsStringNilOrBlank:version])
+    {
+        sequenceItems[MSIDPlatformSequenceKeySrcVer] = version;
+    }
     
     NSString *resultSequence = [sequenceItems componentsJoinedByString:kDelimeter];
     
