@@ -104,7 +104,7 @@
     // Validate name.
     if ([NSString msidIsStringNilOrBlank:name])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to add add platfrom sequence param: name is empty/nil.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to add platform sequence param: name is empty/nil.");
         return sequence;
     }
     
