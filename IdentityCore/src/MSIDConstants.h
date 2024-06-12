@@ -162,15 +162,13 @@ extern NSString * _Nonnull const MSID_CLIENT_SKU_ADAL_IOS;
 
 extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY;
 
-typedef NS_ENUM(NSInteger, MSIDPlatformSequenceKey)
+typedef NS_ENUM(NSInteger, MSIDPlatformSequenceIndex)
 {
-    MSIDPlatformSequenceKeySrcSku = 0,
-    MSIDPlatformSequenceKeySrcVer = 1,
-    MSIDPlatformSequenceKeyMsalRuntimeVer = 2,
-    MSIDPlatformSequenceKeyBrowserExtSku = 3,
-    MSIDPlatformSequenceKeyBrowserExtVer = 4,
-    MSIDPlatformSequenceKeyBrowserCoreVer = 5,
-    MSIDPlatformSequenceKeyLast = MSIDPlatformSequenceKeyBrowserCoreVer,
+    MSIDPlatformSequenceIndexSrc = 0,
+    MSIDPlatformSequenceIndexMsalRuntime = 1,
+    MSIDPlatformSequenceIndexBrowserExt = 2,
+    MSIDPlatformSequenceIndexBrowserCore = 3,
+    MSIDPlatformSequenceIndexLast = MSIDPlatformSequenceIndexBrowserCore,
 };
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
