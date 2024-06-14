@@ -77,7 +77,11 @@ static BOOL s_isRunningInCompliantExtension = NO;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
+        [[self sharedApplication] openURL:url options:@{} completionHandler:nil];
+#else
         [[self sharedApplication] performSelector:NSSelectorFromString(@"openURL:") withObject:url];
+#endif
     }];
 #pragma clang diagnostic pop
 }
