@@ -34,7 +34,7 @@
                   clientId:(NSString *)clientId
              instanceAware:(BOOL)instanceAware
                    context:(__unused id<MSIDRequestContext>)context
-                     error:(__unused NSError **)error
+                     error:(__unused NSError *__autoreleasing*)error
 {
     self.getAuthorityURLInvokedCount++;
     
@@ -54,7 +54,7 @@
                   clientId:(NSString *)clientId
              instanceAware:(BOOL)instanceAware
                    context:(__unused id<MSIDRequestContext>)context
-                     error:(__unused NSError **)error
+                     error:(__unused NSError *__autoreleasing*)error
 {
     self.updateAuthorityURLInvokedCount++;
     
@@ -72,14 +72,14 @@
 - (BOOL)clearForHomeAccountId:(__unused NSString *)homeAccountId
                      clientId:(__unused NSString *)clientId
                       context:(__unused id<MSIDRequestContext>)context
-                        error:(__unused NSError **)error
+                        error:(__unused NSError *__autoreleasing*)error
 {
     return YES;
 }
 
 - (MSIDAccountIdentifier *)principalAccountIdForClientId:(__unused NSString *)clientId
                                                  context:(__unused id<MSIDRequestContext>)context
-                                                   error:(NSError **)error
+                                                   error:(NSError *__autoreleasing*)error
 {
     if (error) *error = self.mockedPrincipalAccountIdError;
     return self.mockedPrincipalAccountId;
@@ -89,7 +89,7 @@
                          principalAccountId:(MSIDAccountIdentifier *)principalAccountId
                 principalAccountEnvironment:(NSString *)principalAccountEnvironment
                                     context:(__unused id<MSIDRequestContext>)context
-                                      error:(NSError **)error
+                                      error:(NSError *__autoreleasing*)error
 {
     if (error) *error = self.updatePrincipalAccountIdError;
     
@@ -106,7 +106,7 @@
 
 - (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
                                       context:(__unused id<MSIDRequestContext>)context
-                                        error:(NSError **)error
+                                        error:(NSError *__autoreleasing*)error
 {
     if (error) *error = self.removeAccountMetadataForHomeAccountIdError;
     
@@ -123,7 +123,7 @@
                                  clientId:(NSString *)clientId
                                     state:(MSIDAccountMetadataState)state
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     self.updateSignInStateForHomeAccountIdInvokedCount++;
     

@@ -42,10 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
           forHomeAccountId:(NSString *)homeAccountId
-                     error:(NSError **)error;
+                     error:(NSError *__autoreleasing*)error;
 
 - (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
-                                        error:(NSError **)error;
+                                        error:(NSError *__autoreleasing*)error;
 
 @end
 

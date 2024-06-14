@@ -58,7 +58,7 @@
 
 - (BOOL)requestClaim:(MSIDIndividualClaimRequest *)request
            forTarget:(MSIDClaimsRequestTarget)target
-               error:(NSError **)error
+               error:(NSError *__autoreleasing*)error
 {
     if (!request)
     {
@@ -105,7 +105,7 @@
 
 - (BOOL)removeClaimRequestWithName:(NSString *)name
                             target:(MSIDClaimsRequestTarget)target
-                             error:(NSError **)error
+                             error:(NSError *__autoreleasing*)error
 {
     if (!name)
     {
@@ -148,7 +148,7 @@
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super init];
     if (self)
@@ -213,7 +213,7 @@
 
 #pragma mark - Private
 
-- (MSIDClaimsRequestTarget)targetFromString:(NSString *)string error:(NSError **)error
+- (MSIDClaimsRequestTarget)targetFromString:(NSString *)string error:(NSError *__autoreleasing*)error
 {
     if ([string isEqualToString:MSID_OAUTH2_ID_TOKEN]) return MSIDClaimsRequestTargetIdToken;
     if ([string isEqualToString:MSID_OAUTH2_ACCESS_TOKEN]) return MSIDClaimsRequestTargetAccessToken;

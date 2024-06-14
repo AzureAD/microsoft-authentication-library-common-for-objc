@@ -50,7 +50,7 @@
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable * _Nullable)error
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
