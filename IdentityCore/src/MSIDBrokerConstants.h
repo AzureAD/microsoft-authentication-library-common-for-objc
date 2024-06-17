@@ -92,7 +92,7 @@ extern NSString * _Nonnull const MSID_BROKER_REQUEST_SENT_TIMESTAMP;
 extern NSString * _Nonnull const MSID_BROKER_ACCOUNT_HOME_TENANT_ID;
 extern NSString * _Nonnull const MSID_CLIENT_SKU_KEY;
 extern NSString * _Nonnull const MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY;
-extern NSString * _Nonnull const JIT_TROUBLESHOOTING_HOST;
+extern NSString * _Nonnull const MSID_JIT_TROUBLESHOOTING_HOST;
 extern NSString * _Nonnull const MSID_IS_CALLER_MANAGED_KEY;
 extern NSString * _Nonnull const MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SDM_WPJ_ATTEMPTED;

@@ -52,6 +52,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSInteger removeAccountMetadataForHomeAccountIdInvokedCount;
 @property (nonatomic) MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams *removeAccountMetadataForHomeAccountIdParams;
 
+@property (nonatomic) NSInteger updateSignInStateForHomeAccountIdInvokedCount;
+@property (nonatomic) NSError *updateSignInStateForHomeAccountIdError;
+@property (nonatomic) BOOL updateSignInStateForHomeAccountIdResult;
 
 @end
 
