@@ -197,6 +197,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorJITTroubleshootingAcquireToken),
                       @(MSIDErrorDeviceNotPSSORegistered),
                       @(MSIDErrorPSSOKeyIdMismatch),
+                      @(MSIDErrorJITErrorHandlingConfigNotFound),
                       @(MSIDErrorWorkplaceJoinRequired),
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
@@ -397,6 +398,9 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorJITTroubleshootingResultUnknown";
         case MSIDErrorJITTroubleshootingAcquireToken:
             return @"MSIDErrorJITTroubleshootingAcquireToken";
+        case MSIDErrorJITErrorHandlingConfigNotFound:
+            return @"MSIDErrorJITErrorHandlingConfigNotFound";
+            // PSSO errors
         case MSIDErrorDeviceNotPSSORegistered:
             return @"MSIDErrorDeviceNotPSSORegistered";
         case MSIDErrorPSSOKeyIdMismatch:

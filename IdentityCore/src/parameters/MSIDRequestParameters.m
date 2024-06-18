@@ -332,7 +332,7 @@
         return NO;
     }
 
-    if (!self.redirectUri)
+    if (!self.redirectUri && !self.bypassRedirectURIValidation)
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing redirectUri parameter", self.correlationId);
         return NO;
@@ -387,6 +387,7 @@
     parameters->_clientCapabilities = [_clientCapabilities copyWithZone:zone];
     parameters->_msidConfiguration = [_msidConfiguration copyWithZone:zone];
     parameters->_keychainAccessGroup = [_keychainAccessGroup copyWithZone:zone];
+    parameters->_platformSequence = [_platformSequence copyWithZone:zone];
 
     return parameters;
 }

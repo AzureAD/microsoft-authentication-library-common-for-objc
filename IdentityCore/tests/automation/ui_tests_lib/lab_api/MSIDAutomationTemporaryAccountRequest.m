@@ -41,6 +41,11 @@
     return @"CreateTempUser";
 }
 
+- (NSString *)requestOperationCodeKey
+{
+    return @"create_user_api_code";
+}
+
 - (NSArray<NSURLQueryItem *> *)queryItems
 {
     NSString *accountType = [self accountTypeAsString];
