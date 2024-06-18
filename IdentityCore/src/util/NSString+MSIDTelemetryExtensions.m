@@ -74,7 +74,7 @@
     return telemetryDict;
 }
 
-+ (NSString *)msidUpdatePlatformSequenceParamWithName:(NSString *)name version:(NSString *)version toSequence:(NSString *)sequence
++ (NSString *)msidUpdatePlatformSequenceParamWithSrcName:(NSString *)name srcVersion:(NSString *)version sequence:(NSString *)sequence
 {
     static NSString *const kDelimeter = @",";
 
@@ -83,7 +83,7 @@
     {
         // Init array of empty items.
         sequenceItems = [NSMutableArray new];
-        for (NSInteger key= 0; key <= MSIDPlatformSequenceKeyLast; key++) 
+        for (NSInteger key= 0; key <= MSIDPlatformSequenceIndexLast; key++) 
         {
             [sequenceItems addObject:@""];
         }
@@ -94,10 +94,10 @@
     }
     
     // Validate count.
-    if (sequenceItems.count <= MSIDPlatformSequenceKeyLast)
+    if (sequenceItems.count <= MSIDPlatformSequenceIndexLast)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to add platform sequence param: sequence count %lu is invalid.", (unsigned long)sequenceItems.count);
-        return nil;
+        return sequence;
     }
     
     // Validate name.
@@ -111,14 +111,10 @@
     if ([NSString msidIsStringNilOrBlank:version])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to add platform sequence param: version is empty/nil.");
+        return sequence;
     }
     
-    sequenceItems[MSIDPlatformSequenceKeySrcSku] = name;
-    
-    if (![NSString msidIsStringNilOrBlank:version])
-    {
-        sequenceItems[MSIDPlatformSequenceKeySrcVer] = version;
-    }
+    sequenceItems[MSIDPlatformSequenceIndexSrc] = [NSString stringWithFormat:@"%@|%@", name, version];
     
     NSString *resultSequence = [sequenceItems componentsJoinedByString:kDelimeter];
     
