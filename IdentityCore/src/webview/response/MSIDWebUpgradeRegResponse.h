@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,21 +20,18 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
 
-@class MSIDTokenResult;
-@class MSIDWebviewResponse;
+#ifndef MSIDWebUpgradeRegResponse_h
+#define MSIDWebUpgradeRegResponse_h
 
-typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse);
+#import "MSIDWebviewResponse.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDWebUpgradeRegResponse : MSIDWebviewResponse
 
-@protocol MSIDInteractiveRequestControlling <NSObject>
-
-- (void)executeRequestWithCompletion:(MSIDInteractiveRequestCompletionBlock)completionBlock;
+@property (atomic, readonly) NSString *upn;
 
 @end
 
-NS_ASSUME_NONNULL_END
+#endif /* MSIDWebUpgradeRegResponse_h */
