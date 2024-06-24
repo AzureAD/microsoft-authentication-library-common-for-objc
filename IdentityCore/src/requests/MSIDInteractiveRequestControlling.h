@@ -24,9 +24,9 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDTokenResult;
-@class MSIDWebviewResponse;
+@class MSIDWebWPJResponse;
 
-typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse);
+typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
 
 NS_ASSUME_NONNULL_BEGIN
 

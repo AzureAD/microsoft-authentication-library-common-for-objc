@@ -74,6 +74,21 @@
     return self;
 }
 
+- (instancetype)initResponseWithURL:(NSURL *)url
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    self = [super initWithURL:url context:context error:error];
+    if (self)
+    {
+        _appInstallLink = nil;
+        _clientInfo = nil;
+        _upn = self.parameters[@"username"];
+    }
+    
+    return self;
+}
+
 - (BOOL)isBrokerInstallResponse:(NSURL *)url
 {
     NSString *scheme = url.scheme;

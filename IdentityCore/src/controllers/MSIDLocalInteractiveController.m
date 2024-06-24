@@ -102,40 +102,29 @@
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
-- (void)handleWebMSAuthResponse:(MSIDWebviewResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
+- (void)handleWebMSAuthResponse:(MSIDWebWPJResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling msauth response.");
     
-    MSIDWebWPJResponse *wpjResponse;
-    if ([response isKindOfClass:MSIDWebWPJResponse.class])
-    {
-        wpjResponse = (MSIDWebWPJResponse *)response;
-    }
-    else
-    {
-        //$todo: fix here
-        return;
-    }
-
-    if (![NSString msidIsStringNilOrBlank:wpjResponse.appInstallLink])
+    if (![NSString msidIsStringNilOrBlank:response.appInstallLink])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Prompt broker install.");
-        [self promptBrokerInstallWithResponse:wpjResponse completionBlock:completionBlock];
+        [self promptBrokerInstallWithResponse:response completionBlock:completionBlock];
         return;
     }
 
-    if (![NSString msidIsStringNilOrBlank:wpjResponse.upn])
+    if (![NSString msidIsStringNilOrBlank:response.upn])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Workplace join is required.");
         
         NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
-        additionalInfo[MSIDUserDisplayableIdkey] = wpjResponse.upn;
-        additionalInfo[MSIDHomeAccountIdkey] = wpjResponse.clientInfo.accountIdentifier;
+        additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
+        additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
         
         NSError *registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo, NO);
 #if !EXCLUDE_FROM_MSALCPP
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-        [telemetryEvent setLoginHint:wpjResponse.upn];
+        [telemetryEvent setLoginHint:response.upn];
         [self stopTelemetryEvent:telemetryEvent error:registrationError];
 #endif
         completionBlock(nil, registrationError);
@@ -211,7 +200,7 @@
 
     self.currentRequest = request;
     
-    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebviewResponse *msauthResponse)
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *msauthResponse)
     {
         if (msauthResponse)
         {

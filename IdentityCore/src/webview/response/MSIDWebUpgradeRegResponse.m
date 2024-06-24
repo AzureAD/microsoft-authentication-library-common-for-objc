@@ -27,6 +27,7 @@
 #import "MSIDWebResponseOperationConstants.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBrokerInstallOperation.h"
+#import "MSIDWebWPJResponse+Internal.h"
 
 @implementation MSIDWebUpgradeRegResponse
 
@@ -39,7 +40,7 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    // Check for WPJ or broker response
+    // Check for upgrade registration
     if (![self isBrokerInstallResponse:url])
     {
         if (error)
@@ -52,13 +53,7 @@
         return nil;
     }
     
-    self = [super initWithURL:url context:context error:error];
-    if (self)
-    {
-        _upn = self.parameters[@"username"];
-    }
-    
-    return self;
+    return [super initResponseWithURL:url context:context error:error];
 }
 
 - (BOOL)isBrokerInstallResponse:(NSURL *)url
@@ -69,7 +64,7 @@
     // For embedded webview, if link starts with msauth scheme and contain upgradeReg host
     // then it is migrateWpj request
     // e.g. msauth://upgradeReg?param=param
-    if ([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"]) //$todo upgradeReg
+    if ([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"upgradeReg"]) //$todo upgradeReg
     {
         return YES;
     }

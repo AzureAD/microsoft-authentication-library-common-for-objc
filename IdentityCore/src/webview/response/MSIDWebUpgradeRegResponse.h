@@ -26,11 +26,9 @@
 #ifndef MSIDWebUpgradeRegResponse_h
 #define MSIDWebUpgradeRegResponse_h
 
-#import "MSIDWebviewResponse.h"
+#import "MSIDWebWPJResponse.h"
 
-@interface MSIDWebUpgradeRegResponse : MSIDWebviewResponse
-
-@property (atomic, readonly) NSString *upn;
+@interface MSIDWebUpgradeRegResponse : MSIDWebWPJResponse
 
 @end
 

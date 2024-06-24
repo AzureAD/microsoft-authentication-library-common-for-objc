@@ -3256,6 +3256,7 @@
 		D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDStringExtensionsTests.m; sourceTree = "<group>"; };
 		E656E0792C2627B80011FB23 /* MSIDWebUpgradeRegResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebUpgradeRegResponse.m; sourceTree = "<group>"; };
 		E656E07C2C2627FB0011FB23 /* MSIDWebUpgradeRegResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebUpgradeRegResponse.h; sourceTree = "<group>"; };
+		E6FABC0A2C2A110900611378 /* MSIDWebWPJResponse+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDWebWPJResponse+Internal.h"; sourceTree = "<group>"; };
 		E70C49F0258D662F00A7A07E /* MSIDLRUCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLRUCache.m; sourceTree = "<group>"; };
 		E70C4A2F258D68D900A7A07E /* MSIDThrottlingCacheRecord.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingCacheRecord.m; sourceTree = "<group>"; };
 		E70C4A74258D7E7B00A7A07E /* MSIDLRUCacheTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLRUCacheTest.m; sourceTree = "<group>"; };
@@ -4154,6 +4155,7 @@
 				96235F97207D72A6007EAB36 /* MSIDWebAADAuthCodeResponse.h */,
 				96235F98207D72A6007EAB36 /* MSIDWebAADAuthCodeResponse.m */,
 				96235F9A207D72CE007EAB36 /* MSIDWebWPJResponse.h */,
+				E6FABC0A2C2A110900611378 /* MSIDWebWPJResponse+Internal.h */,
 				96235F9B207D72CE007EAB36 /* MSIDWebWPJResponse.m */,
 				9686C72721192BCF001FFF51 /* MSIDWebOpenBrowserResponse.h */,
 				9686C72821192BCF001FFF51 /* MSIDWebOpenBrowserResponse.m */,
