@@ -40,6 +40,7 @@
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDTestBrokerResponseHandler.h"
 #endif
@@ -402,6 +403,77 @@
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
         XCTAssertNotNil(telemetryEvent[@"stop_time"]);
         XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_wpj");
+        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");
+        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(telemetryEvent[@"status"], @"failed");
+        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"b3bf42e34c6997b665e8693acf69075072641a1bd44ffe0d2aae21296e32ba02");
+        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertNotNil(telemetryEvent[@"response_time"]);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenUpgradeRegRequest_shouldReturnUpgradeRegistrationRequiredError
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+
+    // Setup test request providers
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_broker_upgradeReg";
+
+    NSString *brokerURL = [NSString stringWithFormat:@"msauth://upgradeReg?username=my@test.com"];
+    MSIDWebUpgradeRegResponse *msAuthResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] 
+                                                                                       context:nil
+                                                                                         error:nil];
+    
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:msAuthResponse
+                                                                                       brokerRequestURL:nil
+                                                                                       resumeDictionary:nil];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters 
+                                                                                                                    tokenRequestProvider:provider
+                                                                                                                                   error:&error];
+
+    XCTAssertNotNil(interactiveController);
+    XCTAssertNil(error);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorInsufficientDeviceStrength);
+        XCTAssertEqualObjects(acquireTokenError.userInfo[MSIDUserDisplayableIdkey], @"my@test.com");
+
+        // Check Telemetry event
+        XCTAssertEqual([receivedEvents count], 1);
+        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_upgradeReg");
         XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
         XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
         XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"no");

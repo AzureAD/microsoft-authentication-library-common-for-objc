@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebUpgradeRegResponse.h"
 
 @interface MSIDWebMSAuthResponseTests : XCTestCase
 
@@ -63,6 +64,21 @@
     XCTAssertEqualObjects(response.upn, @"user");
     XCTAssertEqualObjects(response.appInstallLink, @"applink");
 
+}
+
+- (void)testInit_whenMSAuthScheme_withUpgradeReg_shouldReturnResponsewithNoError
+{
+    NSError *error = nil;
+    MSIDWebUpgradeRegResponse *response = [[MSIDWebUpgradeRegResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://upgradeReg?username=user"]]
+                                                                                 context:nil
+                                                                                   error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.upn, @"user");
+    XCTAssertNil(response.appInstallLink);
+    
 }
 
 @end

@@ -31,6 +31,7 @@
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAadAuthorityCache.h"
@@ -178,6 +179,21 @@
     XCTAssertNil(error);
 }
 
+- (void)testResponseWithURL_whenURLSchemeMsauthAndHostUpgradeReg_shouldReturnUpgradeRegResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://upgradeReg?anyParam=1"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
+    XCTAssertNil(error);
+}
+
 - (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_shouldReturnWPJResponse
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
@@ -195,6 +211,22 @@
     XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
 }
 
+- (void)testResponseWithURL_whenBrokerUpgradeRegResponseInSystemBrowser_shouldReturnUpgradeRegResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
+    NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/upgradeReg?username=XXX@upn.com"];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
+    XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+}
+
 - (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_andLocalhostRedirectUri_shouldReturnWPJResponse
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
@@ -209,6 +241,22 @@
     
     MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
     XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
+    XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+}
+
+- (void)testResponseWithURL_whenBrokerUpgradeResponseInSystemBrowser_andLocalhostRedirectUri_shouldReturnUpgradeRegResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
+    NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/upgradeReg?username=XXX@upn.com"];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebUpgradeRegResponse *wpjResponse = (MSIDWebUpgradeRegResponse *)response;
     XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
 }
 
