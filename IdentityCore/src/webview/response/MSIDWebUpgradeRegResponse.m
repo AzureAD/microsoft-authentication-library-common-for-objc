@@ -20,16 +20,18 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 #import "MSIDWebUpgradeRegResponse.h"
-#import "MSIDClientInfo.h"
 #import "MSIDWebResponseOperationConstants.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBrokerInstallOperation.h"
 #import "MSIDWebWPJResponse+Internal.h"
 
 @implementation MSIDWebUpgradeRegResponse
+
+static NSString *const SCHEME_MSAUTH = @"msauth";
+static NSString *const UPGRADE_REG = @"upgradeReg";
 
 + (void)load
 {
@@ -41,13 +43,15 @@
                       error:(NSError **)error
 {
     // Check for upgrade registration
-    if (![self isBrokerInstallResponse:url])
+    if (![self isBrokerUpgradeRegResponse:url])
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
-                                     @"WPJ response should have msauth as a scheme and wpj/broker as a host",
+                                     [NSString stringWithFormat:
+                                      @"Upgrade registration response should have %@ as a scheme and %@/broker as a host",
+                                        SCHEME_MSAUTH, UPGRADE_REG],
                                      nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
@@ -56,7 +60,10 @@
     return [super initResponseWithURL:url context:context error:error];
 }
 
-- (BOOL)isBrokerInstallResponse:(NSURL *)url
+/**
+ * return true when the url response is matching a device upgrade registration
+ **/
+- (BOOL)isBrokerUpgradeRegResponse:(NSURL *)url
 {
     NSString *scheme = url.scheme;
     NSString *host = url.host;
@@ -64,11 +71,11 @@
     // For embedded webview, if link starts with msauth scheme and contain upgradeReg host
     // then it is migrateWpj request
     // e.g. msauth://upgradeReg?param=param
-    if ([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"upgradeReg"]) //$todo upgradeReg
+    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host isEqualToString:UPGRADE_REG]) //$todo upgradeReg
     {
         return YES;
     }
-
+    
     NSArray *pathComponents = url.pathComponents;
     
     if ([pathComponents count] < 2)
@@ -80,12 +87,12 @@
     // e.g. myscheme://auth/msauth/upgradeReg?param=param
     NSUInteger pathComponentCount = pathComponents.count;
     
-    if ([pathComponents[pathComponentCount - 1] isEqualToString:@"upgradeReg"]
-        && [pathComponents[pathComponentCount - 2] isEqualToString:@"msauth"])
+    if ([pathComponents[pathComponentCount - 1] isEqualToString:UPGRADE_REG]
+        && [pathComponents[pathComponentCount - 2] isEqualToString:SCHEME_MSAUTH])
     {
         return YES;
     }
-
+    
     return NO;
 }
 

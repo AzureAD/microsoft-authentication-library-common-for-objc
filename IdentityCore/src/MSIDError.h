@@ -204,7 +204,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Tried to open local UI in app extension
     MSIDErrorUINotSupportedInExtension  = -51731,
 
-    // Workplacejoin migration required for device.
+    // Workplacejoin device upgrade registration required for device.
     MSIDErrorInsufficientDeviceStrength = -51732,
     /*!
      =========================================================

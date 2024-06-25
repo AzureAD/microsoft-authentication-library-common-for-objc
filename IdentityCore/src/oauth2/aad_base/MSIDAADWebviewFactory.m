@@ -171,7 +171,7 @@
     
 #endif
 
-    // Try to create a upgrade registration WPJ response
+    // Try to create a upgrade registration response
     MSIDWebUpgradeRegResponse *upgradeRegResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url context:context error:nil];
     if (upgradeRegResponse) return upgradeRegResponse;
 
