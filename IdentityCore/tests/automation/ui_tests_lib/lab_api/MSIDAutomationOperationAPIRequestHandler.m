@@ -132,17 +132,8 @@
                   accessToken:(NSString *)accessToken
             completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
-    NSURL *resultURL = nil;
-    if ([request isKindOfClass:[MSIDAutomationTemporaryAccountRequest class]] 
-        || [request isKindOfClass:[MSIDAutomationResetAPIRequest class]]
-        || [request isKindOfClass:[MSIDAutomationDeleteDeviceAPIRequest class]])
-    {
-        resultURL = [request requestURLWithAPIPath:self.funcAppAPIPath apiCode:self.funcAppAPICode];
-    }
-    else
-    {
-        resultURL = [request requestURLWithAPIPath:self.labAPIPath];
-    }
+    
+    NSURL *resultURL = [request requestURLWithAPIPath:self.labAPIPath];
     
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:resultURL];
     NSString *bearerHeader = [NSString stringWithFormat:@"Bearer %@", accessToken];
