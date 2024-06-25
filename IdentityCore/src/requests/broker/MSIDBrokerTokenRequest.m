@@ -191,6 +191,7 @@
     
     [queryDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
     return queryDictionary;
 }
 
@@ -222,6 +223,7 @@
     
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
     return resumeDictionary;
 }
 

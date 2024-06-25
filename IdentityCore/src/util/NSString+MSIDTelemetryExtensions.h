@@ -27,4 +27,6 @@
 
 - (NSDictionary *)msidParsedClientTelemetry;
 
++ (NSString *)msidUpdatePlatformSequenceParamWithSrcName:(NSString *)name srcVersion:(NSString *)version sequence:(NSString *)sequence;
+
 @end
