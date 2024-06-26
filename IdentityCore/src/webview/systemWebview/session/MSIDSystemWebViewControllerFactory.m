@@ -42,7 +42,7 @@
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
         
-    if (@available(iOS 12.0, macOS 10.15, *))
+    if (@available(iOS 12.0, *))
     {
         return MSIDWebviewTypeAuthenticationSession;
     }
@@ -69,7 +69,7 @@
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     
-    if (@available(iOS 12.0, macOS 10.15, *))
+    if (@available(iOS 12.0, *))
     {
         return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
                                                                               startURL:startURL

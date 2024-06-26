@@ -90,10 +90,7 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
              (id)kSecAttrApplicationTag:tag,
              (id)kSecPrivateKeyAttrs:privateKeyAttrs
            }];
-        if (@available(macOS 10.15, *))
-        {
-            [attributes setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
-        }
+        [attributes setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
         CFRelease(access);
         if (!self.useSecureEnclave)
         {
@@ -171,8 +168,7 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
         queryPrivateKey[(__bridge id)kSecAttrTokenID] = (__bridge id)kSecAttrTokenIDSecureEnclave;
     }
 #if TARGET_OS_OSX
-        if (@available(macOS 10.15, *))
-        [queryPrivateKey setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
+    [queryPrivateKey setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
 #endif
     queryPrivateKey[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeECSECPrimeRandom;
     queryPrivateKey[(__bridge id)kSecAttrKeySizeInBits] = @256;

@@ -97,7 +97,7 @@
                                                         completionHandler:authCompletion];
     
     #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        if (@available(iOS 13.0, macOS 10.15, *))
+        if (@available(iOS 13.0, *))
         {
             self.webAuthSession.presentationContextProvider = self;
             self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
