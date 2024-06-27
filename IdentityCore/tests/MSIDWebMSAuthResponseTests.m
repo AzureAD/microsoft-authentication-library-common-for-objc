@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDWebMSAuthResponseTests : XCTestCase
 
@@ -69,16 +70,23 @@
 - (void)testInit_whenMSAuthScheme_withUpgradeReg_shouldReturnResponsewithNoError
 {
     NSError *error = nil;
-    MSIDWebUpgradeRegResponse *response = [[MSIDWebUpgradeRegResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://upgradeReg?username=user"]]
-                                                                                 context:nil
-                                                                                   error:&error];
+    NSURL *url = [NSURL URLWithString:@"msauth://upgradeReg?username=XXX@upn.com&client_info="
+                  "eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
+    MSIDWebUpgradeRegResponse *upgradeResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url
+                                                                                        context:nil
+                                                                                          error:&error];
     
-    XCTAssertNotNil(response);
+    XCTAssertNotNil(upgradeResponse);
     XCTAssertNil(error);
     
-    XCTAssertEqualObjects(response.upn, @"user");
-    XCTAssertNil(response.appInstallLink);
+    XCTAssertTrue([upgradeResponse isKindOfClass:MSIDWebUpgradeRegResponse.class]);
+    XCTAssertNil(error);
     
+    XCTAssertEqualObjects(upgradeResponse.upn, @"XXX@upn.com");
+    XCTAssertNotNil(upgradeResponse.clientInfo, @"clientInfo should be valid");
+    XCTAssertEqualObjects(upgradeResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
+    XCTAssertEqualObjects(upgradeResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
+    XCTAssertNil(upgradeResponse.appInstallLink);
 }
 
 @end

@@ -440,8 +440,8 @@
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_upgradeReg";
 
-    NSString *brokerURL = [NSString stringWithFormat:@"msauth://upgradeReg?username=my@test.com"];
-    MSIDWebUpgradeRegResponse *msAuthResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] 
+    NSString *brokerURL = [NSString stringWithFormat:@"msauth://upgradeReg?username=my@test.com&client_info=eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
+    MSIDWebUpgradeRegResponse *msAuthResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:[NSURL URLWithString:brokerURL]
                                                                                        context:nil
                                                                                          error:nil];
     
@@ -467,6 +467,7 @@
         XCTAssertNotNil(acquireTokenError);
         XCTAssertEqual(acquireTokenError.code, MSIDErrorInsufficientDeviceStrength);
         XCTAssertEqualObjects(acquireTokenError.userInfo[MSIDUserDisplayableIdkey], @"my@test.com");
+        XCTAssertEqualObjects(acquireTokenError.userInfo[MSIDHomeAccountIdkey], @"9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
 
         // Check Telemetry event
         XCTAssertEqual([receivedEvents count], 1);

@@ -71,7 +71,7 @@ static NSString *const UPGRADE_REG = @"upgradeReg";
     // For embedded webview, if link starts with msauth scheme and contain upgradeReg host
     // then it is migrateWpj request
     // e.g. msauth://upgradeReg?param=param
-    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host isEqualToString:UPGRADE_REG]) //$todo upgradeReg
+    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host isEqualToString:UPGRADE_REG])
     {
         return YES;
     }

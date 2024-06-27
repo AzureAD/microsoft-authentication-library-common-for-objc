@@ -28,9 +28,10 @@
 
 @interface MSIDWebWPJResponse (Internal)
 
-/// Initialize other responses based on this protocol which are not an BrokerInstallResponse
-/// - This is a protected method used only by subclasses
-- (instancetype)initResponseWithURL:(NSURL *)url
+/**
+  * A designated protected initializer for MSIDWebWPJResponse
+ **/
+ - (instancetype)initResponseWithURL:(NSURL *)url
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
 

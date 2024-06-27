@@ -55,6 +55,17 @@
         return nil;
     }
     
+    return [self initResponseWithURL:url context:context error:error];
+}
+
+/**
+  * A protected designated initializer for MSIDWebWPJResponse
+  * - The difference to initWithUrl is that this initializer handles different Broker responses
+ **/
+- (instancetype)initResponseWithURL:(NSURL *)url
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
     self = [super initWithURL:url context:context error:error];
     if (self)
     {
@@ -69,23 +80,6 @@
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to parse client_info, error: %@", MSID_PII_LOG_MASKABLE(localError));
         }
-    }
-    
-    return self;
-}
-
-/// Initialize other responses based on this protocol which are not an BrokerInstallResponse
-/// - This is a protected method used only by subclasses
-- (instancetype)initResponseWithURL:(NSURL *)url
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
-{
-    self = [super initWithURL:url context:context error:error];
-    if (self)
-    {
-        _appInstallLink = nil;
-        _clientInfo = nil;
-        _upn = self.parameters[@"username"];
     }
     
     return self;

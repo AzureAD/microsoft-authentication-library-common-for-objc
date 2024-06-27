@@ -772,7 +772,7 @@
                                MSIDWebviewAuthCompletionHandler completionHandler)
     {
 
-         NSString *responseString = @"msauth://upgradeReg?username=user";
+         NSString *responseString = @"msauth://upgradeReg?username=user&client_info=eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0";
 
          MSIDWebUpgradeRegResponse *msauthResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:[NSURL URLWithString:responseString] context:nil error:nil];
          completionHandler(msauthResponse, nil);
@@ -793,7 +793,8 @@
         XCTAssertNil(error);
         XCTAssertNotNil(upgradeRegBrokerResponse);
         XCTAssertEqualObjects(upgradeRegBrokerResponse.upn, @"user");
-
+        XCTAssertEqualObjects(upgradeRegBrokerResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
+        XCTAssertEqualObjects(upgradeRegBrokerResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
         [expectation fulfill];
 
     }];
