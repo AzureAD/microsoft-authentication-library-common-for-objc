@@ -24,15 +24,10 @@
 #import "MSIDAutomationOperationAPIRequestHandler.h"
 #import "MSIDAutomation-Swift.h"
 #import "MSIDClientCredentialHelper.h"
-#import "MSIDAutomationTemporaryAccountRequest.h"
-#import "MSIDAutomationResetAPIRequest.h"
-#import "MSIDAutomationDeleteDeviceAPIRequest.h"
 
 @interface MSIDAutomationOperationAPIRequestHandler()
 
 @property (nonatomic) NSString *labAPIPath;
-@property (nonatomic) NSString *funcAppAPIPath;
-@property (nonatomic) NSDictionary *funcAppAPICode;
 @property (nonatomic) NSDictionary *configurationParams;
 @property (nonatomic) NSString *encodedCertificate;
 @property (nonatomic) NSString *certificatePassword;
@@ -44,8 +39,6 @@
 #pragma mark - Init
 
 - (instancetype)initWithAPIPath:(NSString *)apiPath
-                     newAPIPath:(NSString *)funcAppAPIPath
-                     newAPICode:(NSDictionary *)funcAppAPICode
              encodedCertificate:(NSString *)encodedCertificate
             certificatePassword:(NSString *)certificatePassword
       operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration
@@ -55,8 +48,6 @@
     if (self)
     {
         _labAPIPath = apiPath;
-        _funcAppAPIPath = funcAppAPIPath;
-        _funcAppAPICode = funcAppAPICode;
         _configurationParams = operationAPIConfiguration;
         _encodedCertificate = encodedCertificate;
         _certificatePassword = certificatePassword;
