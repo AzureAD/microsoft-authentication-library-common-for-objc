@@ -31,6 +31,7 @@
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAadAuthorityCache.h"
@@ -178,6 +179,27 @@
     XCTAssertNil(error);
 }
 
+- (void)testResponseWithURL_whenURLSchemeMsauthAndHostUpgradeReg_shouldReturnUpgradeRegResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    NSString *responseUrl = @"msauth://upgradeReg?username=XXX@upn.com&client_info=eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0";
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:responseUrl]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
+    MSIDWebUpgradeRegResponse *upgradeResponse = (MSIDWebUpgradeRegResponse *)response;
+    XCTAssertEqualObjects(upgradeResponse.upn, @"XXX@upn.com");
+    XCTAssertNotNil(upgradeResponse.clientInfo, @"clientInfo should be valid");
+    XCTAssertEqualObjects(upgradeResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
+    XCTAssertEqualObjects(upgradeResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
+    XCTAssertNil(error);
+}
+
 - (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_shouldReturnWPJResponse
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
@@ -195,6 +217,25 @@
     XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
 }
 
+- (void)testResponseWithURL_whenBrokerUpgradeRegResponseInSystemBrowser_shouldReturnUpgradeRegResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
+    NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/upgradeReg?username=XXX@upn.com&client_info=eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebUpgradeRegResponse *upgradeResponse = (MSIDWebUpgradeRegResponse *)response;
+    XCTAssertEqualObjects(upgradeResponse.upn, @"XXX@upn.com");
+    XCTAssertNotNil(upgradeResponse.clientInfo, @"clientInfo should be valid");
+    XCTAssertEqualObjects(upgradeResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
+    XCTAssertEqualObjects(upgradeResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
+}
+
 - (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_andLocalhostRedirectUri_shouldReturnWPJResponse
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
@@ -210,6 +251,25 @@
     MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
     XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
     XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+}
+
+- (void)testResponseWithURL_whenBrokerUpgradeResponseInSystemBrowser_andLocalhostRedirectUri_shouldReturnUpgradeRegResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
+    NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/upgradeReg?username=XXX@upn.com&client_info=eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebUpgradeRegResponse *upgradeResponse = (MSIDWebUpgradeRegResponse *)response;
+    XCTAssertEqualObjects(upgradeResponse.upn, @"XXX@upn.com");
+    XCTAssertNotNil(upgradeResponse.clientInfo, @"clientInfo should be valid");
+    XCTAssertEqualObjects(upgradeResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
+    XCTAssertEqualObjects(upgradeResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
 }
 
 - (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_andRedirectUriEndingInSlash_shouldReturnWPJResponse
