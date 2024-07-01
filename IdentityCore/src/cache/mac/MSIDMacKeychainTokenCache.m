@@ -814,14 +814,12 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                                              error:(NSError **)error
 {
     MSID_TRACE;
-    
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+
     if (![self shouldUseLoginKeychain])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Skipping login keychain read because it has been previously marked as empty on 10.15");
         return nil;
     }
-#endif
     
     MSIDMacCredentialStorageItem *storageItem = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
