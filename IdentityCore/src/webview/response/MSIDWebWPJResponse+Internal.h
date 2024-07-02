@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,38 +20,21 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAuthScheme.h"
 
-NSString * MSIDAuthSchemeParamFromType(MSIDAuthScheme type)
-{
-    switch (type) {
-        case MSIDAuthSchemePop:
-            return @"Pop";
-        case MSIDAuthSchemeBearer:
-            return @"Bearer";
-        case MSIDAuthSchemeSshCert:
-            return @"ssh-cert";
-        default:
-            return @"Bearer";
-    }
-}
+#ifndef MSIDWebWPJResponse_Internal_h
+#define MSIDWebWPJResponse_Internal_h
 
-MSIDAuthScheme MSIDAuthSchemeTypeFromString(NSString *authSchemeString)
-{
-    if ([authSchemeString isEqualToString:@"Pop"])
-    {
-        return MSIDAuthSchemePop;
-    }
-    else if ([authSchemeString isEqualToString:@"Bearer"])
-    {
-        return MSIDAuthSchemeBearer;
-    }
-    else if ([authSchemeString isEqualToString:@"ssh-cert"])
-    {
-        return MSIDAuthSchemeSshCert;
-    }
+@interface MSIDWebWPJResponse (Internal)
 
-    return MSIDAuthSchemeBearer;
-}
+/**
+  * A designated protected initializer for MSIDWebWPJResponse
+ **/
+ - (instancetype)initResponseWithURL:(NSURL *)url
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error;
+
+@end
+
+#endif /* MSIDWebWPJResponse_Internal_h */

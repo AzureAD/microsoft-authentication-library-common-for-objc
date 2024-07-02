@@ -26,6 +26,7 @@
 @interface MSIDTestURLResponse (Util)
 
 + (NSDictionary *)msidDefaultRequestHeaders;
++ (NSMutableDictionary *)msidIgnoreRequestHeaders;
 
 + (MSIDTestURLResponse *)oidcResponseForAuthority:(NSString *)authority;
 + (MSIDTestURLResponse *)discoveryResponseForAuthority:(NSString *)authority;

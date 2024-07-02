@@ -57,6 +57,10 @@
 @property (nonatomic) NSString *clientSku;
 @property (nonatomic) BOOL skipValidateResultAccount;
 @property (nonatomic) BOOL forceRefresh;
+@property (nonatomic) BOOL bypassRedirectURIValidation;
+
+// Telemetry metadata
+@property (nonatomic) NSString *platformSequence;
 
 // Additional body parameters that will be appended to all token requests
 @property (nonatomic) NSDictionary *extraTokenRequestParameters;

@@ -1,9 +1,29 @@
-TBD
+[TBD]
+* Migrate existing devices using UpgradeReg API - Error definitions (#1376)
+
+Version 1.7.36
+* Add platform sequence telemetry param. (#1378)
+* Update broker automations lab API. (#1377)
+* Fix incorrect constant name without MSID prefix. (#1374)
+
+Version 1.7.35
+* Include email as scope returned if it was requested and server did not include it. (#1364)
+* Fix throttling bug in fallback legacy broker interactive controller. (#1371)
+* Fix crash in cert chooser (#1344).
+* Add a new retry condition when request is idle and timeout(#1367).
+
+Version 1.7.34
 * Ignore local cache in broker request
 
 Version 1.7.33
 * Implement support for Custom URL Domains (CUD) for CIAM authorities (#1347)
 * Support for QR+PIN (#1317)
+
+Version 1.7.32-b
+* Fix pkey auth after server side removal of registration to use isDeviceRegistered flag from ssoContext
+
+Version 1.7.32-a
+* Fix pkey auth for server side removal case
 
 Version 1.7.32
 * Implement sign out request for browser sso #1328

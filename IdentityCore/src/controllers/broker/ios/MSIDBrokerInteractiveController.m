@@ -43,6 +43,10 @@
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDMainThreadUtil.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDThrottlingService.h"
+#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDDefaultTokenRequestProvider+Internal.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 static MSIDBrokerInteractiveController *s_currentExecutingController;
 
@@ -165,6 +169,17 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Broker flow finished.");
+        
+        // Refresh throttling by updating last_refresh_time flag if an legacy interactive call succeed (in case of fallback from SSO-Ext interactive)
+        if (!error)
+        {
+            if ([self.tokenRequestProvider isKindOfClass:[MSIDDefaultTokenRequestProvider class]])
+            {
+                id<MSIDExtendedTokenCacheDataSource> cache = ((MSIDDefaultTokenRequestProvider *)self.tokenRequestProvider).tokenCache.accountCredentialCache.dataSource;
+                [MSIDThrottlingService updateLastRefreshTimeDatasource:cache context:self.interactiveParameters error:nil];
+            }
+        }
+
         completionBlock(result, error);
     };
 

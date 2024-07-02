@@ -32,9 +32,14 @@
     return @"Reset";
 }
 
+- (NSString *)requestOperationCodeKey
+{
+    return @"reset_api_code";
+}
+
 - (NSString *)httpMethod
 {
-    return @"PUT";
+    return @"POST";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems

@@ -152,6 +152,7 @@
     NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
     NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    NSString *keyId = schemeParameters[MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
@@ -172,6 +173,7 @@
     [queryDictionary msidSetNonEmptyString:self.brokerApplicationToken forKey:@"application_token"];
     [queryDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [queryDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [queryDictionary msidSetNonEmptyString:keyId forKey:MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     if ([self.sdkBrokerCapabilities count])
     {
@@ -189,6 +191,7 @@
     
     [queryDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
     return queryDictionary;
 }
 
@@ -206,8 +209,10 @@
     NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
     NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    NSString *keyId = schemeParameters[MSID_OAUTH2_SSH_CERT_KEY_ID];
     [resumeDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [resumeDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [resumeDictionary msidSetNonEmptyString:keyId forKey:MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     if ([self.requestParameters isNestedAuthProtocol])
     {
@@ -218,6 +223,7 @@
     
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
     return resumeDictionary;
 }
 

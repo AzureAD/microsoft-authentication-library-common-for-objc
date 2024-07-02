@@ -42,6 +42,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDTestIdentifiers.h"
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
@@ -724,6 +725,76 @@
         XCTAssertNotNil(installBrokerResponse);
         XCTAssertEqualObjects(installBrokerResponse.appInstallLink, @"https://login.microsoftonline.appinstall.test");
 
+        [expectation fulfill];
+
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testInteractiveRequestFlow_whenBrokerUpgradeRegResponse_shouldReturnNilResultWithNilErrorAndBrokerResponse
+{
+    __block NSUUID *correlationId = [NSUUID new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
+    parameters.target = @"fakescope1 fakescope2";
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
+    parameters.clientId = @"my_client_id";
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.loginHint = @"fakeuser@contoso.com";
+    parameters.correlationId = correlationId;
+    parameters.webviewType = MSIDWebviewTypeWKWebView;
+    parameters.extraScopesToConsent = @"fakescope3";
+    parameters.oidcScope = @"openid profile offline_access";
+    parameters.promptType = MSIDPromptTypeConsent;
+    parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.enablePkce = YES;
+
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters 
+                                                                                             oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                   tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                               tokenCache:self.tokenCache
+                                                                                     accountMetadataCache:self.metadataCache extendedTokenCache:nil];
+
+    XCTAssertNotNil(request);
+
+    // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
+    [MSIDTestSwizzle classMethod:@selector(startSessionWithWebView:oauth2Factory:configuration:context:completionHandler:)
+                           class:[MSIDWebviewAuthorization class]
+                           block:(id)^(
+                               __unused id obj,
+                               __unused NSObject<MSIDWebviewInteracting> *webview,
+                               __unused MSIDOauth2Factory *oauth2Factory,
+                               __unused MSIDBaseWebRequestConfiguration *configuration,
+                               __unused id<MSIDRequestContext> context,
+                               MSIDWebviewAuthCompletionHandler completionHandler)
+    {
+
+         NSString *responseString = @"msauth://upgradeReg?username=user&client_info=eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0";
+
+         MSIDWebUpgradeRegResponse *msauthResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:[NSURL URLWithString:responseString] context:nil error:nil];
+         completionHandler(msauthResponse, nil);
+     }];
+
+    NSString *authority = @"https://login.microsoftonline.com/common";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
+
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable upgradeRegBrokerResponse) {
+
+        XCTAssertNil(result);
+        XCTAssertNil(error);
+        XCTAssertNotNil(upgradeRegBrokerResponse);
+        XCTAssertEqualObjects(upgradeRegBrokerResponse.upn, @"user");
+        XCTAssertEqualObjects(upgradeRegBrokerResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
+        XCTAssertEqualObjects(upgradeRegBrokerResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
         [expectation fulfill];
 
     }];

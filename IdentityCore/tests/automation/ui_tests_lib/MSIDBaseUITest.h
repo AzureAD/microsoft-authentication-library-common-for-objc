@@ -77,6 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)aadEnterPassword:(XCUIApplication *)application;
 - (void)enterPassword:(NSString *)password app:(XCUIApplication *)application;
 - (void)enterPassword:(NSString *)password app:(XCUIApplication *)app isMainApp:(BOOL)isMainApp;
+- (void)setupPassword:(NSString *)password app:(XCUIApplication *)application;
 
 - (void)adfsEnterPassword:(XCUIApplication *)application;;
 - (void)adfsEnterPassword:(NSString *)password app:(XCUIApplication *)application;

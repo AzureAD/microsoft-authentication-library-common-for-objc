@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef MSIDERROR_H
+#define MSIDERROR_H
 extern NSString * _Nonnull MSIDErrorDescriptionKey;
 extern NSString * _Nonnull MSIDOAuthErrorKey;
 extern NSString * _Nonnull MSIDOAuthSubErrorKey;
@@ -202,6 +204,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Tried to open local UI in app extension
     MSIDErrorUINotSupportedInExtension  = -51731,
 
+    // Workplacejoin device upgrade registration required for device.
+    MSIDErrorInsufficientDeviceStrength = -51732,
     /*!
      =========================================================
      Broker flow errors    (518xx and 519xx) - MSIDErrorDomain
@@ -323,6 +327,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // In PSSO, KeyId stored in passkey provider storage does not match NGC key, needs to configure and retry
     MSIDErrorPSSOKeyIdMismatch                     =   -51838,
     
+    // JIT - Error Handling config invalid or not found
+    MSIDErrorJITErrorHandlingConfigNotFound        =   -51839,
+
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,
@@ -346,3 +353,4 @@ extern void MSIDFillAndLogError(NSError * _Nullable __autoreleasing * _Nullable 
 #define MSIDException(name, message, info) [NSException exceptionWithName:name reason:[NSString stringWithFormat:@"%@ (function:%s line:%i)", message, __PRETTY_FUNCTION__, __LINE__]  userInfo:info]
 
 extern NSString * _Nullable MSIDErrorCodeToString(MSIDErrorCode errorCode);
+#endif

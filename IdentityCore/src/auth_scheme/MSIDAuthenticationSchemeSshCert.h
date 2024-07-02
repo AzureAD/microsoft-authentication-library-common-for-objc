@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,38 +20,15 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAuthScheme.h"
 
-NSString * MSIDAuthSchemeParamFromType(MSIDAuthScheme type)
-{
-    switch (type) {
-        case MSIDAuthSchemePop:
-            return @"Pop";
-        case MSIDAuthSchemeBearer:
-            return @"Bearer";
-        case MSIDAuthSchemeSshCert:
-            return @"ssh-cert";
-        default:
-            return @"Bearer";
-    }
-}
+#import "MSIDAuthenticationScheme.h"
 
-MSIDAuthScheme MSIDAuthSchemeTypeFromString(NSString *authSchemeString)
-{
-    if ([authSchemeString isEqualToString:@"Pop"])
-    {
-        return MSIDAuthSchemePop;
-    }
-    else if ([authSchemeString isEqualToString:@"Bearer"])
-    {
-        return MSIDAuthSchemeBearer;
-    }
-    else if ([authSchemeString isEqualToString:@"ssh-cert"])
-    {
-        return MSIDAuthSchemeSshCert;
-    }
+NS_ASSUME_NONNULL_BEGIN
 
-    return MSIDAuthSchemeBearer;
-}
+@interface MSIDAuthenticationSchemeSshCert : MSIDAuthenticationScheme
+
+@end
+
+NS_ASSUME_NONNULL_END

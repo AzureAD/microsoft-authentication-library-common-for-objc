@@ -83,6 +83,7 @@ typedef NS_ENUM(NSInteger, MSIDAuthScheme)
 {
     MSIDAuthSchemeBearer,
     MSIDAuthSchemePop,
+    MSIDAuthSchemeSshCert,
 };
 
 typedef NS_ENUM(NSInteger, MSIDHeaderType)
@@ -113,6 +114,7 @@ typedef void (^MSIDPasskeyCredentialRequestCompletionBlock)(MSIDPasskeyCredentia
 
 extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_SOURCE_PLATFORM_KEY;//The source SDK platform. iOS or OSX
+extern NSString * _Nonnull const MSID_PLATFORM_SEQUENCE_KEY;
 extern NSString * _Nonnull const MSID_VERSION_KEY;
 extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
 extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
@@ -159,5 +161,14 @@ extern NSString * _Nonnull const MSID_CLIENT_SKU_CPP_OSX;
 extern NSString * _Nonnull const MSID_CLIENT_SKU_ADAL_IOS;
 
 extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY;
+
+typedef NS_ENUM(NSInteger, MSIDPlatformSequenceIndex)
+{
+    MSIDPlatformSequenceIndexSrc = 0,
+    MSIDPlatformSequenceIndexMsalRuntime = 1,
+    MSIDPlatformSequenceIndexBrowserExt = 2,
+    MSIDPlatformSequenceIndexBrowserCore = 3,
+    MSIDPlatformSequenceIndexLast = MSIDPlatformSequenceIndexBrowserCore,
+};
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

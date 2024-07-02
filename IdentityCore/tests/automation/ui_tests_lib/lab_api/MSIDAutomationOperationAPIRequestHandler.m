@@ -24,11 +24,18 @@
 #import "MSIDAutomationOperationAPIRequestHandler.h"
 #import "MSIDAutomation-Swift.h"
 #import "MSIDClientCredentialHelper.h"
+#import "MSIDAutomationTemporaryAccountRequest.h"
+#import "MSIDAutomationResetAPIRequest.h"
+#import "MSIDAutomationDeleteDeviceAPIRequest.h"
 
 @interface MSIDAutomationOperationAPIRequestHandler()
 
 @property (nonatomic) NSString *labAPIPath;
+@property (nonatomic) NSString *funcAppAPIPath;
+@property (nonatomic) NSDictionary *funcAppAPICode;
 @property (nonatomic) NSDictionary *configurationParams;
+@property (nonatomic) NSString *encodedCertificate;
+@property (nonatomic) NSString *certificatePassword;
 
 @end
 
@@ -37,6 +44,10 @@
 #pragma mark - Init
 
 - (instancetype)initWithAPIPath:(NSString *)apiPath
+                     newAPIPath:(NSString *)funcAppAPIPath
+                     newAPICode:(NSDictionary *)funcAppAPICode
+             encodedCertificate:(NSString *)encodedCertificate
+            certificatePassword:(NSString *)certificatePassword
       operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration
 {
     self = [super init];
@@ -44,7 +55,11 @@
     if (self)
     {
         _labAPIPath = apiPath;
+        _funcAppAPIPath = funcAppAPIPath;
+        _funcAppAPICode = funcAppAPICode;
         _configurationParams = operationAPIConfiguration;
+        _encodedCertificate = encodedCertificate;
+        _certificatePassword = certificatePassword;
     }
     
     return self;
@@ -81,25 +96,33 @@
                     responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
                   completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
+    NSData *base64EncodedCert = [[NSData alloc] initWithBase64EncodedString:self.encodedCertificate options:0];
+    if (!base64EncodedCert || base64EncodedCert.length == 0) {
+        NSLog(@"Couldn't fetch certificate data, make sure certificate path is correct");
+        return;
+    }
+    
     [MSIDClientCredentialHelper getAccessTokenForAuthority:self.configurationParams[@"operation_api_authority"]
                                                   resource:self.configurationParams[@"operation_api_resource"]
                                                   clientId:self.configurationParams[@"operation_api_client_id"]
-                                          clientCredential:self.configurationParams[@"operation_api_client_secret"]
-                                         completionHandler:^(NSString *accessToken, NSError *error) {
-                                             
-                                             if (!accessToken)
-                                             {
-                                                 dispatch_async(dispatch_get_main_queue(), ^{
-                                                     completionHandler(nil, error);
-                                                 });
-                                                 return;
-                                             }
-                                             
-                                             [self executeAPIRequestImpl:request
-                                                         responseHandler:responseHandler
-                                                             accessToken:accessToken
-                                                       completionHandler:completionHandler];
-                                         }];
+                                               certificate:base64EncodedCert 
+                                       certificatePassword:self.certificatePassword
+                                         completionHandler:^(NSString *accessToken, NSError *error)
+     {
+        
+        if (!accessToken)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(nil, error);
+            });
+            return;
+        }
+
+        [self executeAPIRequestImpl:request
+                responseHandler:responseHandler
+                    accessToken:accessToken
+              completionHandler:completionHandler];
+    }];
 }
 
 #pragma mark - Execute request
@@ -109,7 +132,17 @@
                   accessToken:(NSString *)accessToken
             completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
-    NSURL *resultURL = [request requestURLWithAPIPath:self.labAPIPath];
+    NSURL *resultURL = nil;
+    if ([request isKindOfClass:[MSIDAutomationTemporaryAccountRequest class]] 
+        || [request isKindOfClass:[MSIDAutomationResetAPIRequest class]]
+        || [request isKindOfClass:[MSIDAutomationDeleteDeviceAPIRequest class]])
+    {
+        resultURL = [request requestURLWithAPIPath:self.funcAppAPIPath apiCode:self.funcAppAPICode];
+    }
+    else
+    {
+        resultURL = [request requestURLWithAPIPath:self.labAPIPath];
+    }
     
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:resultURL];
     NSString *bearerHeader = [NSString stringWithFormat:@"Bearer %@", accessToken];
