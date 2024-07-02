@@ -29,6 +29,7 @@ extern NSString * _Nonnull MSIDOAuthSubErrorKey;
 extern NSString * _Nonnull MSIDCorrelationIdKey;
 extern NSString * _Nonnull MSIDHTTPHeadersKey;
 extern NSString * _Nonnull MSIDHTTPResponseCodeKey;
+extern NSString * _Nonnull MSIDHTTPResponseStringKey;
 extern NSString * _Nonnull MSIDUserDisplayableIdkey;
 extern NSString * _Nonnull MSIDHomeAccountIdkey;
 extern NSString * _Nonnull MSIDBrokerVersionKey;
