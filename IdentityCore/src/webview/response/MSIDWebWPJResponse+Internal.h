@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,14 +20,21 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
 
-@interface NSString (MSIDTelemetryExtensions)
+#ifndef MSIDWebWPJResponse_Internal_h
+#define MSIDWebWPJResponse_Internal_h
 
-- (NSDictionary *)msidParsedClientTelemetry;
+@interface MSIDWebWPJResponse (Internal)
 
-+ (NSString *)msidUpdatePlatformSequenceParamWithSrcName:(NSString *)name srcVersion:(NSString *)version sequence:(NSString *)sequence;
+/**
+  * A designated protected initializer for MSIDWebWPJResponse
+ **/
+ - (instancetype)initResponseWithURL:(NSURL *)url
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error;
 
 @end
+
+#endif /* MSIDWebWPJResponse_Internal_h */

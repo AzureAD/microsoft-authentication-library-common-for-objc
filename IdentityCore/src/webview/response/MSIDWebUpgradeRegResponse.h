@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,14 +20,16 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
 
-@interface NSString (MSIDTelemetryExtensions)
+#ifndef MSIDWebUpgradeRegResponse_h
+#define MSIDWebUpgradeRegResponse_h
 
-- (NSDictionary *)msidParsedClientTelemetry;
+#import "MSIDWebWPJResponse.h"
 
-+ (NSString *)msidUpdatePlatformSequenceParamWithSrcName:(NSString *)name srcVersion:(NSString *)version sequence:(NSString *)sequence;
+@interface MSIDWebUpgradeRegResponse : MSIDWebWPJResponse
 
 @end
+
+#endif /* MSIDWebUpgradeRegResponse_h */

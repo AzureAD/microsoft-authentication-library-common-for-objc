@@ -55,6 +55,17 @@
         return nil;
     }
     
+    return [self initResponseWithURL:url context:context error:error];
+}
+
+/**
+  * A protected designated initializer for MSIDWebWPJResponse
+  * - The difference to initWithUrl is that this initializer handles different Broker responses
+ **/
+- (instancetype)initResponseWithURL:(NSURL *)url
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
     self = [super initWithURL:url context:context error:error];
     if (self)
     {
