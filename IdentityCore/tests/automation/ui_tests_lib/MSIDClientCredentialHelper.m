@@ -263,7 +263,7 @@
     }
     
     NSData *certData = (__bridge NSData *)(data);
-
+    
     NSString *thumbprint = [self sha1FromData:certData].msidBase64UrlEncodedString;
     CFRelease(data);
     CFRelease(certificate);
@@ -277,7 +277,8 @@
 
     NSDictionary *header = @{@"alg" : alg,
                              @"typ" : @"JWT",
-                             @"x5t" : thumbprint};
+                             @"x5t" : thumbprint,
+                             @"x5c" : [certData base64EncodedStringWithOptions:0]};
     
     NSNumber *expDate = @((long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]);
     NSNumber *notBeforeDate = @((long)[[NSDate date] timeIntervalSince1970]);
