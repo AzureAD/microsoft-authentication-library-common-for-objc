@@ -227,7 +227,6 @@
                                     certificateData:(NSData *)certificateData
                                            password:(NSString *)password
 {
-    
     SecIdentityRef identity = [self createIdentityFromData:certificateData password:password];
     
     if (!identity)
@@ -264,6 +263,7 @@
     }
     
     NSData *certData = (__bridge NSData *)(data);
+    
     NSString *thumbprint = [self sha1FromData:certData].msidBase64UrlEncodedString;
     CFRelease(data);
     CFRelease(certificate);
