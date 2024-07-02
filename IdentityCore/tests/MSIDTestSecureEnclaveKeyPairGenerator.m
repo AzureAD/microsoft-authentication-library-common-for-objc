@@ -66,13 +66,10 @@ const static NSString *kTestApplicationTag = @"Microsoft ECC Test App";
     if (!_eccPublicKey)
     {
         SecAccessControlRef access = NULL;
-        if (@available(macOS 10.12.1, iOS 9.0, *))
-        {
-            access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
-                                                     kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                                                     kSecAccessControlPrivateKeyUsage,
-                                                     NULL);
-        }
+        access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
+                                                 kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                                                 kSecAccessControlPrivateKeyUsage,
+                                                 NULL);
         
         NSData *tag = [self.applicationTag dataUsingEncoding:NSUTF8StringEncoding];
         NSMutableDictionary *privateKeyAttrs = [[NSMutableDictionary alloc] initWithDictionary:@{
