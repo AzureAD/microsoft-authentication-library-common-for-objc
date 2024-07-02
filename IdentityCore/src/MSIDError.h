@@ -204,6 +204,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Tried to open local UI in app extension
     MSIDErrorUINotSupportedInExtension  = -51731,
 
+    // Workplacejoin device upgrade registration required for device.
+    MSIDErrorInsufficientDeviceStrength = -51732,
     /*!
      =========================================================
      Broker flow errors    (518xx and 519xx) - MSIDErrorDomain
@@ -327,7 +329,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // JIT - Error Handling config invalid or not found
     MSIDErrorJITErrorHandlingConfigNotFound        =   -51839,
-    
+
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,

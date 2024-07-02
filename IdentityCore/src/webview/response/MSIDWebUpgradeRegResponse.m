@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -17,21 +16,22 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import "MSIDWebWPJResponse.h"
-#import "MSIDClientInfo.h"
+#import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebResponseOperationConstants.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBrokerInstallOperation.h"
+#import "MSIDWebWPJResponse+Internal.h"
 
-@implementation MSIDWebWPJResponse
+@implementation MSIDWebUpgradeRegResponse
+
+static NSString *const SCHEME_MSAUTH = @"msauth";
+static NSString *const UPGRADE_REG = @"upgradeReg";
 
 + (void)load
 {
@@ -42,57 +42,36 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    // Check for WPJ or broker response
-    if (![self isBrokerInstallResponse:url])
+    // Check for upgrade registration
+    if (![self isBrokerUpgradeRegResponse:url])
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
-                                     @"WPJ response should have msauth as a scheme and wpj/broker as a host",
+                                     [NSString stringWithFormat:
+                                      @"Upgrade registration response should have %@ as a scheme and %@/broker as a host",
+                                        SCHEME_MSAUTH, UPGRADE_REG],
                                      nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
     }
     
-    return [self initResponseWithURL:url context:context error:error];
+    return [super initResponseWithURL:url context:context error:error];
 }
 
 /**
-  * A protected designated initializer for MSIDWebWPJResponse
-  * - The difference to initWithUrl is that this initializer handles different Broker responses
+ * return true when the url response is matching a device upgrade registration
  **/
-- (instancetype)initResponseWithURL:(NSURL *)url
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
-{
-    self = [super initWithURL:url context:context error:error];
-    if (self)
-    {
-        _appInstallLink = self.parameters[@"app_link"];
-        _upn = self.parameters[@"username"];
-        
-        NSError *localError;
-        _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:self.parameters[@"client_info"]
-                                                              error:&localError];
-        
-        if (localError)
-        {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to parse client_info, error: %@", MSID_PII_LOG_MASKABLE(localError));
-        }
-    }
-    
-    return self;
-}
-
-- (BOOL)isBrokerInstallResponse:(NSURL *)url
+- (BOOL)isBrokerUpgradeRegResponse:(NSURL *)url
 {
     NSString *scheme = url.scheme;
     NSString *host = url.host;
     
-    // For embedded webview, this link will start with msauth scheme and will contain wpj host
-    // e.g. msauth://wpj?param=param
-    if ([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"])
+    // For embedded webview, if link starts with msauth scheme and contain upgradeReg host
+    // then it is migrateWpj request
+    // e.g. msauth://upgradeReg?param=param
+    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host isEqualToString:UPGRADE_REG])
     {
         return YES;
     }
@@ -104,12 +83,12 @@
         return NO;
     }
     
-    // For system webview, this link will start with the redirect uri and will have msauth and wpj as path parameters
-    // e.g. myscheme://auth/msauth/wpj?param=param
+    // For system webview, this link will start with the redirect uri and will have msauth and upgradeReg as path parameters
+    // e.g. myscheme://auth/msauth/upgradeReg?param=param
     NSUInteger pathComponentCount = pathComponents.count;
     
-    if ([pathComponents[pathComponentCount - 1] isEqualToString:@"wpj"]
-        && [pathComponents[pathComponentCount - 2] isEqualToString:@"msauth"])
+    if ([pathComponents[pathComponentCount - 1] isEqualToString:UPGRADE_REG]
+        && [pathComponents[pathComponentCount - 2] isEqualToString:SCHEME_MSAUTH])
     {
         return YES;
     }
@@ -119,7 +98,7 @@
 
 + (NSString *)operation
 {
-    return MSID_INSTALL_BROKER_OPERATION;
+    return MSID_UPGRADE_REGISTRATION_BROKER_OPERATION;
 }
 
 @end
