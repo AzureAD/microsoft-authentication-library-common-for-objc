@@ -43,7 +43,7 @@
                   clientId:(NSString *)clientId
              instanceAware:(BOOL)instanceAware
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+                     error:(NSError *__autoreleasing*)error;
 
 - (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
              forRequestURL:(NSURL *)requestAuthorityURL
@@ -51,30 +51,30 @@
                   clientId:(NSString *)clientId
              instanceAware:(BOOL)instanceAware
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+                     error:(NSError *__autoreleasing*)error;
 
 - (MSIDAccountMetadataState)signInStateForHomeAccountId:(NSString *)homeAccountId
                                                clientId:(NSString *)clientId
                                                 context:(id<MSIDRequestContext>)context
-                                                  error:(NSError **)error;
+                                                  error:(NSError *__autoreleasing*)error;
 
 - (BOOL)updateSignInStateForHomeAccountId:(NSString *)homeAccountId
                                  clientId:(NSString *)clientId
                                     state:(MSIDAccountMetadataState)state
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error;
+                                    error:(NSError *__autoreleasing*)error;
 
 - (MSIDAccountIdentifier *)principalAccountIdForClientId:(NSString *)clientId
                                                  context:(id<MSIDRequestContext>)context
-                                                   error:(NSError **)error;
+                                                   error:(NSError *__autoreleasing*)error;
 
 - (BOOL)updatePrincipalAccountIdForClientId:(NSString *)clientId
                          principalAccountId:(MSIDAccountIdentifier *)principalAccountId
                 principalAccountEnvironment:(NSString *)principalAccountEnvironment
                                     context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error;
+                                      error:(NSError *__autoreleasing*)error;
 
 - (MSIDAccountMetadataCacheItem *)retrieveAccountMetadataCacheItemForClientId:(NSString *)clientId
                                                                       context:(id<MSIDRequestContext>)context
-                                                                        error:(NSError **)error;
+                                                                        error:(NSError *__autoreleasing*)error;
 @end

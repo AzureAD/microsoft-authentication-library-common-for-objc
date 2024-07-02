@@ -57,7 +57,7 @@ NSWindowController
 - (id)initWithContext:(id<MSIDRequestContext>)context
        platformParams:(MSIDWebViewPlatformParams *)platformParams;
 
-- (BOOL)loadView:(NSError **)error;
+- (BOOL)loadView:(NSError *__autoreleasing*)error;
 - (void)presentView;
 - (void)dismissWebview:(void (^)(void))completion;
 - (void)showLoadingIndicator;

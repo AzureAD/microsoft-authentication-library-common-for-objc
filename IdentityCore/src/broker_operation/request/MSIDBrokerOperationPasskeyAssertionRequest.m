@@ -50,7 +50,7 @@ NSString *const MSID_PASSKEY_ASSERTION_KEY_ID_KEY = @"keyId";
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
 

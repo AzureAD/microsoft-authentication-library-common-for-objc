@@ -160,7 +160,7 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 if node already exists, update and move it to the front of LRU cache */
 - (BOOL)setObject:(id)cacheRecord
            forKey:(id)key
-            error:(NSError **)error
+            error:(NSError *__autoreleasing*)error
 {
     __block NSError *subError = nil;
     BOOL result = YES;
@@ -219,7 +219,7 @@ if node already exists, update and move it to the front of LRU cache */
 
 
 - (BOOL)removeObjectForKey:(id)key
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     __block NSError *subError = nil;
     BOOL result = YES;
@@ -257,7 +257,7 @@ if node already exists, update and move it to the front of LRU cache */
 }
 
 - (BOOL)removeObjectForKeyImpl:(NSString *)signature
-                         error:(NSError **)error
+                         error:(NSError *__autoreleasing*)error
 {
     if (!signature)
     {
@@ -302,7 +302,7 @@ if node already exists, update and move it to the front of LRU cache */
 
 //retrieve cache record from the corresponding node, and move the node to the front of LRU cache.
 - (id)objectForKey:(id)key
-             error:(NSError **)error
+             error:(NSError *__autoreleasing*)error
 {
     __block id cacheRecord;
     __block NSError *subError = nil;
@@ -334,7 +334,7 @@ if node already exists, update and move it to the front of LRU cache */
 }
 
 - (id)objectForKeyImpl:(NSString *)signature
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     if (!signature)
     {
@@ -463,7 +463,7 @@ if node already exists, update and move it to the front of LRU cache */
     return signature;
 }
 
-- (BOOL)removeAllObjects:(NSError **)error
+- (BOOL)removeAllObjects:(NSError *__autoreleasing*)error
 {
     __block NSError *subError = nil;
     BOOL result = YES;

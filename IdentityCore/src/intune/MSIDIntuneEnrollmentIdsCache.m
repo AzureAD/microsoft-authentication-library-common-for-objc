@@ -77,7 +77,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 - (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
                                  tenantId:(NSString *)tenantId
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     if (!userObjectId || !tenantId) return nil;
     
@@ -100,7 +100,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                               legacyUserId:(NSString *)legacyUserId
                                    context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
+                                     error:(NSError *__autoreleasing*)error
 {
     NSString *enrollmentId = nil;
     
@@ -135,7 +135,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                                    context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
+                                     error:(NSError *__autoreleasing*)error
 {
     NSString* enrollmentId = [self queryEnrollmentIdWithKey:MSID_INTUNE_HOME_ACCOUNT_ID
                                      validationId:homeAccountId
@@ -146,7 +146,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 - (NSString *)enrollmentIdForUserId:(NSString *)userId
                             context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+                              error:(NSError *__autoreleasing*)error
 {
     NSString* enrollmentId = [self queryEnrollmentIdWithKey:MSID_INTUNE_USER_ID
                                      validationId:userId
@@ -158,7 +158,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 -(NSString *)queryEnrollmentIdWithKey:(NSString *)key
                          validationId:(NSString *)validationId
                               context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error
+                                error:(NSError *__autoreleasing*)error
 {
     validationId = [validationId msidNormalizedString];
     NSArray *enrollIds = [self fetchAllEnrollmentIdsWithContext:context error:error];
@@ -178,7 +178,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 
 - (NSString *)enrollmentIdIfAvailableWithContext:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+                                           error:(NSError *__autoreleasing*)error
 {
     NSArray *enrollIds = [self fetchAllEnrollmentIdsWithContext:context error:error];
     if (enrollIds)
@@ -193,7 +193,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSArray *)fetchAllEnrollmentIdsWithContext:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error
+                                         error:(NSError *__autoreleasing*)error
 {
     NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
     if (![self isValid:jsonDictionary context:context error:error]) return nil;
@@ -205,7 +205,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 - (BOOL)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
                                context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
+                                 error:(NSError *__autoreleasing*)error
 {
     if (![self isValid:jsonDictionary context:context error:error]) return NO;
     
@@ -214,7 +214,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 }
 
 - (NSDictionary *)enrollmentIdsJsonDictionaryWithContext:(id<MSIDRequestContext>)context
-                                                   error:(NSError **)error
+                                                   error:(NSError *__autoreleasing*)error
 {
     __auto_type jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
     if (![self isValid:jsonDictionary context:context error:error]) return nil;
@@ -231,7 +231,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
 
 - (BOOL)isValid:(NSDictionary *)json
         context:(id<MSIDRequestContext>)context
-          error:(NSError **)error
+          error:(NSError *__autoreleasing*)error
 {
     if (!json) return YES;
     

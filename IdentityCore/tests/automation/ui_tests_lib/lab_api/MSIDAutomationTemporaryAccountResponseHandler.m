@@ -27,7 +27,7 @@
 @implementation MSIDAutomationTemporaryAccountResponseHandler
 
 - (id)responseFromData:(NSData *)response
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     NSDictionary *jsonDictionary = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
     if (!jsonDictionary)

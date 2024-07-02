@@ -60,7 +60,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 - (BOOL)setCachedURL:(NSURL *)cachedURL
        forRequestURL:(NSURL *)requestURL
        instanceAware:(BOOL)instanceAware
-               error:(NSError **)error
+               error:(NSError *__autoreleasing*)error
 {
     _signInState = MSIDAccountMetadataStateSignedIn;
     

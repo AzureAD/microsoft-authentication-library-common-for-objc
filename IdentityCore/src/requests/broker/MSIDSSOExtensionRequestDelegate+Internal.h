@@ -33,10 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) MSIDJsonSerializer *jsonSerializer;
 
 - (nullable ASAuthorizationSingleSignOnCredential *)ssoCredentialFromCredential:(id <ASAuthorizationCredential>)credential
-                                                                          error:(NSError **)error;
+                                                                          error:(NSError *__autoreleasing*)error;
 
 - (NSDictionary *)jsonPayloadFromSSOCredential:(ASAuthorizationSingleSignOnCredential *)ssoCredential
-                                         error:(NSError **)error;
+                                         error:(NSError *__autoreleasing*)error;
 
 @end
 

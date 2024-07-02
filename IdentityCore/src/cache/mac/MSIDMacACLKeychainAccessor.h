@@ -43,21 +43,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)saveData:(nonnull NSData *)data
       attributes:(nonnull NSDictionary *)attributes
          context:(nullable id<MSIDRequestContext>)context
-           error:(NSError * _Nullable * _Nullable)error;
+           error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 
 - (BOOL)removeItemWithAttributes:(nonnull NSDictionary *)attributes
                          context:(nullable id<MSIDRequestContext>)context
-                           error:(NSError * _Nullable * _Nullable)error;
+                           error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 
 - (nullable NSData *)getDataWithAttributes:(nonnull NSDictionary *)attributes
                                    context:(nullable id<MSIDRequestContext>)context
-                                     error:(NSError * _Nullable * _Nullable)error;
+                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (BOOL)clearWithAttributes:(nonnull NSDictionary *)attributes
                     context:(nullable id<MSIDRequestContext>)context
-                      error:(NSError * _Nullable * _Nullable)error;
+                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 #pragma mark - Util
 

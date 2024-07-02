@@ -36,6 +36,6 @@
 + (void)unRegisterforResponse:(nonnull MSIDWebviewResponse *)response;
 
 + (nullable MSIDWebResponseBaseOperation *)createOperationForResponse:(nonnull MSIDWebviewResponse *)response
-                                                                error:(NSError * _Nullable *_Nullable)error;
+                                                                error:(NSError * _Nullable __autoreleasing *_Nullable)error;
 
 @end

@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
                         requestState:(nullable NSString *)requestState
                   ignoreInvalidState:(BOOL)ignoreInvalidState
                              context:(nullable id<MSIDRequestContext>)context
-                               error:(NSError * _Nullable * _Nullable)error;
+                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

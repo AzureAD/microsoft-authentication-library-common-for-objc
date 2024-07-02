@@ -66,7 +66,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                                        error:(NSError * _Nullable * _Nullable)error
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
@@ -86,7 +86,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                             brokerInstallLink:(nonnull NSURL *)brokerInstallLink
-                                                        error:(NSError * _Nullable * _Nullable)error
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [self initWithInteractiveRequestParameters:parameters
                                  tokenRequestProvider:tokenRequestProvider

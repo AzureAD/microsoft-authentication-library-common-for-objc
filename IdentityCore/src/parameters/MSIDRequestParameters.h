@@ -110,7 +110,7 @@
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
 - (NSString *)allTokenRequestScopes;
 
-- (BOOL)validateParametersWithError:(NSError **)error;
+- (BOOL)validateParametersWithError:(NSError *__autoreleasing*)error;
 
 - (void)updateAppRequestMetadata:(NSString *)homeAccountId;
 
@@ -129,6 +129,6 @@
                    telemetryApiId:(NSString *)telemetryApiId
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                       requestType:(MSIDRequestType)requestType
-                            error:(NSError **)error;
+                            error:(NSError *__autoreleasing*)error;
 
 @end

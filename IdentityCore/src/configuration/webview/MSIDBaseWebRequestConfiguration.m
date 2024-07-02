@@ -64,7 +64,7 @@
 - (MSIDWebviewResponse *)responseWithResultURL:(__unused NSURL *)url
                                        factory:(__unused MSIDWebviewFactory *)factory
                                        context:(__unused id<MSIDRequestContext>)context
-                                         error:(__unused NSError **)error
+                                         error:(__unused NSError *__autoreleasing*)error
 {
     return nil;
 }

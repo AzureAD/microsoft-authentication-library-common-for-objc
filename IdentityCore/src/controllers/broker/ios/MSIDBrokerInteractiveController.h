@@ -39,12 +39,12 @@
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                                        error:(NSError * _Nullable * _Nullable)error;
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                             brokerInstallLink:(nonnull NSURL *)brokerInstallLink
-                                                        error:(NSError * _Nullable * _Nullable)error;
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
            sourceApplication:(nullable NSString *)sourceApplication

@@ -135,7 +135,7 @@
     return info;
 }
 
-+ (SecIdentityRef)copyWPJIdentityWithAuthorities:(NSArray<NSData *> *)authorities issuer:(NSString **)issuer privateKeyDict:(NSDictionary **)keyDict
++ (SecIdentityRef)copyWPJIdentityWithAuthorities:(NSArray<NSData *> *)authorities issuer:(NSString *__autoreleasing*)issuer privateKeyDict:(NSDictionary *__autoreleasing*)keyDict
 {
     if (![authorities count])
     {
@@ -208,7 +208,7 @@
 
 + (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                              context:(id<MSIDRequestContext>_Nullable)context
-                                               error:(NSError*__nullable*__nullable)error
+                                               error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     return [self getWPJStringDataForIdentifier:identifier accessGroup:nil context:context error:error];
 }
@@ -217,7 +217,7 @@
                                               identifier:(nonnull NSString *)identifier
                                                      key:(nullable NSString *)key
                                                  context:(nullable id<MSIDRequestContext>)context
-                                                   error:(NSError*__nullable*__nullable)error
+                                                   error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     return [self getWPJStringDataFromV2ForTenantId:tenantId identifier:identifier key:key accessGroup:nil context:context error:error];
 }

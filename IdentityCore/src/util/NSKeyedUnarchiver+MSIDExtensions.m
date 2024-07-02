@@ -25,7 +25,7 @@
 
 @implementation NSKeyedUnarchiver (MSIDExtensions)
 
-+ (instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError **)error
++ (instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError *__autoreleasing*)error
 {
     NSKeyedUnarchiver *unarchiver;
     unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:error];
@@ -33,7 +33,7 @@
     return unarchiver;
 }
 
-+ (id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError **)error
++ (id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError *__autoreleasing*)error
 {
     id result;
     result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:error];

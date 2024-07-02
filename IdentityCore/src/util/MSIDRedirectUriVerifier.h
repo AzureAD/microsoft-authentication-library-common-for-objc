@@ -35,6 +35,6 @@
                          bypassRedirectValidation:(BOOL)bypassRedirectValidation
                                             error:(NSError * __autoreleasing *)error;
 
-+ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(NSError **)error;
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(NSError *__autoreleasing*)error;
 
 @end

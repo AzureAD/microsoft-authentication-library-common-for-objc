@@ -72,7 +72,7 @@
                                                  correlationId:(NSUUID *)correlationID
                                                     authScheme:(MSIDAuthenticationScheme *)authScheme
                                                    redirectUri:(NSString *)redirectUri
-                                                         error:(NSError **)error
+                                                         error:(NSError *__autoreleasing*)error
 {
     MSIDTokenResult *tokenResult = nil;
     NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:encryptedParams
@@ -172,7 +172,7 @@
 }
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                  error:(NSError **)error
+                                                  error:(NSError *__autoreleasing*)error
 {
 #if TARGET_OS_IPHONE
     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
@@ -201,7 +201,7 @@
 }
 
 - (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                                      error:(__unused NSError **)error
+                                                                      error:(__unused NSError *__autoreleasing*)error
 {
     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
     

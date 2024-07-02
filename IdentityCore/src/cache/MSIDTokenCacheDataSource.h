@@ -38,32 +38,32 @@
               key:(MSIDCacheKey *)key
        serializer:(id<MSIDCacheItemSerializing>)serializer
           context:(id<MSIDRequestContext>)context
-            error:(NSError **)error;
+            error:(NSError *__autoreleasing*)error;
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
                                serializer:(id<MSIDCacheItemSerializing>)serializer
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error;
+                                    error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
                                            serializer:(id<MSIDCacheItemSerializing>)serializer
                                               context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error;
+                                                error:(NSError *__autoreleasing*)error;
 
 // Wipe info
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
-                          error:(NSError **)error;
+                          error:(NSError *__autoreleasing*)error;
 
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+                     error:(NSError *__autoreleasing*)error;
 
 // Removal
 - (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
+                      error:(NSError *__autoreleasing*)error;
 
 // Clear all
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
-                   error:(NSError **)error;
+                   error:(NSError *__autoreleasing*)error;
 
 @end

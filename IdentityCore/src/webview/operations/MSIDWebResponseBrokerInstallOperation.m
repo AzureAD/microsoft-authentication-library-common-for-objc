@@ -46,7 +46,7 @@
 @implementation MSIDWebResponseBrokerInstallOperation
 
 - (nullable instancetype)initWithResponse:(__unused MSIDWebviewResponse *)response
-                                    error:(__unused NSError **)error
+                                    error:(__unused NSError *__autoreleasing*)error
 {
     #if TARGET_OS_IPHONE
         self = [super initWithResponse:response

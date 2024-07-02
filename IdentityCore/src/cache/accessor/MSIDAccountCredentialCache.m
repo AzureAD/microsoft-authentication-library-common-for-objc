@@ -66,7 +66,7 @@
 // Reading credentials
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                                                                  context:(nullable id<MSIDRequestContext>)context
-                                                                   error:(NSError * _Nullable * _Nullable)error
+                                                                   error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSString *className = NSStringFromClass(self.class);
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) retrieving cached credentials using credential query", className);
@@ -129,7 +129,7 @@
 
 - (nullable MSIDCredentialCacheItem *)getCredential:(nonnull MSIDDefaultCredentialCacheKey *)key
                                        context:(nullable id<MSIDRequestContext>)context
-                                         error:(NSError * _Nullable * _Nullable)error
+                                         error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(key);
 
@@ -140,7 +140,7 @@
 
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getAllCredentialsWithType:(MSIDCredentialType)type
                                                               context:(nullable id<MSIDRequestContext>)context
-                                                                error:(NSError * _Nullable * _Nullable)error
+                                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default cache) Get all credentials with type %@", [MSIDCredentialTypeHelpers credentialTypeAsString:type]);
 
@@ -153,7 +153,7 @@
 // Reading accounts
 - (nullable NSArray<MSIDAccountCacheItem *> *)getAccountsWithQuery:(nonnull MSIDDefaultAccountCacheQuery *)cacheQuery
                                                            context:(nullable id<MSIDRequestContext>)context
-                                                             error:(NSError * _Nullable * _Nullable)error
+                                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(cacheQuery);
 
@@ -188,7 +188,7 @@
 
 - (nullable MSIDAccountCacheItem *)getAccount:(nonnull MSIDDefaultCredentialCacheKey *)key
                                       context:(nullable id<MSIDRequestContext>)context
-                                        error:(NSError * _Nullable * _Nullable)error
+                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(key);
 
@@ -199,7 +199,7 @@
 
 - (nullable NSArray<MSIDAccountCacheItem *> *)getAllAccountsWithType:(MSIDAccountType)type
                                                              context:(nullable id<MSIDRequestContext>)context
-                                                               error:(NSError * _Nullable * _Nullable)error
+                                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default cache) Get all accounts with type %@", [MSIDAccountTypeHelpers accountTypeAsString:type]);
 
@@ -210,7 +210,7 @@
 }
 
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
-                                                             error:(NSError * _Nullable * _Nullable)error
+                                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default cache) Get all items from cache");
 
@@ -222,7 +222,7 @@
 // Writing credentials
 - (BOOL)saveCredential:(nonnull MSIDCredentialCacheItem *)credential
                context:(nullable id<MSIDRequestContext>)context
-                 error:(NSError * _Nullable * _Nullable)error
+                 error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(credential);
 
@@ -251,7 +251,7 @@
 // Writing accounts
 - (BOOL)saveAccount:(nonnull MSIDAccountCacheItem *)account
             context:(nullable id<MSIDRequestContext>)context
-              error:(NSError * _Nullable * _Nullable)error
+              error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(account);
 
@@ -293,7 +293,7 @@
 // Remove credentials
 - (BOOL)removeCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                           context:(nullable id<MSIDRequestContext>)context
-                            error:(NSError * _Nullable * _Nullable)error
+                            error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(cacheQuery);
 
@@ -316,7 +316,7 @@
 // Remove credentials
 - (BOOL)removeExpiredAccessTokensCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                           context:(nullable id<MSIDRequestContext>)context
-                            error:(NSError * _Nullable * _Nullable)error
+                            error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(cacheQuery);
     cacheQuery.targetMatchingOptions = MSIDAny;
@@ -360,7 +360,7 @@
 
 - (BOOL)removeCredential:(nonnull MSIDCredentialCacheItem *)credential
                  context:(nullable id<MSIDRequestContext>)context
-                   error:(NSError * _Nullable * _Nullable)error
+                   error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(credential);
 
@@ -393,7 +393,7 @@
 // Remove accounts
 - (BOOL)removeAccountsWithQuery:(nonnull MSIDDefaultAccountCacheQuery *)cacheQuery
                         context:(nullable id<MSIDRequestContext>)context
-                          error:(NSError * _Nullable * _Nullable)error
+                          error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(cacheQuery);
 
@@ -411,7 +411,7 @@
 
 - (BOOL)removeAccount:(nonnull MSIDAccountCacheItem *)account
               context:(nullable id<MSIDRequestContext>)context
-                error:(NSError * _Nullable * _Nullable)error
+                error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(account);
 
@@ -427,7 +427,7 @@
 
 // Clear all
 - (BOOL)clearWithContext:(nullable id<MSIDRequestContext>)context
-                   error:(NSError * _Nullable * _Nullable)error
+                   error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"(Default cache) Clearing the whole cache, this method should only be called in tests");
     return [_dataSource clearWithContext:context error:error];
@@ -435,7 +435,7 @@
 
 - (BOOL)removeAllCredentials:(nonnull NSArray<MSIDCredentialCacheItem *> *)credentials
                      context:(nullable id<MSIDRequestContext>)context
-                       error:(NSError * _Nullable * _Nullable)error
+                       error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(credentials);
 
@@ -453,7 +453,7 @@
 
 - (BOOL)removeAllAccounts:(nonnull NSArray<MSIDAccountCacheItem *> *)accounts
                   context:(nullable id<MSIDRequestContext>)context
-                    error:(NSError * _Nullable * _Nullable)error
+                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(accounts);
 
@@ -470,13 +470,13 @@
 }
 
 - (nullable NSDictionary *)wipeInfoWithContext:(nullable id<MSIDRequestContext>)context
-                                         error:(NSError * _Nullable * _Nullable)error
+                                         error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     return [_dataSource wipeInfo:context error:error];
 }
 
 - (BOOL)saveWipeInfoWithContext:(nullable id<MSIDRequestContext>)context
-                          error:(NSError * _Nullable * _Nullable)error
+                          error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     return [_dataSource saveWipeInfoWithContext:context error:error];
 }
@@ -484,7 +484,7 @@
 // Writing metadata
 - (BOOL)saveAppMetadata:(nonnull MSIDAppMetadataCacheItem *)metadata
                 context:(nullable id<MSIDRequestContext>)context
-                  error:(NSError * _Nullable * _Nullable)error
+                  error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(metadata);
     
@@ -504,7 +504,7 @@
 
 - (BOOL)removeAppMetadata:(nonnull MSIDAppMetadataCacheItem *)appMetadata
                   context:(nullable id<MSIDRequestContext>)context
-                    error:(NSError * _Nullable * _Nullable)error
+                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(appMetadata);
     
@@ -520,7 +520,7 @@
 
 - (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntriesWithQuery:(nonnull MSIDAppMetadataCacheQuery *)cacheQuery
                                                                          context:(nullable id<MSIDRequestContext>)context
-                                                                           error:(NSError * _Nullable * _Nullable)error
+                                                                           error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     assert(cacheQuery);
     

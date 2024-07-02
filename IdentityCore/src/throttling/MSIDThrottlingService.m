@@ -110,7 +110,7 @@
  */
 + (BOOL)updateLastRefreshTimeDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     if(![MSIDThrottlingService isThrottlingEnabled])
     {

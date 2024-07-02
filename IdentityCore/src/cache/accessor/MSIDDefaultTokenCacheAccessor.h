@@ -47,13 +47,13 @@
 - (MSIDAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
                                 configuration:(MSIDConfiguration *)configuration
                                       context:(id<MSIDRequestContext>)context
-                                        error:(NSError **)error;
+                                        error:(NSError *__autoreleasing*)error;
 
 - (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)account
                         configuration:(MSIDConfiguration *)configuration
                           idTokenType:(MSIDCredentialType)idTokenType
                               context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error;
+                                error:(NSError *__autoreleasing*)error;
 
 - (MSIDAccount *)getAccountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                authority:(MSIDAuthority *)authority
@@ -61,31 +61,31 @@
                      accountHomeTenantId:(NSString *)accountHomeTenantId
                      accountSelectionLog:(NSString **)accountSelectionLog
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error;
+                                   error:(NSError *__autoreleasing*)error;
 
 - (BOOL)removeToken:(MSIDBaseToken *)token
             context:(id<MSIDRequestContext>)context
-              error:(NSError **)error;
+              error:(NSError *__autoreleasing*)error;
 
 - (BOOL)saveToken:(MSIDBaseToken *)token
           context:(id<MSIDRequestContext>)context
-            error:(NSError **)error;
+            error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(MSIDConfiguration *)configuration
                                                        context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error;
+                                                         error:(NSError *__autoreleasing*)error;
 
 - (BOOL)saveAppMetadataWithConfiguration:(MSIDConfiguration *)configuration
                                 response:(MSIDTokenResponse *)response
                                  factory:(MSIDOauth2Factory *)factory
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error;
+                                   error:(NSError *__autoreleasing*)error;
 
 - (BOOL)updateAppMetadataWithFamilyId:(NSString *)familyId
                              clientId:(NSString *)clientId
                             authority:(MSIDAuthority *)authority
                               context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error;
+                                error:(NSError *__autoreleasing*)error;
 
 - (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)accountIdentifier
                    authority:(MSIDAuthority *)authority
@@ -93,10 +93,10 @@
                     familyId:(NSString *)familyId
                clearAccounts:(BOOL)clearAccounts
                      context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error;
+                       error:(NSError *__autoreleasing*)error;
 
 - (BOOL)clearCacheForAllAccountsWithContext:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error;
+                                      error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
                                          clientId:(NSString *)clientId
@@ -105,10 +105,10 @@
                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                              signedInAccountsOnly:(BOOL)signedInAccountsOnly
                                           context:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error;
+                                            error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDPrimaryRefreshToken *> *)getPrimaryRefreshTokensForConfiguration:(MSIDConfiguration *)configuration
                                                                         context:(id<MSIDRequestContext>)context
-                                                                          error:(NSError **)error;
+                                                                          error:(NSError *__autoreleasing*)error;
 
 @end

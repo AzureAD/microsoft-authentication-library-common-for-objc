@@ -44,17 +44,17 @@ typedef NS_ENUM(NSInteger, MSIDSilentControllerLocalRtUsageType)
                                                         forceRefresh:(BOOL)forceRefresh
                                                          skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError * _Nullable * _Nullable)error;
+                                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                                    error:(NSError * _Nullable * _Nullable)error;
+                                                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 + (nullable MSIDSignoutController *)signoutControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                                  shouldWipeAccount:(BOOL)shouldWipeAccount
                                      shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
-                                                             error:(NSError * _Nullable * _Nullable)error;
+                                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

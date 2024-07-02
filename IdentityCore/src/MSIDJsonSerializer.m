@@ -50,7 +50,7 @@
 
 - (NSData *)toJsonData:(id<MSIDJsonSerializable>)serializable
                context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     __auto_type jsonDictionary = [serializable jsonDictionary];
     return [self serializeToJsonData:jsonDictionary error:error];
@@ -59,7 +59,7 @@
 - (id<MSIDJsonSerializable>)fromJsonData:(NSData *)data
                                   ofType:(Class)klass
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     NSParameterAssert([klass conformsToProtocol:@protocol(MSIDJsonSerializable)]);
     if (![klass conformsToProtocol:@protocol(MSIDJsonSerializable)]) return nil;
@@ -85,7 +85,7 @@
 
 - (NSString *)toJsonString:(id<MSIDJsonSerializable>)serializable
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     NSData *jsonData = [self toJsonData:serializable context:context error:error];
     if (!jsonData) return nil;
@@ -96,7 +96,7 @@
 - (id<MSIDJsonSerializable>)fromJsonString:(NSString *)jsonString
                                     ofType:(Class)klass
                                    context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
+                                     error:(NSError *__autoreleasing*)error
 {
     NSParameterAssert([klass conformsToProtocol:@protocol(MSIDJsonSerializable)]);
     if (![klass conformsToProtocol:@protocol(MSIDJsonSerializable)]) return nil;

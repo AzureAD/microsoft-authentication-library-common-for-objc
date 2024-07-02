@@ -32,7 +32,7 @@
 - (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
                            data:(NSData *)data
                         context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
+                          error:(NSError *__autoreleasing*)error
 {
     NSError *localError;
     NSDictionary *jsonObject = [super responseObjectForResponse:httpResponse

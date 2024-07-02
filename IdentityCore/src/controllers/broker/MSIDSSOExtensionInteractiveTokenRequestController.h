@@ -31,7 +31,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                                        error:(NSError * _Nullable * _Nullable)error NS_DESIGNATED_INITIALIZER;
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error NS_DESIGNATED_INITIALIZER;
 
 + (BOOL)canPerformRequest;
 

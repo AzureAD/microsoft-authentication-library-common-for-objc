@@ -64,7 +64,7 @@
 
 - (BOOL)saveToken:(MSIDBaseToken *)token
           context:(id<MSIDRequestContext>)context
-            error:(NSError **)error;
+            error:(NSError *__autoreleasing*)error;
 
 @end
 

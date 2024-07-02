@@ -54,7 +54,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                  accountIdentifier:(nullable MSIDAccountIdentifier *)accountIdentifier
                                             ssoUrl:(NSString *)ssoUrl
                                      correlationId:(nullable NSUUID *)correlationId
-                                             error:(NSError * _Nullable * _Nullable)error;
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDGetSsoCookiesRequestCompletionBlock)completionBlock;
 

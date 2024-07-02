@@ -37,7 +37,7 @@ MSID_FORM_ACCESSOR(MSID_OAUTH2_SUB_ERROR, subError);
 MSID_FORM_ACCESSOR(@"user_id", userId);
 
 - (instancetype)initWithDictionary:(NSDictionary *)form
-                             error:(NSError **)error
+                             error:(NSError *__autoreleasing*)error
 {
     self = [super initWithDictionary:form error:error];
 

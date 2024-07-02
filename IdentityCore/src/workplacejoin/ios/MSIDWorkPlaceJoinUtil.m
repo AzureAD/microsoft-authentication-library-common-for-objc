@@ -107,8 +107,8 @@
 
 + (SecIdentityRef)copyWPJIdentity:(__unused id<MSIDRequestContext>)context
                 sharedAccessGroup:(NSString *)accessGroup
-                certificateIssuer:(NSString **)issuer
-                   privateKeyDict:(NSDictionary **)keyDict
+                certificateIssuer:(NSString *__autoreleasing*)issuer
+                   privateKeyDict:(NSDictionary *__autoreleasing*)keyDict
 
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group", accessGroup);
@@ -148,7 +148,7 @@
 
 + (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                              context:(nullable id<MSIDRequestContext>)context
-                                               error:(NSError*__nullable*__nullable)error
+                                               error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     return [self getWPJStringDataFromV2ForTenantId:nil identifier:identifier key:nil context:context error:error];
 }
@@ -157,7 +157,7 @@
                                               identifier:(nonnull NSString *)identifier
                                                      key:(nullable NSString *)key
                                                  context:(nullable id<MSIDRequestContext>)context
-                                                   error:(NSError*__nullable*__nullable)error
+                                                   error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
 

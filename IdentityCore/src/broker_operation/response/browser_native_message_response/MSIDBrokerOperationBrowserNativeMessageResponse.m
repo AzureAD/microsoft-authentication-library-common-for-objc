@@ -43,7 +43,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_RESPONSE_PAYLOAD_KEY = @"payload";
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
     

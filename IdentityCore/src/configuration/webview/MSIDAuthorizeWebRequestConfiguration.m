@@ -55,7 +55,7 @@
 - (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                        factory:(MSIDWebviewFactory *)factory
                                        context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error
+                                         error:(NSError *__autoreleasing*)error
 {
     return [factory oAuthResponseWithURL:url
                        requestState:self.state

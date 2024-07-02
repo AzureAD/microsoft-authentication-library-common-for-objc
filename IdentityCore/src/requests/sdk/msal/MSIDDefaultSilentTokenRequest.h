@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
                               accountMetadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
 
 -(MSIDIdToken *)getIDTokenForTokenType:(MSIDCredentialType)idTokenType
-                                 error:(NSError **)error;
+                                 error:(NSError *__autoreleasing*)error;
 
 @end
 

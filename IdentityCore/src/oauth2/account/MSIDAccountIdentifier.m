@@ -103,7 +103,7 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
     else return nil;
 }
 
-+ (BOOL)isAccountIdValid:(NSString *)accountId error:(NSError **)error
++ (BOOL)isAccountIdValid:(NSString *)accountId error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:accountId])
     {
@@ -179,7 +179,7 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     NSString *displayableId = [json msidStringObjectForKey:MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY];
     NSString *homeAccountId = [json msidStringObjectForKey:MSID_ACCOUNT_HOME_ID_JSON_KEY];

@@ -41,16 +41,16 @@
 - (MSIDLegacyAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
                                       configuration:(MSIDConfiguration *)configuration
                                             context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error;
+                                              error:(NSError *__autoreleasing*)error;
 
 - (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(MSIDAccountIdentifier *)account
                                                       configuration:(MSIDConfiguration *)configuration
                                                             context:(id<MSIDRequestContext>)context
-                                                              error:(NSError **)error;
+                                                              error:(NSError *__autoreleasing*)error;
 
 - (BOOL)saveRefreshToken:(MSIDLegacyRefreshToken *)refreshToken
            configuration:(MSIDConfiguration *)configuration
                  context:(id<MSIDRequestContext>)context
-                   error:(NSError **)error;
+                   error:(NSError *__autoreleasing*)error;
 
 @end

@@ -27,7 +27,7 @@
 @protocol MSIDAutomationOperationAPIResponseHandler <NSObject>
 
 - (id)responseFromData:(NSData *)response
-                 error:(NSError **)error;
+                 error:(NSError *__autoreleasing*)error;
 
 @end
 

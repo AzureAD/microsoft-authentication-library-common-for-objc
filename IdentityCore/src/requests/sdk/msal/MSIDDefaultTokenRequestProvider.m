@@ -87,7 +87,7 @@
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
                                                       sdkCapabilities:(NSArray *)sdkCapabilities
-                                                                error:(NSError * _Nullable * _Nullable)error
+                                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters
                                                                                                     brokerKey:brokerKey

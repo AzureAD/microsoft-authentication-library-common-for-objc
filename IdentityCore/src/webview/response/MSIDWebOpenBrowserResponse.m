@@ -38,7 +38,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     NSString *scheme = url.scheme;
     

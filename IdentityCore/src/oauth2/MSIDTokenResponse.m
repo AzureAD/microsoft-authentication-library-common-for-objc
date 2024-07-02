@@ -34,7 +34,7 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                 error:(NSError **)error
+                                 error:(NSError *__autoreleasing*)error
 {
     self = [self initWithJSONDictionary:json error:error];
     if (self)
@@ -133,14 +133,14 @@
 
 #pragma mark - Protected
 
-- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError *__autoreleasing*)error
 {
     return [[MSIDIdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super init];
     if (self)

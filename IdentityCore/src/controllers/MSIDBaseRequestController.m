@@ -41,7 +41,7 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                 fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                             error:(NSError * _Nullable * _Nullable)error
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super init];
 

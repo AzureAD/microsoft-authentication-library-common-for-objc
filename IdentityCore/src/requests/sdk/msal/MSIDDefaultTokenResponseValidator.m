@@ -36,7 +36,7 @@
               configuration:(MSIDConfiguration *)configuration
                   oidcScope:(NSString *)oidcScope
               correlationID:(NSUUID *)correlationID
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     /*
      If server returns less scopes than developer requested,
@@ -95,7 +95,7 @@
 - (BOOL)validateAccount:(MSIDAccountIdentifier *)accountIdentifier
             tokenResult:(MSIDTokenResult *)tokenResult
               correlationID:(NSUUID *)correlationID
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     if (accountIdentifier.uid != nil
         && ![accountIdentifier.uid isEqualToString:tokenResult.account.accountIdentifier.uid])

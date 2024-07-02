@@ -51,7 +51,7 @@
                                           brokerCapable:YES];
 }
 
-+ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError **)error
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError *__autoreleasing*)error
 {
     return YES;
 }

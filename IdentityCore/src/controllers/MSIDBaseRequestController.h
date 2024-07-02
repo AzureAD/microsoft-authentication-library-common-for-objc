@@ -45,7 +45,7 @@ typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error)
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                 fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                             error:(NSError * _Nullable * _Nullable)error;
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 #if !EXCLUDE_FROM_MSALCPP
 - (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;

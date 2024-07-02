@@ -29,7 +29,7 @@ NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super init];
     

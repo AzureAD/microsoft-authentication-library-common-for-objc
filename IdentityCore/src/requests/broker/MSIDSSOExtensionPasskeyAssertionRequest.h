@@ -55,7 +55,7 @@ API_AVAILABLE(macos(14.0))
                                     relyingPartyId:(NSString *)relyingPartyId
                                              keyId:(NSData *)keyId
                                      correlationId:(nullable NSUUID *)correlationId
-                                             error:(NSError * _Nullable * _Nullable)error;
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDPasskeyAssertionRequestCompletionBlock)completionBlock;
 

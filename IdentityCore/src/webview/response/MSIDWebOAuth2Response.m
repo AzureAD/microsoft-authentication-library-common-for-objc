@@ -29,7 +29,7 @@
                requestState:(NSString *)requestState
          ignoreInvalidState:(BOOL)ignoreInvalidState
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     // state check
     NSError *stateCheckError = nil;
@@ -49,7 +49,7 @@
 
 + (BOOL)verifyRequestState:(NSString *)requestState
                responseURL:(NSURL *)url
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     // Check for auth response
     // Try both the URL and the fragment parameters:

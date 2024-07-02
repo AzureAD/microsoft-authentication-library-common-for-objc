@@ -32,7 +32,7 @@
 
 @implementation MSIDAssymetricKeyGeneratorFactory
 
-+ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
++ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError *__autoreleasing*)error
 {
 #if TARGET_OS_IPHONE
     return [self iOSDefaultKeyGeneratorWithCacheConfig:cacheConfig error:error];
@@ -41,13 +41,13 @@
 #endif
 }
 
-+ (id<MSIDAssymetricKeyGenerating>)iOSDefaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
++ (id<MSIDAssymetricKeyGenerating>)iOSDefaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError *__autoreleasing*)error
 {
     return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:cacheConfig.keychainGroup error:error];
 }
 
 #if !TARGET_OS_IPHONE
-+ (id<MSIDAssymetricKeyGenerating>)macDefaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
++ (id<MSIDAssymetricKeyGenerating>)macDefaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError *__autoreleasing*)error
 {
     if (@available(macOS 10.15, *))
     {

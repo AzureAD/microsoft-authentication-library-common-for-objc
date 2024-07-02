@@ -36,7 +36,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 @property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                             error:(NSError * _Nullable * _Nullable)error;
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDGetDeviceInfoRequestCompletionBlock)completionBlock;
 

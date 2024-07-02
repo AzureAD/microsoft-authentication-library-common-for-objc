@@ -31,7 +31,7 @@
 
 @implementation MSIDAADIdTokenClaimsFactory
 
-+ (MSIDIdTokenClaims *)claimsFromRawIdToken:(NSString *)rawIdTokenString error:(NSError **)error
++ (MSIDIdTokenClaims *)claimsFromRawIdToken:(NSString *)rawIdTokenString error:(NSError *__autoreleasing*)error
 {
     MSIDIdTokenClaims *claims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:rawIdTokenString error:error];
 

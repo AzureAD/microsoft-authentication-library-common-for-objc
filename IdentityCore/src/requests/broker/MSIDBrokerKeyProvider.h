@@ -46,13 +46,13 @@ enum {
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
-- (NSData *)brokerKeyWithError:(NSError **)error;
+- (NSData *)brokerKeyWithError:(NSError *__autoreleasing*)error;
 
 - (NSString *)base64BrokerKeyWithContext:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error;
+                                   error:(NSError *__autoreleasing*)error;
 
-- (BOOL)saveApplicationToken:(NSString *)appToken forClientId:(NSString *)clientId error:(NSError **)error;
+- (BOOL)saveApplicationToken:(NSString *)appToken forClientId:(NSString *)clientId error:(NSError *__autoreleasing*)error;
 
-- (NSString *)getApplicationToken:(NSString *)clientId error:(NSError **)error;
+- (NSString *)getApplicationToken:(NSString *)clientId error:(NSError *__autoreleasing*)error;
 
 @end

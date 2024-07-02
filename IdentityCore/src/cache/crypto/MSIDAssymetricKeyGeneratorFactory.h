@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAssymetricKeyGeneratorFactory : NSObject
 
-+ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error;
++ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError *__autoreleasing*)error;
 
 @end
 

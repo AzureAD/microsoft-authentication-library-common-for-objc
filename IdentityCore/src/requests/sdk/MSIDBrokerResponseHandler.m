@@ -76,7 +76,7 @@
 
 #pragma mark - Broker response
 
-- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response sourceApplication:(NSString *)sourceApplication error:(NSError **)error
+- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response sourceApplication:(NSString *)sourceApplication error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Handling broker response.");
     
@@ -220,7 +220,7 @@
 
 #pragma mark - Helpers
 
-- (NSDictionary *)verifyResumeStateDictionary:(NSURL *)response error:(NSError **)error
+- (NSDictionary *)verifyResumeStateDictionary:(NSURL *)response error:(NSError *__autoreleasing*)error
 {
     if (!response)
     {
@@ -292,21 +292,21 @@
                                                  correlationId:(__unused NSUUID *)correlationID
                                                     authScheme:(__unused MSIDAuthenticationScheme *)authScheme
                                                    redirectUri:(__unused NSString *)redirectUri
-                                                         error:(__unused NSError **)error
+                                                         error:(__unused NSError *__autoreleasing*)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;
 }
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                  error:(__unused NSError **)error
+                                                  error:(__unused NSError *__autoreleasing*)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;
 }
 
 - (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                                      error:(__unused NSError **)error
+                                                                      error:(__unused NSError *__autoreleasing*)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;

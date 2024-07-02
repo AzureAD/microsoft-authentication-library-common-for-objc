@@ -91,7 +91,7 @@ NSString *const MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP = @"request_received_time
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
     
@@ -150,4 +150,3 @@ NSString *const MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP = @"request_received_time
 #endif
 
 @end
-

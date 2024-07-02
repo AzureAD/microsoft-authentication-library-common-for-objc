@@ -49,7 +49,7 @@
                            response:(MSIDTokenResponse *)response
                             factory:(MSIDOauth2Factory *)factory
                             context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error;
+                              error:(NSError *__autoreleasing*)error;
 
 /*!
  This method saves only the SSO artifacts to the cache based on the response.
@@ -58,51 +58,51 @@
                              response:(MSIDTokenResponse *)response
                               factory:(MSIDOauth2Factory *)factory
                               context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error;
+                                error:(NSError *__autoreleasing*)error;
 
 /* Read cache */
 - (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
                                         familyId:(NSString *)familyId
                                    configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error;
+                                           error:(NSError *__autoreleasing*)error;
 
 - (MSIDPrimaryRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
                                                       familyId:(NSString *)familyId
                                                  configuration:(MSIDConfiguration *)configuration
                                                        context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error;
+                                                         error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
                                          clientId:(NSString *)clientId
                                          familyId:(NSString *)familyId
                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                           context:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error;
+                                            error:(NSError *__autoreleasing*)error;
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
-                   error:(NSError **)error;
+                   error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
-                                             error:(NSError **)error;
+                                             error:(NSError *__autoreleasing*)error;
 
 - (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
                    authority:(MSIDAuthority *)authority
                     clientId:(NSString *)clientId
                     familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error;
+                       error:(NSError *__autoreleasing*)error;
 
 - (BOOL)validateAndRemoveRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                               context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error;
+                                error:(NSError *__autoreleasing*)error;
 
 - (BOOL)validateAndRemovePrimaryRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                      context:(id<MSIDRequestContext>)context
-                                       error:(NSError **)error;
+                                       error:(NSError *__autoreleasing*)error;
 
 - (BOOL)removeAccessToken:(MSIDAccessToken *)token
                   context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error;
+                    error:(NSError *__autoreleasing*)error;
 
 @end

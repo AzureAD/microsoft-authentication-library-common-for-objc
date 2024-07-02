@@ -45,7 +45,7 @@
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                  shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     if (!parameters || !oauthFactory)
     {

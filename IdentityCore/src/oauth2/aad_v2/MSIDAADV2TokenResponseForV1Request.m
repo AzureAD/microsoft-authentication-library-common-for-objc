@@ -29,7 +29,7 @@
 
 @implementation MSIDAADV2TokenResponseForV1Request
 
-- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError *__autoreleasing*)error
 {
     return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }

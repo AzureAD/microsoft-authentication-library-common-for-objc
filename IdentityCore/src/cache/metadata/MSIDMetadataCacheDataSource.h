@@ -32,36 +32,36 @@
                         key:(MSIDCacheKey *)key
                  serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
+                      error:(NSError *__autoreleasing*)error;
 
 - (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
                                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                  context:(id<MSIDRequestContext>)context
-                                                   error:(NSError **)error;
+                                                   error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
                                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                              context:(id<MSIDRequestContext>)context
-                                                               error:(NSError **)error;
+                                                               error:(NSError *__autoreleasing*)error;
 
 - (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
                             context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error;
+                              error:(NSError *__autoreleasing*)error;
 
 // App metadata
 - (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
                     key:(MSIDCacheKey *)key
              serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error;
+                  error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
                                                         serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                            context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error;
+                                                             error:(NSError *__autoreleasing*)error;
 
 - (BOOL)removeMetadataItemsWithKey:(MSIDCacheKey *)key
                            context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error;
+                             error:(NSError *__autoreleasing*)error;
 
 @end

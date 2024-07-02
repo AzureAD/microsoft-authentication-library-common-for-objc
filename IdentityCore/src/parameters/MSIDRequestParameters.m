@@ -61,7 +61,7 @@
                    telemetryApiId:(NSString *)telemetryApiId
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                       requestType:(MSIDRequestType)requestType
-                            error:(NSError **)error
+                            error:(NSError *__autoreleasing*)error
 {
     self = [super init];
 
@@ -324,7 +324,7 @@
 
 #pragma mark - Validate
 
-- (BOOL)validateParametersWithError:(NSError **)error
+- (BOOL)validateParametersWithError:(NSError *__autoreleasing*)error
 {
     if (!self.authority)
     {

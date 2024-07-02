@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
                                 brokerKey:(NSString *)brokerKey
                    brokerApplicationToken:(NSString *)brokerApplicationToken
                           sdkCapabilities:(nullable NSArray *)sdkCapabilities
-                                    error:(NSError **)error;
+                                    error:(NSError *__autoreleasing*)error;
 
 @end
 

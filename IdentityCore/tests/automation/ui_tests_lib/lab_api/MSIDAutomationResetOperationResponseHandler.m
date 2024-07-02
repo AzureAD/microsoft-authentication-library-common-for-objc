@@ -26,7 +26,7 @@
 @implementation MSIDAutomationResetOperationResponseHandler
 
 - (id)responseFromData:(NSData *)response
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     NSString *responseString = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
     // TODO: ask lab to return operation success in a more reasonable way

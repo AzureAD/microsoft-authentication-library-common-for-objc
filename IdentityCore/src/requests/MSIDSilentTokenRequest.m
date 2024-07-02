@@ -625,7 +625,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 
 #pragma mark - Abstract
 
-- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error
+- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError *__autoreleasing*)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
@@ -633,26 +633,26 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(__unused MSIDAccessToken *)accessToken
                                        refreshToken:(__unused id<MSIDRefreshableToken>)refreshToken
-                                              error:(__unused NSError * _Nullable * _Nullable)error
+                                              error:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
 - (BOOL)updateFamilyIdCacheWithServerError:(__unused NSError *)serverError
-                                cacheError:(__unused NSError **)cacheError
+                                cacheError:(__unused NSError *__autoreleasing*)cacheError
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return NO;

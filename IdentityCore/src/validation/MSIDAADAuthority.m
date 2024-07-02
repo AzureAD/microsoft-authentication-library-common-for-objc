@@ -53,7 +53,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     self = [super initWithURL:url context:context error:error];
     if (self)
@@ -70,7 +70,7 @@
 - (nullable instancetype)initWithURL:(nonnull NSURL *)url
                            rawTenant:(NSString *)rawTenant
                              context:(nullable id<MSIDRequestContext>)context
-                               error:(NSError **)error
+                               error:(NSError *__autoreleasing*)error
 {
     self = [self initWithURL:url context:context error:error];
     if (self)
@@ -169,7 +169,7 @@
 
 + (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                         error:(NSError *__autoreleasing*)error
 {
     if (![super isAuthorityFormatValid:url context:context error:error]) return NO;
     
@@ -213,7 +213,7 @@
 + (instancetype)aadAuthorityWithEnvironment:(NSString *)environment
                                    rawTenant:(NSString *)rawTenant
                                      context:(id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+                                       error:(NSError *__autoreleasing*)error
 {
     __auto_type authorityUrl = [NSURL msidAADURLWithEnvironment:environment tenant:rawTenant];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
@@ -224,7 +224,7 @@
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                               legacyUserId:(NSString *)legacyUserId
                                    context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
+                                     error:(NSError *__autoreleasing*)error
 {
     return [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId
                                                                        legacyUserId:legacyUserId
@@ -279,7 +279,7 @@
 
 + (NSString *)realmFromURL:(NSURL *)url
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     if ([self isAuthorityFormatValid:url context:context error:error])
     {
@@ -299,7 +299,7 @@
 
 + (NSURL *)normalizedAuthorityUrl:(NSURL *)url
                           context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+                            error:(NSError *__autoreleasing*)error
 {
     // Normalization requires url to have at least 1 path and a host.
     // Return nil otherwise.
@@ -316,7 +316,7 @@
 
 + (MSIDAADTenant *)tenantFromAuthorityUrl:(NSURL *)url
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     NSArray *paths = url.pathComponents;
     
@@ -336,7 +336,7 @@
 
 #pragma mark - Sovereign
 
-- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError **)error
+- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostInstanceName]) return nil;
     

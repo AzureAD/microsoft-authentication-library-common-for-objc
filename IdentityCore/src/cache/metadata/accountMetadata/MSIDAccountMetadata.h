@@ -49,7 +49,7 @@ typedef NS_ENUM(NSInteger, MSIDAccountMetadataState)
 - (BOOL)setCachedURL:(NSURL *)cachedURL
        forRequestURL:(NSURL *)requestURL
        instanceAware:(BOOL)instanceAware
-               error:(NSError **)error;
+               error:(NSError *__autoreleasing*)error;
 - (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware;
 
 // Update sign in state
