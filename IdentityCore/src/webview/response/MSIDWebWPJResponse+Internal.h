@@ -22,8 +22,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#import "MSIDWebResponseOperationConstants.h"
 
-NSString *const MSID_INSTALL_BROKER_OPERATION              = @"install_broker_operation";
-NSString *const MSID_OPEN_BROSWER_OPERATION                = @"open_broswer_operation";
-NSString *const MSID_UPGRADE_REGISTRATION_BROKER_OPERATION = @"upgrade_registration_broker_operation";
+#ifndef MSIDWebWPJResponse_Internal_h
+#define MSIDWebWPJResponse_Internal_h
+
+@interface MSIDWebWPJResponse (Internal)
+
+/**
+  * A designated protected initializer for MSIDWebWPJResponse
+ **/
+ - (instancetype)initResponseWithURL:(NSURL *)url
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error;
+
+@end
+
+#endif /* MSIDWebWPJResponse_Internal_h */
