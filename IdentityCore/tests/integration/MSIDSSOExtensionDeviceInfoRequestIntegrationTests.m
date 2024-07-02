@@ -34,7 +34,6 @@
 #import "ASAuthorizationSingleSignOnCredentialMock.h"
 #import "MSIDDeviceInfo.h"
 
-API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionDeviceInfoRequestIntegrationTests : XCTestCase
 
 @end

@@ -25,17 +25,14 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_WEBKIT && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500)
+#if !MSID_EXCLUDE_WEBKIT
 
 #import "MSIDASWebAuthenticationSessionHandler.h"
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDConstants.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
 @interface MSIDASWebAuthenticationSessionHandler () <ASWebAuthenticationPresentationContextProviding>
-#else
-@interface MSIDASWebAuthenticationSessionHandler ()
-#endif
+
 @property (weak, nonatomic) MSIDViewController *parentController;
 @property (nonatomic) NSURL *startURL;
 @property (nonatomic) NSString *callbackURLScheme;
@@ -96,13 +93,8 @@
                                                         callbackURLScheme:self.callbackURLScheme
                                                         completionHandler:authCompletion];
     
-    #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        if (@available(iOS 13.0, *))
-        {
-            self.webAuthSession.presentationContextProvider = self;
-            self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
-        }
-    #endif
+    self.webAuthSession.presentationContextProvider = self;
+    self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
     
     if (![self.webAuthSession start] && !self.sessionDismissed)
     {
@@ -127,16 +119,14 @@
     [self cancelProgrammatically];
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-
 #pragma mark - ASWebAuthenticationPresentationContextProviding
 
-- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(__unused ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0), macCatalyst(13.0), macos(10.15))
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(__unused ASWebAuthenticationSession *)session
 {
     return [self presentationAnchor];
 }
 
-- (ASPresentationAnchor)presentationAnchor API_AVAILABLE(ios(13.0), macCatalyst(13.0), macos(10.15))
+- (ASPresentationAnchor)presentationAnchor
 {
     if (![NSThread isMainThread])
     {
@@ -156,8 +146,6 @@
     return parentController.view.window;
 #endif
 }
-
-#endif
 
 @end
 
