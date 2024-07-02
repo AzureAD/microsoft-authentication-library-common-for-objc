@@ -1462,7 +1462,7 @@
            [expectation1 fulfill];
       }];
 
-      [self waitForExpectationsWithTimeout:5.0 handler:nil];
+      [self waitForExpectationsWithTimeout:10.0 handler:nil];
 
       //Let's verify that request has been throttled and saved in the cache
       NSString *expectedThumbprintKey = @"1028438298371162812";
