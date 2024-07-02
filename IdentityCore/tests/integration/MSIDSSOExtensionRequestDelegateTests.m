@@ -28,7 +28,6 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDSSOExtensionRequestDelegate.h"
 
-API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionRequestDelegateTests : XCTestCase
 
 @end

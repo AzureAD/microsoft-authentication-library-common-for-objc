@@ -1,3 +1,5 @@
+Version 1.7.37
+* Increased macOS minimum version to 10.15 (#2220)
 [TBD]
 * Migrate existing devices using UpgradeReg API - Error definitions (#1376)
 

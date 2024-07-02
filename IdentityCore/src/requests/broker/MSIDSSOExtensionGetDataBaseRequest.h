@@ -34,7 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDRequestParameters;
 @class MSIDBrokerOperationRequest;
 
-API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionGetDataBaseRequest : NSObject
 
 @property (nonatomic, readonly) MSIDRequestParameters *requestParameters;

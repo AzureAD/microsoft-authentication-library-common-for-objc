@@ -415,10 +415,7 @@ __unused static BOOL s_shouldGenerateEccKeyPair = NO;
     
     attributes = @{ (id)kSecAttrKeyType: (id)kSecAttrKeyTypeRSA, (id)kSecAttrKeySizeInBits: @2048, (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPublic };
     
-    if (@available(iOS 10.0, *))
-    {
-        self.rsaPublicKey = SecKeyCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)attributes, NULL);
-    }
+    self.rsaPublicKey = SecKeyCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)attributes, NULL);
 }
 
 - (void)swizzleMethod:(SEL)defaultMethod

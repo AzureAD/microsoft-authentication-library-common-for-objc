@@ -511,8 +511,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
         if (self.useIosStyleKeychain)
         {
 #if TARGET_OS_OSX
-        if (@available(macOS 10.15, *))
-        [deleteQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
+            [deleteQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
 #endif
             [deleteQuery setObject:keychainGroup forKey:(__bridge id)kSecAttrAccessGroup];
         }
@@ -608,7 +607,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     {
         [keyInsertQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #if TARGET_OS_OSX
-        if (@available(macOS 10.15, *))
         [keyInsertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
 #endif
     }
@@ -627,7 +625,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     {
         [certInsertQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 #if TARGET_OS_OSX
-        if (@available(macOS 10.15, *))
         [certInsertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
 #endif
     }
@@ -757,9 +754,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     query[(__bridge id <NSCopying>) (kSecAttrService)] = @"ecc_default_tenant";
     query[(__bridge id <NSCopying>) (kSecAttrDescription)] = tenantId;
 #if TARGET_OS_OSX
-    if (@available(macOS 10.15, *)) {
-        query[(__bridge id <NSCopying>) (kSecUseDataProtectionKeychain)] = @YES;
-    }
+    query[(__bridge id <NSCopying>) (kSecUseDataProtectionKeychain)] = @YES;
 #endif
     query[(__bridge id) kSecAttrAccessGroup] = sharedAccessGroup;
     CFDictionaryRef attributeDictCF = NULL;
