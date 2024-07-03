@@ -39,25 +39,9 @@
     {
         return preferredType;
     }
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        
-    if (@available(iOS 12.0, macOS 10.15, *))
-    {
-        return MSIDWebviewTypeAuthenticationSession;
-    }
-#endif
-        
-#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
-        
+#if (TARGET_OS_IPHONE || TARGET_OS_MAC) && !TARGET_OS_MACCATALYST
     return MSIDWebviewTypeAuthenticationSession;
-        
 #endif
-    
-#if TARGET_OS_IPHONE
-    return MSIDWebviewTypeSafariViewController;
-#endif
-    
     return MSIDWebviewTypeWKWebView;
 }
 
@@ -67,18 +51,10 @@
                                            useEmpheralSession:(__unused BOOL)useEmpheralSession
                                                       context:(__unused id<MSIDRequestContext>)context
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    
-    if (@available(iOS 12.0, macOS 10.15, *))
-    {
-        return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+    return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
                                                                               startURL:startURL
                                                                         callbackScheme:callbackURLScheme
                                                                     useEmpheralSession:useEmpheralSession];
-    }
-#endif
-    
-    return nil;
 }
 
 #if TARGET_OS_IPHONE

@@ -49,14 +49,7 @@
 #if !TARGET_OS_IPHONE
 + (id<MSIDAssymetricKeyGenerating>)macDefaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
 {
-    if (@available(macOS 10.15, *))
-    {
-        return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:cacheConfig.keychainGroup error:error];
-    }
-    else
-    {
-        return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithKeychainGroup:cacheConfig.keychainGroup accessRef:cacheConfig.accessRef error:error];
-    }
+    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:cacheConfig.keychainGroup error:error];
 }
 #endif
 

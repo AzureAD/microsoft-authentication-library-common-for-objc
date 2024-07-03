@@ -367,25 +367,17 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 - (BOOL)shouldUseLoginKeychain
 {
-    if (@available(macOS 10.15, *))
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
     {
-        
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
-        {
 #if MS_INTERNAL_BUILD
-            return ![MSIDKeychainUtil sharedInstance].isAppEntitled;
+        return ![MSIDKeychainUtil sharedInstance].isAppEntitled;
 #else
-            return NO;
+        return NO;
 #endif
-        }
-        else
-        {
-            // if kLoginKeychainEmptyKey is not set
-            return YES;
-        }
     }
     else
     {
+        // if kLoginKeychainEmptyKey is not set
         return YES;
     }
 }
@@ -411,18 +403,15 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     self = [super initWithTrustedApplications:trustedApplications accessLabel:s_defaultKeychainLabel error:error];
     if (self)
     {
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
         if (![self shouldUseLoginKeychain]) {
-                if (error)
-                {
-                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it", nil, nil, nil, nil, nil, NO);
-                }
-                
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it");
-                return nil;
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it", nil, nil, nil, nil, nil, NO);
             }
-        
-#endif
+            
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it");
+            return nil;
+        }
         
         self.appStorageItem = [MSIDMacCredentialStorageItem new];
         self.sharedStorageItem = [MSIDMacCredentialStorageItem new];
@@ -825,14 +814,12 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                                              error:(NSError **)error
 {
     MSID_TRACE;
-    
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+
     if (![self shouldUseLoginKeychain])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Skipping login keychain read because it has been previously marked as empty on 10.15");
         return nil;
     }
-#endif
     
     MSIDMacCredentialStorageItem *storageItem = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
@@ -869,18 +856,12 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     {
         storageItemIsEmpty = YES;
     }
-    
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    if (@available(macOS 10.15, *)) {
-        
-        // Performance optimization on 10.15. If we've read shared item once and we didn't find it, or it was empty, save a flag into user defaults such as we stop looking into the login keychain altogether
-        if (isShared && storageItemIsEmpty)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Saving a flag to stop looking into login keychain, as it doesn't contain any items");
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kLoginKeychainEmptyKey];
-        }
+
+    if (isShared && storageItemIsEmpty)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Saving a flag to stop looking into login keychain, as it doesn't contain any items");
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kLoginKeychainEmptyKey];
     }
-#endif
     
     return storageItem;
 }
