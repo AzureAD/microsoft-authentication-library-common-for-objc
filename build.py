@@ -338,7 +338,7 @@ def requires_simulator(targets) :
 
 def launch_simulator() :
     print("Booting simulator...")
-    command = "xcrun simctl boot " + device_guids.get_ios(ios_sim_device)
+    command = "xcrun simctl boot " + device_guids.get_ios(vision_sim_device)
     print(command)
     
     # This spawns a new process without us having to wait for it
