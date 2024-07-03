@@ -69,6 +69,8 @@
     self = [super initWithURL:url context:context error:error];
     if (self)
     {
+        NSString *tokenProtection = self.parameters[@"token_protection_required"];
+        _tokenProtectionRequired = [tokenProtection isEqualToString:@"true"];
         _appInstallLink = self.parameters[@"app_link"];
         _upn = self.parameters[@"username"];
         
