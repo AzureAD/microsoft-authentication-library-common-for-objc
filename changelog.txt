@@ -1,5 +1,6 @@
 [TBD]
 * Migrate existing devices using UpgradeReg API - Error definitions (#1376)
+* Update device register to include a new hint for Token protection (#1394)
 
 Version 1.7.36
 * Add platform sequence telemetry param. (#1378)
