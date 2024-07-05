@@ -34,5 +34,6 @@
 @property (atomic, readonly) NSString *upn;
 @property (atomic, readonly) NSString *appInstallLink;
 @property (atomic, readonly) MSIDClientInfo *clientInfo;
+@property (atomic, readonly) BOOL tokenProtectionRequired;
 
 @end
