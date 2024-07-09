@@ -34,7 +34,7 @@
 
 - (NSString *)httpMethod
 {
-    return @"POST";
+    return @"DELETE";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems
@@ -52,11 +52,6 @@
     }
     
     return queryItems;
-}
-
-- (NSString *)requestOperationCodeKey
-{
-    return @"delete_device_api_code";
 }
 
 - (NSUInteger)hash

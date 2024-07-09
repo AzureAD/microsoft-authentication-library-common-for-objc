@@ -55,7 +55,7 @@
 - (void)testInit_whenMSAuthScheme_shouldReturnResponsewithNoError
 {
     NSError *error = nil;
-    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&username=user"]]
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&username=user&token_protection_required=true"]]
                                                                            context:nil
                                                                              error:&error];
 
@@ -64,6 +64,7 @@
 
     XCTAssertEqualObjects(response.upn, @"user");
     XCTAssertEqualObjects(response.appInstallLink, @"applink");
+    XCTAssertTrue(response.tokenProtectionRequired);
 
 }
 

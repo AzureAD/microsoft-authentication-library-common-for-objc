@@ -206,6 +206,60 @@
     
     NSError *error = nil;
     
+    NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=true"];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
+    XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
+    XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+    XCTAssertTrue(wpjResponse.tokenProtectionRequired);
+}
+
+- (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_withStrongerAuthFalse_shouldReturnUseStrongerAuthFalse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
+    NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=false"];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
+    XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
+    XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+    XCTAssertFalse(wpjResponse.tokenProtectionRequired);
+}
+
+- (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_withStrongerAuthEqualsTRUE_shouldReturnUseStrongerAuthFalse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
+    NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=TRUE"];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
+    XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
+    XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+    XCTAssertFalse(wpjResponse.tokenProtectionRequired);
+}
+
+- (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_withStrongerAuthNotExist_shouldReturnUseStrongerAuthFalse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
     NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com"];
     __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
     
@@ -215,6 +269,7 @@
     MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
     XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
     XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+    XCTAssertFalse(wpjResponse.tokenProtectionRequired);
 }
 
 - (void)testResponseWithURL_whenBrokerUpgradeRegResponseInSystemBrowser_shouldReturnUpgradeRegResponse
@@ -242,7 +297,7 @@
     
     NSError *error = nil;
     
-    NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/wpj?app_link=app.link&username=XXX@upn.com"];
+    NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=true"];
     __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
@@ -251,6 +306,7 @@
     MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
     XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
     XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+    XCTAssertTrue(wpjResponse.tokenProtectionRequired);
 }
 
 - (void)testResponseWithURL_whenBrokerUpgradeResponseInSystemBrowser_andLocalhostRedirectUri_shouldReturnUpgradeRegResponse
@@ -278,7 +334,7 @@
     
     NSError *error = nil;
     
-    NSURL *url = [NSURL URLWithString:@"https://localhost//msauth/wpj?app_link=app.link&username=XXX@upn.com"];
+    NSURL *url = [NSURL URLWithString:@"https://localhost//msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=true"];
     __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
@@ -287,6 +343,7 @@
     MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
     XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
     XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+    XCTAssertTrue(wpjResponse.tokenProtectionRequired);
 }
 
 - (void)testResponseWithURL_whenURLSchemeNotMsauth_shouldReturnAADAuthResponse
