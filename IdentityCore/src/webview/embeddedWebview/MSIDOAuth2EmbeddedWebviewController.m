@@ -61,6 +61,9 @@
 #if !EXCLUDE_FROM_MSALCPP
     MSIDTelemetryUIEvent *_telemetryEvent;
 #endif
+#if MSAL_JS_AUTOMATION
+    NSString *_javascript;
+#endif
 }
 
 - (id)initWithStartURL:(NSURL *)startURL
@@ -101,6 +104,37 @@
     
     return self;
 }
+
+#if MSAL_JS_AUTOMATION
+- (id)initWithStartURL:(NSURL *)startURL
+                endURL:(NSURL *)endURL
+               webview:(WKWebView *)webview
+         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+        platfromParams:(MSIDWebViewPlatformParams *)platformParams
+            javascript:(NSString *)javascript
+               context:(id<MSIDRequestContext>)context
+{
+    
+    self = [super initWithContext:context
+                   platformParams:platformParams];
+
+    if (self)
+    {
+        self.webView = webview;
+        _startURL = startURL;
+        _endURL = endURL;
+        _customHeaders = customHeaders;
+        
+        _completionLock = [[NSLock alloc] init];
+        _javascript = javascript;
+        _context = context;
+        
+        _complete = NO;
+    }
+    
+    return self;
+}
+#endif
 
 -(void)dealloc
 {
@@ -299,6 +333,10 @@
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified __unused WKNavigation *)navigation
 {
     NSURL *url = webView.URL;
+#if MSAL_JS_AUTOMATION
+    [webView evaluateJavaScript:_javascript completionHandler:nil];
+#endif
+    
     [self notifyFinishedNavigation:url webView:webView];
 }
 

@@ -61,6 +61,29 @@
                        ssoContext:nil];
 }
 
+#if MSAL_JS_AUTOMATION
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState
+                    javascript:(NSString *)javascript
+                      ssoContext:(MSIDExternalSSOContext *)ssoContext
+{
+    self = [self initWithStartURL:startURL
+                   endRedirectUri:endRedirectUri
+                            state:state
+               ignoreInvalidState:ignoreInvalidState
+                       ssoContext:nil];
+    
+    if(self)
+    {
+        _javascript = javascript;
+    }
+    
+    return self;
+}
+#endif
+
 - (MSIDWebviewResponse *)responseWithResultURL:(__unused NSURL *)url
                                        factory:(__unused MSIDWebviewFactory *)factory
                                        context:(__unused id<MSIDRequestContext>)context

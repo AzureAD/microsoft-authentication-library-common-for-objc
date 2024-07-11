@@ -8936,6 +8936,7 @@
 					"$(inherited)",
 					"$(MSID_WEBKIT)",
 					"$(MSID_SYSTEMWV)",
+					"$(MSAL_JS_AUTOMATION)",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 			};

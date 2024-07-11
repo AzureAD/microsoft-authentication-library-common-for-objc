@@ -43,4 +43,14 @@
               ignoreInvalidState:(BOOL)ignoreInvalidState
                       ssoContext:(MSIDExternalSSOContext *)ssoContext;
 
+#if MSAL_JS_AUTOMATION
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                            pkce:(MSIDPkce *)pkce
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState
+                      javascript:(NSString *)javascript
+                      ssoContext:(MSIDExternalSSOContext *)ssoContext;
+#endif
+
 @end

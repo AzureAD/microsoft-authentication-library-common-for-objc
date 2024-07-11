@@ -48,6 +48,15 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
         platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context;
+#if MSAL_JS_AUTOMATION
+- (id)initWithStartURL:(NSURL *)startURL
+                endURL:(NSURL *)endURL
+               webview:(WKWebView *)webview
+         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+        platfromParams:(MSIDWebViewPlatformParams *)platformParams
+            javascript:(NSString *) javascript
+               context:(id<MSIDRequestContext>)context;
+#endif
 
 - (void)loadRequest:(NSURLRequest *)request;
 - (void)completeWebAuthWithURL:(NSURL *)endURL;

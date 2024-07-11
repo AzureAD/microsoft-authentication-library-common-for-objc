@@ -106,6 +106,16 @@
         return session;
     }
     
+#if MSAL_JS_AUTOMATION
+    MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController
+    = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
+                                                             endURL:[NSURL URLWithString:configuration.endRedirectUrl]
+                                                            webview:webview
+                                                      customHeaders:configuration.customHeaders
+                                                     platfromParams:nil
+                                                         javascript:configuration.javascript
+                                                            context:context];
+#else
     MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController
     = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
                                                              endURL:[NSURL URLWithString:configuration.endRedirectUrl]
@@ -113,6 +123,7 @@
                                                       customHeaders:configuration.customHeaders
                                                      platfromParams:nil
                                                             context:context];
+#endif
     
 #if TARGET_OS_IPHONE
     embeddedWebviewController.parentController = configuration.parentController;
@@ -182,6 +193,14 @@
     {
         [result addEntriesFromDictionary:allAuthorizeRequestExtraParameters];
     }
+    
+#if MSAL_JS_AUTOMATION
+    // Remove "script" entry from the additional parameters
+    if([result objectForKey:@"script"])
+    {
+        [result removeObjectForKey:@"script"];
+    }
+#endif
     
     // PKCE
     if (pkce)
@@ -261,6 +280,9 @@
         
     NSString *oauthState = [self generateStateValue];
     NSDictionary *authorizeQuery = [self authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:oauthState];
+#if MSAL_JS_AUTOMATION
+    NSString *javascript = [[parameters allAuthorizeRequestExtraParametersWithMetadata:YES] objectForKey:@"script"];
+#endif
     NSURL *startURL = [self startURLWithEndpoint:authorizeEndpoint authority:parameters.authority query:authorizeQuery context:parameters];
     NSString *endRedirectUri = parameters.redirectUri;
 
@@ -270,12 +292,23 @@
         endRedirectUri = parameters.nestedAuthBrokerRedirectUri;
     }
 
+#if MSAL_JS_AUTOMATION
+    MSIDAuthorizeWebRequestConfiguration *configuration = [[MSIDAuthorizeWebRequestConfiguration alloc] initWithStartURL:startURL
+                                                                                                          endRedirectUri:endRedirectUri
+                                                                                                                    pkce:pkce
+                                                                                                                   state:oauthState
+                                                                                                      ignoreInvalidState:NO
+                                                                                                              javascript:javascript
+                                                                                                              ssoContext:parameters.ssoContext];
+#else
     MSIDAuthorizeWebRequestConfiguration *configuration = [[MSIDAuthorizeWebRequestConfiguration alloc] initWithStartURL:startURL
                                                                                                           endRedirectUri:endRedirectUri
                                                                                                                     pkce:pkce
                                                                                                                    state:oauthState
                                                                                                       ignoreInvalidState:NO
                                                                                                               ssoContext:parameters.ssoContext];
+#endif
+
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;
     configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
