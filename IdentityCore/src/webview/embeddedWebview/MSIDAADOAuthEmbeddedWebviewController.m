@@ -75,7 +75,8 @@
     // Declare our client as PkeyAuth-capable
     [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
         
-    return [super initWithStartURL:startURL endURL:endURL
+    return [super initWithStartURL:startURL 
+                            endURL:endURL
                            webview:webview
                      customHeaders:headers
                     platfromParams:platformParams
