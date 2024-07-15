@@ -30,7 +30,7 @@
 @implementation MSIDSSOExtensionGetDataBaseRequest
 
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                             error:(NSError **)error
+                                             error:(NSError *__autoreleasing*)error
 {
     if (!requestParameters)
     {

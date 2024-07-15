@@ -40,7 +40,7 @@ static NSString *const UPGRADE_REG = @"upgradeReg";
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     // Check for upgrade registration
     if (![self isBrokerUpgradeRegResponse:url])
