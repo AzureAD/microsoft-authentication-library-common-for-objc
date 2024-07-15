@@ -45,7 +45,7 @@ NSString * const MSIDAutomationErrorDescriptionKey = @"MSIDAutomationErrorDescri
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError **)error
+                                 error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
 

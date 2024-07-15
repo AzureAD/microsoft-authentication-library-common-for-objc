@@ -66,7 +66,7 @@ static NSMutableDictionary *s_container = nil;
 }
 
 + (nullable MSIDWebResponseBaseOperation *)createOperationForResponse:(nonnull MSIDWebviewResponse *)response
-                                                                error:(NSError * _Nullable *)error
+                                                                error:(NSError * _Nullable __autoreleasing *)error
 {
     NSString *operation = [response.class operation];
     Class operationClass = s_container[operation];

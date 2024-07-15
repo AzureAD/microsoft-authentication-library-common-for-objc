@@ -50,7 +50,7 @@
 
 - (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response
                           correlationId:(NSUUID *)correlationId
-                                  error:(NSError **)error
+                                  error:(NSError *__autoreleasing*)error
 {
     NSString *hash = response[@"hash"];
 

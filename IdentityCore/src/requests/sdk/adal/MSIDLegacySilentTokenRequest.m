@@ -60,7 +60,7 @@
 
 #pragma mark - Abstract impl
 
-- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error
+- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError *__autoreleasing*)error
 {
     // TODO: ADAL pieces
     return nil;
@@ -68,26 +68,26 @@
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(__unused MSIDAccessToken *)accessToken
                                        refreshToken:(__unused id<MSIDRefreshableToken>)refreshToken
-                                              error:(__unused NSError * _Nullable * _Nullable)error
+                                              error:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
 - (BOOL)updateFamilyIdCacheWithServerError:(__unused NSError *)serverError
-                                cacheError:(__unused NSError **)cacheError
+                                cacheError:(__unused NSError *__autoreleasing*)cacheError
 {
     // TODO: ADAL pieces
     return NO;
