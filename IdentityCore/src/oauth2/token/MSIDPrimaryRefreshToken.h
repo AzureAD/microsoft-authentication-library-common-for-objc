@@ -45,6 +45,7 @@ typedef NS_ENUM(NSInteger, MSIDExternalPRTKeyLocationType)
 @property (nonatomic, readonly) NSUInteger refreshInterval;
 @property (nonatomic) NSDate *lastRecoveryAttempt;
 @property (nonatomic) NSUInteger recoveryAttemptCount;
+@property (nonatomic) BOOL lastRecoveryAttemptFailed;
 @property (nonatomic) MSIDExternalPRTKeyLocationType externalKeyLocationType;
  
 - (BOOL)isDevicelessPRT;

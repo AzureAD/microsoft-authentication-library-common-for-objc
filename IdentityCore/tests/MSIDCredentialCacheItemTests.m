@@ -97,6 +97,7 @@
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.lastRecoveryAttempt = lastRecoveryTimestamp;
     cacheItem.recoveryAttemptCount = @"2";
+    cacheItem.lastRecoveryAttemptFailed = @"NO";
 
     NSDictionary *expectedDictionary = @{@"credential_type": @"RefreshToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
@@ -105,7 +106,8 @@
                                          @"family_id": DEFAULT_TEST_FAMILY_ID,
                                          @"home_account_id": @"uid.utid",
                                          @"recovery_attempted_at": lastRecoveryAttemptString,
-                                         @"recovery_attempt_count": @"2"
+                                         @"recovery_attempt_count": @"2",
+                                         @"last_recovery_attempt_failed":@"NO"
                                          };
 
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
