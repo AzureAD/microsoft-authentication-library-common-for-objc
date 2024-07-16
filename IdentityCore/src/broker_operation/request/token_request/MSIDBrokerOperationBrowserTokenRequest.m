@@ -38,7 +38,7 @@
                requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
            useSSOCookieFallback:(BOOL)useSSOCookieFallback
                      ssoContext:(MSIDExternalSSOContext *)ssoContext
-                          error:(NSError **)error
+                          error:(NSError *__autoreleasing*)error
 {
     self = [super init];
     if (self)

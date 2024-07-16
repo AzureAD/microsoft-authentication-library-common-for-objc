@@ -33,7 +33,7 @@
 MSID_FORM_ACCESSOR(@"scope", scope);
 
 - (instancetype)initWithDictionary:(NSDictionary *)form
-                             error:(NSError **)error
+                             error:(NSError *__autoreleasing*)error
 {
     self = [super initWithDictionary:form error:error];
 

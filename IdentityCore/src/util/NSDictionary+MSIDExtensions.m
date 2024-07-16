@@ -96,12 +96,12 @@
     return mutableDict;
 }
 
-- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
+- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError *__autoreleasing*)error
 {
     return [self msidAssertTypeIsOneOf:@[type] ofKey:key required:required error:error];
 }
 
-- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError *__autoreleasing*)error
 {
     return [self msidAssertTypeIsOneOf:types ofKey:key required:required context:nil errorCode:MSIDErrorInvalidInternalParameter error:error];
 }
@@ -111,7 +111,7 @@
                      required:(BOOL)required
                       context:(id<MSIDRequestContext>)context
                     errorCode:(NSInteger)errorCode
-                        error:(NSError **)error
+                        error:(NSError *__autoreleasing*)error
 {
     id obj = self[key];
     if (!obj && !required) return YES;

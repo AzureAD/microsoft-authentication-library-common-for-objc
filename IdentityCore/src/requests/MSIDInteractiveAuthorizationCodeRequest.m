@@ -31,6 +31,7 @@
 #import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebviewFactory.h"
@@ -162,6 +163,10 @@
 
             returnErrorBlock(oauthResponse.oauthError);
             return;
+        }
+        else if ([response isKindOfClass:MSIDWebUpgradeRegResponse.class])
+        {
+            completionBlock(nil, nil, (MSIDWebUpgradeRegResponse *)response);
         }
         else if ([response isKindOfClass:MSIDWebWPJResponse.class])
         {

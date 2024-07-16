@@ -60,7 +60,7 @@
 - (BOOL)saveAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item
                                  key:(MSIDCacheKey *)key
                              context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
+                               error:(NSError *__autoreleasing*)error
 {
     if (!item || !key)
     {
@@ -101,7 +101,7 @@
 
 - (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
                                                           context:(id<MSIDRequestContext>)context
-                                                            error:(NSError **)error
+                                                            error:(NSError *__autoreleasing*)error
 {
     return [self accountMetadataCacheItemWithKey:key skipCache:NO context:context error:error];
 }
@@ -109,7 +109,7 @@
 - (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
                                                         skipCache:(BOOL)skipCache
                                                           context:(id<MSIDRequestContext>)context
-                                                            error:(NSError **)error
+                                                            error:(NSError *__autoreleasing*)error
 {
     if (!key)
     {
@@ -156,7 +156,7 @@
 }
 
 - (NSArray<MSIDAccountMetadataCacheItem *> *)allAccountMetadataCacheItemsWithContext:(id<MSIDRequestContext>)context
-                                                                               error:(NSError **)error
+                                                                               error:(NSError *__autoreleasing*)error
 {
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:nil];
 
@@ -190,7 +190,7 @@
 
 - (BOOL)removeAccountMetadataCacheItemForKey:(MSIDCacheKey *)key
                                      context:(id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+                                       error:(NSError *__autoreleasing*)error
 {
     if (!key)
     {

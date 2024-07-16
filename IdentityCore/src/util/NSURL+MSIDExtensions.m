@@ -107,7 +107,7 @@
     return [NSString stringWithFormat:@"%@:%d", self.host.lowercaseString, port.intValue];
 }
 
-- (NSURL *)msidURLForHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError **)error
+- (NSURL *)msidURLForHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing*)error
 {
     NSURL *url = [self copy];
     
