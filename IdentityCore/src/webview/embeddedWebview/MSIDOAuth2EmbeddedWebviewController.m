@@ -115,21 +115,16 @@
                context:(id<MSIDRequestContext>)context
 {
     
-    self = [super initWithContext:context
-                   platformParams:platformParams];
+    self = [self initWithStartURL:startURL
+                           endURL:endURL
+                          webview:webview
+                    customHeaders:customHeaders
+                   platfromParams:platformParams
+                          context:context];
 
     if (self)
     {
-        self.webView = webview;
-        _startURL = startURL;
-        _endURL = endURL;
-        _customHeaders = customHeaders;
-        
-        _completionLock = [[NSLock alloc] init];
         _javascript = javascript;
-        _context = context;
-        
-        _complete = NO;
     }
     
     return self;
