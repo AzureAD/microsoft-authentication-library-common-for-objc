@@ -1,3 +1,6 @@
+Version 1.7.37
+* Added new account type to handle On-prem ADFS scenarios. (#1397)
+
 Version 1.7.36
 * Add platform sequence telemetry param. (#1378)
 * Update broker automations lab API. (#1377)
