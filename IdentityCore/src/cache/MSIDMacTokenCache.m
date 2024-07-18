@@ -110,7 +110,7 @@ return NO; \
 }
 
 - (BOOL)deserialize:(nullable NSData*)data
-              error:(NSError **)error
+              error:(NSError *__autoreleasing*)error
 {
     NSDictionary *cache = nil;
     
@@ -233,7 +233,7 @@ return NO; \
 
 - (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
@@ -265,13 +265,13 @@ return NO; \
 #pragma mark - Wipe
 
 - (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context
-                          error:(__unused NSError **)error
+                          error:(__unused NSError *__autoreleasing*)error
 {
     return NO;
 }
 
 - (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context
-                     error:(__unused NSError **)error
+                     error:(__unused NSError *__autoreleasing*)error
 {
     return nil;
 }
@@ -323,7 +323,7 @@ return NO; \
 }
 
 - (BOOL)validateCache:(NSDictionary *)dict
-                error:(NSError **)error
+                error:(NSError *__autoreleasing*)error
 {
     RETURN_ERROR_IF_CONDITION_FALSE([dict isKindOfClass:[NSDictionary class]], MSIDErrorCacheBadFormat, @"Root level object of cache is not a NSDictionary.");
     RETURN_ERROR_IF_CONDITION_FALSE(dict[@"version"], MSIDErrorCacheBadFormat, @"Missing version number from cache.");
@@ -360,7 +360,7 @@ return NO; \
 
 - (BOOL)removeItemsWithKeyImpl:(MSIDCacheKey *)key
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                         error:(NSError *__autoreleasing*)error
 {
     if (!key)
     {
@@ -410,7 +410,7 @@ return NO; \
                 key:(MSIDCacheKey *)key
          serializer:(__unused id<MSIDCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
+              error:(NSError *__autoreleasing*)error
 {
     assert(key);
     
@@ -475,7 +475,7 @@ return NO; \
 - (NSArray<MSIDCredentialCacheItem *> *)itemsWithKeyImpl:(MSIDCacheKey *)key
                                          serializer:(__unused id<MSIDCacheItemSerializing>)serializer
                                             context:(id<MSIDRequestContext>)context
-                                              error:(__unused NSError **)error
+                                              error:(__unused NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Get items, key info (account: %@ service: %@)", MSID_PII_LOG_MASKABLE(key.account), key.service);
 
@@ -526,7 +526,7 @@ return NO; \
 }
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
-                   error:(__unused NSError **)error
+                   error:(__unused NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Clearing the whole context. This should only be executed in tests");
     [self clear];

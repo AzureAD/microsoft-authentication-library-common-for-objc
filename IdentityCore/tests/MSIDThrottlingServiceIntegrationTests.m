@@ -97,7 +97,7 @@
 - (BOOL)validateAndRemoveRefreshableToken:(MSIDRefreshToken *)token
                            credentialType:(MSIDCredentialType)credentialType
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error;
+                                    error:(NSError *__autoreleasing*)error;
 @end
 
 @implementation MSIDDefaultTokenCacheAccessorForThrottlingTest
@@ -105,7 +105,7 @@
 - (BOOL)validateAndRemoveRefreshableToken:(MSIDRefreshToken *)token
                            credentialType:(MSIDCredentialType)credentialType
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
      return YES;
 }
@@ -144,7 +144,7 @@
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
                                        refreshToken:(id<MSIDRefreshableToken>)refreshToken
-                                              error:(__unused NSError * _Nullable * _Nullable)error;
+                                              error:(__unused NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

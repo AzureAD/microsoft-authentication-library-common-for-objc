@@ -33,14 +33,14 @@
 + (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                          accessGroup:(nullable NSString *)accessGroup
                                              context:(nullable id<MSIDRequestContext>)context
-                                               error:(NSError*__nullable*__nullable)error;
+                                               error:(NSError*__nullable __autoreleasing*__nullable)error;
 
 + (NSString *_Nullable)getWPJStringDataFromV2ForTenantId:(NSString *_Nullable)tenantId
                                               identifier:(nonnull NSString *)identifier
                                                      key:(nullable NSString *)key
                                              accessGroup:(nullable NSString *)accessGroup
                                                  context:(id<MSIDRequestContext>_Nullable)context
-                                                   error:(NSError*__nullable*__nullable)error;
+                                                   error:(NSError*__nullable __autoreleasing*__nullable)error;
 
 + (nullable NSString *)getPrimaryEccTenantWithSharedAccessGroup:(NSString *_Nullable)sharedAccessGroup
                                                         context:(id <MSIDRequestContext> _Nullable)context

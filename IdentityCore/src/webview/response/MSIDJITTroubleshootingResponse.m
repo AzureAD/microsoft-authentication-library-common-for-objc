@@ -34,7 +34,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id <MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     // Check for JIT retry response
     if (![self isJITRetryResponse:url] && ![self isJITTroubleshootingResponse:url])

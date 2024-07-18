@@ -65,7 +65,7 @@ This method is tread safe.
 + (nullable id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                              classTypeJSONKey:(NSString *)classTypeJSONKey
                                             assertKindOfClass:(Class)aClass
-                                                        error:(NSError **)error;
+                                                        error:(NSError *__autoreleasing*)error;
 
 /*!
  Create instance of class from the provided json payload.
@@ -77,7 +77,7 @@ This method is tread safe.
 + (nullable id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                                     classType:(NSString *)classType
                                             assertKindOfClass:(Class)aClass
-                                                        error:(NSError **)error;
+                                                        error:(NSError *__autoreleasing*)error;
 
 @end
 
