@@ -118,6 +118,7 @@
                                                           customHeaders:configuration.customHeaders
                                                          platfromParams:platformParams
                                                                 context:context];
+                                                                
 #if MSAL_JS_AUTOMATION
     embeddedWebviewController.clientAutomationScript = configuration.clientAutomationScript;
 #endif
