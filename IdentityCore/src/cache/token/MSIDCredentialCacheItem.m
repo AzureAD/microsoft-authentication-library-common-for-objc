@@ -114,9 +114,6 @@
     hash = hash * 31 + self.extendedExpiresOn.hash;
     hash = hash * 31 + self.refreshOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
-    hash = hash * 31 + self.lastRecoveryAttempt.hash;
-    hash = hash * 31 + self.recoveryAttemptCount.hash;
-    hash = hash * 31 + self.lastRecoveryAttemptFailed.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.speInfo.hash;
