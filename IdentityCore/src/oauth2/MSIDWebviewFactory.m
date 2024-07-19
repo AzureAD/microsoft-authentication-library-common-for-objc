@@ -280,7 +280,6 @@
     {
         endRedirectUri = parameters.nestedAuthBrokerRedirectUri;
     }
-  
 
     MSIDAuthorizeWebRequestConfiguration *configuration = [[MSIDAuthorizeWebRequestConfiguration alloc] initWithStartURL:startURL
                                                                                                           endRedirectUri:endRedirectUri

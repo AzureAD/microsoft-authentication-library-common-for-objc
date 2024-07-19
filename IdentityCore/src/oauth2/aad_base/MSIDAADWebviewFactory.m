@@ -110,7 +110,7 @@
     {
         platformParams = [[MSIDWebViewPlatformParams alloc] initWithExternalSSOContext:configuration.ssoContext];
     }
-
+    
     MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
       = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
                                                                  endURL:[NSURL URLWithString:configuration.endRedirectUrl]
