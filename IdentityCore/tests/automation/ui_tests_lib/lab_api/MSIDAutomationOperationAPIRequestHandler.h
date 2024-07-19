@@ -27,7 +27,7 @@
 @protocol MSIDAutomationOperationAPIResponseHandler <NSObject>
 
 - (id)responseFromData:(NSData *)response
-                 error:(NSError **)error;
+                 error:(NSError *__autoreleasing*)error;
 
 @end
 
@@ -43,8 +43,6 @@
 @property (nonatomic) id<MSIDAutomationOperationAPICacheHandler> apiCacheHandler;
 
 - (instancetype)initWithAPIPath:(NSString *)apiPath
-                     newAPIPath:(NSString *)funcAppAPIPath
-                     newAPICode:(NSDictionary *)funcAppAPICode
              encodedCertificate:(NSString *)encodedCertificate
             certificatePassword:(NSString *)certificatePassword
       operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration;

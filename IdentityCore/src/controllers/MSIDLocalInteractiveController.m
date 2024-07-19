@@ -35,6 +35,7 @@
 #import "MSIDBrokerInteractiveController.h"
 #endif
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDThrottlingService.h"
 
 @interface MSIDLocalInteractiveController()
@@ -50,7 +51,7 @@
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable * _Nullable)error
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
@@ -115,13 +116,35 @@
 
     if (![NSString msidIsStringNilOrBlank:response.upn])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Workplace join is required.");
+        NSError *registrationError;
+        if ([response isKindOfClass:MSIDWebUpgradeRegResponse.class])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Workplace join Upgrade registration is required.");
+            
+            NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
+            additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
+            additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
+            
+            registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInsufficientDeviceStrength,
+                                                @"Workplace join Upgrade registration is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo, NO);
+        }
+        else if ([response isKindOfClass:MSIDWebWPJResponse.class])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Workplace join is required.");
+            
+            NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
+            additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
+            additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
+            additionalInfo[MSIDTokenProtectionRequired] = @(response.tokenProtectionRequired);
+
+            registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo, NO);
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Invalid WebResponse. This is a critical code bug");
+            registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Invalid WebResponse", nil, nil, nil, self.requestParameters.correlationId, nil, NO);
+        }
         
-        NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
-        additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
-        additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
-        
-        NSError *registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo, NO);
 #if !EXCLUDE_FROM_MSALCPP
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setLoginHint:response.upn];

@@ -33,6 +33,7 @@ NSString *MSIDDeclinedScopesKey = @"MSIDDeclinedScopesKey";
 NSString *MSIDGrantedScopesKey = @"MSIDGrantedScopesKey";
 NSString *MSIDUserDisplayableIdkey = @"MSIDUserDisplayableIdkey";
 NSString *MSIDHomeAccountIdkey = @"MSIDHomeAccountIdkey";
+NSString *MSIDTokenProtectionRequired = @"MSIDTokenProtectionRequired";
 NSString *MSIDBrokerVersionKey = @"MSIDBrokerVersionKey";
 NSString *MSIDServerUnavailableStatusKey = @"MSIDServerUnavailableStatusKey";
 
@@ -121,6 +122,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString *oauthError, M
     {   // When account Transfter Token is expired.
         return MSIDErrorUserCancel;
     }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame && [subError caseInsensitiveCompare:@"insufficient_device_strength"] == NSOrderedSame)
+    {   // Migration required for device.
+        return MSIDErrorInsufficientDeviceStrength;
+    }
     if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame && [subError caseInsensitiveCompare:@"tts_denied"] == NSOrderedSame)
     {   //when user cancels, this is the same error we return to mobile app for Account Transfer
         return MSIDErrorUserCancel;
@@ -159,7 +164,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorNoMainViewController),
                       @(MSIDErrorAttemptToOpenURLFromExtension),
                       @(MSIDErrorUINotSupportedInExtension),
-
+                      @(MSIDErrorInsufficientDeviceStrength),
                       // Broker errors
                       @(MSIDErrorBrokerResponseNotReceived),
                       @(MSIDErrorBrokerNoResumeStateFound),
@@ -198,7 +203,6 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorDeviceNotPSSORegistered),
                       @(MSIDErrorPSSOKeyIdMismatch),
                       @(MSIDErrorJITErrorHandlingConfigNotFound),
-                      
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
                       @(MSIDErrorServerOauth),
@@ -311,6 +315,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorAttemptToOpenURLFromExtension";
         case MSIDErrorUINotSupportedInExtension:
             return @"MSIDErrorUINotSupportedInExtension";
+        case MSIDErrorInsufficientDeviceStrength:
+            return @"MSIDErrorInsufficientDeviceStrength";
             // Broker flow errors
         case MSIDErrorBrokerResponseNotReceived:
             return @"MSIDErrorBrokerResponseNotReceived";

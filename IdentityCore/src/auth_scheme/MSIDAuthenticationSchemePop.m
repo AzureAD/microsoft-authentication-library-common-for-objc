@@ -127,7 +127,7 @@
     return accessToken.kid && self.kid && [self.kid isEqualToString:accessToken.kid];
 }
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *schemeParameters = [NSMutableDictionary new];
     NSString *requestConf = json[MSID_OAUTH2_REQUEST_CONFIRMATION];

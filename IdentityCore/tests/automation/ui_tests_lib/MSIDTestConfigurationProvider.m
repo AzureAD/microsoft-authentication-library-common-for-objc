@@ -58,7 +58,6 @@
                                     defaultScopes:(NSDictionary *)defaultScopes
                                  defaultResources:(NSDictionary *)defaultResources
                                  operationAPIConf:(NSDictionary *)operationAPIConfiguration
-                                 funcAppAPIConf:(NSDictionary *)funcAppAPIConfiguration
                                         jitConfig:(NSDictionary *)jitConfig
 {
     self = [super init];
@@ -77,8 +76,7 @@
         MSIDAutomationOperationAPIInMemoryCacheHandler *cacheHandler = [[MSIDAutomationOperationAPIInMemoryCacheHandler alloc] initWithDictionary:additionalConfigurations];
         
         _operationAPIRequestHandler = [[MSIDAutomationOperationAPIRequestHandler alloc] initWithAPIPath:operationAPIConfiguration[@"operation_api_path"]
-                                                                                             newAPIPath:funcAppAPIConfiguration[@"operation_api_path"]
-                                                                                             newAPICode:funcAppAPIConfiguration
+
                                                                                      encodedCertificate:certificate
                                                                                     certificatePassword:password
                                                                               operationAPIConfiguration:operationAPIConfiguration];
@@ -150,7 +148,6 @@
                                      defaultScopes:configurationDictionary[@"scopes"]
                                   defaultResources:configurationDictionary[@"resources"]
                                   operationAPIConf:configurationDictionary[@"operation_api_conf"]
-                                    funcAppAPIConf:configurationDictionary[@"function_app_api_code"]
                                          jitConfig:configurationDictionary[@"jit_intune_ids"]];
 
 }
