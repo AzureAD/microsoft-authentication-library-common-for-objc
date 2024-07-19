@@ -56,6 +56,12 @@
     return [baseUrl URLByAppendingPathComponent:[NSString stringWithFormat:@"/discovery/%@keys", apiVersion]];
 }
 
+- (NSURL *)keyEndpointWithUrl:(NSURL *)baseUrl
+{
+    return [baseUrl URLByAppendingPathComponent:[NSString stringWithFormat:@"/getkeydata"]];
+}
+
+
 
 - (NSURL *)drsDiscoveryEndpointWithDomain:(NSString *)domain adfsType:(MSIDDRSType)type
 {
