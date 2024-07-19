@@ -52,31 +52,6 @@
     return self;
 }
 
-#if MSAL_JS_AUTOMATION
-- (instancetype)initWithStartURL:(NSURL *)startURL
-                  endRedirectUri:(NSString *)endRedirectUri
-                            pkce:(MSIDPkce *)pkce
-                           state:(NSString *)state
-              ignoreInvalidState:(BOOL)ignoreInvalidState
-                      javascript:(NSString *)javascript
-                      ssoContext:(MSIDExternalSSOContext *)ssoContext
-{
-    self = [super initWithStartURL:startURL
-                    endRedirectUri:endRedirectUri
-                             state:state
-                ignoreInvalidState:ignoreInvalidState
-                        javascript:javascript
-                        ssoContext:ssoContext];
-    
-    if (self)
-    {
-        _pkce = pkce;
-    }
-    
-    return self;
-}
-#endif
-
 - (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                        factory:(MSIDWebviewFactory *)factory
                                        context:(id<MSIDRequestContext>)context

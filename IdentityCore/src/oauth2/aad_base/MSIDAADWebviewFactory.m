@@ -110,24 +110,16 @@
     {
         platformParams = [[MSIDWebViewPlatformParams alloc] initWithExternalSSOContext:configuration.ssoContext];
     }
-    
+
+    MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
+      = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
+                                                                 endURL:[NSURL URLWithString:configuration.endRedirectUrl]
+                                                                webview:webview
+                                                          customHeaders:configuration.customHeaders
+                                                         platfromParams:platformParams
+                                                                context:context];
 #if MSAL_JS_AUTOMATION
-    MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
-      = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
-                                                                 endURL:[NSURL URLWithString:configuration.endRedirectUrl]
-                                                                webview:webview
-                                                          customHeaders:configuration.customHeaders
-                                                         platfromParams:platformParams
-                                                             javascript:configuration.javascript
-                                                                context:context];
-#else
-    MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
-      = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
-                                                                 endURL:[NSURL URLWithString:configuration.endRedirectUrl]
-                                                                webview:webview
-                                                          customHeaders:configuration.customHeaders
-                                                         platfromParams:platformParams
-                                                                context:context];
+    embeddedWebviewController.clientAutomationScript = configuration.clientAutomationScript;
 #endif
     
 #if TARGET_OS_IPHONE

@@ -48,15 +48,6 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
         platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context;
-#if MSAL_JS_AUTOMATION
-- (id)initWithStartURL:(NSURL *)startURL
-                endURL:(NSURL *)endURL
-               webview:(WKWebView *)webview
-         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-        platfromParams:(MSIDWebViewPlatformParams *)platformParams
-            javascript:(NSString *) javascript
-               context:(id<MSIDRequestContext>)context;
-#endif
 
 - (void)loadRequest:(NSURLRequest *)request;
 - (void)completeWebAuthWithURL:(NSURL *)endURL;
@@ -69,6 +60,9 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
+#if MSAL_JS_AUTOMATION
+@property (nonatomic) NSString *clientAutomationScript;
+#endif
 
 @end
 

@@ -57,34 +57,6 @@
                            context:context];
 }
 
-#if MSAL_JS_AUTOMATION
-- (id)initWithStartURL:(NSURL *)startURL
-                endURL:(NSURL *)endURL
-               webview:(WKWebView *)webview
-         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-          platfromParams:(MSIDWebViewPlatformParams *)platformParams
-            javascript:(NSString *)javascript
-               context:(id<MSIDRequestContext>)context
-{
-    NSMutableDictionary *headers = [NSMutableDictionary new];
-    if (customHeaders)
-    {
-        [headers addEntriesFromDictionary:customHeaders];
-    }
-    
-    // Declare our client as PkeyAuth-capable
-    [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
-        
-    return [super initWithStartURL:startURL 
-                            endURL:endURL
-                           webview:webview
-                     customHeaders:headers
-                    platfromParams:platformParams
-                        javascript:javascript
-                           context:context];
-}
-#endif
-
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
                            decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {

@@ -61,9 +61,6 @@
 #if !EXCLUDE_FROM_MSALCPP
     MSIDTelemetryUIEvent *_telemetryEvent;
 #endif
-#if MSAL_JS_AUTOMATION
-    NSString *_javascript;
-#endif
 }
 
 - (id)initWithStartURL:(NSURL *)startURL
@@ -104,32 +101,6 @@
     
     return self;
 }
-
-#if MSAL_JS_AUTOMATION
-- (id)initWithStartURL:(NSURL *)startURL
-                endURL:(NSURL *)endURL
-               webview:(WKWebView *)webview
-         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-        platfromParams:(MSIDWebViewPlatformParams *)platformParams
-            javascript:(NSString *)javascript
-               context:(id<MSIDRequestContext>)context
-{
-    
-    self = [self initWithStartURL:startURL
-                           endURL:endURL
-                          webview:webview
-                    customHeaders:customHeaders
-                   platfromParams:platformParams
-                          context:context];
-
-    if (self)
-    {
-        _javascript = javascript;
-    }
-    
-    return self;
-}
-#endif
 
 -(void)dealloc
 {
@@ -329,7 +300,7 @@
 {
     NSURL *url = webView.URL;
 #if MSAL_JS_AUTOMATION
-    [webView evaluateJavaScript:_javascript completionHandler:nil];
+    [webView evaluateJavaScript:self.clientAutomationScript completionHandler:nil];
 #endif
     
     [self notifyFinishedNavigation:url webView:webView];

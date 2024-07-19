@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) BOOL ignoreInvalidState;
 
 #if MSAL_JS_AUTOMATION
-@property (nonatomic) NSString *javascript;
+@property (nonatomic) NSString *clientAutomationScript;
 #endif
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
@@ -76,15 +76,6 @@ NS_ASSUME_NONNULL_BEGIN
                            state:(NSString *)state
               ignoreInvalidState:(BOOL)ignoreInvalidState
                       ssoContext:(nullable MSIDExternalSSOContext *)ssoContext;
-
-#if MSAL_JS_AUTOMATION
-- (instancetype)initWithStartURL:(NSURL *)startURL
-                  endRedirectUri:(NSString *)endRedirectUri
-                           state:(NSString *)state
-              ignoreInvalidState:(BOOL)ignoreInvalidState
-                      javascript:(nullable NSString *)javascript
-                      ssoContext:(nullable MSIDExternalSSOContext *)ssoContext;
-#endif
 
 - (nullable MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                                 factory:(MSIDWebviewFactory *)factory
