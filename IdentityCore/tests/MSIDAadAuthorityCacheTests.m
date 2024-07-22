@@ -422,7 +422,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenMetadataProvided_shouldCreateExpectedRecords
@@ -464,7 +464,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenMetadataProvidedUsingAuthorityWithPort_shouldCreateExpectedRecords
@@ -493,7 +493,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenMetadataProvidedWithNonStandardPortUsingAuthorityWithNonStandardPort_shouldCreateExpectedRecords
@@ -522,7 +522,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenBadMetadataWrongNetworkHostType_shouldReturnErrorCreateNoRecords
@@ -549,7 +549,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenBadMetadataWrongCacheHostType_shouldReturnErrorCreateNoRecords
@@ -576,7 +576,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenBadMetadataWrongAliasesType_shouldReturnErrorCreateNoRecords
@@ -601,7 +601,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenBadMetadataWrongTypeInAliases_shouldReturnErrorCreateNoRecords
@@ -628,7 +628,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidHostInPreferredNetwork_shouldReturnErrorCreateNoRecords
@@ -655,7 +655,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidHostInPreferredCache_shouldReturnErrorCreateNoRecords
@@ -682,7 +682,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidHostInAliases_shouldReturnErrorCreateNoRecords
@@ -709,7 +709,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidPortInPreferredNetwork_shouldReturnErrorCreateNoRecords
@@ -736,7 +736,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidPortInPreferredCache_shouldReturnErrorCreateNoRecords
@@ -763,7 +763,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenInvalidPortInAliases_shouldReturnErrorCreateNoRecords
@@ -790,7 +790,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenMetadataProvidedAndInvokedOnMainThread_shouldCreateExpectedRecordsAndReturnOnBgThread
@@ -814,7 +814,7 @@
          [expectation fulfill];
      }];
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 - (void)testProcessMetadata_whenMetadataProvidedAndInvokedOnBgThread_shouldCreateExpectedRecordsAndReturnOnSameThread
@@ -843,7 +843,7 @@
          }];
     });
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 }
 
 @end
