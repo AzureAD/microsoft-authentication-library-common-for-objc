@@ -51,33 +51,40 @@ static NSTimeInterval s_timeoutIntervalForResource = 0;
 + (MSIDURLSessionManager *)defaultManager
 {
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{        
-        __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        if (s_timeoutIntervalForResource != 0)
-        {
-            configuration.timeoutIntervalForResource = s_timeoutIntervalForResource;
-        }
-
-        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.networking.delegateQueue-%@", [NSUUID UUID].UUIDString];
-        __auto_type delegateQueue = [NSOperationQueue new];
-        delegateQueue.name = queueName;
+    dispatch_once(&onceToken, ^{
         
-        // https://developer.apple.com/documentation/foundation/nsurlsession/1411597-sessionwithconfiguration?language=objc
-        // An operation queue for scheduling the delegate calls and completion handlers. The queue should be a serial queue, in order to ensure the correct ordering of callbacks
-        delegateQueue.maxConcurrentOperationCount = 1;
-        
-        // https://developer.apple.com/library/archive/documentation/Performance/Conceptual/EnergyGuide-iOS/PrioritizeWorkWithQoS.html
-        // if this is not set, this gets NSQualityOfServiceDefault,which falls between user-initiated and utility.
-        // tests have been observed that some subsequent delegate calls were being assigned unspecified.
-        // also, additional justification is that this is an authentication library and thus, all calls should be expected return in few seconds at max.
-        delegateQueue.qualityOfService = NSQualityOfServiceUserInitiated;
-        
-        s_defaultManager = [[MSIDURLSessionManager alloc] initWithConfiguration:configuration
-                                                                       delegate:[MSIDURLSessionDelegate new]
-                                                                  delegateQueue:delegateQueue];
+        s_defaultManager = [MSIDURLSessionManager instanceManager];
     });
     
     return s_defaultManager;
+}
+
++ (MSIDURLSessionManager *)instanceManager
+{
+    __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    if (s_timeoutIntervalForResource != 0)
+    {
+        configuration.timeoutIntervalForResource = s_timeoutIntervalForResource;
+    }
+
+    NSString *queueName = [NSString stringWithFormat:@"com.microsoft.networking.delegateQueue-%@", [NSUUID UUID].UUIDString];
+    __auto_type delegateQueue = [NSOperationQueue new];
+    delegateQueue.name = queueName;
+    
+    // https://developer.apple.com/documentation/foundation/nsurlsession/1411597-sessionwithconfiguration?language=objc
+    // An operation queue for scheduling the delegate calls and completion handlers. The queue should be a serial queue, in order to ensure the correct ordering of callbacks
+    delegateQueue.maxConcurrentOperationCount = 1;
+    
+    // https://developer.apple.com/library/archive/documentation/Performance/Conceptual/EnergyGuide-iOS/PrioritizeWorkWithQoS.html
+    // if this is not set, this gets NSQualityOfServiceDefault,which falls between user-initiated and utility.
+    // tests have been observed that some subsequent delegate calls were being assigned unspecified.
+    // also, additional justification is that this is an authentication library and thus, all calls should be expected return in few seconds at max.
+    delegateQueue.qualityOfService = NSQualityOfServiceUserInitiated;
+    
+    MSIDURLSessionManager *instanceManager = [[MSIDURLSessionManager alloc] initWithConfiguration:configuration
+                                                                                         delegate:[MSIDURLSessionDelegate new]
+                                                                                    delegateQueue:delegateQueue];
+    return instanceManager;
 }
 
 + (void)setDefaultManager:(MSIDURLSessionManager *)defaultManager
