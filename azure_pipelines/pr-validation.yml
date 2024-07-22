@@ -95,10 +95,24 @@ jobs:
         target: "vision_library"
   displayName: Validate Pull Request
   pool:
-    vmImage: 'macos-13-arm64'
+    vmImage: 'macos-14'
     timeOutInMinutes: 30
 
   steps:
+  - task: Bash@3
+    displayName: download visionOS SDK
+    inputs:
+    # The following is needed to install the visionOS SDK on macos-14 vm image which
+      # doesn't have visionOS installed by default. The macos-13-arm64 image with Xcode 15.2
+      # fails to build the SDK correctly and can't be used. macos-14-arm64 is not available
+      # on ADO.
+      # Remove when macos-14-arm64 is supported on ADO.
+      script: |
+        sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+        defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+        defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+        xcodebuild -downloadPlatform visionOS
+      failOnStderr: false
   - task: CmdLine@2
     displayName: Installing dependencies
     inputs:
