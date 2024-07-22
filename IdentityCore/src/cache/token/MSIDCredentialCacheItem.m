@@ -51,9 +51,9 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, refreshOn: %@, cachedAt: %@, last recovery attempted at: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@, redirectUri: %@",
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, refreshOn: %@, cachedAt: %@, last recovery attempted at: %@, recovery attempt count: %@, last recovery attempt succeeded: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@, redirectUri: %@",
             self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn,
-            self.extendedExpiresOn, self.refreshOn, self.cachedAt, self.lastRecoveryAttempt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash], MSID_PII_LOG_TRACKABLE(self.redirectUri)];
+            self.extendedExpiresOn, self.refreshOn, self.cachedAt, self.lastRecoveryAttempt, self.recoveryAttemptCount, self.lastRecoveryAttemptFailed, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash], MSID_PII_LOG_TRACKABLE(self.redirectUri)];
 }
 
 #pragma mark - MSIDCacheItem
@@ -114,7 +114,6 @@
     hash = hash * 31 + self.extendedExpiresOn.hash;
     hash = hash * 31 + self.refreshOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
-    hash = hash * 31 + self.lastRecoveryAttempt.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.speInfo.hash;
@@ -142,6 +141,8 @@
     item.refreshOn = [self.refreshOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.lastRecoveryAttempt = [self.lastRecoveryAttempt copyWithZone:zone];
+    item.recoveryAttemptCount = [self.recoveryAttemptCount copyWithZone:zone];
+    item.lastRecoveryAttemptFailed = [self.lastRecoveryAttemptFailed copyWithZone:zone];
     item.expiryInterval = [self.expiryInterval copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
@@ -193,6 +194,8 @@
     _refreshOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_REFRESH_ON_CACHE_KEY]];
     _cachedAt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_CACHED_AT_CACHE_KEY]];
     _lastRecoveryAttempt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_LAST_RECOVERY_ATTEMPT_CACHE_KEY]];
+    _recoveryAttemptCount = [json msidStringObjectForKey:MSID_RECOVERY_ATTEMPT_COUNT_CACHE_KEY];
+    _lastRecoveryAttemptFailed = [json msidStringObjectForKey:MSID_LAST_RECOVERY_ATTEMPT_FAILED_CACHE_KEY];
     _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID_CACHE_KEY];
     _homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
@@ -233,6 +236,8 @@
     dictionary[MSID_REFRESH_ON_CACHE_KEY] = _refreshOn.msidDateToTimestamp;
     dictionary[MSID_CACHED_AT_CACHE_KEY] = _cachedAt.msidDateToTimestamp;
     dictionary[MSID_LAST_RECOVERY_ATTEMPT_CACHE_KEY] = _lastRecoveryAttempt.msidDateToTimestamp;
+    dictionary[MSID_RECOVERY_ATTEMPT_COUNT_CACHE_KEY] = _recoveryAttemptCount;
+    dictionary[MSID_LAST_RECOVERY_ATTEMPT_FAILED_CACHE_KEY] = _lastRecoveryAttemptFailed;
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
