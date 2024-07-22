@@ -124,7 +124,8 @@ jobs:
   - task: Bash@3
     displayName: download visionOS SDK
     inputs:
-    # The following is needed to install the visionOS SDK on macos-14 vm image which
+      targetType: 'inline'
+      # The following is needed to install the visionOS SDK on macos-14 vm image which
       # doesn't have visionOS installed by default. The macos-13-arm64 image with Xcode 15.2
       # fails to build the SDK correctly and can't be used. macos-14-arm64 is not available
       # on ADO.
