@@ -57,6 +57,10 @@
 @property (nonatomic) NSString *clientSku;
 @property (nonatomic) BOOL skipValidateResultAccount;
 @property (nonatomic) BOOL forceRefresh;
+@property (nonatomic) BOOL bypassRedirectURIValidation;
+
+// Telemetry metadata
+@property (nonatomic) NSString *platformSequence;
 
 // Additional body parameters that will be appended to all token requests
 @property (nonatomic) NSDictionary *extraTokenRequestParameters;
@@ -106,7 +110,7 @@
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
 - (NSString *)allTokenRequestScopes;
 
-- (BOOL)validateParametersWithError:(NSError **)error;
+- (BOOL)validateParametersWithError:(NSError *__autoreleasing*)error;
 
 - (void)updateAppRequestMetadata:(NSString *)homeAccountId;
 
@@ -125,6 +129,6 @@
                    telemetryApiId:(NSString *)telemetryApiId
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                       requestType:(MSIDRequestType)requestType
-                            error:(NSError **)error;
+                            error:(NSError *__autoreleasing*)error;
 
 @end

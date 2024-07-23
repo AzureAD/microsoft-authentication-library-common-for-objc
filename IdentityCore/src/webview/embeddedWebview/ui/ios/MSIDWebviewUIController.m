@@ -149,7 +149,7 @@ static WKWebViewConfiguration *s_webConfig;
     [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
 
-- (BOOL)loadView:(NSError **)error
+- (BOOL)loadView:(NSError *__autoreleasing*)error
 {
     /* Start background transition tracking,
      so we can start a background task, when app transitions to background */

@@ -57,7 +57,7 @@
                                 brokerKey:(NSString *)brokerKey
                    brokerApplicationToken:(NSString *)brokerApplicationToken
                           sdkCapabilities:(NSArray *)sdkCapabilities
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     self = [super init];
 
@@ -80,7 +80,7 @@
     return self;
 }
 
-- (BOOL)initPayloadContentsWithError:(NSError **)error
+- (BOOL)initPayloadContentsWithError:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *contents = [NSMutableDictionary new];
 
@@ -132,7 +132,7 @@
 
 #pragma mark - Default contents
 
-- (NSDictionary *)defaultPayloadContents:(NSError **)error
+- (NSDictionary *)defaultPayloadContents:(NSError *__autoreleasing*)error
 {
     if (![self checkParameter:self.requestParameters.authority parameterName:@"authority" error:error]) return nil;
     if (![self checkParameter:self.requestParameters.target parameterName:@"target" error:error]) return nil;
@@ -191,6 +191,7 @@
     
     [queryDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
     return queryDictionary;
 }
 
@@ -222,12 +223,13 @@
     
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
     return resumeDictionary;
 }
 
 - (BOOL)checkParameter:(id)parameter
          parameterName:(NSString *)parameterName
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     if (!parameter)
     {
@@ -309,7 +311,7 @@
 #pragma mark - Abstract
 
 // Thos parameters will be different depending on the broker protocol version
-- (NSDictionary *)protocolPayloadContentsWithError:(__unused NSError **)error
+- (NSDictionary *)protocolPayloadContentsWithError:(__unused NSError *__autoreleasing*)error
 {
     return @{};
 }

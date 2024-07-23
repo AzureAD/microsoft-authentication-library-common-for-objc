@@ -165,6 +165,63 @@
     XCTAssertNotNil(parameters.appRequestMetadata);
 }
 
+- (void)testParameterValidation_withNoBypassRedirectUriValidation_andNilRedirectUri_shouldFail
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:nil
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    
+    parameters.bypassRedirectURIValidation = false;
+    BOOL result = [parameters validateParametersWithError:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertEqual(result, false);
+    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+}
+
+- (void)testParameterValidation_withBypassRedirectUriValidation_andNilRedirectUri_shouldNotFail
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:nil
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    
+    parameters.bypassRedirectURIValidation = true;
+    BOOL result = [parameters validateParametersWithError:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual(result, true);
+}
+
 - (void)testUpdateAppRequestMetadata_whenAccountIdIsNil_shouldNotChangeMetadata
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];

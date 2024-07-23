@@ -87,7 +87,7 @@
 
 - (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
                                       tokenResponse:(MSIDTokenResponse *)response
-                                              error:(NSError **)error;
+                                              error:(NSError *__autoreleasing*)error;
 
 // Webview Factory
 @property (readonly) MSIDWebviewFactory *webviewFactory;
@@ -95,4 +95,3 @@
 @property (nonatomic, readonly, class) MSIDProviderType providerType;
 
 @end
-

@@ -78,7 +78,7 @@
                            response:(MSIDTokenResponse *)response
                             factory:(MSIDOauth2Factory *)factory
                             context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+                              error:(NSError *__autoreleasing*)error
 {
     if (response.isMultiResource)
     {
@@ -100,7 +100,7 @@
                              response:(MSIDTokenResponse *)response
                               factory:(MSIDOauth2Factory *)factory
                               context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error
+                                error:(NSError *__autoreleasing*)error
 {
     if (!response)
     {
@@ -144,7 +144,7 @@
                                         familyId:(NSString *)familyId
                                    configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+                                           error:(NSError *__autoreleasing*)error
 {
     MSIDRefreshToken *refreshToken = [self getRefreshableTokenWithAccount:accountIdentifier
                                                                  familyId:familyId
@@ -177,7 +177,7 @@
                                                       familyId:(NSString *)familyId
                                                  configuration:(MSIDConfiguration *)configuration
                                                        context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error
+                                                         error:(NSError *__autoreleasing*)error
 {
     MSIDConfiguration *config = [configuration copy];
     config.clientId = MSID_LEGACY_CACHE_NIL_KEY;
@@ -214,7 +214,7 @@
                                       credentialType:(MSIDCredentialType)credentialType
                                        configuration:(MSIDConfiguration *)configuration
                                              context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Get token %@ with authority %@, clientId %@, familyID %@, account %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], configuration.authority, configuration.clientId, familyId, accountIdentifier.maskedHomeAccountId);
     
@@ -233,7 +233,7 @@
 #pragma mark - Clear cache
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
+                   error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"(Legacy accessor) Clearing everything in cache. This method should only be called in tests!");
     return [_dataSource clearWithContext:context error:error];
@@ -246,7 +246,7 @@
                                          familyId:(NSString *)familyId
                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                           context:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error
+                                            error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@, account identifier %@, legacy identifier %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
     CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
@@ -352,7 +352,7 @@
 - (MSIDLegacyAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)accountIdentifier
                                       configuration:(MSIDConfiguration *)configuration
                                             context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error
+                                              error:(NSError *__autoreleasing*)error
 {
     NSArray *aliases = [configuration.authority legacyAccessTokenLookupAuthorities] ?: @[];
 
@@ -370,7 +370,7 @@
 - (MSIDLegacySingleResourceToken *)getSingleResourceTokenForAccount:(MSIDAccountIdentifier *)accountIdentifier
                                                       configuration:(MSIDConfiguration *)configuration
                                                             context:(id<MSIDRequestContext>)context
-                                                              error:(NSError **)error
+                                                              error:(NSError *__autoreleasing*)error
 {
     NSArray *aliases = [configuration.authority legacyAccessTokenLookupAuthorities] ?: @[];
 
@@ -387,21 +387,21 @@
 
 - (BOOL)validateAndRemoveRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                               context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error
+                                error:(NSError *__autoreleasing*)error
 {
     return [self validateAndRemoveRefreshableToken:token context:context error:error];
 }
 
 - (BOOL)validateAndRemovePrimaryRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                      context:(id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+                                       error:(NSError *__autoreleasing*)error
 {
     return [self validateAndRemoveRefreshableToken:token context:context error:error];
 }
 
 - (BOOL)validateAndRemoveRefreshableToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     if (!token || [NSString msidIsStringNilOrBlank:token.refreshToken])
     {
@@ -459,7 +459,7 @@
 
 - (BOOL)removeAccessToken:(MSIDAccessToken *)token
                   context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+                    error:(NSError *__autoreleasing*)error
 {
     return [self removeTokenEnvironment:token.environment
                                   realm:token.realm
@@ -478,7 +478,7 @@
                     clientId:(NSString *)clientId
                     familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error 
+                       error:(NSError *__autoreleasing*)error
 {
     if (!accountIdentifier)
     {
@@ -559,7 +559,7 @@
                                                      credentialType:(MSIDCredentialType)credentialType
                                                       configuration:(MSIDConfiguration *)configuration
                                                             context:(id<MSIDRequestContext>)context
-                                                              error:(NSError **)error
+                                                              error:(NSError *__autoreleasing*)error
 {
     
     
@@ -583,7 +583,7 @@
                                 response:(MSIDTokenResponse *)response
                                  factory:(MSIDOauth2Factory *)factory
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     MSIDLegacyAccessToken *accessToken = [factory legacyAccessTokenFromResponse:response configuration:configuration];
 
@@ -603,7 +603,7 @@
 - (BOOL)saveRefreshToken:(MSIDLegacyRefreshToken *)refreshToken
            configuration:(__unused MSIDConfiguration *)configuration
                  context:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
+                   error:(NSError *__autoreleasing*)error
 {
     if (!refreshToken)
     {
@@ -638,7 +638,7 @@
                                  response:(MSIDTokenResponse *)response
                                   factory:(MSIDOauth2Factory *)factory
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
     
@@ -655,7 +655,7 @@
                                               response:(MSIDTokenResponse *)response
                                                factory:(MSIDOauth2Factory *)factory
                                                context:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error
+                                                 error:(NSError *__autoreleasing*)error
 {
     MSIDLegacySingleResourceToken *legacyToken = [factory legacyTokenFromResponse:response configuration:configuration];
 
@@ -675,7 +675,7 @@
 
 - (BOOL)saveToken:(MSIDBaseToken<MSIDLegacyCredentialCacheCompatible> *)token
           context:(id<MSIDRequestContext>)context
-            error:(NSError **)error
+            error:(NSError *__autoreleasing*)error
 {
     CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE, context);
     
@@ -709,7 +709,7 @@
 }
 
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
-                                             error:(NSError **)error
+                                             error:(NSError *__autoreleasing*)error
 {
     CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
 
@@ -741,7 +741,7 @@
                         appKey:(NSString *)appKey
          applicationIdentifier:(NSString *)applicationIdentifier
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                         error:(NSError *__autoreleasing*)error
 {
     if (!environment || !clientId || !userId)
     {
@@ -786,7 +786,7 @@
                                  resource:(NSString *)resource
                             appIdentifier:(NSString *)appIdentifier
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP, context);
 

@@ -1,3 +1,16 @@
+[TBD]
+* Migrate existing devices using UpgradeReg API - Error definitions (#1376)
+* Update device register to include a new hint for token protection (#1394)
+* prt recovery fix , add recovery attempt count and recovery fail status to prt object(#1395)
+
+Version 1.7.37
+* Added new account type to handle On-prem ADFS scenarios. (#1397)
+
+Version 1.7.36
+* Add platform sequence telemetry param. (#1378)
+* Update broker automations lab API. (#1377)
+* Fix incorrect constant name without MSID prefix. (#1374)
+
 Version 1.7.35
 * Include email as scope returned if it was requested and server did not include it. (#1364)
 * Fix throttling bug in fallback legacy broker interactive controller. (#1371)

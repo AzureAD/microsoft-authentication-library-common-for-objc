@@ -48,7 +48,7 @@
 
 - (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(__unused NSURL *)url
                                         sourceApplication:(__unused  NSString *)sourceApplication
-                                                    error:(NSError * _Nullable * _Nullable)error
+                                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     if (self.testError && error)
     {

@@ -123,6 +123,7 @@
                   accessToken:(NSString *)accessToken
             completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
+    
     NSURL *resultURL = [request requestURLWithAPIPath:self.labAPIPath];
     
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:resultURL];

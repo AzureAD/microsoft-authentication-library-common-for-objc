@@ -31,7 +31,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     self = [super initWithURL:url context:context error:error];
     if (self)
@@ -46,7 +46,7 @@
                requestState:(NSString *)requestState
          ignoreInvalidState:(BOOL)ignoreInvalidState
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     self = [super initWithURL:url requestState:requestState ignoreInvalidState:ignoreInvalidState context:context error:error];
     if (self)

@@ -56,7 +56,7 @@ clientBrokerKeyCapabilityNotSupported:(BOOL)clientBrokerKeyCapabilityNotSupporte
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super init];
     
@@ -80,6 +80,8 @@ clientBrokerKeyCapabilityNotSupported:(BOOL)clientBrokerKeyCapabilityNotSupporte
         
         NSString *sdkTypeString = [json msidStringObjectForKey:MSID_BROKER_CLIENT_SDK_KEY];
         _clientSDK = MSIDClientSDKTypeFromString(sdkTypeString);
+        
+        _platformSequence = [json msidStringObjectForKey:MSID_PLATFORM_SEQUENCE_KEY];
     }
     
     return self;
@@ -120,6 +122,8 @@ clientBrokerKeyCapabilityNotSupported:(BOOL)clientBrokerKeyCapabilityNotSupporte
     
     NSString *sdkTypeString = MSIDClientSDKTypeToString(self.clientSDK);
     json[MSID_BROKER_CLIENT_SDK_KEY] = sdkTypeString;
+    
+    json[MSID_PLATFORM_SEQUENCE_KEY] = self.platformSequence;
     return json;
 }
 

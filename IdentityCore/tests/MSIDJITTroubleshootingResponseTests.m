@@ -135,7 +135,7 @@
 
 - (void)testIsJITTroubleshootingResponse_whenIsJITTroubleshootingResponse_shouldReturnStatusAndJITTTroubleshootingRequiredError
 {
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", JIT_TROUBLESHOOTING_HOST]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_JIT_TROUBLESHOOTING_HOST]];
     NSError *error;
     MSIDJITTroubleshootingResponse *response = [[MSIDJITTroubleshootingResponse alloc] initWithURL:url context:nil error:&error];
 
