@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
                     brokerOptions:(nullable MSIDBrokerInvocationOptions *)brokerOptions
                       requestType:(MSIDRequestType)requestType
               intuneAppIdentifier:(nullable NSString *)intuneApplicationIdentifier
-                            error:(NSError * _Nullable * _Nullable)error;
+                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

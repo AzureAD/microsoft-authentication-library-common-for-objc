@@ -40,7 +40,7 @@
 - (ASAuthorizationSingleSignOnRequest *)createSSORequestWithOperationRequest:(MSIDBrokerOperationRequest *)operationRequest
                                                            requestParameters:(MSIDRequestParameters *)requestParameters
                                                                   requiresUI:(BOOL)requiresUI
-                                                                       error:(NSError **)error
+                                                                       error:(NSError *__autoreleasing*)error
 {
     [MSIDBrokerOperationRequest fillRequest:operationRequest
                         keychainAccessGroup:requestParameters.keychainAccessGroup

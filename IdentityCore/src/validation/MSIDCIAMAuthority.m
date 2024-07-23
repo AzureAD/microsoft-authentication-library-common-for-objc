@@ -47,7 +47,7 @@
                       validateFormat:(BOOL)validateFormat
                            rawTenant:(nullable NSString *)rawTenant
                              context:(nullable id<MSIDRequestContext>)context
-                               error:(NSError **)error
+                               error:(NSError *__autoreleasing*)error
 {
     self = [self initWithURL:url validateFormat:validateFormat context:context error:error];
     if (self)
@@ -68,7 +68,7 @@
 - (nullable instancetype)initWithURL:(NSURL *)url
                       validateFormat:(BOOL)validateFormat
                              context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
+                               error:(NSError *__autoreleasing*)error
 {
     self = [super initWithURL:url validateFormat:validateFormat context:context error:error];
     
@@ -107,14 +107,14 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     return [self initWithURL:url validateFormat:YES context:context error:error];
 }
 
 + (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                         error:(NSError *__autoreleasing*)error
 {
     if (![super isAuthorityFormatValid:url context:context error:error]) return NO;
     
@@ -157,7 +157,7 @@
 + (NSURL *)normalizedAuthorityUrl:(NSURL *)url
                   formatValidated:(BOOL)formatValidated
                           context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+                            error:(NSError *__autoreleasing*)error
 {
     
     if (!url)
@@ -210,7 +210,7 @@
 #pragma mark - Private
 + (NSString *)realmFromURL:(NSURL *)url
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     //If there is a path component, return it, else return just URL
     if ([self isAuthorityFormatValid:url context:context error:error] && url.pathComponents.count > 1)

@@ -50,6 +50,11 @@
         {
             // Networking errors (-1001, -1003. -1004. -1005. -1009)
             shouldRetryNetworkingFailure = [self shouldRetryNetworkingFailure:error.code];
+            if (shouldRetryNetworkingFailure && error.code == NSURLErrorNotConnectedToInternet)
+            {
+                // For handling the NSURLErrorNotConnectedToInternet error, retry the network request after a longer delay.
+                httpRequest.retryInterval = 2.0;
+            }
         }
 
         shouldRetry &= shouldRetryNetworkingFailure;

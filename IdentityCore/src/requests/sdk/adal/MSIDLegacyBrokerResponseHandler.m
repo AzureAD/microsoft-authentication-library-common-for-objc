@@ -45,7 +45,7 @@
 @implementation MSIDLegacyBrokerResponseHandler
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                  error:(__unused NSError **)error
+                                                  error:(__unused NSError *__autoreleasing*)error
 {
 #if TARGET_OS_IPHONE
     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
@@ -78,7 +78,7 @@
                                                  correlationId:(NSUUID *)correlationID
                                                     authScheme:(MSIDAuthenticationScheme *)authScheme
                                                    redirectUri:(__unused NSString *)redirectUri
-                                                         error:(NSError **)error
+                                                         error:(NSError *__autoreleasing*)error
 {
     // Successful case
     if ([NSString msidIsStringNilOrBlank:encryptedParams[@"error_code"]])
@@ -208,7 +208,7 @@
 }
 
 - (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                                      error:(__unused NSError **)error
+                                                                      error:(__unused NSError *__autoreleasing*)error
 {
     return nil;
 }
