@@ -8905,6 +8905,7 @@
 					"$(inherited)",
 					"$(MSID_WEBKIT)",
 					"$(MSID_SYSTEMWV)",
+					"$(MSAL_JS_AUTOMATION)",
 				);
 				GCC_WARN_SHADOW = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
