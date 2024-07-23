@@ -157,6 +157,7 @@ static NSDictionary *s_experimentBag = nil;
           }
           else if (httpResponse.statusCode == 200)
           {
+              NSLog(@"MSIDHttpRequest - Response: %@", response);
               id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data context:self.context error:&error];
 
               MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
