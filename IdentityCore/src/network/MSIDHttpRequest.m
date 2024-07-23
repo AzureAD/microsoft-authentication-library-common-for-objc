@@ -47,7 +47,15 @@ static NSDictionary *s_experimentBag = nil;
 
     if (self)
     {
-        _sessionManager = MSIDURLSessionManager.defaultManager;
+        _experimentBag = s_experimentBag;
+        if ([self.experimentBag msidBoolObjectForKey:MSID_CREATE_NEW_URL_SESSION])
+        {
+            _sessionManager = MSIDURLSessionManager.instanceManager;
+        }
+        else {
+            _sessionManager = MSIDURLSessionManager.defaultManager;
+        }
+        
         __auto_type responseSerializer = [MSIDHttpResponseSerializer new];
         responseSerializer.preprocessor = [MSIDJsonResponsePreprocessor new];
         _responseSerializer = responseSerializer;
@@ -57,7 +65,6 @@ static NSDictionary *s_experimentBag = nil;
 #endif
         _retryCounter = s_retryCount;
         _retryInterval = s_retryInterval;
-        _experimentBag = s_experimentBag;
         _requestTimeoutInterval = s_requestTimeoutInterval;
         _cache = [NSURLCache sharedURLCache];
         _shouldCacheResponse = NO;

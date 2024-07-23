@@ -51,7 +51,7 @@
 }
 
 - (id)responseFromData:(NSData *)response
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     id jsonResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
     

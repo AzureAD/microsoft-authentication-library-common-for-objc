@@ -266,12 +266,48 @@ static MSIDTestConfigurationProvider *s_confProvider;
 - (void)aadEnterPassword:(XCUIApplication *)application
 {
     [self enterPassword:self.primaryAccount.password app:application];
+    // New Password reset API requires to force providing a new password after logging in with original password.
+    [self setupPassword:self.primaryAccount.password app:application];
 }
 
 - (void)enterPassword:(NSString *)password app:(XCUIApplication *)application
 {
     [self enterPassword:password app:application isMainApp:YES];
 }
+
+- (void)setupPassword:(NSString *)password app:(XCUIApplication *)application
+{
+    [self setupPassword:password app:application isMainApp:YES];
+}
+
+- (void)setupPassword:(NSString *)password app:(XCUIApplication *)application isMainApp:(BOOL)isMainApp
+{
+    sleep(3);
+    if (application.secureTextFields.count > 1)
+    {
+        // New password flow
+        //Current password
+        NSPredicate *passwordFieldPredicate = [NSPredicate predicateWithFormat:@"placeholderValue CONTAINS[c] %@", @"Current password"];
+        XCUIElement *currentPasswordSecureTextField = [[application.secureTextFields matchingPredicate:passwordFieldPredicate] elementBoundByIndex:0];
+        [self tapElementAndWaitForKeyboardToAppear:currentPasswordSecureTextField app:application];
+        NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
+        [self enterText:currentPasswordSecureTextField isMainApp:isMainApp text:passwordString];
+        
+        passwordFieldPredicate = [NSPredicate predicateWithFormat:@"placeholderValue CONTAINS[c] %@", @"New password"];
+        XCUIElement *newPasswordSecureTextField = [[application.secureTextFields matchingPredicate:passwordFieldPredicate] elementBoundByIndex:0];
+        [self tapElementAndWaitForKeyboardToAppear:newPasswordSecureTextField app:application];
+        passwordString = [NSString stringWithFormat:@"%@apple\n", password];
+        [self enterText:newPasswordSecureTextField isMainApp:isMainApp text:passwordString];
+        
+        passwordFieldPredicate = [NSPredicate predicateWithFormat:@"placeholderValue CONTAINS[c] %@", @"Confirm password"];
+        XCUIElement *confirmPasswordSecureTextField = [[application.secureTextFields matchingPredicate:passwordFieldPredicate] elementBoundByIndex:0];
+        [self tapElementAndWaitForKeyboardToAppear:confirmPasswordSecureTextField app:application];
+        passwordString = [NSString stringWithFormat:@"%@apple\n", password];
+        [self enterText:confirmPasswordSecureTextField isMainApp:isMainApp text:passwordString];
+    
+    }
+}
+
 
 - (void)enterPassword:(NSString *)password app:(XCUIApplication *)application isMainApp:(BOOL)isMainApp
 {

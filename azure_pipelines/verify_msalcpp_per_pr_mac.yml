@@ -10,7 +10,7 @@ pr:
     - '*'
 
 pool:
-  vmImage: 'macOS-12'
+  vmImage: 'macOS-14'
 
 resources:
  repositories:
@@ -49,9 +49,9 @@ jobs:
      arguments: '--skip-checkout --msal-common-repo $(Agent.BuildDirectory)/CommonCore --remote-ref $(commit_number)'
 
   - task: UsePythonVersion@0
-    displayName: 'Switch to use Xcode 14.1'
+    displayName: 'Switch to use Xcode 15.4'
   - script: |
-     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_14.1.app"
+     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"
 
   - template: azure_pipelines/templates/macos-setup.yml@microsoft-authentication-library-for-cpp
 
@@ -60,7 +60,7 @@ jobs:
     displayName: 'Build x64 Debug macOS'
     inputs:
       scriptPath: build.py
-      arguments: '--clean --arch x64 --configuration Debug --platform macOS --djinni hashfail --test --test-type unit integration'
+      arguments: '--clean --arch x64 --configuration Debug --platform macOS --djinni hashfail --test --test-type unit integration --build-projects tests'
     env:
       MSAL_LAB_VAULT_ACCESS_CERT_LOCATION: $(Agent.TempDirectory)
       MSAL_CERTIFICATE_PASSWORD: $(MSAL_CERTIFICATE_PASSWORD)

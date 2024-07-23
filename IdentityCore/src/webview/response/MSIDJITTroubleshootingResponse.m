@@ -34,7 +34,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id <MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     // Check for JIT retry response
     if (![self isJITRetryResponse:url] && ![self isJITTroubleshootingResponse:url])
@@ -73,7 +73,7 @@
 - (BOOL)isJITTroubleshootingResponse:(NSURL *)url
 {
     if (!url) return NO;
-    return ([@"msauth" caseInsensitiveCompare:url.scheme] == NSOrderedSame && [JIT_TROUBLESHOOTING_HOST caseInsensitiveCompare:url.host] == NSOrderedSame);
+    return ([@"msauth" caseInsensitiveCompare:url.scheme] == NSOrderedSame && [MSID_JIT_TROUBLESHOOTING_HOST caseInsensitiveCompare:url.host] == NSOrderedSame);
 }
 
 - (NSError *)getErrorFromResponseWithContext:(id <MSIDRequestContext>)context

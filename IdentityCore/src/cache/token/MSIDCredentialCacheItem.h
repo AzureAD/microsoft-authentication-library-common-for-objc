@@ -55,6 +55,9 @@
 @property (atomic, readwrite, nullable) NSDate *cachedAt;
 @property (atomic, readwrite, nullable) NSString *expiryInterval;
 @property (atomic, readwrite, nullable) NSDate *lastRecoveryAttempt;
+// recovery
+@property (atomic, readwrite, nullable) NSString *recoveryAttemptCount;
+@property (atomic, readwrite, nullable) NSString *lastRecoveryAttemptFailed;
 
 // Family ID
 @property (atomic, readwrite, nullable) NSString *familyId;

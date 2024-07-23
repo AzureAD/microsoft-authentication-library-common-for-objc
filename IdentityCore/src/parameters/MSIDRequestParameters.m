@@ -61,7 +61,7 @@
                    telemetryApiId:(NSString *)telemetryApiId
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                       requestType:(MSIDRequestType)requestType
-                            error:(NSError **)error
+                            error:(NSError *__autoreleasing*)error
 {
     self = [super init];
 
@@ -324,7 +324,7 @@
 
 #pragma mark - Validate
 
-- (BOOL)validateParametersWithError:(NSError **)error
+- (BOOL)validateParametersWithError:(NSError *__autoreleasing*)error
 {
     if (!self.authority)
     {
@@ -332,7 +332,7 @@
         return NO;
     }
 
-    if (!self.redirectUri)
+    if (!self.redirectUri && !self.bypassRedirectURIValidation)
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing redirectUri parameter", self.correlationId);
         return NO;
@@ -387,6 +387,7 @@
     parameters->_clientCapabilities = [_clientCapabilities copyWithZone:zone];
     parameters->_msidConfiguration = [_msidConfiguration copyWithZone:zone];
     parameters->_keychainAccessGroup = [_keychainAccessGroup copyWithZone:zone];
+    parameters->_platformSequence = [_platformSequence copyWithZone:zone];
 
     return parameters;
 }

@@ -229,7 +229,7 @@
                             requestState:(NSString *)requestState
                       ignoreInvalidState:(BOOL)ignoreInvalidState
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     //  return base response
     NSError *responseCreationError = nil;
