@@ -40,7 +40,7 @@
                         accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                    ssoUrl:(NSString *)ssoUrl
                             correlationId:(NSUUID *)correlationId
-                                    error:(NSError **)error{
+                                    error:(NSError *__autoreleasing*)error{
     self = [super initWithRequestParameters:requestParameters error:error];
     if (self)
     {

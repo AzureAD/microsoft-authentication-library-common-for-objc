@@ -703,7 +703,7 @@
                                MSIDWebviewAuthCompletionHandler completionHandler)
     {
 
-         NSString *responseString = @"msauth://wpj?app_link=https://login.microsoftonline.appinstall.test";
+         NSString *responseString = @"msauth://wpj?app_link=https://login.microsoftonline.appinstall.test&token_protection_required=true";
 
          MSIDWebWPJResponse *msauthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:responseString] context:nil error:nil];
          completionHandler(msauthResponse, nil);
@@ -724,6 +724,7 @@
         XCTAssertNil(error);
         XCTAssertNotNil(installBrokerResponse);
         XCTAssertEqualObjects(installBrokerResponse.appInstallLink, @"https://login.microsoftonline.appinstall.test");
+        XCTAssertTrue(installBrokerResponse.tokenProtectionRequired);
 
         [expectation fulfill];
 

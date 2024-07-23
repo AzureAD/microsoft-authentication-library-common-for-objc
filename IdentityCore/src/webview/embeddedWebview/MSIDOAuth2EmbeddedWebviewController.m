@@ -169,7 +169,7 @@
     [self endWebAuthWithURL:nil error:error];
 }
 
-- (BOOL)loadView:(NSError **)error
+- (BOOL)loadView:(NSError *__autoreleasing*)error
 {
     // create and load the view if not provided
     BOOL result = [super loadView:error];

@@ -138,7 +138,7 @@
 
 + (MSIDThrottlingCacheRecord *)getDBRecordWithStrictThumbprint:(NSString *)strictThumbprint
                                                 fullThumbprint:(NSString *)fullThumbprint
-                                                         error:(NSError **)error
+                                                         error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Query throttling database with thumbprint strict value: %@, full value: %@", strictThumbprint, fullThumbprint);
     MSIDThrottlingCacheRecord *cacheRecord;

@@ -127,7 +127,7 @@
     return NO;
 }
 
-+ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError **)error
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError *__autoreleasing*)error
 {
 #if !AD_BROKER
     

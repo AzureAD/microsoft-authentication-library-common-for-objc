@@ -8899,6 +8899,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E931FC3626A00CD70C5 /* identitycore__debug.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = YES;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -8915,6 +8916,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9C1FC3626B00CD70C5 /* identitycore__release.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = YES;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(MSID_SYSTEMWV)",

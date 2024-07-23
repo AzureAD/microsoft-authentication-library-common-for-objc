@@ -26,7 +26,7 @@
 @implementation MSIDWebResponseBaseOperation
 
 - (nullable instancetype)initWithResponse:(nonnull __unused MSIDWebviewResponse *)response
-                                    error:(__unused NSError * _Nullable *)error
+                                    error:(__unused NSError * _Nullable __autoreleasing *)error
 {
     self = [super init];
     return self;
@@ -42,7 +42,7 @@
 }
 
 - (BOOL)doActionWithCorrelationId:(__unused NSUUID *)correlationId
-                            error:(NSError * _Nullable *_Nullable)error
+                            error:(NSError * _Nullable __autoreleasing *_Nullable)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
     if (error)
