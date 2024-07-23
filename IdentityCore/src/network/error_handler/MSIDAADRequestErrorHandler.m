@@ -141,7 +141,7 @@
         if (![NSString msidIsStringNilOrBlank:responseString])
         {
             NSString *teleString = responseString.length > 10 ? [responseString substringToIndex:10] : responseString;
-            [additionalInfo setValue:teleString forKey:MSIDHTTPResponseStringKey];
+            [additionalInfo setValue:teleString forKey:MSIDHTTPTruncatedResponseStringKey];
         }
     }
     
