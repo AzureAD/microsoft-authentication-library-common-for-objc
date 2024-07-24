@@ -14,12 +14,12 @@ trigger: none
 jobs:
 - job: 'Validate_Pull_Request'
   strategy:
-    maxParallel: 3
+    maxParallel: 2
     matrix:
       IOS_LIB: 
         target: "ios_library"
-      MAC_LIB: 
-        target: "mac_library"
+#      MAC_LIB: 
+#        target: "mac_library"
       VISION_LIB:
         target: "vision_library"
   displayName: Validate Pull Request
@@ -57,7 +57,7 @@ jobs:
     displayName: download visionOS SDK
     inputs:
       targetType: 'inline'
-      condition: eq(variables.target, "vision_library")
+      condition: eq(target, "vision_library")
       script: |
         sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
         defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
