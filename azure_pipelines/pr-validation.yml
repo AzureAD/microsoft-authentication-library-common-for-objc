@@ -57,6 +57,7 @@ jobs:
     displayName: download visionOS SDK
     inputs:
       targetType: 'inline'
+      condition: 'eq(${{'target'}}, 'vision_library'))'
       script: |
         sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
         defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES

@@ -336,14 +336,17 @@ def requires_simulator(targets) :
             return True
     return False
 
-def launch_simulator() :
-    if (self.platform == "iOS") :
-        print("Booting iOS simulator...")
-        command = "xcrun simctl boot " + device_guids.get_ios(ios_sim_device)
-    else :
-        print("Booting visionOS simulator...")
-        command = "xcrun simctl boot " + device_guids.get_ios(vision_sim_device)
-    
+def launch_simulator(targets) :
+    for target in targets :
+        if target.platform == "iOS" :
+            print("Booting iOS simulator...")
+            command = "xcrun simctl boot " + device_guids.get_ios(ios_sim_device)
+            break
+        else :
+            print("Booting visionOS simulator...")
+            command = "xcrun simctl boot " + device_guids.get_ios(vision_sim_device)
+            break
+            
     print(command)
     
     # This spawns a new process without us having to wait for it
@@ -372,7 +375,7 @@ for spec in target_specifiers :
         targets.append(BuildTarget(spec))
 
 if requires_simulator(targets) :
-    launch_simulator()
+    launch_simulator(targets)
 
 # start by cleaning up any derived data that might be lying around
 if (clean) :
