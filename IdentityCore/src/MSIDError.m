@@ -36,6 +36,7 @@ NSString *MSIDHomeAccountIdkey = @"MSIDHomeAccountIdkey";
 NSString *MSIDTokenProtectionRequired = @"MSIDTokenProtectionRequired";
 NSString *MSIDBrokerVersionKey = @"MSIDBrokerVersionKey";
 NSString *MSIDServerUnavailableStatusKey = @"MSIDServerUnavailableStatusKey";
+NSString *MSIDThrottlingCacheHitKey = @"MSIDThrottlingCacheHitKey";
 
 NSString *MSIDErrorDomain = @"MSIDErrorDomain";
 NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";

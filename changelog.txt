@@ -1,5 +1,6 @@
 [TBD]
 * Migrate existing devices using UpgradeReg API - Error definitions (#1376)
+* Add MSIDThrottlingCacheHitKey flag when returning error from throttling's cache (#1393)
 * Update device register to include a new hint for token protection (#1394)
 * prt recovery fix , add recovery attempt count and recovery fail status to prt object(#1395)
 

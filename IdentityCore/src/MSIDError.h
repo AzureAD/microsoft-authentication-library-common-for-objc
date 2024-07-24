@@ -33,6 +33,7 @@ extern NSString * _Nonnull MSIDUserDisplayableIdkey;
 extern NSString * _Nonnull MSIDHomeAccountIdkey;
 extern NSString * _Nonnull MSIDTokenProtectionRequired;
 extern NSString * _Nonnull MSIDBrokerVersionKey;
+extern NSString * _Nonnull MSIDThrottlingCacheHitKey;
 
 /*!
  ADAL and MSID use different error domains and error codes.
