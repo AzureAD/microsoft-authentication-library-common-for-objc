@@ -39,7 +39,7 @@
                                       accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)metadataCache
                                          requestParameters:(nonnull MSIDRequestParameters *)parameters
                                           saveSSOStateOnly:(BOOL)saveSSOStateOnly
-                                                     error:(NSError * _Nullable * _Nullable)error;
+                                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (nullable MSIDTokenResult *)validateAndSaveBrokerResponse:(nonnull MSIDBrokerResponse *)brokerResponse
                                                   oidcScope:(nullable NSString *)oidcScope
@@ -51,24 +51,24 @@
                                               correlationID:(nullable NSUUID *)correlationID
                                            saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                                  authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
-                                                      error:(NSError * _Nullable * _Nullable)error;
+                                                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (nullable MSIDTokenResult *)validateTokenResponse:(nonnull MSIDTokenResponse *)tokenResponse
                                        oauthFactory:(nonnull MSIDOauth2Factory *)factory
                                       configuration:(nonnull MSIDConfiguration *)configuration
                                      requestAccount:(nullable MSIDAccountIdentifier *)accountIdentifier
                                       correlationID:(nonnull NSUUID *)correlationID
-                                              error:(NSError * _Nullable * _Nullable)error NS_SWIFT_NOTHROW;
+                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error NS_SWIFT_NOTHROW;
 
 - (BOOL)validateAccount:(nonnull MSIDAccountIdentifier *)accountIdentifier
             tokenResult:(nonnull MSIDTokenResult *)tokenResult
           correlationID:(nonnull NSUUID *)correlationID
-                  error:(NSError * _Nullable * _Nullable)error NS_SWIFT_NOTHROW;
+                  error:(NSError * _Nullable __autoreleasing * _Nullable)error NS_SWIFT_NOTHROW;
 
 - (BOOL)validateTokenResult:(nonnull MSIDTokenResult *)tokenResult
               configuration:(nonnull MSIDConfiguration *)configuration
                   oidcScope:(nullable NSString *)oidcScope
               correlationID:(nonnull NSUUID *)correlationID
-                      error:(NSError * _Nullable * _Nullable)error;
+                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

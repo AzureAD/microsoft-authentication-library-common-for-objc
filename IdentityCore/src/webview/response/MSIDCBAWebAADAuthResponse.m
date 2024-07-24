@@ -38,7 +38,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     // Check for WPJ or broker response
     if (![self.class isCBAWebAADAuthResponse:url])

@@ -43,7 +43,7 @@
 
 + (NSData *)msidArchivedDataWithRootObject:(id)object
                      requiringSecureCoding:(BOOL)requiresSecureCoding
-                                     error:(NSError **)error
+                                     error:(NSError *__autoreleasing*)error
 {
     NSData *result;
     result = [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:requiresSecureCoding error:error];

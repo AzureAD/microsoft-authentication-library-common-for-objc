@@ -25,6 +25,7 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebAADAuthCodeResponse.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
@@ -110,13 +111,17 @@
         platformParams = [[MSIDWebViewPlatformParams alloc] initWithExternalSSOContext:configuration.ssoContext];
     }
     
-     MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
-       = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
-                                                                  endURL:[NSURL URLWithString:configuration.endRedirectUrl]
-                                                                 webview:webview
-                                                           customHeaders:configuration.customHeaders
-                                                          platfromParams:platformParams
-                                                                 context:context];
+    MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
+      = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
+                                                                 endURL:[NSURL URLWithString:configuration.endRedirectUrl]
+                                                                webview:webview
+                                                          customHeaders:configuration.customHeaders
+                                                         platfromParams:platformParams
+                                                                context:context];
+                                                                
+#if MSAL_JS_AUTOMATION
+    embeddedWebviewController.clientAutomationScript = configuration.clientAutomationScript;
+#endif
     
 #if TARGET_OS_IPHONE
     embeddedWebviewController.parentController = configuration.parentController;
@@ -134,7 +139,7 @@
                                  requestState:(NSString *)requestState
                            ignoreInvalidState:(BOOL)ignoreInvalidState
                                       context:(id<MSIDRequestContext>)context
-                                        error:(NSError **)error
+                                        error:(NSError *__autoreleasing*)error
 {
     // Try to create CBA response
 #if AD_BROKER
@@ -169,7 +174,11 @@
 #endif
     
 #endif
-    
+
+    // Try to create a upgrade registration response
+    MSIDWebUpgradeRegResponse *upgradeRegResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url context:context error:nil];
+    if (upgradeRegResponse) return upgradeRegResponse;
+
     // Try to create a WPJ response
     MSIDWebWPJResponse *wpjResponse = [[MSIDWebWPJResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;

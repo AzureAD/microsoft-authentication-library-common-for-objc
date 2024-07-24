@@ -54,20 +54,20 @@ if nil object or key is provided, this API will return NO, and an error will be 
  */
 - (BOOL)setObject:(ObjectType)cacheRecord
            forKey:(KeyType)key
-            error:(NSError * _Nullable * _Nullable)error;
+            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 /**
 remove object that corresponds to the given key.
 If nil key is provided, or no object exists that maps to the input key, this API will return NO, and an error will be generated.
  */
 - (BOOL)removeObjectForKey:(KeyType)key
-                     error:(NSError * _Nullable * _Nullable)error;
+                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 /**
  retrieve object corresponding to the input key, and move the object to the front of LRU cache.
  */
 - (nullable ObjectType)objectForKey:(KeyType)key
-                              error:(NSError * _Nullable * _Nullable)error;
+                              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 /**
  return all cached elements sorted from most recently used (first) to least recently used (last)

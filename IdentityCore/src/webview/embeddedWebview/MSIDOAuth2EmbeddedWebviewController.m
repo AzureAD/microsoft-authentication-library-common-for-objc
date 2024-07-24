@@ -169,7 +169,7 @@
     [self endWebAuthWithURL:nil error:error];
 }
 
-- (BOOL)loadView:(NSError **)error
+- (BOOL)loadView:(NSError *__autoreleasing*)error
 {
     // create and load the view if not provided
     BOOL result = [super loadView:error];
@@ -299,6 +299,10 @@
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified __unused WKNavigation *)navigation
 {
     NSURL *url = webView.URL;
+#if MSAL_JS_AUTOMATION
+    [webView evaluateJavaScript:self.clientAutomationScript completionHandler:nil];
+#endif
+    
     [self notifyFinishedNavigation:url webView:webView];
 }
 

@@ -40,7 +40,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     // Check for WPJ or broker response
     if (![self isBrokerInstallResponse:url])
@@ -55,9 +55,22 @@
         return nil;
     }
     
+    return [self initResponseWithURL:url context:context error:error];
+}
+
+/**
+  * A protected designated initializer for MSIDWebWPJResponse
+  * - The difference to initWithUrl is that this initializer handles different Broker responses
+ **/
+- (instancetype)initResponseWithURL:(NSURL *)url
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError *__autoreleasing*)error
+{
     self = [super initWithURL:url context:context error:error];
     if (self)
     {
+        NSString *tokenProtection = self.parameters[@"token_protection_required"];
+        _tokenProtectionRequired = [tokenProtection isEqualToString:@"true"];
         _appInstallLink = self.parameters[@"app_link"];
         _upn = self.parameters[@"username"];
         

@@ -92,7 +92,7 @@ static WKWebViewConfiguration *s_webConfig;
     return self;
 }
 
-- (BOOL)loadView:(__unused NSError **)error
+- (BOOL)loadView:(__unused NSError *__autoreleasing*)error
 {
     if (_webView)
     {

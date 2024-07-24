@@ -97,7 +97,7 @@
 - (BOOL)validateAndRemoveRefreshableToken:(MSIDRefreshToken *)token
                            credentialType:(MSIDCredentialType)credentialType
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error;
+                                    error:(NSError *__autoreleasing*)error;
 @end
 
 @implementation MSIDDefaultTokenCacheAccessorForThrottlingTest
@@ -105,7 +105,7 @@
 - (BOOL)validateAndRemoveRefreshableToken:(MSIDRefreshToken *)token
                            credentialType:(MSIDCredentialType)credentialType
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
      return YES;
 }
@@ -144,7 +144,7 @@
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
                                        refreshToken:(id<MSIDRefreshableToken>)refreshToken
-                                              error:(__unused NSError * _Nullable * _Nullable)error;
+                                              error:(__unused NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 
@@ -356,7 +356,8 @@
     XCTAssertNil(subError);
 
     XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
-    XCTAssertEqualObjects(record.cachedErrorResponse,tokenResponse->_error);
+    XCTAssertEqual(record.cachedErrorResponse.code,tokenResponse->_error.code);
+    XCTAssertEqual(record.cachedErrorResponse.domain,tokenResponse->_error.domain);
     XCTAssertEqual(record.throttledCount,1);
 
 
@@ -370,6 +371,7 @@
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, MSIDErrorInternal);
+        XCTAssertTrue(error.userInfo[MSIDThrottlingCacheHitKey]);
         [expectation2 fulfill];
     }];
 
@@ -476,7 +478,8 @@
     XCTAssertNil(subError);
 
     XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
-    XCTAssertEqualObjects(record.cachedErrorResponse,tokenResponse->_error);
+    XCTAssertEqual(record.cachedErrorResponse.code,tokenResponse->_error.code);
+    XCTAssertEqual(record.cachedErrorResponse.domain,tokenResponse->_error.domain);
     XCTAssertEqual(record.throttledCount,1);
 
 
@@ -607,7 +610,8 @@
     XCTAssertNil(subError);
 
     XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
-    XCTAssertEqualObjects(record.cachedErrorResponse,tokenResponse->_error);
+    XCTAssertEqual(record.cachedErrorResponse.code,tokenResponse->_error.code);
+    XCTAssertEqual(record.cachedErrorResponse.domain,tokenResponse->_error.domain);
     XCTAssertEqual(record.throttledCount,1);
 
 
@@ -755,7 +759,8 @@
     XCTAssertNil(subError);
 
     XCTAssertEqual(record.throttleType,MSIDThrottlingTypeInteractiveRequired);
-    XCTAssertEqualObjects(record.cachedErrorResponse,expectedError);
+    XCTAssertEqual(record.cachedErrorResponse.code,expectedError.code);
+    XCTAssertEqual(record.cachedErrorResponse.domain,expectedError.domain);
     XCTAssertEqual(record.throttledCount,1);
 
 
@@ -902,7 +907,8 @@
     XCTAssertNil(subError);
 
     XCTAssertEqual(record.throttleType,MSIDThrottlingTypeInteractiveRequired);
-    XCTAssertEqualObjects(record.cachedErrorResponse,expectedError);
+    XCTAssertEqual(record.cachedErrorResponse.code,expectedError.code);
+    XCTAssertEqual(record.cachedErrorResponse.domain,expectedError.domain);
     XCTAssertEqual(record.throttledCount,1);
 
 
@@ -1160,7 +1166,8 @@
       XCTAssertNil(subError);
 
       XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
-      XCTAssertEqualObjects(record.cachedErrorResponse,ssoErrorInternal);
+      XCTAssertEqual(record.cachedErrorResponse.code,ssoErrorInternal.code);
+      XCTAssertEqual(record.cachedErrorResponse.domain,ssoErrorInternal.domain);
       XCTAssertEqual(record.throttledCount,1);
 
 
@@ -1324,7 +1331,8 @@
       XCTAssertNil(subError);
 
       XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
-      XCTAssertEqualObjects(record.cachedErrorResponse,ssoErrorInternal);
+      XCTAssertEqual(record.cachedErrorResponse.code,ssoErrorInternal.code);
+      XCTAssertEqual(record.cachedErrorResponse.domain,ssoErrorInternal.domain);
       XCTAssertEqual(record.throttledCount,1);
 
       XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttling SSO extension request - should be cleared"];
@@ -1472,7 +1480,8 @@
       XCTAssertNil(subError);
 
       XCTAssertEqual(record.throttleType,MSIDThrottlingTypeInteractiveRequired);
-      XCTAssertEqualObjects(record.cachedErrorResponse,ssoErrorInternal);
+      XCTAssertEqual(record.cachedErrorResponse.code,ssoErrorInternal.code);
+      XCTAssertEqual(record.cachedErrorResponse.domain,ssoErrorInternal.domain);
       XCTAssertEqual(record.throttledCount,1);
 
 
