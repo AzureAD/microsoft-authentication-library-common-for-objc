@@ -32,6 +32,7 @@
 #import "MSIDBrokerOperationGetDeviceInfoRequest.h"
 #import "MSIDDeviceInfo.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
+#import "MSIDXPCServiceEndpointAccessory.h"
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDLastRequestTelemetry.h"
 #endif
@@ -45,6 +46,8 @@
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @property (nonatomic) MSIDRequestParameters *requestParameters;
 @property (nonatomic) NSDate *requestSentDate;
+@property (nonatomic) MSIDBrokerOperationGetDeviceInfoRequest *getDeviceInfoRequest;
+@property (nonatomic, copy) MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock;
 #if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 #endif
@@ -75,7 +78,7 @@
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = requestParameters;
         __typeof__(self) __weak weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
+        self.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
         {
             MSIDDeviceInfo *resultDeviceInfo = nil;
             
@@ -114,26 +117,56 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDGetDeviceInfoRequestCompletionBlock)completionBlock
 {
-    MSIDBrokerOperationGetDeviceInfoRequest *getDeviceInfoRequest = [MSIDBrokerOperationGetDeviceInfoRequest new];
+    self.getDeviceInfoRequest = [MSIDBrokerOperationGetDeviceInfoRequest new];
+    [MSIDBrokerOperationGetDeviceInfoRequest fillRequest:self.getDeviceInfoRequest
+                                   keychainAccessGroup:self.requestParameters.keychainAccessGroup
+                                        clientMetadata:self.requestParameters.appRequestMetadata
+                 clientBrokerKeyCapabilityNotSupported: self.requestParameters.clientBrokerKeyCapabilityNotSupported
+                                                 context:self.requestParameters];
     
-    NSError *error;
-    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getDeviceInfoRequest
-                                                                                          requestParameters:self.requestParameters
-                                                                                                 requiresUI:NO
-                                                                                                      error:&error];
-    
-    if (!ssoRequest)
-    {
-        completionBlock(nil, error);
-        return;
-    }
-        
-    self.authorizationController = [self controllerWithRequest:ssoRequest];
-    self.authorizationController.delegate = self.extensionDelegate;
-    self.requestSentDate = [NSDate date];
-    [self.authorizationController msidPerformRequests];
+//    NSError *error;
+//    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:self.getDeviceInfoRequest
+//                                                                                          requestParameters:self.requestParameters
+//                                                                                                 requiresUI:NO
+//                                                                                                      error:&error];
+//    
+//    if (!ssoRequest)
+//    {
+//        completionBlock(nil, error);
+//        return;
+//    }
+//        
+//    self.authorizationController = [self controllerWithRequest:ssoRequest];
+//    self.authorizationController.delegate = self.extensionDelegate;
+//    self.requestSentDate = [NSDate date];
+//    [self.authorizationController msidPerformRequests];
     
     self.requestCompletionBlock = completionBlock;
+    [self nativeXpcFlow:[self.getDeviceInfoRequest jsonDictionary]];
+}
+
+- (void)nativeXpcFlow:(NSDictionary *)ssoRequest
+{
+    NSMutableDictionary *withAuthorityDict = [ssoRequest mutableCopy];
+    withAuthorityDict[@"authority"] = MSID_DEFAULT_AAD_AUTHORITY;
+    // Get the bundle object for the main bundle
+    NSBundle *mainBundle = [NSBundle mainBundle];
+
+    // Retrieve the bundle identifier
+    NSString *bundleIdentifier = [mainBundle bundleIdentifier]; // source_application
+    NSDictionary *input = @{@"source_application": bundleIdentifier,
+                            @"sso_request_param": withAuthorityDict,
+                            @"is_silent": @(YES),
+                            @"sso_request_operation": [self.getDeviceInfoRequest.class operation],
+                            @"sso_request_id": [[NSUUID UUID] UUIDString]};
+//    NSDate *innerStartTime = [NSDate date];
+    MSIDXPCServiceEndpointAccessory *accessory = [MSIDXPCServiceEndpointAccessory new];
+    [accessory handleRequestParam:input
+                        brokerKey:self.getDeviceInfoRequest.brokerKey
+        assertKindOfResponseClass:MSIDBrokerNativeAppOperationResponse.class
+                    continueBlock:^(id  _Nullable response, NSError * _Nullable error) {
+        self.completionBlock(response, error);
+    }];
 }
 
 #pragma mark - AuthenticationServices

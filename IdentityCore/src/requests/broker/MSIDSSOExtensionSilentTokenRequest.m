@@ -35,7 +35,6 @@
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 #import "MSIDOauth2Factory.h"
-#import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDSSOTokenResponseHandler.h"
@@ -259,35 +258,9 @@
                             @"is_silent": @(YES),
                             @"sso_request_operation": [self.operationRequest.class operation],
                             @"sso_request_id": [[NSUUID UUID] UUIDString]};
-//    NSDate *innerStartTime = [NSDate date];
     MSIDXPCServiceEndpointAccessory *accessory = [MSIDXPCServiceEndpointAccessory new];
-    [accessory getXpcService:^(id<ADBChildBrokerProtocol>  _Nonnull xpcService) {
-        [xpcService acquireTokenSilentlyFromBroker:input parentViewFrame:NSMakeRect(0, 0, 0, 0) completionBlock:^(NSDictionary *replyParam, NSDate* __unused xpcStartDate, NSString __unused *processId, NSError *error) {
-//            NSDate *replyDate = [NSDate date];
-            MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:[NSData msidDataFromBase64UrlEncodedString:self.operationRequest.brokerKey]];
-            NSDictionary *jsonResponse = [cryptoProvider decryptBrokerResponse:replyParam correlationId:nil error:nil];
-            
-            BOOL forceRunOnBackgroundQueue = [[jsonResponse objectForKey:MSID_BROKER_OPERATION_KEY] isEqualToString:@"refresh"];
-            [self forceRunOnBackgroundQueue:forceRunOnBackgroundQueue dispatchBlock:^{
-                if (error)
-                {
-                    NSLog(@"[Entra broker] CLIENT Time spent, received operationResponse with error: %@", error.description);
-                    self.completionBlock(nil, error);
-                    return;
-                }
-                NSError *innerError = nil;
-                __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:jsonResponse classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&innerError];
-
-                if (!operationResponse)
-                {
-                    NSLog(@"[Entra broker] CLIENT Time spent, received operationResponse: %@", operationResponse.jsonDictionary);
-                }
-                else
-                {
-                    self.completionBlock(operationResponse, error);
-                }
-            }];
-        }];
+    [accessory handleRequestParam:input brokerKey:self.operationRequest.brokerKey assertKindOfResponseClass:MSIDBrokerOperationTokenResponse.class continueBlock:^(id  _Nullable response, NSError * _Nullable error) {
+        self.completionBlock(response, error);
     }];
 }
 

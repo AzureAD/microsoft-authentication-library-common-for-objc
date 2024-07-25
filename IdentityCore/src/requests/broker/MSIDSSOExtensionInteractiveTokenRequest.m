@@ -155,7 +155,7 @@
                                                                                           error:nil];
         
         self.requestSentDate = [NSDate date];
-        NSRect frame = self.requestParameters.parentViewController.view.window.frame;
+//        NSRect frame = self.requestParameters.parentViewController.view.window.frame;
         self.operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                                  providerType:self.providerType
                                                                                                 enrollmentIds:enrollmentIds
@@ -174,22 +174,23 @@
             completionBlock(nil, error, nil);
             return;
         }
-        
-        [self nativeXpcFlow:jsonDictionary parentViewFrame:frame];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self nativeXpcFlow:jsonDictionary parentViewFrame:self.requestParameters.parentViewController.view.window.frame];
+        });
         
 //        __auto_type queryItems = [jsonDictionary msidQueryItems];
 //        ssoRequest.authorizationOptions = queryItems;
-//        
-//#if TARGET_OS_IPHONE
+        
+#if TARGET_OS_IPHONE
 //        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-//#endif
-//        
+#endif
+        
 //        self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
 //        self.authorizationController.delegate = self.extensionDelegate;
 //        self.authorizationController.presentationContextProvider = self;
 //        [self.authorizationController msidPerformRequests];
 //        
-        self.requestCompletionBlock = completionBlock;
+//        self.requestCompletionBlock = completionBlock;
      }];
 }
 
@@ -239,29 +240,14 @@
                              @"sso_request_id": [[NSUUID UUID] UUIDString]};
  //    NSDate *innerStartTime = [NSDate date];
      MSIDXPCServiceEndpointAccessory *accessory = [MSIDXPCServiceEndpointAccessory new];
-     [accessory getXpcService:^(id<ADBChildBrokerProtocol>  _Nonnull xpcService) {
-         [xpcService acquireTokenSilentlyFromBroker:input parentViewFrame:frame completionBlock:^(NSDictionary *replyParam, NSDate* __unused xpcStartDate, NSString __unused *processId, NSError *error) {
- //            NSDate *replyDate = [NSDate date];
-             MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:[NSData msidDataFromBase64UrlEncodedString:self.operationRequest.brokerKey]];
-             NSDictionary *jsonResponse = [cryptoProvider decryptBrokerResponse:replyParam correlationId:nil error:nil];
-             if (error)
-             {
-                 NSLog(@"[Entra broker] CLIENT Time spent, received operationResponse with error: %@", error.description);
-                 self.completionBlock(nil, error);
-                 return;
-             }
-             NSError *innerError = nil;
-             __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:jsonResponse classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&innerError];
-
-             if (!operationResponse)
-             {
-                 NSLog(@"[Entra broker] CLIENT Time spent, received operationResponse: %@", operationResponse.jsonDictionary);
-             }
-             else
-             {
-                 self.completionBlock(operationResponse, error);
-             }
-         }];
+     [accessory handleRequestParam:input 
+                   parentViewFrame:frame
+                         brokerKey:self.operationRequest.brokerKey
+         assertKindOfResponseClass:MSIDBrokerOperationTokenResponse.class
+                     continueBlock:^(id  _Nullable response, NSError * _Nullable error) {
+         dispatch_async(dispatch_get_main_queue(), ^{
+             self.completionBlock(response, error);
+         });
      }];
  }
  @end

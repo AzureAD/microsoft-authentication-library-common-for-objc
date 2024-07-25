@@ -50,6 +50,11 @@
 #define developmentRequirement "(" requireIsAPPLSignedAnchor ") and ((" coreRequirementAppStore ") or (" coreRequirementExternal ") or (" coreRequirementInternal "))"
 
 #import "MSIDXPCServiceEndpointAccessory.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDBrokerCryptoProvider.h"
+#import "MSIDBrokerConstants.h"
+#import "NSData+MSIDExtensions.h"
+#import "MSIDBrokerOperationTokenResponse.h"
 
 static NSXPCListenerEndpoint * s_listenerEndpoint = nil;
 
@@ -61,23 +66,9 @@ static NSXPCListenerEndpoint * s_listenerEndpoint = nil;
 @property (nonatomic) BOOL shoudlReconnect;
 @property (nonatomic, copy) NSXPCListenerEndpointTearDownBlock tearDownBlock;
 
-//- (void)startTimer;
-//- (void)resetTimer;
-//- (void)timerAction:(id)sender;
-
 @end
 
 @implementation MSIDXPCServiceEndpointAccessory
-
-+ (MSIDXPCServiceEndpointAccessory *)sharedInstance
-{
-    static MSIDXPCServiceEndpointAccessory *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self.class alloc] init];
-    });
-    return sharedInstance;
-}
 
 - (instancetype)init
 {
@@ -122,8 +113,13 @@ static NSXPCListenerEndpoint * s_listenerEndpoint = nil;
         NSLog(@"[Entra broker] CLIENT agent has error %@", error);
         // TODO: handle error
     }];
-    
-    [parentXpcService connectToBrokerWithRequestInfo:@{} connectionCompletion:^(NSXPCListenerEndpoint * _Nonnull listenerEndpoint, NSDictionary * _Nonnull __unused params, NSError * _Nonnull __unused error) {
+    [parentXpcService getBrokerInstanceEndpointWithRequestInfo:@{} reply:^(NSXPCListenerEndpoint * _Nullable listenerEndpoint, NSDictionary<NSString *, id> * _Nullable __unused params, NSError * _Nullable error) {
+        if (error)
+        {
+            NSLog(@"[Entra broker] CLIENT - get broker instance endpoint failed: %@", error);
+            return;
+        }
+        
         NSLog(@"[Entra broker] CLIENT - connected to new service endpoint %@", listenerEndpoint);
 
         NSXPCConnection *directConnection = [[NSXPCConnection alloc] initWithListenerEndpoint:listenerEndpoint];
@@ -160,6 +156,68 @@ static NSXPCListenerEndpoint * s_listenerEndpoint = nil;
     // TODO: add this for distribution to prohibit debugger
     //" and !(entitlement[\"com.apple.security.get-task-allow\"] /* exists */)"
     return stringWithAdditionalRequirements;
+}
+
+- (void)handleRequestParam:(NSDictionary *)requestParam
+                 brokerKey:(id)brokerKey
+ assertKindOfResponseClass:(Class)aClass
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
+{
+    [self handleRequestParam:requestParam 
+             parentViewFrame:CGRectZero 
+                   brokerKey:brokerKey
+   assertKindOfResponseClass:(Class)aClass
+               continueBlock:continueBlock];
+}
+
+- (void)handleRequestParam:(NSDictionary *)requestParam
+           parentViewFrame:(NSRect)frame
+                 brokerKey:brokerKey
+ assertKindOfResponseClass:(Class)aClass
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
+{
+    [self getXpcService:^(id<ADBChildBrokerProtocol>  _Nonnull xpcService) {
+        [xpcService handleXpcWithRequestParams:requestParam parentViewFrame:frame completionBlock:^(NSDictionary<NSString *,id> * _Nonnull replyParam, NSDate * _Nonnull __unused xpcStartDate, NSString * _Nonnull __unused processId, NSError * _Nonnull error) {
+            MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:[NSData msidDataFromBase64UrlEncodedString:brokerKey]];
+            NSDictionary *jsonResponse = [cryptoProvider decryptBrokerResponse:replyParam correlationId:nil error:nil];
+            
+            BOOL forceRunOnBackgroundQueue = [[jsonResponse objectForKey:MSID_BROKER_OPERATION_KEY] isEqualToString:@"refresh"];
+            [self forceRunOnBackgroundQueue:forceRunOnBackgroundQueue dispatchBlock:^{
+                if (error)
+                {
+                    NSLog(@"[Entra broker] CLIENT Time spent, received operationResponse with error: %@", error.description);
+                    continueBlock(nil, error);
+                    return;
+                }
+                NSError *innerError = nil;
+                __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:jsonResponse classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:aClass error:&innerError];
+
+                if (!operationResponse)
+                {
+                    NSLog(@"[Entra broker] cannot create operationResponse");
+                    continueBlock(nil, innerError);
+                }
+                else
+                {
+                    NSLog(@"[Entra broker] CLIENT Time spent, received operationResponse");
+                    continueBlock(operationResponse, error);
+                }
+            }];
+        }];
+    }];
+}
+
+- (void)forceRunOnBackgroundQueue:(BOOL)forceOnBackgroundQueue dispatchBlock:(void (^)(void))dispatchBlock {
+    if (forceOnBackgroundQueue && [NSThread isMainThread])
+    {
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            dispatchBlock();
+        });
+    }
+    else
+    {
+        dispatchBlock();
+    }
 }
 
 @end

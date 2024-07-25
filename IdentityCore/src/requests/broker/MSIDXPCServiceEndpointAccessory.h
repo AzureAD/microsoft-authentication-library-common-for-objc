@@ -24,14 +24,15 @@
 
 
 #import <Foundation/Foundation.h>
+#import "MSIDSSOExtensionRequestDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol ADBChildBrokerProtocol <NSObject>
 
-- (void)acquireTokenSilentlyFromBroker:(NSDictionary *)passedInParams
-                       parentViewFrame:(NSRect)frame
-                       completionBlock:(void (^)(NSDictionary *responseJson, NSDate* xpcStartDate, NSString *processId, NSError *error))blockName;
+- (void)handleXpcWithRequestParams:(NSDictionary *)passedInParams
+                                   parentViewFrame:(NSRect)frame
+                                   completionBlock:(void (^)(NSDictionary<NSString *,id> * _Nonnull, NSDate * _Nonnull, NSString * _Nonnull, NSError * _Nullable))blockName;
 
 @end
 
@@ -40,8 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)connectToBrokerWithRequestInfo:(NSDictionary *)requestInfo
                   connectionCompletion:(void (^)(NSXPCListenerEndpoint *listenerEndpoint, NSDictionary *params, NSError *error))completion;
 
-//- (void)acquireTokenSilentlyFromBroker:(NSDictionary *)passedInParams
-//                       completionBlock:(void (^)(NSString *replyParam, NSDate* xpcStartDate, NSString *processId))blockName;
+- (void)getBrokerInstanceEndpointWithRequestInfo:(NSDictionary <NSString *, id> * _Nullable)requestInfo
+                            reply:(void (^)(NSXPCListenerEndpoint  * _Nullable listenerEndpoint, NSDictionary * _Nullable params, NSError * _Nullable error))reply;
 
 @end
 
@@ -49,8 +50,20 @@ typedef void (^NSXPCListenerEndpointTearDownBlock)(id<ADBChildBrokerProtocol> _N
 
 @interface MSIDXPCServiceEndpointAccessory : NSObject
 
-- (void)getXpcService:(NSXPCListenerEndpointTearDownBlock)continueblock;
-+ (nonnull MSIDXPCServiceEndpointAccessory *)sharedInstance;
+
+// For interactive
+// Note: completion thread is not gurantee, please submit to the correct thread as needed
+- (void)handleRequestParam:(NSDictionary *)requestParam
+           parentViewFrame:(NSRect)frame
+                 brokerKey:brokerKey
+ assertKindOfResponseClass:(Class)aClass
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+
+// For silent
+- (void)handleRequestParam:(NSDictionary *)requestParam
+                 brokerKey:brokerKey
+ assertKindOfResponseClass:(Class)aClass
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
 @end
 

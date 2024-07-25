@@ -34,6 +34,11 @@
 #import "MSIDBrokerOperationGetAccountsResponse.h"
 #import "MSIDDeviceInfo.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
+#import "MSIDXPCServiceEndpointAccessory.h"
+#import "MSIDBrokerCryptoProvider.h"
+#import "NSData+MSIDExtensions.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDBrokerOperationTokenResponse.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDLastRequestTelemetry.h"
@@ -49,6 +54,9 @@
 @property (nonatomic) MSIDRequestParameters *requestParameters;
 @property (nonatomic) BOOL returnOnlySignedInAccounts;
 @property (nonatomic) NSDate *requestSentDate;
+@property (nonatomic) MSIDBrokerOperationGetAccountsRequest *getAccountsRequest;
+@property (nonatomic, copy) MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock;
+
 #if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 #endif
@@ -81,7 +89,7 @@
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = requestParameters;
         __typeof__(self) __weak weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
+        self.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
         {
             NSArray *resultAccounts = nil;
             BOOL returnBrokerAccountsOnly = NO;
@@ -126,31 +134,40 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock
 {
-    MSIDBrokerOperationGetAccountsRequest *getAccountsRequest = [MSIDBrokerOperationGetAccountsRequest new];
-    getAccountsRequest.clientId = self.requestParameters.clientId;
-    getAccountsRequest.returnOnlySignedInAccounts = self.returnOnlySignedInAccounts;
+    self.getAccountsRequest = [MSIDBrokerOperationGetAccountsRequest new];
+    [MSIDBrokerOperationGetAccountsRequest fillRequest:self.getAccountsRequest
+                                   keychainAccessGroup:self.requestParameters.keychainAccessGroup
+                                        clientMetadata:self.requestParameters.appRequestMetadata
+                 clientBrokerKeyCapabilityNotSupported: self.requestParameters.clientBrokerKeyCapabilityNotSupported
+                                               context:self.requestParameters];
+    self.getAccountsRequest.clientId = self.requestParameters.clientId;
+    self.getAccountsRequest.returnOnlySignedInAccounts = self.returnOnlySignedInAccounts;
     // TODO: pass familyId, will be addressed in a separate PR
     // TODO: pass returnOnlySignedInAccounts == false, will be addressed in a separate PR
 
-    NSError *error;
-    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getAccountsRequest
-                                                                                          requestParameters:self.requestParameters
-                                                                                                 requiresUI:NO
-                                                                                                      error:&error];
-    
-    if (!ssoRequest)
-    {
-        completionBlock(nil, NO, error);
-        return;
-    }
-        
-    self.authorizationController = [self controllerWithRequest:ssoRequest];
-    self.authorizationController.delegate = self.extensionDelegate;
-    
-    self.requestSentDate = [NSDate date];
-    [self.authorizationController msidPerformRequests];
-    
+//    NSError *error;
+//    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getAccountsRequest
+//                                                                                          requestParameters:self.requestParameters
+//                                                                                                 requiresUI:NO
+//                                                                                                      error:&error];
+//    
+//    if (!ssoRequest)
+//    {
+//        completionBlock(nil, NO, error);
+//        return;
+//    }
+//        
+//    self.authorizationController = [self controllerWithRequest:ssoRequest];
+//    self.authorizationController.delegate = self.extensionDelegate;
+//    
+//    self.requestSentDate = [NSDate date];
+//    [self.authorizationController msidPerformRequests];
+//    
     self.requestCompletionBlock = completionBlock;
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+    //Background Thread
+        [self nativeXpcFlow:[self.getAccountsRequest jsonDictionary]];
+    });
 }
 
 #pragma mark - AuthenticationServices
@@ -163,6 +180,30 @@
 + (BOOL)canPerformRequest
 {
     return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
+}
+
+- (void)nativeXpcFlow:(NSDictionary *)ssoRequest
+{
+    NSMutableDictionary *withAuthorityDict = [ssoRequest mutableCopy];
+    withAuthorityDict[@"authority"] = MSID_DEFAULT_AAD_AUTHORITY;
+    // Get the bundle object for the main bundle
+    NSBundle *mainBundle = [NSBundle mainBundle];
+
+    // Retrieve the bundle identifier
+    NSString *bundleIdentifier = [mainBundle bundleIdentifier]; // source_application
+    NSDictionary *input = @{@"source_application": bundleIdentifier,
+                            @"sso_request_param": withAuthorityDict,
+                            @"is_silent": @(YES),
+                            @"sso_request_operation": [self.getAccountsRequest.class operation],
+                            @"sso_request_id": [[NSUUID UUID] UUIDString]};
+//    NSDate *innerStartTime = [NSDate date];
+    MSIDXPCServiceEndpointAccessory *accessory = [MSIDXPCServiceEndpointAccessory new];
+    [accessory handleRequestParam:input
+                        brokerKey:self.getAccountsRequest.brokerKey
+        assertKindOfResponseClass:MSIDBrokerNativeAppOperationResponse.class
+                    continueBlock:^(id  _Nullable response, NSError * _Nullable error) {
+        self.completionBlock(response, error);
+    }];
 }
 
 @end
