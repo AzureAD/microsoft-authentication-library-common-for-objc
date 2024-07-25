@@ -140,6 +140,16 @@
         [additionalInfo setValue:@1 forKey:MSIDServerUnavailableStatusKey];
     }
     
+    if (data && data.length > 0)
+    {
+        NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        if (![NSString msidIsStringNilOrBlank:responseString])
+        {
+            NSString *teleString = responseString.length > 10 ? [responseString substringToIndex:10] : responseString;
+            [additionalInfo setValue:teleString forKey:MSIDHTTPTruncatedResponseStringKey];
+        }
+    }
+    
     NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, nil, context.correlationId, additionalInfo, YES);
     
     if (completionBlock) completionBlock(nil, httpError);
