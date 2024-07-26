@@ -50,6 +50,11 @@
         {
             // Networking errors (-1001, -1003. -1004. -1005. -1009)
             shouldRetryNetworkingFailure = [self shouldRetryNetworkingFailure:error.code];
+            if (shouldRetryNetworkingFailure && error.code == NSURLErrorNotConnectedToInternet)
+            {
+                // For handling the NSURLErrorNotConnectedToInternet error, retry the network request after a longer delay.
+                httpRequest.retryInterval = 2.0;
+            }
         }
 
         shouldRetry &= shouldRetryNetworkingFailure;
@@ -133,6 +138,16 @@
     if (httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599)
     {
         [additionalInfo setValue:@1 forKey:MSIDServerUnavailableStatusKey];
+    }
+    
+    if (data && data.length > 0)
+    {
+        NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        if (![NSString msidIsStringNilOrBlank:responseString])
+        {
+            NSString *teleString = responseString.length > 10 ? [responseString substringToIndex:10] : responseString;
+            [additionalInfo setValue:teleString forKey:MSIDHTTPTruncatedResponseStringKey];
+        }
     }
     
     NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, nil, context.correlationId, additionalInfo, YES);

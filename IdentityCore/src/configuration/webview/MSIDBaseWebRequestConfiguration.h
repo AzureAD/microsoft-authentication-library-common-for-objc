@@ -62,6 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
 // By default, this is set to NO.
 @property (nonatomic, readonly) BOOL ignoreInvalidState;
 
+#if MSAL_JS_AUTOMATION
+@property (nonatomic) NSString *clientAutomationScript;
+#endif
+
 - (instancetype)initWithStartURL:(NSURL *)startURL
                   endRedirectUri:(NSString *)endRedirectUri
                            state:(NSString *)state

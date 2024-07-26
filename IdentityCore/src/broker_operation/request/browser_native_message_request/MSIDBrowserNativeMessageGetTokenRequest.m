@@ -48,7 +48,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
 
 + (void)load
 {
-//    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
 + (NSString *)operation

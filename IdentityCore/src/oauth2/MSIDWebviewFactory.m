@@ -113,6 +113,9 @@
                                                       customHeaders:configuration.customHeaders
                                                      platfromParams:nil
                                                             context:context];
+#if MSAL_JS_AUTOMATION
+    embeddedWebviewController.clientAutomationScript = configuration.clientAutomationScript;
+#endif
     
 #if TARGET_OS_IPHONE
     embeddedWebviewController.parentController = configuration.parentController;
@@ -182,6 +185,14 @@
     {
         [result addEntriesFromDictionary:allAuthorizeRequestExtraParameters];
     }
+    
+#if MSAL_JS_AUTOMATION
+    // Remove "script" entry from the additional parameters
+    if([result objectForKey:@"script"])
+    {
+        [result removeObjectForKey:@"script"];
+    }
+#endif
     
     // PKCE
     if (pkce)
@@ -276,6 +287,11 @@
                                                                                                                    state:oauthState
                                                                                                       ignoreInvalidState:NO
                                                                                                               ssoContext:parameters.ssoContext];
+
+#if MSAL_JS_AUTOMATION
+    configuration.clientAutomationScript = [[parameters allAuthorizeRequestExtraParametersWithMetadata:YES] objectForKey:@"script"];
+#endif
+
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;
     configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
