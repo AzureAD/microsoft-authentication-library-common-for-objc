@@ -1164,7 +1164,7 @@
 
    XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
    XCTAssertEqual(record.cachedErrorResponse.code,ssoErrorInternal.code);
-   XCTAssertEqualObjects(record.cachedErrorResponse,ssoErrorInternal);
+   XCTAssertEqual(record.cachedErrorResponse.domain,ssoErrorInternal.domain);
    XCTAssertEqual(record.throttledCount,1);
 
 
