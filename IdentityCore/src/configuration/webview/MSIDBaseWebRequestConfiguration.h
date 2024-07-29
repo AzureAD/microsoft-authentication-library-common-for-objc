@@ -62,6 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
 // By default, this is set to NO.
 @property (nonatomic, readonly) BOOL ignoreInvalidState;
 
+#if MSAL_JS_AUTOMATION
+@property (nonatomic) NSString *clientAutomationScript;
+#endif
+
 - (instancetype)initWithStartURL:(NSURL *)startURL
                   endRedirectUri:(NSString *)endRedirectUri
                            state:(NSString *)state
@@ -76,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                                 factory:(MSIDWebviewFactory *)factory
                                                 context:(nullable id<MSIDRequestContext>)context
-                                                  error:(NSError * _Nullable * _Nullable)error;
+                                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

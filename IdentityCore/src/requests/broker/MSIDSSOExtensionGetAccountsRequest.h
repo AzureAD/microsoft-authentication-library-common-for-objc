@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                         returnOnlySignedInAccounts:(BOOL)returnOnlySignedInAccounts
-                                             error:(NSError * _Nullable * _Nullable)error;
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock;
 

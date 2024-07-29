@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                             error:(NSError * _Nullable * _Nullable)error;
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (void)executeBrokerOperationRequest:(MSIDBrokerOperationRequest *)request
                            requiresUI:(BOOL)requiresUI

@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable ASAuthorizationSingleSignOnRequest *)createSSORequestWithOperationRequest:(MSIDBrokerOperationRequest *)operationRequest
                                                                     requestParameters:(MSIDRequestParameters *)requestParameters
                                                                            requiresUI:(BOOL)requiresUI
-                                                                                error:(NSError * _Nullable * _Nullable)error;
+                                                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

@@ -27,9 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSKeyedUnarchiver (MSIDExtensions)
 
-+ (nullable instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError **)error;
++ (nullable instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError *__autoreleasing*)error;
 
-+ (nullable id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError **)error;
++ (nullable id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError *__autoreleasing*)error;
 
 @end
 

@@ -96,7 +96,7 @@
                                                             brokerKey:(nonnull __unused NSString *)brokerKey
                                                brokerApplicationToken:(__unused NSString * _Nullable )brokerApplicationToken
                                                       sdkCapabilities:(__unused NSArray *)sdkCapabilities
-                                                                error:(NSError * _Nullable * _Nullable)error
+                                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     if (self.testError)
     {

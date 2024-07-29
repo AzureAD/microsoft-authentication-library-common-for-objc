@@ -31,7 +31,7 @@
 @implementation MSIDWebUpgradeRegResponse
 
 static NSString *const SCHEME_MSAUTH = @"msauth";
-static NSString *const UPGRADE_REG = @"upgradeReg";
+static NSString *const UPGRADE_REG = @"upgradereg";
 
 + (void)load
 {
@@ -40,7 +40,7 @@ static NSString *const UPGRADE_REG = @"upgradeReg";
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     // Check for upgrade registration
     if (![self isBrokerUpgradeRegResponse:url])
@@ -71,7 +71,7 @@ static NSString *const UPGRADE_REG = @"upgradeReg";
     // For embedded webview, if link starts with msauth scheme and contain upgradeReg host
     // then it is migrateWpj request
     // e.g. msauth://upgradeReg?param=param
-    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host isEqualToString:UPGRADE_REG])
+    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host caseInsensitiveCompare:UPGRADE_REG] == NSOrderedSame)
     {
         return YES;
     }
@@ -87,7 +87,7 @@ static NSString *const UPGRADE_REG = @"upgradeReg";
     // e.g. myscheme://auth/msauth/upgradeReg?param=param
     NSUInteger pathComponentCount = pathComponents.count;
     
-    if ([pathComponents[pathComponentCount - 1] isEqualToString:UPGRADE_REG]
+    if ([pathComponents[pathComponentCount - 1] caseInsensitiveCompare:UPGRADE_REG] == NSOrderedSame
         && [pathComponents[pathComponentCount - 2] isEqualToString:SCHEME_MSAUTH])
     {
         return YES;

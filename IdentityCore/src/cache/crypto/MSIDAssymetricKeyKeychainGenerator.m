@@ -92,7 +92,7 @@ static const OSStatus kNoStatus = -1;
 #pragma mark - MSIDAssymetricKeyGenerating
 
 - (MSIDAssymetricKeyPair *)generateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
-                                                  error:(NSError **)error
+                                                  error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
     {
@@ -117,7 +117,7 @@ static const OSStatus kNoStatus = -1;
 }
 
 - (MSIDAssymetricKeyPair *)readOrGenerateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
-                                                        error:(NSError **)error
+                                                        error:(NSError *__autoreleasing*)error
 {
     NSError *readError = nil;
     MSIDAssymetricKeyPair *keyPair = [self readKeyPairForAttributes:attributes error:&readError];
@@ -132,7 +132,7 @@ static const OSStatus kNoStatus = -1;
 }
 
 - (MSIDAssymetricKeyPair *)readKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
-                                             error:(NSError **)error
+                                             error:(NSError *__autoreleasing*)error
 {
     
     if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
@@ -172,7 +172,7 @@ static const OSStatus kNoStatus = -1;
 
 #pragma mark - Cleanup
 
-- (BOOL)deleteItemWithAttributes:(NSDictionary *)attributes error:(NSError **)error
+- (BOOL)deleteItemWithAttributes:(NSDictionary *)attributes error:(NSError *__autoreleasing*)error
 {
     NSDictionary *queryAttributes = [self keychainQueryWithAttributes:attributes];
     OSStatus result = SecItemDelete((CFDictionaryRef)queryAttributes);
@@ -191,7 +191,7 @@ static const OSStatus kNoStatus = -1;
 
 #pragma mark - Private
 
-- (NSDictionary *)keyAttributesWithQueryDictionary:(NSDictionary *)queryDictionary error:(NSError **)error
+- (NSDictionary *)keyAttributesWithQueryDictionary:(NSDictionary *)queryDictionary error:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *keychainQuery = [[self keychainQueryWithAttributes:queryDictionary] mutableCopy];
     CFDictionaryRef keyCFDict = NULL;
@@ -221,7 +221,7 @@ static const OSStatus kNoStatus = -1;
     return keyPairAttr;
 }
 
-- (MSIDAssymetricKeyPair *)generateEphemeralKeyPair:(NSError **)error
+- (MSIDAssymetricKeyPair *)generateEphemeralKeyPair:(NSError *__autoreleasing*)error
 {
     NSDictionary *attributesDict = @{(__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA,
                                      (__bridge id)kSecAttrKeySizeInBits : @2048};
@@ -229,7 +229,7 @@ static const OSStatus kNoStatus = -1;
 }
 
 - (MSIDAssymetricKeyPair *)generateKeyPairForKeyDict:(NSDictionary *)attributes
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     CFErrorRef keyGenerationError = NULL;
     SecKeyRef privateKeyRef = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &keyGenerationError);
@@ -275,7 +275,7 @@ static const OSStatus kNoStatus = -1;
 
 #pragma mark - Utils
 
-- (BOOL)logAndFillError:(NSString *)errorTitle status:(OSStatus)status error:(NSError **)error
+- (BOOL)logAndFillError:(NSString *)errorTitle status:(OSStatus)status error:(NSError *__autoreleasing*)error
 {
     NSString *description = [NSString stringWithFormat:@"Operation failed with title \"%@\", status %ld", errorTitle, (long)status];
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", description);

@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  accountIdentifier:(nullable MSIDAccountIdentifier *)accountIdentifier
                                             ssoUrl:(NSString *)ssoUrl
                                      correlationId:(nullable NSUUID *)correlationId
-                                             error:(NSError * _Nullable * _Nullable)error;
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDGetSsoCookiesRequestCompletionBlock)completionBlock;
 

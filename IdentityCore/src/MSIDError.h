@@ -29,10 +29,12 @@ extern NSString * _Nonnull MSIDOAuthSubErrorKey;
 extern NSString * _Nonnull MSIDCorrelationIdKey;
 extern NSString * _Nonnull MSIDHTTPHeadersKey;
 extern NSString * _Nonnull MSIDHTTPResponseCodeKey;
+extern NSString * _Nonnull MSIDHTTPTruncatedResponseStringKey;
 extern NSString * _Nonnull MSIDUserDisplayableIdkey;
 extern NSString * _Nonnull MSIDHomeAccountIdkey;
 extern NSString * _Nonnull MSIDTokenProtectionRequired;
 extern NSString * _Nonnull MSIDBrokerVersionKey;
+extern NSString * _Nonnull MSIDThrottlingCacheHitKey;
 
 /*!
  ADAL and MSID use different error domains and error codes.

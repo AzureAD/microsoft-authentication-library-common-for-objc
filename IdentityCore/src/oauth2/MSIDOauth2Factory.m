@@ -59,14 +59,14 @@
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                      context:(__unused id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+                                       error:(NSError *__autoreleasing*)error
 {
     return [[MSIDTokenResponse alloc] initWithJSONDictionary:json error:error];
 }
 
 - (BOOL)verifyResponse:(MSIDTokenResponse *)response
                context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     if (!response)
     {
@@ -487,7 +487,7 @@
 
 - (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
                                       tokenResponse:(MSIDTokenResponse *)response
-                                              error:(__unused NSError **)error
+                                              error:(__unused NSError *__autoreleasing*)error
 {
     if (response.idTokenObj.issuerAuthority)
     {

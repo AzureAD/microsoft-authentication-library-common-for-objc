@@ -42,7 +42,7 @@
                                                         forceRefresh:(BOOL)forceRefresh
                                                          skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
                                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError **)error
+                                                               error:(NSError *__autoreleasing*)error
 {
     // Nested auth protocol - Reverse client id & redirect uri
     if ([parameters isNestedAuthProtocol])
@@ -103,7 +103,7 @@
 
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                                    error:(NSError * _Nullable * _Nullable)error
+                                                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     // Nested auth protocol - Reverse client id & redirect uri
     if ([parameters isNestedAuthProtocol])
@@ -129,7 +129,7 @@
 
 + (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError * _Nullable * _Nullable)error
+                                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     id<MSIDRequestControlling> localController = [self localInteractiveController:parameters
                                                              tokenRequestProvider:tokenRequestProvider
@@ -160,7 +160,7 @@
 + (nullable id<MSIDRequestControlling>)brokerController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                    tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                      fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                                  error:(NSError * _Nullable * _Nullable)error
+                                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     MSIDBrokerInteractiveController *brokerController = nil;
     
@@ -206,7 +206,7 @@
 + (nullable id<MSIDRequestControlling>)brokerController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                    tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                      fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                                  error:(NSError * _Nullable * _Nullable)error
+                                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     return [self ssoExtensionInteractiveController:parameters
                               tokenRequestProvider:tokenRequestProvider
@@ -218,7 +218,7 @@
 + (nullable id<MSIDRequestControlling>)ssoExtensionInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                     tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                       fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                                                   error:(NSError * _Nullable * _Nullable)error
+                                                                   error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
     {
@@ -234,7 +234,7 @@
 
 + (nullable id<MSIDRequestControlling>)localInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                            error:(NSError * _Nullable * _Nullable)error
+                                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
 #if TARGET_OS_IPHONE
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
@@ -266,7 +266,7 @@
                                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                                  shouldWipeAccount:(BOOL)shouldWipeAccount
                                      shouldWipeCacheForAllAccounts:(BOOL)shouldWipeCacheForAllAccounts
-                                                             error:(NSError **)error
+                                                             error:(NSError *__autoreleasing*)error
 {
     if ([parameters shouldUseBroker])
     {

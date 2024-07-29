@@ -48,7 +48,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
 
 + (void)load
 {
-//    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
 + (NSString *)operation
@@ -58,7 +58,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
     if (!self) return nil;

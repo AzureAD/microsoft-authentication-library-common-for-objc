@@ -76,9 +76,16 @@
         return;
     }
     
-    [self getAccessTokenAndCallLabAPI:apiRequest
-                      responseHandler:responseHandler
-                    completionHandler:completionHandler];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self getAccessTokenAndCallLabAPI:apiRequest
+                          responseHandler:responseHandler
+                        completionHandler:^(id result, NSError *error) 
+         {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(result, error);
+            });
+        }];
+    });
 }
 
 #pragma mark - Get access token

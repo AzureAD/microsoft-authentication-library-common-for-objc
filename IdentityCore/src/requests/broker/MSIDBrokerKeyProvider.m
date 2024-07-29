@@ -81,7 +81,7 @@
     return self;
 }
 
-- (NSData *)brokerKeyWithError:(NSError **)error
+- (NSData *)brokerKeyWithError:(NSError *__autoreleasing*)error
 {
     OSStatus err = noErr;
 
@@ -141,7 +141,7 @@
 }
 
 - (NSString *)base64BrokerKeyWithContext:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     NSError *localError;
     NSData *brokerKey = [self brokerKeyWithError:&localError];
@@ -170,7 +170,7 @@
     return base64UrlKey;
 }
 
-- (NSData *)createBrokerKeyWithError:(NSError **)error
+- (NSData *)createBrokerKeyWithError:(NSError *__autoreleasing*)error
 {
     uint8_t *symmetricKey = NULL;
     OSStatus err = errSecSuccess;
@@ -234,7 +234,7 @@
     return keyData;
 }
 
-- (BOOL)deleteSymmetricKeyWithError:(NSError **)error
+- (BOOL)deleteSymmetricKeyWithError:(NSError *__autoreleasing*)error
 {
     OSStatus err = noErr;
 
@@ -262,7 +262,7 @@
     return YES;
 }
 
-- (BOOL)saveApplicationToken:(NSString *)appToken forClientId:(NSString *)clientId error:(NSError **)error
+- (BOOL)saveApplicationToken:(NSString *)appToken forClientId:(NSString *)clientId error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Saving broker application token for clientId %@.", clientId);
     NSString *tag = [NSString stringWithFormat:@"%@-%@", MSID_BROKER_APPLICATION_TOKEN_TAG, clientId];
@@ -294,7 +294,7 @@
     return YES;
 }
 
-- (NSString *)getApplicationToken:(NSString *)clientId error:(NSError **)error
+- (NSString *)getApplicationToken:(NSString *)clientId error:(NSError *__autoreleasing*)error
 {
     NSString *tag = [NSString stringWithFormat:@"%@-%@", MSID_BROKER_APPLICATION_TOKEN_TAG, clientId];
     
