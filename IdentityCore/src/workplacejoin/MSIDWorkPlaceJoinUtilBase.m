@@ -37,7 +37,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 + (NSString *_Nullable)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                          accessGroup:(nullable NSString *)accessGroup
                                              context:(id<MSIDRequestContext>_Nullable)context
-                                               error:(NSError*__nullable*__nullable)error
+                                               error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     return [self getWPJStringDataFromV2ForTenantId:nil
                                         identifier:identifier
@@ -52,7 +52,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                                      key:(nullable NSString *)key
                                              accessGroup:(nullable NSString *)accessGroup
                                                  context:(id<MSIDRequestContext>_Nullable)context
-                                                   error:(NSError*__nullable*__nullable)error
+                                                   error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     // Building dictionary to retrieve given identifier from the keychain
     NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
@@ -389,7 +389,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     return legacyKeys;
 }
 
-+ (NSString *)getPrimaryEccTenantWithSharedAccessGroup:(NSString *)sharedAccessGroup context:(id<MSIDRequestContext>_Nullable)context error:(NSError **)error
++ (NSString *)getPrimaryEccTenantWithSharedAccessGroup:(NSString *)sharedAccessGroup context:(id<MSIDRequestContext>_Nullable)context error:(NSError *__autoreleasing*)error
 {
     NSString *res = nil;
     NSMutableDictionary *query = [NSMutableDictionary new];
@@ -433,7 +433,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                       tenantIdentifier:(NSString *)tenantIdentifier
                                             domainName:(NSString *)domainName
                                                context:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error
+                                                 error:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *query = [NSMutableDictionary new];
     query[(id)kSecClass] = (id)kSecClassGenericPassword;

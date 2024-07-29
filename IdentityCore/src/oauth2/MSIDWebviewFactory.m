@@ -113,6 +113,9 @@
                                                       customHeaders:configuration.customHeaders
                                                      platfromParams:nil
                                                             context:context];
+#if MSAL_JS_AUTOMATION
+    embeddedWebviewController.clientAutomationScript = configuration.clientAutomationScript;
+#endif
     
 #if TARGET_OS_IPHONE
     embeddedWebviewController.parentController = configuration.parentController;
@@ -183,6 +186,14 @@
         [result addEntriesFromDictionary:allAuthorizeRequestExtraParameters];
     }
     
+#if MSAL_JS_AUTOMATION
+    // Remove "script" entry from the additional parameters
+    if([result objectForKey:@"script"])
+    {
+        [result removeObjectForKey:@"script"];
+    }
+#endif
+    
     // PKCE
     if (pkce)
     {
@@ -225,7 +236,7 @@
                             requestState:(NSString *)requestState
                       ignoreInvalidState:(BOOL)ignoreInvalidState
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     //  return base response
     NSError *responseCreationError = nil;
@@ -276,6 +287,11 @@
                                                                                                                    state:oauthState
                                                                                                       ignoreInvalidState:NO
                                                                                                               ssoContext:parameters.ssoContext];
+
+#if MSAL_JS_AUTOMATION
+    configuration.clientAutomationScript = [[parameters allAuthorizeRequestExtraParametersWithMetadata:YES] objectForKey:@"script"];
+#endif
+
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;
     configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;

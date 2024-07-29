@@ -81,7 +81,7 @@ static NSMutableDictionary<NSString *, NSString *> *s_keysMap = nil;
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                     classTypeJSONKey:(NSString *)classTypeJSONKey
                                    assertKindOfClass:(Class)aClass
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     if (![json msidAssertType:NSString.class ofKey:classTypeJSONKey required:YES error:error]) return nil;
     NSString *classTypeValue = json[classTypeJSONKey];
@@ -108,7 +108,7 @@ static NSMutableDictionary<NSString *, NSString *> *s_keysMap = nil;
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                       classType:(NSString *)classTypeValue
                                    assertKindOfClass:(Class)aClass
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     return [self createFromJSONDictionary:json containerKey:classTypeValue assertKindOfClass:aClass error:error];
 }
@@ -129,7 +129,7 @@ static NSMutableDictionary<NSString *, NSString *> *s_keysMap = nil;
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                         containerKey:(NSString *)containerKey
                                    assertKindOfClass:(Class)aClass
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     Class class = (Class<MSIDJsonSerializable>)s_container[containerKey];
     

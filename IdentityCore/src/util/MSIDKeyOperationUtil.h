@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
                         algorithm:(_Nonnull SecKeyAlgorithm)algorithm
                               key:(_Nonnull SecKeyRef)key
                           context:(_Nullable id<MSIDRequestContext>)context
-                            error:(NSError * _Nullable * _Nullable)error;
+                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 /// Get asymmetric verifying algorithm to be put as 'alg' claim in JWT. Depending on the key supplied and algorithms supported returns alg.
 /// @param key key used for signing JWT
@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param error error determining alg
 - (_Nullable MSIDJwtAlgorithm)getJwtAlgorithmForKey:(SecKeyRef _Nonnull )key
                                             context:(_Nullable id<MSIDRequestContext>)context
-                                              error:(NSError * _Nullable * _Nullable)error;
+                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 /// Returns signature after using supplied key to sign supplied data. Uses SecKeyCreateSignature which signs(SHA256(data))
 /// @param rawData Data to be signed. Method will SHA256 this internally
@@ -67,6 +67,6 @@ NS_ASSUME_NONNULL_BEGIN
                                       privateKey:(_Nonnull SecKeyRef)privateKey
                                 signingAlgorithm:(SecKeyAlgorithm)algorithm
                                          context:(_Nullable id<MSIDRequestContext>)context
-                                           error:(NSError * _Nullable * _Nullable)error;
+                                           error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 @end
 NS_ASSUME_NONNULL_END

@@ -51,7 +51,7 @@
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable * _Nullable)error
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
@@ -135,7 +135,7 @@
             NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
             additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
             additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
-            additionalInfo[MSIDTokenProtectionRequired] = @(response.tokenProtectionRequired);
+            additionalInfo[MSIDTokenProtectionRequired] = response.tokenProtectionRequired ? @(YES) : @(NO);
 
             registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo, NO);
         }

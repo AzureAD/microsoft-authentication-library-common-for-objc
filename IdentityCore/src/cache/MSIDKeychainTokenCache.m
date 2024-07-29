@@ -177,7 +177,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
               key:(MSIDCacheKey *)key
        serializer:(id<MSIDCacheItemSerializing>)serializer
           context:(id<MSIDRequestContext>)context
-            error:(NSError **)error
+            error:(NSError *__autoreleasing*)error
 {
     assert(item);
     assert(serializer);
@@ -217,7 +217,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
                                serializer:(id<MSIDCacheItemSerializing>)serializer
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"itemWithKey:serializer:context:error:");
     NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];
@@ -238,7 +238,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
                                            serializer:(id<MSIDCacheItemSerializing>)serializer
                                               context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+                                                error:(NSError *__autoreleasing*)error
 {
     MSIDCacheKey *tokenCacheKey = [self overrideTokenKey:key];
     
@@ -264,7 +264,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                 key:(MSIDCacheKey *)key
          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
+              error:(NSError *__autoreleasing*)error
 {
     assert(item);
     assert(serializer);
@@ -292,7 +292,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     NSArray<MSIDAccountCacheItem *> *items = [self accountsWithKey:key serializer:serializer context:context error:error];
     
@@ -312,7 +312,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                              context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:[MSIDAccountCacheItem class] context:context error:error];
 }
@@ -323,7 +323,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                     key:(MSIDCacheKey *)key
              serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+                  error:(NSError *__autoreleasing*)error
 {
     if (!item || !serializer)
     {
@@ -359,7 +359,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
                                                         serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                            context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error
+                                                             error:(NSError *__autoreleasing*)error
 {
     return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:[MSIDAppMetadataCacheItem class] context:context error:error];
 }
@@ -369,7 +369,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key
                                        serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                           context:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error
+                                            error:(NSError *__autoreleasing*)error
 {
     return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:[MSIDJsonObject class] context:context error:error];
 }
@@ -378,7 +378,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
             serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                    key:(MSIDCacheKey *)key
                context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     assert(jsonObject);
     assert(serializer);
@@ -407,7 +407,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                         key:(MSIDCacheKey *)key
                  serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
 
     if (!item)
@@ -432,7 +432,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
                                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                  context:(id<MSIDRequestContext>)context
-                                                   error:(NSError **)error
+                                                   error:(NSError *__autoreleasing*)error
 {
     NSArray *metadataItems = [self accountsMetadataWithKey:key serializer:serializer context:context error:error];
     if (!metadataItems) return nil;
@@ -449,7 +449,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
                                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                              context:(id<MSIDRequestContext>)context
-                                                               error:(NSError **)error
+                                                               error:(NSError *__autoreleasing*)error
 {
     return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadataCacheItem.class context:context error:error];
 }
@@ -458,7 +458,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
 - (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     MSIDCacheKey *tokenCacheKey = [self overrideTokenKey:key];
     
@@ -467,28 +467,28 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
 - (BOOL)removeAccountsWithKey:(MSIDCacheKey *)key
                       context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+                        error:(NSError *__autoreleasing*)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
 
 - (BOOL)removeMetadataItemsWithKey:(MSIDCacheKey *)key
                            context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error
+                             error:(NSError *__autoreleasing*)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
 
 - (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
                             context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+                              error:(NSError *__autoreleasing*)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     NSString *account = key.account;
     NSString *service = key.service;
@@ -553,7 +553,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 #pragma mark - Wipe
 
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+                          error:(NSError *__autoreleasing*)error
 {
     NSString *appIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     
@@ -601,7 +601,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 }
 
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *query = [self.defaultWipeQuery mutableCopy];
     [query setObject:@YES forKey:(id)kSecReturnData];
@@ -726,7 +726,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                     serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                 cacheItemClass:(Class)resultClass
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                         error:(NSError *__autoreleasing*)error
 {
     NSArray *items = [self itemsWithKey:key context:context error:error];
     
@@ -760,7 +760,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
 - (NSArray *)itemsWithKey:(MSIDCacheKey *)key
                   context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+                    error:(NSError *__autoreleasing*)error
 {
     NSString *account = key.account;
     NSString *service = key.service;
@@ -823,7 +823,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (BOOL)saveData:(NSData *)itemData
              key:(MSIDCacheKey *)key
          context:(id<MSIDRequestContext>)context
-           error:(NSError **)error
+           error:(NSError *__autoreleasing*)error
 {
     assert(key);
     
@@ -910,7 +910,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 }
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
+                   error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Clearing the whole context. This should only be executed in tests");
 
@@ -937,4 +937,3 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
 
 @end
-

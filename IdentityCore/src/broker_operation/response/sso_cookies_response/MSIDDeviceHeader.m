@@ -29,7 +29,7 @@ static NSString *const MSID_PRT_HEADER_TENANT_ID = @"tenant_id";
 
 @implementation MSIDDeviceHeader
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
     

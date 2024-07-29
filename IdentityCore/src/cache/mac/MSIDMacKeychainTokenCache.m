@@ -489,7 +489,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                 key:(MSIDCacheKey *)key
          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
+              error:(NSError *__autoreleasing*)error
 {
     assert(account);
     assert(serializer);
@@ -509,7 +509,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     MSID_TRACE;
     NSArray<MSIDAccountCacheItem *> *items = [self accountsWithKey:key
@@ -536,7 +536,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                              context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key.isShared serializer:serializer context:context error:error];
     NSArray *itemList = [storageItem storedItemsForKey:key];
@@ -550,7 +550,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 //
 - (BOOL)removeAccountsWithKey:(MSIDCacheKey *)key
                       context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+                        error:(NSError *__autoreleasing*)error
 {
     return [self removeItemsWithKey:key context:context inBucket:MSID_ACCOUNT_CACHE_TYPE error:error];
 }
@@ -576,7 +576,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
               key:(MSIDCacheKey *)key
        serializer:(id<MSIDCacheItemSerializing>)serializer
           context:(id<MSIDRequestContext>)context
-            error:(NSError **)error
+            error:(NSError *__autoreleasing*)error
 {
     assert(credential);
     assert(serializer);
@@ -592,7 +592,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
                                serializer:(id<MSIDCacheItemSerializing>)serializer
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     MSID_TRACE;
     NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key
@@ -616,7 +616,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
                                            serializer:(id<MSIDCacheItemSerializing>)serializer
                                               context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+                                                error:(NSError *__autoreleasing*)error
 {
     NSArray *itemList;
     
@@ -680,7 +680,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getAllItemsWithKey:(MSIDCacheKey *)key
                                                             context:(nullable id<MSIDRequestContext>)context
                                                          serializer:(id<MSIDCacheItemSerializing>)serializer
-                                                              error:(NSError * _Nullable * _Nullable)error
+                                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSMutableArray *allTokens = [NSMutableArray new];
     
@@ -700,7 +700,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                         context:(id<MSIDRequestContext>)context
                      serializer:(__unused id<MSIDCacheItemSerializing>)serializer
                        isShared:(BOOL)isShared
-                          error:(NSError * _Nullable * _Nullable)error
+                          error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     BOOL result = YES;
     MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:isShared serializer:self.serializer context:context error:error];
@@ -749,7 +749,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (MSIDMacCredentialStorageItem *)syncStorageItem:(BOOL)isShared
                                        serializer:(id<MSIDCacheItemSerializing>)serializer
                                           context:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error
+                                            error:(NSError *__autoreleasing*)error
 {
     /*
      Sync in memory cache with persistent cache at the time of look up.
@@ -769,7 +769,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                isShared:(BOOL)isShared
              serializer:(id<MSIDCacheItemSerializing>)serializer
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+                  error:(NSError *__autoreleasing*)error
 {
     assert(storageItem);
     NSData *itemData = [serializer serializeCredentialStorageItem:storageItem];
@@ -799,7 +799,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 - (BOOL)removeStorageItem:(BOOL)isShared
                   context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+                    error:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     [query addEntriesFromDictionary:[self primaryAttributesForItem:isShared context:context error:error]];
@@ -811,7 +811,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (MSIDMacCredentialStorageItem *)queryStorageItem:(BOOL)isShared
                                         serializer:(id<MSIDCacheItemSerializing>)serializer
                                            context:(id<MSIDRequestContext>)context
-                                             error:(NSError **)error
+                                             error:(NSError *__autoreleasing*)error
 {
     MSID_TRACE;
 
@@ -869,7 +869,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                   inBucket:(__unused NSString *)bucket
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     MSID_TRACE;
     
@@ -892,7 +892,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     return [self removeStorageItem:key.isShared context:context error:error];
 }
 
-- (NSDictionary *)primaryAttributesForItem:(BOOL)isShared context:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error
+- (NSDictionary *)primaryAttributesForItem:(BOOL)isShared context:(__unused id<MSIDRequestContext>)context error:(__unused NSError *__autoreleasing*)error
 {
     NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
     
@@ -919,7 +919,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                     key:(__unused MSIDCacheKey *)key
              serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
                 context:(__unused id<MSIDRequestContext>)context
-                  error:(__unused NSError **)error
+                  error:(__unused NSError *__autoreleasing*)error
 {
     assert(metadata);
     assert(serializer);
@@ -933,7 +933,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
                                                         serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                            context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error
+                                                             error:(NSError *__autoreleasing*)error
 {
     MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
     NSArray *itemList = [storageItem storedItemsForKey:key];
@@ -953,7 +953,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 // Remove items with the given Metadata key from the macOS keychain cache.
 - (BOOL)removeMetadataItemsWithKey:(__unused MSIDCacheKey *)key
                            context:(__unused id<MSIDRequestContext>)context
-                             error:(NSError **)error
+                             error:(NSError *__autoreleasing*)error
 {
     return [self removeItemsWithKey:key context:context inBucket:MSID_APPLICATION_METADATA_CACHE_TYPE error:error];
 }
@@ -1000,7 +1000,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 - (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
                                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                              context:(id<MSIDRequestContext>)context
-                                                               error:(NSError **)error
+                                                               error:(NSError *__autoreleasing*)error
 {
     MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
     NSArray *itemList = [storageItem storedItemsForKey:key];
@@ -1026,7 +1026,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 // Saves information about the app which most-recently removed a token.
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+                          error:(NSError *__autoreleasing*)error
 {
     [self createUnimplementedError:error context:context];
     return NO;
@@ -1034,7 +1034,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 // Read information about the app which most-recently removed a token.
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     [self createUnimplementedError:error context:context];
     return nil;
@@ -1044,7 +1044,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 // A test-only method that deletes all items from the cache for the given context.
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
+                   error:(NSError *__autoreleasing*)error
 
 {
     // Clear in-memory cache
@@ -1058,7 +1058,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 #pragma mark - Utilities
 
 // Allocate a "Not Implemented" NSError object.
-- (BOOL)createUnimplementedError:(NSError *_Nullable *_Nullable)error
+- (BOOL)createUnimplementedError:(NSError *_Nullable __autoreleasing *_Nullable)error
                          context:(id<MSIDRequestContext>)context
 {
     return [self createError:@"Not Implemented."

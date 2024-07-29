@@ -35,7 +35,7 @@
 - (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                   fallbackController:(id<MSIDRequestControlling>)fallbackController
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     self = [super initWithInteractiveRequestParameters:parameters
                                   tokenRequestProvider:tokenRequestProvider
