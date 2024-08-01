@@ -85,7 +85,7 @@
         sequenceItems = [NSMutableArray new];
         for (NSInteger key= 0; key <= MSIDPlatformSequenceIndexLast; key++) 
         {
-            [sequenceItems addObject:@""];
+            [sequenceItems addObject:@"|"];
         }
     }
     else
