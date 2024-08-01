@@ -130,6 +130,7 @@ extern NSString * _Nonnull const MSID_SDK_NAME_KEY;
 
 
 extern NSString * _Nonnull const MSIDTrustedAuthority;
+extern NSString * _Nonnull const MSIDTrustedAuthorityPPE;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUS;
 extern NSString * _Nonnull const MSIDTrustedAuthorityChina;
 extern NSString * _Nonnull const MSIDTrustedAuthorityChina2;

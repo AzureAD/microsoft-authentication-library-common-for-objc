@@ -38,6 +38,7 @@ static NSSet<NSString *> *s_trustedHostList;
         s_defaultConfiguration = [MSIDAADNetworkConfiguration new];
         
         s_trustedHostList = [NSSet setWithObjects:MSIDTrustedAuthority,
+                             MSIDTrustedAuthorityPPE,
                              MSIDTrustedAuthorityUS,
                              MSIDTrustedAuthorityChina,
                              MSIDTrustedAuthorityChina2,

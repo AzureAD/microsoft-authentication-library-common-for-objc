@@ -41,6 +41,7 @@ NSString *const MSID_SDK_NAME_KEY                  = @"sdk_name";
 
 
 NSString *const MSIDTrustedAuthority               = @"login.windows.net";
+NSString *const MSIDTrustedAuthorityPPE            = @"login.windows-ppe.net";
 NSString *const MSIDTrustedAuthorityUS             = @"login.microsoftonline.us";
 NSString *const MSIDTrustedAuthorityChina          = @"login.chinacloudapi.cn";
 NSString *const MSIDTrustedAuthorityChina2         = @"login.partner.microsoftonline.cn";
