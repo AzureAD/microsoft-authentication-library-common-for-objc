@@ -1,6 +1,5 @@
-Version 1.7.37
-* Increased macOS minimum version to 10.15 (#2220)
 [TBD]
+* Increased macOS minimum version to 10.15 (#2220)
 * Migrate existing devices using UpgradeReg API - Error definitions (#1376)
 * Add MSIDThrottlingCacheHitKey flag when returning error from throttling's cache (#1393)
 * Update device register to include a new hint for token protection (#1394)
