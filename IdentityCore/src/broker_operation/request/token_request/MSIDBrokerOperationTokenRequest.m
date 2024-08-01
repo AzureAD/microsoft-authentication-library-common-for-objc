@@ -64,6 +64,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.clientSku = parameters.clientSku;
     request.skipValidateResultAccount = parameters.skipValidateResultAccount;
     request.forceRefresh = parameters.forceRefresh;
+    request.platformSequence = parameters.platformSequence;
     return YES;
 }
 
