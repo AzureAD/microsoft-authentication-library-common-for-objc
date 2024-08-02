@@ -39,10 +39,8 @@
     {
         return preferredType;
     }
-#if (TARGET_OS_IPHONE || TARGET_OS_MAC) && !TARGET_OS_MACCATALYST
+
     return MSIDWebviewTypeAuthenticationSession;
-#endif
-    return MSIDWebviewTypeWKWebView;
 }
 
 + (id<MSIDWebviewInteracting>)authSessionWithParentController:(__unused MSIDViewController *)parentController
