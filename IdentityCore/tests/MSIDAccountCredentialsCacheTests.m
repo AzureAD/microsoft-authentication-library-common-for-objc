@@ -52,7 +52,7 @@
 {
     id<MSIDExtendedTokenCacheDataSource> dataSource = nil;
 
-#if TARGET_OS_IOS
+#if !TARGET_OS_OSX
     dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
 #else
     // TODO: this should be replaced with a real macOS datasource instead
