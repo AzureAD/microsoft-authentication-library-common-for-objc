@@ -53,7 +53,7 @@ NSString *const MSID_BROKER_PASSKEY_CREDENTIAL_USERNAME_JSON_KEY = @"userName";
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError *__autoreleasing*)error
 {
     self = [super init];
 

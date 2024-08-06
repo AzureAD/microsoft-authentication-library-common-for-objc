@@ -96,6 +96,8 @@
     cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.lastRecoveryAttempt = lastRecoveryTimestamp;
+    cacheItem.recoveryAttemptCount = @"2";
+    cacheItem.lastRecoveryAttemptFailed = @"NO";
 
     NSDictionary *expectedDictionary = @{@"credential_type": @"RefreshToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
@@ -103,7 +105,9 @@
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"family_id": DEFAULT_TEST_FAMILY_ID,
                                          @"home_account_id": @"uid.utid",
-                                         @"recovery_attempted_at": lastRecoveryAttemptString
+                                         @"recovery_attempted_at": lastRecoveryAttemptString,
+                                         @"recovery_attempt_count": @"2",
+                                         @"last_recovery_attempt_failed":@"NO"
                                          };
 
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -191,7 +195,8 @@
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"family_id": DEFAULT_TEST_FAMILY_ID,
                                      @"home_account_id": @"uid.utid",
-                                     @"recovery_attempted_at": lastRecoveryAttemptString
+                                     @"recovery_attempted_at": lastRecoveryAttemptString,
+                                     @"recovery_attempt_count": @"2"
                                      };
 
     NSError *error = nil;
@@ -209,6 +214,7 @@
     NSTimeInterval interval = ABS([cacheItem.lastRecoveryAttempt timeIntervalSinceDate:lastRecoveryTimestamp]);
     XCTAssertTrue(interval < 1);
     XCTAssertNil(cacheItem.enrollmentId);
+    XCTAssertEqualObjects(cacheItem.recoveryAttemptCount, @"2");
 }
 
 - (void)testInitWithJSONDictionary_whenIDToken_andAllFieldsSet_shouldReturnIDTokenCacheItem

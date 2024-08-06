@@ -69,6 +69,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// All parameters in this dictionary will be passed on the server-side against both token and authorization endpoints.
 @property (nonatomic, nullable) NSDictionary *extraParameters;
 
+/// Contains info about componenets involved into the flow. Used for telemetry.
+@property (nonatomic) NSString *platformSequence;
+
 @end
 
 NS_ASSUME_NONNULL_END

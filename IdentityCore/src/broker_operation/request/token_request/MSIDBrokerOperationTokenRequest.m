@@ -64,12 +64,13 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.clientSku = parameters.clientSku;
     request.skipValidateResultAccount = parameters.skipValidateResultAccount;
     request.forceRefresh = parameters.forceRefresh;
+    request.platformSequence = parameters.platformSequence;
     return YES;
 }
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
     

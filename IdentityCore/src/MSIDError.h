@@ -29,9 +29,12 @@ extern NSString * _Nonnull MSIDOAuthSubErrorKey;
 extern NSString * _Nonnull MSIDCorrelationIdKey;
 extern NSString * _Nonnull MSIDHTTPHeadersKey;
 extern NSString * _Nonnull MSIDHTTPResponseCodeKey;
+extern NSString * _Nonnull MSIDHTTPTruncatedResponseStringKey;
 extern NSString * _Nonnull MSIDUserDisplayableIdkey;
 extern NSString * _Nonnull MSIDHomeAccountIdkey;
+extern NSString * _Nonnull MSIDTokenProtectionRequired;
 extern NSString * _Nonnull MSIDBrokerVersionKey;
+extern NSString * _Nonnull MSIDThrottlingCacheHitKey;
 
 /*!
  ADAL and MSID use different error domains and error codes.
@@ -204,6 +207,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Tried to open local UI in app extension
     MSIDErrorUINotSupportedInExtension  = -51731,
 
+    // Workplacejoin device upgrade registration required for device.
+    MSIDErrorInsufficientDeviceStrength = -51732,
     /*!
      =========================================================
      Broker flow errors    (518xx and 519xx) - MSIDErrorDomain
@@ -327,7 +332,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // JIT - Error Handling config invalid or not found
     MSIDErrorJITErrorHandlingConfigNotFound        =   -51839,
-    
+
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,

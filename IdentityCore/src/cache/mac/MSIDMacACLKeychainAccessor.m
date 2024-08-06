@@ -122,7 +122,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 
 #pragma mark - Access Control Lists
 
-- (NSArray *)trustedAppListWithCurrentApp:(NSError **)error
+- (NSArray *)trustedAppListWithCurrentApp:(NSError *__autoreleasing*)error
 {
     static dispatch_once_t s_onceCreateTrustedAppListWithCurrentApp;
     static NSArray *trustedAppListWithCurrentApp;
@@ -157,7 +157,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 
 - (id)accessCreateWithChangeACL:(NSArray<id> *)trustedApplications
                     accessLabel:(NSString *)accessLabel
-                          error:(NSError **)error
+                          error:(NSError *__autoreleasing*)error
 {
     SecAccessRef access;
 #pragma clang diagnostic push
@@ -190,7 +190,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
                      aclAuthorizationTag:(CFStringRef)aclAuthorizationTag
                      trustedApplications:(NSArray<id> *)trustedApplications
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -239,7 +239,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 - (BOOL)createError:(NSString*)message
              domain:(NSErrorDomain)domain
           errorCode:(NSInteger)code
-              error:(NSError *_Nullable *_Nullable)error
+              error:(NSError *_Nullable __autoreleasing *_Nullable)error
             context:(id<MSIDRequestContext>)context
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"%@", message);
@@ -256,7 +256,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 - (BOOL)saveData:(NSData *)data
       attributes:(NSDictionary *)attributes
          context:(id<MSIDRequestContext>)context
-           error:(NSError **)error
+           error:(NSError *__autoreleasing*)error
 {
     if (!data)
     {
@@ -298,7 +298,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 
 - (BOOL)removeItemWithAttributes:(NSDictionary *)attributes
                          context:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
+                           error:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *query = [NSMutableDictionary new];
     query[(id)kSecClass] = (id)kSecClassGenericPassword;
@@ -325,7 +325,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 
 - (NSData *)getDataWithAttributes:(NSDictionary *)attributes
                           context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+                            error:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *query = [NSMutableDictionary new];
     query[(id)kSecClass] = (id)kSecClassGenericPassword;
@@ -368,7 +368,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 // A test-only method that deletes all items from the cache for the given context.
 - (BOOL)clearWithAttributes:(NSDictionary *)attributes
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Clearing the whole context. This should only be executed in tests.");
