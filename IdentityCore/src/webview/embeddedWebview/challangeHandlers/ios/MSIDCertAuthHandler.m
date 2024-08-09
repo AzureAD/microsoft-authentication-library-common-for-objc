@@ -88,6 +88,11 @@ static BOOL s_disableCertBasedAuth = NO;
     return NO;
 }
 
++ (BOOL)isCertAuthInProgress
+{
+    return s_certAuthInProgress;
+}
+
 #endif
 
 + (void)resetHandler
