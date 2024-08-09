@@ -1982,13 +1982,13 @@
     XCTAssertEqual([remainingAccessTokens count], 1);
     MSIDLegacyAccessToken *remainingAccessToken = remainingAccessTokens[0];
     XCTAssertEqualObjects(remainingAccessToken.accountIdentifier.displayableId, @"upn@test.com");
-    XCTAssertEqualObjects([remainingAccessTokens[0] clientId], @"test_client_id2");
+    XCTAssertEqualObjects([remainingAccessToken clientId], @"test_client_id2");
 
     NSArray *remaininRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([remaininRefreshTokens count], 1);
     MSIDLegacyRefreshToken *remainingRefreshToken = remaininRefreshTokens[0];
     XCTAssertEqualObjects(remainingRefreshToken.accountIdentifier.displayableId, @"upn@test.com");
-    XCTAssertEqualObjects([remaininRefreshTokens[0] clientId], @"test_client_id2");
+    XCTAssertEqualObjects([remainingRefreshToken clientId], @"test_client_id2");
 
     NSArray *otherRemainingRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_otherAccessor];
     XCTAssertEqual([otherRemainingRefreshTokens count], 1);
