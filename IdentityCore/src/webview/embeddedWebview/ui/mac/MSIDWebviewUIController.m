@@ -53,11 +53,7 @@ static WKWebViewConfiguration *s_webConfig;
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
     webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
-    
-    if (@available(macOS 10.15, *))
-    {
-        webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
-    }
+    webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
     return webConfig;
 }
 
