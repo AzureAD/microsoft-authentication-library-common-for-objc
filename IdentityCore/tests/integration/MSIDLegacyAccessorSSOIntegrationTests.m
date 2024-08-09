@@ -1992,7 +1992,8 @@
 
     NSArray *otherRemainingRefreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_otherAccessor];
     XCTAssertEqual([otherRemainingRefreshTokens count], 1);
-    XCTAssertEqualObjects([otherRemainingRefreshTokens[0] clientId], @"test_client_id2");
+    MSIDLegacyRefreshToken *otherRemainingToken = otherRemainingRefreshTokens[0];
+    XCTAssertEqualObjects([otherRemainingToken clientId], @"test_client_id2");
 }
 
 - (void)testClearCacheForAccountAndClientId_whenTokensInCache_shouldRemoveCorrectTokens
@@ -2038,11 +2039,13 @@
 
     NSArray *remainingAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([remainingAccessTokens count], 1);
-    XCTAssertEqualObjects([remainingAccessTokens[0] clientId], @"test_client_id2");
+    MSIDLegacyAccessToken *remainingAccessToken = remainingAccessTokens[0];
+    XCTAssertEqualObjects([remainingAccessToken clientId], @"test_client_id2");
 
-    NSArray *remaininRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
-    XCTAssertEqual([remaininRefreshTokens count], 1);
-    XCTAssertEqualObjects([remaininRefreshTokens[0] clientId], @"test_client_id2");
+    NSArray *remainingRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
+    XCTAssertEqual([remainingRefreshTokens count], 1);
+    MSIDLegacyRefreshToken *remainingRefreshToken = remainingRefreshTokens[0];
+    XCTAssertEqualObjects([remainingRefreshToken clientId], @"test_client_id2");
 }
 
 - (void)testRemoveAccessToken_whenNilTokenProvided_shouldReturnError
