@@ -147,7 +147,7 @@
     NSString *platformSequence = [NSString msidUpdatePlatformSequenceParamWithSrcName:@"name" srcVersion:@"v1" sequence:nil];
     
     XCTAssertNotNil(platformSequence);
-    XCTAssertEqualObjects(platformSequence, @"name|v1,,,");
+    XCTAssertEqualObjects(platformSequence, @"name|v1,|,|,|");
 }
 
 - (void)testmsidUpdatePlatformSequenceParamWithSrcName_whenValidNameAndVersionAndInvalidSequence_shouldReturnOriginal

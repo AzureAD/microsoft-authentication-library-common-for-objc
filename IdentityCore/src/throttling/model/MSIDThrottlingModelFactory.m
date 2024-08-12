@@ -94,6 +94,13 @@
                                                 cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
                                                  datasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
 {
+    if (errorResponse)
+    {
+        NSMutableDictionary *userInfoWithThrottlingFlags = [[NSMutableDictionary alloc] initWithDictionary:[errorResponse userInfo]];
+        [userInfoWithThrottlingFlags setValue:@1 forKey:MSIDThrottlingCacheHitKey];
+        errorResponse = [[NSError alloc] initWithDomain:errorResponse.domain code:errorResponse.code userInfo:userInfoWithThrottlingFlags];
+    }
+    
     if(throttleType == MSIDThrottlingType429)
     {
         return [[MSIDThrottlingModel429 alloc] initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse datasource:datasource];
