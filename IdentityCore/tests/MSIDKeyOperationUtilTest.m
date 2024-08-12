@@ -227,10 +227,7 @@
     NSDictionary *attributes = @{ (id)kSecAttrKeyType: (id)kSecAttrKeyTypeRSA, (id)kSecAttrKeySizeInBits: @2048, (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPrivate };
     
     SecKeyRef signingKey = NULL;
-    if (@available(iOS 10.0, *))
-    {
-        signingKey = SecKeyCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)attributes, NULL);
-    }
+    signingKey = SecKeyCreateWithData((__bridge CFDataRef)data, (__bridge CFDictionaryRef)attributes, NULL);
     
     self.rsaPrivateKey = signingKey;
     if (self.rsaPrivateKey)

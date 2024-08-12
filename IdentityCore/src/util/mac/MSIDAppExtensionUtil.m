@@ -86,8 +86,7 @@ static BOOL s_isRunningInCompliantExtension = NO;
 
 + (void)sharedApplicationOpenURL:(NSURL *)url
                    configuration:(NSWorkspaceOpenConfiguration *)options
-               completionHandler:(void (^ __nullable)(BOOL success))completionHandler
-API_AVAILABLE(macos(10.15)){
+               completionHandler:(void (^ __nullable)(BOOL success))completionHandler {
     if ([self isExecutingInAppExtension])
     {
         // The caller should do this check but we will double check to fail safely

@@ -54,26 +54,23 @@
     
     if ([parameters shouldUseBroker])
     {
-        if (@available(macOS 10.15, *))
+        if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
         {
-            if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+            MSIDSilentController *localController = nil;
+            if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
             {
-                MSIDSilentController *localController = nil;
-                if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
-                {
-                    localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
-                                                                                 forceRefresh:YES
-                                                                         tokenRequestProvider:tokenRequestProvider
-                                                                                        error:error];
-                    localController.isLocalFallbackMode = YES;
-                }
-                
-                brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
-                                                                                                      forceRefresh:forceRefresh
-                                                                                              tokenRequestProvider:tokenRequestProvider
-                                                                                     fallbackInteractiveController:localController
-                                                                                                             error:error];
+                localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                                             forceRefresh:YES
+                                                                     tokenRequestProvider:tokenRequestProvider
+                                                                                    error:error];
+                localController.isLocalFallbackMode = YES;
             }
+
+            brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                                  forceRefresh:forceRefresh
+                                                                                          tokenRequestProvider:tokenRequestProvider
+                                                                                 fallbackInteractiveController:localController
+                                                                                                         error:error];
         }
     }
     
@@ -223,15 +220,12 @@
                                                       fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
-    if (@available(macOS 10.15, *))
+    if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
     {
-        if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
-        {
-            return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
-                                                                                              tokenRequestProvider:tokenRequestProvider
-                                                                                                fallbackController:fallbackController
-                                                                                                             error:error];
-        }
+        return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                          tokenRequestProvider:tokenRequestProvider
+                                                                                            fallbackController:fallbackController
+                                                                                                         error:error];
     }
     
     return nil;
@@ -276,17 +270,14 @@
 {
     if ([parameters shouldUseBroker])
     {
-        if (@available(macOS 10.15, *))
+        if ([MSIDSSOExtensionSignoutController canPerformRequest])
         {
-            if ([MSIDSSOExtensionSignoutController canPerformRequest])
-            {
-                return [[MSIDSSOExtensionSignoutController alloc] initWithRequestParameters:parameters
-                                                                   shouldSignoutFromBrowser:shouldSignoutFromBrowser
-                                                                          shouldWipeAccount:shouldWipeAccount
-                                                              shouldWipeCacheForAllAccounts:shouldWipeCacheForAllAccounts
-                                                                               oauthFactory:oauthFactory
-                                                                                      error:error];
-            }
+            return [[MSIDSSOExtensionSignoutController alloc] initWithRequestParameters:parameters
+                                                               shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                                                                      shouldWipeAccount:shouldWipeAccount
+                                                          shouldWipeCacheForAllAccounts:shouldWipeCacheForAllAccounts
+                                                                           oauthFactory:oauthFactory
+                                                                                  error:error];
         }
     }
     

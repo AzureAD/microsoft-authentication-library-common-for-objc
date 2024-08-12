@@ -43,12 +43,13 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_LOGIN_HINT_KEY = @"loginHint";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_INSTANCE_AWARE_KEY = @"instance_aware";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY = @"extraParameters";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY = @"x-client-xtra-sku";
 
 @implementation MSIDBrowserNativeMessageGetTokenRequest
 
 + (void)load
 {
-//    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
 + (NSString *)operation
@@ -118,6 +119,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
     if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY required:NO error:error]) return nil;
     NSString *uuidString = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
     _correlationId = uuidString ? [[NSUUID alloc] initWithUUIDString:uuidString] : [NSUUID UUID];
+    _platformSequence = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY];
     
     return self;
 }
