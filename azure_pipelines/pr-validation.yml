@@ -58,7 +58,9 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        if [ $(target) == "vision_library"]
+        echo "with brackets: ${target}"
+        echo "with parens: $(target)"
+        if [ $(target) == 'vision_library']
         then
             echo "Downloading simulator for visionOS"
             sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
