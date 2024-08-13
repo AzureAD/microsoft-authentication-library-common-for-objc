@@ -40,7 +40,7 @@ ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + "
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 vision_sim_device = "Apple Vision Pro"
-vision_sim_dest = "-destination 'platform=visionOS Simulator,name=" + vision_sim_device + ",OS=1.0'"
+vision_sim_dest = "-destination 'platform=visionOS Simulator,name=" + vision_sim_device + ",OS=1.2'"
 vision_sim_flags = "-sdk xrsimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 default_workspace = "IdentityCore.xcworkspace"
