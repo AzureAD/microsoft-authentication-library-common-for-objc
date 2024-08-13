@@ -14,7 +14,7 @@ trigger: none
 jobs:
 - job: 'Validate_Pull_Request'
   strategy:
-    maxParallel: 2
+    maxParallel: 3
     matrix:
      IOS_LIB:
         target: "ios_library"
@@ -57,12 +57,17 @@ jobs:
     displayName: download visionOS SDK
     inputs:
       targetType: 'inline'
-      condition: eq($(target), "vision_library")
       script: |
-        sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
-        defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-        defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-        xcodebuild -downloadPlatform visionOS
+        if [ $(target) == "vision_library"]
+        then
+            echo "Downloading simulator for visionOS"
+            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+            defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+            defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+            xcodebuild -downloadPlatform visionOS
+        else
+            echo "Not visionOS job, no download needed"
+        fi
       failOnStderr: false
   - task: Bash@3
     displayName: Run CPP script
