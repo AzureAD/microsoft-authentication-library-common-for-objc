@@ -18,9 +18,9 @@ jobs:
     matrix:
      IOS_LIB:
         target: "ios_library"
-      MAC_LIB:
+     MAC_LIB:
         target: "mac_library"
-      VISION_LIB:
+     VISION_LIB:
         target: "vision_library"
   displayName: Validate Pull Request
   pool:
