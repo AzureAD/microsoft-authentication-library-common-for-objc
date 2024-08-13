@@ -58,10 +58,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        echo "with brackets: ${target}"
-        echo "with parens: $(target)"
-        if [ $(target) == 'vision_library']
-        then
+        if [ $(target) == 'vision_library' ]; then
             echo "Downloading simulator for visionOS"
             sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
             defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
