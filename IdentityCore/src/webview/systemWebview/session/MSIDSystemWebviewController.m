@@ -227,6 +227,7 @@
     }
     
 #if defined TARGET_OS_VISION && TARGET_OS_VISION
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Couldn't create session on visionOS. Safari allowed flag %d", safariAllowed);
     return nil;
 #else
         
@@ -243,7 +244,7 @@
         return safariController;
     }
 #else
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Couldn't create session on macOS or visionOS. Safari allowed flag %d", safariAllowed);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Couldn't create session on macOS. Safari allowed flag %d", safariAllowed);
 #endif
     
     return nil;
