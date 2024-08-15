@@ -1,6 +1,9 @@
 [TBD]
 * Increased macOS minimum version to 10.15 (#2220)
 
+Version 1.7.39
+* Fix cert auth invalid request (hotfix) (#1409)
+
 Version 1.7.38
 * Migrate existing devices using UpgradeReg API - Error definitions (#1376)
 * Add MSIDThrottlingCacheHitKey flag when returning error from throttling's cache (#1393)

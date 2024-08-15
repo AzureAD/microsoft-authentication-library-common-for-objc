@@ -39,6 +39,7 @@
 // These are for cert auth challenge for iOS
 + (void)setCustomActivities:(NSArray<UIActivity *> *)activities;
 + (BOOL)completeCertAuthChallenge:(NSURL *)endUrl;
++ (BOOL)isCertAuthInProgress;
 
 #endif
 
