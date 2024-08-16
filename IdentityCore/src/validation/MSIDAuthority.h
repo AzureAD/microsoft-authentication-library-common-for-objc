@@ -55,9 +55,6 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 @property (nonatomic) BOOL isDeveloperKnown;
 
-- (instancetype _Nullable )init NS_UNAVAILABLE;
-+ (instancetype _Nullable )new NS_UNAVAILABLE;
-
 - (void)resolveAndValidate:(BOOL)validate
          userPrincipalName:(nullable NSString *)upn
                    context:(nullable id<MSIDRequestContext>)context
