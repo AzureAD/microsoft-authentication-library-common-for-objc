@@ -8866,6 +8866,7 @@
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xros xrsimulator";
 			};
 			name = Debug;
 		};
@@ -8875,6 +8876,7 @@
 			buildSettings = {
 				ENABLE_BITCODE = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xros xrsimulator";
 			};
 			name = Release;
 		};
@@ -8941,6 +8943,8 @@
 					"$(MSID_SYSTEMWV)",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Debug;
 		};
@@ -8954,6 +8958,8 @@
 					"$(MSID_WEBKIT)",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Release;
 		};
