@@ -112,7 +112,6 @@
 #else
     return nil;
 #endif
-    
 }
 
 #endif
