@@ -1,5 +1,9 @@
-Version 1.7.40
-* VisionOS support added to IdentityCore
+
+[TBD]
+* VisionOS support added to IdentityCore (#1412)
+
+[TBD]
+* Increased macOS minimum version to 10.15 (#2220)
 
 Version 1.7.39
 * Fix cert auth invalid request (hotfix) (#1409)
