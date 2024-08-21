@@ -54,8 +54,10 @@
 {
         MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory availableWebViewTypeWithPreferredType:requestParameters.webviewType];
         
+#if !MSID_EXCLUDE_SYSTEMWV
         BOOL useSession = YES;
         BOOL allowSafariViewController = NO;
+#endif
         
         switch (webviewType)
         {
