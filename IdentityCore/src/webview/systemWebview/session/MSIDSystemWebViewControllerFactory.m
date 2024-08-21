@@ -39,26 +39,8 @@
     {
         return preferredType;
     }
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        
-    if (@available(iOS 12.0, macOS 10.15, *))
-    {
-        return MSIDWebviewTypeAuthenticationSession;
-    }
-#endif
-        
-#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
-        
+
     return MSIDWebviewTypeAuthenticationSession;
-        
-#endif
-    
-#if TARGET_OS_IPHONE
-    return MSIDWebviewTypeSafariViewController;
-#endif
-    
-    return MSIDWebviewTypeWKWebView;
 }
 
 + (id<MSIDWebviewInteracting>)authSessionWithParentController:(__unused MSIDViewController *)parentController
@@ -67,18 +49,10 @@
                                            useEmpheralSession:(__unused BOOL)useEmpheralSession
                                                       context:(__unused id<MSIDRequestContext>)context
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    
-    if (@available(iOS 12.0, macOS 10.15, *))
-    {
-        return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+    return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
                                                                               startURL:startURL
                                                                         callbackScheme:callbackURLScheme
                                                                     useEmpheralSession:useEmpheralSession];
-    }
-#endif
-    
-    return nil;
 }
 
 #if TARGET_OS_IPHONE
@@ -99,12 +73,8 @@
     {
         return authSession;
     }
-    
-#if defined TARGET_OS_VISION && TARGET_OS_VISION
-    return nil;
-#endif
 
-#if !MSID_EXCLUDE_SYSTEMWV
+#if !MSID_EXCLUDE_SYSTEMWV && !(defined TARGET_OS_VISION && TARGET_OS_VISION)
     return [[MSIDSafariViewController alloc] initWithURL:startURL
                                         parentController:parentController
                                         presentationType:presentationType

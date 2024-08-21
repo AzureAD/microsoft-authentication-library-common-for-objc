@@ -351,7 +351,7 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOUnexpectedError_ShouldReturnLocalError API_AVAILABLE(ios(13.0), macos(10.15))
+- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOUnexpectedError_ShouldReturnLocalError
 {
 
         // Setup test request providers
@@ -389,7 +389,7 @@
 
 }
 
-- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOExpectedError_ShouldReturnSSOError API_AVAILABLE(ios(13.0), macos(10.15))
+- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOExpectedError_ShouldReturnSSOError
 {
 
     // Setup test request providers
@@ -427,7 +427,7 @@
 
 }
 
-- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOUnexpectedError_ShouldReturnLocalError_AllowLocalRtFlow API_AVAILABLE(ios(13.0), macos(10.15))
+- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOUnexpectedError_ShouldReturnLocalError_AllowLocalRtFlow
 {
 
         // Setup test request providers
@@ -469,7 +469,7 @@
 
 }
 
-- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOExpectedError_ShouldReturnSSOError_AllowLocalRtFlow API_AVAILABLE(ios(13.0), macos(10.15))
+- (void)testAcquireToken_WhenFallingLocalController_AndFallbackControllerReturnSSOExpectedError_ShouldReturnSSOError_AllowLocalRtFlow
 {
 
     // Setup test request providers
