@@ -24,7 +24,7 @@
 #import "MSIDTestWebviewInteractingViewController.h"
 #import "MSIDWebviewAuthorization.h"
 
-#if TARGET_OS_IOS && !MSID_EXCLUDE_SYSTEMWV
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 #import "MSIDSystemWebviewController.h"
 #endif
 
@@ -63,7 +63,7 @@
 
 - (BOOL)isKindOfClass:(Class)aClass
 {
-#if TARGET_OS_IOS && !MSID_EXCLUDE_SYSTEMWV
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
     if (self.actAsSafariViewController || self.actAsAuthenticationSession)
     {
         return (aClass == MSIDSystemWebviewController.class);
