@@ -44,6 +44,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_INSTANCE_AWARE_KEY = @"instance_awar
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY = @"extraParameters";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY = @"x-client-xtra-sku";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
 
 @implementation MSIDBrowserNativeMessageGetTokenRequest
 
@@ -120,6 +121,10 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY = @"x-client-x
     NSString *uuidString = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
     _correlationId = uuidString ? [[NSUUID alloc] initWithUUIDString:uuidString] : [NSUUID UUID];
     _platformSequence = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY];
+    
+    NSString *canShowUIString = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY];
+    // It is optional param, if nil -- set it to 'true' by default.
+    _canShowUI = canShowUIString ? [requestJson msidBoolObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY] : YES;
     
     return self;
 }
