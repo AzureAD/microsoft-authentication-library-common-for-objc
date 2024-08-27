@@ -1826,6 +1826,7 @@
 		D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */; };
 		D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */; };
 		D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */; };
+		DE12025D2C7DDA0B00BD8D5E /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE12025C2C7DDA0B00BD8D5E /* Test.swift */; };
 		E656E07A2C2627B80011FB23 /* MSIDWebUpgradeRegResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = E656E0792C2627B80011FB23 /* MSIDWebUpgradeRegResponse.m */; };
 		E656E07B2C2627B80011FB23 /* MSIDWebUpgradeRegResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = E656E0792C2627B80011FB23 /* MSIDWebUpgradeRegResponse.m */; };
 		E656E07D2C2627FB0011FB23 /* MSIDWebUpgradeRegResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = E656E07C2C2627FB0011FB23 /* MSIDWebUpgradeRegResponse.h */; };
@@ -3254,6 +3255,7 @@
 		D6D9A4B91FBE6D1C00EFA430 /* IdentityCore.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdentityCore.pch; sourceTree = "<group>"; };
 		D6D9A4BA1FBE712900EFA430 /* MSIDURLExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDURLExtensionsTests.m; sourceTree = "<group>"; };
 		D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDStringExtensionsTests.m; sourceTree = "<group>"; };
+		DE12025C2C7DDA0B00BD8D5E /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		E656E0792C2627B80011FB23 /* MSIDWebUpgradeRegResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebUpgradeRegResponse.m; sourceTree = "<group>"; };
 		E656E07C2C2627FB0011FB23 /* MSIDWebUpgradeRegResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebUpgradeRegResponse.h; sourceTree = "<group>"; };
 		E6FABC0A2C2A110900611378 /* MSIDWebWPJResponse+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDWebWPJResponse+Internal.h"; sourceTree = "<group>"; };
@@ -5448,6 +5450,7 @@
 				239E3BBD23E1004F00F7A50A /* MSIDClientSDKType.m */,
 				728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */,
 				728209CB26FE951900B5F018 /* MSIDJwtAlgorithm.h */,
+				DE12025C2C7DDA0B00BD8D5E /* Test.swift */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -6466,6 +6469,7 @@
 					};
 					D626FF5A1FBA6E9500EE4487 = {
 						CreatedOnToolsVersion = 9.1;
+						LastSwiftMigration = 1540;
 						ProvisioningStyle = Automatic;
 					};
 					D626FF671FBA6EDF00EE4487 = {
@@ -7171,6 +7175,7 @@
 				9686C72B21192BD0001FFF51 /* MSIDWebOpenBrowserResponse.m in Sources */,
 				B2BE924821A2279A00F5AB8C /* MSIDTelemetryBrokerEvent.m in Sources */,
 				96F94A3B208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */,
+				DE12025D2C7DDA0B00BD8D5E /* Test.swift in Sources */,
 				8878C62F29DCA0E3002F5F4B /* MSIDCIAMTokenResponse.m in Sources */,
 				E733EDFE25C0A4B100ACB79A /* MSIDThumbprintCalculator.m in Sources */,
 				23B39AC3209BD901000AA905 /* MSIDAdfsAuthorityResolver.m in Sources */,
@@ -8806,9 +8811,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				LD_RUNPATH_SEARCH_PATHS = $inherited;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -8816,8 +8825,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				LD_RUNPATH_SEARCH_PATHS = $inherited;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -8825,6 +8837,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
@@ -8842,6 +8855,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
