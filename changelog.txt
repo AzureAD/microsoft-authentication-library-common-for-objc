@@ -1,4 +1,3 @@
-
 [TBD]
 * VisionOS support added to IdentityCore (#1412)
 
