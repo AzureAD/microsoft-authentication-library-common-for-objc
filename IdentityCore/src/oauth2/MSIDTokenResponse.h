@@ -63,6 +63,8 @@
 // Error code based on oauth error response
 @property (nonatomic, readonly) MSIDErrorCode oauthErrorCode;
 
+@property (nonatomic, nullable) NSArray<NSNumber *> *errorCodes;
+
 // NSDate derived from expiresIn property and time received
 @property (nonatomic, readonly, nullable) NSDate *expiryDate;
 
