@@ -1,4 +1,4 @@
-[TBD]
+Version 1.7.40
 * Increased macOS minimum version to 10.15 (#2220)
 
 Version 1.7.39
