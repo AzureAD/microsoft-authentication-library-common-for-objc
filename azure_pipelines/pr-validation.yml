@@ -20,6 +20,8 @@ jobs:
         target: "ios_library"
       MAC_LIB: 
         target: "mac_library"
+      VISION_LIB:
+        target: "vision_library"
   displayName: Validate Pull Request
   pool:
     vmImage: 'macos-14'
@@ -48,6 +50,24 @@ jobs:
       targetType: 'inline'
       script: |
         find . -name "*.gcda" -print0 | xargs -0 rm
+# The following is needed to install the visionOS SDK on macos-14 vm image which
+# doesn't have visionOS installed by default.
+# TODO: Remove when macos-14-arm64 is supported on ADO.
+  - task: Bash@3
+    displayName: download visionOS SDK
+    inputs:
+      targetType: 'inline'
+      script: |
+        if [ $(target) == 'vision_library' ]; then
+            echo "Downloading simulator for visionOS"
+            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+            defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+            defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+            xcodebuild -downloadPlatform visionOS
+        else
+            echo "Not visionOS job, no download needed"
+        fi
+      failOnStderr: false
   - task: Bash@3
     displayName: Run CPP script
     inputs:
