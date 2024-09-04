@@ -24,7 +24,7 @@
 #import "MSIDTestWebviewInteractingViewController.h"
 #import "MSIDWebviewAuthorization.h"
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 #import "MSIDSystemWebviewController.h"
 #endif
 

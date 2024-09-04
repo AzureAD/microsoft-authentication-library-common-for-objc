@@ -599,9 +599,10 @@
     XCTAssertNil(error);
     XCTAssertEqual(accountMetadataItems.count, 2);
     
+    MSIDAccountMetadataCacheItem *firstItem = accountMetadataItems[0];
     MSIDAccountMetadataCacheItem *cacheItem1;
     MSIDAccountMetadataCacheItem *cacheItem2;
-    if ([[accountMetadataItems[0] clientId] isEqualToString:@"my-client-id-1"])
+    if ([[firstItem clientId] isEqualToString:@"my-client-id-1"])
     {
         cacheItem1 = accountMetadataItems[0];
         cacheItem2 = accountMetadataItems[1];
