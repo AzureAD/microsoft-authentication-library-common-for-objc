@@ -1,5 +1,6 @@
 [TBD]
 * Increased macOS minimum version to 10.15 (#2220)
+* Add canShowUI property to GetToken request (#1415)
 
 Version 1.7.39
 * Fix cert auth invalid request (hotfix) (#1409)
