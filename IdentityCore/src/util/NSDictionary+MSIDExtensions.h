@@ -38,6 +38,7 @@
 - (NSDictionary *)msidDictionaryWithoutNulls;
 - (NSString *)msidStringObjectForKey:(NSString *)key;
 - (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass;
+- (NSArray<NSNumber *>*)msidArrayOfIntegersForKey:(NSString *)key;
 - (NSInteger)msidIntegerObjectForKey:(NSString *)key;
 - (BOOL)msidBoolObjectForKey:(NSString *)key;
 

@@ -63,7 +63,8 @@
 // Error code based on oauth error response
 @property (nonatomic, readonly) MSIDErrorCode oauthErrorCode;
 
-@property (nonatomic, nullable) NSArray<NSNumber *> *errorCodes;
+// A list of STS-specific error codes that server sends
+@property (nonatomic, nullable) NSArray<NSNumber *> *stsErrorCodes;
 
 // NSDate derived from expiresIn property and time received
 @property (nonatomic, readonly, nullable) NSDate *expiryDate;

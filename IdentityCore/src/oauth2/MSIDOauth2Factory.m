@@ -85,7 +85,7 @@
         {
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             userInfo[MSIDBrokerVersionKey] = response.clientAppVersion;
-            if (response.errorCodes) userInfo[@"error_codes"] = response.errorCodes;
+            if (response.stsErrorCodes) userInfo[MSIDSTSErrorCodesKey] = response.stsErrorCodes;
             
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      response.oauthErrorCode,
