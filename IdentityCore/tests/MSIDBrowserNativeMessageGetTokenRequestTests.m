@@ -71,6 +71,7 @@
             @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
             @"prompt": @"login",
             @"isSts": @(YES),
+            @"canShowUI": @(NO),
             @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
             @"state": @"state1",
             @"loginHint": @"user@microsoft.com",
@@ -94,6 +95,7 @@
     XCTAssertEqualObjects(@"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D", request.correlationId.UUIDString);
     XCTAssertEqual(MSIDPromptTypeLogin, request.prompt);
     XCTAssertTrue(request.isSts);
+    XCTAssertFalse(request.canShowUI);
     XCTAssertEqualObjects(@"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47", request.nonce);
     XCTAssertEqualObjects(@"state1", request.state);
     XCTAssertEqualObjects(@"user@microsoft.com", request.loginHint);
@@ -120,6 +122,7 @@
     XCTAssertEqualObjects(@"29a788ca-7bcf-4732-b23c-c8d294347e5b", request.clientId);
     XCTAssertEqualObjects(@"user.read openid profile offline_access", request.scopes);
     XCTAssertEqualObjects(@"https://login.microsoft.com", request.redirectUri);
+    XCTAssertTrue(request.canShowUI);
     XCTAssertNotNil(request.correlationId.UUIDString);
 }
 
