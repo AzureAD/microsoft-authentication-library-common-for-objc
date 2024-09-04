@@ -180,6 +180,7 @@
     {
         json[MSID_OAUTH2_ERROR] = self.error;
         json[MSID_OAUTH2_ERROR_DESCRIPTION] = [self.errorDescription msidURLEncode];
+        if (self.stsErrorCodes) json[MSID_OAUTH2_ERROR_CODES] = self.stsErrorCodes;
     }
     else
     {
