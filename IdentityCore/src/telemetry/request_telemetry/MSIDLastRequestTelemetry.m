@@ -97,6 +97,15 @@
     return YES;
 }
 
+- (nonnull id)copyWithZone:(nullable NSZone *)zone 
+{
+    MSIDRequestTelemetryErrorInfo *errorInfo = [[MSIDRequestTelemetryErrorInfo allocWithZone:zone] init];
+    errorInfo.apiId = self.apiId;
+    errorInfo.correlationId = [self.correlationId copyWithZone:zone];
+    errorInfo.error = [self.error copyWithZone:zone];
+    return errorInfo;
+}
+
 @end
 
 NSString * _Nonnull const MSID_PERF_TELEMETRY_SILENT_TYPE = @"silent";
@@ -484,7 +493,7 @@ static int maxErrorCountToArchive = 75;
 {
     __block NSArray *errorsInfoCopy;
     dispatch_sync(self.synchronizationQueue, ^{
-        errorsInfoCopy = [_errorsInfo copy];
+        errorsInfoCopy = [[NSArray alloc] initWithArray:_errorsInfo copyItems:YES];
     });
     return errorsInfoCopy;
 }
