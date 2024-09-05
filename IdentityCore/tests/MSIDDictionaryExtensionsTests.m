@@ -276,4 +276,34 @@
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"some_key key is missing in dictionary.");
 }
 
+- (void)testMsidArrayOfIntegersForKey_whenTypeIsWrong_shouldReturnNil
+{
+    NSDictionary *dictionaryWithString = @{@"key1": @"test"};
+    NSArray<NSNumber *> *resultWithString = [dictionaryWithString msidArrayOfIntegersForKey:@"key1"];
+    XCTAssertNil(resultWithString);
+    
+    NSDictionary *dictionaryWithInteger = @{@"key1": @1};
+    NSArray<NSNumber *> *resultWithInteger = [dictionaryWithInteger msidArrayOfIntegersForKey:@"key1"];
+    XCTAssertNil(resultWithInteger);
+}
+
+- (void)testMsidArrayOfIntegersForKey_whenArrayContentIsWrong_shouldReturnNil
+{
+    NSDictionary *dictionaryWithString = @{@"key1": @[@"test"]};
+    NSArray<NSNumber *> *resultWithString = [dictionaryWithString msidArrayOfIntegersForKey:@"key1"];
+    XCTAssertNil(resultWithString);
+    
+    NSDictionary *dictionary = @{@"key1": @[@1, @"test"]};
+    NSArray<NSNumber *> *result = [dictionary msidArrayOfIntegersForKey:@"key1"];
+    XCTAssertNil(result);
+}
+
+- (void)testMsidArrayOfIntegersForKey_whenTypeIsCorrect_shouldReturnValue
+{
+    NSDictionary *dictionary = @{@"key1": @[@1, @2, @3]};
+    NSArray<NSNumber *> *result = [dictionary msidArrayOfIntegersForKey:@"key1"];
+    NSArray<NSNumber *> *expectedResult = @[@1, @2, @3];
+    XCTAssertEqualObjects(result, expectedResult);
+}
+
 @end
