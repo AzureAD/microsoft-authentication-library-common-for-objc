@@ -97,7 +97,9 @@ static BOOL s_disableCertBasedAuth = NO;
 
 + (void)resetHandler
 {
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
     s_certAuthInProgress = NO;
+#endif
 }
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge

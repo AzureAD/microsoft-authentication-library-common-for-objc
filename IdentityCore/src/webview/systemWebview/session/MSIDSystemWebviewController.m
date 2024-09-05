@@ -34,7 +34,9 @@
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
 #import "UIApplication+MSIDExtensions.h"
+#if !defined TARGET_OS_VISION || !TARGET_OS_VISION
 #import "MSIDSafariViewController.h"
+#endif
 #import "MSIDURLResponseHandling.h"
 #endif
 #import "MSIDTelemetry+Internal.h"
@@ -223,6 +225,11 @@
                                                                 useEmpheralSession:self.prefersEphemeralWebBrowserSession
                                                                            context:self.context];
     }
+
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Couldn't create session on visionOS. Safari allowed flag %d", safariAllowed);
+    return nil;
+#else
         
 #if TARGET_OS_IPHONE
         
@@ -241,6 +248,7 @@
 #endif
     
     return nil;
+#endif
 }
 
 - (void)notifyEndWebAuthWithURL:(NSURL *)url

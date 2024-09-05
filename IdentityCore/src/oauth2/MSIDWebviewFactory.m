@@ -54,8 +54,10 @@
 {
         MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory availableWebViewTypeWithPreferredType:requestParameters.webviewType];
         
+#if !MSID_EXCLUDE_SYSTEMWV
         BOOL useSession = YES;
         BOOL allowSafariViewController = NO;
+#endif
         
         switch (webviewType)
         {
@@ -81,11 +83,15 @@
             default:
                 break;
         }
-    
+
+#if !MSID_EXCLUDE_SYSTEMWV
     return [self systemWebviewFromConfiguration:configuration
                        useAuthenticationSession:useSession
                       allowSafariViewController:allowSafariViewController
                                         context:context];
+#else
+    return nil;
+#endif
 }
 
 - (NSObject<MSIDWebviewInteracting> *)embeddedWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
