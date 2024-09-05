@@ -278,32 +278,47 @@
 
 - (void)testMsidArrayOfIntegersForKey_whenTypeIsWrong_shouldReturnNil
 {
-    NSDictionary *dictionaryWithString = @{@"key1": @"test"};
-    NSArray<NSNumber *> *resultWithString = [dictionaryWithString msidArrayOfIntegersForKey:@"key1"];
+    NSString *key = @"key1";
+    
+    NSDictionary *dictionaryWithString = @{key: @"test"};
+    NSArray<NSNumber *> *resultWithString = [dictionaryWithString msidArrayOfIntegersForKey:key];
     XCTAssertNil(resultWithString);
     
-    NSDictionary *dictionaryWithInteger = @{@"key1": @1};
-    NSArray<NSNumber *> *resultWithInteger = [dictionaryWithInteger msidArrayOfIntegersForKey:@"key1"];
+    NSDictionary *dictionaryWithInteger = @{key: @1};
+    NSArray<NSNumber *> *resultWithInteger = [dictionaryWithInteger msidArrayOfIntegersForKey:key];
     XCTAssertNil(resultWithInteger);
+    
+    NSDictionary *dictionaryWithBool = @{key: @true};
+    NSArray<NSNumber *> *resultWithBool = [dictionaryWithBool msidArrayOfIntegersForKey:key];
+    XCTAssertNil(resultWithBool);
 }
 
 - (void)testMsidArrayOfIntegersForKey_whenArrayContentIsWrong_shouldReturnNil
 {
-    NSDictionary *dictionaryWithString = @{@"key1": @[@"test"]};
-    NSArray<NSNumber *> *resultWithString = [dictionaryWithString msidArrayOfIntegersForKey:@"key1"];
+    NSString *key = @"key1";
+    
+    NSDictionary *dictionaryWithString = @{key: @[@"test"]};
+    NSArray<NSNumber *> *resultWithString = [dictionaryWithString msidArrayOfIntegersForKey:key];
     XCTAssertNil(resultWithString);
     
-    NSDictionary *dictionary = @{@"key1": @[@1, @"test"]};
-    NSArray<NSNumber *> *result = [dictionary msidArrayOfIntegersForKey:@"key1"];
+    NSDictionary *dictionary = @{key: @[@1, @"test"]};
+    NSArray<NSNumber *> *result = [dictionary msidArrayOfIntegersForKey:key];
     XCTAssertNil(result);
 }
 
 - (void)testMsidArrayOfIntegersForKey_whenTypeIsCorrect_shouldReturnValue
 {
-    NSDictionary *dictionary = @{@"key1": @[@1, @2, @3]};
-    NSArray<NSNumber *> *result = [dictionary msidArrayOfIntegersForKey:@"key1"];
+    NSString *key = @"key1";
+    
+    NSDictionary *dictionary = @{key: @[@1, @2, @3]};
+    NSArray<NSNumber *> *result = [dictionary msidArrayOfIntegersForKey:key];
     NSArray<NSNumber *> *expectedResult = @[@1, @2, @3];
     XCTAssertEqualObjects(result, expectedResult);
+    
+    NSDictionary *dictionaryEmptyArray = @{key: @[]};
+    NSArray<NSNumber *> *resultEmptyArray = [dictionaryEmptyArray msidArrayOfIntegersForKey:key];
+    NSArray<NSNumber *> *expectedResultEmptyArray = @[];
+    XCTAssertEqualObjects(resultEmptyArray, expectedResultEmptyArray);
 }
 
 @end
