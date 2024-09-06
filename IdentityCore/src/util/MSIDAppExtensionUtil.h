@@ -55,6 +55,6 @@
 /// Application extension safe replacement for `[[NSWorkspace sharedWorkspace] openURL:configuration:completionHandler:]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
 + (void)sharedApplicationOpenURL:(nonnull NSURL *)url
                    configuration:(nullable NSWorkspaceOpenConfiguration *)options
-               completionHandler:(void (^ __nullable)(BOOL success))completionHandler API_AVAILABLE(macos(10.15));
+               completionHandler:(void (^ __nullable)(BOOL success))completionHandler;
 #endif
 @end

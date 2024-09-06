@@ -268,13 +268,8 @@ static const OSStatus kNoStatus = -1;
 - (NSDictionary *)additionalPlatformKeychainAttributes
 {
     #ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
-    #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        if (@available(macOS 10.15, *)) {
-            return @{(id)kSecUseDataProtectionKeychain : @YES};
-        }
+        return @{(id)kSecUseDataProtectionKeychain : @YES};
     #endif
-    #endif
-    
     return nil;
 }
 
