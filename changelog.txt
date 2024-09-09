@@ -1,5 +1,6 @@
 [TBD]
-* VisionOS support added to IdentityCore (#1412)
+* VisionOS support added to IdentityCore (#1412) 
+
 
 [TBD]
 * Increased macOS minimum version to 10.15 (#2220)
