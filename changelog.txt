@@ -1,5 +1,5 @@
 [TBD]
-* VisionOS support added to IdentityCore (#1412)
+* VisionOS support added to IdentityCore (#1412) 
 
 
 [TBD]
