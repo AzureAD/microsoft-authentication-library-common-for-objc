@@ -26,7 +26,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTelemetryStringSerializable.h"
 
-@interface MSIDRequestTelemetryErrorInfo : NSObject <NSSecureCoding>
+@interface MSIDRequestTelemetryErrorInfo : NSObject <NSSecureCoding, NSCopying>
 
 @property (nonatomic) NSInteger apiId;
 @property (nonatomic, nullable) NSUUID *correlationId;
