@@ -309,7 +309,6 @@
     
     XCTAssertEqualObjects(response.error, @"error_code");
     XCTAssertEqualObjects(response.errorDescription, @"AADSTS650052:+The+app+needs+access+to+a+service.");
-    
 }
 
 - (void)testJsonDictionary_whenAllPropertiesSetForSuccessResponse_shouldReturnJson
