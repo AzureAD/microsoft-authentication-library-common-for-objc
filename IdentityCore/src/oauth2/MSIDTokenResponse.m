@@ -162,6 +162,7 @@
         _state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
         [self setIdToken:[json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN]];
         _error = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
+        _stsErrorCodes = [json msidArrayOfIntegersForKey: MSID_OAUTH2_ERROR_CODES];
         _errorDescription = [[json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION] msidURLDecode];
         _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_VERSION_KEY];
         [self setAdditionalServerInfo:json];
@@ -179,6 +180,7 @@
     {
         json[MSID_OAUTH2_ERROR] = self.error;
         json[MSID_OAUTH2_ERROR_DESCRIPTION] = [self.errorDescription msidURLEncode];
+        if (self.stsErrorCodes) json[MSID_OAUTH2_ERROR_CODES] = self.stsErrorCodes;
     }
     else
     {
