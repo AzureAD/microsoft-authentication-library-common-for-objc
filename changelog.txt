@@ -1,4 +1,8 @@
-[TBD]
+Version 1.7.41
+* Fix a minor crash case regarding telemetry (#1418)
+* Add GetSupportedContacts API (#1421)
+
+Version 1.7.40
 * VisionOS support added to IdentityCore (#1412)
 * Increased macOS minimum version to 10.15 (#2220)
 * Parse and add STS error codes in token error result (#1417)
