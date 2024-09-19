@@ -77,7 +77,20 @@ static BOOL s_isRunningInCompliantExtension = NO;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
         [[self sharedApplication] openURL:url options:@{} completionHandler:nil];
+#else
+        [self sharedApplicationOpenURL:url
+                               options:nil
+                     completionHandler:^(BOOL success)
+         {
+            if (!success)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Error when trying to open url: %@", [url msidPIINullifiedURL]);
+            }
+        }];
+#endif
+
     }];
 #pragma clang diagnostic pop
 }
