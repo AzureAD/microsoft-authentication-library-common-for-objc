@@ -1,4 +1,7 @@
 [TBD]
+* Replace deprecated method UIApplication.openURL(_:) (#1424)
+
+[TBD]
 * VisionOS support added to IdentityCore (#1412)
 * Increased macOS minimum version to 10.15 (#2220)
 * Parse and add STS error codes in token error result (#1417)
