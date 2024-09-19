@@ -223,6 +223,9 @@
     result[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
     [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
     [result addEntriesFromDictionary:parameters.appRequestMetadata];
+    
+    [result addEntriesFromDictionary:parameters.extraURLQueryParameters];
+    
     return result;
 }
 
