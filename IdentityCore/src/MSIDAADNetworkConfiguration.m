@@ -44,7 +44,7 @@ static NSSet<NSString *> *s_trustedHostList;
                              MSIDTrustedAuthorityGermany,
                              MSIDTrustedAuthorityWorldWide,
                              MSIDTrustedAuthorityUSGovernment,
-                             MSIDTrustedAuthorityCloudGovApi, nil];
+                             MSIDTrustedAuthorityCloudGovApi, @"login.windows-ppe.net", nil];
     }
 }
 
