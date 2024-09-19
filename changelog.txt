@@ -1,3 +1,6 @@
+Version TBD
+* Support extra query parameters on signout (#1243)
+
 Version 1.7.41
 * VisionOS support added to IdentityCore (#1412)
 * Fix a minor crash case regarding telemetry (#1418)
