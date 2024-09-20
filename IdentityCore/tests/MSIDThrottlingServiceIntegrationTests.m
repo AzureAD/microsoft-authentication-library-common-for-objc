@@ -295,13 +295,14 @@
 
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
 
-    [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                               class:[MSIDRequestParameters class]
                               block:(id)^(void)
     {
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
 
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:self.refreshToken
@@ -436,21 +437,23 @@
 
     tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
 
-    [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
                              block:(id)^(void)
     {
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
-   [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
+   MSIDTestSwizzle *swizzle1 = [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
                           class:[NSDate class]
                           block:(id)^(void)
    {
       return [[NSDate new] dateByAddingTimeInterval:-10];
 
    }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle1];
 
 
 
@@ -697,7 +700,7 @@
 
    //Swizzle token response handler
    __block NSError *expectedError;
-   [MSIDTestSwizzle instanceMethod:@selector(handleTokenResponse:
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(handleTokenResponse:
                                                requestParameters:
                                                    homeAccountId:
                                           tokenResponseValidator:
@@ -730,6 +733,7 @@
          completionBlock(nil,subError);
          return;
    }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
    //Token grant request
    MSIDAADRefreshTokenGrantRequest *expectedRequest = (MSIDAADRefreshTokenGrantRequest *) [defaultSilentTokenRequest.oauthFactory refreshTokenRequestWithRequestParameters:defaultSilentTokenRequest.requestParameters
@@ -844,7 +848,7 @@
 
    //Swizzle token response handler
    __block NSError *expectedError;
-   [MSIDTestSwizzle instanceMethod:@selector(handleTokenResponse:
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(handleTokenResponse:
                                                requestParameters:
                                                    homeAccountId:
                                           tokenResponseValidator:
@@ -877,6 +881,7 @@
          completionBlock(nil,subError);
          return;
    }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
 
    //Token grant request
@@ -950,7 +955,7 @@
    }];
 
    //swizzle interactive token request
-   [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
+   MSIDTestSwizzle *swizzle1 = [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
                              class:[MSIDInteractiveTokenRequest class]
                              block:(id)^(
                                          __unused id obj,
@@ -960,6 +965,7 @@
          completionBlock(tokenResult,nil,nil);
 
    }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle1];
 
 #if !TARGET_OS_IOS
       //swizzle interactive method - MacOS test app doesn't have entitlements that support keychain access group.
@@ -1084,7 +1090,7 @@
 
    //swizzle SSO extension method
    __block NSError *ssoErrorInternal = nil;
-   [MSIDTestSwizzle instanceMethod:@selector(handleOperationResponse:
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(handleOperationResponse:
                                                    requestParameters:
                                               tokenResponseValidator:
                                                         oauthFactory:
@@ -1119,6 +1125,7 @@
          completionBlock(nil,ssoError);
          return;
    }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
    //Swizzle
 
@@ -1245,7 +1252,7 @@
 
    //swizzle SSO extension method
    __block NSError *ssoErrorInternal = nil;
-   [MSIDTestSwizzle instanceMethod:@selector(handleOperationResponse:
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(handleOperationResponse:
                                                    requestParameters:
                                               tokenResponseValidator:
                                                         oauthFactory:
@@ -1282,6 +1289,7 @@
          completionBlock(nil,msalError);
          return;
    }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
    //Swizzle NSDate
    [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
@@ -1535,7 +1543,7 @@
    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:interactiveRequestParameters tokenRequestProvider:provider error:&error];
 
    //swizzle interactive token request
-   [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
                              class:[MSIDInteractiveTokenRequest class]
                              block:(id)^(
                                          __unused id obj,
@@ -1545,6 +1553,7 @@
          completionBlock(tokenResult,nil,nil);
 
    }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
    //acquire token interactively - which should trigger keychain update
    XCTestExpectation *expectation3 = [self expectationWithDescription:@"Acquire token Interactively - should trigger lastUpdateRefresh"];
@@ -1603,7 +1612,7 @@
    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
    //swizzle interactive token request
-   [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
+   MSIDTestSwizzle *swizzle1 = [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
                              class:[MSIDInteractiveTokenRequest class]
                              block:(id)^(
                                          __unused id obj,
@@ -1614,14 +1623,16 @@
 
    }];
    defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle1];
 
-   [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
+   MSIDTestSwizzle *swizzle2 = [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
                              block:(id)^(void)
     {
       return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
    }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle2];
 
 
    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:self.refreshToken
