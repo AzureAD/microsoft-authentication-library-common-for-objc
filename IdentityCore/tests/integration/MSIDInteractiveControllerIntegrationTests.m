@@ -353,7 +353,7 @@
         [expectation fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:7.0 handler:nil];
+    [self waitForExpectationsWithTimeout:2.0 handler:nil];
 }
 
 - (void)testAcquireToken_whenWPJRequest_shouldReturnWorkplaceJoinRequiredError
