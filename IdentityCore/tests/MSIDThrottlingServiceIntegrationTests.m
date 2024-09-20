@@ -534,7 +534,7 @@
 
     //Swizzle resultWithAccessToken
     __block NSUInteger extendedAccessTokenInvokedCount = 0;
-    [MSIDTestSwizzle instanceMethod:@selector(resultWithAccessToken:refreshToken:error:)
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(resultWithAccessToken:refreshToken:error:)
                               class:[MSIDDefaultSilentTokenRequest class]
                               block:(id)^(void)
     {
@@ -542,8 +542,7 @@
          MSIDTokenResult *result = [MSIDTokenResult new];
          return result;
     }];
-
-
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
     //throttlingServiceMock
    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
@@ -579,13 +578,14 @@
 
     tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
 
-    [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
+   MSIDTestSwizzle *swizzle1 = [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
                              block:(id)^(void)
     {
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle1];
 
 
     //First attempt - there shouldn't be any throttling.
@@ -690,17 +690,18 @@
    tokenResponse->_error = nil;
 
    //Swizzle token endpoint
-    [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
                              block:(id)^(void)
     {
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
    //Swizzle token response handler
    __block NSError *expectedError;
-   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(handleTokenResponse:
+   MSIDTestSwizzle *swizzle1 = [MSIDTestSwizzle instanceMethod:@selector(handleTokenResponse:
                                                requestParameters:
                                                    homeAccountId:
                                           tokenResponseValidator:
@@ -733,7 +734,7 @@
          completionBlock(nil,subError);
          return;
    }];
-   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle1];
 
    //Token grant request
    MSIDAADRefreshTokenGrantRequest *expectedRequest = (MSIDAADRefreshTokenGrantRequest *) [defaultSilentTokenRequest.oauthFactory refreshTokenRequestWithRequestParameters:defaultSilentTokenRequest.requestParameters
@@ -838,13 +839,14 @@
    tokenResponse->_error = nil;
 
    //Swizzle token endpoint
-    [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
+   MSIDTestSwizzle *endpointSwizzle = [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
                              class:[MSIDRequestParameters class]
                              block:(id)^(void)
     {
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:endpointSwizzle];
 
    //Swizzle token response handler
    __block NSError *expectedError;
