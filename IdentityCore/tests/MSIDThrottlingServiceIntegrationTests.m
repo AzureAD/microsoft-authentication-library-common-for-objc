@@ -1404,7 +1404,7 @@
 
    //swizzle SSO extension method
    __block NSError *ssoErrorInternal = nil;
-   [MSIDTestSwizzle instanceMethod:@selector(handleOperationResponse:
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(handleOperationResponse:
                                                    requestParameters:
                                               tokenResponseValidator:
                                                         oauthFactory:
@@ -1434,6 +1434,8 @@
          completionBlock(nil,msalError);
          return;
    }];
+   
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
    //swizzle time related methods
    //swizzle class method
@@ -1445,12 +1447,13 @@
 
    }];
 
-   [MSIDTestSwizzle instanceMethod:@selector(brokerKey)
+   MSIDTestSwizzle *swizzle1 = [MSIDTestSwizzle instanceMethod:@selector(brokerKey)
                              class:[MSIDBrokerOperationRequest class]
                              block:(id)^(void)
     {
          return @"danielLaRuSSO";
    }];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle1];
 
 
    XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
@@ -1543,7 +1546,7 @@
    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:interactiveRequestParameters tokenRequestProvider:provider error:&error];
 
    //swizzle interactive token request
-   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
+   MSIDTestSwizzle *swizzle2 = [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
                              class:[MSIDInteractiveTokenRequest class]
                              block:(id)^(
                                          __unused id obj,
@@ -1553,7 +1556,7 @@
          completionBlock(tokenResult,nil,nil);
 
    }];
-   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle2];
 
    //acquire token interactively - which should trigger keychain update
    XCTestExpectation *expectation3 = [self expectationWithDescription:@"Acquire token Interactively - should trigger lastUpdateRefresh"];
