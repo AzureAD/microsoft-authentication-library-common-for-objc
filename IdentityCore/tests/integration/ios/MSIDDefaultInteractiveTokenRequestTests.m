@@ -985,6 +985,7 @@
     }];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    [MSIDApplicationTestUtil reset];
 }
 #endif
 
