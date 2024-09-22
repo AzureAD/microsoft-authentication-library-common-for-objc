@@ -70,7 +70,9 @@
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
 
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+#if TARGET_OS_IPHONE
     [MSIDApplicationTestUtil reset];
+#endif
 }
 
 
