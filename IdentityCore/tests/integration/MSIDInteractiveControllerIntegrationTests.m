@@ -325,7 +325,6 @@
         XCTAssertEqualObjects(result.authority, testResult.authority);
         XCTAssertNil(acquireTokenError);
         // Check Telemetry event
-        // TODO(hiengu): temp commented-out these flakiness check
         XCTAssertEqual([receivedEvents count], 4);
         NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
