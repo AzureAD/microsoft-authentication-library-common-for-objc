@@ -63,14 +63,14 @@
 
 - (void)tearDown
 {
-
+    [super tearDown];
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
 
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
-    [super tearDown];
+    [MSIDApplicationTestUtil reset];
 }
 
 
@@ -322,34 +322,33 @@
         XCTAssertEqualObjects(result.account, testResult.account);
         XCTAssertEqualObjects(result.authority, testResult.authority);
         XCTAssertNil(acquireTokenError);
-
         // Check Telemetry event
         // TODO(hiengu): temp commented-out these flakiness check
-//        XCTAssertEqual([receivedEvents count], 4);
-//        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
-//        XCTAssertNotNil(telemetryEvent[@"start_time"]);
-//        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
-//        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_success");
-//        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
-//        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
-//        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"yes");
-//        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
-//        XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
-//        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-//        XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-//        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], DEFAULT_TEST_UTID);
-//        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
-//        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
-//        XCTAssertNotNil(telemetryEvent[@"response_time"]);
-//
-//        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
-//        XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
-//        XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
-//        XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
-//        XCTAssertEqualObjects(brokerEvent[@"request_id"], parameters.telemetryRequestId);
-//        XCTAssertEqualObjects(brokerEvent[@"status"], @"succeeded");
-//        XCTAssertNotNil(brokerEvent[@"start_time"]);
-//        XCTAssertNotNil(brokerEvent[@"stop_time"]);
+        XCTAssertEqual([receivedEvents count], 4);
+        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
+        XCTAssertNotNil(telemetryEvent[@"start_time"]);
+        XCTAssertNotNil(telemetryEvent[@"stop_time"]);
+        XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_success");
+        XCTAssertEqualObjects(telemetryEvent[@"event_name"], @"api_event");
+        XCTAssertEqualObjects(telemetryEvent[@"extended_expires_on_setting"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"is_successfull"], @"yes");
+        XCTAssertEqualObjects(telemetryEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
+        XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+        XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
+        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], DEFAULT_TEST_UTID);
+        XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
+        XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertNotNil(telemetryEvent[@"response_time"]);
+
+        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
+        XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
+        XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
+        XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
+        XCTAssertEqualObjects(brokerEvent[@"request_id"], parameters.telemetryRequestId);
+        XCTAssertEqualObjects(brokerEvent[@"status"], @"succeeded");
+        XCTAssertNotNil(brokerEvent[@"start_time"]);
+        XCTAssertNotNil(brokerEvent[@"stop_time"]);
 
         [expectation fulfill];
     }];
