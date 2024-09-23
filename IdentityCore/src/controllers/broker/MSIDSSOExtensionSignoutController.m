@@ -27,6 +27,7 @@
 #import "MSIDSSOExtensionSignoutRequest.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
+#import "MSIDMainThreadUtil.h"
 
 @interface MSIDSSOExtensionSignoutController()
 
@@ -86,11 +87,13 @@
             return;
         }
         
+        [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
 #if TARGET_OS_IPHONE
-        [self waitForSceneActivationAndCompleteSignout:completionBlock];
+            [self waitForSceneActivationAndCompleteSignout:completionBlock];
 #else
-        [super executeRequestWithCompletion:completionBlock];
+            [super executeRequestWithCompletion:completionBlock];
 #endif
+        }];
     }];
 }
 
