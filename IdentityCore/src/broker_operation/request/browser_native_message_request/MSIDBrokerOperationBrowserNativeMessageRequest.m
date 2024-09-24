@@ -50,6 +50,37 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
     return MSID_JSON_TYPE_OPERATION_REQUEST_BROWSER_NATIVE_MESSAGE;
 }
 
+- (NSString *)callerBundleIdentifier
+{
+    return self.parentProcessBundleIdentifier ?: NSLocalizedString(@"N/A", nil);
+}
+
+- (NSString *)callerTeamIdentifier
+{
+    return self.parentProcessTeamId ?: NSLocalizedString(@"N/A", nil);
+}
+
+- (NSString *)localizedCallerDisplayName
+{
+    return self.parentProcessLocalizedName ?: NSLocalizedString(@"N/A", nil);
+}
+
+- (NSString *)localizedApplicationInfo
+{
+    NSString *method = self.payloadJson[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY];
+    MSIDBrokerOperationRequest *brokerOperationRequest = [MSIDJsonSerializableFactory createFromJSONDictionary:self.payloadJson
+                                                                          classType:method
+                                                                  assertKindOfClass:MSIDBaseBrokerOperationRequest.class
+                                                                              error:nil];
+    
+    if (![NSString msidIsStringNilOrBlank:brokerOperationRequest.localizedApplicationInfo])
+    {
+        return brokerOperationRequest.localizedApplicationInfo;
+    }
+    
+    return NSLocalizedString(@"N/A", nil);
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
@@ -81,6 +112,10 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
             
             return nil;
         }
+        
+        _parentProcessBundleIdentifier = [json msidStringObjectForKey:@"parent_process_bundle_identifier"];
+        _parentProcessTeamId = [json msidStringObjectForKey:@"parent_process_teamId"];
+        _parentProcessLocalizedName = [json msidStringObjectForKey:@"parent_process_localized_name"];
     }
     
     return self;

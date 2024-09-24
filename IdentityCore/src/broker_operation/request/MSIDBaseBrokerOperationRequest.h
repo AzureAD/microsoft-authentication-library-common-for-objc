@@ -34,6 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, class, readonly) NSString *operation;
 @property (nonatomic) NSUUID *correlationId;
 
+@property (nonatomic, readonly) NSString *callerBundleIdentifier;
+@property (nonatomic, readonly) NSString *callerTeamIdentifier API_AVAILABLE(ios(14.0), macos(11.0)) API_UNAVAILABLE(watchos, tvos);
+@property (nonatomic, readonly) NSString *localizedCallerDisplayName API_AVAILABLE(ios(14.0), macos(11.0)) API_UNAVAILABLE(watchos, tvos);
+@property (nonatomic, readonly) NSString *localizedApplicationInfo API_AVAILABLE(ios(14.0), macos(11.0)) API_UNAVAILABLE(watchos, tvos);
+
 - (nullable NSString *)logInfo;
 
 @end

@@ -30,6 +30,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBrokerOperationBrowserNativeMessageRequest : MSIDBrokerOperationRequest
 
 @property (nonatomic) NSDictionary *payloadJson;
+@property (nonatomic) NSString *parentProcessBundleIdentifier;
+@property (nonatomic) NSString *parentProcessTeamId;
+@property (nonatomic) NSString *parentProcessLocalizedName;
+
 @property (nonatomic, readonly) NSString *method;
 
 @end
