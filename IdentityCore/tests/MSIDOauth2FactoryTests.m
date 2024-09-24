@@ -113,6 +113,23 @@
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidGrant);
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
+    XCTAssertFalse([error.userInfo.allKeys containsObject: MSIDSTSErrorCodesKey]);
+}
+
+- (void)testVerifyResponse_whenOAuthErrorWithErrorCodes_shouldReturnError
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_request", @"error_codes": @[@50222]} error:nil];
+    
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidRequest);
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_request");
+    XCTAssertEqualObjects(error.userInfo[MSIDSTSErrorCodesKey], @[@50222]);
 }
 
 - (void)testVerifyResponse_whenNoAccessTokenAndNoIdToken_shouldReturnError

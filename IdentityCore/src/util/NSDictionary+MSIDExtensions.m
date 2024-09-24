@@ -254,6 +254,22 @@
     return [self msidObjectForKey:key ofClass:[NSString class]];
 }
 
+- (NSArray<NSNumber *>*)msidArrayOfIntegersForKey:(NSString *)key
+{
+    id array = [self msidObjectForKey:key ofClass:[NSArray class]];
+    
+    if (array) {
+        for (id obj in array) {
+            if (![obj isKindOfClass:[NSNumber class]]) {
+                return nil;
+            }
+        }
+        return array;
+    }
+    
+    return nil;
+}
+
 - (NSInteger)msidIntegerObjectForKey:(NSString *)key
 {
     if ([self msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:key required:NO error:nil])

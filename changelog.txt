@@ -1,9 +1,15 @@
-[TBD]
-* VisionOS support added to IdentityCore (#1412)
+Version TBD
+* Support extra query parameters on signout (#1243)
 
-[TBD]
-* Increased macOS minimum version to 10.15 (#2220)
+Version 1.7.41
+* VisionOS support added to IdentityCore (#1412)
+* Fix a minor crash case regarding telemetry (#1418)
+* Add GetSupportedContacts API (#1421)
+* Parse and add STS error codes in token error result (#1417)
 * Add canShowUI property to GetToken request (#1415)
+
+Version 1.7.40
+* Increased macOS minimum version to 10.15 (#2220)
 
 Version 1.7.39
 * Fix cert auth invalid request (hotfix) (#1409)

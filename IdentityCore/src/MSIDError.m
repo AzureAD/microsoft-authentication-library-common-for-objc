@@ -36,6 +36,7 @@ NSString *MSIDUserDisplayableIdkey = @"MSIDUserDisplayableIdkey";
 NSString *MSIDHomeAccountIdkey = @"MSIDHomeAccountIdkey";
 NSString *MSIDTokenProtectionRequired = @"MSIDTokenProtectionRequired";
 NSString *MSIDBrokerVersionKey = @"MSIDBrokerVersionKey";
+NSString *MSIDSTSErrorCodesKey = @"MSIDSTSErrorCodesKey";
 NSString *MSIDServerUnavailableStatusKey = @"MSIDServerUnavailableStatusKey";
 NSString *MSIDThrottlingCacheHitKey = @"MSIDThrottlingCacheHitKey";
 

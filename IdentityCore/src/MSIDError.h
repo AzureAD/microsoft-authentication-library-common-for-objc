@@ -34,6 +34,7 @@ extern NSString * _Nonnull MSIDUserDisplayableIdkey;
 extern NSString * _Nonnull MSIDHomeAccountIdkey;
 extern NSString * _Nonnull MSIDTokenProtectionRequired;
 extern NSString * _Nonnull MSIDBrokerVersionKey;
+extern NSString * _Nonnull MSIDSTSErrorCodesKey;
 extern NSString * _Nonnull MSIDThrottlingCacheHitKey;
 
 /*!
