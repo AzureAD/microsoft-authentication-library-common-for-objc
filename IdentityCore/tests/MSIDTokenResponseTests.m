@@ -263,6 +263,38 @@
     XCTAssertEqualObjects(response.errorDescription, @"some description");
 }
 
+- (void)testInitWithJSONDictionary_whenErrorCodesIsContained_shouldParseIt
+{
+    NSDictionary *jsonInput = @{@"error": @"error_code",
+                                @"error_description": @"some description",
+                                @"error_codes": @[@57600]
+    };
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.error, @"error_code");
+    XCTAssertEqualObjects(response.errorDescription, @"some description");
+    XCTAssertEqualObjects(response.stsErrorCodes, @[@57600]);
+}
+
+- (void)testInitWithJSONDictionary_whenErrorCodesIsNotContained_ParseShouldNotFail
+{
+    NSDictionary *jsonInput = @{@"error": @"error_code"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.error, @"error_code");
+    XCTAssertEqualObjects(response.stsErrorCodes, nil);
+}
+
 - (void)testInitWithJSONDictionary_whenErrorDescriptionUrlEncoded_shouldParseIt
 {
     NSDictionary *jsonInput = @{@"error": @"error_code",
@@ -317,15 +349,17 @@
     tokenResponse.state = @"state 1";
     tokenResponse.additionalServerInfo = @{@"k": @"v"};
     tokenResponse.clientAppVersion = @"1.0";
+    tokenResponse.stsErrorCodes = @[@53005];
     
     NSDictionary *json = [tokenResponse jsonDictionary];
     
-    XCTAssertEqual(6, json.allKeys.count);
+    XCTAssertEqual(7, json.allKeys.count);
     XCTAssertEqualObjects(json[@"error"], @"unauthorized_client");
     XCTAssertEqualObjects(json[@"error_description"], @"AADSTS53005%3A%20Application%20needs%20to%20enforce%20Intune%20protection%20policies.%20Trace%20ID%3A%200ec6f651-1b0f-4147-8461-c8ecfb9c0400%20Correlation%20ID%3A%20e6317b1d-726e-4d63-a824-d530336101e6%20Timestamp%3A%202019-11-28%2000%3A13%3A53Z");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"k"], @"v");
     XCTAssertEqualObjects(json[@"state"], @"state 1");
+    XCTAssertEqualObjects(json[@"error_codes"], @[@53005]);
 }
 
 - (void)testJsonDictionary_withAccessTokenTypePop_shouldReturnValue

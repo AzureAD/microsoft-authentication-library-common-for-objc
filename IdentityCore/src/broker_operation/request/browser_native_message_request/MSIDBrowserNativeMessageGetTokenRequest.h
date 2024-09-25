@@ -72,6 +72,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Contains info about componenets involved into the flow. Used for telemetry.
 @property (nonatomic) NSString *platformSequence;
 
+/// When this flag is 'false', ui is not allowed. If we cannot acquire tokens silently, UI_NOT_ALLOWED status should be returned to the browser. This param is optional and by defrault it is 'true'.
+@property (nonatomic) BOOL canShowUI;
+
 @end
 
 NS_ASSUME_NONNULL_END
