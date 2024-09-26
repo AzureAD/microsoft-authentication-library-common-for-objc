@@ -62,15 +62,11 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
 
 - (NSString *)localizedApplicationInfo
 {
-    // If they are nil or empty -- return display name.
-    if ([NSString msidIsStringNilOrBlank:self.clientId] && [NSString msidIsStringNilOrBlank:self.redirectUri])
-    {
-        return self.localizedCallerDisplayName;
-    }
-    
-    // Otherwise show clientId and redirect uri.
-    __auto_type clientId = self.clientId ?: NSLocalizedString(@"N/A", nil);
-    __auto_type redirectUri = self.redirectUri ?: NSLocalizedString(@"N/A", nil);
+    // clientId && redirectUri are requered params and should be validated during init.
+    NSParameterAssert(self.clientId);
+    NSParameterAssert(self.redirectUri);
+    __auto_type clientId = self.clientId ?: @"";
+    __auto_type redirectUri = self.redirectUri ?: @"";
     
     NSString *clientIdKey = NSLocalizedString(@"Client ID", nil);
     NSString *redirectUriKey = NSLocalizedString(@"Redirect URI", nil);

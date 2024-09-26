@@ -167,4 +167,33 @@
 }
 
 
+- (void)testLocalizedApplicationInfo_whenClientIdAndRedirectUri_shouldReturnClientIDandRedirectUri
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(@"Client ID: 29a788ca-7bcf-4732-b23c-c8d294347e5b Redirect URI: https://login.microsoft.com", request.localizedApplicationInfo);
+}
+
 @end

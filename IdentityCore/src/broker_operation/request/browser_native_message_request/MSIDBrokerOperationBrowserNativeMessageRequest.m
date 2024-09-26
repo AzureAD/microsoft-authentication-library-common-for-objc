@@ -30,6 +30,9 @@
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY = @"payload";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPTID_KEY = @"parent_process_teamId";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPBI_KEY = @"parent_process_bundle_identifier";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPLN_KEY = @"parent_process_localized_name";
 
 @implementation MSIDBrokerOperationBrowserNativeMessageRequest
 
@@ -113,9 +116,9 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
             return nil;
         }
         
-        _parentProcessBundleIdentifier = [json msidStringObjectForKey:@"parent_process_bundle_identifier"];
-        _parentProcessTeamId = [json msidStringObjectForKey:@"parent_process_teamId"];
-        _parentProcessLocalizedName = [json msidStringObjectForKey:@"parent_process_localized_name"];
+        _parentProcessTeamId = [json msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPTID_KEY];
+        _parentProcessBundleIdentifier = [json msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPBI_KEY];
+        _parentProcessLocalizedName = [json msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPLN_KEY];
     }
     
     return self;
@@ -128,6 +131,10 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
     if (!self.payloadJson) return nil;
     
     json[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY] = [self.payloadJson msidJSONSerializeWithContext:nil];
+    
+    json[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPTID_KEY] = self.parentProcessTeamId;
+    json[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPBI_KEY] = self.parentProcessBundleIdentifier;
+    json[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPLN_KEY] = self.parentProcessLocalizedName;
     
     return json;
 }
