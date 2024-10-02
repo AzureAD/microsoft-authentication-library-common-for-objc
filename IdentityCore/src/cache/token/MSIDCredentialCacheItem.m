@@ -38,7 +38,6 @@
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "NSDate+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 
 @interface MSIDCredentialCacheItem()
