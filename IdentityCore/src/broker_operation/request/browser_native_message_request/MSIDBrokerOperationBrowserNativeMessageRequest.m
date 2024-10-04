@@ -27,6 +27,7 @@
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDBrowserNativeMessageRequest.h"
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PAYLOAD_KEY = @"payload";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY = @"method";
@@ -71,9 +72,9 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPLN_KEY = @"parent_process_
 - (NSString *)localizedApplicationInfo
 {
     NSString *method = self.payloadJson[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_METHOD_KEY];
-    MSIDBrokerOperationRequest *brokerOperationRequest = [MSIDJsonSerializableFactory createFromJSONDictionary:self.payloadJson
+    MSIDBrowserNativeMessageRequest *brokerOperationRequest = [MSIDJsonSerializableFactory createFromJSONDictionary:self.payloadJson
                                                                           classType:method
-                                                                  assertKindOfClass:MSIDBaseBrokerOperationRequest.class
+                                                                  assertKindOfClass:MSIDBrowserNativeMessageRequest.class
                                                                               error:nil];
     
     if (![NSString msidIsStringNilOrBlank:brokerOperationRequest.localizedApplicationInfo])

@@ -26,8 +26,9 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBrokerOperationBrowserNativeMessageRequest.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDBrowserNativeMessageRequest.h"
 
-@interface MSIDBrokerOperationBrowserNativeMockRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>
+@interface MSIDBrokerOperationBrowserNativeMockRequest : MSIDBrowserNativeMessageRequest
 
 @end
 

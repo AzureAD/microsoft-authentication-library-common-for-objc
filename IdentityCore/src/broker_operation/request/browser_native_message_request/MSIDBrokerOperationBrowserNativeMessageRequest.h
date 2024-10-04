@@ -34,6 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *parentProcessTeamId;
 @property (nonatomic) NSString *parentProcessLocalizedName;
 
+@property (nonatomic, readonly) NSString *callerBundleIdentifier;
+@property (nonatomic, readonly) NSString *callerTeamIdentifier API_AVAILABLE(ios(14.0), macos(11.0)) API_UNAVAILABLE(watchos, tvos);
+@property (nonatomic, readonly) NSString *localizedCallerDisplayName API_AVAILABLE(ios(14.0), macos(11.0)) API_UNAVAILABLE(watchos, tvos);
+@property (nonatomic, readonly) NSString *localizedApplicationInfo API_AVAILABLE(ios(14.0), macos(11.0)) API_UNAVAILABLE(watchos, tvos);
+
 @property (nonatomic, readonly) NSString *method;
 
 @end
