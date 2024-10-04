@@ -35,6 +35,7 @@
 #import "MSIDRequestParameters+Broker.h"
 #import "MSIDAuthority.h"
 #import "MSIDSignoutController.h"
+#import "MSIDXpcSilentTokenRequestController.h"
 
 @implementation MSIDRequestControllerFactory
 
@@ -51,7 +52,8 @@
     }
 
     MSIDSilentController *brokerController;
-    
+    MSIDXpcSilentTokenRequestController *xpcController;
+
     if ([parameters shouldUseBroker])
     {
         if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
@@ -65,22 +67,28 @@
                                                                                     error:error];
                 localController.isLocalFallbackMode = YES;
             }
-
-            brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
-                                                                                                  forceRefresh:forceRefresh
-                                                                                          tokenRequestProvider:tokenRequestProvider
-                                                                                 fallbackInteractiveController:localController
-                                                                                                         error:error];
+            
+            if ([MSIDXpcSilentTokenRequestController canPerformRequest])
+            {
+                xpcController  = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                           forceRefresh:forceRefresh
+                                                                                   tokenRequestProvider:tokenRequestProvider
+                                                                          fallbackInteractiveController:localController
+                                                                                                  error:error];
+            }
+            
+//            brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+//                                                                                                  forceRefresh:forceRefresh
+//                                                                                          tokenRequestProvider:tokenRequestProvider
+//                                                                                 fallbackInteractiveController:xpcController != nil ? xpcController : localController
+//                                                                                                         error:error];
         }
     }
-    
-    // TODO: Performance optimization: check account source.
-    // if (parameters.accountIdentifier.source == BROKER) return brokerController;
     
     __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                                              forceRefresh:forceRefresh
                                                                      tokenRequestProvider:tokenRequestProvider
-                                                            fallbackInteractiveController:brokerController
+                                                            fallbackInteractiveController:xpcController
                                                                                     error:error];
     if (!localController) return nil;
     
