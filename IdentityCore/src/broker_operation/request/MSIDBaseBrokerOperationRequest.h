@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, class, readonly) NSString *operation;
 @property (nonatomic) NSUUID *correlationId;
+@property (nonatomic) NSInteger requestType;
+
 
 - (nullable NSString *)logInfo;
 
