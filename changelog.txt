@@ -1,5 +1,6 @@
 Version TBD
 * Support extra query parameters on signout (#1243)
+* Wrap ASAuthorizationProviderExtensionAuthorizationRequest methods (#1427)
 * Replace deprecated method UIApplication.openURL(_:) (#1424)
 
 Version 1.7.41

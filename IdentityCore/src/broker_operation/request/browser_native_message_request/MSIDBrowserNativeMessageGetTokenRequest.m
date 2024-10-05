@@ -58,6 +58,22 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
     return @"GetToken";
 }
 
+#pragma mark - MSIDBrokerOperationRequest
+
+- (NSString *)localizedApplicationInfo
+{
+    // clientId && redirectUri are requered params and should be validated during init.
+    NSParameterAssert(self.clientId);
+    NSParameterAssert(self.redirectUri);
+    __auto_type clientId = self.clientId ?: @"";
+    __auto_type redirectUri = self.redirectUri ?: @"";
+    
+    NSString *clientIdKey = NSLocalizedString(@"Client ID", nil);
+    NSString *redirectUriKey = NSLocalizedString(@"Redirect URI", nil);
+    
+    return [NSString stringWithFormat:@"%@: %@ %@: %@", clientIdKey, clientId, redirectUriKey, redirectUri];
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
