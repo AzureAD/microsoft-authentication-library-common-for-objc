@@ -67,8 +67,7 @@
 @protocol MSIDXpcBrokerDispatcherProtocol <NSObject>
 
 - (void)getBrokerInstanceEndpointWithRequestInfo:(NSDictionary <NSString *, id> * _Nullable)requestInfo
-                            reply:(void (^)(NSXPCListenerEndpoint  * _Nullable listenerEndpoint, NSDictionary * _Nullable params, NSError * _Nullable error))reply;
-
+                                           reply:(void (^)(NSXPCListenerEndpoint  * _Nullable listenerEndpoint, NSDictionary * _Nullable params, NSError * _Nullable error))reply;
 @end
 
 typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstanceProtocol> _Nullable xpcService, NSXPCConnection  * _Nullable directConnection, NSError *error);
@@ -78,13 +77,6 @@ static NSString *brokerDispatcher = @"com.microsoft.entrabroker.BrokerApp";
 static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
 
 @implementation MSIDXpcSingleSignOnProvider
-
-+ (BOOL)canPerformRequest
-{
-    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithMachServiceName:machServiceName options:0];
-    
-    return connection != nil;
-}
 
 - (void)handleRequestParam:(NSDictionary *)requestParam
                  brokerKey:brokerKey
@@ -250,11 +242,6 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
     }
     [connection resume];
     
-    [connection setInvalidationHandler:^{
-        NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is invalidated", nil, nil, nil, nil, nil, YES);
-        if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
-    }];
-    
     [connection setInterruptionHandler:^{
         NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is interrupted", nil, nil, nil, nil, nil, YES);
         if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
@@ -288,11 +275,6 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
             // Fallback on earlier versions
         }
         [directConnection resume];
-        
-        [directConnection setInvalidationHandler:^{
-            NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- instance connection is invalidated", nil, nil, nil, nil, nil, YES);
-            if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
-        }];
         
         [directConnection setInterruptionHandler:^{
             NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- instance connection is interrupted", nil, nil, nil, nil, nil, YES);

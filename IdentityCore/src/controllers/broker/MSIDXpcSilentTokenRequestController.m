@@ -51,7 +51,7 @@
 + (BOOL)canPerformRequest
 {
 #if TARGET_OS_OSX
-    return [MSIDXpcSingleSignOnProvider canPerformRequest];
+    return YES;
 #else
     return NO;
 #endif

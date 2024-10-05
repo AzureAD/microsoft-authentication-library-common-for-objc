@@ -77,18 +77,18 @@
                                                                                                   error:error];
             }
             
-//            brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
-//                                                                                                  forceRefresh:forceRefresh
-//                                                                                          tokenRequestProvider:tokenRequestProvider
-//                                                                                 fallbackInteractiveController:xpcController != nil ? xpcController : localController
-//                                                                                                         error:error];
+            brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                                  forceRefresh:forceRefresh
+                                                                                          tokenRequestProvider:tokenRequestProvider
+                                                                                 fallbackInteractiveController:xpcController != nil ? xpcController : localController
+                                                                                                         error:error];
         }
     }
     
     __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                                              forceRefresh:forceRefresh
                                                                      tokenRequestProvider:tokenRequestProvider
-                                                            fallbackInteractiveController:xpcController
+                                                            fallbackInteractiveController:brokerController
                                                                                     error:error];
     if (!localController) return nil;
     

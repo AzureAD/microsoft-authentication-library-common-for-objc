@@ -30,8 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDXpcSingleSignOnProvider : NSObject
 
-+ (BOOL)canPerformRequest;
-
 // For interactive auth request
 // Note: completion thread is not gurantee, please submit to the correct thread as needed
 - (void)handleRequestParam:(NSDictionary *)requestParam
