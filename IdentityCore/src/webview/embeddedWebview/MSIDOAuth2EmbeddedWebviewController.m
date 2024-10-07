@@ -433,7 +433,36 @@
         return;
     }
     
-    decisionHandler(WKNavigationActionPolicyAllow);
+    if (self.customHeaderProvider)
+    {
+        [self.customHeaderProvider getCustomHeaders:navigationAction.request
+                                                    forHost:requestURL.host
+                                            completionBlock:^(NSDictionary<NSString *, NSString *> *extraHeaders, __unused NSError *error){
+            if (extraHeaders && extraHeaders.count > 0)
+            {
+                NSMutableURLRequest *newUrlRequest = [navigationAction.request mutableCopy];
+                
+                for (NSString *headerKey in extraHeaders)
+                {
+                    if (![NSString msidIsStringNilOrBlank:extraHeaders[headerKey]])
+                    {
+                        [newUrlRequest setValue:extraHeaders[headerKey] forHTTPHeaderField:headerKey];
+                    }
+                }
+                
+                decisionHandler(WKNavigationActionPolicyCancel);
+                [self loadRequest:newUrlRequest];
+                return;
+            }
+            
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return;
+        }];
+    }
+    else
+    {
+        decisionHandler(WKNavigationActionPolicyAllow);
+    }
 }
 
 - (void)webView:(WKWebView *)webView didReceiveServerRedirectForProvisionalNavigation:(WKNavigation *)navigation

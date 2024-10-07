@@ -301,6 +301,7 @@
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;
     configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
+    configuration.customHeaderProvider = parameters.crossDomainHeaderProvider;
     
 #if TARGET_OS_IPHONE
     configuration.presentationType = parameters.presentationType;
