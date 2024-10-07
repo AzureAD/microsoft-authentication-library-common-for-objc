@@ -116,8 +116,7 @@
     self.currentRequest = request;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
      {
-        MSIDAADRequestErrorHandler *handler = [[MSIDAADRequestErrorHandler alloc] init];
-        if (error && [handler shouldRetryNetworkingFailure:error.code]) {
+        if (error && [MSIDAADRequestErrorHandler shouldRetryNetworkingFailure:error.code]) {
             completionBlock(result, error);
             return;
         }
