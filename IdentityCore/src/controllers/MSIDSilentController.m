@@ -119,6 +119,7 @@
         MSIDAADRequestErrorHandler *handler = [[MSIDAADRequestErrorHandler alloc] init];
         if (error && [handler shouldRetryNetworkingFailure:error.code]) {
             completionBlock(result, error);
+            return;
         }
         
         if (result || !self.fallbackController)
