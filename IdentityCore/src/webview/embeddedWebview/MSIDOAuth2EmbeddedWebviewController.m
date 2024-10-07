@@ -437,7 +437,7 @@
     {
         [self.customHeaderProvider getCustomHeaders:navigationAction.request
                                                     forHost:requestURL.host
-                                            completionBlock:^(NSDictionary<NSString *, NSString *> *extraHeaders, __unused NSError *error){
+                                            completionBlock:^(NSDictionary<NSString *, NSString *> *extraHeaders, NSError *error){
             if (extraHeaders && extraHeaders.count > 0)
             {
                 NSMutableURLRequest *newUrlRequest = [navigationAction.request mutableCopy];
@@ -454,6 +454,9 @@
                 [self loadRequest:newUrlRequest];
                 return;
             }
+            
+            if (error)
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Error received while getting custom headers in embedded webview: %@", MSID_PII_LOG_MASKABLE(error));
             
             decisionHandler(WKNavigationActionPolicyAllow);
             return;
