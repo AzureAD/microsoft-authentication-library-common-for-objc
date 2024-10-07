@@ -93,6 +93,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraURLQueryParameters = @{@"key1": @"value1"};
     
     NSString *requestState = @"state";
 
@@ -105,6 +106,7 @@
                                           @"x-app-name": [MSIDTestRequireValueSentinel new],
                                           @"x-app-ver": [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver": [MSIDTestRequireValueSentinel new],
+                                          @"key1": @"value1"
                                           }];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
