@@ -64,18 +64,6 @@
 
 @implementation MSIDBrokerInteractiveControllerIntegrationTests
 
-- (NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *)swizzleStacks
-{
-    static dispatch_once_t once;
-    static NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *swizzleStacks = nil;
-    
-    dispatch_once(&once, ^{
-        swizzleStacks = [NSMutableDictionary new];
-    });
-    
-    return swizzleStacks;
-}
-
 - (void)setUp
 {
     [super setUp];
@@ -86,7 +74,7 @@
 
 - (void)tearDown
 {
-    [MSIDTestSwizzle resetWithSwizzleArray:[self.swizzleStacks objectForKey:self.name]];
+    [MSIDTestSwizzle reset];
     // Clear keychain
     NSDictionary *query = @{(id)kSecClass : (id)kSecClassKey,
                             (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric};
@@ -1138,7 +1126,7 @@
                                                                                                                    fallbackController:nil
                                                                                                                                 error:&error];
     
-    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(applicationState)
+    [MSIDTestSwizzle instanceMethod:@selector(applicationState)
                               class:[UIApplication class]
                               block:(id)^(void)
     {
@@ -1152,8 +1140,6 @@
         return NO;
     }];
     
-    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
-
     XCTestExpectation *expectation = [self expectationWithDescription:@"Failed with inactive error code"];
 
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
@@ -1182,7 +1168,7 @@
                                                                                                                    fallbackController:nil
                                                                                                                                 error:&error];
     
-    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(applicationState)
+    [MSIDTestSwizzle instanceMethod:@selector(applicationState)
                               class:[UIApplication class]
                               block:(id)^(void)
     {
@@ -1196,8 +1182,6 @@
         return NO;
     }];
     
-    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
-
     XCTestExpectation *expectation = [self expectationWithDescription:@"Failed with background error code"];
 
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];

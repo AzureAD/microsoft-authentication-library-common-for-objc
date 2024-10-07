@@ -36,26 +36,13 @@
 
 @implementation MSIDThrottlingModelNonRecoverableServerErrorTest
 
-- (NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *)swizzleStacks
-{
-    static dispatch_once_t once;
-    static NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *swizzleStacks = nil;
-    
-    dispatch_once(&once, ^{
-        swizzleStacks = [NSMutableDictionary new];
-    });
-    
-    return swizzleStacks;
-}
-
 - (void)setUp
 {
-    [self.swizzleStacks setValue:[NSMutableArray new] forKey:self.name];
 }
 
 - (void)tearDown
 {
-    [MSIDTestSwizzle resetWithSwizzleArray:[self.swizzleStacks objectForKey:self.name]];
+    [MSIDTestSwizzle reset];
 }
 
 - (NSError *)createErrorWithDomain:(BOOL)isMSIDError
@@ -122,7 +109,7 @@
 - (void)test_IfTheCacheIsNotExpired_AndNoLastRefreshTime_ThenshouldThrottleRequestShouldBeYes
 {
     MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
-    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
@@ -132,15 +119,13 @@
                                                                                     throttleDuration:3];
         return record;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
-    MSIDTestSwizzle *metadataSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
+    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
                                                               class:[MSIDThrottlingMetaDataCache class]
                                                               block:(id)^(void)
      {
         return nil;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:metadataSwizzle];
 
     XCTAssertTrue([model shouldThrottleRequest]);
 }
@@ -148,7 +133,7 @@
 - (void)test_IfTheCacheIsNotExpired_AndLastRefreshTimeIsTooOld_ThenshouldThrottleRequestShouldBeYes
 {
     MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
-    MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
@@ -158,9 +143,8 @@
                                                                                     throttleDuration:3];
         return record;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:cacheSwizzle];
     
-    MSIDTestSwizzle *lastrefreshSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
+    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
                            class:[MSIDThrottlingMetaDataCache class]
                            block:(id)^(void)
      {
@@ -168,7 +152,6 @@
         NSDate *lastRefreshTime = [NSDate dateWithTimeIntervalSinceNow:-3];
         return lastRefreshTime;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:lastrefreshSwizzle];
 
     XCTAssertTrue([model shouldThrottleRequest]);
 }
@@ -176,7 +159,7 @@
 - (void)test_IfTheCacheIsExpired_ThenShouldThrottleRequestShouldBeNo
 {
     MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
-    MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
@@ -186,9 +169,8 @@
                                                                                     throttleDuration:-3];
         return record;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:cacheSwizzle];
 
-    MSIDTestSwizzle *lastrefreshSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
+    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
                            class:[MSIDThrottlingMetaDataCache class]
                            block:(id)^(void)
      {
@@ -196,7 +178,6 @@
         NSDate *lastRefreshTime = nil;
         return lastRefreshTime;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:lastrefreshSwizzle];
 
     XCTAssertFalse([model shouldThrottleRequest]);
 }
@@ -204,7 +185,7 @@
 - (void)test_IfTheCacheIsNotExpired_AndLastRefreshTimeIsNew_ThenshouldThrottleRequestShouldBeNo
 {
     MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
-    MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
@@ -214,9 +195,8 @@
                                                                                     throttleDuration:3];
         return record;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:cacheSwizzle];
 
-    MSIDTestSwizzle *lastrefreshSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
+    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
                            class:[MSIDThrottlingMetaDataCache class]
                            block:(id)^(void)
      {
@@ -224,7 +204,6 @@
         NSDate *lastRefreshTime = [NSDate dateWithTimeIntervalSinceNow:3];
         return lastRefreshTime;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:lastrefreshSwizzle];
 
     XCTAssertFalse([model shouldThrottleRequest]);
 }
