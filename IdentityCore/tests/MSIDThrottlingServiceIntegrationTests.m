@@ -432,7 +432,7 @@
 
     }];
 
-   MSIDTestSwizzle *swizzle1 = [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
+   [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
                           class:[NSDate class]
                           block:(id)^(void)
    {
