@@ -51,5 +51,5 @@
 - (SEL)sel;
 
 - (void)makePermanent;
-
++ (NSMutableArray<MSIDTestSwizzle *> *) currentMonkeyPatches;
 @end

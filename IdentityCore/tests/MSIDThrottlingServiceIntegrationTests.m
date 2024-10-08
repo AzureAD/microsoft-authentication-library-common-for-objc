@@ -1110,7 +1110,7 @@
                              class:[MSIDBrokerOperationRequest class]
                              block:(id)^(void)
     {
-         return @"danielLaRuSSO";
+         return @"123 /";
    }];
 
    //self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
@@ -1125,7 +1125,16 @@
         XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
         [expectation1 fulfill];
    }];
-
+   
+   NSMutableString *builder = [NSMutableString new];
+   for (NSInteger i = [MSIDTestSwizzle currentMonkeyPatches].count - 1; i >= 0; i--)
+   {
+       MSIDTestSwizzle *swizzle = [MSIDTestSwizzle currentMonkeyPatches][i];
+      [builder appendString:[NSString stringWithFormat:@" swizzle %ld: ", (long)i]];
+      [builder appendString:swizzle.description];
+   }
+   
+   [XCTAttachment attachmentWithString:builder];
    [self waitForExpectationsWithTimeout:5.0 handler:nil];
 
    //Let's verify that request has been throttled and saved in the cache

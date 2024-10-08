@@ -543,7 +543,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
-    [silentController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+    [silentController acquireToken:^(__unused MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
 
         // Check if the error was correctly identified as a network failure
         XCTAssertNotNil(acquireTokenError);
