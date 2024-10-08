@@ -456,7 +456,9 @@
             }
             
             if (error)
+            {
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Error received while getting custom headers in embedded webview: %@", MSID_PII_LOG_MASKABLE(error));
+            }
             
             decisionHandler(WKNavigationActionPolicyAllow);
             return;
