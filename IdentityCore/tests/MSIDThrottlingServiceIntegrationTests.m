@@ -1039,10 +1039,6 @@
 
    newSSORequest.throttlingService = throttlingServiceMock;
 
-
-   XCTestExpectation *expectation_test = [self expectationWithDescription:@"debug expectation_test"];
-   XCTestExpectation *expectation_test1 = [self expectationWithDescription:@"debug expectation_test 1"];
-
    //swizzle resolve and validate
    [MSIDTestSwizzle instanceMethod:@selector(resolveAndValidate:
                                               userPrincipalName:
@@ -1056,7 +1052,6 @@
                                          __unused id<MSIDRequestContext> context,
                                          MSIDAuthorityInfoBlock completionBlock)
     {
-         [expectation_test fulfill];
          completionBlock(nil,YES,nil);
          return;
    }];
@@ -1086,7 +1081,6 @@
                                          __unused NSError *error,
                                          MSIDRequestCompletionBlock completionBlock)
     {
-      [expectation_test1 fulfill];
          NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
                                           MSIDHTTPHeadersKey: @{
                                                 @"Retry-After": @"-5"
@@ -1133,7 +1127,7 @@
    NSMutableString *builder = [NSMutableString new];
    for (NSInteger i = [MSIDTestSwizzle currentMonkeyPatches].count - 1; i >= 0; i--)
    {
-       MSIDTestSwizzle *swizzle = [MSIDTestSwizzle currentMonkeyPatches][i];
+      MSIDTestSwizzle *swizzle = [MSIDTestSwizzle currentMonkeyPatches][i];
       [builder appendString:[NSString stringWithFormat:@" swizzle %ld: ", (long)i]];
       [builder appendString:swizzle.description];
    }
@@ -1209,8 +1203,6 @@
                                                                                                     context:self.silentRequestParameters];
 
    newSSORequest.throttlingService = throttlingServiceMock;
-
-
 
    //swizzle resolve and validate
    [MSIDTestSwizzle instanceMethod:@selector(resolveAndValidate:
