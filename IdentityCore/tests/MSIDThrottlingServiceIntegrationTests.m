@@ -1040,6 +1040,8 @@
    newSSORequest.throttlingService = throttlingServiceMock;
 
 
+   XCTestExpectation *expectation_test = [self expectationWithDescription:@"debug expectation_test"];
+   XCTestExpectation *expectation_test1 = [self expectationWithDescription:@"debug expectation_test 1"];
 
    //swizzle resolve and validate
    [MSIDTestSwizzle instanceMethod:@selector(resolveAndValidate:
@@ -1054,6 +1056,7 @@
                                          __unused id<MSIDRequestContext> context,
                                          MSIDAuthorityInfoBlock completionBlock)
     {
+         [expectation_test fulfill];
          completionBlock(nil,YES,nil);
          return;
    }];
@@ -1083,6 +1086,7 @@
                                          __unused NSError *error,
                                          MSIDRequestCompletionBlock completionBlock)
     {
+      [expectation_test1 fulfill];
          NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
                                           MSIDHTTPHeadersKey: @{
                                                 @"Retry-After": @"-5"
@@ -1110,7 +1114,7 @@
                              class:[MSIDBrokerOperationRequest class]
                              block:(id)^(void)
     {
-         return @"123 /";
+         return @"danielLaRuSSO";
    }];
 
    //self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
