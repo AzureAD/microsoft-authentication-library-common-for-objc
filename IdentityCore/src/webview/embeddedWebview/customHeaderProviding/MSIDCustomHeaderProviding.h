@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,29 +20,15 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAuthority.h"
-#import "MSIDAADTenant.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDAADAuthority : MSIDAuthority
+typedef void(^MSIDCustomHeaderBlock)(NSDictionary<NSString *, NSString *> *headers, NSError *error);
 
-- (nullable instancetype)initWithURL:(nonnull NSURL *)url
-                           rawTenant:(nullable NSString *)rawTenant
-                             context:(nullable id<MSIDRequestContext>)context
-                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+@protocol MSIDCustomHeaderProviding <NSObject>
 
-- (nullable NSSet<NSString *> *)allCloudNetworkEnvironments;
-
-@property (nonatomic, readonly, nonnull) MSIDAADTenant *tenant;
-
-+ (nullable instancetype)aadAuthorityWithEnvironment:(nonnull NSString *)environment
-                                           rawTenant:(nullable NSString *)rawTenant
-                                             context:(nullable id<MSIDRequestContext>)context
-                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
-
-+ (nullable NSURL *)normalizedAuthorityUrl:(nonnull NSURL *)url
-                                        context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (void)getCustomHeaders:(NSURLRequest *)request forHost:(NSString *)host completionBlock:(MSIDCustomHeaderBlock)completionBlock;;
 
 @end
+

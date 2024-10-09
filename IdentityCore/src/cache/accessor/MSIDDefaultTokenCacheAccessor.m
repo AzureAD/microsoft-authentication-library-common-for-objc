@@ -194,9 +194,18 @@
                                                                         context:(id<MSIDRequestContext>)context
                                                                           error:(NSError *__autoreleasing*)error
 {
+    return [self getPrimaryRefreshTokensForConfiguration:configuration account:nil context:context error:error];
+}
+
+- (NSArray<MSIDPrimaryRefreshToken *> *)getPrimaryRefreshTokensForConfiguration:(MSIDConfiguration *)configuration
+                                                                        account:(MSIDAccountIdentifier *)accountIdentifier
+                                                                        context:(id<MSIDRequestContext>)context
+                                                                          error:(NSError *__autoreleasing*)error
+{
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
     query.credentialType = MSIDPrimaryRefreshTokenType;
+    query.homeAccountId = accountIdentifier.homeAccountId;
 
     NSArray<MSIDPrimaryRefreshToken *> *refreshTokens = (NSArray<MSIDPrimaryRefreshToken *> *)[self getTokensWithEnvironment:configuration.authority.environment cacheQuery:query context:context error:error];
     return refreshTokens;

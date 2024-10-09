@@ -111,4 +111,9 @@
                                                                         context:(id<MSIDRequestContext>)context
                                                                           error:(NSError *__autoreleasing*)error;
 
+- (NSArray<MSIDPrimaryRefreshToken *> *)getPrimaryRefreshTokensForConfiguration:(MSIDConfiguration *)configuration
+                                                                        account:(MSIDAccountIdentifier *)accountIdentifier
+                                                                        context:(id<MSIDRequestContext>)context
+                                                                          error:(NSError *__autoreleasing*)error;
+
 @end

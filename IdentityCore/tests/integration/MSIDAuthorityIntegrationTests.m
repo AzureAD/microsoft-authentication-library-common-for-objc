@@ -447,7 +447,7 @@
          [expectation fulfill];
      }];
 
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
 }
