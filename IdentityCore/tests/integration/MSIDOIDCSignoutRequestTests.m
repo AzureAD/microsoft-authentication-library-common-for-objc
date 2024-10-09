@@ -54,6 +54,7 @@
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
+    [MSIDTestSwizzle reset];
     [super tearDown];
 }
 

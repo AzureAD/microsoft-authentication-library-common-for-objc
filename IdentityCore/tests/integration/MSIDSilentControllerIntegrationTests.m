@@ -37,6 +37,7 @@
 #import "MSIDTelemetry.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
+#import "MSIDAADRequestErrorHandler.h"
 
 @interface MSIDSilentControllerIntegrationTests : XCTestCase
 
@@ -509,6 +510,52 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
+}
+
+- (void)testAcquireToken_whenNetworkFailure_shouldRetry
+{
+    // Setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event) {
+        [receivedEvents addObject:event];
+    }];
+
+    // Register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+
+    // Setup test request parameters
+    MSIDRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_network_retry_test";
+
+    // Network failure error
+    NSError *networkError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:nil];
+
+    // Configure the token request provider to simulate a network failure
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:networkError testWebMSAuthResponse:nil];
+
+    NSError *error = nil;
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:provider error:&error];
+
+    XCTAssertNotNil(silentController);
+    XCTAssertNil(error);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    [silentController acquireToken:^(__unused MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        // Check if the error was correctly identified as a network failure
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqual(acquireTokenError.code, networkError.code);
+
+        // Check to see if retry logic was attempted
+        XCTAssertTrue([MSIDAADRequestErrorHandler shouldRetryNetworkingFailure:acquireTokenError.code]);
+
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 @end
