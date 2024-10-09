@@ -124,6 +124,7 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
     }
     
     NSMutableArray<MSIDAadAuthorityCacheRecord *> *recordsToAdd = [NSMutableArray new];
+    NSMutableSet<NSString *> *cloudNetworkEnvironments = [NSMutableSet new];
     
     for (NSDictionary *environment in metadata)
     {
@@ -152,7 +153,14 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
         record.openIdConfigurationEndpoint = openIdConfigEndpoint;
 
         [recordsToAdd addObject:record];
+        
+        if (![NSString msidIsStringNilOrBlank:networkHost])
+        {
+            [cloudNetworkEnvironments addObject:networkHost];
+        }
     }
+    
+    _allCloudNetworkEnvironments = cloudNetworkEnvironments;
     
     for (MSIDAadAuthorityCacheRecord *record in recordsToAdd)
     {
