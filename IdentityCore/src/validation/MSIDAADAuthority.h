@@ -31,6 +31,8 @@
                              context:(nullable id<MSIDRequestContext>)context
                                error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+- (nullable NSSet<NSString *> *)allCloudNetworkEnvironments;
+
 @property (nonatomic, readonly, nonnull) MSIDAADTenant *tenant;
 
 + (nullable instancetype)aadAuthorityWithEnvironment:(nonnull NSString *)environment

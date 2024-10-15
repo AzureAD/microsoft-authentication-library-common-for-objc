@@ -129,6 +129,7 @@
 #endif
     
     embeddedWebviewController.externalDecidePolicyForBrowserAction = externalDecidePolicyForBrowserAction;
+    embeddedWebviewController.customHeaderProvider = configuration.customHeaderProvider;
 
     return embeddedWebviewController;
 }

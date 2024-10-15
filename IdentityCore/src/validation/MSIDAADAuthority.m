@@ -140,6 +140,11 @@
     return self.url;
 }
 
+- (nullable NSSet<NSString *> *)allCloudNetworkEnvironments
+{
+    return self.authorityCache.allCloudNetworkEnvironments;
+}
+
 - (nonnull NSArray<NSURL *> *)legacyRefreshTokenLookupAliases
 {
     if (self.tenant.type == MSIDAADTenantTypeConsumers)

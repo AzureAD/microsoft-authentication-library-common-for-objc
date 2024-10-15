@@ -75,6 +75,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
         [self cleanWPJ:[self keychainGroup:YES]];
         [self cleanWPJ:[self keychainGroup:NO]];
     }
+    [MSIDTestSwizzle reset];
 }
 
 #pragma mark Fetch Legacy and default registration tests

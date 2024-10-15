@@ -433,7 +433,41 @@
         return;
     }
     
-    decisionHandler(WKNavigationActionPolicyAllow);
+    if (self.customHeaderProvider)
+    {
+        [self.customHeaderProvider getCustomHeaders:navigationAction.request
+                                                    forHost:requestURL.host
+                                            completionBlock:^(NSDictionary<NSString *, NSString *> *extraHeaders, NSError *error){
+            if (extraHeaders && extraHeaders.count > 0)
+            {
+                NSMutableURLRequest *newUrlRequest = [navigationAction.request mutableCopy];
+                
+                for (NSString *headerKey in extraHeaders)
+                {
+                    if (![NSString msidIsStringNilOrBlank:extraHeaders[headerKey]])
+                    {
+                        [newUrlRequest setValue:extraHeaders[headerKey] forHTTPHeaderField:headerKey];
+                    }
+                }
+                
+                decisionHandler(WKNavigationActionPolicyCancel);
+                [self loadRequest:newUrlRequest];
+                return;
+            }
+            
+            if (error)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Error received while getting custom headers in embedded webview: %@", MSID_PII_LOG_MASKABLE(error));
+            }
+            
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return;
+        }];
+    }
+    else
+    {
+        decisionHandler(WKNavigationActionPolicyAllow);
+    }
 }
 
 - (void)webView:(WKWebView *)webView didReceiveServerRedirectForProvisionalNavigation:(WKNavigation *)navigation

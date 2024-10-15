@@ -63,14 +63,16 @@
 
 - (void)tearDown
 {
-
+    [super tearDown];
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
 
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
-    [super tearDown];
+#if TARGET_OS_IPHONE
+    [MSIDApplicationTestUtil reset];
+#endif
 }
 
 
@@ -322,7 +324,6 @@
         XCTAssertEqualObjects(result.account, testResult.account);
         XCTAssertEqualObjects(result.authority, testResult.authority);
         XCTAssertNil(acquireTokenError);
-
         // Check Telemetry event
         XCTAssertEqual([receivedEvents count], 4);
         NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];

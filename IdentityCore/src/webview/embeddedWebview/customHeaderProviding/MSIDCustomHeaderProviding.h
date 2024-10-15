@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -17,39 +16,19 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// THE SOFTWARE.  
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDTestSwizzle : NSObject
+typedef void(^MSIDCustomHeaderBlock)(NSDictionary<NSString *, NSString *> *headers, NSError *error);
 
-+ (void)reset;
-+ (void)resetWithSwizzleArray:(NSMutableArray<MSIDTestSwizzle *> *)swizzleArrays;
+@protocol MSIDCustomHeaderProviding <NSObject>
 
-+ (MSIDTestSwizzle *)instanceMethod:(SEL)sel
-                              class:(Class)cls
-                               impl:(IMP)impl;
+- (void)getCustomHeaders:(NSURLRequest *)request forHost:(NSString *)host completionBlock:(MSIDCustomHeaderBlock)completionBlock;;
 
-+ (MSIDTestSwizzle *)classMethod:(SEL)sel
-                           class:(Class)cls
-                            impl:(IMP)impl;
-
-+ (MSIDTestSwizzle *)instanceMethod:(SEL)sel
-                              class:(Class)cls
-                              block:(id)block;
-
-+ (MSIDTestSwizzle *)classMethod:(SEL)sel
-                           class:(Class)cls
-                           block:(id)impl;
-- (IMP)originalIMP;
-- (SEL)sel;
-
-- (void)makePermanent;
-+ (NSMutableArray<MSIDTestSwizzle *> *) currentMonkeyPatches;
 @end
+
