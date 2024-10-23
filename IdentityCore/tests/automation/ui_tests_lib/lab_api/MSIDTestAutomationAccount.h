@@ -48,6 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, nullable, readonly) NSString *associatedAppID;
 
+- (void)updateWithObjectId:(NSString *)objectId
+                       upn:(NSString *)upn
+              homeObjectId:(NSString *)homeObjectId;
+
 @end
 
 NS_ASSUME_NONNULL_END
