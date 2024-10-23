@@ -846,5 +846,37 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+- (void)testAllCloudNetworkEnvironments_whenNoRecord_shouldReturnNil
+{
+    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
+    
+    XCTAssertNil(cache.allCloudNetworkEnvironments);
+}
+
+- (void)testAllCloudNetworkEnvironments_AfterParsingRecords_shouldReturnValidSet
+{
+    MSIDAadAuthorityCache *cache = [[MSIDAadAuthorityCache alloc] init];
+    
+    NSArray *metadata = @[ @{ @"preferred_network" : @"cloudA",
+                              @"preferred_cache" :  @"cloudA",
+                              @"aliases" : @[@"cloudA1", @"cloudA2"] },
+                            @{ @"preferred_network" : @"cloudB",
+                                                      @"preferred_cache" :  @"cloudB",
+                                                      @"aliases" : @[@"cloudB1", @"cloudB2"] }];
+    NSURL *authorityUrl = [NSURL URLWithString:@"https://fakeauthority.com/v2/oauth/endpoint"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(__unused BOOL result, __unused NSError *error)
+     {
+        NSSet *expectedEnvironments = [[NSSet alloc] initWithArray:@[@"cloudA", @"cloudB"]];
+        XCTAssertTrue([cache.allCloudNetworkEnvironments isEqualToSet:expectedEnvironments]);
+         
+         [expectation fulfill];
+     }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
 @end
 

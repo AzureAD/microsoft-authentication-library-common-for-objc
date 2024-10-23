@@ -1,5 +1,8 @@
-Version TBD
+Version 1.7.42
 * Support extra query parameters on signout (#1243)
+* Wrap ASAuthorizationProviderExtensionAuthorizationRequest methods (#1427)
+* Replace deprecated method UIApplication.openURL(_:) (#1424)
+* Add support to attach PRT during cross cloud authentication (#1431)
 
 Version 1.7.41
 * VisionOS support added to IdentityCore (#1412)

@@ -46,6 +46,7 @@
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [MSIDTestSwizzle reset];
 }
 
 - (void)testWhenForceToSkipLocalRt_isSet_shouldSkip_whenFallBackController_isValid

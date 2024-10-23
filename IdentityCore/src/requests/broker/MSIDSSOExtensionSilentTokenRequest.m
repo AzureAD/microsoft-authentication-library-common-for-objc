@@ -92,9 +92,8 @@
     self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
     self.authorizationController.delegate = self.extensionDelegate;
     
-    [self.authorizationController msidPerformRequests];
-
     self.requestCompletionBlock = completionBlock;
+    [self.authorizationController msidPerformRequests];
 }
 
 @end

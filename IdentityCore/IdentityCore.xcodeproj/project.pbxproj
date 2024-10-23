@@ -631,6 +631,7 @@
 		6078EB51226DA97200235498 /* MSIDTestCacheUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6078EB4D226DA73600235498 /* MSIDTestCacheUtil.m */; };
 		607A788D23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 607A788C23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m */; };
 		607A788E23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 607A788C23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m */; };
+		607E6A8C2CAF04D700948365 /* MSIDCustomHeaderProviding.h in Headers */ = {isa = PBXBuildFile; fileRef = 607E6A8B2CAF04D700948365 /* MSIDCustomHeaderProviding.h */; };
 		6080B97A2384BD17009B1322 /* MSIDAccountMetadataCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 6080B9792384BD17009B1322 /* MSIDAccountMetadataCacheItem.m */; };
 		6080B97B2384BD17009B1322 /* MSIDAccountMetadataCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 6080B9792384BD17009B1322 /* MSIDAccountMetadataCacheItem.m */; };
 		6080B9A523886DD9009B1322 /* MSIDBrokerOperationGetDeviceInfoRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6080B9A423886DD9009B1322 /* MSIDBrokerOperationGetDeviceInfoRequestTests.m */; };
@@ -2473,6 +2474,7 @@
 		6078EB4D226DA73600235498 /* MSIDTestCacheUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestCacheUtil.m; sourceTree = "<group>"; };
 		607A788B23294D2400A1F74D /* MSIDAccountMetadataCacheAccessorMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheAccessorMock.h; sourceTree = "<group>"; };
 		607A788C23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheAccessorMock.m; sourceTree = "<group>"; };
+		607E6A8B2CAF04D700948365 /* MSIDCustomHeaderProviding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCustomHeaderProviding.h; sourceTree = "<group>"; };
 		6080B9782384BD01009B1322 /* MSIDAccountMetadataCacheItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheItem.h; sourceTree = "<group>"; };
 		6080B9792384BD17009B1322 /* MSIDAccountMetadataCacheItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheItem.m; sourceTree = "<group>"; };
 		6080B9A423886DD9009B1322 /* MSIDBrokerOperationGetDeviceInfoRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationGetDeviceInfoRequestTests.m; sourceTree = "<group>"; };
@@ -4106,6 +4108,14 @@
 			path = account_request;
 			sourceTree = "<group>";
 		};
+		607E6A872CAF03C400948365 /* customHeaderProviding */ = {
+			isa = PBXGroup;
+			children = (
+				607E6A8B2CAF04D700948365 /* MSIDCustomHeaderProviding.h */,
+			);
+			path = customHeaderProviding;
+			sourceTree = "<group>";
+		};
 		609E74BA228CA3C2005E3FED /* metadata */ = {
 			isa = PBXGroup;
 			children = (
@@ -4341,6 +4351,7 @@
 				6057EE8F20B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m */,
 				60B3856D20AB3CDC00D546D0 /* ui */,
 				96235FA0207D786A007EAB36 /* challangeHandlers */,
+				607E6A872CAF03C400948365 /* customHeaderProviding */,
 			);
 			path = embeddedWebview;
 			sourceTree = "<group>";
@@ -6105,6 +6116,7 @@
 				B26A0B8C2071B763006BD95A /* MSIDAADV1Oauth2Factory.h in Headers */,
 				B2C708B4219A620E00D917B8 /* MSIDBrokerCryptoProvider.h in Headers */,
 				B2CDB5791FE33A46003A4B5C /* MSIDAccount.h in Headers */,
+				607E6A8C2CAF04D700948365 /* MSIDCustomHeaderProviding.h in Headers */,
 				B2AF1D40218BD10A0080C1A0 /* MSIDRequestParameters.h in Headers */,
 				B2C7089721991D0000D917B8 /* MSIDAADV2BrokerResponse.h in Headers */,
 				E733EDEF25C0A49500ACB79A /* MSIDThumbprintCalculator.h in Headers */,
@@ -8144,6 +8156,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 1.2;
 			};
 			name = Debug;
 		};
@@ -8205,6 +8218,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				VALIDATE_PRODUCT = YES;
+				XROS_DEPLOYMENT_TARGET = 1.2;
 			};
 			name = Release;
 		};
@@ -8263,6 +8277,7 @@
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 1.2;
 			};
 			name = Debug;
 		};
@@ -8315,6 +8330,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				VALIDATE_PRODUCT = YES;
+				XROS_DEPLOYMENT_TARGET = 1.2;
 			};
 			name = Release;
 		};

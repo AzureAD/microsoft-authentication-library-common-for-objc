@@ -33,6 +33,8 @@
 
 @interface MSIDAadAuthorityCache : MSIDCache
 
+@property (nonatomic) NSSet<NSString *> *allCloudNetworkEnvironments;
+
 + (MSIDAadAuthorityCache *)sharedInstance;
 
 - (NSURL *)networkUrlForAuthority:(MSIDAADAuthority *)authority
