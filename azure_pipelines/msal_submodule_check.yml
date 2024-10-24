@@ -1,5 +1,121 @@
 #Your build pipeline references an undefined variable named ‘git rev-parse HEAD’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
 
+
+# Pipeline will be triggered for PR & any updates on the PR on all branches
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - '*'
+  drafts: true
+
+# Trigger CI for only main/release branches
+trigger:
+  branches:
+    include:
+    - main
+    - release/*
+    exclude:
+    - '*'
+
+# Define parallel jobs that run build script for specified targets
+jobs:
+- job: 'PRAssistant'
+  pool:
+    vmImage: 'ubuntu-latest'
+    timeOutInMinutes: 10
+  displayName: Invoke pipeline PRAssistantInvoker to trigger copilot code review
+  steps:
+  - bash: |
+      echo "Source branch : $(System.PullRequest.SourceBranch) Target branch : $(System.PullRequest.targetBranchName)"
+      az pipelines run --project 'IDDP' --id 2728 --branch dev --organization 'https://dev.azure.com/IdentityDivision' --variables source_branch=$(System.PullRequest.SourceBranch) target_branch=$(System.PullRequest.targetBranchName)
+    displayName: 'Invoke pipeline PRAssistantInvoker'
+    env:
+      AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
+    failOnStderr: false
+- job: 'Validate_Pull_Request'
+  strategy:
+    maxParallel: 3
+    matrix:
+      IOS_FRAMEWORK:
+        target: "iosFramework iosTestApp sampleIosApp sampleIosAppSwift"
+      MAC_FRAMEWORK:
+        target: "macFramework"
+      VISION_FRAMEWORK:
+        target: "visionOSFramework"
+  displayName: Validate Pull Request
+  pool:
+    vmImage: 'macOS-14'
+    timeOutInMinutes: 30
+
+  steps:
+  - script: |
+          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"
+    displayName: 'Switch to use Xcode 15.4'
+  - task: CmdLine@2
+    displayName: Installing dependencies
+    inputs:
+      script: |
+        gem install xcpretty slather bundler -N
+      failOnStderr: true
+  - checkout: self
+    clean: true
+    submodules: true
+    fetchDepth: 1
+    persistCredentials: false
+  - task: Bash@3
+    displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
+    inputs:
+      targetType: 'inline'
+      script: |
+        find . -name "*.gcda" -print0 | xargs -0 rm
+  - task: ComponentGovernanceComponentDetection@0
+    inputs:
+      alertWarningLevel: Low
+# The following is needed to install the visionOS SDK on macos-14 vm image which
+# doesn't have visionOS installed by default.
+# TODO: Remove when macos-14-arm64 is supported on ADO.
+  - task: Bash@3
+    displayName: download visionOS SDK
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo $(target)
+        if [ $(target) == 'visionOSFramework' ]; then
+            echo "Downloading simulator for visionOS"
+            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+            defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+            defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+            xcodebuild -downloadPlatform visionOS
+        else
+            echo "Not visionOS job, no download needed"
+        fi
+      failOnStderr: false
+  - task: Bash@3
+    displayName: Clone MSAL
+    inputs:
+      targetType: 'inline'
+      script: |
+        currentCommit=$(git rev-parse HEAD)
+        cd $(Agent.BuildDirectory)
+        mkdir MSAL
+        cd MSAL
+        git clone https://github.com/AzureAD/microsoft-authentication-library-for-objc.git
+        cd microsoft-authentication-library-for-objc
+        git checkout origin/dev
+        git submodule update --init
+        cd MSAL/IdentityCore
+   
+        if [ -n "$(system.pullRequest.sourceCommitId)" ]; then
+           echo "Using PR validation and checking out $(system.pullRequest.sourceCommitId)"
+           git checkout $(system.pullRequest.sourceCommitId)
+        else
+           echo "First parameter not supplied."
+           echo "Using commit validation and checking out $currentCommit"
+           git checkout $currentCommit
+        fi
+      failOnStderr: false
+
 steps:
 - script: |
    currentCommit=$(git rev-parse HEAD)
@@ -20,4 +136,64 @@ steps:
      echo "Using commit validation and checking out $currentCommit"
      git checkout $currentCommit
    fi
-  displayName: 'Checkout MSAL'
+   displayName: 'Checkout MSAL'
+
+#steps:
+#- script: 'gem install slather -N'
+#  displayName: 'Install slather'
+#  
+#steps:
+#- task: UsePythonVersion@0
+#  displayName: 'Use Python 3.x'
+#
+#steps:
+#- script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"'
+#  displayName: 'Switch to Xcode 15.4'
+#
+#steps:
+#- script: |
+#   sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+#   defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+#   defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+#   xcodebuild -downloadPlatform visionOS
+#   
+#  displayName: 'Download visionOS simulator'
+
+  - task: Bash@3
+    displayName: Run Build script & check for Errors
+    inputs:
+      targetType: 'inline'
+      script: |
+        cd $(Agent.BuildDirectory)/MSAL/microsoft-authentication-library-for-objc
+        { output=$(./build.py --target $(target) 2>&1 1>&3-) ;} 3>&1
+        final_status=$(<./build/status.txt)
+        echo "FINAL STATUS  = ${final_status}"
+        echo "POSSIBLE ERRORS: ${output}"
+        
+        if [ $final_status != "0" ]; then
+          echo "Build & Testing Failed! \n ${output}" >&2
+        fi
+      failOnStderr: true
+  - task: Bash@3
+    condition: always()
+    displayName: Cleanup
+    inputs:
+      targetType: 'inline'
+      script: |
+        rm -rf ./build/status.txt
+  - task: PublishTestResults@2
+    condition: always()
+    displayName: Publish Test Report
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '$(Agent.BuildDirectory)/s/build/reports/*'
+      failTaskOnFailedTests: true
+      testRunTitle: 'Test Run - $(target)'
+
+#steps:
+#- script: |
+#   cd $(Agent.BuildDirectory)/MSAL/microsoft-authentication-library-for-objc
+#   python3 ./build.py
+#  displayName: 'Run a python script for MSAL'
+#  timeoutInMinutes: 80
+
