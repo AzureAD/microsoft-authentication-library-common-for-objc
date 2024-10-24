@@ -1,0 +1,23 @@
+#Your build pipeline references an undefined variable named ‘git rev-parse HEAD’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
+
+steps:
+- script: |
+   currentCommit=$(git rev-parse HEAD)
+   cd $(Agent.BuildDirectory)
+   mkdir MSAL
+   cd MSAL
+   git clone https://github.com/AzureAD/microsoft-authentication-library-for-objc.git
+   cd microsoft-authentication-library-for-objc
+   git checkout origin/dev
+   git submodule update --init
+   cd MSAL/IdentityCore
+   
+   if [ -n "$(system.pullRequest.sourceCommitId)" ]; then
+     echo "Using PR validation and checking out $(system.pullRequest.sourceCommitId)"
+     git checkout $(system.pullRequest.sourceCommitId)
+   else
+     echo "First parameter not supplied."
+     echo "Using commit validation and checking out $currentCommit"
+     git checkout $currentCommit
+   fi
+  displayName: 'Checkout MSAL'
