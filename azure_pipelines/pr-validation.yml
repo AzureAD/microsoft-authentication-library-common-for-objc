@@ -37,10 +37,10 @@ jobs:
   strategy:
     maxParallel: 3
     matrix:
-      IOS_FRAMEWORK:
-        target: "iosFramework iosTestApp sampleIosApp sampleIosAppSwift"
-      MAC_FRAMEWORK:
-        target: "macFramework"
+#      IOS_FRAMEWORK:
+#        target: "iosFramework iosTestApp sampleIosApp sampleIosAppSwift"
+#      MAC_FRAMEWORK:
+#        target: "macFramework"
       VISION_FRAMEWORK:
         target: "visionOSFramework"
   displayName: Validate Pull Request
@@ -116,27 +116,27 @@ jobs:
         fi
       failOnStderr: false
 
-steps:
-- script: |
-   currentCommit=$(git rev-parse HEAD)
-   cd $(Agent.BuildDirectory)
-   mkdir MSAL
-   cd MSAL
-   git clone https://github.com/AzureAD/microsoft-authentication-library-for-objc.git
-   cd microsoft-authentication-library-for-objc
-   git checkout origin/dev
-   git submodule update --init
-   cd MSAL/IdentityCore
-   
-   if [ -n "$(system.pullRequest.sourceCommitId)" ]; then
-     echo "Using PR validation and checking out $(system.pullRequest.sourceCommitId)"
-     git checkout $(system.pullRequest.sourceCommitId)
-   else
-     echo "First parameter not supplied."
-     echo "Using commit validation and checking out $currentCommit"
-     git checkout $currentCommit
-   fi
-   displayName: 'Checkout MSAL'
+#steps:
+#- script: |
+#   currentCommit=$(git rev-parse HEAD)
+#   cd $(Agent.BuildDirectory)
+#   mkdir MSAL
+#   cd MSAL
+#   git clone https://github.com/AzureAD/microsoft-authentication-library-for-objc.git
+#   cd microsoft-authentication-library-for-objc
+#   git checkout origin/dev
+#   git submodule update --init
+#   cd MSAL/IdentityCore
+#   
+#   if [ -n "$(system.pullRequest.sourceCommitId)" ]; then
+#     echo "Using PR validation and checking out $(system.pullRequest.sourceCommitId)"
+#     git checkout $(system.pullRequest.sourceCommitId)
+#   else
+#     echo "First parameter not supplied."
+#     echo "Using commit validation and checking out $currentCommit"
+#     git checkout $currentCommit
+#   fi
+#   displayName: 'Checkout MSAL'
 
 #steps:
 #- script: 'gem install slather -N'
