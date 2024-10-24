@@ -20,27 +20,14 @@ trigger:
 
 # Define parallel jobs that run build script for specified targets
 jobs:
-- job: 'PRAssistant'
-  pool:
-    vmImage: 'ubuntu-latest'
-    timeOutInMinutes: 10
-  displayName: Invoke pipeline PRAssistantInvoker to trigger copilot code review
-  steps:
-  - bash: |
-      echo "Source branch : $(System.PullRequest.SourceBranch) Target branch : $(System.PullRequest.targetBranchName)"
-      az pipelines run --project 'IDDP' --id 2728 --branch dev --organization 'https://dev.azure.com/IdentityDivision' --variables source_branch=$(System.PullRequest.SourceBranch) target_branch=$(System.PullRequest.targetBranchName)
-    displayName: 'Invoke pipeline PRAssistantInvoker'
-    env:
-      AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
-    failOnStderr: false
 - job: 'Validate_Pull_Request'
   strategy:
     maxParallel: 3
     matrix:
-#      IOS_FRAMEWORK:
-#        target: "iosFramework iosTestApp sampleIosApp sampleIosAppSwift"
-#      MAC_FRAMEWORK:
-#        target: "macFramework"
+      IOS_FRAMEWORK:
+        target: "iosFramework iosTestApp sampleIosApp sampleIosAppSwift"
+      MAC_FRAMEWORK:
+        target: "macFramework"
       VISION_FRAMEWORK:
         target: "visionOSFramework"
   displayName: Validate Pull Request
@@ -58,20 +45,20 @@ jobs:
       script: |
         gem install xcpretty slather bundler -N
       failOnStderr: true
-  - checkout: self
-    clean: true
-    submodules: true
-    fetchDepth: 1
-    persistCredentials: false
-  - task: Bash@3
-    displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
-    inputs:
-      targetType: 'inline'
-      script: |
-        find . -name "*.gcda" -print0 | xargs -0 rm
-  - task: ComponentGovernanceComponentDetection@0
-    inputs:
-      alertWarningLevel: Low
+#  - checkout: self
+#    clean: true
+#    submodules: true
+#    fetchDepth: 1
+#    persistCredentials: false
+#  - task: Bash@3
+#    displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
+#    inputs:
+#      targetType: 'inline'
+#      script: |
+#        find . -name "*.gcda" -print0 | xargs -0 rm
+#  - task: ComponentGovernanceComponentDetection@0
+#    inputs:
+#      alertWarningLevel: Low
 # The following is needed to install the visionOS SDK on macos-14 vm image which
 # doesn't have visionOS installed by default.
 # TODO: Remove when macos-14-arm64 is supported on ADO.
