@@ -62,7 +62,7 @@ jobs:
         fi
       failOnStderr: false
 
-  - checkout: MSAL
+  - checkout: microsoft-authentication-library-for-objc
     displayName: 'Checkout MSAL'
     clean: true
     submodules: true
