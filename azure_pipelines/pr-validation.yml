@@ -80,7 +80,7 @@ jobs:
     clean: true
     submodules: false
     fetchDepth: 1
-    path: 's/MSAL/IdentityCore'
+    path: 's/microsoft-authentication-library-for-objc/MSAL/IdentityCore'
     persistCredentials: false
 
   - task: Bash@3
@@ -88,7 +88,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        cd $(Agent.BuildDirectory)/MSAL/microsoft-authentication-library-for-objc
+        cd $(Agent.BuildDirectory)/s/microsoft-authentication-library-for-objc
         { output=$(./build.py --target $(target) 2>&1 1>&3-) ;} 3>&1
         final_status=$(<./build/status.txt)
         echo "FINAL STATUS  = ${final_status}"
