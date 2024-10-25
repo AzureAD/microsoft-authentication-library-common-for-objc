@@ -14,6 +14,13 @@ trigger:
     - main
     - release/*
 
+resources:
+ repositories:
+   - repository: microsoft-authentication-library-for-objc
+     type: github
+     endpoint: 'MSAL ObjC Service Connection'
+     name: AzureAD/microsoft-authentication-library-for-objc
+
 # Define parallel jobs that run build script for specified targets
 jobs:
 - job: 'Validate_Pull_Request'
