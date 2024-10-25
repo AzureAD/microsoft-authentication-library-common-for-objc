@@ -74,7 +74,7 @@ jobs:
     clean: true
     submodules: true
     fetchTags: true
-    path: '$(Agent.BuildDirectory)'
+    path: 'MSALDir'
     persistCredentials: true
 
   - checkout: self
@@ -88,7 +88,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        cd $(Agent.BuildDirectory)/MSAL/microsoft-authentication-library-for-objc
+        cd ../MSALDir/MSAL/microsoft-authentication-library-for-objc
         { output=$(./build.py --target $(target) 2>&1 1>&3-) ;} 3>&1
         final_status=$(<./build/status.txt)
         echo "FINAL STATUS  = ${final_status}"
