@@ -56,16 +56,6 @@ static NSDictionary *s_tenantMappingDictionary;
     return s_tenantMappingDictionary;
 }
 
-- (void)updateWithObjectId:(NSString *)objectId
-                       upn:(NSString *)upn
-              homeObjectId:(NSString *)homeObjectId
-{
-    _objectId = objectId;
-    _upn = upn;
-    _homeObjectId = homeObjectId;
-    _homeAccountId = [NSString stringWithFormat:@"%@.%@", homeObjectId, _homeTenantId];
-}
-
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                                  error:(NSError * __autoreleasing *)error
 {
