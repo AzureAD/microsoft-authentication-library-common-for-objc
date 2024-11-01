@@ -1,6 +1,3 @@
-#Your build pipeline references an undefined variable named ‘git rev-parse HEAD’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-
 # Pipeline will be triggered for PR & any updates on the PR on all branches
 pr:
   branches:
@@ -29,10 +26,10 @@ jobs:
     matrix:
       IOS_FRAMEWORK:
         target: "iosFramework iosTestApp sampleIosApp sampleIosAppSwift"
-#      MAC_FRAMEWORK:
-#        target: "macFramework"
-#      VISION_FRAMEWORK:
-#        target: "visionOSFramework"
+      MAC_FRAMEWORK:
+        target: "macFramework"
+      VISION_FRAMEWORK:
+        target: "visionOSFramework"
   displayName: Validate Pull Request
   pool:
     vmImage: 'macOS-14'
