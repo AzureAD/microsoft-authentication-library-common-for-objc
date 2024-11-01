@@ -1,6 +1,3 @@
-#Your build pipeline references an undefined variable named ‘git rev-parse HEAD’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-
 # Pipeline will be triggered for PR & any updates on the PR on all branches
 pr:
   branches:
@@ -13,6 +10,13 @@ trigger:
     include:
     - main
     - release/*
+
+resources:
+ repositories:
+   - repository: microsoft-authentication-library-for-objc
+     type: github
+     endpoint: 'MSAL ObjC Service Connection'
+     name: AzureAD/microsoft-authentication-library-for-objc
 
 # Define parallel jobs that run build script for specified targets
 jobs:
@@ -62,18 +66,18 @@ jobs:
         fi
       failOnStderr: false
 
-  - checkout: MSAL
+  - checkout: microsoft-authentication-library-for-objc
     displayName: 'Checkout MSAL'
     clean: true
     submodules: true
     fetchTags: true
-    path: '$(Agent.BuildDirectory)'
     persistCredentials: true
 
   - checkout: self
     clean: true
     submodules: false
     fetchDepth: 1
+    path: 's/microsoft-authentication-library-for-objc/MSAL/IdentityCore'
     persistCredentials: false
 
   - task: Bash@3
@@ -81,7 +85,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        cd $(Agent.BuildDirectory)/MSAL/microsoft-authentication-library-for-objc
+        cd $(Agent.BuildDirectory)/s/microsoft-authentication-library-for-objc
         { output=$(./build.py --target $(target) 2>&1 1>&3-) ;} 3>&1
         final_status=$(<./build/status.txt)
         echo "FINAL STATUS  = ${final_status}"
@@ -97,7 +101,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        rm -rf ./build/status.txt
+        rm -rf $(Agent.BuildDirectory)/s/build/status.txt
   - task: PublishTestResults@2
     condition: always()
     displayName: Publish Test Report
