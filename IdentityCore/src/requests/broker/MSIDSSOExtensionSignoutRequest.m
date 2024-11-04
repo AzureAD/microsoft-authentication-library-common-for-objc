@@ -170,9 +170,8 @@
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
     self.requestSentDate = [NSDate date];
-    [self.authorizationController msidPerformRequests];
-    
     self.requestCompletionBlock = completionBlock;
+    [self.authorizationController msidPerformRequests];
 }
 
 #pragma mark - AuthenticationServices

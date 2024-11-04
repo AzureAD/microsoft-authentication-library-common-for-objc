@@ -44,12 +44,19 @@ static NSMutableArray<MSIDTestSwizzle *> *s_currentMonkeyPatches = nil;
 
 @end
 
+
 @implementation MSIDTestSwizzle
 {
     Class _class;
     SEL _sel;
     Method _m;
     BOOL _instance;
+    NSString *stringFromSel;
+}
+
++ (NSMutableArray<MSIDTestSwizzle *> *) currentMonkeyPatches
+{
+    return s_currentMonkeyPatches;
 }
 
 - (void)dealoc
@@ -126,6 +133,7 @@ static NSMutableArray<MSIDTestSwizzle *> *s_currentMonkeyPatches = nil;
     p->_sel = sel;
     p->_class = class;
     p->_instance = YES;
+    p->stringFromSel = NSStringFromSelector(sel);
     return p;
 }
 
@@ -188,6 +196,10 @@ static NSMutableArray<MSIDTestSwizzle *> *s_currentMonkeyPatches = nil;
     {
         [s_currentMonkeyPatches removeObject:self];
     }
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"selector: %@, class %@", stringFromSel, _class.description];
 }
 
 @end

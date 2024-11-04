@@ -49,7 +49,7 @@
         if (shouldRetry && error)
         {
             // Networking errors (-1001, -1003. -1004. -1005. -1009)
-            shouldRetryNetworkingFailure = [self shouldRetryNetworkingFailure:error.code];
+            shouldRetryNetworkingFailure = [MSIDAADRequestErrorHandler shouldRetryNetworkingFailure:error.code];
             if (shouldRetryNetworkingFailure && error.code == NSURLErrorNotConnectedToInternet)
             {
                 // For handling the NSURLErrorNotConnectedToInternet error, retry the network request after a longer delay.
@@ -155,7 +155,7 @@
     if (completionBlock) completionBlock(nil, httpError);
 }
 
-- (BOOL)shouldRetryNetworkingFailure:(NSInteger)errorCode
++ (BOOL)shouldRetryNetworkingFailure:(NSInteger)errorCode
 {
     switch (errorCode) {
         case NSURLErrorTimedOut:
