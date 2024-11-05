@@ -26,6 +26,7 @@
 extern NSString * _Nonnull MSIDErrorDescriptionKey;
 extern NSString * _Nonnull MSIDOAuthErrorKey;
 extern NSString * _Nonnull MSIDOAuthSubErrorKey;
+extern NSString * _Nonnull MSIDOAuthSubErrorDescriptionKey;
 extern NSString * _Nonnull MSIDCorrelationIdKey;
 extern NSString * _Nonnull MSIDHTTPHeadersKey;
 extern NSString * _Nonnull MSIDHTTPResponseCodeKey;
