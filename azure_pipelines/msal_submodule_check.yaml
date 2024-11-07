@@ -26,13 +26,6 @@ resources:
      # Define parallel jobs that run build script for specified targets
 jobs:
 - job: 'Validate_Pull_Request'
-  strategy:
-    maxParallel: 2
-    matrix:
-      IOS_FRAMEWORK:
-        target: "Authenticator Broker SDK"
-      MAC_FRAMEWORK:
-        target: "ADAuthenticationBrokerMacOS"
   displayName: Validate Pull Request
   pool:
     vmImage: 'macOS-14'
