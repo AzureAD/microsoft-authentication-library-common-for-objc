@@ -18,6 +18,11 @@ resources:
      endpoint: 'MSAL ObjC Service Connection'
      name: AzureAD/azure-activedirectory-tokenbroker-for-objc
 
+   - repository: microsoft-authentication-library-for-objc
+     type: github
+     endpoint: 'MSAL ObjC Service Connection'
+     name: AzureAD/microsoft-authentication-library-for-objc
+
    - repository: WorkplaceJoin-for-iOS
      type: github
      endpoint: 'MSAL ObjC Service Connection'
@@ -65,8 +70,16 @@ jobs:
   - checkout: azure-activedirectory-tokenbroker-for-objc
     displayName: 'Checkout Broker'
     clean: true
-    submodules: true
+    submodules: false
     fetchTags: true
+    persistCredentials: true
+
+  - checkout: microsoft-authentication-library-for-objc
+    displayName: 'Checkout MSAL'
+    clean: true
+    submodules: false
+    fetchTags: true
+    path: 's/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/microsoft-authentication-library-for-objc'
     persistCredentials: true
 
   - checkout: self
@@ -113,14 +126,26 @@ jobs:
         cd AD-MFA-NGCAuthentication
         git -c http.https://msazure.visualstudio.com/DefaultCollection/One/_git/AD-MFA-NGCKeyProvider-ios.extraheader="AUTHORIZATION: bearer $(aadToken)" submodule update --init NGCKeyProvider
         git -c http.https://msazure.visualstudio.com/DefaultCollection/One/_git/AD-MFA-MSAuthNetworking.extraheader="AUTHORIZATION: bearer $(aadToken)" submodule update --init MSAuthNetworking
-   
-  - checkout: WorkplaceJoin-for-iOS
-    displayName: 'checkout workplaceJoin submodule'
-    clean: true
-    submodules: false
-    fetchTags: true
-    path: 's/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS'
-    persistCredentials: true
+
+  - task: Bash@3
+    displayName: 'Checkout WPJ openssl-msft submodule'
+    inputs:
+      workingDirectory: $(Pipeline.Workspace)/s
+      targetType: 'inline'
+      script: |
+        cd azure-activedirectory-tokenbroker-for-objc
+        REV=$(git rev-parse HEAD:ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS)
+        cd ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS
+        git pull origin $REV
+        cd Frameworks
+        git -c http.https://msazure.visualstudio.com/DefaultCollection/PlatformCrypto/_git/openssl-msft.extraheader="AUTHORIZATION: bearer $(aadToken)" submodule update --init openssl-msft
+
+  - task: UsePythonVersion@0
+    displayName: Use python 3.x
+    inputs:
+      versionSpec: '3.x'
+      addToPath: true
+      architecture: 'x64'
 
   - task: Bash@3
     displayName: Run Build script & check for Errors
