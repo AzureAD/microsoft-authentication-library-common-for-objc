@@ -140,6 +140,13 @@ jobs:
         cd Frameworks
         git -c http.https://msazure.visualstudio.com/DefaultCollection/PlatformCrypto/_git/openssl-msft.extraheader="AUTHORIZATION: bearer $(aadToken)" submodule update --init openssl-msft
 
+  - checkout: self
+    displayName: 'Checkout GitHub Submodules'
+    clean: false
+    submodules: recursive
+    fetchTags: true
+    persistCredentials: true
+
   - task: UsePythonVersion@0
     displayName: Use python 3.x
     inputs:
