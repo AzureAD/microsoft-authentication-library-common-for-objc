@@ -1,5 +1,5 @@
 import os
- 
+
 configurations = [
     "Wall",
     "Werror",
