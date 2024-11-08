@@ -23,6 +23,11 @@ resources:
      endpoint: 'MSAL ObjC Service Connection'
      name: AzureAD/microsoft-authentication-library-for-objc
 
+  #  - repository: microsoft-authentication-library-common-for-objc
+  #    type: github
+  #    endpoint: 'MSAL ObjC Service Connection'
+  #    name: AzureAD/microsoft-authentication-library-common-for-objc
+
    - repository: WorkplaceJoin-for-iOS
      type: github
      endpoint: 'MSAL ObjC Service Connection'
@@ -98,6 +103,14 @@ jobs:
     path: 's/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS'
     persistCredentials: true
 
+  - checkout: microsoft-authentication-library-for-objc
+    displayName: 'Checkout MSAL/IdentityCore in WPJ'
+    clean: true
+    submodules: true
+    fetchTags: true
+    path: 's/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS/Frameworks/microsoft-authentication-library-for-objc'
+    persistCredentials: true
+
   - task: AzureCLI@2
     inputs:
       azureSubscription: 'AuthSdkResourceManager'
@@ -140,12 +153,12 @@ jobs:
         cd Frameworks
         git -c http.https://msazure.visualstudio.com/DefaultCollection/PlatformCrypto/_git/openssl-msft.extraheader="AUTHORIZATION: bearer $(aadToken)" submodule update --init openssl-msft
 
-  - checkout: self
-    displayName: 'Checkout GitHub Submodules'
-    clean: false
-    submodules: recursive
-    fetchTags: true
-    persistCredentials: true
+  # - checkout: self
+  #   displayName: 'Checkout GitHub Submodules'
+  #   clean: false
+  #   submodules: recursive
+  #   fetchTags: true
+  #   persistCredentials: true
 
   - task: UsePythonVersion@0
     displayName: Use python 3.x
