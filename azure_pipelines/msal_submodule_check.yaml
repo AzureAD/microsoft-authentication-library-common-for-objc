@@ -105,7 +105,7 @@ jobs:
 
   - checkout: microsoft-authentication-library-for-objc
     displayName: 'Checkout MSAL/IdentityCore in WPJ'
-    clean: true
+    clean: false
     submodules: true
     fetchTags: true
     path: 's/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS/Frameworks/microsoft-authentication-library-for-objc'
