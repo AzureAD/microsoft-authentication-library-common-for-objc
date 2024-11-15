@@ -159,7 +159,6 @@
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error isEUII:YES];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"MaskedError(MSIDErrorDomain, -10003)");
-
 }
 
 @end
