@@ -133,6 +133,7 @@
                     }
                 }
             }
+            
             if (maskedError)
             {
                 return [NSString stringWithFormat:@"MaskedError(%@, %ld, %@)", errorParameter.domain, (long)errorParameter.code, localUserInfo];
