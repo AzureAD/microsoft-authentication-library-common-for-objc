@@ -61,6 +61,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.claimsRequest = parameters.claimsRequest;
     request.requestSentDate = requestSentDate;
     request.nonce = parameters.nonce;
+    request.webPageUri = parameters.webPageUri;
     request.clientSku = parameters.clientSku;
     request.skipValidateResultAccount = parameters.skipValidateResultAccount;
     request.forceRefresh = parameters.forceRefresh;
@@ -78,6 +79,8 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     {
         _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:json error:error];
         if (!_configuration) return nil;
+        
+        _webPageUri = [json msidStringObjectForKey:@"web_page_uri"];
         
         _providerType = MSIDProviderTypeFromString([json msidStringObjectForKey:MSID_PROVIDER_TYPE_JSON_KEY]);
         
@@ -135,6 +138,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     }
         
     [json addEntriesFromDictionary:configurationJson];
+    json[@"web_page_uri"] = self.webPageUri;
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
     json[MSID_BROKER_EXTRA_OIDC_SCOPES_KEY] = self.oidcScope;
     json[MSID_BROKER_EXTRA_QUERY_PARAM_KEY] = [self.extraQueryParameters msidWWWFormURLEncode];
