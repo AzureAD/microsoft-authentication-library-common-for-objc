@@ -66,13 +66,30 @@
     XCTAssertEqualObjects(description, @"MaskedError(MSIDErrorDomain, -10003)");
 }
 
-- (void)testDescription_whenPIIEnabled_andParameterOfErrorType_shouldReturnNonMaskedValue
+- (void)testDescription_whenPIIEnabled_andParameterOfErrorType_andWithoutUpn_shouldReturnNonMaskedValue
 {
     [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskSecretsOnly;
     NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"Error Domain=MSIDErrorDomain Code=-10003 \"(null)\" UserInfo={MSIDOAuthErrorKey=invalid_grant, MSIDOAuthSubErrorKey=bad_token, MSIDErrorDescriptionKey=test}");
+}
+
+- (void)testDescription_whenPIIEnabled_andParameterOfErrorType_andWithUpn_shouldReturnNonMaskedValue_butUpnMasked
+{
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskSecretsOnly;
+    NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, @{@"MSALDisplayableUserIdKey":@"testuser@consoto.com"}, NO);
+    MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error];
+    NSString *description = [logParameter description];
+    NSString *expectedDescription = [NSString stringWithFormat:
+        @"MaskedError(MSIDErrorDomain, -10003, {\n"
+        "    MSALDisplayableUserIdKey = \"%@\";\n"
+        "    MSIDErrorDescriptionKey = %@;\n"
+        "    MSIDOAuthErrorKey = \"%@\";\n"
+        "    MSIDOAuthSubErrorKey = \"%@\";\n"
+        "})",
+        @"(not-null)", @"test", @"invalid_grant", @"bad_token"];
+    XCTAssertEqualObjects(description, expectedDescription);
 }
 
 - (void)testDescription_whenPIIDisabled_andParameterOfNSNullType_shouldReturnMaskedValue
@@ -107,6 +124,42 @@
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:param];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"(null)");
+}
+
+- (void)testDescription_whenEuiiOnlyEnabled_andNotEuii_andParameterOfErrorType_andWithoutUpn_shouldReturnNonMaskedValue
+{
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskEUIIOnly;
+    NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
+    MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error];
+    NSString *description = [logParameter description];
+    XCTAssertEqualObjects(description, @"Error Domain=MSIDErrorDomain Code=-10003 \"(null)\" UserInfo={MSIDOAuthErrorKey=invalid_grant, MSIDOAuthSubErrorKey=bad_token, MSIDErrorDescriptionKey=test}");
+}
+
+- (void)testDescription_whenEuiiOnlyEnabled_andNotEuii_andParameterOfErrorType_andWitUpn_shouldReturnNonMaskedValue_butUpnMasked
+{
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskEUIIOnly;
+    NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, @{@"MSALDisplayableUserIdKey":@"testuser@consoto.com"}, NO);
+    MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error];
+    NSString *description = [logParameter description];
+    NSString *expectedDescription = [NSString stringWithFormat:
+        @"MaskedError(MSIDErrorDomain, -10003, {\n"
+        "    MSALDisplayableUserIdKey = \"%@\";\n"
+        "    MSIDErrorDescriptionKey = %@;\n"
+        "    MSIDOAuthErrorKey = \"%@\";\n"
+        "    MSIDOAuthSubErrorKey = \"%@\";\n"
+        "})",
+        @"(not-null)", @"test", @"invalid_grant", @"bad_token"];
+    XCTAssertEqualObjects(description, expectedDescription);
+}
+
+- (void)testDescription_whenEuiiOnlyEnabled_andIsEuii_andParameterOfErrorType_andWitUpn_shouldReturnMaskedValue
+{
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskEUIIOnly;
+    NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, @{@"MSALDisplayableUserIdKey":@"testuser@consoto.com"}, NO);
+    MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error isEUII:YES];
+    NSString *description = [logParameter description];
+    XCTAssertEqualObjects(description, @"MaskedError(MSIDErrorDomain, -10003)");
+
 }
 
 @end

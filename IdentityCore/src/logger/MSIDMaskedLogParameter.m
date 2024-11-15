@@ -116,7 +116,28 @@
     if ([self.parameterValue isKindOfClass:[NSError class]])
     {
         NSError *errorParameter = (NSError *)self.parameterValue;
-        return [NSString stringWithFormat:@"MaskedError(%@, %ld)", errorParameter.domain, (long)errorParameter.code];
+        if (errorParameter.userInfo && errorParameter.userInfo.allKeys.count > 0)
+        {
+            NSString *emailRegex = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}";
+            NSPredicate *emailPredicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
+            BOOL maskedError = NO;
+            NSMutableDictionary *localUserInfo = [errorParameter.userInfo mutableCopy];
+            for (NSErrorUserInfoKey key in errorParameter.userInfo)
+            {
+                if ([errorParameter.userInfo[key] isKindOfClass:NSString.class])
+                {
+                    if ([emailPredicate evaluateWithObject:errorParameter.userInfo[key]])
+                    {
+                        localUserInfo[key] = _PII_NULLIFY(errorParameter.userInfo[key]);
+                        maskedError = YES;
+                    }
+                }
+            }
+            if (maskedError)
+            {
+                return [NSString stringWithFormat:@"MaskedError(%@, %ld, %@)", errorParameter.domain, (long)errorParameter.code, localUserInfo];
+            }
+        }
     }
     
     return [NSString stringWithFormat:@"%@", self.parameterValue]; // For a generic case, don't mask it
