@@ -122,7 +122,7 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Workplace join Upgrade registration is required.");
             
             NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
-            additionalInfo[MSIDUserDisplayableIdkey] = _PII_NULLIFY(response.upn);
+            additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
             additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
             
             registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInsufficientDeviceStrength,
@@ -133,7 +133,7 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Workplace join is required.");
             
             NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
-            additionalInfo[MSIDUserDisplayableIdkey] = _PII_NULLIFY(response.upn);
+            additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
             additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
             additionalInfo[MSIDTokenProtectionRequired] = response.tokenProtectionRequired ? @(YES) : @(NO);
 

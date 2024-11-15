@@ -76,7 +76,7 @@
         }
         default:
         {
-            return [NSString stringWithFormat:@"%@", self.parameterValue]; // no masking
+            return [self noMaskWithCondition]; // no masking with condition
         }
     }
 }
@@ -105,6 +105,18 @@
     if (self.isEUII)
     {
         return [self maskedDescription];
+    }
+    
+    return [self noMaskWithCondition];
+}
+
+- (NSString *)noMaskWithCondition
+{
+    // If input is NSError, mask userinfo as it may contain upn
+    if ([self.parameterValue isKindOfClass:[NSError class]])
+    {
+        NSError *errorParameter = (NSError *)self.parameterValue;
+        return [NSString stringWithFormat:@"MaskedError(%@, %ld)", errorParameter.domain, (long)errorParameter.code];
     }
     
     return [NSString stringWithFormat:@"%@", self.parameterValue]; // For a generic case, don't mask it
