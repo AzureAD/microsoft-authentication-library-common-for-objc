@@ -48,6 +48,7 @@
 @property (nonatomic) MSIDAuthority *providedAuthority;
 @property (nonatomic) MSIDAuthority *cloudAuthority;
 @property (nonatomic) NSString *redirectUri;
+@property (nonatomic) NSString *webPageUri;
 @property (nonatomic) NSString *clientId;
 @property (nonatomic) NSString *target;
 @property (nonatomic) NSString *oidcScope;
