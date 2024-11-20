@@ -436,7 +436,10 @@ static MSIDTestConfigurationProvider *s_confProvider;
         XCTAssertTrue(results.count >= 1);
         
         XCTestExpectation *passwordLoadExpecation = [self expectationWithDescription:@"Get password"];
-        passwordLoadExpecation.expectedFulfillmentCount = results.count;
+        if (results && results.count > 0)
+        {
+            passwordLoadExpecation.expectedFulfillmentCount = results.count;
+        }
         
         for (MSIDTestAutomationAccount *account in results)
         {
