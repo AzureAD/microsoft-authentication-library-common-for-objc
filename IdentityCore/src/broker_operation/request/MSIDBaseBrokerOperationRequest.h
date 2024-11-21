@@ -35,7 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSUUID *correlationId;
 @property (nonatomic) NSInteger requestType;
 
-
 - (nullable NSString *)logInfo;
 
 @end
