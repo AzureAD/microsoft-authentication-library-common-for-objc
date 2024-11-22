@@ -112,31 +112,25 @@
 
 - (NSString *)noMaskWithCondition
 {
-    // If input is NSError, mask userinfo as it may contain upn
+    // If input is NSError, mask upn and email address from if there is any
     if ([self.parameterValue isKindOfClass:[NSError class]])
     {
         NSError *errorParameter = (NSError *)self.parameterValue;
         if (errorParameter.userInfo && errorParameter.userInfo.allKeys.count > 0)
         {
-            NSString *emailRegex = @"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}";
-            NSPredicate *emailPredicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
-            BOOL maskedError = NO;
-            NSMutableDictionary *localUserInfo = [errorParameter.userInfo mutableCopy];
             for (NSErrorUserInfoKey key in errorParameter.userInfo)
             {
-                if ([errorParameter.userInfo[key] isKindOfClass:NSString.class])
-                {
-                    if ([emailPredicate evaluateWithObject:errorParameter.userInfo[key]])
+                if ([errorParameter.userInfo[key] isKindOfClass:NSString.class]) {
+                    NSString *stringValue = (NSString *)errorParameter.userInfo[key];
+                    NSRange emailIndex = [stringValue rangeOfString:@"@"];
+                    if (emailIndex.location != NSNotFound)
                     {
-                        localUserInfo[key] = _PII_NULLIFY(errorParameter.userInfo[key]);
-                        maskedError = YES;
+                        NSMutableDictionary *localUserInfo = [errorParameter.userInfo mutableCopy];
+                        // localUserInfo is only for log purpose, so should be safe to assign value here
+                        localUserInfo[key] = _PII_NULLIFY(stringValue);
+                        return [NSString stringWithFormat:@"MaskedError(%@, %ld, %@)", errorParameter.domain, (long)errorParameter.code, localUserInfo];
                     }
                 }
-            }
-            
-            if (maskedError)
-            {
-                return [NSString stringWithFormat:@"MaskedError(%@, %ld, %@)", errorParameter.domain, (long)errorParameter.code, localUserInfo];
             }
         }
     }
