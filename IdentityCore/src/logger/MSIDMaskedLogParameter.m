@@ -76,7 +76,7 @@
         }
         default:
         {
-            return [NSString stringWithFormat:@"%@", self.parameterValue]; // no masking
+            return [self noMaskWithCondition]; // no masking with condition
         }
     }
 }
@@ -105,6 +105,34 @@
     if (self.isEUII)
     {
         return [self maskedDescription];
+    }
+    
+    return [self noMaskWithCondition];
+}
+
+- (NSString *)noMaskWithCondition
+{
+    // If input is NSError, mask upn and email address from if there is any
+    if ([self.parameterValue isKindOfClass:[NSError class]])
+    {
+        NSError *errorParameter = (NSError *)self.parameterValue;
+        if (errorParameter.userInfo && errorParameter.userInfo.allKeys.count > 0)
+        {
+            for (NSErrorUserInfoKey key in errorParameter.userInfo)
+            {
+                if ([errorParameter.userInfo[key] isKindOfClass:NSString.class]) {
+                    NSString *stringValue = (NSString *)errorParameter.userInfo[key];
+                    NSRange emailIndex = [stringValue rangeOfString:@"@"];
+                    if (emailIndex.location != NSNotFound)
+                    {
+                        NSMutableDictionary *localUserInfo = [errorParameter.userInfo mutableCopy];
+                        // localUserInfo is only for log purpose, so should be safe to assign value here
+                        localUserInfo[key] = _PII_NULLIFY(stringValue);
+                        return [NSString stringWithFormat:@"MaskedError(%@, %ld, %@)", errorParameter.domain, (long)errorParameter.code, localUserInfo];
+                    }
+                }
+            }
+        }
     }
     
     return [NSString stringWithFormat:@"%@", self.parameterValue]; // For a generic case, don't mask it
