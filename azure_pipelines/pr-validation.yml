@@ -29,10 +29,16 @@ jobs:
 
   steps:
   - task: CmdLine@2
-    displayName: Installing dependencies
+    displayName: Installing xcpretty
     inputs:
       script: |
-        gem install xcpretty slather -N
+        gem install xcpretty -N -v 0.3.0
+      failOnStderr: true
+  - task: CmdLine@2
+    displayName: Installing slather
+    inputs:
+      script: |
+        gem install slather -N
       failOnStderr: true
   - checkout: self
     clean: true
