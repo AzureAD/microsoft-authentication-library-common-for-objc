@@ -51,7 +51,11 @@
 + (BOOL)canPerformRequest
 {
 #if TARGET_OS_OSX
-    return YES;
+    if (@available(macOS 13, *)) {
+        return YES;
+    } else {
+        return NO;
+    }
 #else
     return NO;
 #endif

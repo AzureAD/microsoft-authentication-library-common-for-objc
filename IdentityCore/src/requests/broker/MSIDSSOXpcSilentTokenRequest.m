@@ -36,7 +36,7 @@
 @property (nonatomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
 @property (nonatomic) MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider;
-
+@property (nonatomic) id<MSIDRequestContext> context;
 
 @end
 
@@ -63,6 +63,7 @@
     {
         self.completionBlock = [super getCompletionBlock];
         self.xpcSingleSignOnProvider = [MSIDXpcSingleSignOnProvider new];
+        self.context = parameters;
     }
 
     return self;
@@ -90,17 +91,17 @@
 
     // Retrieve the bundle identifier
     NSString *bundleIdentifier = [mainBundle bundleIdentifier];
-    NSDictionary *input = @{@"source_application": bundleIdentifier,
-                            @"sso_request_param": xpcRequest,
-                            @"is_silent": @(YES),
-                            @"sso_request_operation": [self.operationRequest.class operation],
-                            @"sso_request_id": [[NSUUID UUID] UUIDString]};
-    [self.xpcSingleSignOnProvider handleRequestParam:input
+    NSDictionary *parameters = @{@"source_application": bundleIdentifier,
+                                 @"sso_request_param": xpcRequest,
+                                 @"is_silent": @(YES),
+                                 @"sso_request_operation": [self.operationRequest.class operation],
+                                 @"sso_request_id": [[NSUUID UUID] UUIDString]};
+    [self.xpcSingleSignOnProvider handleRequestParam:parameters
                                            brokerKey:self.operationRequest.brokerKey
                            assertKindOfResponseClass:MSIDBrokerOperationTokenResponse.class
+                                             context:self.context
                                        continueBlock:^(id  _Nullable response, NSError * _Nullable error) {
         self.completionBlock(response, error);
-
     }];
 }
 

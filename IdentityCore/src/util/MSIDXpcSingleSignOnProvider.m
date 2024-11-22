@@ -55,12 +55,16 @@
 #import "MSIDBrokerConstants.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDRequestContext.h"
+#import "MSIDConstants.h"
 
 @protocol MSIDXpcBrokerInstanceProtocol <NSObject>
 
 - (void)handleXpcWithRequestParams:(NSDictionary *)passedInParams
                                    parentViewFrame:(NSRect)frame
                                    completionBlock:(void (^)(NSDictionary<NSString *,id> * _Nonnull, NSDate * _Nonnull, NSString * _Nonnull, NSError * _Nullable))blockName;
+- (void)canPerformAuthorization:(NSURL *)url
+                completionBlock:(void (^)(BOOL))blockName;
 
 @end
 
@@ -81,12 +85,14 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
 - (void)handleRequestParam:(NSDictionary *)requestParam
                  brokerKey:brokerKey
  assertKindOfResponseClass:(Class)aClass
+                   context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
     [self handleRequestParam:requestParam
              parentViewFrame:CGRectZero
                    brokerKey:brokerKey
    assertKindOfResponseClass:(Class)aClass
+                     context:(id<MSIDRequestContext>)context
                continueBlock:continueBlock];
 }
 
@@ -94,6 +100,7 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
            parentViewFrame:(NSRect)frame
                  brokerKey:brokerKey
  assertKindOfResponseClass:(Class)aClass
+                   context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
     [self getXpcService:^(id<MSIDXpcBrokerInstanceProtocol> xpcService, NSXPCConnection *directConnection, NSError *error) {
@@ -106,8 +113,16 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
         [xpcService handleXpcWithRequestParams:requestParam parentViewFrame:frame completionBlock:^(NSDictionary<NSString *,id> * _Nonnull replyParam, NSDate * _Nonnull __unused xpcStartDate, NSString * _Nonnull __unused processId, NSError * _Nonnull callbackError) {
             [directConnection suspend];
             [directConnection invalidate];
+            
             MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:[NSData msidDataFromBase64UrlEncodedString:brokerKey]];
-            NSDictionary *jsonResponse = [cryptoProvider decryptBrokerResponse:replyParam correlationId:nil error:nil];
+            NSError *jsonResponseError = nil;
+            NSDictionary *jsonResponse = [cryptoProvider decryptBrokerResponse:replyParam correlationId:context.correlationId error:&jsonResponseError];
+            if (jsonResponseError)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT received operationResponse but failed to decrypt it with error: %@", jsonResponseError);
+                if (continueBlock) continueBlock(nil, callbackError);
+                return;
+            }
             
             BOOL forceRunOnBackgroundQueue = [[jsonResponse objectForKey:MSID_BROKER_OPERATION_KEY] isEqualToString:@"refresh"];
             [self forceRunOnBackgroundQueue:forceRunOnBackgroundQueue dispatchBlock:^{
@@ -134,6 +149,40 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
             }];
         }];
     }];
+}
+
++ (BOOL)canPerformRequest
+{
+    // Synchronously entering this class method
+    @synchronized (self) {
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_group_enter(group);
+
+        __block BOOL result = NO;
+        MSIDXpcSingleSignOnProvider *localInstance = [MSIDXpcSingleSignOnProvider new];
+        [localInstance getXpcService:^(id<MSIDXpcBrokerInstanceProtocol> xpcService, NSXPCConnection *directConnection, NSError *error) {
+            if (!xpcService || error)
+            {
+                dispatch_group_leave(group);
+                return;
+            }
+            
+            NSURL *url = [NSURL URLWithString:MSID_DEFAULT_AAD_AUTHORITY];
+            [xpcService canPerformAuthorization:url completionBlock:^(BOOL canPerformRequest) {
+                [directConnection suspend];
+                [directConnection invalidate];
+                
+                result = canPerformRequest;
+                dispatch_group_leave(group);
+            }];
+        }];
+        
+        // If nothing came back in 2 sec, return false and unblock this function
+        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC);
+        dispatch_group_wait(group, timeout);
+
+        return result;
+    }
 }
 
 #pragma mark - Helpers
@@ -253,7 +302,6 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
     }];
     
     [parentXpcService getBrokerInstanceEndpointWithRequestInfo:@{} reply:^(NSXPCListenerEndpoint * _Nullable listenerEndpoint, NSDictionary<NSString *, id> * _Nullable __unused params, NSError * _Nullable error) {
-        
         [connection suspend];
         [connection invalidate];
         if (error)
@@ -266,16 +314,15 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - connected to new service endpoint %@", listenerEndpoint);
         NSXPCConnection *directConnection = [[NSXPCConnection alloc] initWithListenerEndpoint:listenerEndpoint];
         directConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(MSIDXpcBrokerInstanceProtocol)];
-
         NSString *clientCodeSigningRequirement = [self codeSignRequirementForBundleId:brokerInstance devIdentity:[self signingIdentity]];
-
         if (@available(macOS 13.0, *)) {
             [directConnection setCodeSigningRequirement:clientCodeSigningRequirement];
         } else {
-            // Fallback on earlier versions
+            // This should not happen since the entry point has been guarded by version
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Entra broker] CLIENT - fall into unsupported platform end XPC disconnect from service!", nil);
         }
-        [directConnection resume];
         
+        [directConnection resume];
         [directConnection setInterruptionHandler:^{
             NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- instance connection is interrupted", nil, nil, nil, nil, nil, YES);
             if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);

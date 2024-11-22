@@ -36,13 +36,17 @@ NS_ASSUME_NONNULL_BEGIN
            parentViewFrame:(NSRect)frame
                  brokerKey:brokerKey
  assertKindOfResponseClass:(Class)aClass
+                   context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
 // For silent auth request
 - (void)handleRequestParam:(NSDictionary *)requestParam
                  brokerKey:brokerKey
  assertKindOfResponseClass:(Class)aClass
+                   context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+
++ (BOOL)canPerformRequest;
 
 NS_ASSUME_NONNULL_END
 
