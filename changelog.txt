@@ -1,3 +1,6 @@
+Version TBD
+* Make hashed ups in logs case insensitive (#1446)
+
 Version 1.7.43
 * Support web_page_uri #1440
 * Save error received from ESTS, and return it to the client on silent broker calls (#1438)
