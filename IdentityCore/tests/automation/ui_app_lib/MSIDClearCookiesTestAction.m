@@ -76,7 +76,7 @@
     
     for (NSHTTPCookie *cookie in separatedStorage.cookies)
     {
-        [cookieStore deleteCookie:cookie];
+        [separatedStorage deleteCookie:cookie];
         count++;
     }
     
