@@ -72,6 +72,14 @@
                                                modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
                                            completionHandler:^{}];
     
+    NSHTTPCookieStorage *separatedStorage = [NSHTTPCookieStorage sharedCookieStorageForGroupContainerIdentifier:@"group.com.microsoft.azureauthenticator.sso"];
+    
+    for (NSHTTPCookie *cookie in separatedStorage.cookies)
+    {
+        [cookieStore deleteCookie:cookie];
+        count++;
+    }
+    
     MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
                                                                                     success:YES
                                                                              additionalInfo:@{@"cleared_items_count":@(count)}];
