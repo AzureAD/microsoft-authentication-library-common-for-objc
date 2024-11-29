@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDWebOAuth2Response.h"
+#import "NSURL+MSIDExtensions.h"
 
 @implementation MSIDWebOAuth2Response
 
@@ -34,8 +35,7 @@
     // state check
     NSError *stateCheckError = nil;
 
-    if (![self.class verifyRequestState:requestState responseURL:url error:&stateCheckError] &&
-        !ignoreInvalidState)
+    if (![self verifyRequestState:requestState responseURL:url error:&stateCheckError] && !ignoreInvalidState)
     {
         if (error)
         {
@@ -47,13 +47,50 @@
     return [self initWithURL:url context:context error:error];
 }
 
-+ (BOOL)verifyRequestState:(NSString *)requestState
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing*)error
+{
+    self = [super initWithURL:url context:context error:error];
+    
+    if (self)
+    {
+        _oauthError = [self oauthErrorFromParameters:self.parameters];
+    }
+    
+    return self;
+}
+
+#pragma mark - Private
+
+- (NSError *)oauthErrorFromParameters:(NSDictionary *)parameters
+{
+    NSUUID *correlationId = [parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
+    [[NSUUID alloc] initWithUUIDString:[parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
+    
+    NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];
+
+    if (serverOAuth2Error)
+    {
+        NSString *errorDescription = parameters[MSID_OAUTH2_ERROR_DESCRIPTION];
+        NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
+        MSIDErrorCode errorCode = MSIDErrorCodeForOAuthErrorWithSubErrorCode(serverOAuth2Error, MSIDErrorAuthorizationFailed, subError);
+        
+        MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Failed authorization code response with error %@, sub error %@, description %@", serverOAuth2Error, subError, MSID_PII_LOG_MASKABLE(errorDescription));
+        
+        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil, NO);
+    }
+    
+    return nil;
+}
+
+- (BOOL)verifyRequestState:(NSString *)requestState
                responseURL:(NSURL *)url
                      error:(NSError *__autoreleasing*)error
 {
     // Check for auth response
     // Try both the URL and the fragment parameters:
-    NSDictionary *parameters = [self msidWebResponseParametersFromURL:url];
+    NSDictionary *parameters = [self.class msidWebResponseParametersFromURL:url];
     NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
     
     if (!requestState && !stateReceived)

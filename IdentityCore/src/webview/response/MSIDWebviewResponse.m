@@ -36,7 +36,8 @@
 {
     if (!url)
     {
-        if (error){
+        if (error)
+        {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
                                      @"Trying to create a response with nil URL",

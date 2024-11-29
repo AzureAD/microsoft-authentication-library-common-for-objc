@@ -36,6 +36,7 @@
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDSwitchBrowserResumeResponse.h"
 
 @implementation MSIDWebviewAuthorization
 
@@ -98,6 +99,11 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                                                              factory:s_currentSession.factory
                                                                                              context:context
                                                                                                error:&responseError];
+        
+        if ([response isKindOfClass:MSIDSwitchBrowserResumeResponse.class])
+        {
+            return;
+        }
         
         [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
         completionHandler(response, responseError);

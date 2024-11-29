@@ -52,4 +52,12 @@
     return YES;
 }
 
+- (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
+                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+  decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
+                    completionBlock:(nonnull MSIDWebviewAuthCompletionHandler)completionBlock
+{
+    @throw MSIDException(MSIDGenericException, @"Abstract method was invoked.", nil);
+}
+
 @end

@@ -24,9 +24,13 @@
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
 #import "MSIDTokenRequestProviding.h"
+#import "MSIDWebviewAuthorization.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 @class MSIDWebviewResponse;
 @class MSIDInteractiveRequestParameters;
+@class MSIDOauth2Factory;
+@class MSIDInteractiveTokenRequestParameters;
 
 @interface MSIDWebResponseBaseOperation : NSObject
 
@@ -36,6 +40,12 @@
 - (void)invokeWithInteractiveTokenRequestParameters:(nonnull MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                          completion:(nonnull MSIDRequestCompletionBlock)completion;
+
 - (BOOL)doActionWithCorrelationId:(nullable NSUUID *)correlationId
                             error:(NSError * _Nullable __autoreleasing *_Nullable)error;
+
+- (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
+                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+  decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
+                    completionBlock:(nonnull MSIDWebviewAuthCompletionHandler)completionBlock;
 @end

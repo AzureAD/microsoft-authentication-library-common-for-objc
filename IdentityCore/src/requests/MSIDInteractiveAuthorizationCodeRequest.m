@@ -45,8 +45,9 @@
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDWebviewInteracting.h"
-
 #endif
+
+#import "MSIDSwitchBrowserResumeResponse.h"
 
 @interface MSIDInteractiveAuthorizationCodeRequest()
 #if !EXCLUDE_FROM_MSALCPP
@@ -108,106 +109,12 @@
 
 - (void)getAuthCodeWithCompletionImpl:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock
 {
-    void (^webAuthCompletion)(MSIDWebviewResponse *, NSError *) = ^void(MSIDWebviewResponse *response, NSError *error)
-    {
-        void (^returnErrorBlock)(NSError *) = ^(NSError *localError)
-        {
-            NSString *errorString = [localError msidServerTelemetryErrorString];
-            if (errorString)
-            {
-#if !EXCLUDE_FROM_MSALCPP
-                [self.lastRequestTelemetry updateWithApiId:[self.requestParameters.telemetryApiId integerValue]
-                                               errorString:errorString
-                                                   context:self.requestParameters];
-#endif
-            }
-            
-            completionBlock(nil, localError, nil);
-        };
-        
-        if (error)
-        {
-            returnErrorBlock(error);
-            return;
-        }
-
-        /*
-
-         TODO: this code has been moved from MSAL almost as is to avoid any changes in the MSIDWebviewAuthorization logic.
-         Some minor refactoring to MSIDWebviewAuthorization response logic and to the interactive requests tests will be done separately: https://github.com/AzureAD/microsoft-authentication-library-common-for-objc/issues/297
-         */
-
-        if ([response isKindOfClass:MSIDWebOAuth2AuthCodeResponse.class])
-        {
-            MSIDWebOAuth2AuthCodeResponse *oauthResponse = (MSIDWebOAuth2AuthCodeResponse *)response;
-
-            if (oauthResponse.authorizationCode)
-            {
-                if ([response isKindOfClass:MSIDCBAWebAADAuthResponse.class])
-                {
-                    MSIDCBAWebAADAuthResponse *cbaResponse = (MSIDCBAWebAADAuthResponse *)response;
-                    self.requestParameters.redirectUri = cbaResponse.redirectUri;
-                }
-                // handle instance aware flow (cloud host)
-                
-                if ([response isKindOfClass:MSIDWebAADAuthCodeResponse.class])
-                {
-                    MSIDWebAADAuthCodeResponse *aadResponse = (MSIDWebAADAuthCodeResponse *)response;
-                    [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
-                    self.authCodeClientInfo = aadResponse.clientInfo;
-                }
-
-                [self returnResultWithCode:oauthResponse.authorizationCode completion:completionBlock];
-                return;
-            }
-
-            returnErrorBlock(oauthResponse.oauthError);
-            return;
-        }
-        else if ([response isKindOfClass:MSIDWebUpgradeRegResponse.class])
-        {
-            completionBlock(nil, nil, (MSIDWebUpgradeRegResponse *)response);
-        }
-        else if ([response isKindOfClass:MSIDWebWPJResponse.class])
-        {
-            completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
-        }
-        else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
-        {
-            error = nil;
-            MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response
-                                                                                                            error:&error];
-            if (error)
-            {
-                returnErrorBlock(error);
-                return;
-            }
-            
-            BOOL isCurrentFlowFinished = [operation doActionWithCorrelationId:self.requestParameters.correlationId
-                                                                        error:&error];
-            if (isCurrentFlowFinished && error)
-            {
-                returnErrorBlock(error);
-                return;
-            }
-            
-            // This should never happen, create a new error here just in case it would hang if somehow falls into this part
-            error = MSIDCreateError(MSIDErrorDomain,
-                                    MSIDErrorInternal,
-                                    @"Authorization session was not canceled successfully",
-                                    nil,
-                                    nil,
-                                    nil,
-                                    self.requestParameters.correlationId,
-                                    nil,
-                                    YES);
-            returnErrorBlock(error);
-            return;
-        }
-    };
-
     self.webViewConfiguration = [self.oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:self.requestParameters];
-    [self showWebComponentWithCompletion:webAuthCompletion];
+    
+    [self showWebComponentWithCompletion:^(MSIDWebviewResponse *response, NSError *error) {
+        // TODO: use weakself
+        [self handleWebReponse:response error:error completionBlock:completionBlock];
+    }];
 }
 
 - (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
@@ -232,16 +139,128 @@
 
 }
 
-#pragma mark - Helpers
+#pragma mark - Private
 
-- (void)returnResultWithCode:(NSString *)authCode
-                  completion:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock
+- (void)handleWebReponse:(MSIDWebviewResponse *)response error:(NSError *)error completionBlock:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock
 {
-    MSIDAuthorizationCodeResult *result = [MSIDAuthorizationCodeResult new];
-    result.authCode = authCode;
-    result.accountIdentifier = self.authCodeClientInfo.accountIdentifier;
-    result.pkceVerifier = self.webViewConfiguration.pkce.codeVerifier;
-    completionBlock(result, nil, nil);
+    void (^returnErrorBlock)(NSError *) = ^(NSError *localError)
+    {
+        NSString *errorString = [localError msidServerTelemetryErrorString];
+        if (errorString)
+        {
+#if !EXCLUDE_FROM_MSALCPP
+            [self.lastRequestTelemetry updateWithApiId:[self.requestParameters.telemetryApiId integerValue]
+                                           errorString:errorString
+                                               context:self.requestParameters];
+#endif
+        }
+        
+        completionBlock(nil, localError, nil);
+    };
+    
+    if (error)
+    {
+        returnErrorBlock(error);
+        return;
+    }
+
+    /*
+
+     TODO: this code has been moved from MSAL almost as is to avoid any changes in the MSIDWebviewAuthorization logic.
+     Some minor refactoring to MSIDWebviewAuthorization response logic and to the interactive requests tests will be done separately: https://github.com/AzureAD/microsoft-authentication-library-common-for-objc/issues/297
+     */
+
+    if ([response isKindOfClass:MSIDWebOAuth2AuthCodeResponse.class])
+    {
+        MSIDWebOAuth2AuthCodeResponse *oauthResponse = (MSIDWebOAuth2AuthCodeResponse *)response;
+
+        if (oauthResponse.authorizationCode)
+        {
+            if ([response isKindOfClass:MSIDCBAWebAADAuthResponse.class])
+            {
+                MSIDCBAWebAADAuthResponse *cbaResponse = (MSIDCBAWebAADAuthResponse *)response;
+                self.requestParameters.redirectUri = cbaResponse.redirectUri;
+            }
+            // handle instance aware flow (cloud host)
+            
+            if ([response isKindOfClass:MSIDWebAADAuthCodeResponse.class])
+            {
+                MSIDWebAADAuthCodeResponse *aadResponse = (MSIDWebAADAuthCodeResponse *)response;
+                [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
+                self.authCodeClientInfo = aadResponse.clientInfo;
+            }
+            
+            MSIDAuthorizationCodeResult *result = [MSIDAuthorizationCodeResult new];
+            result.authCode = oauthResponse.authorizationCode;
+            result.accountIdentifier = self.authCodeClientInfo.accountIdentifier;
+            result.pkceVerifier = self.webViewConfiguration.pkce.codeVerifier;
+            completionBlock(result, nil, nil);
+
+            return;
+        }
+
+        returnErrorBlock(oauthResponse.oauthError);
+        return;
+    }
+    else if ([response isKindOfClass:MSIDWebUpgradeRegResponse.class])
+    {
+        completionBlock(nil, nil, (MSIDWebUpgradeRegResponse *)response);
+    }
+    else if ([response isKindOfClass:MSIDWebWPJResponse.class])
+    {
+        completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
+    }
+    else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
+    {
+        error = nil;
+        MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response
+                                                                                                        error:&error];
+        if (error)
+        {
+            returnErrorBlock(error);
+            return;
+        }
+        
+        BOOL isCurrentFlowFinished = [operation doActionWithCorrelationId:self.requestParameters.correlationId
+                                                                    error:&error];
+        if (isCurrentFlowFinished && error)
+        {
+            returnErrorBlock(error);
+            return;
+        }
+        
+        // This should never happen, create a new error here just in case it would hang if somehow falls into this part
+        error = MSIDCreateError(MSIDErrorDomain,
+                                MSIDErrorInternal,
+                                @"Authorization session was not canceled successfully",
+                                nil,
+                                nil,
+                                nil,
+                                self.requestParameters.correlationId,
+                                nil,
+                                YES);
+        returnErrorBlock(error);
+        return;
+    }
+        
+    NSError *localError = nil;
+    MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response
+                                                                                                    error:&localError];
+    
+    if (localError)
+    {
+        returnErrorBlock(localError);
+        return;
+    }
+    
+//    __typeof__(self) __weak weakSelf = self; //TODO: use weakself
+    [operation invokeWithRequestParameters:self.requestParameters
+                              oauthFactory:self.oauthFactory
+         decidePolicyForBrowserActionBlock:self.externalDecidePolicyForBrowserAction
+                           completionBlock:^(MSIDWebviewResponse *webviewResponse, NSError *responseError)
+     {
+        [self handleWebReponse:webviewResponse error:responseError completionBlock:completionBlock];
+    }];
 }
 
 @end

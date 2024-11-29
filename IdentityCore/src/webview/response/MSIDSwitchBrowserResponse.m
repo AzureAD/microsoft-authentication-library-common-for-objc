@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -17,47 +16,58 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// THE SOFTWARE.  
 
-#import "MSIDWebOAuth2AuthCodeResponse.h"
 
-@implementation MSIDWebOAuth2AuthCodeResponse
+#import "MSIDSwitchBrowserResponse.h"
+#import "MSIDWebResponseOperationFactory.h"
+
+@implementation MSIDSwitchBrowserResponse
+
++ (void)load
+{
+//    [MSIDWebResponseOperationFactory registerOperationClass:MSIDWebResponseBrokerInstallOperation.class forResponseClass:self];
+}
+
++ (NSString *)operation
+{
+    return @"switch_browser"; // TODO: should we use class instead?
+}
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error
 {
-    self = [super initWithURL:url context:context error:error];
+    self = [super initWithURL:url 
+                      context:context
+                        error:error];
     
     if (self)
     {
         if (self.oauthError) return self;
         
-        NSString *authCode = self.parameters[MSID_OAUTH2_CODE];
-        
-        if ([NSString msidIsStringNilOrBlank:authCode])
+        _actionUri = self.parameters[@"action_uri"];
+        NSString *action = self.parameters[@"action"];
+        if (![action isEqualToString:@"switch_browser"])
         {
-            if (error)
-            {
-                *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                         MSIDErrorServerInvalidResponse,
-                                         @"Unexpected error has occured. There is no auth code nor an error",
-                                         nil, nil, nil, context.correlationId, nil, YES);
-            }
             return nil;
         }
         
-        // populate auth code
-        _authorizationCode = [NSString msidIsStringNilOrBlank:authCode] ? nil : authCode;
+        _switchBrowserSessionToken = self.parameters[MSID_OAUTH2_CODE];
+        
+        if ([NSString msidIsStringNilOrBlank:_actionUri] || [NSString msidIsStringNilOrBlank:_switchBrowserSessionToken])
+        {
+            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"There is no action_uri or code nor an error.", nil, nil, nil, context.correlationId, nil, YES);
+            return nil;
+        }
     }
     
     return self;
 }
+
 
 @end

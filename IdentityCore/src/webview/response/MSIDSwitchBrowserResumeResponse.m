@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,29 +20,40 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#ifndef MSIDCertAuthHandler_iOS_h
-#define MSIDCertAuthHandler_iOS_h
 
-#import "MSIDCertAuthHandler.h"
+#import "MSIDSwitchBrowserResumeResponse.h"
 
-@interface MSIDCertAuthHandler (iOS)
+@implementation MSIDSwitchBrowserResumeResponse
 
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
++ (NSString *)operation
+{
+    return @"switch_browser_resume"; // TODO: should we use class instead?
+}
 
-+ (void)setRedirectUriPrefix:(NSString *)prefix
-                   forScheme:(NSString *)scheme;
-
-+ (void)setUseAuthSession:(BOOL)useAuthSession;
-+ (void)setUseLastRequestURL:(BOOL)useLastRequestURL;
-
-// These are for cert auth challenge for iOS
-+ (void)setCustomActivities:(NSArray<UIActivity *> *)activities;
-+ (BOOL)completeCertAuthChallenge:(NSURL *)endUrl;
-+ (BOOL)isCertAuthInProgress;
-
-#endif
+//- (instancetype)initWithURL:(NSURL *)url
+//                    context:(id<MSIDRequestContext>)context
+//                      error:(NSError *__autoreleasing*)error
+//{
+//    self = [super initWithURL:url
+//                      context:context
+//                        error:error];
+//    
+//    if (self)
+//    {
+//        if (self.oauthError) return self;
+//        
+//        _dunaAccessToken = self.parameters[@"code"];
+//        
+//        if ([NSString msidIsStringNilOrBlank:_dunaAccessToken])
+//        {
+//            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"There is no token nor an error.", nil, nil, nil, context.correlationId, nil, YES);
+//            return nil;
+//        }
+//    }
+//    
+//    return self;
+//}
 
 @end
-#endif /* MSIDCertAuthHandler_mac_h */

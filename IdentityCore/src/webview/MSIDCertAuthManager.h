@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,23 +20,44 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDWebviewResponse.h"
 
-@protocol MSIDRequestContext;
+#import <Foundation/Foundation.h>
+#import "MSIDWebviewInteracting.h"
+
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDWebOAuth2Response : MSIDWebviewResponse
+// TODO: move to ios folder
+@interface MSIDCertAuthManager : NSObject
 
-@property (atomic, readonly) NSError *oauthError;
++ (instancetype)sharedInstance;
 
-- (nullable instancetype)initWithURL:(NSURL *)url
-                        requestState:(nullable NSString *)requestState
-                  ignoreInvalidState:(BOOL)ignoreInvalidState
-                             context:(nullable id<MSIDRequestContext>)context
-                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+
+@property (nonatomic) BOOL useAuthSession;
+@property (nonatomic, readonly) BOOL isCertAuthInProgress;
+@property (nonatomic, readonly) NSString *redirectPrefix;
+@property (nonatomic, readonly) NSString *redirectScheme;;
+@property (nonatomic) NSArray<UIActivity *> *activities;
+
+- (void)startWithURL:(NSURL *)startURL
+    parentController:(UIViewController *)parentViewController
+             context:(id<MSIDRequestContext>)context
+     completionBlock:(MSIDWebUICompletionHandler)completionBlock;
+
+- (BOOL)completeWithCallbackURL:(NSURL *)url;
+
+- (void)setRedirectUriPrefix:(NSString *)prefix
+                   forScheme:(NSString *)scheme;
+
+- (void)resetState;
+
+#endif
 
 @end
 

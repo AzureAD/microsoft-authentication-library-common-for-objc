@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,23 +20,17 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDWebviewResponse.h"
 
-@protocol MSIDRequestContext;
+#import "MSIDWebOAuth2Response.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDWebOAuth2Response : MSIDWebviewResponse
+@interface MSIDSwitchBrowserResponse : MSIDWebOAuth2Response
 
-@property (atomic, readonly) NSError *oauthError;
-
-- (nullable instancetype)initWithURL:(NSURL *)url
-                        requestState:(nullable NSString *)requestState
-                  ignoreInvalidState:(BOOL)ignoreInvalidState
-                             context:(nullable id<MSIDRequestContext>)context
-                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+@property (nonatomic, readonly) NSString *actionUri;
+@property (nonatomic, readonly) NSString *switchBrowserSessionToken;
 
 @end
 
