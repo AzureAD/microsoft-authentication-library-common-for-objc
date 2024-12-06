@@ -103,6 +103,7 @@
         _operateOnPrimaryWPJ = [json[@"wpj_operate_on_primary_reg"] boolValue];
         _useMostSecureStorageForWpj = [json[@"use_most_secure_storage"] boolValue];
         _isSecureEnclaveSupportedForWpj = [json[@"wpj_secure_enclave_supported"] boolValue];
+        _ssoExtensionSecureStorageEnabled = (MSIDAutomationWPJSSOExtensionSecureStorage)[json[@"wpj_sso_extension_secure_storage_enabled"] integerValue];
         _shouldExpirePRT = [json[@"should_expire_prt"] boolValue];
         _isSsoSeedingCompleted = [json[@"is_sso_seeding_completed"] boolValue];
         _shouldOnlyDeleteSeedingPrt = [json[@"should_only_delete_seeding_prt"] boolValue];
@@ -184,6 +185,7 @@
     json[@"wpj_operate_on_primary_reg"] = @(_operateOnPrimaryWPJ);
     json[@"use_most_secure_storage"] = @(_useMostSecureStorageForWpj);
     json[@"wpj_secure_enclave_supported"] = @(_isSecureEnclaveSupportedForWpj);
+    json[@"wpj_sso_extension_secure_storage_enabled"] = @(_ssoExtensionSecureStorageEnabled);
     json[@"should_expire_prt"] = @(_shouldExpirePRT);
     json[@"is_sso_seeding_completed"] = @(_isSsoSeedingCompleted);
     json[@"should_only_delete_seeding_prt"] = @(_shouldOnlyDeleteSeedingPrt);

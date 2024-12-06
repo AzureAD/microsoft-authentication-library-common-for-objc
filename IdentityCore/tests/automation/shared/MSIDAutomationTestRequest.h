@@ -33,6 +33,13 @@ typedef NS_ENUM(NSUInteger, MSIDAutomationWPJRegistrationAPIMode)
     MSIDAutomationWPJRegistrationAPIModeCompanyPortal = 2 //Company Portal
 };
 
+typedef NS_ENUM(NSInteger, MSIDAutomationWPJSSOExtensionSecureStorage)
+{
+    MSIDAutomationWPJSSOExtensionNoValueFound = 0,
+    MSIDAutomationWPJSSOExtensionValueNo = 1,
+    MSIDAutomationWPJSSOExtensionValueYes = 2
+};
+
 @interface MSIDAutomationTestRequest : NSObject <MSIDJsonSerializable>
 
 @property (nonatomic, strong) NSString *clientId;
@@ -86,6 +93,7 @@ typedef NS_ENUM(NSUInteger, MSIDAutomationWPJRegistrationAPIMode)
 @property (nonatomic) BOOL operateOnPrimaryWPJ;
 @property (nonatomic) BOOL useMostSecureStorageForWpj;
 @property (nonatomic) BOOL isSecureEnclaveSupportedForWpj;
+@property (nonatomic) MSIDAutomationWPJSSOExtensionSecureStorage ssoExtensionSecureStorageEnabled;
 @property (nonatomic) BOOL shouldExpirePRT;
 @property (nonatomic) BOOL isSsoSeedingCompleted;
 @property (nonatomic) BOOL shouldOnlyDeleteSeedingPrt;
