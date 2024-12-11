@@ -71,6 +71,7 @@ NSString *const MSID_ADAL_BROKER_MESSAGE_VERSION   = @"2";
 NSString *const MSID_MSAL_BROKER_MESSAGE_VERSION   = @"3";
 NSString *const MSID_BROKER_SDK_CAPABILITIES_KEY   = @"sdk_broker_capabilities";
 NSString *const MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY = @"sso_extension";
+NSString *const MSID_BROKER_SDK_BROKER_XPC_CAPABILITY = @"broker_xpc";
 NSString *const MSID_BROKER_SSO_URL = @"sso_url";
 NSString *const MSID_BROKER_ACCOUNT_IDENTIFIER = @"account_identifier";
 NSString *const MSID_BROKER_TYPES_OF_HEADER = @"types_of_header";
