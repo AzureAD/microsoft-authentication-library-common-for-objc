@@ -1,6 +1,12 @@
 Version 1.7.42-hotfix
 * Add support of "lookup" mode in broker #1450
 
+Version 1.7.43
+* Support web_page_uri #1440
+* Save error received from ESTS, and return it to the client on silent broker calls (#1438)
+* XPC CommonCore Minor change to support broker XPC changes (#1436)
+* Assign completion block before perform request (#1434)
+
 Version 1.7.42
 * Support extra query parameters on signout (#1243)
 * Wrap ASAuthorizationProviderExtensionAuthorizationRequest methods (#1427)

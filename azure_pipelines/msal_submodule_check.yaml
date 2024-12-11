@@ -1,0 +1,112 @@
+# Pipeline will be triggered for PR & any updates on the PR on all branches
+pr:
+  branches:
+    include:
+    - '*'
+
+# Trigger CI for only main/release branches
+trigger:
+  branches:
+    include:
+    - main
+    - release/*
+
+resources:
+ repositories:
+   - repository: microsoft-authentication-library-for-objc
+     type: github
+     endpoint: 'MSAL ObjC Service Connection'
+     name: AzureAD/microsoft-authentication-library-for-objc
+
+# Define parallel jobs that run build script for specified targets
+jobs:
+- job: 'Validate_Pull_Request'
+  strategy:
+    maxParallel: 3
+    matrix:
+      IOS_FRAMEWORK:
+        target: "iosFramework iosTestApp sampleIosApp sampleIosAppSwift"
+      MAC_FRAMEWORK:
+        target: "macFramework"
+      VISION_FRAMEWORK:
+        target: "visionOSFramework"
+  displayName: Validate Pull Request
+  pool:
+    vmImage: 'macOS-14'
+    timeOutInMinutes: 30
+
+  steps:
+  - script: |
+          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"
+    displayName: 'Switch to use Xcode 15.4'
+  - task: CmdLine@2
+    displayName: Installing dependencies
+    inputs:
+      script: |
+        gem install xcpretty slather bundler -N
+      failOnStderr: true
+
+# The following is needed to install the visionOS SDK on macos-14 vm image which
+# doesn't have visionOS installed by default.
+# TODO: Remove when macos-14-arm64 is supported on ADO.
+  - task: Bash@3
+    displayName: download visionOS SDK
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo $(target)
+        if [ $(target) == 'visionOSFramework' ]; then
+            echo "Downloading simulator for visionOS"
+            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+            defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+            defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+            xcodebuild -downloadPlatform visionOS
+        else
+            echo "Not visionOS job, no download needed"
+        fi
+      failOnStderr: false
+
+  - checkout: microsoft-authentication-library-for-objc
+    displayName: 'Checkout MSAL'
+    clean: true
+    submodules: true
+    fetchTags: true
+    persistCredentials: true
+
+  - checkout: self
+    clean: true
+    submodules: false
+    fetchDepth: 1
+    path: 's/microsoft-authentication-library-for-objc/MSAL/IdentityCore'
+    persistCredentials: false
+
+  - task: Bash@3
+    displayName: Run Build script & check for Errors
+    inputs:
+      targetType: 'inline'
+      script: |
+        cd $(Agent.BuildDirectory)/s/microsoft-authentication-library-for-objc
+        { output=$(./build.py --target $(target) 2>&1 1>&3-) ;} 3>&1
+        final_status=$(<./build/status.txt)
+        echo "FINAL STATUS  = ${final_status}"
+        echo "POSSIBLE ERRORS: ${output}"
+        
+        if [ $final_status != "0" ]; then
+          echo "Build & Testing Failed! \n ${output}" >&2
+        fi
+      failOnStderr: true
+  - task: Bash@3
+    condition: always()
+    displayName: Cleanup
+    inputs:
+      targetType: 'inline'
+      script: |
+        rm -rf $(Agent.BuildDirectory)/s/build/status.txt
+  - task: PublishTestResults@2
+    condition: always()
+    displayName: Publish Test Report
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '$(Agent.BuildDirectory)/s/build/reports/*'
+      failTaskOnFailedTests: true
+      testRunTitle: 'Test Run - $(target)'
