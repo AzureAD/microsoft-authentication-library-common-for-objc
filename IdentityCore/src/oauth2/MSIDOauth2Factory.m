@@ -375,7 +375,7 @@
        fromResponse:(MSIDTokenResponse *)response
       configuration:(MSIDConfiguration *)configuration
 {
-    NSString *homeAccountId = response.idTokenObj.userId;
+    NSString *homeAccountId = response.idTokenObj.userId ?: [response accountIdentifier];
 
     if (!homeAccountId)
     {
