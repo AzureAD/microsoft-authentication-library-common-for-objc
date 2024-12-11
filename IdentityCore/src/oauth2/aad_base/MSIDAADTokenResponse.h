@@ -37,6 +37,7 @@
 @property (nonatomic, nullable) MSIDClientInfo *clientInfo;
 @property (nonatomic, nullable) NSString *familyId;
 @property (nonatomic, nullable) NSString *suberror;
+/// UPN of the user.
 @property (nonatomic, nullable) NSString *additionalUserId;
 
 // Custom properties that ADAL/MSAL handles
