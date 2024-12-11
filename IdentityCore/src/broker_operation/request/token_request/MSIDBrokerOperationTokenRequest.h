@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDProviderType providerType;
 @property (nonatomic, nullable) NSString *oidcScope;
 @property (nonatomic, nullable) NSDictionary *extraQueryParameters;
+@property (nonatomic) BOOL allowAnyExtraURLQueryParameters;
 @property (nonatomic) BOOL instanceAware;
 @property (nonatomic, nullable) NSDictionary *enrollmentIds;
 @property (nonatomic, nullable) NSDictionary *mamResources;
@@ -47,6 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *clientSku;
 @property (nonatomic) BOOL skipValidateResultAccount;
 @property (nonatomic) BOOL forceRefresh;
+@property (nonatomic) BOOL ignoreScopeValidation;
+
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters

@@ -65,6 +65,8 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.skipValidateResultAccount = parameters.skipValidateResultAccount;
     request.forceRefresh = parameters.forceRefresh;
     request.platformSequence = parameters.platformSequence;
+    request.allowAnyExtraURLQueryParameters = parameters.allowAnyExtraURLQueryParameters;
+    request.ignoreScopeValidation = parameters.ignoreScopeValidation;
     return YES;
 }
 
@@ -149,6 +151,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     json[MSID_CLIENT_SKU_KEY] = self.clientSku;
     json[MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY] = [@(self.skipValidateResultAccount) stringValue];
     json[MSID_FORCE_REFRESH_KEY] = [@(self.forceRefresh) stringValue];
+    
     return json;
 }
 
