@@ -315,7 +315,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
     XCUIElement *passwordSecureTextField = [application.secureTextFields elementBoundByIndex:0];
     // This is explicitly to check the new screen where to ask user to signin with the following 2 options. This caused several automation failures
     
-    XCTWaiterResult result = [self waitForElementsAndContinue:passwordSecureTextField];
+    XCTWaiterResult result = [self waitForElementsAndContinueIfNotAppear:passwordSecureTextField];
     if (result == XCTWaiterResultCompleted)
     {
         [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
@@ -327,7 +327,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
         // 1. Use my password
         // 2. Sign in to an orgnization
         XCUIElement *useMyPasswordButton = application.buttons[@"Use my password"];
-        result = [self waitForElementsAndContinue:useMyPasswordButton];
+        result = [self waitForElementsAndContinueIfNotAppear:useMyPasswordButton];
         if (result == XCTWaiterResultCompleted)
         {
             [useMyPasswordButton tap];
