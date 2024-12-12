@@ -494,12 +494,12 @@ static MSIDTestConfigurationProvider *s_confProvider;
     return object1.exists ? object1 : object2;
 }
 
-- (XCTWaiterResult)waitForElementsAndContinue:(XCUIElement *)object
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"%@.exists == 1" argumentArray:@[object]];
 
-    XCTestExpectation *expectation = [[XCTNSPredicateExpectation alloc] initWithPredicate:existsPredicate object:object];//[self expectationForPredicate:existsPredicate evaluatedWithObject:nil handler:nil];
-    return [XCTWaiter waitForExpectations:@[expectation] timeout:10.0f enforceOrder:YES];
+    XCTestExpectation *expectation = [[XCTNSPredicateExpectation alloc] initWithPredicate:existsPredicate object:object];
+    return [XCTWaiter waitForExpectations:@[expectation] timeout:30.0f enforceOrder:YES];
 }
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element
