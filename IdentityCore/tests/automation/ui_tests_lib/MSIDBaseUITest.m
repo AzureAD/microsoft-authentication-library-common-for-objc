@@ -314,22 +314,29 @@ static MSIDTestConfigurationProvider *s_confProvider;
     // Enter password
     XCUIElement *passwordSecureTextField = [application.secureTextFields elementBoundByIndex:0];
     // This is explicitly to check the new screen where to ask user to signin with the following 2 options. This caused several automation failures
-    // 1. Use my password
-    // 2. Sign in to an orgnization
-    XCUIElement *useMyPasswordButton = application.buttons[@"Use my password"];
-    XCUIElement *currentElement = [self waitForEitherElements:passwordSecureTextField and:useMyPasswordButton];
-    if (currentElement.elementType == XCUIElementTypeButton)
+    
+    XCTWaiterResult result = [self waitForElementsAndContinue:passwordSecureTextField];
+    if (result == XCTWaiterResultCompleted)
     {
-        [currentElement tap];
-        [self enterPassword:password
-                        app:application
-                  isMainApp:isMainApp];
-        return;
+        [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
+        NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
+        [self enterText:passwordSecureTextField isMainApp:isMainApp text:passwordString];
+    }
+    else
+    {
+        // 1. Use my password
+        // 2. Sign in to an orgnization
+        XCUIElement *useMyPasswordButton = application.buttons[@"Use my password"];
+        result = [self waitForElementsAndContinue:useMyPasswordButton];
+        if (result == XCTWaiterResultCompleted)
+        {
+            [useMyPasswordButton tap];
+            [self enterPassword:password
+                            app:application
+                      isMainApp:isMainApp];
+        }
     }
     
-    [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
-    NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
-    [self enterText:passwordSecureTextField isMainApp:isMainApp text:passwordString];
 }
 
 - (void)adfsEnterPassword:(XCUIApplication *)application
@@ -485,6 +492,14 @@ static MSIDTestConfigurationProvider *s_confProvider;
     [self expectationForPredicate:existsPredicate evaluatedWithObject:nil handler:nil];
     [self waitForExpectationsWithTimeout:60.0f handler:nil];
     return object1.exists ? object1 : object2;
+}
+
+- (XCTWaiterResult)waitForElementsAndContinue:(XCUIElement *)object
+{
+    NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"%@.exists == 1" argumentArray:@[object]];
+
+    XCTestExpectation *expectation = [[XCTNSPredicateExpectation alloc] initWithPredicate:existsPredicate object:object];//[self expectationForPredicate:existsPredicate evaluatedWithObject:nil handler:nil];
+    return [XCTWaiter waitForExpectations:@[expectation] timeout:10.0f enforceOrder:YES];
 }
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element
