@@ -108,6 +108,7 @@ jobs:
       targetType: 'inline'
       script: |
         rm -rf $(Agent.BuildDirectory)/s/build/status.txt
+        
   - task: PublishTestResults@2
     condition: always()
     displayName: Publish Test Report
