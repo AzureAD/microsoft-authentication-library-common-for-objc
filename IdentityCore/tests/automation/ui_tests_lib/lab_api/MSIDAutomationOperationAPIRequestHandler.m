@@ -99,7 +99,9 @@
         NSLog(@"Couldn't fetch certificate data, make sure certificate path is correct");
         return;
     }
-    
+    NSLog(@"cert: %@", self.encodedCertificate);
+    NSLog(@"pw: %@", self.certificatePassword);
+    NSLog(@"encoded_pw: %@", base64EncodedCert);
     [MSIDClientCredentialHelper getAccessTokenForAuthority:self.configurationParams[@"operation_api_authority"]
                                                   resource:self.configurationParams[@"operation_api_resource"]
                                                   clientId:self.configurationParams[@"operation_api_client_id"]

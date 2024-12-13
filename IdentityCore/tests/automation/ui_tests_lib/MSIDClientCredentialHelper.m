@@ -301,9 +301,10 @@
     CFArrayRef resultArray = nil;
     NSDictionary *options = @{(id)kSecImportExportPassphrase : password};
     OSStatus result = SecPKCS12Import((CFDataRef)data, (CFDictionaryRef)options, &resultArray);
-    
+    NSLog(@"failed to create identity: %d", (int)result);
     if (result != errSecSuccess)
     {
+        NSLog(@"failed to create identity: errSecSuccess");
         return nil;
     }
     
@@ -311,10 +312,12 @@
     
     if ([items count])
     {
+        NSLog(@"Get something");
         NSDictionary *dictionary = items[0];
         return (SecIdentityRef)CFBridgingRetain((dictionary[(id)kSecImportItemIdentity]));
     }
     
+    NSLog(@"Nothing in items");
     return nil;
 }
 
