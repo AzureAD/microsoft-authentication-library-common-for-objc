@@ -8912,6 +8912,7 @@
 				ENABLE_BITCODE = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				ONLY_ACTIVE_ARCH = NO;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xros xrsimulator";
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
