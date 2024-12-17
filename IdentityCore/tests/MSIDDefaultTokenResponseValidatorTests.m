@@ -87,6 +87,7 @@
     [self.validator validateTokenResult:result
                           configuration:configuration
                               oidcScope:defaultOidcScope
+                         validateScopes:YES
                           correlationID:correlationID
                                   error:&error];
     
@@ -131,6 +132,7 @@
     BOOL validated = [self.validator validateTokenResult:result
                                            configuration:configuration
                                                oidcScope:defaultOidcScope
+                                          validateScopes:YES
                                            correlationID:correlationID
                                                    error:&error];
     
@@ -171,6 +173,7 @@
     BOOL validated = [self.validator validateTokenResult:result
                                            configuration:configuration
                                                oidcScope:defaultOidcScope
+                                          validateScopes:YES
                                            correlationID:correlationID
                                                    error:&error];
     
@@ -206,6 +209,7 @@
     BOOL validated = [self.validator validateTokenResult:result
                                         configuration:configuration
                                             oidcScope:defaultOidcScope
+                                          validateScopes:YES
                                         correlationID:correlationID
                                                 error:&error];
     
