@@ -124,6 +124,7 @@
 - (BOOL)validateTokenResult:(__unused MSIDTokenResult *)tokenResult
               configuration:(__unused MSIDConfiguration *)configuration
                   oidcScope:(__unused NSString *)oidcScope
+             validateScopes:(__unused BOOL)validateScopes
               correlationID:(__unused NSUUID *)correlationID
                       error:(__unused NSError *__autoreleasing*)error
 {
@@ -224,6 +225,7 @@
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:configuration
                                        oidcScope:oidcScope
+                                  validateScopes:YES
                                    correlationID:correlationID
                                            error:error];
 
@@ -289,6 +291,7 @@
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration
                                        oidcScope:parameters.oidcScope
+                                  validateScopes:!parameters.ignoreScopeValidation
                                    correlationID:parameters.correlationId
                                            error:error];
 

@@ -79,6 +79,11 @@
     return self.clientInfo.accountIdentifier;
 }
 
+- (NSString *)accountUpn
+{
+    return [super accountUpn] ?: self.additionalUserId;
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error

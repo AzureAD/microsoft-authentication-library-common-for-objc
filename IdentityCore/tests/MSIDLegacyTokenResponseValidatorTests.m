@@ -207,6 +207,7 @@
     BOOL result = [self.validator validateTokenResult:testResult
                                         configuration:[MSIDConfiguration new]
                                             oidcScope:nil
+                                       validateScopes:YES
                                         correlationID:[NSUUID new]
                                                 error:&error];
     
