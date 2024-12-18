@@ -1389,6 +1389,8 @@
         XCTAssertNotNil(error);
         XCTAssertNil(result);
         XCTAssertEqual(error.code, MSIDErrorServerUnhandledResponse);
+        NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+        XCTAssertEqual(underlyingError.code, MSIDErrorUnexpectedHttpResponse);
         XCTAssertEqualObjects(error.domain, MSIDHttpErrorCodeDomain);
         XCTAssertEqualObjects(error.userInfo[MSIDHTTPResponseCodeKey], @"403");
         [expectation fulfill];

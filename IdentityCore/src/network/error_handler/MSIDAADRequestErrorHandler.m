@@ -153,7 +153,7 @@
     NSError *httpUnderlyingError = nil;
     if (httpResponse.statusCode == 403 || httpResponse.statusCode == 404)
     {
-        httpUnderlyingError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorUnExpectedHttpResponse, errorDescription, nil, nil, nil, context.correlationId, nil, YES);
+        httpUnderlyingError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorUnexpectedHttpResponse, errorDescription, nil, nil, nil, context.correlationId, nil, YES);
     }
 
     NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, httpUnderlyingError, context.correlationId, additionalInfo, YES);
