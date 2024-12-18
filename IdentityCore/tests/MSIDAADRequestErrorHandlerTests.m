@@ -191,6 +191,8 @@
 
     XCTAssertEqualObjects(returnError.domain, MSIDHttpErrorCodeDomain);
     XCTAssertEqual(returnError.code, MSIDErrorServerUnhandledResponse);
+    NSError *underlyingError = returnError.userInfo[NSUnderlyingErrorKey];
+    XCTAssertEqual(underlyingError.code, MSIDErrorUnExpectedHttpResponse);
     XCTAssertEqualObjects(returnError.userInfo[MSIDHTTPHeadersKey], @{@"headerKey":@"headerValue"});
 
     XCTAssertNil(errorResponse);
@@ -275,6 +277,8 @@
 
     XCTAssertEqualObjects(returnError.domain, MSIDHttpErrorCodeDomain);
     XCTAssertEqual(returnError.code, MSIDErrorServerUnhandledResponse);
+    NSError *underlyingError = returnError.userInfo[NSUnderlyingErrorKey];
+    XCTAssertEqual(underlyingError.code, MSIDErrorUnExpectedHttpResponse);
     XCTAssertEqualObjects(returnError.userInfo[MSIDHTTPResponseCodeKey], @"404");
 }
 

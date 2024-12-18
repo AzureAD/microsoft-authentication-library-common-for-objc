@@ -1336,6 +1336,66 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+
+- (void)testAcquireTokenSilent_when403HttpCodeReturned_shouldReturnMSIDErrorUnexpectedHttpResponseInUnderlyingError
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveExpiredTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    NSMutableDictionary *reqHeaders = [[MSIDTestURLResponse msidDefaultRequestHeaders] mutableCopy];
+    [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
+
+    MSIDTestURLResponse *errorTokenResponse =
+    [MSIDTestURLResponse requestURLString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                           requestHeaders:reqHeaders
+                        requestParamsBody:@{ @"client_id" : @"my_client_id",
+                                             @"scope" : @"user.read tasks.read openid profile offline_access",
+                                             @"grant_type" : @"refresh_token",
+                                             @"refresh_token" : DEFAULT_TEST_REFRESH_TOKEN,
+                                             MSID_OAUTH2_REDIRECT_URI : [[self silentRequestParameters] redirectUri],
+                                             @"client_info" : @"1"}
+                        responseURLString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                             responseCode:403
+                         httpHeaderFields:@{@"Retry-After": @"256",
+                                            @"Other-Header-Field": @"Other header field"
+                                            }
+                         dictionaryAsJSON:nil];
+
+    [errorTokenResponse->_requestHeaders removeObjectForKey:@"Content-Length"];
+
+    [MSIDTestURLSession addResponse:errorTokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNotNil(error);
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorServerUnhandledResponse);
+        XCTAssertEqualObjects(error.domain, MSIDHttpErrorCodeDomain);
+        XCTAssertEqualObjects(error.userInfo[MSIDHTTPResponseCodeKey], @"403");
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
 - (void)testAcquireTokenSilent_whenTokenEndpointInDifferentCloud_shouldReturnInteractionRequired
 {
     // Prepare RT in cache

@@ -224,7 +224,8 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorServerError),
                       ],
               MSIDHttpErrorCodeDomain : @[
-                      @(MSIDErrorServerUnhandledResponse)
+                      @(MSIDErrorServerUnhandledResponse),
+                      @(MSIDErrorUnExpectedHttpResponse)
                       ]
 
               // TODO: add new codes here
@@ -301,6 +302,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             // HTTP errors
         case MSIDErrorServerUnhandledResponse:
             return @"MSIDErrorServerUnhandledResponse";
+        case MSIDErrorUnExpectedHttpResponse:
+            return @"MSIDErrorUnExpectedHttpResponse";
             // Authority validation errors
         case MSIDErrorAuthorityValidation:
             return @"MSIDErrorAuthorityValidation";

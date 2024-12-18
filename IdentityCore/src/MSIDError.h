@@ -171,6 +171,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      */
 
     MSIDErrorServerUnhandledResponse    = -51500,
+    // http status Code 403 or 404
+    MSIDErrorUnExpectedHttpResponse     = -51501,
     
     /*!
      =========================================================
