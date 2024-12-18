@@ -1,4 +1,4 @@
-Version 1.7.43-hotfix
+Version 1.7.44
 * Merge 1.7.42-hotfix
 
 Version 1.7.43
