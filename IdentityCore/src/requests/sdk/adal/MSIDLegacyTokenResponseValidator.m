@@ -37,6 +37,7 @@
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(__unused MSIDConfiguration *)configuration
                   oidcScope:(__unused NSString *)oidcScope
+             validateScopes:(__unused BOOL)validateScopes
               correlationID:(NSUUID *)correlationID
                       error:(NSError *__autoreleasing*)error
 {
