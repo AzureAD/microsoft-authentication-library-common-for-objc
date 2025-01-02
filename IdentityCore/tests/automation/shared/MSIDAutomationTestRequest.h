@@ -86,6 +86,7 @@ typedef NS_ENUM(NSInteger, MSIDAutomationWPJSSOExtensionSecureStorage)
 @property (nonatomic) BOOL corruptSessionKey;
 @property (nonatomic) BOOL useSafariUserAgent;
 @property (nonatomic) BOOL disableCertBasedAuth;
+@property (nonatomic) BOOL isMSAAccount;
 
 @property (nonatomic) MSIDAutomationWPJRegistrationAPIMode registrationMode;
 @property (nonatomic) NSString *wpjRegistrationTenantId;

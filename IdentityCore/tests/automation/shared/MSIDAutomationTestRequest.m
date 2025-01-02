@@ -53,6 +53,7 @@
         _brokerEnabled = [json[@"brokerEnabled"] boolValue];
         _clientCapabilities = json[@"client_capabilities"];
         _refreshToken = json[@"refresh_token"];
+        _isMSAAccount = [json[@"isMSAAccount"] boolValue];
 
 #if TARGET_OS_IPHONE
         NSString *webviewTypeString = json[@"webviewtype"];
@@ -138,6 +139,7 @@
     json[@"corrupt_session_key"] = @(_corruptSessionKey);
     json[@"use_safari_ua"] = @(_useSafariUserAgent);
     json[@"disable_cert_based_auth"] = @(_disableCertBasedAuth);
+    json[@"isMSAAccount"] = @(_isMSAAccount);
 
     NSString *webviewType = nil;
 
