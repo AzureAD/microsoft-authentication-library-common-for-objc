@@ -36,6 +36,9 @@
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDExtendedTokenCacheDataSource.h"
+#import "MSIDConfiguration.h"
+#import "MSIDConstants.h"
+#import "MSIDJsonObject.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -554,6 +557,219 @@
     }
     
     return cacheItems;
+}
+
+- (BOOL)checkFRTEnabled:(nonnull MSIDConfiguration *)configuration
+                context:(nullable id<MSIDRequestContext>)context
+                  error:(NSError * _Nullable __autoreleasing * _Nullable)error
+{
+    
+    if (!configuration.frtEnabled)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT disabled by MSAL client app, returning NO");
+        return NO;
+    }
+    
+    NSError *readError = nil;
+    NSArray *jsonObjects = [_dataSource jsonObjectsWithKey:[MSIDAccountCredentialCache checkFRTCacheKey]
+                                                serializer:[MSIDCacheItemJsonSerializer new]
+                                                   context:context
+                                                     error:&readError];
+    
+    if (readError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to retrieve FRT cache entry, error: %@", readError);
+        configuration.frtEnabled = NO;
+        if (error)
+        {
+            *error = readError;
+        }
+        return NO;
+    }
+    
+    if (![jsonObjects count])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No FRT cache entry found, returning NO");
+        configuration.frtEnabled = NO;
+        return NO;
+    }
+    
+    NSDictionary *dict = [jsonObjects[0] jsonDictionary];
+    if (!dict)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to deserialize FRT cache entry, returning NO");
+        configuration.frtEnabled = NO;
+        return NO;
+    }
+    
+    if([dict[MSID_USE_SINGLE_FRT_KEY] boolValue])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is enabled by the following apps: %@", dict[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY]);
+        return YES;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is disabled by the following apps: %@", dict[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY]);
+    configuration.frtEnabled = NO;
+    return NO;
+}
+
+- (void)updateFRTSettings:(BOOL)enableFRT
+                  context:(nullable id<MSIDRequestContext>)context
+                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
+{
+    NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Updating UseSingleFRT Item with enableFRT:%@ bundleId:%@", enableFRT ? @"YES" : @"NO", bundleId);
+    
+    // Try to get existing item
+    NSError *readError = nil;
+    NSArray *useSingleFRTItem = [_dataSource jsonObjectsWithKey:[MSIDAccountCredentialCache checkFRTCacheKey]
+                                                     serializer:[MSIDCacheItemJsonSerializer new]
+                                                        context:context
+                                                          error:&readError];
+    
+    if (readError)
+    {
+        // Log error and try to continue saving item
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to read existing FRT cache entry, error: %@", readError);
+    }
+    
+    NSMutableDictionary *settings = nil;
+    
+    if (![useSingleFRTItem count])
+    {
+        if (enableFRT)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No FRT cache entry found, creating new entry.");
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No FRT cache entry found, but we are asking to disable, no need to create a new item.");
+            return;
+        }
+    }
+    else
+    {
+        settings = [[useSingleFRTItem[0] jsonDictionary] mutableCopy];
+        if (!settings)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to deserialize existing FRT cache entry.");
+        }
+        else
+        {
+            // Check if we need to update existing value
+            if ([settings[MSID_USE_SINGLE_FRT_KEY] boolValue] == enableFRT)
+            {
+                if (enableFRT)
+                {
+                    if (settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY] && [settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY] containsString:bundleId])
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"UseSingleFRT item already enabled and has the same value, no need to update.");
+                        return;
+                    }
+                }
+                else
+                {
+                    if (settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY] && [settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY] containsString:bundleId])
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"UseSingleFRT item already disabled and has the same value, no need to update.");
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    
+    if (!settings)
+    {
+        settings = [NSMutableDictionary new];
+    }
+    
+    if (enableFRT)
+    {
+        // Add bundle id to apps enabled
+        if ([NSString msidIsStringNilOrBlank:settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY]])
+        {
+            settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY] = bundleId;
+        }
+        else
+        {
+            if (![settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY] containsString:bundleId])
+            {
+                settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY] = [settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY] stringByAppendingFormat:@" %@", bundleId];
+            }
+        }
+        
+        // Remove bundle id from apps disabled
+        if (![NSString msidIsStringNilOrBlank:settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY]])
+        {
+            settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY] = [[settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY] stringByReplacingOccurrencesOfString:bundleId withString:@""] msidTrimmedString];
+        }
+        
+        // if no other apps have disabled FRT, we can update its value to use FRT
+        if ([NSString msidIsStringNilOrBlank:settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY]])
+        {
+            settings[MSID_USE_SINGLE_FRT_KEY] = @(1);
+        }
+        else
+        {
+            settings[MSID_USE_SINGLE_FRT_KEY] = @(0);
+        }
+    }
+    else
+    {
+        // Add bundle id to apps disabled
+        if ([NSString msidIsStringNilOrBlank:settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY]])
+        {
+            settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY] = bundleId;
+        }
+        else
+        {
+            if (![settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY] containsString:bundleId])
+            {
+                settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY] = [settings[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY] stringByAppendingFormat:@" %@", bundleId];
+            }
+        }
+        
+        // Remove bundle id from apps enabled
+        if (![NSString msidIsStringNilOrBlank:settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY]])
+        {
+            settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY] = [[settings[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY] stringByReplacingOccurrencesOfString:bundleId withString:@""] msidTrimmedString];
+        }
+        
+        // Set the value to disable FRT
+        settings[MSID_USE_SINGLE_FRT_KEY] = @(0);
+    }
+    
+    NSError *saveError = nil;
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:settings error:&saveError];
+
+    [_dataSource saveJsonObject:jsonObject
+                     serializer:[MSIDCacheItemJsonSerializer new]
+                            key:[MSIDAccountCredentialCache checkFRTCacheKey]
+                        context:context
+                          error:&saveError];
+    
+    if (saveError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to save FRT cache entry, error: %@", saveError);
+        if (error)
+        {
+            *error = saveError;
+        }
+    }
+}
+
++ (MSIDCacheKey *)checkFRTCacheKey
+{
+    static MSIDCacheKey *cacheKey = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cacheKey = [[MSIDCacheKey alloc] initWithAccount:MSID_USE_SINGLE_FRT_KEYCHAIN
+                                                 service:MSID_USE_SINGLE_FRT_KEYCHAIN
+                                                 generic:nil
+                                                    type:nil];
+    });
+    return cacheKey;
 }
 
 @end

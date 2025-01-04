@@ -46,6 +46,7 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDFamilyRefreshToken.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -130,14 +131,37 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError *__autoreleasing *)error
 {
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:configuration context:context error:error];
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
+    }
+    
+    MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
+    
     MSIDRefreshToken *refreshToken =  [self getRefreshableTokenWithAccount:accountIdentifier
                                                                   familyId:familyId
-                                                            credentialType:MSIDRefreshTokenType
+                                                            credentialType:credentialType
                                                              configuration:configuration
                                                                    context:context
                                                                      error:error];
 
     if (refreshToken) return refreshToken;
+    
+    // If did not find a family refresh token, try to find a regular refresh token.
+    // This will happen the first time the app starts using a single family refresh token.
+    if (credentialType == MSIDFamilyRefreshTokenType)
+    {
+        credentialType = MSIDRefreshTokenType;
+        refreshToken =  [self getRefreshableTokenWithAccount:accountIdentifier
+                                                    familyId:familyId
+                                              credentialType:credentialType
+                                               configuration:configuration
+                                                     context:context
+                                                       error:error];
+        
+        if (refreshToken) return refreshToken;
+    }
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
@@ -218,7 +242,7 @@
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError *__autoreleasing *)error
 {
-    if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType) return nil;
+    if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType && credentialType != MSIDFamilyRefreshTokenType) return nil;
 
     // For nested auth, get the RT using the broker/hub's client id
     NSString *clientId = [configuration isNestedAuthProtocol] ? configuration.nestedAuthBrokerClientId : configuration.clientId;
@@ -241,7 +265,21 @@
 
         if (refreshToken)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Found %@refresh token by home account id", credentialType == MSIDPrimaryRefreshTokenType ? @"primary " : @"");
+            NSString *credentialTypeString = nil;
+            if (credentialType == MSIDPrimaryRefreshTokenType)
+            {
+                credentialTypeString = @"primary ";
+            }
+            else if (credentialType == MSIDFamilyRefreshTokenType)
+            {
+                credentialTypeString = @"single family ";
+            }
+            else
+            {
+                credentialTypeString = @"";
+            }
+            
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Found %@refresh token by home account id", credentialTypeString);
             return refreshToken;
         }
     }
@@ -921,6 +959,26 @@
 
     if (![NSString msidIsStringNilOrBlank:refreshToken.familyId])
     {
+        // Check if FRT is enabled, this will update the configuration object, and then use it to decide if
+        // we should save the token as FRT or legacy RT (with familyId, if it contains that value).
+        BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:configuration context:context error:error];
+        if (*error)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not saving as new FRT.");
+        }
+        
+        if (frtEnabled)
+        {
+            MSIDFamilyRefreshToken *frt = [[MSIDFamilyRefreshToken alloc] initWithRefreshToken:refreshToken];
+            
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Saving the new family refresh token %@", MSID_EUII_ONLY_LOG_MASKABLE(frt));
+            
+            // Save FRT only once, with this model it is not necessary to have multiple copies of it.
+            return [self saveToken:frt
+                           context:context
+                             error:error];
+        }
+        
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Saving family refresh token %@", MSID_EUII_ONLY_LOG_MASKABLE(refreshToken));
 
         if (![self saveToken:refreshToken

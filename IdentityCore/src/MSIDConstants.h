@@ -149,6 +149,11 @@ extern NSString * _Nonnull const MSID_POP_TOKEN_KEY_LABEL;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION;
 
+extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEYCHAIN;
+extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEY;
+extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY;
+extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY;
+
 extern NSString * _Nonnull const MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY;
 
 extern NSString * _Nonnull const MSID_PREFERRED_AUTH_METHOD_KEY;

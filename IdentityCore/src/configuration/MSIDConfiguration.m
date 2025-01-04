@@ -36,6 +36,7 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
 NSString *const MSID_TOKEN_TYPE_JSON_KEY = @"token_type";
 NSString *const MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY = @"brk_client_id";
 NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
+NSString *const MSID_FRT_ENABLED_JSON_KEY = @"frt_enabled";
 
 @interface MSIDConfiguration()
 
@@ -60,6 +61,7 @@ NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_u
     configuration.authScheme = [_authScheme copyWithZone:zone];
     configuration.nestedAuthBrokerClientId = [_nestedAuthBrokerClientId copyWithZone:zone];
     configuration.nestedAuthBrokerRedirectUri = [_nestedAuthBrokerRedirectUri copyWithZone:zone];
+    configuration.frtEnabled = _frtEnabled;
     return configuration;
 }
 
@@ -118,6 +120,9 @@ NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_u
         // Nested auth protocol
         _nestedAuthBrokerClientId = nestedAuthBrokerClientId;
         _nestedAuthBrokerRedirectUri = nestedAuthBrokerRedirectUri;
+        
+        // FRT is enabled by default
+        _frtEnabled = YES;
     }
     
     return self;
@@ -146,6 +151,9 @@ NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_u
         // Nested auth protocol
         _nestedAuthBrokerClientId = nestedAuthBrokerClientId;
         _nestedAuthBrokerRedirectUri = nestedAuthBrokerRedirectUri;
+        
+        // FRT is enabled by default
+        _frtEnabled = YES;
     }
     
     return self;
@@ -186,6 +194,8 @@ NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_u
     MSIDAuthenticationScheme *authScheme = (MSIDAuthenticationScheme *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_TOKEN_TYPE_JSON_KEY assertKindOfClass:MSIDAuthenticationScheme.class error:nil];
     if (authScheme) config.authScheme = authScheme;
     
+    config.frtEnabled = [json msidBoolObjectForKey:MSID_FRT_ENABLED_JSON_KEY];
+    
     return config;
 }
 
@@ -219,6 +229,7 @@ NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_u
     // Nested auth protocol
     json[MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY] = self.nestedAuthBrokerRedirectUri;
     json[MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY] = self.nestedAuthBrokerClientId;
+    json[MSID_FRT_ENABLED_JSON_KEY] = [@(self.frtEnabled) stringValue];
     
     NSDictionary *authSchemeJson = [self.authScheme jsonDictionary];
     if (!authSchemeJson)
