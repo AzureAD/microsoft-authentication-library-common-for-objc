@@ -37,7 +37,6 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
-#import "MSIDUseSFRTStatus.h"
 #import "MSIDConfiguration.h"
 #import "MSIDTestConfiguration.h"
 #import "MSIDCacheItemJsonSerializer.h"
