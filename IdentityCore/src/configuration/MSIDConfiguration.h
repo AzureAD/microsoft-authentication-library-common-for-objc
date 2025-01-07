@@ -32,7 +32,7 @@ extern NSString * const MSID_SCOPE_JSON_KEY;
 extern NSString * const MSID_TOKEN_TYPE_JSON_KEY;
 extern NSString * const MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY;
 extern NSString * const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY;
-extern NSString * const MSID_FRT_ENABLED_JSON_KEY;
+extern NSString * const MSID_FRT_DISABLED_JSON_KEY;
 
 @interface MSIDConfiguration : NSObject <NSCopying, MSIDJsonSerializable>
 
@@ -47,8 +47,8 @@ extern NSString * const MSID_FRT_ENABLED_JSON_KEY;
 @property (atomic, readwrite) NSString *nestedAuthBrokerClientId;
 @property (atomic, readwrite) NSString *nestedAuthBrokerRedirectUri;
 
-// Family refresh token enabled
-@property (atomic, readwrite) BOOL frtEnabled;
+// Family refresh token enabled/disabled
+@property (atomic, readwrite) BOOL disableFRT;
 
 @property (atomic, readwrite) NSString *applicationIdentifier;
 

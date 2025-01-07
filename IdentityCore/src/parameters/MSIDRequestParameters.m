@@ -242,6 +242,12 @@
     [self updateMSIDConfiguration];
 }
 
+- (void)setDisableFRT:(BOOL)disableFRT
+{
+    _disableFRT = disableFRT;
+    [self updateMSIDConfiguration];
+}
+
 - (void)updateMSIDConfiguration
 {
     MSIDAuthority *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
@@ -256,6 +262,7 @@
     config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
                                                                                                 appIdentifier:self.intuneApplicationIdentifier];
     config.authScheme = self.authScheme;
+    config.disableFRT = self.disableFRT;
     _msidConfiguration = config;
 }
 

@@ -59,6 +59,11 @@
 @property (nonatomic) BOOL skipValidateResultAccount;
 @property (nonatomic) BOOL forceRefresh;
 @property (nonatomic) BOOL bypassRedirectURIValidation;
+/**
+ Temporal property to disable Family Refresh Token. This will be removed in future, added to allow 1P apps to disablle this feature themselves.
+ Enabled by default, also configured to be enabled/disabled remotely by Microsoft.
+ */
+@property (nonatomic) BOOL disableFRT;
 
 // Telemetry metadata
 @property (nonatomic) NSString *platformSequence;

@@ -564,7 +564,7 @@
                   error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     
-    if (!configuration.frtEnabled)
+    if (configuration.disableFRT)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT disabled by MSAL client app, returning NO");
         return NO;
@@ -579,7 +579,7 @@
     if (readError)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to retrieve FRT cache entry, error: %@", readError);
-        configuration.frtEnabled = NO;
+        configuration.disableFRT = YES;
         if (error)
         {
             *error = readError;
@@ -590,7 +590,7 @@
     if (![jsonObjects count])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No FRT cache entry found, returning NO");
-        configuration.frtEnabled = NO;
+        configuration.disableFRT = YES;
         return NO;
     }
     
@@ -598,7 +598,7 @@
     if (!dict)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to deserialize FRT cache entry, returning NO");
-        configuration.frtEnabled = NO;
+        configuration.disableFRT = YES;
         return NO;
     }
     
@@ -609,7 +609,7 @@
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is disabled by the following apps: %@", dict[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY]);
-    configuration.frtEnabled = NO;
+    configuration.disableFRT = YES;
     return NO;
 }
 
