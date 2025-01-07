@@ -40,10 +40,16 @@ jobs:
           /bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"
     displayName: 'Switch to use Xcode 15.4'
   - task: CmdLine@2
+    displayName: Installing xcpretty
+    inputs:
+      script: |
+        gem install xcpretty -N -v 0.3.0
+      failOnStderr: true
+  - task: CmdLine@2
     displayName: Installing dependencies
     inputs:
       script: |
-        gem install xcpretty slather bundler -N
+        gem install slather bundler -N
       failOnStderr: true
 
 # The following is needed to install the visionOS SDK on macos-14 vm image which
@@ -102,6 +108,7 @@ jobs:
       targetType: 'inline'
       script: |
         rm -rf $(Agent.BuildDirectory)/s/build/status.txt
+        
   - task: PublishTestResults@2
     condition: always()
     displayName: Publish Test Report

@@ -131,6 +131,11 @@
     return self.idTokenObj.uniqueId;
 }
 
+- (NSString *)accountUpn
+{
+    return self.idTokenObj.username;
+}
+
 #pragma mark - Protected
 
 - (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError *__autoreleasing*)error

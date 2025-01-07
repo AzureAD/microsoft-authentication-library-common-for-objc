@@ -54,6 +54,7 @@
 @property (nonatomic) NSString *oidcScope;
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic) BOOL validateAuthority;
+@property (nonatomic) BOOL ignoreScopeValidation;
 @property (nonatomic) NSString *nonce;
 @property (nonatomic) NSString *clientSku;
 @property (nonatomic) BOOL skipValidateResultAccount;
@@ -72,6 +73,8 @@
 @property (nonatomic) NSDictionary *extraTokenRequestParameters;
 // Additional URL query parameters that will be added to both token and authorize requests
 @property (nonatomic) NSDictionary *extraURLQueryParameters;
+// Currently used only in broker to enable/disable EQP filtering.
+@property (nonatomic) BOOL allowAnyExtraURLQueryParameters;
 @property (nonatomic) NSUInteger tokenExpirationBuffer;
 @property (nonatomic) BOOL extendedLifetimeEnabled;
 @property (nonatomic) BOOL instanceAware;
