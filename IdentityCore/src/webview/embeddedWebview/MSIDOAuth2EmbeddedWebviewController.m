@@ -89,8 +89,6 @@
     {
         self.webView = webview;
         _startURL = startURL;
-        
-//        _startURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&dc=ESTS-PUB-WUS3-AZ1-FD000-TEST1&switch_browser=1", startURL.absoluteString]];
         _endURL = endURL;
         _customHeaders = customHeaders;
         

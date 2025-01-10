@@ -29,8 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDSwitchBrowserResumeResponse : MSIDSwitchBrowserResponse
 
-//@property (nonatomic, readonly) NSString *dunaAccessToken;
-
 @end
 
 NS_ASSUME_NONNULL_END

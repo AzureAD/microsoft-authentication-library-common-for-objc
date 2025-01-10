@@ -28,11 +28,6 @@
 
 @implementation MSIDSwitchBrowserResponse
 
-+ (void)load
-{
-//    [MSIDWebResponseOperationFactory registerOperationClass:MSIDWebResponseBrokerInstallOperation.class forResponseClass:self];
-}
-
 + (NSString *)operation
 {
     return @"switch_browser"; // TODO: should we use class instead?

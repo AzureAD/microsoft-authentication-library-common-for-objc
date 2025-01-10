@@ -32,28 +32,4 @@
     return @"switch_browser_resume"; // TODO: should we use class instead?
 }
 
-//- (instancetype)initWithURL:(NSURL *)url
-//                    context:(id<MSIDRequestContext>)context
-//                      error:(NSError *__autoreleasing*)error
-//{
-//    self = [super initWithURL:url
-//                      context:context
-//                        error:error];
-//    
-//    if (self)
-//    {
-//        if (self.oauthError) return self;
-//        
-//        _dunaAccessToken = self.parameters[@"code"];
-//        
-//        if ([NSString msidIsStringNilOrBlank:_dunaAccessToken])
-//        {
-//            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"There is no token nor an error.", nil, nil, nil, context.correlationId, nil, YES);
-//            return nil;
-//        }
-//    }
-//    
-//    return self;
-//}
-
 @end

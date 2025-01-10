@@ -26,6 +26,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWebResponseBaseOperation.h"
 
+// TODO: should we remove it?
 @interface MSIDWebResponseBrokerInstallOperation : MSIDWebResponseBaseOperation
 
 @end

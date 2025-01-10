@@ -100,10 +100,6 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                                                              context:context
                                                                                                error:&responseError];
         
-        if ([response isKindOfClass:MSIDSwitchBrowserResumeResponse.class])
-        {
-            return;
-        }
         
         [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
         completionHandler(response, responseError);
