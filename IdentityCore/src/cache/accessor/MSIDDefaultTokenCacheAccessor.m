@@ -132,7 +132,7 @@
                                            error:(NSError *__autoreleasing *)error
 {
     BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:configuration context:context error:error];
-    if (error)
+    if (*error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
     }
@@ -298,7 +298,21 @@
 
         if (refreshToken)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Found %@refresh token by legacy account id", credentialType == MSIDPrimaryRefreshTokenType ? @"primary " : @"");
+            NSString *credentialTypeString = nil;
+            if (credentialType == MSIDPrimaryRefreshTokenType)
+            {
+                credentialTypeString = @"primary ";
+            }
+            else if (credentialType == MSIDFamilyRefreshTokenType)
+            {
+                credentialTypeString = @"single family ";
+            }
+            else
+            {
+                credentialTypeString = @"";
+            }
+            
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Found %@refresh token by legacy account id", credentialTypeString);
             return refreshToken;
         }
     }

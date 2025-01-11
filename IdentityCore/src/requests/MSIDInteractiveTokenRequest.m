@@ -34,6 +34,8 @@
 #import "MSIDAuthorizationCodeGrantRequest.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDConfiguration.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -129,6 +131,75 @@
             completionBlock(result, localError, nil);
         }];
     }];
+#endif
+}
+
+- (void)updateCustomHeadersForFRTSupportIfNeeded
+{
+#if !EXCLUDE_FROM_MSALCPP
+    if (self.requestParameters.promptType == MSIDPromptTypeDefault && !self.requestParameters.disableFRT)
+    {
+        NSMutableDictionary *customHeaders = nil;
+        if (self.requestParameters.customWebviewHeaders)
+        {
+            customHeaders = [self.requestParameters.customWebviewHeaders mutableCopy];
+        }
+        else
+        {
+            customHeaders = [NSMutableDictionary new];
+        }
+        
+        NSString *refreshToken = nil;
+        refreshToken = [self getRefreshTokenForRequest];
+        
+        if (![NSString msidIsStringNilOrBlank:refreshToken])
+        {
+            customHeaders[MSID_WEBAUTH_REFRESH_TOKEN_KEY] = refreshToken;
+        }
+        
+        // MSIDConfiguration.disableFRT could have been set to YES when checking the useSingleFRT keychain item, so we need to check again here
+        if (!self.requestParameters.msidConfiguration.disableFRT)
+        {
+            customHeaders[MSID_WEBAUTH_IGNORE_SSO_KEY] = @"1";
+            
+            self.requestParameters.customWebviewHeaders = customHeaders;
+        }
+    }
+#endif
+}
+
+- (NSString *)getRefreshTokenForRequest
+{
+#if !EXCLUDE_FROM_MSALCPP
+    NSError *refreshTokenError = nil;
+    MSIDRefreshToken *refreshTokenItem = [self.tokenCache getRefreshTokenWithAccount:self.requestParameters.accountIdentifier
+                                                                            familyId:nil
+                                                                       configuration:self.requestParameters.msidConfiguration
+                                                                             context:self.requestParameters
+                                                                               error:&refreshTokenError];
+
+     // FRT is more likely to be valid as it gets refreshed if any app in the family uses it, so try to use the FRT instead (unless it already fot a family refresh token)
+    if (!refreshTokenItem || (refreshTokenItem.credentialType != MSIDFamilyRefreshTokenType && ![NSString msidIsStringNilOrBlank:[refreshTokenItem familyId]]))
+    {
+        NSError *msidFRTError = nil;
+        NSString *familyId = [NSString msidIsStringNilOrBlank:[refreshTokenItem familyId]] ? @"1" : [refreshTokenItem familyId];
+        MSIDRefreshToken *frtItem = [self.tokenCache getRefreshTokenWithAccount:self.requestParameters.accountIdentifier
+                                                                       familyId:familyId
+                                                                  configuration:self.requestParameters.msidConfiguration
+                                                                        context:self.requestParameters
+                                                                          error:&msidFRTError];
+        if (frtItem && !msidFRTError)
+        {
+            refreshTokenItem = frtItem;
+            refreshTokenError = nil;
+        }
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Retrieve refresh token from cache for web view: %@, error code: %ld", _PII_NULLIFY(refreshTokenItem), refreshTokenError.code);
+    
+    return [refreshTokenItem refreshToken];
+#else
+    return nil;
 #endif
 }
 
