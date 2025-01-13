@@ -334,6 +334,12 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // JIT - Error Handling config invalid or not found
     MSIDErrorJITErrorHandlingConfigNotFound        =   -51839,
+    
+    // Error is thrown when PSSO biometric policy flag mismatches with the config value
+    MSIDErrorPSSOBiometricPolicyMismatch        =   -51840,
+    
+    // Error is thrown when non ENtra passkey extension tries to access the passkey
+    MSIDErrorPSSOInvalidPasskeyExtension        =   -51841,
 
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
