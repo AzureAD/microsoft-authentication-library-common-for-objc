@@ -136,8 +136,8 @@
 
 - (void)updateCustomHeadersForFRTSupportIfNeeded
 {
-#if !EXCLUDE_FROM_MSALCPP
-    if (self.requestParameters.promptType == MSIDPromptTypeDefault && !self.requestParameters.disableFRT)
+#if !EXCLUDE_FROM_MSALCPP && !AD_BROKER
+    if (self.requestParameters.promptType != MSIDPromptTypeLogin && !self.requestParameters.disableFRT)
     {
         NSMutableDictionary *customHeaders = nil;
         if (self.requestParameters.customWebviewHeaders)
@@ -154,12 +154,14 @@
         
         if (![NSString msidIsStringNilOrBlank:refreshToken])
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Included refresh token to custom headers for webview");
             customHeaders[MSID_WEBAUTH_REFRESH_TOKEN_KEY] = refreshToken;
         }
         
         // MSIDConfiguration.disableFRT could have been set to YES when checking the useSingleFRT keychain item, so we need to check again here
         if (!self.requestParameters.msidConfiguration.disableFRT)
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Added ignore sso to custom headers for webview");
             customHeaders[MSID_WEBAUTH_IGNORE_SSO_KEY] = @"1";
             
             self.requestParameters.customWebviewHeaders = customHeaders;
