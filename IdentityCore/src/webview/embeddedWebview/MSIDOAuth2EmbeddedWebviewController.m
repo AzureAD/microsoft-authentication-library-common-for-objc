@@ -490,7 +490,7 @@ initiatedByFrame:(WKFrameInfo *)frame
             type:(WKMediaCaptureType)type
  decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler API_AVAILABLE(ios(15.0))
 {
-    if (MSID_SUPPRESS_CAMERA_CONSENT_PROMPT_IN_WEBVIEW)
+    if (MSID_SUPPRESS_CAMERA_CONSENT_PROMPT_IN_WEBVIEW && type == WKMediaCaptureTypeCamera)
     {
         decisionHandler(WKPermissionDecisionGrant);
     }
