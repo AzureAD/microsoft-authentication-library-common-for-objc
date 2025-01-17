@@ -46,6 +46,7 @@ MSIDTestAccountProtectionPolicyType MSIDTestAccountProtectionPolicyTypeMAMCA = @
 MSIDTestAccountProtectionPolicyType MSIDTestAccountProtectionPolicyTypeMAMCASPO = @"mamspo";
 MSIDTestAccountProtectionPolicyType MSIDTestAccountProtectionPolicyTypeTrueMAMCA = @"truemamca";
 MSIDTestAccountProtectionPolicyType MSIDTestAccountProtectionPolicyTypeMDMCA = @"mdmca";
+MSIDTestAccountProtectionPolicyType MSIDTestAccountProtectionPolicyTypeTB = @"tokenbinding";
 
 #pragma mark - MSIDTestAccountB2CProviderType;
 MSIDTestAccountB2CProviderType MSIDTestAccountB2CProviderTypeNone = @"none";
