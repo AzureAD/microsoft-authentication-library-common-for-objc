@@ -46,6 +46,7 @@ typedef NS_ENUM(NSInteger, MSIDPlatformSSOStatus)
     MSIDPlatformSSONotEnabled = 0, //Platform SSO Not enabled in SSO Config
     MSIDPlatformSSOEnabledNotRegistered = 1, //Platform SSO Enabled in sso config , but not Registered
     MSIDPlatformSSOEnabledAndRegistered = 2, //Platform SSO Enabled in sso config and registered
+    MSIDPlatformSSORegistrationNeedsRepair = 3, //Platform registration needs to be repaired
 };
 
 typedef NS_ENUM(NSInteger, MSIDPreferredAuthMethod)
