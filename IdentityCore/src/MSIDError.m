@@ -209,6 +209,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorJITErrorHandlingConfigNotFound),
                       @(MSIDErrorPSSOBiometricPolicyMismatch),
                       @(MSIDErrorPSSOInvalidPasskeyExtension),
+                      @(MSIDErrorPSSOSaveLoginConfigFailure),
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
                       @(MSIDErrorServerOauth),
@@ -421,6 +422,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorPSSOBiometricPolicyMismatch";
         case MSIDErrorPSSOInvalidPasskeyExtension:
             return @"MSIDErrorPSSOInvalidPasskeyExtension";
+        case MSIDErrorPSSOSaveLoginConfigFailure:
+            return @"MSIDErrorPSSOSaveLoginConfigFailure";
             // Throttling errors
         case MSIDErrorThrottleCacheNoRecord:
             return @"MSIDErrorThrottleCacheNoRecord";

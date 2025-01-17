@@ -340,6 +340,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // Error is thrown when non ENtra passkey extension tries to access the passkey
     MSIDErrorPSSOInvalidPasskeyExtension        =   -51841,
+    
+    // Error thrown when psso save login config operation fails
+    MSIDErrorPSSOSaveLoginConfigFailure        =   -51842,
 
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
