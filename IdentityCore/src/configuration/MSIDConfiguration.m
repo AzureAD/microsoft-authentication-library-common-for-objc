@@ -36,7 +36,6 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
 NSString *const MSID_TOKEN_TYPE_JSON_KEY = @"token_type";
 NSString *const MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY = @"brk_client_id";
 NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY = @"brk_redirect_uri";
-NSString *const MSID_FRT_DISABLED_JSON_KEY = @"frt_disabled";
 
 @interface MSIDConfiguration()
 
@@ -61,7 +60,6 @@ NSString *const MSID_FRT_DISABLED_JSON_KEY = @"frt_disabled";
     configuration.authScheme = [_authScheme copyWithZone:zone];
     configuration.nestedAuthBrokerClientId = [_nestedAuthBrokerClientId copyWithZone:zone];
     configuration.nestedAuthBrokerRedirectUri = [_nestedAuthBrokerRedirectUri copyWithZone:zone];
-    configuration.disableFRT = _disableFRT;
     return configuration;
 }
 
@@ -188,12 +186,6 @@ NSString *const MSID_FRT_DISABLED_JSON_KEY = @"frt_disabled";
     MSIDAuthenticationScheme *authScheme = (MSIDAuthenticationScheme *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_TOKEN_TYPE_JSON_KEY assertKindOfClass:MSIDAuthenticationScheme.class error:nil];
     if (authScheme) config.authScheme = authScheme;
     
-    // If json contains an entry for frt_disabled, set it. Otherwise it will default to NO
-    if (json[MSID_FRT_DISABLED_JSON_KEY])
-    {
-        config.disableFRT = [json msidBoolObjectForKey:MSID_FRT_DISABLED_JSON_KEY];
-    }
-    
     return config;
 }
 
@@ -227,7 +219,6 @@ NSString *const MSID_FRT_DISABLED_JSON_KEY = @"frt_disabled";
     // Nested auth protocol
     json[MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY] = self.nestedAuthBrokerRedirectUri;
     json[MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY] = self.nestedAuthBrokerClientId;
-    json[MSID_FRT_DISABLED_JSON_KEY] = [@(self.disableFRT) stringValue];
     
     NSDictionary *authSchemeJson = [self.authScheme jsonDictionary];
     if (!authSchemeJson)

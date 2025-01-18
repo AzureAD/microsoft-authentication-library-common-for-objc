@@ -158,8 +158,8 @@
             customHeaders[MSID_WEBAUTH_REFRESH_TOKEN_KEY] = refreshToken;
         }
         
-        // MSIDConfiguration.disableFRT could have been set to YES when checking the useSingleFRT keychain item, so we need to check again here
-        if (!self.requestParameters.msidConfiguration.disableFRT)
+        // self.requestParameters.disableFRT could have been set to YES while checking the useSingleFRT keychain item, so we need to check again here
+        if (!self.requestParameters.disableFRT)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Added ignore sso to custom headers for webview");
             customHeaders[MSID_WEBAUTH_IGNORE_SSO_KEY] = @"1";

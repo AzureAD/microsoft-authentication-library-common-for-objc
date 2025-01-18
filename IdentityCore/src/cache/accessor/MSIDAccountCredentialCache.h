@@ -197,8 +197,7 @@
 /*
  Check if support FRT has been enabled
  */
-- (BOOL)checkFRTEnabled:(nonnull MSIDConfiguration *)configuration
-                context:(nullable id<MSIDRequestContext>)context
+- (BOOL)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
                   error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 /*

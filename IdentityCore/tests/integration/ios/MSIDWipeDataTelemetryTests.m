@@ -50,6 +50,7 @@
 @property (retain, nonatomic) NSString* telemetryRequestId;
 @property (retain, nonatomic) NSString* logComponent;
 @property (retain, nonatomic) NSDictionary* appRequestMetadata;
+@property (nonatomic, readwrite) BOOL disableFRT;
 
 @end
 

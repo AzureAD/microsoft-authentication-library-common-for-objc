@@ -242,12 +242,6 @@
     [self updateMSIDConfiguration];
 }
 
-- (void)setDisableFRT:(BOOL)disableFRT
-{
-    _disableFRT = disableFRT;
-    [self updateMSIDConfiguration];
-}
-
 - (void)updateMSIDConfiguration
 {
     MSIDAuthority *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
@@ -262,7 +256,6 @@
     config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
                                                                                                 appIdentifier:self.intuneApplicationIdentifier];
     config.authScheme = self.authScheme;
-    config.disableFRT = self.disableFRT;
     _msidConfiguration = config;
 }
 
@@ -372,6 +365,7 @@
     parameters->_clientId = [_clientId copyWithZone:zone];
     parameters->_nestedAuthBrokerClientId = [_nestedAuthBrokerClientId copyWithZone:zone];
     parameters->_nestedAuthBrokerRedirectUri = [_nestedAuthBrokerRedirectUri copyWithZone:zone];
+    parameters->_disableFRT = _disableFRT;
     parameters->_target = [_target copyWithZone:zone];
     parameters->_oidcScope = [_oidcScope copyWithZone:zone];
     parameters->_accountIdentifier = [_accountIdentifier copyWithZone:zone];

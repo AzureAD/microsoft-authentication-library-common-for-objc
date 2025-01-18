@@ -37,8 +37,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
-#import "MSIDConfiguration.h"
-#import "MSIDTestConfiguration.h"
+#import "MSIDBasicContext.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDJsonObject.h"
 #import "MSIDConstants.h"
@@ -2977,32 +2976,32 @@
 
 - (void)testCheckFRTEnabled_whenFRTConfigurationNotEnabled_shouldReturnNo
 {
-    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
-    configuration.disableFRT = YES;
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    context.disableFRT = YES;
     
     NSError *error = nil;
-    BOOL result = [self.cache checkFRTEnabled:configuration context:nil error:&error];
+    BOOL result = [self.cache checkFRTEnabled:context error:&error];
     
     XCTAssertFalse(result);
-    XCTAssertTrue(configuration.disableFRT);
+    XCTAssertTrue(context.disableFRT);
 }
 
 - (void)testCheckFRTEnabled_whenNoItemInCache_shouldReturnNo
 {
-    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
-    configuration.disableFRT = NO;
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    context.disableFRT = NO;
     
     NSError *error = nil;
-    BOOL result = [self.cache checkFRTEnabled:configuration context:nil error:&error];
+    BOOL result = [self.cache checkFRTEnabled:context error:&error];
     
     XCTAssertFalse(result);
-    XCTAssertTrue(configuration.disableFRT);
+    XCTAssertTrue(context.disableFRT);
 }
 
 - (void)testCheckFRTEnabled_whenItemInCacheInvalid_shouldReturnNo
 {
-    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
-    configuration.disableFRT = NO;
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    context.disableFRT = NO;
     
     NSError *error = nil;
     NSDictionary *json = @{@"some_key": @(123)};
@@ -3014,16 +3013,16 @@
                                   context:nil
                                     error:&error];
     
-    BOOL result = [self.cache checkFRTEnabled:configuration context:nil error:&error];
+    BOOL result = [self.cache checkFRTEnabled:context error:&error];
     
     XCTAssertFalse(result);
-    XCTAssertTrue(configuration.disableFRT);
+    XCTAssertTrue(context.disableFRT);
 }
 
 - (void)testCheckFRTEnabled_whenItemInCacheNotEnabled_shouldReturnNo
 {
-    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
-    configuration.disableFRT = NO;
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    context.disableFRT = NO;
     
     NSError *error = nil;
     NSDictionary *json = @{MSID_USE_SINGLE_FRT_KEY: @"0"};
@@ -3035,16 +3034,16 @@
                                   context:nil
                                     error:&error];
     
-    BOOL result = [self.cache checkFRTEnabled:configuration context:nil error:&error];
+    BOOL result = [self.cache checkFRTEnabled:context error:&error];
     
     XCTAssertFalse(result);
-    XCTAssertTrue(configuration.disableFRT);
+    XCTAssertTrue(context.disableFRT);
 }
 
 - (void)testCheckFRTEnabled_whenItemInCacheIsEnabled_shouldReturnYes
 {
-    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
-    configuration.disableFRT = NO;
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    context.disableFRT = NO;
     
     NSError *error = nil;
     NSDictionary *json = @{MSID_USE_SINGLE_FRT_KEY: @"1"};
@@ -3056,26 +3055,26 @@
                                   context:nil
                                     error:&error];
     
-    BOOL result = [self.cache checkFRTEnabled:configuration context:nil error:&error];
+    BOOL result = [self.cache checkFRTEnabled:context error:&error];
     
     XCTAssertTrue(result);
-    XCTAssertFalse(configuration.disableFRT);
+    XCTAssertFalse(context.disableFRT);
 }
 
 #pragma mark - updateFRTSettings
 
 - (void)testUpdateFRTSettings_whenCacheItemNotPresent_andAskedToDisable_shouldReturnNo
 {
-    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
-    configuration.disableFRT = NO;
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    context.disableFRT = NO;
     
     NSError *error = nil;
     [self.cache updateFRTSettings:NO context:nil error:&error];
     
-    BOOL result = [self.cache checkFRTEnabled:configuration context:nil error:&error];
+    BOOL result = [self.cache checkFRTEnabled:context error:&error];
     
     XCTAssertFalse(result);
-    XCTAssertTrue(configuration.disableFRT);
+    XCTAssertTrue(context.disableFRT);
 }
 
 - (void)testUpdateFRTSettings_whenCacheItemNotPresent_andAskedToEnable_shouldReturnYes

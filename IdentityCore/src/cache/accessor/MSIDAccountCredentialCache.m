@@ -385,7 +385,7 @@
     
     BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
     
-    if (result && credential.credentialType == MSIDRefreshTokenType)
+    if (result && (credential.credentialType == MSIDRefreshTokenType || credential.credentialType == MSIDFamilyRefreshTokenType))
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
@@ -559,12 +559,11 @@
     return cacheItems;
 }
 
-- (BOOL)checkFRTEnabled:(nonnull MSIDConfiguration *)configuration
-                context:(nullable id<MSIDRequestContext>)context
+- (BOOL)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
                   error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     
-    if (configuration.disableFRT)
+    if (context.disableFRT)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT disabled by MSAL client app, returning NO");
         return NO;
@@ -579,7 +578,7 @@
     if (readError)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to retrieve FRT cache entry, error: %@", readError);
-        configuration.disableFRT = YES;
+        context.disableFRT = YES;
         if (error)
         {
             *error = readError;
@@ -590,7 +589,7 @@
     if (![jsonObjects count])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No FRT cache entry found, returning NO");
-        configuration.disableFRT = YES;
+        context.disableFRT = YES;
         return NO;
     }
     
@@ -598,7 +597,7 @@
     if (!dict)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to deserialize FRT cache entry, returning NO");
-        configuration.disableFRT = YES;
+        context.disableFRT = YES;
         return NO;
     }
     
@@ -609,7 +608,7 @@
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is disabled by the following apps: %@", dict[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY]);
-    configuration.disableFRT = YES;
+    context.disableFRT = YES;
     return NO;
 }
 

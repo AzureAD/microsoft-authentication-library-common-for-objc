@@ -131,8 +131,8 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError *__autoreleasing *)error
 {
-    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:configuration context:context error:error];
-    if (*error)
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error];
+    if (error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
     }
@@ -152,10 +152,9 @@
     // This will happen the first time the app starts using a single family refresh token.
     if (credentialType == MSIDFamilyRefreshTokenType)
     {
-        credentialType = MSIDRefreshTokenType;
         refreshToken =  [self getRefreshableTokenWithAccount:accountIdentifier
                                                     familyId:familyId
-                                              credentialType:credentialType
+                                              credentialType:MSIDRefreshTokenType
                                                configuration:configuration
                                                      context:context
                                                        error:error];
@@ -811,6 +810,25 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError *__autoreleasing*)error
 {
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error];
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
+    }
+    
+    MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
+    
+    BOOL result = [self validateAndRemoveRefreshableToken:token
+                                           credentialType:credentialType
+                                                  context:context
+                                                    error:error];
+    
+    // If family refresh token is not enabled, return list of regular refresh tokens
+    if (!frtEnabled)
+    {
+        return result;
+    }
+    
     return [self validateAndRemoveRefreshableToken:token
                                     credentialType:MSIDRefreshTokenType
                                            context:context
@@ -832,7 +850,10 @@
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError *__autoreleasing*)error
 {
-    if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType) return NO;
+    if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType && credentialType != MSIDFamilyRefreshTokenType)
+    {
+        return NO;
+    }
 
     if (!token || [NSString msidIsStringNilOrBlank:token.refreshToken])
     {
@@ -975,7 +996,7 @@
     {
         // Check if FRT is enabled, this will update the configuration object, and then use it to decide if
         // we should save the token as FRT or legacy RT (with familyId, if it contains that value).
-        BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:configuration context:context error:error];
+        BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error];
         if (*error)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not saving as new FRT.");
@@ -1042,7 +1063,7 @@
     CONDITIONAL_START_CACHE_EVENT(event, MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE, context);
     BOOL result = [_accountCredentialCache removeCredential:token.tokenCacheItem context:context error:error];
 
-    if (result && token.credentialType == MSIDRefreshTokenType)
+    if (result && (token.credentialType == MSIDRefreshTokenType || token.credentialType == MSIDFamilyRefreshTokenType))
     {
         [_accountCredentialCache saveWipeInfoWithContext:context error:nil];
     }
@@ -1107,7 +1128,7 @@
         return resultTokens[0];
     }
 
-    if (cacheQuery.credentialType == MSIDRefreshTokenType)
+    if (cacheQuery.credentialType == MSIDRefreshTokenType || cacheQuery.credentialType == MSIDFamilyRefreshTokenType)
     {
         NSError *wipeError = nil;
         CONDITIONAL_STOP_FAILED_CACHE_EVENT(event, [_accountCredentialCache wipeInfoWithContext:context error:&wipeError], context);
@@ -1255,9 +1276,50 @@
                                                   context:(id<MSIDRequestContext>)context
                                                     error:(NSError *__autoreleasing*)error
 {
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error];
+    if (*error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
+    }
+    
+    MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
+    
+    NSSet<NSString *> *firstSet = [self homeAccountIdsFromRTsWithAuthority:authority
+                                                                  clientId:clientId
+                                                                  familyId:familyId
+                                                            credentialType:credentialType
+                                                    accountCredentialCache:accountCredentialCache
+                                                                   context:context
+                                                                     error:error];
+    
+    // If family refresh token is not enabled, return list of regular refresh tokens
+    if (!frtEnabled)
+    {
+        return firstSet;
+    }
+    
+    NSSet<NSString *> *secondSet = [self homeAccountIdsFromRTsWithAuthority:authority
+                                                                   clientId:clientId
+                                                                   familyId:familyId
+                                                             credentialType:MSIDRefreshTokenType
+                                                     accountCredentialCache:accountCredentialCache
+                                                                    context:context
+                                                                      error:error];
+    
+    return [firstSet setByAddingObjectsFromSet:secondSet];
+}
+
+- (NSSet<NSString *> *)homeAccountIdsFromRTsWithAuthority:(MSIDAuthority *)authority
+                                                 clientId:(NSString *)clientId
+                                                 familyId:(NSString *)familyId
+                                           credentialType:(MSIDCredentialType)credentialType
+                                   accountCredentialCache:(MSIDAccountCredentialCache *)accountCredentialCache
+                                                  context:(id<MSIDRequestContext>)context
+                                                    error:(NSError *__autoreleasing*)error
+{
     // Retrieve refresh tokens in cache, and return account ids for those refresh tokens
     MSIDDefaultCredentialCacheQuery *refreshTokenQuery = [MSIDDefaultCredentialCacheQuery new];
-    refreshTokenQuery.credentialType = MSIDRefreshTokenType;
+    refreshTokenQuery.credentialType = credentialType;
     refreshTokenQuery.clientId = clientId;
     refreshTokenQuery.familyId = familyId;
     refreshTokenQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
