@@ -488,7 +488,7 @@
 requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin
 initiatedByFrame:(WKFrameInfo *)frame
             type:(WKMediaCaptureType)type
- decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler API_AVAILABLE(ios(15.0))
+ decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler API_AVAILABLE(ios(15.0), macos(12.0))
 {
     if (MSID_SUPPRESS_CAMERA_CONSENT_PROMPT_IN_WEBVIEW && type == WKMediaCaptureTypeCamera)
     {
