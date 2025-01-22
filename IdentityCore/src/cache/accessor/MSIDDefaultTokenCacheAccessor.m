@@ -1277,7 +1277,10 @@
         }
         else
         {
-            [noReturnAccountsSet addObject:accountCacheItem.username];
+            if (accountCacheItem.username)
+            {
+                [noReturnAccountsSet addObject:accountCacheItem.username];
+            }
         }
     }
 
