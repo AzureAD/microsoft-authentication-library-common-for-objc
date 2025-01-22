@@ -71,7 +71,7 @@
     }
     
     __auto_type accountJson = [NSMutableDictionary new];
-    accountJson[@"userName"] = tokenResponse.idTokenObj.username;
+    accountJson[@"userName"] = tokenResponse.accountUpn;
     accountJson[@"id"] = tokenResponse.accountIdentifier;
     
     response[@"account"] = accountJson;
@@ -79,7 +79,7 @@
     
     __auto_type propertiesJson = [NSMutableDictionary new];
     // TODO: once ests follow the latest protocol, this should be removed. Account ID should be read from accountJson.
-    propertiesJson[@"UPN"] = tokenResponse.idTokenObj.username;
+    propertiesJson[@"UPN"] = accountJson[@"userName"];
     response[@"properties"] = propertiesJson;
     
     return response;

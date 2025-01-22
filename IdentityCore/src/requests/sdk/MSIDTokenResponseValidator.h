@@ -68,6 +68,7 @@
 - (BOOL)validateTokenResult:(nonnull MSIDTokenResult *)tokenResult
               configuration:(nonnull MSIDConfiguration *)configuration
                   oidcScope:(nullable NSString *)oidcScope
+             validateScopes:(BOOL)validateScopes
               correlationID:(nonnull NSUUID *)correlationID
                       error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
