@@ -108,6 +108,10 @@
     {
         [self.webView setNavigationDelegate:nil];
     }
+    if ([self.webView.UIDelegate isEqual:self])
+    {
+        [self.webView setUIDelegate:nil];
+    }
     
     self.webView = nil;
 }
@@ -175,6 +179,7 @@
     BOOL result = [super loadView:error];
     
     self.webView.navigationDelegate = self;
+    self.webView.UIDelegate = self;
 
 #if !EXCLUDE_FROM_MSALCPP
 #if DEBUG
@@ -476,6 +481,22 @@
     if (url && [url.absoluteString containsString:[NSString stringWithFormat:@"%@=", MSID_SSO_NONCE_QUERY_PARAM_KEY]])
     {
         [self completeWebAuthWithURL:url];
+    }
+}
+
+- (void) webView:(WKWebView *)webView
+requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin
+initiatedByFrame:(WKFrameInfo *)frame
+            type:(WKMediaCaptureType)type
+ decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler API_AVAILABLE(ios(15.0), macos(12.0))
+{
+    if (MSID_SUPPRESS_CAMERA_CONSENT_PROMPT_IN_WEBVIEW && type == WKMediaCaptureTypeCamera)
+    {
+        decisionHandler(WKPermissionDecisionGrant);
+    }
+    else
+    {
+        decisionHandler(WKPermissionDecisionPrompt);
     }
 }
 
