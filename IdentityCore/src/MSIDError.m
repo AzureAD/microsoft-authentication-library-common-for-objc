@@ -210,6 +210,9 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorPSSOBiometricPolicyMismatch),
                       @(MSIDErrorPSSOInvalidPasskeyExtension),
                       @(MSIDErrorPSSOSaveLoginConfigFailure),
+                      @(MSIDErrorPSSOPasskeyLAError),
+                      @(MSIDErrorPSSOBiometricsNotEnrolled),
+                      @(MSIDErrorPSSOBiometricsNotAvailable),
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
                       @(MSIDErrorServerOauth),
@@ -427,6 +430,12 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorPSSOInvalidPasskeyExtension";
         case MSIDErrorPSSOSaveLoginConfigFailure:
             return @"MSIDErrorPSSOSaveLoginConfigFailure";
+        case MSIDErrorPSSOPasskeyLAError:
+            return @"MSIDErrorPSSOPasskeyLAError";
+        case MSIDErrorPSSOBiometricsNotEnrolled:
+            return @"MSIDErrorPSSOBiometricsNotEnrolled";
+        case MSIDErrorPSSOBiometricsNotAvailable:
+            return @"MSIDErrorPSSOBiometricsNotAvailable";
             // Throttling errors
         case MSIDErrorThrottleCacheNoRecord:
             return @"MSIDErrorThrottleCacheNoRecord";

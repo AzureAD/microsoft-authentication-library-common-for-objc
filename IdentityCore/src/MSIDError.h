@@ -345,6 +345,15 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // Error thrown when psso save login config operation fails
     MSIDErrorPSSOSaveLoginConfigFailure        =   -51842,
+    
+    // Error is thrown when passkey accessed without biometric when h/w biometric policy configured
+    MSIDErrorPSSOPasskeyLAError        =   -51843,
+    
+    // Error is thrown when PSSO user registration attempted with no biometrics configured and sekey biometric policy is configured
+    MSIDErrorPSSOBiometricsNotEnrolled        =   -51844,
+    
+    // Error is thrown when PSSO user registration attempted with no biometrics available and sekey biometric policy is configured
+    MSIDErrorPSSOBiometricsNotAvailable        =   -51845,
 
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
