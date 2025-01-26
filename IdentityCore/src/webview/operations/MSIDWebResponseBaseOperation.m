@@ -32,15 +32,6 @@
     return self;
 }
 
-- (void)invokeWithInteractiveTokenRequestParameters:(nonnull __unused MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
-                               tokenRequestProvider:(nonnull __unused id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                         completion:(nonnull __unused MSIDRequestCompletionBlock)completion
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
-    completion(nil, error);
-}
-
 - (BOOL)doActionWithCorrelationId:(__unused NSUUID *)correlationId
                             error:(NSError * _Nullable __autoreleasing *_Nullable)error
 {
@@ -53,6 +44,7 @@
 }
 
 - (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
+            webRequestConfiguration:(MSIDBaseWebRequestConfiguration *)webRequestConfiguration
                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
   decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
                     completionBlock:(nonnull MSIDWebviewAuthCompletionHandler)completionBlock

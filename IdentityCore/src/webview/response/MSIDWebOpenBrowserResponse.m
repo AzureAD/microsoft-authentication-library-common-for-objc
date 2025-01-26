@@ -33,6 +33,7 @@
 
 + (void)load
 {
+    // TODO: move registration to the action.
     [MSIDWebResponseOperationFactory registerOperationClass:MSIDWebOpenBrowserResponseOperation.class forResponseClass:self];
 }
 

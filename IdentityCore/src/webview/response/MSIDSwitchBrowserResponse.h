@@ -23,11 +23,11 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebviewResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSwitchBrowserResponse : MSIDWebOAuth2Response
+@interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
 
 @property (nonatomic, readonly) NSString *actionUri;
 @property (nonatomic, readonly) NSString *switchBrowserSessionToken;

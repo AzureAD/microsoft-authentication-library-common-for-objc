@@ -68,20 +68,21 @@
 }
 
 - (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
+            webRequestConfiguration:(MSIDBaseWebRequestConfiguration *)webRequestConfiguration
                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
   decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
                     completionBlock:(nonnull MSIDWebviewAuthCompletionHandler)completionBlock
 {
-    __auto_type webViewConfiguration = [oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:requestParameters];
-    webViewConfiguration.startURL = [[NSURL alloc] initWithString:self.switchBrowserResumeResponse.actionUri];
-    NSMutableDictionary *customHeaders = [webViewConfiguration.customHeaders mutableCopy] ?: [NSMutableDictionary new];
+//    __auto_type webViewConfiguration = [oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:requestParameters];
+    webRequestConfiguration.startURL = [[NSURL alloc] initWithString:self.switchBrowserResumeResponse.actionUri];
+    NSMutableDictionary *customHeaders = [webRequestConfiguration.customHeaders mutableCopy] ?: [NSMutableDictionary new];
     customHeaders[@"Authorization"] = [NSString stringWithFormat:@"Bearer %@", self.switchBrowserResumeResponse.switchBrowserSessionToken];
-    webViewConfiguration.customHeaders = customHeaders;
+    webRequestConfiguration.customHeaders = customHeaders;
     
-    NSObject<MSIDWebviewInteracting> *webView = [oauthFactory.webviewFactory webViewWithConfiguration:webViewConfiguration
-                                                                                         requestParameters:requestParameters
-                                                                      externalDecidePolicyForBrowserAction:decidePolicyForBrowserActionBlock
-                                                                                                   context:requestParameters];
+    NSObject<MSIDWebviewInteracting> *webView = [oauthFactory.webviewFactory webViewWithConfiguration:webRequestConfiguration
+                                                                                    requestParameters:requestParameters
+                                                                 externalDecidePolicyForBrowserAction:decidePolicyForBrowserActionBlock
+                                                                                              context:requestParameters];
     
     if (!webView)
     {
@@ -92,7 +93,7 @@
     
     [MSIDWebviewAuthorization startSessionWithWebView:webView
                                         oauth2Factory:oauthFactory
-                                        configuration:webViewConfiguration
+                                        configuration:webRequestConfiguration
                                               context:requestParameters
                                     completionHandler:completionBlock];
 }

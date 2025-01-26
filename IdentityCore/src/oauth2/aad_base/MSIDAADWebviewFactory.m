@@ -191,7 +191,6 @@
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
     
-    
     MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
                                                                                               context:context
                                                                                                 error:nil];

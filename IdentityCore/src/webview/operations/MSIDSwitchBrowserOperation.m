@@ -75,6 +75,7 @@
 }
 
 - (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
+            webRequestConfiguration:(MSIDBaseWebRequestConfiguration *)webRequestConfiguration
                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
   decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
                     completionBlock:(nonnull MSIDWebviewAuthCompletionHandler)completionBlock

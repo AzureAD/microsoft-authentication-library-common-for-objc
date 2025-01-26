@@ -111,9 +111,9 @@
 {
     self.webViewConfiguration = [self.oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:self.requestParameters];
     
+    __typeof__(self) __weak weakSelf = self;
     [self showWebComponentWithCompletion:^(MSIDWebviewResponse *response, NSError *error) {
-        // TODO: use weakself
-        [self handleWebReponse:response error:error completionBlock:completionBlock];
+        [weakSelf handleWebReponse:response error:error completionBlock:completionBlock];
     }];
 }
 
@@ -252,14 +252,15 @@
         returnErrorBlock(localError);
         return;
     }
-    
-//    __typeof__(self) __weak weakSelf = self; //TODO: use weakself
+
+    __typeof__(self) __weak weakSelf = self;
     [operation invokeWithRequestParameters:self.requestParameters
+                   webRequestConfiguration:self.webViewConfiguration
                               oauthFactory:self.oauthFactory
          decidePolicyForBrowserActionBlock:self.externalDecidePolicyForBrowserAction
                            completionBlock:^(MSIDWebviewResponse *webviewResponse, NSError *responseError)
      {
-        [self handleWebReponse:webviewResponse error:responseError completionBlock:completionBlock];
+        [weakSelf handleWebReponse:webviewResponse error:responseError completionBlock:completionBlock];
     }];
 }
 

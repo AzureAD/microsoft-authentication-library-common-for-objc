@@ -43,8 +43,6 @@
     
     if (self)
     {
-        if (self.oauthError) return self;
-        
         _actionUri = self.parameters[@"action_uri"];
         NSString *action = self.parameters[@"action"];
         if (![action isEqualToString:@"switch_browser"])
