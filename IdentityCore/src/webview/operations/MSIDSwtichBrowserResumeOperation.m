@@ -73,7 +73,6 @@
   decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
                     completionBlock:(nonnull MSIDWebviewAuthCompletionHandler)completionBlock
 {
-//    __auto_type webViewConfiguration = [oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:requestParameters];
     webRequestConfiguration.startURL = [[NSURL alloc] initWithString:self.switchBrowserResumeResponse.actionUri];
     NSMutableDictionary *customHeaders = [webRequestConfiguration.customHeaders mutableCopy] ?: [NSMutableDictionary new];
     customHeaders[@"Authorization"] = [NSString stringWithFormat:@"Bearer %@", self.switchBrowserResumeResponse.switchBrowserSessionToken];

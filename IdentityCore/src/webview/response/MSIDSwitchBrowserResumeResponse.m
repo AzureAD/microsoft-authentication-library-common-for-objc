@@ -29,7 +29,7 @@
 
 + (NSString *)operation
 {
-    return @"switch_browser_resume"; // TODO: should we use class instead?
+    return @"switch_browser_resume";
 }
 
 @end

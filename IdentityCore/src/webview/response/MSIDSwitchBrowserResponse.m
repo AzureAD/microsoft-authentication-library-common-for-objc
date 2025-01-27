@@ -30,7 +30,7 @@
 
 + (NSString *)operation
 {
-    return @"switch_browser"; // TODO: should we use class instead?
+    return @"switch_browser";
 }
 
 - (instancetype)initWithURL:(NSURL *)url
