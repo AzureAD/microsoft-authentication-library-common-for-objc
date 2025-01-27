@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebOAuth2AuthCodeResponse.h"
+#import "MSIDAuthorizationCodeResult.h"
 
 @implementation MSIDWebOAuth2AuthCodeResponse
 
@@ -58,6 +59,19 @@
     }
     
     return self;
+}
+
+- (MSIDAuthorizationCodeResult *)createAuthorizationCodeResult
+{
+    MSIDAuthorizationCodeResult *result = [MSIDAuthorizationCodeResult new];
+    result.authCode = self.authorizationCode;
+//    result.accountIdentifier = self.authCodeClientInfo.accountIdentifier;
+//    result.pkceVerifier = self.webViewConfiguration.pkce.codeVerifier;
+    return result;
+}
+
+- (void)updateRequestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters
+{
 }
 
 @end

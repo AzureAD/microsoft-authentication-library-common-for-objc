@@ -314,6 +314,15 @@
 		2394F1592D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F1562D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.m */; };
 		2394F1A02D2866F700E44F6E /* MSIDCertAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F19F2D2866F700E44F6E /* MSIDCertAuthManager.m */; };
 		2394F1A12D2866F700E44F6E /* MSIDCertAuthManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2394F19E2D2866F700E44F6E /* MSIDCertAuthManager.h */; };
+		2394F1F92D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F1F82D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m */; };
+		2394F1FA2D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F1F82D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m */; };
+		2394F1FB2D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2394F1F72D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.h */; };
+		2394F1FE2D4893DA00E44F6E /* MSIDWebWPJOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F1FD2D4893DA00E44F6E /* MSIDWebWPJOperation.m */; };
+		2394F1FF2D4893DA00E44F6E /* MSIDWebWPJOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F1FD2D4893DA00E44F6E /* MSIDWebWPJOperation.m */; };
+		2394F2002D4893DA00E44F6E /* MSIDWebWPJOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2394F1FC2D4893DA00E44F6E /* MSIDWebWPJOperation.h */; };
+		2394F2032D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F2022D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.m */; };
+		2394F2042D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F2022D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.m */; };
+		2394F2052D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2394F2012D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.h */; };
 		23985AA72390A33600942308 /* MSIDSSOTokenResponseHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 23985AA52390A33600942308 /* MSIDSSOTokenResponseHandler.h */; };
 		23985AA82390A33600942308 /* MSIDSSOTokenResponseHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 23985AA62390A33600942308 /* MSIDSSOTokenResponseHandler.m */; };
 		23985AA92390A33600942308 /* MSIDSSOTokenResponseHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 23985AA62390A33600942308 /* MSIDSSOTokenResponseHandler.m */; };
@@ -2207,6 +2216,12 @@
 		2394F1562D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSwtichBrowserResumeOperation.m; sourceTree = "<group>"; };
 		2394F19E2D2866F700E44F6E /* MSIDCertAuthManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCertAuthManager.h; sourceTree = "<group>"; };
 		2394F19F2D2866F700E44F6E /* MSIDCertAuthManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCertAuthManager.m; sourceTree = "<group>"; };
+		2394F1F72D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebOAuth2AuthCodeOperation.h; sourceTree = "<group>"; };
+		2394F1F82D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebOAuth2AuthCodeOperation.m; sourceTree = "<group>"; };
+		2394F1FC2D4893DA00E44F6E /* MSIDWebWPJOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebWPJOperation.h; sourceTree = "<group>"; };
+		2394F1FD2D4893DA00E44F6E /* MSIDWebWPJOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebWPJOperation.m; sourceTree = "<group>"; };
+		2394F2012D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebUpgradeRegOperation.h; sourceTree = "<group>"; };
+		2394F2022D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebUpgradeRegOperation.m; sourceTree = "<group>"; };
 		23985AA52390A33600942308 /* MSIDSSOTokenResponseHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOTokenResponseHandler.h; sourceTree = "<group>"; };
 		23985AA62390A33600942308 /* MSIDSSOTokenResponseHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOTokenResponseHandler.m; sourceTree = "<group>"; };
 		23985AB12391BA1100942308 /* MSIDTokenResponseHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTokenResponseHandler.h; sourceTree = "<group>"; };
@@ -4027,6 +4042,12 @@
 				230C2C432CF94C4000E767B6 /* MSIDSwitchBrowserOperation.m */,
 				2394F1552D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.h */,
 				2394F1562D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.m */,
+				2394F1F72D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.h */,
+				2394F1F82D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m */,
+				2394F1FC2D4893DA00E44F6E /* MSIDWebWPJOperation.h */,
+				2394F1FD2D4893DA00E44F6E /* MSIDWebWPJOperation.m */,
+				2394F2012D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.h */,
+				2394F2022D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.m */,
 			);
 			path = operations;
 			sourceTree = "<group>";
@@ -5856,6 +5877,7 @@
 				238EF030208FD0200035ABE6 /* MSIDAADRequestConfigurator.h in Headers */,
 				B286B9AC2389DD51007833AD /* MSIDNegotiateHandler.h in Headers */,
 				B286B9A92389DD37007833AD /* MSIDNTLMUIPrompt.h in Headers */,
+				2394F1FB2D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.h in Headers */,
 				728209CE26FEA0D800B5F018 /* MSIDKeyOperationUtil.h in Headers */,
 				B286B9962389DC96007833AD /* MSIDSSOExtensionInteractiveTokenRequest.h in Headers */,
 				B286B9982389DC9B007833AD /* MSIDSSOExtensionSilentTokenRequest.h in Headers */,
@@ -5953,6 +5975,7 @@
 				B286B9A72389DD2E007833AD /* MSIDAADOAuthEmbeddedWebviewController.h in Headers */,
 				58B81F8224AD0F8B00E8799E /* MSIDWebResponseBaseOperation.h in Headers */,
 				23B5DF76234030B2002C530F /* MSIDRequestParameters+Broker.h in Headers */,
+				2394F2002D4893DA00E44F6E /* MSIDWebWPJOperation.h in Headers */,
 				6599299D26296AA600830FD5 /* MSIDRequestTelemetryConstants.h in Headers */,
 				239D72D423625EF40008C76A /* MSIDJsonSerializableFactory.h in Headers */,
 				23B5DF7D234031EE002C530F /* MSIDSSOExtensionSilentTokenRequestController.h in Headers */,
@@ -6169,6 +6192,7 @@
 				B26CEB022367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.h in Headers */,
 				8878C62929DCA054002F5F4B /* MSIDCIAMOauth2Factory.h in Headers */,
 				B2C7088D2198E48E00D917B8 /* NSData+AES.h in Headers */,
+				2394F2052D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.h in Headers */,
 				B251CC3B2041058D005E0179 /* MSIDRefreshToken.h in Headers */,
 				B28BDA84217E9676003E5670 /* MSIDB2CIdTokenClaims.h in Headers */,
 				74F04D49246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.h in Headers */,
@@ -7172,6 +7196,7 @@
 				238E19E32086FE28004DF483 /* MSIDAADAuthorizationCodeRequest.m in Sources */,
 				2317FFC22A44FDD400E3DAA2 /* MSIDBrowserNativeMessageGetCookiesRequest.m in Sources */,
 				23B39AB9209BC705000AA905 /* MSIDOpenIdProviderMetadata.m in Sources */,
+				2394F1FF2D4893DA00E44F6E /* MSIDWebWPJOperation.m in Sources */,
 				B20657E11FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
 				230016422371126E00F7D19C /* MSIDProviderType.m in Sources */,
 				B27551C22081705300AA7A38 /* MSIDJWTHelper.m in Sources */,
@@ -7201,6 +7226,7 @@
 				B26CEB042367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.m in Sources */,
 				609E74BE228CA5CA005E3FED /* MSIDAccountMetadataCacheAccessor.m in Sources */,
 				23B018C42356D51200207FEC /* NSDictionary+MSIDQueryItems.m in Sources */,
+				2394F2042D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.m in Sources */,
 				B2C708AE219A612A00D917B8 /* MSIDDefaultBrokerTokenRequest.m in Sources */,
 				B286B95F23861810007833AD /* MSIDBaseWebRequestConfiguration.m in Sources */,
 				609E74C2228CC50E005E3FED /* MSIDMetadataCache.m in Sources */,
@@ -7208,6 +7234,7 @@
 				232173E32182A998009852C6 /* NSDictionary+MSIDJsonSerializable.m in Sources */,
 				B2C708B5219A621100D917B8 /* MSIDBrokerCryptoProvider.m in Sources */,
 				B286B98D2389DC34007833AD /* MSIDBrokerOperationTokenResponse.m in Sources */,
+				2394F1FA2D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m in Sources */,
 				B286B9832389DC15007833AD /* MSIDBrokerOperationInteractiveTokenRequest.m in Sources */,
 				1EE42FF1248825CE00899491 /* MSIDAccessTokenWithAuthScheme.m in Sources */,
 				606830062098ACED00CCA6AB /* MSIDNegotiateHandler.m in Sources */,
@@ -7694,6 +7721,7 @@
 				96235F9C207D72CE007EAB36 /* MSIDWebWPJResponse.m in Sources */,
 				239E8F89233D951D00251373 /* MSIDBrokerOperationResponse.m in Sources */,
 				B49323A12AD4DB2700E0CBC0 /* MSIDSSOExtensionPasskeyAssertionRequest.m in Sources */,
+				2394F1F92D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m in Sources */,
 				238EF03E208FE4740035ABE6 /* MSIDRefreshTokenGrantRequest.m in Sources */,
 				230C2C472CF95DBC00E767B6 /* MSIDSwitchBrowserResumeResponse.m in Sources */,
 				A0C7DDA425D1EA0D00F5B5B6 /* NSError+MSIDThrottlingExtension.m in Sources */,
@@ -7715,10 +7743,12 @@
 				B8DBEF642395CA4800A16651 /* MSIDKeychainTokenCache.m in Sources */,
 				23B39A8C209A53B7000AA905 /* MSIDDRSDiscoveryRequest.m in Sources */,
 				239D72D523625EF40008C76A /* MSIDJsonSerializableFactory.m in Sources */,
+				2394F2032D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.m in Sources */,
 				B251CC402041058D005E0179 /* MSIDRefreshToken.m in Sources */,
 				583BFCA824D87BA40035B901 /* MSIDRedirectUri.m in Sources */,
 				B2C708692198C3E800D917B8 /* MSIDBrokerResponseHandler.m in Sources */,
 				B2AF1D2F218BCEDE0080C1A0 /* MSIDInteractiveTokenRequest.m in Sources */,
+				2394F1FE2D4893DA00E44F6E /* MSIDWebWPJOperation.m in Sources */,
 				B227035A22A3678A00030ADC /* MSIDMaskedUsernameLogParameter.m in Sources */,
 				96A2D5A8209D102900F80E3A /* MSIDAuthorizeWebRequestConfiguration.m in Sources */,
 				B23ECEF01FF2F6270015FC1D /* MSIDAADV2IdTokenClaims.m in Sources */,

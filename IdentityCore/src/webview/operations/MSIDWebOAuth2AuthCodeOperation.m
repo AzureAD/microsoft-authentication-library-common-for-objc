@@ -23,24 +23,23 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDSwtichBrowserResumeOperation.h"
-#import "MSIDSwitchBrowserResumeResponse.h"
-#import "MSIDWebviewFactory.h"
-#import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDWebOAuth2AuthCodeOperation.h"
 #import "MSIDWebResponseOperationFactory.h"
+#import "MSIDWebOAuth2AuthCodeResponse.h"
+#import "MSIDAuthorizationCodeResult.h"
+#import "MSIDPkce.h"
 
-@interface MSIDSwtichBrowserResumeOperation()
+@interface MSIDWebOAuth2AuthCodeOperation()
 
-@property (nonatomic) MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse;
+@property (nonatomic) MSIDWebOAuth2AuthCodeResponse *response;
 
 @end
 
-
-@implementation MSIDSwtichBrowserResumeOperation
+@implementation MSIDWebOAuth2AuthCodeOperation
 
 + (void)load
 {
-    [MSIDWebResponseOperationFactory registerOperationClass:self forResponseClass:MSIDSwitchBrowserResumeResponse.class];
+    [MSIDWebResponseOperationFactory registerOperationClass:self forResponseClass:MSIDWebOAuth2AuthCodeResponse.class];
 }
 
 - (nullable instancetype)initWithResponse:(MSIDWebviewResponse *)response
@@ -49,9 +48,9 @@
     self = [super initWithResponse:response error:error];
     if (self)
     {
-        if (![response isKindOfClass:MSIDSwitchBrowserResumeResponse.class])
+        if (![response isKindOfClass:MSIDWebOAuth2AuthCodeResponse.class])
         {
-            NSString *errorMsg = [NSString stringWithFormat:@"%@ is required for creating %@", MSIDSwitchBrowserResumeResponse.class, self.class];
+            NSString *errorMsg = [NSString stringWithFormat:@"%@ is required for creating %@", MSIDWebOAuth2AuthCodeResponse.class, self.class];
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMsg);
             if (error)
             {
@@ -61,7 +60,7 @@
             return nil;
         }
         
-        _switchBrowserResumeResponse = (MSIDSwitchBrowserResumeResponse *)response;
+        _response = (MSIDWebOAuth2AuthCodeResponse *)response;
     }
     
     return self;
@@ -74,28 +73,19 @@
      webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
    authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock
 {
-    webRequestConfiguration.startURL = [[NSURL alloc] initWithString:self.switchBrowserResumeResponse.actionUri];
-    NSMutableDictionary *customHeaders = [webRequestConfiguration.customHeaders mutableCopy] ?: [NSMutableDictionary new];
-    customHeaders[@"Authorization"] = [NSString stringWithFormat:@"Bearer %@", self.switchBrowserResumeResponse.switchBrowserSessionToken];
-    webRequestConfiguration.customHeaders = customHeaders;
-    
-    NSObject<MSIDWebviewInteracting> *webView = [oauthFactory.webviewFactory webViewWithConfiguration:webRequestConfiguration
-                                                                                    requestParameters:requestParameters
-                                                                 externalDecidePolicyForBrowserAction:decidePolicyForBrowserActionBlock
-                                                                                              context:requestParameters];
-    
-    if (!webView)
+
+    if (self.response.authorizationCode)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected error. Didn't find any supported web browsers.", nil, nil, nil, nil, nil, YES);
-        if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(nil, error);
+        [self.response updateRequestParameters:requestParameters];
+        
+        MSIDAuthorizationCodeResult *result = [self.response createAuthorizationCodeResult];
+        result.pkceVerifier = webRequestConfiguration.pkce.codeVerifier;
+        if (authorizationCodeCompletionBlock) authorizationCodeCompletionBlock(result, nil, nil);
+
         return;
     }
-    
-    [MSIDWebviewAuthorization startSessionWithWebView:webView
-                                        oauth2Factory:oauthFactory
-                                        configuration:webRequestConfiguration
-                                              context:requestParameters
-                                    completionHandler:webviewResponseCompletionBlock];
+
+    if (authorizationCodeCompletionBlock) authorizationCodeCompletionBlock(nil, self.response.oauthError, nil);
 }
 
 @end

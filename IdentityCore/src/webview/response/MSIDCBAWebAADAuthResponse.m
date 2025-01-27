@@ -27,6 +27,7 @@
 
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDConstants.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDCBAWebAADAuthResponse
 
@@ -64,6 +65,15 @@
     }
     
     return self;
+}
+
+#pragma mark - MSIDWebOAuth2AuthCodeResponse
+
+- (void)updateRequestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters
+{
+    [super updateRequestParameters:requestParameters];
+    
+    requestParameters.redirectUri = self.redirectUri;
 }
 
 @end

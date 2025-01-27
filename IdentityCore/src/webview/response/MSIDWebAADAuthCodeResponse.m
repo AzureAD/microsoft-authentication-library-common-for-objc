@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebAADAuthCodeResponse.h"
+#import "MSIDAuthorizationCodeResult.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDWebAADAuthCodeResponse
 
@@ -55,6 +57,24 @@
         _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:self.parameters[MSID_OAUTH2_CLIENT_INFO] error:nil];
     }
     return self;
+}
+
+#pragma mark - MSIDWebOAuth2AuthCodeResponse
+
+- (MSIDAuthorizationCodeResult *)createAuthorizationCodeResult
+{
+    __auto_type result = [super createAuthorizationCodeResult];
+    result.accountIdentifier = self.clientInfo.accountIdentifier;
+    
+    return result;
+}
+
+- (void)updateRequestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters
+{
+    [super updateRequestParameters:requestParameters];
+    
+    // handle instance aware flow (cloud host)
+    [requestParameters setCloudAuthorityWithCloudHostName:self.cloudHostName];
 }
 
 @end

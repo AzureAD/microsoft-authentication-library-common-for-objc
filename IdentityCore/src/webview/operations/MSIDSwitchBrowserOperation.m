@@ -75,17 +75,12 @@
 }
 
 - (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
-            webRequestConfiguration:(MSIDBaseWebRequestConfiguration *)webRequestConfiguration
+            webRequestConfiguration:(MSIDAuthorizeWebRequestConfiguration *)webRequestConfiguration
                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
   decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
-                    completionBlock:(nonnull MSIDWebviewAuthCompletionHandler)completionBlock
+     webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
+   authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock
 {
-    if (!completionBlock) 
-    {
-        assert(completionBlock);
-        return;
-    }
-    
     NSMutableDictionary *queryItems = [NSMutableDictionary new];
     queryItems[@"code"] = self.switchBrowserResponse.switchBrowserSessionToken;
     queryItems[MSID_OAUTH2_REDIRECT_URI] = requestParameters.redirectUri;
@@ -102,7 +97,7 @@
         
         if (error)
         {
-            completionBlock(nil, error);
+            if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(nil, error);
             return;
         }
         
@@ -111,12 +106,12 @@
         
         if (localError)
         {
-            completionBlock(nil, localError);
+            if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(nil, localError);
             return;
         }
         
         
-        if (completionBlock) completionBlock(resumeResponse, nil);
+        if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(resumeResponse, nil);
     }];
 }
 

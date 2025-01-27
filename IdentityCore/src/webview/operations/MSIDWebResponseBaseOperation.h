@@ -26,6 +26,7 @@
 #import "MSIDTokenRequestProviding.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDInteractiveAuthorizationCodeRequest.h"
 
 @class MSIDWebviewResponse;
 @class MSIDOauth2Factory;
@@ -40,8 +41,9 @@
                             error:(NSError * _Nullable __autoreleasing *_Nullable)error;
 
 - (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
-            webRequestConfiguration:(nonnull MSIDBaseWebRequestConfiguration *)webRequestConfiguration
+            webRequestConfiguration:(nonnull MSIDAuthorizeWebRequestConfiguration *)webRequestConfiguration
                        oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
   decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
-                    completionBlock:(nonnull MSIDWebviewAuthCompletionHandler)completionBlock;
+     webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
+   authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock;
 @end

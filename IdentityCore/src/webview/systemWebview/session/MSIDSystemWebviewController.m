@@ -103,7 +103,7 @@
     static MSIDSystemWebviewController *s_controller;
     
     dispatch_once(&once, ^{
-        s_controller = [MSIDSystemWebviewController new]; // TODO:
+        s_controller = [MSIDSystemWebviewController new];
     });
     
     return s_controller;

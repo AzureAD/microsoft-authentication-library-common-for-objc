@@ -36,7 +36,6 @@
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDMainThreadUtil.h"
-#import "MSIDSwitchBrowserResumeResponse.h"
 
 @implementation MSIDWebviewAuthorization
 

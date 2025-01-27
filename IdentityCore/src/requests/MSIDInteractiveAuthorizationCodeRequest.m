@@ -164,53 +164,7 @@
         return;
     }
 
-    /*
-
-     TODO: this code has been moved from MSAL almost as is to avoid any changes in the MSIDWebviewAuthorization logic.
-     Some minor refactoring to MSIDWebviewAuthorization response logic and to the interactive requests tests will be done separately: https://github.com/AzureAD/microsoft-authentication-library-common-for-objc/issues/297
-     */
-
-    if ([response isKindOfClass:MSIDWebOAuth2AuthCodeResponse.class])
-    {
-        MSIDWebOAuth2AuthCodeResponse *oauthResponse = (MSIDWebOAuth2AuthCodeResponse *)response;
-
-        if (oauthResponse.authorizationCode)
-        {
-            if ([response isKindOfClass:MSIDCBAWebAADAuthResponse.class])
-            {
-                MSIDCBAWebAADAuthResponse *cbaResponse = (MSIDCBAWebAADAuthResponse *)response;
-                self.requestParameters.redirectUri = cbaResponse.redirectUri;
-            }
-            // handle instance aware flow (cloud host)
-            
-            if ([response isKindOfClass:MSIDWebAADAuthCodeResponse.class])
-            {
-                MSIDWebAADAuthCodeResponse *aadResponse = (MSIDWebAADAuthCodeResponse *)response;
-                [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
-                self.authCodeClientInfo = aadResponse.clientInfo;
-            }
-            
-            MSIDAuthorizationCodeResult *result = [MSIDAuthorizationCodeResult new];
-            result.authCode = oauthResponse.authorizationCode;
-            result.accountIdentifier = self.authCodeClientInfo.accountIdentifier;
-            result.pkceVerifier = self.webViewConfiguration.pkce.codeVerifier;
-            completionBlock(result, nil, nil);
-
-            return;
-        }
-
-        returnErrorBlock(oauthResponse.oauthError);
-        return;
-    }
-    else if ([response isKindOfClass:MSIDWebUpgradeRegResponse.class])
-    {
-        completionBlock(nil, nil, (MSIDWebUpgradeRegResponse *)response);
-    }
-    else if ([response isKindOfClass:MSIDWebWPJResponse.class])
-    {
-        completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
-    }
-    else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
+    if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
     {
         error = nil;
         MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response
@@ -258,9 +212,23 @@
                    webRequestConfiguration:self.webViewConfiguration
                               oauthFactory:self.oauthFactory
          decidePolicyForBrowserActionBlock:self.externalDecidePolicyForBrowserAction
-                           completionBlock:^(MSIDWebviewResponse *webviewResponse, NSError *responseError)
-     {
+            webviewResponseCompletionBlock:^(MSIDWebviewResponse *webviewResponse, NSError *responseError) {
+        
         [weakSelf handleWebReponse:webviewResponse error:responseError completionBlock:completionBlock];
+    } authorizationCodeCompletionBlock:^(MSIDAuthorizationCodeResult *codeResult, NSError *resultError, MSIDWebWPJResponse *wpjResponse) {
+        if (error)
+        {
+            returnErrorBlock(resultError);
+            return;
+        }
+        
+        if (wpjResponse) 
+        {
+            completionBlock(nil, nil, wpjResponse);
+            return;
+        }
+        
+        completionBlock(codeResult, nil, nil);
     }];
 }
 
