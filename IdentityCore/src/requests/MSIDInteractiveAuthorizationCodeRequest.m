@@ -216,7 +216,7 @@
         
         [weakSelf handleWebReponse:webviewResponse error:responseError completionBlock:completionBlock];
     } authorizationCodeCompletionBlock:^(MSIDAuthorizationCodeResult *codeResult, NSError *resultError, MSIDWebWPJResponse *wpjResponse) {
-        if (error)
+        if (resultError)
         {
             returnErrorBlock(resultError);
             return;
