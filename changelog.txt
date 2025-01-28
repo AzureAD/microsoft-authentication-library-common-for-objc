@@ -1,4 +1,4 @@
-Version 1.7.45
+Version 1.8.0
 * Make hashed ups in logs case insensitive (#1446)
 * Add new psso error (#1471)
 * Add PSSO registration needs repair status in getDeviceInfo psso status (#1465)
