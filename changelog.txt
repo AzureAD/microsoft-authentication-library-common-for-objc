@@ -1,5 +1,11 @@
-Version TBD
+Version 1.7.45
 * Make hashed ups in logs case insensitive (#1446)
+* Add new psso error (#1471)
+* Add PSSO registration needs repair status in getDeviceInfo psso status (#1465)
+* Suppress camera consent prompt in embedded webview when configured (#1464)
+* Fix crash due to null value being added to set (#1461)
+* Add new errors for passkey biometric policy mismatch (#1462)
+
 
 Version 1.7.44
 * Merge 1.7.42-hotfix
