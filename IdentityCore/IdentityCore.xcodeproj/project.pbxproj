@@ -244,7 +244,6 @@
 		237777CB2853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 237777C92853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.m */; };
 		237777CC2853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 237777C92853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.m */; };
 		2385DD902D13A5C80075D080 /* MSIDSwitchBrowserResumeResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 230C2C462CF95DBC00E767B6 /* MSIDSwitchBrowserResumeResponse.m */; };
-		2385DD912D13A5D00075D080 /* MSIDSwitchBrowserOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 230C2C432CF94C4000E767B6 /* MSIDSwitchBrowserOperation.m */; };
 		2385DD922D13A5F40075D080 /* MSIDSwitchBrowserResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 230C2C402CF7D6F100E767B6 /* MSIDSwitchBrowserResponse.m */; };
 		238695F2209D375C00E56ADF /* MSIDAuthorityCacheRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 238695F0209D375C00E56ADF /* MSIDAuthorityCacheRecord.h */; };
 		238695F3209D375C00E56ADF /* MSIDAuthorityCacheRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 238695F1209D375C00E56ADF /* MSIDAuthorityCacheRecord.m */; };
@@ -311,7 +310,6 @@
 		239222B6243D3791009736C4 /* MSIDCurrentRequestTelemetry.m in Sources */ = {isa = PBXBuildFile; fileRef = 239222B0243D3791009736C4 /* MSIDCurrentRequestTelemetry.m */; };
 		2394F1572D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F1562D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.m */; };
 		2394F1582D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2394F1552D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.h */; };
-		2394F1592D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F1562D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.m */; };
 		2394F1A02D2866F700E44F6E /* MSIDCertAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F19F2D2866F700E44F6E /* MSIDCertAuthManager.m */; };
 		2394F1A12D2866F700E44F6E /* MSIDCertAuthManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2394F19E2D2866F700E44F6E /* MSIDCertAuthManager.h */; };
 		2394F1F92D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F1F82D4890BD00E44F6E /* MSIDWebOAuth2AuthCodeOperation.m */; };
@@ -7120,7 +7118,6 @@
 				B49323932AD491CF00E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m in Sources */,
 				23AD4A34237E298C0094B87E /* NSBundle+MSIDExtensions.m in Sources */,
 				238E19CE2086FC87004DF483 /* MSIDUrlRequestSerializer.m in Sources */,
-				2394F1592D162B8500E44F6E /* MSIDSwtichBrowserResumeOperation.m in Sources */,
 				232C658A2138BDC5002A41FE /* MSIDAADAuthorityMetadataResponse.m in Sources */,
 				96CD695E1FE84A0300D41938 /* MSIDJsonObject.m in Sources */,
 				23985AA92390A33600942308 /* MSIDSSOTokenResponseHandler.m in Sources */,
@@ -7283,7 +7280,6 @@
 				B28D90A7218FD1E800E230D6 /* MSIDLegacyTokenResponseValidator.m in Sources */,
 				1E5319AA24A425B7007BCF30 /* MSIDAuthenticationScheme.m in Sources */,
 				B286B99F2389DCBA007833AD /* MSIDRequestParameters+Broker.m in Sources */,
-				2385DD912D13A5D00075D080 /* MSIDSwitchBrowserOperation.m in Sources */,
 				B26A0B7F2071ADCE006BD95A /* MSIDOauth2Factory.m in Sources */,
 				B217863A23A5994300839CE8 /* MSIDSSOExtensionSignoutController.m in Sources */,
 				B2C707FF2192530E00D917B8 /* MSIDDefaultSilentTokenRequest.m in Sources */,
