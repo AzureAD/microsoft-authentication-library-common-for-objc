@@ -65,8 +65,7 @@
 {
     MSIDAuthorizationCodeResult *result = [MSIDAuthorizationCodeResult new];
     result.authCode = self.authorizationCode;
-//    result.accountIdentifier = self.authCodeClientInfo.accountIdentifier;
-//    result.pkceVerifier = self.webViewConfiguration.pkce.codeVerifier;
+
     return result;
 }
 
