@@ -27,7 +27,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSwtichBrowserResumeOperation : MSIDWebResponseBaseOperation
+@interface MSIDSwitchBrowserResumeOperation : MSIDWebResponseBaseOperation
 
 @end
 

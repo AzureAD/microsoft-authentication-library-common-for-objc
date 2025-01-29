@@ -23,20 +23,20 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDSwtichBrowserResumeOperation.h"
+#import "MSIDSwitchBrowserResumeOperation.h"
 #import "MSIDSwitchBrowserResumeResponse.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDWebResponseOperationFactory.h"
 
-@interface MSIDSwtichBrowserResumeOperation()
+@interface MSIDSwitchBrowserResumeOperation()
 
 @property (nonatomic) MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse;
 
 @end
 
 
-@implementation MSIDSwtichBrowserResumeOperation
+@implementation MSIDSwitchBrowserResumeOperation
 
 + (void)load
 {
