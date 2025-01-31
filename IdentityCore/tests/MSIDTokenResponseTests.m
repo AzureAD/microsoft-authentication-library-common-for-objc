@@ -333,7 +333,13 @@
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");
     XCTAssertEqualObjects(json[@"expires_on"], @"1575635662");
-    XCTAssertEqualObjects(json[@"id_token"], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
+    
+    NSArray *idTokenComponents = [json[@"id_token"] componentsSeparatedByString:@"."];
+    XCTAssertEqual(idTokenComponents.count, 3);
+    XCTAssertEqualObjects(idTokenComponents[0], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
+    XCTAssertEqualObjects(idTokenComponents[1], @"eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9");
+    XCTAssertEqualObjects(idTokenComponents[2], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
+
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
     XCTAssertEqualObjects(json[@"scope"], @"scope 1");
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
