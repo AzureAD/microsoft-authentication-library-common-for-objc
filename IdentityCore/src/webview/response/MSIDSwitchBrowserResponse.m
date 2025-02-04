@@ -25,12 +25,13 @@
 
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDWebResponseOperationFactory.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDSwitchBrowserResponse
 
 + (NSString *)operation
 {
-    return @"switch_browser";
+    return MSID_BROWSER_RESPONSE_SWITCH_BROWSER;
 }
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -62,8 +63,8 @@
 
 - (BOOL)isSwitchBrowserUrl:(NSURL *)url
 {
-//    msauth://<broker id>/switch_browser?action_uri=(not-null)&code=(not-null)
-//    msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=(not-null)&code=(not-null)
+    // msauth://<broker id>/switch_browser?action_uri=(not-null)&code=(not-null)
+    // msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=(not-null)&code=(not-null)
     NSString *scheme = url.scheme;
 
     if (![scheme isEqualToString:@"msauth"])
@@ -77,7 +78,7 @@
         return NO;
     }
     
-    if ([pathComponents[1] isEqualToString:@"switch_browser"])
+    if ([pathComponents[1] isEqualToString:MSID_BROWSER_RESPONSE_SWITCH_BROWSER])
     {
         return YES;
     }

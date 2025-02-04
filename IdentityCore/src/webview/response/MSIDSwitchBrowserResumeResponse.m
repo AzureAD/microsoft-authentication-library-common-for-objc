@@ -24,12 +24,13 @@
 
 
 #import "MSIDSwitchBrowserResumeResponse.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDSwitchBrowserResumeResponse
 
 + (NSString *)operation
 {
-    return @"switch_browser_resume";
+    return MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME;
 }
 
 @end
