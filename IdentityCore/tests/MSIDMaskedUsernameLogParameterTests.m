@@ -88,4 +88,15 @@
     XCTAssertEqualObjects(description, @"auth.placeholder-9f86d081__ ");
 }
 
+- (void)testDescription_whenPIINotEnabled_andEmailParameterWithDomain_shouldReturnSameMaskedValueForDifferentCase
+{
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
+    MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"username@domain.com"];
+    MSIDMaskedUsernameLogParameter *logParameter1 = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"UserNamE@domAIN.com"];
+    NSString *description = [logParameter description];
+    NSString *description1 = [logParameter1 description];
+    XCTAssertEqualObjects(description, @"auth.placeholder-16f78a7d__domain.com");
+    XCTAssertEqualObjects(description, description1);
+}
+
 @end
