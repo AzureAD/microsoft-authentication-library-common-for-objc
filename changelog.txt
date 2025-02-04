@@ -1,5 +1,5 @@
 TBD
-* Support DUNA protocol for CBA flow #1473
+* Refactor web response factory #1473
 
 Version 1.7.43
 * Support web_page_uri #1440
