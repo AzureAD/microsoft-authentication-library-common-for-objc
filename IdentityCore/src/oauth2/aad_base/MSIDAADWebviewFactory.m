@@ -38,6 +38,7 @@
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDSwitchBrowserResponse.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDJITTroubleshootingResponse.h"
@@ -189,6 +190,11 @@
                                                                                           context:context
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
+    
+    MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
+                                                                                              context:context
+                                                                                                error:nil];
+    if (switchBrowserResponse) return switchBrowserResponse;
     
     // Try to create AAD Auth response
     MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:url

@@ -73,7 +73,7 @@ NSString *const MSID_CLIENT_SKU_ADAL_IOS           = @"iOS";
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY = @"accountId";
 
-NSString *const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY = @"use_v2_web_response_factory";
+NSString *const MSID_FLIGHT_USE_V2_AUTH_CODE_IMPLEMENTATION = @"use_v2_auth_code_implementation";
 
 
 
