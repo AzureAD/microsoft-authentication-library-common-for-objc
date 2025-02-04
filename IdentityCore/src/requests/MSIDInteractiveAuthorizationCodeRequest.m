@@ -110,7 +110,7 @@
 
 - (void)getAuthCodeWithCompletionImpl:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock
 {
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_USE_V2_AUTH_CODE_IMPLEMENTATION])
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY])
     {
         [self getAuthCodeWithCompletionImplV2:completionBlock];
     }
