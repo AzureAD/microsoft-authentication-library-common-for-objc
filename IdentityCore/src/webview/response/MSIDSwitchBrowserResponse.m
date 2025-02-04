@@ -43,13 +43,9 @@
     
     if (self)
     {
-        _actionUri = self.parameters[@"action_uri"];
-        NSString *action = self.parameters[@"action"];
-        if (![action isEqualToString:@"switch_browser"])
-        {
-            return nil;
-        }
+        if (![self isSwitchBrowserUrl:url]) return nil;
         
+        _actionUri = self.parameters[@"action_uri"];
         _switchBrowserSessionToken = self.parameters[MSID_OAUTH2_CODE];
         
         if ([NSString msidIsStringNilOrBlank:_actionUri] || [NSString msidIsStringNilOrBlank:_switchBrowserSessionToken])
@@ -60,6 +56,33 @@
     }
     
     return self;
+}
+
+#pragma mark - Private
+
+- (BOOL)isSwitchBrowserUrl:(NSURL *)url
+{
+//    msauth://<broker id>/switch_browser?action_uri=(not-null)&code=(not-null)
+//    msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=(not-null)&code=(not-null)
+    NSString *scheme = url.scheme;
+
+    if (![scheme isEqualToString:@"msauth"])
+    {
+        return NO;
+    }
+    
+    NSArray *pathComponents = url.pathComponents;
+    if ([pathComponents count] < 2)
+    {
+        return NO;
+    }
+    
+    if ([pathComponents[1] isEqualToString:@"switch_browser"])
+    {
+        return YES;
+    }
+    
+    return NO;
 }
 
 
