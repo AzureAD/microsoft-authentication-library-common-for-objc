@@ -47,7 +47,6 @@
 #import "MSIDWebviewInteracting.h"
 #endif
 
-#import "MSIDSwitchBrowserResumeResponse.h"
 #import "MSIDFlightManager.h"
 
 @interface MSIDInteractiveAuthorizationCodeRequest()

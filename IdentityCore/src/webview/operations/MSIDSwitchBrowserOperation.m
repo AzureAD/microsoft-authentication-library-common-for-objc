@@ -102,7 +102,7 @@
         }
         
         NSError *localError;
-        MSIDSwitchBrowserResumeResponse *resumeResponse = [[MSIDSwitchBrowserResumeResponse alloc] initWithURL:callbackURL context:requestParameters error:&localError];
+        __auto_type response = [webRequestConfiguration responseWithResultURL:callbackURL factory:oauthFactory.webviewFactory context:requestParameters error:&localError];
         
         if (localError)
         {
@@ -111,7 +111,7 @@
         }
         
         
-        if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(resumeResponse, nil);
+        if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(response, nil);
     }];
 }
 

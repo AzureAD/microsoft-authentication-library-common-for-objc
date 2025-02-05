@@ -39,6 +39,7 @@
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDSwitchBrowserResponse.h"
+#import "MSIDSwitchBrowserResumeResponse.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDJITTroubleshootingResponse.h"
@@ -196,7 +197,12 @@
                                                                                                 error:nil];
     if (switchBrowserResponse) return switchBrowserResponse;
     
-    // Try to create AAD Auth response
+    MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse = [[MSIDSwitchBrowserResumeResponse alloc] initWithURL:url
+                                                                                                                context:context
+                                                                                                                  error:nil];
+    if (switchBrowserResumeResponse) return switchBrowserResumeResponse;
+    
+    // Try to create AAD Auth response or Error response (all other reponses don't handle errors).
     MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:url
                                                                               requestState:requestState
                                                                         ignoreInvalidState:ignoreInvalidState
