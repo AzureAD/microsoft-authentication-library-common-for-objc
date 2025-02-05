@@ -5,3 +5,4 @@
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDRequestContext.h"
 #import "MSIDError.h"
+#import "MSIDSwitchBrowserResumeResponse.h"

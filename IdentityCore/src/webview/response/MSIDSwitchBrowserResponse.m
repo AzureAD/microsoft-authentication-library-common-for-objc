@@ -44,7 +44,7 @@
     
     if (self)
     {
-        if (![self isSwitchBrowserUrl:url]) return nil;
+        if (![self isMyUrl:url]) return nil;
         
         _actionUri = self.parameters[@"action_uri"];
         if ([NSString msidIsStringNilOrBlank:_actionUri])
@@ -66,7 +66,7 @@
 
 #pragma mark - Private
 
-- (BOOL)isSwitchBrowserUrl:(NSURL *)url
+- (BOOL)isMyUrl:(NSURL *)url
 {
     // msauth://<broker id>/switch_browser?action_uri=(not-null)&code=(not-null)
     // msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=(not-null)&code=(not-null)
@@ -83,7 +83,7 @@
         return NO;
     }
     
-    if ([pathComponents[1] isEqualToString:MSID_BROWSER_RESPONSE_SWITCH_BROWSER])
+    if ([pathComponents[1] isEqualToString:[self.class operation]])
     {
         return YES;
     }

@@ -196,6 +196,8 @@
 		23419F83239B36F500EA78C5 /* MSIDAccountIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23419F81239B36F500EA78C5 /* MSIDAccountIdentifierTests.m */; };
 		2347D6632D52F4C700372D20 /* MSIDSwitchBrowserResponseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2347D6622D52F4C700372D20 /* MSIDSwitchBrowserResponseTest.swift */; };
 		2347D6642D52F4C700372D20 /* MSIDSwitchBrowserResponseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2347D6622D52F4C700372D20 /* MSIDSwitchBrowserResponseTest.swift */; };
+		2347D6662D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2347D6652D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift */; };
+		2347D6672D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2347D6652D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift */; };
 		234858DF20490EF8004FBC3C /* MSIDDefaultTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 965981041FF4C9B400E31CDE /* MSIDDefaultTokenCacheIntegrationTests.m */; };
 		2348C313221B4EFF00498D56 /* MSIDBasicContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 2323A6C42217AD4A00727088 /* MSIDBasicContext.m */; };
 		234A0BE02BCDC4B900AFBBAA /* MSIDBrowserNativeMessageSignOutResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 234A0BDF2BCDC4B900AFBBAA /* MSIDBrowserNativeMessageSignOutResponseTests.m */; };
@@ -2031,8 +2033,7 @@
 		1EE5413F2458B30300A86414 /* MSIDDevicePopManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDevicePopManager.m; sourceTree = "<group>"; };
 		1EE8FF5624F4BB3800CA1445 /* libIdentityCoreSwift.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityCoreSwift.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EE8FF5824F4BB3800CA1445 /* IdentityCoreSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityCoreSwift.swift; sourceTree = "<group>"; };
-		1EE8FF6224F4C0E600CA1445 /* IdentityCoreTests iOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityCoreTests iOS-Bridging-Header.h"; sourceTree = "<group>"; };
-		1EE8FF6324F4C0E600CA1445 /* IdentityCoreTests Mac-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityCoreTests Mac-Bridging-Header.h"; sourceTree = "<group>"; };
+		1EE8FF6224F4C0E600CA1445 /* IdentityCoreTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityCoreTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		1EE8FF6424F4C0E600CA1445 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		1EFD58C322B43A4500ECD86E /* MSIDMacCredentialStorageItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMacCredentialStorageItem.h; sourceTree = "<group>"; };
 		1EFD58C422B43A4500ECD86E /* MSIDMacCredentialStorageItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacCredentialStorageItem.m; sourceTree = "<group>"; };
@@ -2133,6 +2134,7 @@
 		23419F7E239B33E400EA78C5 /* MSIDAADV2TokenResponseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV2TokenResponseTests.m; sourceTree = "<group>"; };
 		23419F81239B36F500EA78C5 /* MSIDAccountIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountIdentifierTests.m; sourceTree = "<group>"; };
 		2347D6622D52F4C700372D20 /* MSIDSwitchBrowserResponseTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDSwitchBrowserResponseTest.swift; sourceTree = "<group>"; };
+		2347D6652D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDSwitchBrowserResumeResponseTest.swift; sourceTree = "<group>"; };
 		234A0BDF2BCDC4B900AFBBAA /* MSIDBrowserNativeMessageSignOutResponseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrowserNativeMessageSignOutResponseTests.m; sourceTree = "<group>"; };
 		234A0BE22BCDCCB100AFBBAA /* MSIDBrowserNativeMessageSignOutRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrowserNativeMessageSignOutRequestTests.m; sourceTree = "<group>"; };
 		234DE5812A9456F600E244B3 /* MSIDBrowserNativeMessageRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrowserNativeMessageRequest.h; sourceTree = "<group>"; };
@@ -5681,8 +5683,7 @@
 				6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */,
 				5828740624D49C4100466916 /* MSIDBrokerRedirectUriTest.m */,
 				1EE8FF6424F4C0E600CA1445 /* File.swift */,
-				1EE8FF6224F4C0E600CA1445 /* IdentityCoreTests iOS-Bridging-Header.h */,
-				1EE8FF6324F4C0E600CA1445 /* IdentityCoreTests Mac-Bridging-Header.h */,
+				1EE8FF6224F4C0E600CA1445 /* IdentityCoreTests-Bridging-Header.h */,
 				E70C4A74258D7E7B00A7A07E /* MSIDLRUCacheTest.m */,
 				E733EE0B25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m */,
 				E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */,
@@ -5711,6 +5712,7 @@
 				234A0BE22BCDCCB100AFBBAA /* MSIDBrowserNativeMessageSignOutRequestTests.m */,
 				586DE2A72BC884600082137F /* MSIDAuthenticationSchemeSshCertTest.m */,
 				2347D6622D52F4C700372D20 /* MSIDSwitchBrowserResponseTest.swift */,
+				2347D6652D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -6999,6 +7001,7 @@
 				B2DD4B3320A8DA4B0047A66E /* MSIDLegacyCacheKeyTests.m in Sources */,
 				D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
 				A08D0A2B24A85C9800C9193D /* MSIDAuthenticationSchemePopTest.m in Sources */,
+				2347D6662D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift in Sources */,
 				B2936F8D20AD4AA30050C585 /* MSIDWipeDataTelemetryTests.m in Sources */,
 				E733EE0C25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m in Sources */,
 				60FDA9C521A18D3F001E09B8 /* MSIDDefaultBrokerRequestTests.m in Sources */,
@@ -7403,6 +7406,7 @@
 				B286BA03238A091B007833AD /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */,
 				B216825D23AB069900F4897A /* MSIDSSOExtensionGetAccountsRequestIntegrationTests.m in Sources */,
 				B2808002204CB29900944D89 /* MSIDAADTokenResponseTests.m in Sources */,
+				2347D6672D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift in Sources */,
 				96CD653120C8ACBE004813EE /* MSIDWebviewResponseTests.m in Sources */,
 				968871EA20AD0397009D6FC3 /* MSIDWebAADAuthResponseTests.m in Sources */,
 				96D3A44F20E6F7D8001BD428 /* MSIDPkceTests.m in Sources */,
@@ -8891,7 +8895,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests iOS-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
@@ -8913,7 +8917,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests iOS-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
@@ -8956,7 +8960,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -8972,7 +8976,7 @@
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
