@@ -47,11 +47,16 @@
         if (![self isSwitchBrowserUrl:url]) return nil;
         
         _actionUri = self.parameters[@"action_uri"];
-        _switchBrowserSessionToken = self.parameters[MSID_OAUTH2_CODE];
-        
-        if ([NSString msidIsStringNilOrBlank:_actionUri] || [NSString msidIsStringNilOrBlank:_switchBrowserSessionToken])
+        if ([NSString msidIsStringNilOrBlank:_actionUri])
         {
-            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"There is no action_uri or code nor an error.", nil, nil, nil, context.correlationId, nil, YES);
+            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"action_uri is nil.", nil, nil, nil, context.correlationId, nil, YES);
+            return nil;
+        }
+        
+        _switchBrowserSessionToken = self.parameters[MSID_OAUTH2_CODE];
+        if ([NSString msidIsStringNilOrBlank:_switchBrowserSessionToken])
+        {
+            if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"code is nil.", nil, nil, nil, context.correlationId, nil, YES);
             return nil;
         }
     }
@@ -67,7 +72,7 @@
     // msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=(not-null)&code=(not-null)
     NSString *scheme = url.scheme;
 
-    if (![scheme isEqualToString:@"msauth"])
+    if (![scheme containsString:@"msauth"])
     {
         return NO;
     }
