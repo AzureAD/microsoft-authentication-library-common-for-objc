@@ -25,10 +25,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
-
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
-#endif
+#import "MSIDConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSArray<UIActivity *> *activities;
 
 - (void)startWithURL:(NSURL *)startURL
-    parentController:(UIViewController *)parentViewController
+    parentController:(MSIDViewController *)parentViewController
              context:(id<MSIDRequestContext>)context
      completionBlock:(MSIDWebUICompletionHandler)completionBlock;
 

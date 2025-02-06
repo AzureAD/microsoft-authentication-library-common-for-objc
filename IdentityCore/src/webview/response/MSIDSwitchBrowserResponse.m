@@ -38,7 +38,7 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error
 {
-    self = [super initWithURL:url 
+    self = [super initWithURL:url
                       context:context
                         error:error];
     

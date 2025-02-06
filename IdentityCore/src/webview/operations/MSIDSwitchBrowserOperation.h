@@ -25,9 +25,13 @@
 
 #import "MSIDWebResponseBaseOperation.h"
 
+@class MSIDCertAuthManager;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDSwitchBrowserOperation : MSIDWebResponseBaseOperation
+
+@property (nonatomic) MSIDCertAuthManager *certAuthManager;
 
 @end
 

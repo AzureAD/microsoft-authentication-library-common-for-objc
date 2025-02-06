@@ -37,7 +37,6 @@
 @interface MSIDSwitchBrowserOperation()
 
 @property (nonatomic) MSIDSwitchBrowserResponse *switchBrowserResponse;
-@property (nonatomic) MSIDCertAuthManager *certAuthManager;
 
 @end
 
