@@ -236,6 +236,7 @@
 		236B7C2122B1DE3C00A6EFBB /* MSIDExternalAADCacheSeederIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 236B7C2022B1DE3C00A6EFBB /* MSIDExternalAADCacheSeederIntegrationTests.m */; };
 		236CB13E2A609A1B005A6F5F /* MSIDBrokerOperationBrowserNativeMessageRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 236CB13D2A609A1B005A6F5F /* MSIDBrokerOperationBrowserNativeMessageRequestTests.m */; };
 		236CB13F2A609A1B005A6F5F /* MSIDBrokerOperationBrowserNativeMessageRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 236CB13D2A609A1B005A6F5F /* MSIDBrokerOperationBrowserNativeMessageRequestTests.m */; };
+		237034442D56AA7F00D6A70B /* MSIDSwitchBrowserResumeOperationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 237034432D56AA7F00D6A70B /* MSIDSwitchBrowserResumeOperationTest.swift */; };
 		2370B5FB217FA5E400DEEBEA /* MSIDIntuneMAMResourcesCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 2370B5FA217FA5E400DEEBEA /* MSIDIntuneMAMResourcesCache.m */; };
 		2371A6132A4BAB29008A71F3 /* MSIDBrokerOperationBrowserNativeMessageResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 2371A6112A4BAB28008A71F3 /* MSIDBrokerOperationBrowserNativeMessageResponse.h */; };
 		2371A6142A4BAB29008A71F3 /* MSIDBrokerOperationBrowserNativeMessageResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 2371A6122A4BAB28008A71F3 /* MSIDBrokerOperationBrowserNativeMessageResponse.m */; };
@@ -2161,6 +2162,7 @@
 		236AAFC92A61EE6C00AD6C6E /* MSIDBrowserNativeMessageGetCookiesRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrowserNativeMessageGetCookiesRequestTests.m; sourceTree = "<group>"; };
 		236B7C2022B1DE3C00A6EFBB /* MSIDExternalAADCacheSeederIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExternalAADCacheSeederIntegrationTests.m; sourceTree = "<group>"; };
 		236CB13D2A609A1B005A6F5F /* MSIDBrokerOperationBrowserNativeMessageRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationBrowserNativeMessageRequestTests.m; sourceTree = "<group>"; };
+		237034432D56AA7F00D6A70B /* MSIDSwitchBrowserResumeOperationTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDSwitchBrowserResumeOperationTest.swift; sourceTree = "<group>"; };
 		2370B5F9217FA5E400DEEBEA /* MSIDIntuneMAMResourcesCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneMAMResourcesCache.h; sourceTree = "<group>"; };
 		2370B5FA217FA5E400DEEBEA /* MSIDIntuneMAMResourcesCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneMAMResourcesCache.m; sourceTree = "<group>"; };
 		2371A6112A4BAB28008A71F3 /* MSIDBrokerOperationBrowserNativeMessageResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationBrowserNativeMessageResponse.h; sourceTree = "<group>"; };
@@ -5714,6 +5716,7 @@
 				2347D6622D52F4C700372D20 /* MSIDSwitchBrowserResponseTest.swift */,
 				2347D6652D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift */,
 				2347D6682D5453A400372D20 /* MSIDSwitchBrowserOperationTest.swift */,
+				237034432D56AA7F00D6A70B /* MSIDSwitchBrowserResumeOperationTest.swift */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -6893,6 +6896,7 @@
 				60747FF82354F73000C5308F /* MSIDBrokerOperationGetAccountsResponseTests.m in Sources */,
 				B2DD5B97204756580084313F /* MSIDAccountTypeTests.m in Sources */,
 				B2936F4D20AA906C0050C585 /* MSIDLegacyTokenCacheItemTests.m in Sources */,
+				237034442D56AA7F00D6A70B /* MSIDSwitchBrowserResumeOperationTest.swift in Sources */,
 				B216825C23AB069900F4897A /* MSIDSSOExtensionGetAccountsRequestIntegrationTests.m in Sources */,
 				B29A36B820AFAAF200427B63 /* MSIDLegacyAccessorSSOIntegrationTests.m in Sources */,
 				B41163B229BAB45800E64619 /* MSIDJITTroubleshootingResponseTests.m in Sources */,

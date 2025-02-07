@@ -19,3 +19,4 @@
 #import "MSIDWebviewResponse.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDSwitchBrowserResumeOperation.h"
