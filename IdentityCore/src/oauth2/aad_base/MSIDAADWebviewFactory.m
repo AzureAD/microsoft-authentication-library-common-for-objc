@@ -75,13 +75,18 @@
     {
         [result addEntriesFromDictionary:
          @{
-           MSID_OAUTH2_CORRELATION_ID_REQUEST : @"true",
-           MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [parameters.correlationId UUIDString]
-           }];
+            MSID_OAUTH2_CORRELATION_ID_REQUEST : @"true",
+            MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [parameters.correlationId UUIDString]
+        }];
     }
     
     result[@"haschrome"] = @"1";
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
+    
+#if TARGET_OS_IPHONE
+    // Let server know that we support new cba flow
+    result[MSID_BROWSER_RESPONSE_SWITCH_BROWSER] = @"1";
+#endif
     
     return result;
 }
