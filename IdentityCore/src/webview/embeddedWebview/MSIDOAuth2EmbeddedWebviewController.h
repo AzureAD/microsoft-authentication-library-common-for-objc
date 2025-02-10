@@ -38,7 +38,7 @@
 typedef void (^MSIDNavigationResponseBlock)(NSHTTPURLResponse *response);
 
 @interface MSIDOAuth2EmbeddedWebviewController :
-MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
+MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate, WKUIDelegate>
 
 typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth2EmbeddedWebviewController *webView, NSURL *url);
 
