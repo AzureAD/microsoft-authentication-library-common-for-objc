@@ -8990,7 +8990,7 @@
 					"$(MSID_WEBKIT)",
 					"$(MSID_SYSTEMWV)",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
@@ -9005,7 +9005,7 @@
 					"$(MSID_SYSTEMWV)",
 					"$(MSID_WEBKIT)",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};

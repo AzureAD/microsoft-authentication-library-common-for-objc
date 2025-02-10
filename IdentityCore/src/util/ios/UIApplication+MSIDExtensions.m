@@ -48,7 +48,25 @@
 
     for (UIWindow *window in windows)
 #else
-    for (UIWindow *window in [MSIDAppExtensionUtil sharedApplication].windows)
+    NSArray<UIScene *> *scenes=[[[UIApplication sharedApplication] connectedScenes] allObjects];
+    if (!scenes) return nil;
+    UIWindowScene *windowScene = nil;
+    for (int i=0; i<=scenes.count - 1; i++) {
+        if ([scenes[i] isKindOfClass:UIWindowScene.class])
+        {
+            continue;
+        }
+        else
+        {
+            // get the 1st window scene
+            windowScene = (UIWindowScene *)scenes[i];
+            break;
+        }
+    }
+    if (!windowScene) return nil;
+    NSArray *windows=[windowScene windows];
+
+    for (UIWindow *window in windows)
 #endif
     {
         if (window.isKeyWindow)
