@@ -176,6 +176,8 @@ static NSArray *deviceModeEnumString;
             return @"platformSSOEnabledNotRegistered";
         case MSIDPlatformSSOEnabledAndRegistered:
             return @"platformSSOEnabledAndRegistered";
+        case MSIDPlatformSSORegistrationNeedsRepair:
+            return @"platformSSORegistrationNeedsRepair";
         
         default:
             return nil;
@@ -187,6 +189,7 @@ static NSArray *deviceModeEnumString;
     if ([platformSSOStatusString isEqualToString:@"platformSSONotEnabled"])    return MSIDPlatformSSONotEnabled;
     if ([platformSSOStatusString isEqualToString:@"platformSSOEnabledNotRegistered"])  return MSIDPlatformSSOEnabledNotRegistered;
     if ([platformSSOStatusString isEqualToString:@"platformSSOEnabledAndRegistered"])  return MSIDPlatformSSOEnabledAndRegistered;
+    if ([platformSSOStatusString isEqualToString:@"platformSSORegistrationNeedsRepair"])  return MSIDPlatformSSORegistrationNeedsRepair;
     
     return MSIDPlatformSSONotEnabled;
 }

@@ -83,4 +83,10 @@
                                    version:(NSString *)version
                                        tid:(NSString *)tid;
 
++ (NSString *)idTokenWithGivenName:(NSString *)givenName
+                        familyName:(NSString *)familyName
+                              name:(NSString *)name
+                           version:(NSString *)version
+                               tid:(NSString *)tid;
+
 @end
