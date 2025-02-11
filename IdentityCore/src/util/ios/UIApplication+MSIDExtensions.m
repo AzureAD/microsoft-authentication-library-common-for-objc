@@ -52,7 +52,7 @@
     if (!scenes) return nil;
     UIWindowScene *windowScene = nil;
     for (int i=0; i<=scenes.count - 1; i++) {
-        if ([scenes[i] isKindOfClass:UIWindowScene.class])
+        if (![scenes[i] isKindOfClass:UIWindowScene.class])
         {
             continue;
         }
