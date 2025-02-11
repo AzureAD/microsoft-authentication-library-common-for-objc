@@ -37,8 +37,13 @@ jobs:
 
   steps:
   - script: |
+        if [ "$(target)" != "macFramework" ] && [ "$(target)" != "visionOSFramework" ]; then
+          echo "Switching to Xcode 16.2 for iOS target"
+          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.0.app"
+        else
           /bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"
-    displayName: 'Switch to use Xcode 15.4'
+        fi
+    displayName: 'Switch to use Xcode'
   - task: CmdLine@2
     displayName: Uninstalling xcpretty v0.4.0
     inputs:
