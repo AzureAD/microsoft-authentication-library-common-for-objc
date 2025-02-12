@@ -506,7 +506,6 @@
 		2A2481542CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */; };
 		2A2481582CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2481562CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m */; };
 		2A2481592CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A2481552CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h */; };
-		2A24815E2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24815D2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m */; };
 		2A24815F2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24815D2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m */; };
 		2A2481602CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A24815C2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.h */; };
 		580E25402719FD10003D1795 /* MSIDPrtHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 580E253E2719FD10003D1795 /* MSIDPrtHeader.h */; };
@@ -7720,7 +7719,6 @@
 				58B81F8824AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.m in Sources */,
 				1E3C0ED5217FE2A70022D61D /* MSIDAppMetadataCacheQuery.m in Sources */,
 				B8DBEF642395CA4800A16651 /* MSIDKeychainTokenCache.m in Sources */,
-				2A24815E2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m in Sources */,
 				23B39A8C209A53B7000AA905 /* MSIDDRSDiscoveryRequest.m in Sources */,
 				239D72D523625EF40008C76A /* MSIDJsonSerializableFactory.m in Sources */,
 				B251CC402041058D005E0179 /* MSIDRefreshToken.m in Sources */,

@@ -177,7 +177,7 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
             }];
         }];
         
-        // If nothing came back in 2 sec, return false and unblock this function
+        // If nothing came back in 2 sec, return false and unblock this thread
         dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC);
         dispatch_group_wait(group, timeout);
 

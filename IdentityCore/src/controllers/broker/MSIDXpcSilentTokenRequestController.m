@@ -24,15 +24,12 @@
 
 #import "MSIDXpcSilentTokenRequestController.h"
 #import "MSIDSilentController+Internal.h"
-#if TARGET_OS_OSX
 #import "MSIDXpcSingleSignOnProvider.h"
-#endif
 
 @implementation MSIDXpcSilentTokenRequestController
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
-#if TARGET_OS_OSX
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent broker xpc flow.");
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
@@ -43,22 +40,15 @@
     __auto_type request = [self.tokenRequestProvider silentXpcTokenRequestWithParameters:self.requestParameters
                                                                             forceRefresh:self.forceRefresh];
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
-#else
-    NSAssert(NO, @"Xpc service is only valid on MacOS");
-#endif
 }
 
 + (BOOL)canPerformRequest
 {
-#if TARGET_OS_OSX
     if (@available(macOS 13, *)) {
         return YES;
     } else {
         return NO;
     }
-#else
-    return NO;
-#endif
 }
 
 @end
