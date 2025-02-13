@@ -42,7 +42,6 @@
     
     [[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCount"];
     [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfo"];
-    [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"perfTelemetry"];;
     
     [MSIDLastRequestTelemetry updateTelemetryStringSizeLimit:4000];
 }
@@ -118,30 +117,20 @@
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"silent" totalPerfNumber:100 ipcRequestPerfNumber:50 ipcResponsePerfNumber:50];
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"signout" totalPerfNumber:200 ipcRequestPerfNumber:300 ipcResponsePerfNumber:400];
-    
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
     
     NSString *result = [telemetryObject telemetryString];
-    XCTAssertEqualObjects(result, @"4|0|30,00000000-0000-0000-0000-000000000001|error|silent:100.000000:50.000000:50.000000;signout:200.000000:300.000000:400.000000;accounts:;deviceinfo:;");
+    XCTAssertEqualObjects(result, @"4|0|30,00000000-0000-0000-0000-000000000001|error|");
 }
 
 - (void)testSerialization_whenPerfDataUpdatedMultipleTimes_shouldCreateStringWithAverageValues
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"silent" totalPerfNumber:100 ipcRequestPerfNumber:50 ipcResponsePerfNumber:50];
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"signout" totalPerfNumber:200 ipcRequestPerfNumber:300 ipcResponsePerfNumber:4];
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"signout" totalPerfNumber:40 ipcRequestPerfNumber:30 ipcResponsePerfNumber:5];
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"signout" totalPerfNumber:20 ipcRequestPerfNumber:34 ipcResponsePerfNumber:6];
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"signout" totalPerfNumber:10 ipcRequestPerfNumber:22 ipcResponsePerfNumber:7];
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"signout" totalPerfNumber:5 ipcRequestPerfNumber:11 ipcResponsePerfNumber:8];
-    
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
     
     NSString *result = [telemetryObject telemetryString];
-    XCTAssertEqualObjects(result, @"4|0|30,00000000-0000-0000-0000-000000000001|error|silent:100.000000:50.000000:50.000000;signout:55.000000:79.400000:6.000000;accounts:;deviceinfo:;");
+    XCTAssertEqualObjects(result, @"4|0|30,00000000-0000-0000-0000-000000000001|error|");
 }
 
 - (void)testSerialization_whenEmptyError_shouldCreateString
@@ -212,9 +201,6 @@
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
-    
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"silent" totalPerfNumber:100 ipcRequestPerfNumber:50 ipcResponsePerfNumber:50];
-    [telemetryObject trackSSOExtensionPerformanceWithType:@"signout" totalPerfNumber:200 ipcRequestPerfNumber:300 ipcResponsePerfNumber:400];
  
     dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
     MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];

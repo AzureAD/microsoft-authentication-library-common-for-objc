@@ -103,12 +103,6 @@
             
             __typeof__(self) strongSelf = weakSelf;
             
-#if !EXCLUDE_FROM_MSALCPP
-            [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
-                                                requestStartDate:strongSelf.requestSentDate
-                                                   telemetryType:MSID_PERF_TELEMETRY_GETACCOUNTS_TYPE];
-#endif
-            
             MSIDGetAccountsRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
             strongSelf.requestCompletionBlock = nil;
             
