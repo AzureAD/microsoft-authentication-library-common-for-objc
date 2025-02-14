@@ -150,6 +150,7 @@ NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE             = @"LegacySingleResourc
 NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"IdToken";
 NSString *const MSID_LEGACY_ID_TOKEN_CACHE_TYPE          = @"V1IdToken";
 NSString *const MSID_PRT_TOKEN_CACHE_TYPE                = @"PrimaryRefreshToken";
+NSString *const MSID_FRT_TOKEN_CACHE_TYPE                = @"FamilyRefreshToken";
 NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
 NSString *const MSID_GENERAL_CACHE_ITEM_TYPE             = @"general_cache_item";
 NSString *const MSID_APP_METADATA_CACHE_TYPE             = @"appmetadata";

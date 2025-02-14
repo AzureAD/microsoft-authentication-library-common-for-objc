@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *logComponent;
 @property (nonatomic, nullable) NSString *telemetryRequestId;
 @property (nonatomic, nullable) NSDictionary *appRequestMetadata;
+@property (nonatomic, readwrite) BOOL disableFRT;
 
 @end
 

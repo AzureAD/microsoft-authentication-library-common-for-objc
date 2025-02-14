@@ -205,6 +205,8 @@
             return;
         }
     };
+    
+    [self updateCustomHeadersForFRTSupportIfNeeded];
 
     self.webViewConfiguration = [self.oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:self.requestParameters];
     [self showWebComponentWithCompletion:webAuthCompletion];
@@ -230,6 +232,11 @@
                                               context:self.requestParameters
                                     completionHandler:completionHandler];
 
+}
+
+- (void)updateCustomHeadersForFRTSupportIfNeeded
+{
+    // This is meant to be implemented by subclasses
 }
 
 #pragma mark - Helpers
