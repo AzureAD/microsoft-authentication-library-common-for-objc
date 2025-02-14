@@ -170,6 +170,23 @@
                                           tid:@"contoso.com"];
 }
 
++ (NSString *)idTokenWithGivenName:(NSString *)givenName
+                        familyName:(NSString *)familyName
+                              name:(NSString *)name
+                           version:(NSString *)version
+                               tid:(NSString *)tid
+{
+    NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
+    NSString *idTokenp2 = [@{ @"iss" : @"issuer",
+                              @"given_name" : givenName,
+                              @"family_name" : familyName,
+                              @"name" : name,
+                              @"ver": version,
+                              @"tid": tid ? tid : @""
+                           } msidBase64UrlJson];
+    return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
+}
+
 + (NSString *)idTokenWithPreferredUsername:(NSString *)username
                                    subject:(NSString *)subject
                                  givenName:(NSString *)givenName

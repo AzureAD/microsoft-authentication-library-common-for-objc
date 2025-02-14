@@ -35,6 +35,7 @@
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(MSIDConfiguration *)configuration
                   oidcScope:(NSString *)oidcScope
+             validateScopes:(BOOL)validateScopes
               correlationID:(NSUUID *)correlationID
                       error:(NSError *__autoreleasing*)error
 {
@@ -47,6 +48,8 @@
     {
         return YES;
     }
+    
+    if (!validateScopes) return YES;
 
     NSOrderedSet *grantedScopes = tokenResult.accessToken.scopes;
     NSOrderedSet *normalizedGrantedScopes = grantedScopes.normalizedScopeSet;

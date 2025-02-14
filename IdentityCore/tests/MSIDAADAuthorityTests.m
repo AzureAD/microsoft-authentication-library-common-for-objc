@@ -734,6 +734,29 @@
     XCTAssertFalse([authority checkTokenEndpointForRTRefresh:urlFromDifferentCloud]);
 }
 
+#pragma mark - needsUpdateToHomeAuthority
+- (void)testNeedsUpdateToHomeAuthority_common_shouldReturnTrue
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    XCTAssertTrue([authority needsUpdateToHomeAuthority:NO]);
+}
+- (void)testNeedsUpdateToHomeAuthority_organizations_nonMSATenant_shouldReturnTrue
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/organizations" aadAuthority];
+    XCTAssertTrue([authority needsUpdateToHomeAuthority:NO]);
+}
+- (void)testNeedsUpdateToHomeAuthority_organizations_MSATenant_shouldReturnFalse
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/organizations" aadAuthority];
+    XCTAssertFalse([authority needsUpdateToHomeAuthority:YES]);
+}
+- (void)testNeedsUpdateToHomeAuthority_consumers_shouldReturnTrue
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/consumers" aadAuthority];
+    XCTAssertTrue([authority needsUpdateToHomeAuthority:NO]);
+}
+
+
 #pragma mark - Private
 
 - (void)setupAADAuthorityCache

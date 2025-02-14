@@ -49,7 +49,7 @@
             domain = [stringValue substringFromIndex:emailIndex.location + 1];
         }
         
-        return [NSString stringWithFormat:@"auth.placeholder-%@__%@", [username msidSecretLoggingHash], domain];
+        return [NSString stringWithFormat:@"auth.placeholder-%@__%@", [username.lowercaseString msidSecretLoggingHash], domain.lowercaseString];
     }
     
     return [self.parameterValue msidSecretLoggingHash];

@@ -1788,6 +1788,55 @@
     XCTAssertFalse([accountUPNs containsObject:@"upn2@test.com"]);
 }
 
+- (void)testAccountsWithAuthority_whenReturnSignedInAccountTrue_AndUserNameNil_shouldNotCrash
+{
+    // setup default cache
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+    
+    [self saveResponseWithUPN:nil
+                     clientId:@"test_client_id2"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid2"
+                         utid:@"utid2"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+    
+    // sign out the second account
+    NSError *error;
+    XCTAssertTrue([_accountMetadataCache updateSignInStateForHomeAccountId:@"uid2.utid2" clientId:@"test_client_id2" state:MSIDAccountMetadataStateSignedOut context:nil error:&error]);
+    XCTAssertNil(error);
+    
+    // setup legacy cache
+    [self saveResponseWithUPN:@"upn3@test.com"
+                     clientId:@"test_client_id3"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid3"
+                         utid:@"utid3"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+    
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id2" familyId:@"3" accountIdentifier:nil accountMetadataCache:_accountMetadataCache signedInAccountsOnly:YES context:nil error:&error];
+    XCTAssertEqual([accounts count], 2);
+}
+
 - (void)testAccountsWithAuthority_whenReturnSignedInAccountTrue_shouldFilterOutSignedOutAccountInBothDefaultAndLegacyCache
 {
     // setup default cache
@@ -3117,7 +3166,15 @@
               appIdentifier:(NSString *)appIdentifier
                    accessor:(id<MSIDCacheAccessor>)accessor
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:upn subject:@"subject" givenName:@"Hello" familyName:@"World" name:@"Hello World" version:@"2.0" tid:tenantId];
+    NSString *idToken = nil;
+    if (!upn)
+    {
+        idToken = [MSIDTestIdTokenUtil idTokenWithGivenName:@"Hello" familyName:@"World" name:@"Hello World" version:@"2.0" tid:tenantId];
+    }
+    else
+    {
+        idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:upn subject:@"subject" givenName:@"Hello" familyName:@"World" name:@"Hello World" version:@"2.0" tid:tenantId];
+    }
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v2TokenResponseWithAT:accessToken
                                                                             RT:refreshToken
