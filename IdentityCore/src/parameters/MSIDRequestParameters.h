@@ -73,6 +73,7 @@
 @property (nonatomic) NSUInteger tokenExpirationBuffer;
 @property (nonatomic) BOOL extendedLifetimeEnabled;
 @property (nonatomic) BOOL instanceAware;
+@property (nonatomic) BOOL enableXpcFlow;
 @property (nonatomic) BOOL allowUsingLocalCachedRtWhenSsoExtFailed;
 @property (nonatomic) BOOL clientBrokerKeyCapabilityNotSupported;
 @property (nonatomic) NSString *intuneApplicationIdentifier;

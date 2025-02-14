@@ -114,17 +114,17 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
             [directConnection suspend];
             [directConnection invalidate];
             
-            MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:[NSData msidDataFromBase64UrlEncodedString:brokerKey]];
-            NSError *jsonResponseError = nil;
-            NSDictionary *jsonResponse = [cryptoProvider decryptBrokerResponse:replyParam correlationId:context.correlationId error:&jsonResponseError];
-            if (jsonResponseError)
-            {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT received operationResponse but failed to decrypt it with error: %@", jsonResponseError);
-                if (continueBlock) continueBlock(nil, callbackError);
-                return;
-            }
+//            MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:[NSData msidDataFromBase64UrlEncodedString:brokerKey]];
+//            NSError *jsonResponseError = nil;
+//            NSDictionary *jsonResponse = [cryptoProvider decryptBrokerResponse:replyParam correlationId:context.correlationId error:&jsonResponseError];
+//            if (jsonResponseError)
+//            {
+//                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT received operationResponse but failed to decrypt it with error: %@", jsonResponseError);
+//                if (continueBlock) continueBlock(nil, callbackError);
+//                return;
+//            }
             
-            BOOL forceRunOnBackgroundQueue = [[jsonResponse objectForKey:MSID_BROKER_OPERATION_KEY] isEqualToString:@"refresh"];
+            BOOL forceRunOnBackgroundQueue = [[replyParam objectForKey:MSID_BROKER_OPERATION_KEY] isEqualToString:@"refresh"];
             [self forceRunOnBackgroundQueue:forceRunOnBackgroundQueue dispatchBlock:^{
                 if (callbackError)
                 {
@@ -134,7 +134,7 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
                 }
                 
                 NSError *innerError = nil;
-                __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:jsonResponse classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:aClass error:&innerError];
+                __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:replyParam classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:aClass error:&innerError];
 
                 if (!operationResponse)
                 {
