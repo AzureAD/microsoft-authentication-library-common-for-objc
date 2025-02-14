@@ -207,6 +207,12 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorDeviceNotPSSORegistered),
                       @(MSIDErrorPSSOKeyIdMismatch),
                       @(MSIDErrorJITErrorHandlingConfigNotFound),
+                      @(MSIDErrorPSSOBiometricPolicyMismatch),
+                      @(MSIDErrorPSSOInvalidPasskeyExtension),
+                      @(MSIDErrorPSSOSaveLoginConfigFailure),
+                      @(MSIDErrorPSSOPasskeyLAError),
+                      @(MSIDErrorPSSOBiometricsNotEnrolled),
+                      @(MSIDErrorPSSOBiometricsNotAvailable),
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
                       @(MSIDErrorServerOauth),
@@ -224,7 +230,8 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorServerError),
                       ],
               MSIDHttpErrorCodeDomain : @[
-                      @(MSIDErrorServerUnhandledResponse)
+                      @(MSIDErrorServerUnhandledResponse),
+                      @(MSIDErrorUnexpectedHttpResponse)
                       ]
 
               // TODO: add new codes here
@@ -301,6 +308,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             // HTTP errors
         case MSIDErrorServerUnhandledResponse:
             return @"MSIDErrorServerUnhandledResponse";
+        case MSIDErrorUnexpectedHttpResponse:
+            return @"MSIDErrorUnexpectedHttpResponse";
             // Authority validation errors
         case MSIDErrorAuthorityValidation:
             return @"MSIDErrorAuthorityValidation";
@@ -415,6 +424,18 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorDeviceNotPSSORegistered";
         case MSIDErrorPSSOKeyIdMismatch:
             return @"MSIDErrorPSSOKeyIdMismatch";
+        case MSIDErrorPSSOBiometricPolicyMismatch:
+            return @"MSIDErrorPSSOBiometricPolicyMismatch";
+        case MSIDErrorPSSOInvalidPasskeyExtension:
+            return @"MSIDErrorPSSOInvalidPasskeyExtension";
+        case MSIDErrorPSSOSaveLoginConfigFailure:
+            return @"MSIDErrorPSSOSaveLoginConfigFailure";
+        case MSIDErrorPSSOPasskeyLAError:
+            return @"MSIDErrorPSSOPasskeyLAError";
+        case MSIDErrorPSSOBiometricsNotEnrolled:
+            return @"MSIDErrorPSSOBiometricsNotEnrolled";
+        case MSIDErrorPSSOBiometricsNotAvailable:
+            return @"MSIDErrorPSSOBiometricsNotAvailable";
             // Throttling errors
         case MSIDErrorThrottleCacheNoRecord:
             return @"MSIDErrorThrottleCacheNoRecord";
