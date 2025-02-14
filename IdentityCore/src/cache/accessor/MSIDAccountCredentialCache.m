@@ -559,21 +559,20 @@
     return cacheItems;
 }
 
-- (BOOL)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
-                  error:(NSError * _Nullable __autoreleasing * _Nullable)error
+- (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
+                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
-    
     if (context.disableFRT)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT disabled by MSAL client app, returning NO");
-        return NO;
+        return MSIDIsFRTEnabledStatusDisabledByClientApp;
     }
     
     NSError *readError = nil;
-    NSArray *jsonObjects = [_dataSource jsonObjectsWithKey:[MSIDAccountCredentialCache checkFRTCacheKey]
-                                                serializer:[MSIDCacheItemJsonSerializer new]
-                                                   context:context
-                                                     error:&readError];
+    NSArray<MSIDJsonObject *> *jsonObjects = [_dataSource jsonObjectsWithKey:[MSIDAccountCredentialCache checkFRTCacheKey]
+                                                                  serializer:[MSIDCacheItemJsonSerializer new]
+                                                                     context:context
+                                                                       error:&readError];
     
     if (readError)
     {
@@ -583,33 +582,33 @@
         {
             *error = readError;
         }
-        return NO;
+        return MSIDIsFRTEnabledStatusDisabledByKeychainError;
     }
     
     if (![jsonObjects count])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No FRT cache entry found, returning NO");
         context.disableFRT = YES;
-        return NO;
+        return MSIDIsFRTEnabledStatusNotEnabled;
     }
     
     NSDictionary *dict = [jsonObjects[0] jsonDictionary];
-    if (!dict)
+    if (!dict || ![dict isKindOfClass:[NSDictionary class]] || [dict objectForKey:MSID_USE_SINGLE_FRT_KEY] == nil)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to deserialize FRT cache entry, returning NO");
         context.disableFRT = YES;
-        return NO;
+        return MSIDIsFRTEnabledStatusDisabledByDeserializationError;
     }
     
     if([dict[MSID_USE_SINGLE_FRT_KEY] boolValue])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is enabled by the following apps: %@", dict[MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY]);
-        return YES;
+        return MSIDIsFRTEnabledStatusActive;
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is disabled by the following apps: %@", dict[MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY]);
     context.disableFRT = YES;
-    return NO;
+    return MSIDIsFRTEnabledStatusDisabledByKeychainItem;
 }
 
 - (void)updateFRTSettings:(BOOL)enableFRT

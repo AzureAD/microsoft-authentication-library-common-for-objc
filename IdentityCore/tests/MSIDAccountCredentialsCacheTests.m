@@ -2980,9 +2980,9 @@
     context.disableFRT = YES;
     
     NSError *error = nil;
-    BOOL result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertFalse(result);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByClientApp);
     XCTAssertTrue(context.disableFRT);
 }
 
@@ -2992,9 +2992,9 @@
     context.disableFRT = NO;
     
     NSError *error = nil;
-    BOOL result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertFalse(result);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusNotEnabled);
     XCTAssertTrue(context.disableFRT);
 }
 
@@ -3013,9 +3013,9 @@
                                   context:nil
                                     error:&error];
     
-    BOOL result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertFalse(result);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByDeserializationError);
     XCTAssertTrue(context.disableFRT);
 }
 
@@ -3034,9 +3034,9 @@
                                   context:nil
                                     error:&error];
     
-    BOOL result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertFalse(result);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
     XCTAssertTrue(context.disableFRT);
 }
 
@@ -3055,9 +3055,9 @@
                                   context:nil
                                     error:&error];
     
-    BOOL result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertTrue(result);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusActive);
     XCTAssertFalse(context.disableFRT);
 }
 
@@ -3071,9 +3071,9 @@
     NSError *error = nil;
     [self.cache updateFRTSettings:NO context:nil error:&error];
     
-    BOOL result = [self.cache checkFRTEnabled:context error:&error];
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertFalse(result);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusNotEnabled);
     XCTAssertTrue(context.disableFRT);
 }
 

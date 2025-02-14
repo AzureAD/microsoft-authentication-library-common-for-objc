@@ -178,4 +178,24 @@ typedef NS_ENUM(NSInteger, MSIDPlatformSequenceIndex)
     MSIDPlatformSequenceIndexLast = MSIDPlatformSequenceIndexBrowserCore,
 };
 
+typedef NS_ENUM(NSInteger, MSIDIsFRTEnabledStatus)
+{
+    MSIDIsFRTEnabledStatusActive = 0,
+    
+    // Client app has disabled FRT through MSIDRequestParameters or was disabled previuosly by keychain item
+    MSIDIsFRTEnabledStatusDisabledByClientApp,
+    
+    // There was an error reading keychain item
+    MSIDIsFRTEnabledStatusDisabledByKeychainError,
+    
+    // FRT has not been explicitly enabled with keychain item
+    MSIDIsFRTEnabledStatusNotEnabled,
+    
+    // There was an error deserializing keychain item
+    MSIDIsFRTEnabledStatusDisabledByDeserializationError,
+    
+    // FRT has been disabled with keychain item
+    MSIDIsFRTEnabledStatusDisabledByKeychainItem
+};
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

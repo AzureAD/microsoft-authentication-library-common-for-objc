@@ -25,6 +25,7 @@
 #import "MSIDCredentialType.h"
 #import "MSIDAccountType.h"
 #import "MSIDExtendedTokenCacheDataSource.h"
+#import "MSIDConstants.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDAppMetadataCacheItem;
@@ -197,8 +198,8 @@
 /*
  Check if support FRT has been enabled
  */
-- (BOOL)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
-                  error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
+                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 /*
  Update cache item to enable/disable FRT
