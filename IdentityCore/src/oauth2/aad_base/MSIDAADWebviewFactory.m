@@ -40,6 +40,7 @@
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDSwitchBrowserResumeResponse.h"
+#import "MSIDFlightManager.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDJITTroubleshootingResponse.h"
@@ -84,8 +85,11 @@
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
     
 #if TARGET_OS_IPHONE
-    // Let server know that we support new cba flow
-    result[MSID_BROWSER_RESPONSE_SWITCH_BROWSER] = @"1";
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        // Let server know that we support new cba flow
+        result[MSID_BROWSER_RESPONSE_SWITCH_BROWSER] = @"1";
+    }
 #endif
     
     return result;

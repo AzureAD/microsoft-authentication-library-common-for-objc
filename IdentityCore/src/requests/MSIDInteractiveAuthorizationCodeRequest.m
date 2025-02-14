@@ -109,7 +109,10 @@
 
 - (void)getAuthCodeWithCompletionImpl:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock
 {
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY])
+    BOOL useV2WebResponseHandling = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY];
+    useV2WebResponseHandling |= [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    
+    if (useV2WebResponseHandling)
     {
         [self getAuthCodeWithCompletionImplV2:completionBlock];
     }
