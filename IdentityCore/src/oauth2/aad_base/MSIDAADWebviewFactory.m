@@ -201,15 +201,18 @@
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
     
-    MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
-                                                                                              context:context
-                                                                                                error:nil];
-    if (switchBrowserResponse) return switchBrowserResponse;
-    
-    MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse = [[MSIDSwitchBrowserResumeResponse alloc] initWithURL:url
-                                                                                                                context:context
-                                                                                                                  error:nil];
-    if (switchBrowserResumeResponse) return switchBrowserResumeResponse;
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
+                                                                                                  context:context
+                                                                                                    error:nil];
+        if (switchBrowserResponse) return switchBrowserResponse;
+        
+        MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse = [[MSIDSwitchBrowserResumeResponse alloc] initWithURL:url
+                                                                                                                    context:context
+                                                                                                                      error:nil];
+        if (switchBrowserResumeResponse) return switchBrowserResumeResponse;
+    }
     
     // Try to create AAD Auth response or Error response (all other reponses don't handle errors).
     MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:url
