@@ -1,5 +1,6 @@
 TBD
 * Refactor web response factory #1473
+* Support DUNA protocol for CBA flow #1477
 
 Version 1.8.0
 * Make hashed ups in logs case insensitive (#1446)
