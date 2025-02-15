@@ -25,13 +25,21 @@
 
 #import "MSIDWebviewResponse.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
 
 @property (nonatomic, readonly) NSString *actionUri;
 @property (nonatomic, readonly) NSString *switchBrowserSessionToken;
 
-@end
+- (instancetype )init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
-NS_ASSUME_NONNULL_END
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing*)error NS_UNAVAILABLE;
+
+- (instancetype)initWithURL:(NSURL *)url
+                redirectUri:(NSString *)redirectUri
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing*)error;
+
+@end

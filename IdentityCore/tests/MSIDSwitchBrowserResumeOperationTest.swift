@@ -29,7 +29,7 @@ final class MSIDSwitchBrowserResumeOperationTest: XCTestCase
 {
     lazy var validSwitchBrowserResumeResponse: MSIDSwitchBrowserResumeResponse? = {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser_resume?action_uri=some_uri&code=some_code")!
-        return try? MSIDSwitchBrowserResumeResponse(url: url, context: nil)
+        return try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)
     }()
     
     override func setUpWithError() throws

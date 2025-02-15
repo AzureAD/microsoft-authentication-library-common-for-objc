@@ -45,6 +45,7 @@
     __auto_type webResponse = [factory oAuthResponseWithURL:[NSURL URLWithString:@"browser://somehost"]
                                                requestState:nil
                                          ignoreInvalidState:NO
+                                             endRedirectUri:@"browser://somehost"
                                                     context:nil
                                                       error:nil];
     

@@ -74,6 +74,7 @@
 - (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
                                  requestState:(NSString *)requestState
                            ignoreInvalidState:(BOOL)ignoreInvalidState
+                               endRedirectUri:(NSString *)endRedirectUri
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError *__autoreleasing*)error;
 

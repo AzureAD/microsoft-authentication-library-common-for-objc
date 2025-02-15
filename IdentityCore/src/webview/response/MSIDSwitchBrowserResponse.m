@@ -35,6 +35,7 @@
 }
 
 - (instancetype)initWithURL:(NSURL *)url
+                redirectUri:(NSString *)redirectUri
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error
 {
@@ -44,7 +45,7 @@
     
     if (self)
     {
-        if (![self isMyUrl:url]) return nil;
+        if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
         
         _actionUri = self.parameters[@"action_uri"];
         if ([NSString msidIsStringNilOrBlank:_actionUri])
@@ -67,12 +68,25 @@
 #pragma mark - Private
 
 - (BOOL)isMyUrl:(NSURL *)url
+    redirectUri:(NSString *)redirectUri
 {
+    if (url == nil) return NO;
+    if ([NSString msidIsStringNilOrBlank:redirectUri]) return NO;
+    
+    NSURL *redirectUrl = [[NSURL alloc] initWithString:redirectUri];
+    if (!redirectUrl) return NO;
+    
     // msauth://<broker id>/switch_browser?action_uri=(not-null)&code=(not-null)
     // msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=(not-null)&code=(not-null)
-    NSString *scheme = url.scheme;
+    NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+    urlComponents.query = nil;
+    urlComponents.path = nil;
+    
+    NSURLComponents *redirectUrlComponents = [[NSURLComponents alloc] initWithURL:redirectUrl resolvingAgainstBaseURL:NO];
+    redirectUrlComponents.query = nil;
+    redirectUrlComponents.path = nil;
 
-    if (![scheme containsString:@"msauth"])
+    if (![urlComponents.string isEqualToString:redirectUrlComponents.string])
     {
         return NO;
     }

@@ -150,6 +150,7 @@
 - (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
                                  requestState:(NSString *)requestState
                            ignoreInvalidState:(BOOL)ignoreInvalidState
+                               endRedirectUri:(NSString *)endRedirectUri
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError *__autoreleasing*)error
 {
@@ -204,11 +205,13 @@
     if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
     {
         MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
+                                                                                              redirectUri:endRedirectUri
                                                                                                   context:context
                                                                                                     error:nil];
         if (switchBrowserResponse) return switchBrowserResponse;
         
         MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse = [[MSIDSwitchBrowserResumeResponse alloc] initWithURL:url
+                                                                                                                redirectUri:endRedirectUri
                                                                                                                     context:context
                                                                                                                       error:nil];
         if (switchBrowserResumeResponse) return switchBrowserResumeResponse;
