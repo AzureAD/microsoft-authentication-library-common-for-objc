@@ -81,12 +81,14 @@
     NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
     urlComponents.query = nil;
     urlComponents.path = nil;
+    urlComponents.fragment = nil;
     
     NSURLComponents *redirectUrlComponents = [[NSURLComponents alloc] initWithURL:redirectUrl resolvingAgainstBaseURL:NO];
     redirectUrlComponents.query = nil;
     redirectUrlComponents.path = nil;
+    redirectUrlComponents.fragment = nil;
 
-    if (![urlComponents.string isEqualToString:redirectUrlComponents.string])
+    if (![urlComponents.string.lowercaseString isEqualToString:redirectUrlComponents.string.lowercaseString])
     {
         return NO;
     }

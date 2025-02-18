@@ -49,6 +49,28 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
     }
     
+    func testInit_whenValidMsalUrlUpperCase_shouldCreateObject() throws
+    {
+        let url = URL(string: "MSAUTH.COM.MICROSOFT.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code")!
+        
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://AUTH",  context: nil)
+        
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response?.actionUri, "some_uri")
+        XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
+    }
+    
+    func testInit_whenValidMsalUrlWithFragment_shouldCreateObject() throws
+    {
+        let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code#ff")!
+        
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth#fragment",  context: nil)
+        
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response?.actionUri, "some_uri")
+        XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
+    }
+    
     func testInit_whenValidBrokerUrl_shouldCreateObject() throws
     {
         let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code")!

@@ -510,6 +510,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=msauth.com.microsoft.SomeApp%3A%2F%2Fauth&sso_nonce=SERVER_SSO_NONCE"]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
@@ -529,6 +530,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://compliance_status?status=7854"]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
@@ -545,6 +547,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://compliance_status?status=4"]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
