@@ -29,6 +29,7 @@ MSIDJsonSerializableType MSID_JSON_TYPE_B2C_AUTHORITY = @"authority_b2c";
 MSIDJsonSerializableType MSID_JSON_TYPE_CIAM_AUTHORITY = @"authority_ciam";
 
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_REMOVE_ACCOUNT = @"remove_account_operation";
+MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_REMOVE_ALL_ACCOUNTS = @"remove_all_accounts_operation";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_SIGNOUT_ACCOUNT = @"signout_account_operation";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_ACCOUNTS = @"get_accounts_operation";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_DEVICE_INFO = @"get_device_info";
