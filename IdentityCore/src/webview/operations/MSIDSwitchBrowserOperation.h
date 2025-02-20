@@ -23,37 +23,15 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
+#import "MSIDWebResponseBaseOperation.h"
+
+@class MSIDCertAuthManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCertAuthManager : NSObject
+@interface MSIDSwitchBrowserOperation : MSIDWebResponseBaseOperation
 
-+ (instancetype)sharedInstance;
-
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
-
-@property (nonatomic) BOOL useAuthSession;
-@property (nonatomic, readonly) BOOL isCertAuthInProgress;
-@property (nonatomic, readonly) NSString *redirectPrefix;
-@property (nonatomic, readonly) NSString *redirectScheme;;
-@property (nonatomic) NSArray<UIActivity *> *activities;
-
-- (void)startWithURL:(NSURL *)startURL
-    parentController:(MSIDViewController *)parentViewController
-             context:(id<MSIDRequestContext>)context
-     completionBlock:(MSIDWebUICompletionHandler)completionBlock;
-
-- (BOOL)completeWithCallbackURL:(NSURL *)url;
-
-- (void)setRedirectUriPrefix:(NSString *)prefix
-                   forScheme:(NSString *)scheme;
-
-- (void)resetState;
-
-#endif
+@property (nonatomic) MSIDCertAuthManager *certAuthManager;
 
 @end
 

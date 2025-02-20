@@ -23,38 +23,23 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
+#import "MSIDWebviewResponse.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
 
-@interface MSIDCertAuthManager : NSObject
+@property (nonatomic, readonly) NSString *actionUri;
+@property (nonatomic, readonly) NSString *switchBrowserSessionToken;
 
-+ (instancetype)sharedInstance;
+- (instancetype )init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing*)error NS_UNAVAILABLE;
 
-@property (nonatomic) BOOL useAuthSession;
-@property (nonatomic, readonly) BOOL isCertAuthInProgress;
-@property (nonatomic, readonly) NSString *redirectPrefix;
-@property (nonatomic, readonly) NSString *redirectScheme;;
-@property (nonatomic) NSArray<UIActivity *> *activities;
-
-- (void)startWithURL:(NSURL *)startURL
-    parentController:(MSIDViewController *)parentViewController
-             context:(id<MSIDRequestContext>)context
-     completionBlock:(MSIDWebUICompletionHandler)completionBlock;
-
-- (BOOL)completeWithCallbackURL:(NSURL *)url;
-
-- (void)setRedirectUriPrefix:(NSString *)prefix
-                   forScheme:(NSString *)scheme;
-
-- (void)resetState;
-
-#endif
+- (instancetype)initWithURL:(NSURL *)url
+                redirectUri:(NSString *)redirectUri
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing*)error;
 
 @end
-
-NS_ASSUME_NONNULL_END

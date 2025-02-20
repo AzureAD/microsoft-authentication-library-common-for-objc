@@ -172,6 +172,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
@@ -188,6 +189,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:responseUrl]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
@@ -209,6 +211,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:responseUrl]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
@@ -228,7 +231,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=true"];
-    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES endRedirectUri:nil context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -246,7 +249,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=false"];
-    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES endRedirectUri:nil context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -264,7 +267,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=TRUE"];
-    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES endRedirectUri:nil context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -282,7 +285,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com"];
-    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES endRedirectUri:nil context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -300,7 +303,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/upgradeReg?username=XXX@upn.com&client_info=eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
-    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES endRedirectUri:nil context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
     XCTAssertNil(error);
@@ -319,7 +322,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=true"];
-    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES endRedirectUri:nil context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -337,7 +340,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/upgradeReg?username=XXX@upn.com&client_info=eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
-    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES endRedirectUri:nil context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
     XCTAssertNil(error);
@@ -356,7 +359,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/uPgRaderEg?username=XXX@upn.com&client_info=eyJ1aWQiOiI5ZjQ4ODBkOC04MGJhLTRjNDAtOTdiYy1mN2EyM2M3MDMwODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
-    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES endRedirectUri:nil context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebUpgradeRegResponse.class]);
     XCTAssertNil(error);
@@ -375,7 +378,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"https://localhost//msauth/wpj?app_link=app.link&username=XXX@upn.com&token_protection_required=true"];
-    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES endRedirectUri:nil context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -394,6 +397,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&cloud_instance_host_name=somename"]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
@@ -410,6 +414,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"browser://somehost"]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
@@ -505,6 +510,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=msauth.com.microsoft.SomeApp%3A%2F%2Fauth&sso_nonce=SERVER_SSO_NONCE"]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
@@ -524,6 +530,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://compliance_status?status=7854"]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     
@@ -540,6 +547,7 @@
     __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://compliance_status?status=4"]
                                             requestState:nil
                                       ignoreInvalidState:NO
+                                          endRedirectUri:nil
                                                  context:nil
                                                    error:&error];
     

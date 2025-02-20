@@ -41,4 +41,6 @@
 
 + (NSDictionary *)msidWebResponseParametersFromURL:(NSURL *)url;
 
+- (BOOL)useV2WebResponseHandling;
+
 @end

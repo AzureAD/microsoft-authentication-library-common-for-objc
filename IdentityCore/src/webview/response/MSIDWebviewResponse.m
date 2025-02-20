@@ -27,6 +27,8 @@
 
 #import "MSIDWebviewResponse.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDWebviewResponse
 
@@ -80,6 +82,11 @@
 + (NSString *)operation
 {
     return @"";
+}
+
+- (BOOL)useV2WebResponseHandling
+{
+    return [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY];;
 }
 
 @end
