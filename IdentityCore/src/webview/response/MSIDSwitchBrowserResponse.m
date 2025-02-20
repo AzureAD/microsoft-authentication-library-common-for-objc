@@ -26,6 +26,7 @@
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
 
 @implementation MSIDSwitchBrowserResponse
 
@@ -63,6 +64,14 @@
     }
     
     return self;
+}
+
+- (BOOL)useV2WebResponseHandling
+{
+    BOOL useV2WebResponseHandling = [super useV2WebResponseHandling];
+        useV2WebResponseHandling |= [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    
+    return useV2WebResponseHandling;
 }
 
 #pragma mark - Private
