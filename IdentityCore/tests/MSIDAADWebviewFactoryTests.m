@@ -46,6 +46,8 @@
 #import "MSIDPkce.h"
 #import "MSIDWebAADAuthCodeResponse.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -98,6 +100,12 @@
                                           @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+#if TARGET_OS_IPHONE
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        expectedQPs[@"switch_browser"] = @"1";
+    }
+#endif
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
@@ -161,6 +169,13 @@
                                           @"code_challenge" : pkce.codeChallenge
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+#if TARGET_OS_IPHONE
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        expectedQPs[@"switch_browser"] = @"1";
+    }
+#endif
+    
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
 
