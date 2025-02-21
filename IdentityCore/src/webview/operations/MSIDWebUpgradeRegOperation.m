@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,28 +20,48 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDWebResponseBaseOperation.h"
 
-@implementation MSIDWebResponseBaseOperation
+#import "MSIDWebUpgradeRegOperation.h"
+#import "MSIDWebResponseOperationFactory.h"
+#import "MSIDWebUpgradeRegResponse.h"
 
-- (nullable instancetype)initWithResponse:(nonnull __unused MSIDWebviewResponse *)response
-                                    error:(__unused NSError * _Nullable __autoreleasing *)error
+@interface MSIDWebUpgradeRegOperation()
+
+@property (nonatomic) MSIDWebUpgradeRegResponse *response;
+
+@end
+
+@implementation MSIDWebUpgradeRegOperation
+
++ (void)load
 {
-    self = [super init];
-    return self;
+    [MSIDWebResponseOperationFactory registerOperationClass:self forResponseClass:MSIDWebUpgradeRegResponse.class];
 }
 
-- (BOOL)doActionWithCorrelationId:(__unused NSUUID *)correlationId
-                            error:(NSError * _Nullable __autoreleasing *_Nullable)error
+- (nullable instancetype)initWithResponse:(MSIDWebviewResponse *)response
+                                    error:(NSError *__autoreleasing *)error
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
-    if (error)
+    self = [super initWithResponse:response error:error];
+    if (self)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
+        if (![response isKindOfClass:MSIDWebUpgradeRegResponse.class])
+        {
+            NSString *errorMsg = [NSString stringWithFormat:@"%@ is required for creating %@", MSIDWebUpgradeRegResponse.class, self.class];
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMsg);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMsg, nil, nil, nil, nil, nil, NO);
+            }
+            
+            return nil;
+        }
+        
+        _response = (MSIDWebUpgradeRegResponse *)response;
     }
-    return YES;
+    
+    return self;
 }
 
 - (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
@@ -50,7 +71,6 @@
      webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
    authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock
 {
-    @throw MSIDException(MSIDGenericException, @"Abstract method was invoked.", nil);
+    if (authorizationCodeCompletionBlock) authorizationCodeCompletionBlock(nil, nil, self.response);
 }
-
 @end

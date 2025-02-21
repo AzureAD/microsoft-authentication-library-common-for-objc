@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -17,25 +16,30 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebOAuth2Response.h"
 
-@class MSIDAuthorizationCodeResult;
-@class MSIDInteractiveTokenRequestParameters;
+#import "MSIDWebviewResponse.h"
 
-@interface MSIDWebOAuth2AuthCodeResponse : MSIDWebOAuth2Response
+@interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
 
-@property (atomic, readonly) NSString *authorizationCode;
+@property (nonatomic, readonly) NSString *actionUri;
+@property (nonatomic, readonly) NSString *switchBrowserSessionToken;
 
-- (MSIDAuthorizationCodeResult *)createAuthorizationCodeResult;
-- (void)updateRequestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters;
+- (instancetype )init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing*)error NS_UNAVAILABLE;
+
+- (instancetype)initWithURL:(NSURL *)url
+                redirectUri:(NSString *)redirectUri
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing*)error;
 
 @end

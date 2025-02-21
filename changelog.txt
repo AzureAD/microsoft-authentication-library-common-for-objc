@@ -1,3 +1,6 @@
+TBD
+* Support DUNA protocol for CBA flow #1473
+
 Version 1.8.0
 * Make hashed ups in logs case insensitive (#1446)
 * Add new psso error (#1471)

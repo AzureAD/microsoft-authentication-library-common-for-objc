@@ -24,19 +24,12 @@
 
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebResponseOperationConstants.h"
-#import "MSIDWebResponseOperationFactory.h"
-#import "MSIDWebResponseBrokerInstallOperation.h"
 #import "MSIDWebWPJResponse+Internal.h"
 
 @implementation MSIDWebUpgradeRegResponse
 
 static NSString *const SCHEME_MSAUTH = @"msauth";
 static NSString *const UPGRADE_REG = @"upgradereg";
-
-+ (void)load
-{
-    [MSIDWebResponseOperationFactory registerOperationClass:MSIDWebResponseBrokerInstallOperation.class forResponseClass:self];
-}
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
