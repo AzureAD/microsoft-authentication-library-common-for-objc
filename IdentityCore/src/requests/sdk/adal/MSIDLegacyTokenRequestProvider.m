@@ -103,6 +103,11 @@
     return nil;
 }
 
+- (nullable MSIDSilentTokenRequest *)silentXpcTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters forceRefresh:(BOOL)forceRefresh { 
+    // TODO: not implemented yet.
+    return nil;
+}
+
 @end
 
 #endif
