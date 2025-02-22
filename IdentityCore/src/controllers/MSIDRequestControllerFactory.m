@@ -183,28 +183,28 @@
         }
     }
     
-    MSIDSilentController *localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                                                        forceRefresh:forceRefresh
                                                                                tokenRequestProvider:tokenRequestProvider
                                                                       fallbackInteractiveController:fallbackController
                                                                                               error:error];
-    if (!localController) return nil;
+    if (!silentController) return nil;
     
     switch (skipLocalRt) {
         case MSIDSilentControllerForceSkippingLocalRt:
-            localController.skipLocalRt = YES;
+            silentController.skipLocalRt = YES;
             break;
         case MSIDSilentControllerForceUsingLocalRt:
-            localController.skipLocalRt = NO;
+            silentController.skipLocalRt = NO;
             break;
         case MSIDSilentControllerUndefinedLocalRtUsage:
-            if (fallbackController) localController.skipLocalRt = YES;
+            if (fallbackController) silentController.skipLocalRt = YES;
             break;
         default:
             break;
     }
     
-    return localController;
+    return silentController;
     
 }
 

@@ -33,6 +33,15 @@
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDRequestParameters+Broker.h"
+#if TARGET_OS_OSX
+#import "MSIDXpcSilentTokenRequestController.h"
+#endif
+
+@interface MSIDBaseRequestController (Testing)
+
+@property (nonatomic, readwrite) id<MSIDRequestControlling> fallbackController;
+
+@end
 
 @interface MSIDRequestControllerFactoryTests : XCTestCase
 
@@ -187,6 +196,141 @@
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
     XCTAssertTrue([(MSIDSilentController *)controller skipLocalRt]);
+}
+
+#if TARGET_OS_OSX
+- (void)testWhenSsoExtensionIsEnabled_andXPCIsEnabled_controllersOrder_areCorrect
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDRequestParameters *parameters = [self requestParameters];
+    parameters.enableXpcFlow = YES;
+    parameters.allowUsingLocalCachedRtWhenSsoExtFailed = YES;
+    
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionSilentTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionSilentTokenRequestController
+                           class:[MSIDSSOExtensionSilentTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    SEL selectorForMSIDXpcSilentTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDXpcSilentTokenRequestController
+                           class:[MSIDXpcSilentTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory silentControllerForParameters:parameters
+                                                                                           forceRefresh:NO
+                                                                                            skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
+                                                                                   tokenRequestProvider:provider
+                                                                                                  error:&error];
+    // 1. Start with local signin controller to read cached tokens
+    if (![controller isMemberOfClass:MSIDSilentController.class])
+    {
+        XCTFail();
+    }
+    
+    XCTAssertTrue([(MSIDSilentController *)controller skipLocalRt]);
+    XCTAssertFalse([(MSIDSilentController *)controller forceRefresh]);
+
+    MSIDBaseRequestController *baseController = (MSIDBaseRequestController *)controller;
+    if (![baseController.fallbackController isMemberOfClass:MSIDSSOExtensionSilentTokenRequestController.class])
+    {
+        XCTFail();
+    }
+        
+    // 2. When local signin controller failed, use SsoExtension controller
+    baseController = (MSIDSSOExtensionSilentTokenRequestController *)baseController.fallbackController;
+    if (![baseController.fallbackController isMemberOfClass:MSIDXpcSilentTokenRequestController.class])
+    {
+        XCTFail();
+    }
+    
+    // 3. When SsoExtension controller failed, use Xpc Controller
+    baseController = (MSIDXpcSilentTokenRequestController *)baseController.fallbackController;
+    if (![baseController.fallbackController isMemberOfClass:MSIDSilentController.class])
+    {
+        XCTFail();
+    }
+    
+    // 4. When Xpc controller failed, use local signin controller to refresh
+    baseController = (MSIDSilentController *)baseController.fallbackController;
+    XCTAssertTrue([(MSIDSilentController *)baseController forceRefresh]);
+    XCTAssertTrue([(MSIDSilentController *)baseController isLocalFallbackMode]);
+}
+#endif
+
+- (void)testWhenSsoExtensionIsEnabled_andXPCIsDisabled_controllersOrder_areCorrect
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDRequestParameters *parameters = [self requestParameters];
+    parameters.allowUsingLocalCachedRtWhenSsoExtFailed = YES;
+
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionSilentTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionSilentTokenRequestController
+                           class:[MSIDSSOExtensionSilentTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory silentControllerForParameters:parameters
+                                                                                           forceRefresh:NO
+                                                                                            skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
+                                                                                   tokenRequestProvider:provider
+                                                                                                  error:&error];
+    // 1. Start with local signin controller to read cached tokens
+    if (![controller isMemberOfClass:MSIDSilentController.class])
+    {
+        XCTFail();
+    }
+    
+    XCTAssertTrue([(MSIDSilentController *)controller skipLocalRt]);
+    XCTAssertFalse([(MSIDSilentController *)controller forceRefresh]);
+    
+    // 2. When local signin controller failed, use SsoExtension controller
+    MSIDBaseRequestController *baseController = (MSIDBaseRequestController *)controller;
+    if (![baseController.fallbackController isMemberOfClass:MSIDSSOExtensionSilentTokenRequestController.class])
+    {
+        XCTFail();
+    }
+    
+    // 3. When SsoExtension controller failed, use local signin controller to refresh
+    baseController = (MSIDSSOExtensionSilentTokenRequestController *)baseController.fallbackController;
+    if (![baseController.fallbackController isMemberOfClass:MSIDSilentController.class])
+    {
+        XCTFail();
+    }
+    
+    baseController = (MSIDSilentController *)baseController.fallbackController;
+    XCTAssertTrue([(MSIDSilentController *)baseController forceRefresh]);
+    XCTAssertTrue([(MSIDSilentController *)baseController isLocalFallbackMode]);
 }
 
 - (void)testWhenUseLocalRt_isUnDefined_shouldNotSkip_whenFallBackController_isNotValid

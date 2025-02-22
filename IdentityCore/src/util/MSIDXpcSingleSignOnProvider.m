@@ -70,8 +70,7 @@
 
 @protocol MSIDXpcBrokerDispatcherProtocol <NSObject>
 
-- (void)getBrokerInstanceEndpointWithRequestInfo:(NSDictionary <NSString *, id> * _Nullable)requestInfo
-                                           reply:(void (^)(NSXPCListenerEndpoint  * _Nullable listenerEndpoint, NSDictionary * _Nullable params, NSError * _Nullable error))reply;
+- (void)getBrokerInstanceEndpointWithReply:(void (^)(NSXPCListenerEndpoint  * _Nullable listenerEndpoint, NSDictionary * _Nullable params, NSError * _Nullable error))reply;
 @end
 
 typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstanceProtocol> _Nullable xpcService, NSXPCConnection  * _Nullable directConnection, NSError *error);
@@ -114,16 +113,6 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
             [directConnection suspend];
             [directConnection invalidate];
             
-//            MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:[NSData msidDataFromBase64UrlEncodedString:brokerKey]];
-//            NSError *jsonResponseError = nil;
-//            NSDictionary *jsonResponse = [cryptoProvider decryptBrokerResponse:replyParam correlationId:context.correlationId error:&jsonResponseError];
-//            if (jsonResponseError)
-//            {
-//                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT received operationResponse but failed to decrypt it with error: %@", jsonResponseError);
-//                if (continueBlock) continueBlock(nil, callbackError);
-//                return;
-//            }
-            
             BOOL forceRunOnBackgroundQueue = [[replyParam objectForKey:MSID_BROKER_OPERATION_KEY] isEqualToString:@"refresh"];
             [self forceRunOnBackgroundQueue:forceRunOnBackgroundQueue dispatchBlock:^{
                 if (callbackError)
@@ -153,6 +142,7 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
 
 + (BOOL)canPerformRequest
 {
+    // This will be upgraded in item: xxx
     // Synchronously entering this class method
     @synchronized (self) {
         dispatch_group_t group = dispatch_group_create();
@@ -301,7 +291,7 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
         if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
     }];
     
-    [parentXpcService getBrokerInstanceEndpointWithRequestInfo:@{} reply:^(NSXPCListenerEndpoint * _Nullable listenerEndpoint, NSDictionary<NSString *, id> * _Nullable __unused params, NSError * _Nullable error) {
+    [parentXpcService getBrokerInstanceEndpointWithReply:^(NSXPCListenerEndpoint * _Nullable listenerEndpoint, NSDictionary<NSString *, id> * _Nullable __unused params, NSError * _Nullable error) {
         [connection suspend];
         [connection invalidate];
         if (error)
