@@ -55,7 +55,13 @@ jobs:
     displayName: 'Select Xcode version'
     inputs:
       targetType: 'inline'
-      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"'
+      script: |
+        if [ "$(target)" == "ios_library" ]; then
+          echo "Switching to ios 16 for iOS target"
+          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.0.app"
+        else
+          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"
+        fi
   - task: Bash@3
     displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
     inputs:
