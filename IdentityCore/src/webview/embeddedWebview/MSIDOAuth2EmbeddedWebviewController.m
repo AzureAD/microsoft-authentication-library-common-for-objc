@@ -484,13 +484,19 @@
     }
 }
 
+#if AD_BROKER
 - (void) webView:(WKWebView *)webView
 requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin
 initiatedByFrame:(WKFrameInfo *)frame
             type:(WKMediaCaptureType)type
  decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler API_AVAILABLE(ios(15.0), macos(12.0))
 {
-    if (MSID_SUPPRESS_CAMERA_CONSENT_PROMPT_IN_WEBVIEW && type == WKMediaCaptureTypeCamera)
+    
+    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.com.microsoft.azureauthenticator.sso"];
+    NSString *suppressConsentKey = @"Microsoft.Broker.Feature.sdm_suppress_camera_consent";
+    NSNumber *flagValue = [userDefaults objectForKey:suppressConsentKey];
+    
+    if ([flagValue boolValue] && type == WKMediaCaptureTypeCamera)
     {
         decisionHandler(WKPermissionDecisionGrant);
     }
@@ -499,6 +505,7 @@ initiatedByFrame:(WKFrameInfo *)frame
         decisionHandler(WKPermissionDecisionPrompt);
     }
 }
+#endif
 
 #pragma mark - Loading Indicator
 
