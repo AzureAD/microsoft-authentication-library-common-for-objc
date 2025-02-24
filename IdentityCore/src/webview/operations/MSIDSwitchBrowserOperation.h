@@ -23,9 +23,16 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
 #import "MSIDWebResponseBaseOperation.h"
 
-@interface MSIDWebResponseBrokerInstallOperation : MSIDWebResponseBaseOperation
+@class MSIDCertAuthManager;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDSwitchBrowserOperation : MSIDWebResponseBaseOperation
+
+@property (nonatomic) MSIDCertAuthManager *certAuthManager;
 
 @end
+
+NS_ASSUME_NONNULL_END

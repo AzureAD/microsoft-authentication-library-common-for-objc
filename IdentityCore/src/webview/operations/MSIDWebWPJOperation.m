@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,28 +20,48 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDWebResponseBaseOperation.h"
 
-@implementation MSIDWebResponseBaseOperation
+#import "MSIDWebWPJOperation.h"
+#import "MSIDWebWPJResponse.h"
+#import "MSIDWebResponseOperationFactory.h"
 
-- (nullable instancetype)initWithResponse:(nonnull __unused MSIDWebviewResponse *)response
-                                    error:(__unused NSError * _Nullable __autoreleasing *)error
+@interface MSIDWebWPJOperation()
+
+@property (nonatomic) MSIDWebWPJResponse *response;
+
+@end
+
+@implementation MSIDWebWPJOperation
+
++ (void)load
 {
-    self = [super init];
-    return self;
+    [MSIDWebResponseOperationFactory registerOperationClass:self forResponseClass:MSIDWebWPJResponse.class];
 }
 
-- (BOOL)doActionWithCorrelationId:(__unused NSUUID *)correlationId
-                            error:(NSError * _Nullable __autoreleasing *_Nullable)error
+- (nullable instancetype)initWithResponse:(MSIDWebviewResponse *)response
+                                    error:(NSError *__autoreleasing *)error
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
-    if (error)
+    self = [super initWithResponse:response error:error];
+    if (self)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
+        if (![response isKindOfClass:MSIDWebWPJResponse.class])
+        {
+            NSString *errorMsg = [NSString stringWithFormat:@"%@ is required for creating %@", MSIDWebWPJResponse.class, self.class];
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMsg);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMsg, nil, nil, nil, nil, nil, NO);
+            }
+            
+            return nil;
+        }
+        
+        _response = (MSIDWebWPJResponse *)response;
     }
-    return YES;
+    
+    return self;
 }
 
 - (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
@@ -50,7 +71,7 @@
      webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
    authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock
 {
-    @throw MSIDException(MSIDGenericException, @"Abstract method was invoked.", nil);
+    if (authorizationCodeCompletionBlock) authorizationCodeCompletionBlock(nil, nil, self.response);
 }
 
 @end

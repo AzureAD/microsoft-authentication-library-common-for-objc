@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDWebOAuth2Response : MSIDWebviewResponse
 
+@property (atomic, readonly) NSError *oauthError;
+
 - (nullable instancetype)initWithURL:(NSURL *)url
                         requestState:(nullable NSString *)requestState
                   ignoreInvalidState:(BOOL)ignoreInvalidState

@@ -35,6 +35,8 @@
 #import "MSIDPkce.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 @interface MSIDAADV2WebviewFactoryTests : XCTestCase
 
@@ -78,6 +80,12 @@
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+#if TARGET_OS_IPHONE
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        expectedQPs[@"switch_browser"] = @"1";
+    }
+#endif
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }

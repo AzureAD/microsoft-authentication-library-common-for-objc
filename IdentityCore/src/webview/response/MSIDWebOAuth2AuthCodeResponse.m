@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebOAuth2AuthCodeResponse.h"
-#import "NSURL+MSIDExtensions.h"
+#import "MSIDAuthorizationCodeResult.h"
 
 @implementation MSIDWebOAuth2AuthCodeResponse
 
@@ -38,10 +38,11 @@
     
     if (self)
     {
-        NSString *authCode = self.parameters[MSID_OAUTH2_CODE];
-        NSError *oauthError = [self.class oauthErrorFromParameters:self.parameters];
+        if (self.oauthError) return self;
         
-        if ([NSString msidIsStringNilOrBlank:authCode] && !oauthError)
+        NSString *authCode = self.parameters[MSID_OAUTH2_CODE];
+        
+        if ([NSString msidIsStringNilOrBlank:authCode])
         {
             if (error)
             {
@@ -55,33 +56,21 @@
         
         // populate auth code
         _authorizationCode = [NSString msidIsStringNilOrBlank:authCode] ? nil : authCode;
-        
-        // populate oauth error
-        _oauthError = oauthError;
     }
     
     return self;
 }
 
-+ (NSError *)oauthErrorFromParameters:(NSDictionary *)parameters
+- (MSIDAuthorizationCodeResult *)createAuthorizationCodeResult
 {
-    NSUUID *correlationId = [parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
-    [[NSUUID alloc] initWithUUIDString:[parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
-    
-    NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];
+    MSIDAuthorizationCodeResult *result = [MSIDAuthorizationCodeResult new];
+    result.authCode = self.authorizationCode;
 
-    if (serverOAuth2Error)
-    {
-        NSString *errorDescription = parameters[MSID_OAUTH2_ERROR_DESCRIPTION];
-        NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
-        MSIDErrorCode errorCode = MSIDErrorCodeForOAuthErrorWithSubErrorCode(serverOAuth2Error, MSIDErrorAuthorizationFailed, subError);
-        
-        MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Failed authorization code response with error %@, sub error %@, description %@", serverOAuth2Error, subError, MSID_PII_LOG_MASKABLE(errorDescription));
-        
-        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil, NO);
-    }
-    
-    return nil;
+    return result;
+}
+
+- (void)updateRequestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters
+{
 }
 
 @end
