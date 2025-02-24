@@ -24,18 +24,26 @@
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
 #import "MSIDTokenRequestProviding.h"
+#import "MSIDWebviewAuthorization.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDInteractiveAuthorizationCodeRequest.h"
 
 @class MSIDWebviewResponse;
-@class MSIDInteractiveRequestParameters;
+@class MSIDOauth2Factory;
+@class MSIDInteractiveTokenRequestParameters;
 
 @interface MSIDWebResponseBaseOperation : NSObject
 
 - (nullable instancetype)initWithResponse:(nonnull MSIDWebviewResponse *)response
                                     error:(NSError * _Nullable __autoreleasing *_Nullable)error;
 
-- (void)invokeWithInteractiveTokenRequestParameters:(nonnull MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
-                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                         completion:(nonnull MSIDRequestCompletionBlock)completion;
 - (BOOL)doActionWithCorrelationId:(nullable NSUUID *)correlationId
                             error:(NSError * _Nullable __autoreleasing *_Nullable)error;
+
+- (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
+            webRequestConfiguration:(nonnull MSIDAuthorizeWebRequestConfiguration *)webRequestConfiguration
+                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+  decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
+     webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
+   authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock;
 @end

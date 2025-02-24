@@ -53,6 +53,9 @@
 @property (nonatomic) UIModalPresentationStyle presentationType;
 @property (nonatomic) NSArray<UIActivity *> *appActivities;
 #endif
+
++ (instancetype)sharedController;
+
 @end
 
 #endif

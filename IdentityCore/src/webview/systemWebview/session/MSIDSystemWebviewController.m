@@ -97,6 +97,18 @@
     return self;
 }
 
++ (instancetype)sharedController
+{
+    static dispatch_once_t once;
+    static MSIDSystemWebviewController *s_controller;
+    
+    dispatch_once(&once, ^{
+        s_controller = [MSIDSystemWebviewController new];
+    });
+    
+    return s_controller;
+}
+
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     if (!completionHandler)

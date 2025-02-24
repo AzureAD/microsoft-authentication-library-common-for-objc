@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -17,25 +16,35 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebOAuth2Response.h"
 
-@class MSIDAuthorizationCodeResult;
-@class MSIDInteractiveTokenRequestParameters;
+#import "MSIDFlightManager.h"
 
-@interface MSIDWebOAuth2AuthCodeResponse : MSIDWebOAuth2Response
+@implementation MSIDFlightManager
 
-@property (atomic, readonly) NSString *authorizationCode;
++ (instancetype)sharedInstance
+{
+    static MSIDFlightManager *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self.class alloc] init];
+    });
+    
+    return sharedInstance;
+}
 
-- (MSIDAuthorizationCodeResult *)createAuthorizationCodeResult;
-- (void)updateRequestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters;
+#pragma mark - MSIDFlightManagerInterface
+
+- (BOOL)boolForKey:(nonnull NSString *)flightKey 
+{
+    if (self.flightProvider) { return [self.flightProvider boolForKey:flightKey]; }
+    
+    return NO;
+}
 
 @end
