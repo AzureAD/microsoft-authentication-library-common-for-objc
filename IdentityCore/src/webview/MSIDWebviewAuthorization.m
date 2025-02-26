@@ -99,6 +99,7 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                                                              context:context
                                                                                                error:&responseError];
         
+        
         [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
         completionHandler(response, responseError);
     };

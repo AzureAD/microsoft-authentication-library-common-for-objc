@@ -104,5 +104,3 @@ extern NSString * _Nonnull const MSID_CREATE_NEW_URL_SESSION;
 extern NSString * _Nonnull const MSID_HTTP_CONNECTION_VALUE;
 extern NSString * _Nonnull const MSID_FORCE_REFRESH_KEY;
 
-extern BOOL MSID_SUPPRESS_CAMERA_CONSENT_PROMPT_IN_WEBVIEW;
-
