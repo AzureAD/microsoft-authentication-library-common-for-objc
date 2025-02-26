@@ -164,14 +164,14 @@
     
         MSIDSilentController *xpcController = nil;
 #if TARGET_OS_OSX
-        if (parameters.xpcMode != MSIDXpcModeDisable && [MSIDXpcSilentTokenRequestController canPerformRequest])
+        if (parameters.msidXpcMode != MSIDXpcModeDisable && [MSIDXpcSilentTokenRequestController canPerformRequest])
         {
             xpcController = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                            forceRefresh:forceRefresh
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                           fallbackInteractiveController:fallbackController
                                                                                                   error:error];
-            if (parameters.xpcMode == MSIDXpcModeFull)
+            if (parameters.msidXpcMode == MSIDXpcModeFull || parameters.msidXpcMode == MSIDXpcModeOverride)
             {
                 // If in Xpc full mode, the XPCController will work as a isolated controller when SsoExtension cannotPerformRequest
                 fallbackController = xpcController;
@@ -180,7 +180,9 @@
         }
 #endif
         
-        if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+        BOOL shouldSkipSsoExtension = parameters.msidXpcMode == MSIDXpcModeOverride;
+        
+        if (!shouldSkipSsoExtension && [MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
         {
             fallbackController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                                     forceRefresh:forceRefresh

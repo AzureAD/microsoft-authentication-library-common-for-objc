@@ -206,7 +206,7 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDRequestParameters *parameters = [self requestParameters];
-    parameters.xpcMode = MSIDXpcModeBackup;
+    parameters.msidXpcMode = MSIDXpcModeBackup;
     parameters.allowUsingLocalCachedRtWhenSsoExtFailed = YES;
     
     NSError *error;
@@ -267,7 +267,7 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDRequestParameters *parameters = [self requestParameters];
-    parameters.xpcMode = MSIDXpcModeBackup;
+    parameters.msidXpcMode = MSIDXpcModeBackup;
     parameters.allowUsingLocalCachedRtWhenSsoExtFailed = YES;
     
     NSError *error;
@@ -341,7 +341,7 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDRequestParameters *parameters = [self requestParameters];
-    parameters.xpcMode = MSIDXpcModeFull;
+    parameters.msidXpcMode = MSIDXpcModeFull;
     parameters.allowUsingLocalCachedRtWhenSsoExtFailed = YES;
     
     NSError *error;

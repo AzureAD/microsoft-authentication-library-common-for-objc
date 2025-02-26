@@ -277,10 +277,10 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
     if (@available(macOS 13.0, *)) {
         [connection setCodeSigningRequirement:codeSigningRequirement];
     } else {
-        // Fallback on earlier versions
+        // Intentionally left empty because the entire XPC flow will only be available on macOS 13 and above and gaurded through canPerformRequest
     }
-    [connection resume];
     
+    [connection resume];
     [connection setInterruptionHandler:^{
         NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is interrupted", nil, nil, nil, nil, nil, YES);
         if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
