@@ -505,12 +505,11 @@ initiatedByFrame:(WKFrameInfo *)frame
         if ([cameraConsentValue boolValue] && type == WKMediaCaptureTypeCamera)
         {
             decisionHandler(WKPermissionDecisionGrant);
+            return;
         }
     }
-    else
-    {
-        decisionHandler(WKPermissionDecisionPrompt);
-    }
+    
+    decisionHandler(WKPermissionDecisionPrompt);
 }
 #endif
 
