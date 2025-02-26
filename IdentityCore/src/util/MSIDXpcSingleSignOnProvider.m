@@ -207,7 +207,7 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
     
     if (!selfCode)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Failed to copy signing information", nil, nil);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, [NSString stringWithFormat:@"Failed to copy signing information, status; %ld", (long)status], nil, nil);
         return nil;
     }
     
@@ -216,7 +216,7 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
     
     if (!cfDic)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Failed to copy signing dictionary", nil, nil);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, [NSString stringWithFormat:@"Failed to copy signing dictionary, status: %ld", (long)status], nil, nil);
         CFRelease(selfCode);
         return nil;
     }
