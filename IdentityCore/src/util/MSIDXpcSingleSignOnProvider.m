@@ -142,7 +142,7 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
 
 + (BOOL)canPerformRequest
 {
-    // This will be upgraded in item: xxx
+    // TODO: The full implementation will be done in 3166516
     // Synchronously entering this class method
     @synchronized (self) {
         dispatch_group_t group = dispatch_group_create();

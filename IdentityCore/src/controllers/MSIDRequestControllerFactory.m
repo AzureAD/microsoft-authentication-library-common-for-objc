@@ -162,14 +162,21 @@
             fallbackController.isLocalFallbackMode = YES;
         }
     
+        MSIDSilentController *xpcController = nil;
 #if TARGET_OS_OSX
-        if (parameters.enableXpcFlow && [MSIDXpcSilentTokenRequestController canPerformRequest])
+        if (parameters.xpcMode != MSIDXpcModeDisable && [MSIDXpcSilentTokenRequestController canPerformRequest])
         {
-            fallbackController = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
+            xpcController = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                            forceRefresh:forceRefresh
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                           fallbackInteractiveController:fallbackController
                                                                                                   error:error];
+            if (parameters.xpcMode == MSIDXpcModeFull)
+            {
+                // If in Xpc full mode, the XPCController will work as a isolated controller when SsoExtension cannotPerformRequest
+                fallbackController = xpcController;
+                xpcController = nil;
+            }
         }
 #endif
         
@@ -178,7 +185,7 @@
             fallbackController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                                     forceRefresh:forceRefresh
                                                                                             tokenRequestProvider:tokenRequestProvider
-                                                                                   fallbackInteractiveController:fallbackController
+                                                                                   fallbackInteractiveController:xpcController?:fallbackController
                                                                                                            error:error];
         }
     }

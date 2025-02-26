@@ -73,7 +73,6 @@
 @property (nonatomic) NSUInteger tokenExpirationBuffer;
 @property (nonatomic) BOOL extendedLifetimeEnabled;
 @property (nonatomic) BOOL instanceAware;
-@property (nonatomic) BOOL enableXpcFlow;
 @property (nonatomic) BOOL allowUsingLocalCachedRtWhenSsoExtFailed;
 @property (nonatomic) BOOL clientBrokerKeyCapabilityNotSupported;
 @property (nonatomic) NSString *intuneApplicationIdentifier;
@@ -108,6 +107,9 @@
 
 #pragma mark - SSO context
 @property (nonatomic) MSIDExternalSSOContext *ssoContext;
+
+#pragma mark - Xpc Mode
+@property (nonatomic) MSIDXpcMode xpcMode;
 
 - (NSURL *)tokenEndpoint;
 
