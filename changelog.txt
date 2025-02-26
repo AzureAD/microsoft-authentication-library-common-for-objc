@@ -1,4 +1,4 @@
-Version TBD
+Version 1.9.0
 * Remove MSAL perf telemetry as it's causing issue after SSO extension broker first strategy change (#1481)
 * Support DUNA protocol for CBA flow #1473
 
