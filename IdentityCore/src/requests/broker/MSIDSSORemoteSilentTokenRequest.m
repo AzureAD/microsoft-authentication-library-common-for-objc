@@ -91,14 +91,7 @@
             {
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
                 self.ssoTokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
-#endif
-                
-#if !EXCLUDE_FROM_MSALCPP
-                [operationResponse trackPerfTelemetryWithLastRequest:self.lastRequestTelemetry
-                                                    requestStartDate:self.requestSentDate
-                                                       telemetryType:MSID_PERF_TELEMETRY_SILENT_TYPE];
-#endif
-                
+#endif      
                 [self.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                                           requestParameters:self.requestParameters
                                                      tokenResponseValidator:self.tokenResponseValidator
