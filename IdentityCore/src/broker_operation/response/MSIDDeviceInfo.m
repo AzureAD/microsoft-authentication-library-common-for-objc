@@ -220,7 +220,8 @@ static NSArray *deviceModeEnumString;
 
 - (NSString *)ssoProviderTypeStringFromEnum:(MSIDSsoProviderType)deviceMode
 {
-    switch (deviceMode) {
+    switch (deviceMode)
+    {
         case MSIDCompanyPortalSsoProvider:
             return @"companyPortal";
         case MSIDMacBrokerSsoProvider:
