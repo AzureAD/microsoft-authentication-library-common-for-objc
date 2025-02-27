@@ -63,7 +63,7 @@
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
     XCTAssertEqual(23, json.allKeys.count);
-    XCTAssertEqualObjects(json[@"broker_type"], @"macBroker");
+    XCTAssertEqualObjects(json[@"sso_provider_type"], @"macBroker");
 #else
     XCTAssertEqual(21, json.allKeys.count);
 #endif

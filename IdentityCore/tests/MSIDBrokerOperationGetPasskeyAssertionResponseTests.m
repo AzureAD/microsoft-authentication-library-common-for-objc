@@ -179,7 +179,7 @@
                                 @"preferred_auth_config": @"preferredAuthNotConfigured",
 #if TARGET_OS_OSX
                                 @"platform_sso_status": @"platformSSONotEnabled",
-                                @"broker_type": @"unknown"
+                                @"sso_provider_type": @"unknown"
 #endif
     };
     

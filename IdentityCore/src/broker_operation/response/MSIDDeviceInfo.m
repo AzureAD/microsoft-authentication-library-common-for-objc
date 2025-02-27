@@ -67,7 +67,7 @@ static NSArray *deviceModeEnumString;
         
 #if TARGET_OS_OSX
         _platformSSOStatus = [self platformSSOStatusEnumFromString:[json msidStringObjectForKey:MSID_PLATFORM_SSO_STATUS_KEY]];
-        _ssoProviderType = [self ssoProviderTypeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_BROKER_TYPE_KEY]];
+        _ssoProviderType = [self ssoProviderTypeEnumFromString:[json msidStringObjectForKey:MSID_SSO_PROVIDER_TYPE_KEY]];
 #endif
         
         NSString *jsonDataString = [json msidStringObjectForKey:MSID_ADDITIONAL_EXTENSION_DATA_KEY];
@@ -99,7 +99,7 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY] = [self preferredAuthConfigurationStringFromEnum:self.preferredAuthConfig];
 #if TARGET_OS_OSX
     json[MSID_PLATFORM_SSO_STATUS_KEY] = [self platformSSOStatusStringFromEnum:self.platformSSOStatus];
-    json[MSID_BROKER_BROKER_TYPE_KEY] = [self ssoProviderTypeStringFromEnum:self.ssoProviderType];
+    json[MSID_SSO_PROVIDER_TYPE_KEY] = [self ssoProviderTypeStringFromEnum:self.ssoProviderType];
 #endif
     json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] = [self.additionalExtensionData msidJSONSerializeWithContext:nil];
     if (self.extraDeviceInfo)

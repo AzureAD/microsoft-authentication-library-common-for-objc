@@ -71,7 +71,7 @@
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
     XCTAssertEqual(11, json.allKeys.count);
-    XCTAssertEqualObjects(json[MSID_BROKER_BROKER_TYPE_KEY], @"companyPortal");
+    XCTAssertEqualObjects(json[MSID_SSO_PROVIDER_TYPE_KEY], @"companyPortal");
 #else
     XCTAssertEqual(9, json.allKeys.count);
 #endif
@@ -95,7 +95,7 @@
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
     XCTAssertEqual(9, json.allKeys.count);
-    XCTAssertEqualObjects(json[MSID_BROKER_BROKER_TYPE_KEY], @"unknown");
+    XCTAssertEqualObjects(json[MSID_SSO_PROVIDER_TYPE_KEY], @"unknown");
 #else
     XCTAssertEqual(7, json.allKeys.count);
 #endif

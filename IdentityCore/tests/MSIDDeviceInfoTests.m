@@ -250,7 +250,7 @@
         MSID_PLATFORM_SSO_STATUS_KEY : @"platformSSONotEnabled",
         MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
         MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
-        MSID_BROKER_BROKER_TYPE_KEY : @"unknown"
+        MSID_SSO_PROVIDER_TYPE_KEY : @"unknown"
     };
 #else
     NSDictionary *expectedJson = @{
@@ -286,7 +286,7 @@
         MSID_PLATFORM_SSO_STATUS_KEY : @"platformSSONotEnabled",
         MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
         MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
-        MSID_BROKER_BROKER_TYPE_KEY : @"unknown"
+        MSID_SSO_PROVIDER_TYPE_KEY : @"unknown"
     };
 #else
     NSDictionary *expectedJson = @{
@@ -348,7 +348,7 @@
             @"platformSSOEnabledAndRegistered",
         MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
         MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
-        MSID_BROKER_BROKER_TYPE_KEY : @"macBroker",
+        MSID_SSO_PROVIDER_TYPE_KEY : @"macBroker",
     };
     
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
@@ -375,7 +375,7 @@
             @"platformSSOEnabledAndRegistered",
         MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
         MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
-        MSID_BROKER_BROKER_TYPE_KEY : @"companyPortal",
+        MSID_SSO_PROVIDER_TYPE_KEY : @"companyPortal",
     };
     
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
