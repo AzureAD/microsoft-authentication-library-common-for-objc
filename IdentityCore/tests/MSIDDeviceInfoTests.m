@@ -249,7 +249,8 @@
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_PLATFORM_SSO_STATUS_KEY : @"platformSSONotEnabled",
         MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
-        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured"
+        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
+        MSID_BROKER_BROKER_TYPE_KEY : @"unknown"
     };
 #else
     NSDictionary *expectedJson = @{
@@ -284,7 +285,8 @@
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         MSID_PLATFORM_SSO_STATUS_KEY : @"platformSSONotEnabled",
         MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
-        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured"
+        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
+        MSID_BROKER_BROKER_TYPE_KEY : @"unknown"
     };
 #else
     NSDictionary *expectedJson = @{
@@ -332,6 +334,7 @@
     deviceInfo.wpjStatus = MSIDWorkPlaceJoinStatusJoined;
     deviceInfo.brokerVersion = @"1.2.3";
     deviceInfo.platformSSOStatus = MSIDPlatformSSOEnabledAndRegistered;
+    deviceInfo.ssoProviderType = MSIDMacBrokerSsoProvider;
     
     NSDictionary *additionalData = @{@"feature_flag1":@1,@"token":@"",@"dict":@{@"key":@"value"}};
     deviceInfo.additionalExtensionData = additionalData;
@@ -344,7 +347,35 @@
         MSID_PLATFORM_SSO_STATUS_KEY :
             @"platformSSOEnabledAndRegistered",
         MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
-        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}"
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
+        MSID_BROKER_BROKER_TYPE_KEY : @"macBroker",
+    };
+    
+    XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);
+}
+
+- (void)testJsonDictionaryWithCompanyPortalAsSsoProvider_whenDeserialize_shouldGenerateCorrectJson
+{
+    MSIDDeviceInfo *deviceInfo = [MSIDDeviceInfo new];
+    deviceInfo.deviceMode = MSIDDeviceModePersonal;
+    deviceInfo.wpjStatus = MSIDWorkPlaceJoinStatusJoined;
+    deviceInfo.brokerVersion = @"1.2.3";
+    deviceInfo.platformSSOStatus = MSIDPlatformSSOEnabledAndRegistered;
+    deviceInfo.ssoProviderType = MSIDCompanyPortalSsoProvider;
+    
+    NSDictionary *additionalData = @{@"feature_flag1":@1,@"token":@"",@"dict":@{@"key":@"value"}};
+    deviceInfo.additionalExtensionData = additionalData;
+    
+    NSDictionary *expectedJson = @{
+        MSID_BROKER_DEVICE_MODE_KEY : @"personal",
+        MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"full",
+        MSID_BROKER_WPJ_STATUS_KEY : @"joined",
+        MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
+        MSID_PLATFORM_SSO_STATUS_KEY :
+            @"platformSSOEnabledAndRegistered",
+        MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY : @"preferredAuthNotConfigured",
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"dict\":{\"key\":\"value\"},\"feature_flag1\":1,\"token\":\"\"}",
+        MSID_BROKER_BROKER_TYPE_KEY : @"companyPortal",
     };
     
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);

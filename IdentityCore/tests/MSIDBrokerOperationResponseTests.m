@@ -66,11 +66,12 @@
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
-    response.deviceInfo = [[MSIDDeviceInfo alloc] initWithDeviceMode:MSIDDeviceModeShared ssoExtensionMode:MSIDSSOExtensionModeSilentOnly isWorkPlaceJoined:YES brokerVersion:@"1.2.3"];
+    response.deviceInfo = [[MSIDDeviceInfo alloc] initWithDeviceMode:MSIDDeviceModeShared ssoExtensionMode:MSIDSSOExtensionModeSilentOnly isWorkPlaceJoined:YES brokerVersion:@"1.2.3" ssoProviderType:MSIDCompanyPortalSsoProvider];
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(10, json.allKeys.count);
+    XCTAssertEqual(11, json.allKeys.count);
+    XCTAssertEqualObjects(json[MSID_BROKER_BROKER_TYPE_KEY], @"companyPortal");
 #else
     XCTAssertEqual(9, json.allKeys.count);
 #endif
@@ -93,7 +94,8 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(8, json.allKeys.count);
+    XCTAssertEqual(9, json.allKeys.count);
+    XCTAssertEqualObjects(json[MSID_BROKER_BROKER_TYPE_KEY], @"unknown");
 #else
     XCTAssertEqual(7, json.allKeys.count);
 #endif

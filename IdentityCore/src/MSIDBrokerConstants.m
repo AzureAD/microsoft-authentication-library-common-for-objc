@@ -66,6 +66,7 @@ NSString *const MSID_BROKER_DEVICE_MODE_KEY        = @"device_mode";
 NSString *const MSID_BROKER_SSO_EXTENSION_MODE_KEY = @"sso_extension_mode";
 NSString *const MSID_BROKER_WPJ_STATUS_KEY         = @"wpj_status";
 NSString *const MSID_BROKER_BROKER_VERSION_KEY     = @"broker_version";
+NSString *const MSID_BROKER_BROKER_TYPE_KEY        = @"broker_type";
 NSString *const MSID_BROKER_IS_PERFORMING_CBA      = @"broker_is_performing_cba";
 NSString *const MSID_ADAL_BROKER_MESSAGE_VERSION   = @"2";
 NSString *const MSID_MSAL_BROKER_MESSAGE_VERSION   = @"3";

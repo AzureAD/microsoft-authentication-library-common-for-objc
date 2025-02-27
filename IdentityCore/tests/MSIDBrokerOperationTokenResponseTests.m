@@ -51,6 +51,7 @@
     tokenResponse.idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                       subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
     __auto_type response = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
+    response.deviceInfo.ssoProviderType = MSIDMacBrokerSsoProvider;;
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
@@ -61,7 +62,8 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(22, json.allKeys.count);
+    XCTAssertEqual(23, json.allKeys.count);
+    XCTAssertEqualObjects(json[@"broker_type"], @"macBroker");
 #else
     XCTAssertEqual(21, json.allKeys.count);
 #endif
@@ -108,7 +110,7 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(21, json.allKeys.count);
+    XCTAssertEqual(22, json.allKeys.count);
 #else
     XCTAssertEqual(20, json.allKeys.count);
 #endif
@@ -181,7 +183,7 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(21, json.allKeys.count);
+    XCTAssertEqual(22, json.allKeys.count);
 #else
     XCTAssertEqual(20, json.allKeys.count);
 #endif
@@ -222,7 +224,7 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(20, json.allKeys.count);
+    XCTAssertEqual(21, json.allKeys.count);
 #else
     XCTAssertEqual(19, json.allKeys.count);
 #endif
