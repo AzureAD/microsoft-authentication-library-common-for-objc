@@ -104,6 +104,3 @@ NSString *const MSID_CREATE_NEW_URL_SESSION = @"create_new_url_session";
 // Http header
 NSString *const MSID_HTTP_CONNECTION = @"Connection";
 NSString *const MSID_HTTP_CONNECTION_VALUE = @"close";
-
-// Non-constant
-BOOL MSID_SUPPRESS_CAMERA_CONSENT_PROMPT_IN_WEBVIEW = NO;

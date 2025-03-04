@@ -124,29 +124,4 @@ NSString *const MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP = @"request_received_time
     return json;
 }
 
-#if !EXCLUDE_FROM_MSALCPP
-
-- (void)trackPerfTelemetryWithLastRequest:(MSIDLastRequestTelemetry *)telemetry
-                         requestStartDate:(NSDate *)requestStartDate
-                            telemetryType:(NSString *)telemetryType
-{
-    if (!requestStartDate)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"trackPerfTelemetryWithLastRequest called with nil request start date");
-        return;
-    }
-    
-    NSDate *responseDate = [NSDate date];
-    NSTimeInterval totalTime = [responseDate timeIntervalSinceDate:requestStartDate];
-    NSTimeInterval ipcRequestTime = self.requestReceivedTimeStamp ? [self.requestReceivedTimeStamp timeIntervalSinceDate:requestStartDate] : 0;
-    NSTimeInterval ipcResponseTime = self.responseGenerationTimeStamp ? [responseDate timeIntervalSinceDate:self.responseGenerationTimeStamp] : 0;
-    
-    [telemetry trackSSOExtensionPerformanceWithType:telemetryType
-                                    totalPerfNumber:totalTime
-                               ipcRequestPerfNumber:ipcRequestTime
-                              ipcResponsePerfNumber:ipcResponseTime];
-}
-
-#endif
-
 @end

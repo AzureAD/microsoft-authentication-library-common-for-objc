@@ -27,6 +27,8 @@
 
 #import "MSIDWebviewResponse.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDWebviewResponse
 
@@ -36,7 +38,8 @@
 {
     if (!url)
     {
-        if (error){
+        if (error)
+        {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
                                      @"Trying to create a response with nil URL",
@@ -79,6 +82,11 @@
 + (NSString *)operation
 {
     return @"";
+}
+
+- (BOOL)useV2WebResponseHandling
+{
+    return [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY];;
 }
 
 @end

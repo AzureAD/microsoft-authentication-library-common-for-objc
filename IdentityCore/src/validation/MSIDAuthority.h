@@ -110,4 +110,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
                        context:(nullable id<MSIDRequestContext>)context
                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+// this API will return true if authority is of common/consumers/(organizations and non MSA account) ,
+// API can be used to determine if we want to update the request authority to the home authority of the account.
+- (BOOL)needsUpdateToHomeAuthority:(BOOL)isAccountFromMSATenant;
+
 @end

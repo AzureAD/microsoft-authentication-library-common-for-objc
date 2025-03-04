@@ -202,6 +202,11 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     return YES;
 }
 
+- (BOOL)needsUpdateToHomeAuthority:(BOOL)isAccountFromMSATenant
+{
+    return NO;
+}
+
 - (nonnull NSString *)telemetryAuthorityType
 {
     NSAssert(NO, @"Abstract method.");
