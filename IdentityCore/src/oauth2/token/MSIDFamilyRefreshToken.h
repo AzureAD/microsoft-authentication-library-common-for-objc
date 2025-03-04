@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,29 +20,16 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, MSIDCredentialType)
+#import "MSIDRefreshToken.h"
+
+@interface MSIDFamilyRefreshToken : MSIDRefreshToken
 {
-    MSIDCredentialTypeOther = 0,
-    MSIDAccessTokenType = 1,
-    MSIDRefreshTokenType = 2,
-    MSIDIDTokenType = 3,
-    MSIDLegacySingleResourceTokenType = 4,
-    MSIDPrimaryRefreshTokenType = 5,
-    MSIDLegacyIDTokenType = 6,
-    MSIDAccessTokenWithAuthSchemeType = 7,
-    MSIDFamilyRefreshTokenType = 8,
-    MSIDCredentialTypeLast
-};
+    
+}
 
-@interface MSIDCredentialTypeHelpers : NSObject
-
-+ (NSString *)credentialTypeAsString:(MSIDCredentialType)type;
-+ (MSIDCredentialType)credentialTypeFromString:(NSString *)type;
-+ (MSIDCredentialType)credentialTypeWithRefreshToken:(NSString *)refreshToken accessToken:(NSString *)accessToken;
-+ (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType;
+- (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken;
 
 @end
