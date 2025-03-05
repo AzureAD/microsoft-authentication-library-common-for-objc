@@ -38,6 +38,9 @@
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDSwitchBrowserResponse.h"
+#import "MSIDSwitchBrowserResumeResponse.h"
+#import "MSIDFlightManager.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDJITTroubleshootingResponse.h"
@@ -73,13 +76,21 @@
     {
         [result addEntriesFromDictionary:
          @{
-           MSID_OAUTH2_CORRELATION_ID_REQUEST : @"true",
-           MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [parameters.correlationId UUIDString]
-           }];
+            MSID_OAUTH2_CORRELATION_ID_REQUEST : @"true",
+            MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [parameters.correlationId UUIDString]
+        }];
     }
     
     result[@"haschrome"] = @"1";
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
+    
+#if TARGET_OS_IPHONE
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        // Let server know that we support new cba flow
+        result[MSID_BROWSER_RESPONSE_SWITCH_BROWSER] = @"1";
+    }
+#endif
     
     return result;
 }
@@ -139,6 +150,7 @@
 - (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
                                  requestState:(NSString *)requestState
                            ignoreInvalidState:(BOOL)ignoreInvalidState
+                               endRedirectUri:(NSString *)endRedirectUri
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError *__autoreleasing*)error
 {
@@ -190,7 +202,22 @@
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
     
-    // Try to create AAD Auth response
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
+                                                                                              redirectUri:endRedirectUri
+                                                                                                  context:context
+                                                                                                    error:nil];
+        if (switchBrowserResponse) return switchBrowserResponse;
+        
+        MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse = [[MSIDSwitchBrowserResumeResponse alloc] initWithURL:url
+                                                                                                                redirectUri:endRedirectUri
+                                                                                                                    context:context
+                                                                                                                      error:nil];
+        if (switchBrowserResumeResponse) return switchBrowserResumeResponse;
+    }
+    
+    // Try to create AAD Auth response or Error response (all other reponses don't handle errors).
     MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:url
                                                                               requestState:requestState
                                                                         ignoreInvalidState:ignoreInvalidState

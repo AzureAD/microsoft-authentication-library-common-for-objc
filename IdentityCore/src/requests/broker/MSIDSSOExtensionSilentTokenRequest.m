@@ -93,12 +93,6 @@
             strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
 #endif
             
-#if !EXCLUDE_FROM_MSALCPP
-            [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
-                                                requestStartDate:strongSelf.requestSentDate
-                                                   telemetryType:MSID_PERF_TELEMETRY_SILENT_TYPE];
-#endif
-            
             [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                                       requestParameters:strongSelf.requestParameters
                                                  tokenResponseValidator:strongSelf.tokenResponseValidator

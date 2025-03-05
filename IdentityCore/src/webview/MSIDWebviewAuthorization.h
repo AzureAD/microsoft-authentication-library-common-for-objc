@@ -37,6 +37,8 @@
 
 typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, NSError *error);
 
+
+// TODO: Remove class methods and use singleton instead: https://github.com/AzureAD/microsoft-authentication-library-common-for-objc/issues/297
 @interface MSIDWebviewAuthorization : NSObject
 
 #if !MSID_EXCLUDE_WEBKIT

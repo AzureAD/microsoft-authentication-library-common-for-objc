@@ -270,6 +270,21 @@
     return [tokenEndpoint.host.msidNormalizedString msidIsEquivalentWithAnyAlias:environmentAliases];
 }
 
+- (BOOL)needsUpdateToHomeAuthority:(BOOL)isAccountFromMSATenant
+{
+    if (self.tenant.type == MSIDAADTenantTypeCommon
+        || self.tenant.type == MSIDAADTenantTypeConsumers
+        // MSA mega tenant is not available through organizations endpoint
+        // Therefore, going to MSA megatenant to request a token is wrong here for that case
+        // Note, that it's a temporary workaround. Once server side fix is available to issue correct id_token, it will be removed
+        || (self.tenant.type == MSIDAADTenantTypeOrganizations && !isAccountFromMSATenant))
+    {
+        return YES;
+    }
+    
+    return NO;
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone

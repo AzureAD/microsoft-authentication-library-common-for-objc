@@ -63,6 +63,11 @@
 #endif
 }
 
+#if AD_BROKER
+NSString *const SSO_EXTENSION_USER_DEFAULTS_KEY = @"group.com.microsoft.azureauthenticator.sso";
+NSString *const CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feature.sdm_suppress_camera_consent";
+#endif
+
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
@@ -484,21 +489,29 @@
     }
 }
 
+#if AD_BROKER
 - (void) webView:(WKWebView *)webView
 requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin
 initiatedByFrame:(WKFrameInfo *)frame
             type:(WKMediaCaptureType)type
  decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler API_AVAILABLE(ios(15.0), macos(12.0))
 {
-    if (MSID_SUPPRESS_CAMERA_CONSENT_PROMPT_IN_WEBVIEW && type == WKMediaCaptureTypeCamera)
+    
+    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:SSO_EXTENSION_USER_DEFAULTS_KEY];
+    id cameraConsentValue = [userDefaults objectForKey:CAMERA_CONSENT_PROMPT_SUPPRESS_KEY];
+    
+    if (cameraConsentValue && ([cameraConsentValue isKindOfClass:NSNumber.class] || [cameraConsentValue isKindOfClass:NSString.class]))
     {
-        decisionHandler(WKPermissionDecisionGrant);
+        if ([cameraConsentValue boolValue] && type == WKMediaCaptureTypeCamera)
+        {
+            decisionHandler(WKPermissionDecisionGrant);
+            return;
+        }
     }
-    else
-    {
-        decisionHandler(WKPermissionDecisionPrompt);
-    }
+    
+    decisionHandler(WKPermissionDecisionPrompt);
 }
+#endif
 
 #pragma mark - Loading Indicator
 
