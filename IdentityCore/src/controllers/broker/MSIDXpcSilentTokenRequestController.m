@@ -25,6 +25,7 @@
 #import "MSIDXpcSilentTokenRequestController.h"
 #import "MSIDSilentController+Internal.h"
 #import "MSIDXpcSingleSignOnProvider.h"
+#import "MSIDLogger+Internal.h"
 
 @implementation MSIDXpcSilentTokenRequestController
 
@@ -45,11 +46,18 @@
 + (BOOL)canPerformRequest
 {
     if (@available(macOS 13, *)) {
-        return YES;
+        NSDate *startTime = [NSDate date];
+        BOOL result = [MSIDXpcSingleSignOnProvider canPerformRequest];
+        NSDate *endTime = [NSDate date];
+        NSTimeInterval elapsedTime = [endTime timeIntervalSinceDate:startTime];
+
+        NSLog(@"Benchmarking canPerformRequest: %f seconds", elapsedTime);
+        return result;
     } else {
         return NO;
     }
 }
+	
 
 @end
 

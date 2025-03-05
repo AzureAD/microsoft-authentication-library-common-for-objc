@@ -55,6 +55,13 @@ typedef NS_ENUM(NSInteger, MSIDPreferredAuthMethod)
     MSIDPreferredAuthMethodQRPIN
 };
 
+typedef NS_ENUM(NSInteger, MSIDSsoProviderType)
+{
+    MSIDUnknownSsoProvider = 0,
+    MSIDMacBrokerSsoProvider,
+    MSIDCompanyPortalSsoProvider
+};
+
 
 NS_ASSUME_NONNULL_BEGIN
 

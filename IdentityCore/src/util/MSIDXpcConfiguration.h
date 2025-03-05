@@ -24,29 +24,24 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MSIDSSOExtensionRequestDelegate.h"
-#import "MSIDRequestContext.h"
+#import "MSIDDeviceInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDXpcSingleSignOnProvider : NSObject
+static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
+static NSString *brokerMacBrokerInstance = @"com.microsoft.EntraIdentityBrokermacbroker.Service";
 
-// For interactive auth request
-// Note: completion thread is not gurantee, please submit to the correct thread as needed
-- (void)handleRequestParam:(NSDictionary *)requestParam
-           parentViewFrame:(NSRect)frame
- assertKindOfResponseClass:(Class)aClass
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
-// For silent auth request
-- (void)handleRequestParam:(NSDictionary *)requestParam
- assertKindOfResponseClass:(Class)aClass
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+@interface MSIDXpcConfiguration : NSObject
 
-+ (BOOL)canPerformRequest;
+@property (nonatomic) NSString *xpcHostAppName;
+@property (nonatomic) NSString *xpcMachServiceName;
+@property (nonatomic) NSString *xpcBrokerDispatchServiceBundleId;
+@property (nonatomic) NSString *xpcBrokerInstanceServiceBundleId;
+@property (nonatomic) MSIDSsoProviderType xpcProviderType;
 
-NS_ASSUME_NONNULL_END
+- (instancetype)initWithXpcProviderType:(MSIDSsoProviderType)xpcProviderType;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -22,31 +22,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #import <Foundation/Foundation.h>
-#import "MSIDSSOExtensionRequestDelegate.h"
-#import "MSIDRequestContext.h"
+#import "MSIDDeviceInfo.h"
+
+@class MSIDXpcConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDXpcSingleSignOnProvider : NSObject
+@interface MSIDXpcProviderCache : NSObject
 
-// For interactive auth request
-// Note: completion thread is not gurantee, please submit to the correct thread as needed
-- (void)handleRequestParam:(NSDictionary *)requestParam
-           parentViewFrame:(NSRect)frame
- assertKindOfResponseClass:(Class)aClass
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+// cachedXpcProvider is the Xpc provider's identifier from cache. This value can be updated through SsoExtension request
+@property (nonatomic) MSIDSsoProviderType cachedXpcProvider;
 
-// For silent auth request
-- (void)handleRequestParam:(NSDictionary *)requestParam
- assertKindOfResponseClass:(Class)aClass
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+// cachedXpcStatus is the Xpc provider's status from cache.
+@property (nonatomic) BOOL cachedXpcStatus;
 
-+ (BOOL)canPerformRequest;
+// xpcConfigurationwill be used for the Xpc flow, the value will be determined based on the cachedXpcProvider
+@property (nonatomic) MSIDXpcConfiguration *xpcConfiguration;
 
-NS_ASSUME_NONNULL_END
++ (instancetype)sharedInstance;
+- (BOOL)isXpcProviderInstalledOnDevice;
+- (BOOL)isXpcProviderExist;
+- (BOOL)shouldReturnCachedXpcStatus;
 
 @end
+
+NS_ASSUME_NONNULL_END
