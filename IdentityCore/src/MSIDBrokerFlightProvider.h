@@ -1,3 +1,5 @@
+
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,37 +21,20 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDURLFormObject.h"
-#import "MSIDAADTokenResponse.h"
+#import <Foundation/Foundation.h>
+#import "MSIDFlightManager.h"
 
-@class MSIDAuthority;
-@class MSIDDeviceInfo;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerResponse : MSIDURLFormObject
+@interface MSIDBrokerFlightProvider : NSObject <MSIDFlightManagerInterface>
 
-@property (readonly) NSString *authority;
-@property (readonly) NSString *clientId;
-@property (readonly) NSString *redirectUri;
-@property (readonly) NSString *nestedAuthBrokerClientId;
-@property (readonly) NSString *applicationToken;
+- (instancetype)initWithBase64EncodedFlightsPayload:(nullable NSString *)base64EncodedFlightsPayload;
 
-@property (readonly) NSString *brokerAppVer;
-@property (readonly) NSString *validAuthority;
-
-@property (readonly) NSString *correlationId;
-@property (readonly) NSString *errorCode;
-@property (readonly) NSString *errorDomain;
-@property (readonly) NSString *target;
-
-// Client flights managed by broker, base64 encoded
-@property (readonly) NSString *clientFlights;
-
-// Derived properties
-@property (readonly) MSIDTokenResponse *tokenResponse;
-@property (readonly) MSIDAuthority *msidAuthority;
-@property (readonly) BOOL ignoreAccessTokenCache;
-@property (readonly) MSIDDeviceInfo *deviceInfo;
+- (instancetype _Nullable )init NS_UNAVAILABLE;
++ (instancetype _Nullable )new NS_UNAVAILABLE;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -1797,6 +1797,9 @@
 		B443F0002AD6327700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B443EFFF2AD6327700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.h */; };
 		B443F0022AD6328700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B443F0012AD6328700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.m */; };
 		B443F0032AD6328700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B443F0012AD6328700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.m */; };
+		B48FC02F2D726A52007B80DB /* MSIDBrokerFlightProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B48FC02E2D726A48007B80DB /* MSIDBrokerFlightProvider.h */; };
+		B48FC0312D726A66007B80DB /* MSIDBrokerFlightProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B48FC0302D726A64007B80DB /* MSIDBrokerFlightProvider.m */; };
+		B48FC0322D726A66007B80DB /* MSIDBrokerFlightProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B48FC0302D726A64007B80DB /* MSIDBrokerFlightProvider.m */; };
 		B49323912AD491C600E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B493238F2AD4919400E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.h */; };
 		B49323922AD491CE00E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B49323902AD491B900E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m */; };
 		B49323932AD491CF00E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B49323902AD491B900E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m */; };
@@ -3243,6 +3246,8 @@
 		B443EFFC2AD6307E00782168 /* MSIDBrokerOperationGetPasskeyCredentialResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationGetPasskeyCredentialResponse.m; sourceTree = "<group>"; };
 		B443EFFF2AD6327700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationPasskeyCredentialRequest.h; sourceTree = "<group>"; };
 		B443F0012AD6328700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationPasskeyCredentialRequest.m; sourceTree = "<group>"; };
+		B48FC02E2D726A48007B80DB /* MSIDBrokerFlightProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerFlightProvider.h; sourceTree = "<group>"; };
+		B48FC0302D726A64007B80DB /* MSIDBrokerFlightProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerFlightProvider.m; sourceTree = "<group>"; };
 		B493238F2AD4919400E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationPasskeyAssertionRequest.h; sourceTree = "<group>"; };
 		B49323902AD491B900E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationPasskeyAssertionRequest.m; sourceTree = "<group>"; };
 		B49323942AD4DA0200E0CBC0 /* MSIDBrokerOperationGetPasskeyAssertionResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationGetPasskeyAssertionResponse.h; sourceTree = "<group>"; };
@@ -5534,6 +5539,8 @@
 				728209CB26FE951900B5F018 /* MSIDJwtAlgorithm.h */,
 				237F8F2C2D5166FE0095F164 /* MSIDFlightManager.h */,
 				237F8F2D2D5166FE0095F164 /* MSIDFlightManager.m */,
+				B48FC02E2D726A48007B80DB /* MSIDBrokerFlightProvider.h */,
+				B48FC0302D726A64007B80DB /* MSIDBrokerFlightProvider.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -5976,6 +5983,7 @@
 				B2C707FD2192530E00D917B8 /* MSIDDefaultSilentTokenRequest.h in Headers */,
 				1EE541402458B30300A86414 /* MSIDDevicePopManager.h in Headers */,
 				E656E07D2C2627FB0011FB23 /* MSIDWebUpgradeRegResponse.h in Headers */,
+				B48FC02F2D726A52007B80DB /* MSIDBrokerFlightProvider.h in Headers */,
 				B286B9B32389DD78007833AD /* MSIDWebAADAuthCodeResponse.h in Headers */,
 				886F516E29CCA83000F09471 /* MSIDCIAMAuthorityResolver.h in Headers */,
 				B286B9D22389DF19007833AD /* MSIDAadAuthorityCache.h in Headers */,
@@ -7254,6 +7262,7 @@
 				600D19982095988C0004CD43 /* MSIDChallengeHandler.m in Sources */,
 				B26CEB042367B3B9009E6E54 /* MSIDSystemWebViewControllerFactory.m in Sources */,
 				609E74BE228CA5CA005E3FED /* MSIDAccountMetadataCacheAccessor.m in Sources */,
+				B48FC0312D726A66007B80DB /* MSIDBrokerFlightProvider.m in Sources */,
 				23B018C42356D51200207FEC /* NSDictionary+MSIDQueryItems.m in Sources */,
 				2394F2042D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.m in Sources */,
 				B2C708AE219A612A00D917B8 /* MSIDDefaultBrokerTokenRequest.m in Sources */,
@@ -8072,6 +8081,7 @@
 				96235F96207D7286007EAB36 /* MSIDWebOAuth2AuthCodeResponse.m in Sources */,
 				B239A43D209E8170000A3268 /* MSIDAccountCredentialCache.m in Sources */,
 				23B018822355481800207FEC /* MSIDSSOExtensionInteractiveTokenRequest.m in Sources */,
+				B48FC0322D726A66007B80DB /* MSIDBrokerFlightProvider.m in Sources */,
 				239E8F88233D951D00251373 /* MSIDBrokerOperationTokenResponse.m in Sources */,
 				B208854A29ADB86200A50B88 /* MSIDExternalSSOContextMock.m in Sources */,
 				B2B1D57320425DFD00DD81F0 /* MSIDAccountCacheItem.m in Sources */,

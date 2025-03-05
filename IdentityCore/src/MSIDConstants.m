@@ -78,6 +78,7 @@ NSString *const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME = @"switch_browser_r
 
 NSString *const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY = @"use_v2_web_response_factory";
 NSString *const MSID_FLIGHT_SUPPORT_DUNA_CBA = @"support_duna_cba";
+NSString *const MSID_FLIGHT_ENABLE_CLIENT_SINGLE_FAMILY_REFRESH_TOKEN = @"enable_client_single_family_refresh_token";
 
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

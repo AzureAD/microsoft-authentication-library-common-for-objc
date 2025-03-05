@@ -176,5 +176,6 @@ extern NSString * _Nonnull const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME;
 
 extern NSString * _Nonnull const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_DUNA_CBA;
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CLIENT_SINGLE_FAMILY_REFRESH_TOKEN;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

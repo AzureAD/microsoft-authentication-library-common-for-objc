@@ -66,6 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *brokerVersion;
 @property (nonatomic) NSDictionary *additionalExtensionData;
 @property (nonatomic) MSIDPreferredAuthMethod preferredAuthConfig;
+@property (nonatomic) NSString *clientFlights;
 
 #if TARGET_OS_OSX
 @property (nonatomic) MSIDPlatformSSOStatus platformSSOStatus;
