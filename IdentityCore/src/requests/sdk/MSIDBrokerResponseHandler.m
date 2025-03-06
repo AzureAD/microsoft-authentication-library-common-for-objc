@@ -158,6 +158,7 @@
     }
     
 #if !AD_BROKER
+    // Save client flights if available
     if (brokerResponse.clientFlights)
     {
         MSIDBrokerFlightProvider *flightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:brokerResponse.clientFlights];

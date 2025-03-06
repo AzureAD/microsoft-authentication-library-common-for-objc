@@ -170,6 +170,7 @@
         _stsErrorCodes = [json msidArrayOfIntegersForKey: MSID_OAUTH2_ERROR_CODES];
         _errorDescription = [[json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION] msidURLDecode];
         _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_VERSION_KEY];
+        _clientFlights = [json msidStringObjectForKey:MSID_BROKER_CLIENT_FLIGHTS_KEY];
         [self setAdditionalServerInfo:json];
     }
     
@@ -202,6 +203,7 @@
     json[MSID_OAUTH2_STATE] = self.state;
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.class.providerType);
     json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
+    json[MSID_BROKER_CLIENT_FLIGHTS_KEY] = self.clientFlights;
     
     return json;
 }
