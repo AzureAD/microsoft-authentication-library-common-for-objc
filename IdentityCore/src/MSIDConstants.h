@@ -176,7 +176,7 @@ extern NSString * _Nonnull const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME;
 
 extern NSString * _Nonnull const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_DUNA_CBA;
-extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CLIENT_SFRT_TENANT_ID_LIST;
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CLIENT_SFRT_BY_TENANT_ID;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_CLIENT_SFRT_FOR_ALL_TENANTS;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
