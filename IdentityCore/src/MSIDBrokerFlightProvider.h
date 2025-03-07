@@ -1,3 +1,4 @@
+
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -22,37 +23,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
+#import <Foundation/Foundation.h>
 #import "MSIDFlightManager.h"
 
-@implementation MSIDFlightManager
+NS_ASSUME_NONNULL_BEGIN
 
-+ (instancetype)sharedInstance
-{
-    static MSIDFlightManager *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self.class alloc] init];
-    });
-    
-    return sharedInstance;
-}
+@interface MSIDBrokerFlightProvider : NSObject <MSIDFlightManagerInterface>
 
-#pragma mark - MSIDFlightManagerInterface
+- (instancetype)initWithBase64EncodedFlightsPayload:(nullable NSString *)base64EncodedFlightsPayload;
 
-- (BOOL)boolForKey:(nonnull NSString *)flightKey 
-{
-    if (self.flightProvider) { return [self.flightProvider boolForKey:flightKey]; }
-    
-    return NO;
-}
-
-- (nullable NSArray<NSString *> *)stringsForFlightKey:(nonnull NSString *)flightKey
-{
-    if (self.flightProvider) { return [self.flightProvider stringsForFlightKey:flightKey]; }
-    
-    return nil;
-}
-
+- (instancetype _Nullable )init NS_UNAVAILABLE;
++ (instancetype _Nullable )new NS_UNAVAILABLE;
 
 @end
+
+NS_ASSUME_NONNULL_END

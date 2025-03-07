@@ -28,6 +28,9 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#if !AD_BROKER
+#import "MSIDBrokerFlightProvider.h"
+#endif
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -88,6 +91,16 @@
         completionBlock(nil, validationError);
         return;
     }
+    
+#if !AD_BROKER
+    // Save client flights if available
+    if (tokenResponse.clientFlights)
+    {
+        MSIDBrokerFlightProvider *flightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:tokenResponse.clientFlights];
+        
+        [MSIDFlightManager sharedInstance].flightProvider = flightProvider;
+    }
+#endif
     
     tokenResult.brokerAppVersion = brokerAppVersion;
     void (^validateAccountAndCompleteBlock)(void) = ^

@@ -40,6 +40,9 @@
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDAuthScheme.h"
+#if !AD_BROKER
+#import "MSIDBrokerFlightProvider.h"
+#endif
 
 @interface MSIDBrokerResponseHandler()
 
@@ -153,6 +156,16 @@
         if (error) *error = brokerError;
         return nil;
     }
+    
+#if !AD_BROKER
+    // Save client flights if available
+    if (brokerResponse.clientFlights)
+    {
+        MSIDBrokerFlightProvider *flightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:brokerResponse.clientFlights];
+        
+        [MSIDFlightManager sharedInstance].flightProvider = flightProvider;
+    }
+#endif
     
     NSString *applicationToken = brokerResponse.applicationToken;
     

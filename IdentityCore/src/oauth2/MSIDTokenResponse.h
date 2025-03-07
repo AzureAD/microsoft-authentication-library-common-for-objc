@@ -93,6 +93,9 @@
 
 @property (nonatomic, readonly, nullable) NSString *accountUpn;
 
+// Client flights managed by broker, base64 encoded
+@property (nonatomic, readonly, nullable) NSString *clientFlights;
+
 - (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
                                    refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token
                                           error:(NSError * _Nullable __autoreleasing *_Nullable)error;
