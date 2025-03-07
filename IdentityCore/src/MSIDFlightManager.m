@@ -47,4 +47,12 @@
     return NO;
 }
 
+- (nullable NSArray<NSString *> *)stringsForFlightKey:(nonnull NSString *)flightKey
+{
+    if (self.flightProvider) { return [self.flightProvider stringsForFlightKey:flightKey]; }
+    
+    return nil;
+}
+
+
 @end

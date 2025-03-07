@@ -1800,6 +1800,8 @@
 		B48FC02F2D726A52007B80DB /* MSIDBrokerFlightProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B48FC02E2D726A48007B80DB /* MSIDBrokerFlightProvider.h */; };
 		B48FC0312D726A66007B80DB /* MSIDBrokerFlightProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B48FC0302D726A64007B80DB /* MSIDBrokerFlightProvider.m */; };
 		B48FC0322D726A66007B80DB /* MSIDBrokerFlightProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B48FC0302D726A64007B80DB /* MSIDBrokerFlightProvider.m */; };
+		B48FC0622D7A90FA007B80DB /* MSIDBrokerFlightProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B48FC0612D7A90F4007B80DB /* MSIDBrokerFlightProviderTests.m */; };
+		B48FC0632D7A90FA007B80DB /* MSIDBrokerFlightProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B48FC0612D7A90F4007B80DB /* MSIDBrokerFlightProviderTests.m */; };
 		B49323912AD491C600E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B493238F2AD4919400E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.h */; };
 		B49323922AD491CE00E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B49323902AD491B900E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m */; };
 		B49323932AD491CF00E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B49323902AD491B900E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m */; };
@@ -3248,6 +3250,7 @@
 		B443F0012AD6328700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationPasskeyCredentialRequest.m; sourceTree = "<group>"; };
 		B48FC02E2D726A48007B80DB /* MSIDBrokerFlightProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerFlightProvider.h; sourceTree = "<group>"; };
 		B48FC0302D726A64007B80DB /* MSIDBrokerFlightProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerFlightProvider.m; sourceTree = "<group>"; };
+		B48FC0612D7A90F4007B80DB /* MSIDBrokerFlightProviderTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerFlightProviderTests.m; sourceTree = "<group>"; };
 		B493238F2AD4919400E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationPasskeyAssertionRequest.h; sourceTree = "<group>"; };
 		B49323902AD491B900E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationPasskeyAssertionRequest.m; sourceTree = "<group>"; };
 		B49323942AD4DA0200E0CBC0 /* MSIDBrokerOperationGetPasskeyAssertionResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationGetPasskeyAssertionResponse.h; sourceTree = "<group>"; };
@@ -5616,6 +5619,7 @@
 				23419F59239739AF00EA78C5 /* MSIDBrokerOperationSilentTokenRequestTests.m */,
 				23419F5F23974C0D00EA78C5 /* MSIDBrokerOperationTokenRequestTests.m */,
 				23419F782399AD7500EA78C5 /* MSIDBrokerOperationTokenResponseTests.m */,
+				B48FC0612D7A90F4007B80DB /* MSIDBrokerFlightProviderTests.m */,
 				231CE9C91FE8D79A00E95D3E /* MSIDCacheItemJsonSerializerTests.m */,
 				B2DD4B2D20A8D7DE0047A66E /* MSIDCacheKeyTests.m */,
 				23B37D1D20CA098E0018722F /* MSIDCacheTests.m */,
@@ -6910,6 +6914,7 @@
 				B210F42E1FDDE6A5005A8F76 /* MSIDJsonObjectTests.m in Sources */,
 				B2E97FB32914CC4500AFD558 /* MSIDBrokerNativeAppOperationResponseTests.m in Sources */,
 				B29F7805213DFA5600D61FC8 /* MSIDErrorTests.m in Sources */,
+				B48FC0622D7A90FA007B80DB /* MSIDBrokerFlightProviderTests.m in Sources */,
 				60747FF82354F73000C5308F /* MSIDBrokerOperationGetAccountsResponseTests.m in Sources */,
 				B2DD5B97204756580084313F /* MSIDAccountTypeTests.m in Sources */,
 				B2936F4D20AA906C0050C585 /* MSIDLegacyTokenCacheItemTests.m in Sources */,
@@ -7541,6 +7546,7 @@
 				B2561225217EA97000999876 /* MSIDB2COauth2FactoryTests.m in Sources */,
 				B2BE926221A25A8600F5AB8C /* MSIDInteractiveControllerIntegrationTests.m in Sources */,
 				B2BE923521A0F80100F5AB8C /* MSIDLegacyTokenRequestProviderTests.m in Sources */,
+				B48FC0632D7A90FA007B80DB /* MSIDBrokerFlightProviderTests.m in Sources */,
 				23FB5C21225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */,
 				E75DD02625D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */,
 				B286BA07238A110A007833AD /* MSIDOIDCSignoutRequestTests.m in Sources */,

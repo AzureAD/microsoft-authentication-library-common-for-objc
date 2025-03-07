@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol MSIDFlightManagerInterface <NSObject>
 
 - (BOOL)boolForKey:(NSString *)flightKey;
+- (nullable NSArray<NSString *> *)stringsForFlightKey:(NSString *)key;
+
 
 @end
 

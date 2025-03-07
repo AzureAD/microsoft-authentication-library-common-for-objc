@@ -80,10 +80,31 @@
 {
     if (self.clientFlightsPayload)
     {
-        return [self.clientFlightsPayload[flightKey] boolValue];
+        id value = self.clientFlightsPayload[flightKey];
+        
+        if ([value isKindOfClass:[NSNumber class]] || [value isKindOfClass:[NSString class]])
+        {
+            return [value boolValue];
+        }
     }
     
     return NO;
 }
+
+- (nullable NSArray<NSString *> *)stringsForFlightKey:(nonnull NSString *)flightKey
+{
+    if (self.clientFlightsPayload)
+    {
+        id value = self.clientFlightsPayload[flightKey];
+        
+        if ([value isKindOfClass:[NSArray class]])
+        {
+            return value;
+        }
+    }
+    
+    return nil;
+}
+
 
 @end
