@@ -35,8 +35,107 @@
 #import "MSIDRequestParameters+Broker.h"
 #import "MSIDAuthority.h"
 #import "MSIDSignoutController.h"
+#if TARGET_OS_OSX
+#import "MSIDXpcSilentTokenRequestController.h"
+#endif
 
 @implementation MSIDRequestControllerFactory
+
+//+ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(MSIDRequestParameters *)parameters
+//                                                        forceRefresh:(BOOL)forceRefresh
+//                                                         skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
+//                                                tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+//                                                               error:(NSError *__autoreleasing*)error
+//{
+//    // Nested auth protocol - Reverse client id & redirect uri
+//    if ([parameters isNestedAuthProtocol])
+//    {
+//        [parameters reverseNestedAuthParametersIfNeeded];
+//    }
+//
+//    MSIDSilentController *brokerController;
+//
+//    if ([parameters shouldUseBroker])
+//    {
+//        if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+//        {
+//            MSIDSilentController *localController = nil;
+//            if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
+//            {
+//                localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+//                                                                             forceRefresh:YES
+//                                                                     tokenRequestProvider:tokenRequestProvider
+//                                                                                    error:error];
+//                localController.isLocalFallbackMode = YES;
+//            }
+//            
+//            // Use XPC service as a SsoExtension backup controller when enableXcpFlow is on, enableXcpFlow is disabled by default
+//            MSIDSilentController *xpcController = nil;
+//#if TARGET_OS_OSX
+//            if (parameters.enableXpcFlow && [MSIDXpcSilentTokenRequestController canPerformRequest])
+//            {
+//                xpcController  = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
+//                                                                                           forceRefresh:forceRefresh
+//                                                                                   tokenRequestProvider:tokenRequestProvider
+//                                                                          fallbackInteractiveController:localController
+//                                                                                                  error:error];
+//            }
+//#endif
+//            
+//            brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+//                                                                                                  forceRefresh:forceRefresh
+//                                                                                          tokenRequestProvider:tokenRequestProvider
+//                                                                                 fallbackInteractiveController:xpcController != nil ? xpcController : localController
+//                                                                                                         error:error];
+//        }
+//#if TARGET_OS_OSX
+//        else
+//        {
+//            MSIDSilentController *localController = nil;
+//            if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
+//            {
+//                localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+//                                                                             forceRefresh:YES
+//                                                                     tokenRequestProvider:tokenRequestProvider
+//                                                                                    error:error];
+//                localController.isLocalFallbackMode = YES;
+//            }
+//            
+//            if (parameters.enableXpcFlow && [MSIDXpcSilentTokenRequestController canPerformRequest])
+//            {
+//                brokerController  = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
+//                                                                                           forceRefresh:forceRefresh
+//                                                                                   tokenRequestProvider:tokenRequestProvider
+//                                                                          fallbackInteractiveController:localController
+//                                                                                                  error:error];
+//            }
+//        }
+//#endif
+//    }
+//    
+//    __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+//                                                                             forceRefresh:forceRefresh
+//                                                                     tokenRequestProvider:tokenRequestProvider
+//                                                            fallbackInteractiveController:brokerController
+//                                                                                    error:error];
+//    if (!localController) return nil;
+//    
+//    switch (skipLocalRt) {
+//        case MSIDSilentControllerForceSkippingLocalRt:
+//            localController.skipLocalRt = YES;
+//            break;
+//        case MSIDSilentControllerForceUsingLocalRt:
+//            localController.skipLocalRt = NO;
+//            break;
+//        case MSIDSilentControllerUndefinedLocalRtUsage:
+//            if (brokerController) localController.skipLocalRt = YES;
+//            break;
+//        default:
+//            break;
+//    }
+//    
+//    return localController;
+//}
 
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
@@ -49,56 +148,73 @@
     {
         [parameters reverseNestedAuthParametersIfNeeded];
     }
-
-    MSIDSilentController *brokerController;
+    
+    MSIDSilentController *fallbackController = nil;
     
     if ([parameters shouldUseBroker])
     {
-        if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+        if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
         {
-            MSIDSilentController *localController = nil;
-            if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
+            fallbackController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                                         forceRefresh:YES
+                                                                 tokenRequestProvider:tokenRequestProvider
+                                                                                error:error];
+            fallbackController.isLocalFallbackMode = YES;
+        }
+    
+        MSIDSilentController *xpcController = nil;
+#if TARGET_OS_OSX
+        if (parameters.msidXpcMode != MSIDXpcModeDisable && [MSIDXpcSilentTokenRequestController canPerformRequest])
+        {
+            xpcController = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                           forceRefresh:forceRefresh
+                                                                                   tokenRequestProvider:tokenRequestProvider
+                                                                          fallbackInteractiveController:fallbackController
+                                                                                                  error:error];
+            if (parameters.msidXpcMode == MSIDXpcModeFull || parameters.msidXpcMode == MSIDXpcModeOverride)
             {
-                localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
-                                                                             forceRefresh:YES
-                                                                     tokenRequestProvider:tokenRequestProvider
-                                                                                    error:error];
-                localController.isLocalFallbackMode = YES;
+                // If in Xpc full mode, the XPCController will work as a isolated controller when SsoExtension cannotPerformRequest
+                fallbackController = xpcController;
+                xpcController = nil;
             }
-
-            brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
-                                                                                                  forceRefresh:forceRefresh
-                                                                                          tokenRequestProvider:tokenRequestProvider
-                                                                                 fallbackInteractiveController:localController
-                                                                                                         error:error];
+        }
+#endif
+        
+        BOOL shouldSkipSsoExtension = parameters.msidXpcMode == MSIDXpcModeOverride;
+        
+        if (!shouldSkipSsoExtension && [MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+        {
+            fallbackController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                                    forceRefresh:forceRefresh
+                                                                                            tokenRequestProvider:tokenRequestProvider
+                                                                                   fallbackInteractiveController:xpcController?:fallbackController
+                                                                                                           error:error];
         }
     }
     
-    // TODO: Performance optimization: check account source.
-    // if (parameters.accountIdentifier.source == BROKER) return brokerController;
-    
-    __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
-                                                                             forceRefresh:forceRefresh
-                                                                     tokenRequestProvider:tokenRequestProvider
-                                                            fallbackInteractiveController:brokerController
-                                                                                    error:error];
-    if (!localController) return nil;
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                                                       forceRefresh:forceRefresh
+                                                                               tokenRequestProvider:tokenRequestProvider
+                                                                      fallbackInteractiveController:fallbackController
+                                                                                              error:error];
+    if (!silentController) return nil;
     
     switch (skipLocalRt) {
         case MSIDSilentControllerForceSkippingLocalRt:
-            localController.skipLocalRt = YES;
+            silentController.skipLocalRt = YES;
             break;
         case MSIDSilentControllerForceUsingLocalRt:
-            localController.skipLocalRt = NO;
+            silentController.skipLocalRt = NO;
             break;
         case MSIDSilentControllerUndefinedLocalRtUsage:
-            if (brokerController) localController.skipLocalRt = YES;
+            if (fallbackController) silentController.skipLocalRt = YES;
             break;
         default:
             break;
     }
     
-    return localController;
+    return silentController;
+    
 }
 
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters

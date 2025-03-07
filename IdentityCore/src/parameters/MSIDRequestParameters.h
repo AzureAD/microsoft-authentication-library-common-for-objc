@@ -108,6 +108,9 @@
 #pragma mark - SSO context
 @property (nonatomic) MSIDExternalSSOContext *ssoContext;
 
+#pragma mark - Xpc Mode
+@property (nonatomic) MSIDXpcMode msidXpcMode;
+
 - (NSURL *)tokenEndpoint;
 
 #pragma mark Methods

@@ -93,6 +93,14 @@ typedef NS_ENUM(NSInteger, MSIDHeaderType)
     MSIDHeaderTypeDeviceRegistration
 };
 
+typedef NS_ENUM(NSUInteger, MSIDXpcMode)
+{
+    MSIDXpcModeDisable = 0,
+    MSIDXpcModeBackup,
+    MSIDXpcModeFull,
+    MSIDXpcModeOverride
+};
+
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
