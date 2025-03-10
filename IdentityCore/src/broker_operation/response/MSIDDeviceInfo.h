@@ -55,6 +55,12 @@ typedef NS_ENUM(NSInteger, MSIDPreferredAuthMethod)
     MSIDPreferredAuthMethodQRPIN
 };
 
+typedef NS_ENUM(NSInteger, MSIDSsoProviderType)
+{
+    MSIDUnknownSsoProvider = 0,
+    MSIDMacBrokerSsoProvider,
+    MSIDCompanyPortalSsoProvider
+};
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,6 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDSSOExtensionMode ssoExtensionMode;
 @property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
 @property (nonatomic, nullable) NSString *brokerVersion;
+@property (nonatomic) MSIDSsoProviderType ssoProviderType;
 @property (nonatomic) NSDictionary *additionalExtensionData;
 @property (nonatomic) MSIDPreferredAuthMethod preferredAuthConfig;
 
@@ -77,7 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
                   ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
                  isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
-                     brokerVersion:(NSString *)brokerVersion;
+                     brokerVersion:(NSString *)brokerVersion
+                   ssoProviderType:(MSIDSsoProviderType)ssoProviderType;
 
 @end
 
