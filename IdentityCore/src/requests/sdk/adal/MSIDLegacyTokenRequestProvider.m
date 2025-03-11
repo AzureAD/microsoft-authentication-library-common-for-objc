@@ -96,6 +96,12 @@
     return nil;
 }
 
+- (MSIDInteractiveTokenRequest *)interactiveXpcTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+{
+    // TODO: not implemented yet.
+    return nil;
+}
+
 - (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters
                                                             forceRefresh:(__unused BOOL)forceRefresh
 {

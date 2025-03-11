@@ -191,12 +191,21 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         
             dispatch_group_t group = dispatch_group_create();
             dispatch_group_enter(group);
+            BOOL groupEntered = YES;
             [ssoExtensionRequest executeRequestWithCompletion:^(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error)
              {
                 if (error)
                 {
                     MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT received deviceInfo with error: %@", error);
-                    dispatch_group_leave(group);
+                    if (groupEntered)
+                    {
+                        dispatch_group_leave(group);
+                    }
+                    else
+                    {
+                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT dispatch_group_leave called without entering", nil);
+                    }
+                    
                     return;
                 }
                 
@@ -218,7 +227,14 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                 
                 /**uncomment below code**/
 //                MSIDXpcProviderCache.sharedInstance.cachedXpcProvider = deviceInfo.platformSSOStatus;
-                dispatch_group_leave(group);
+                if (groupEntered)
+                {
+                    dispatch_group_leave(group);
+                }
+                else
+                {
+                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT dispatch_group_leave group called without entering", nil);
+                }
             }];
             
             // waiting expired in 1 sec
@@ -249,6 +265,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         
         dispatch_group_t xpcGroup = dispatch_group_create();
         dispatch_group_enter(xpcGroup);
+        BOOL xpcGroupEntered = YES;
         
         __block BOOL result = NO;
         MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider = [MSIDXpcSingleSignOnProvider new];
@@ -257,7 +274,14 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         [xpcSingleSignOnProvider getXpcService:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error) {
             if (!xpcService || error)
             {
-                dispatch_group_leave(xpcGroup);
+                if (xpcGroupEntered)
+                {
+                    dispatch_group_leave(xpcGroup);
+                }
+                else
+                {
+                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT dispatch_group_leave xpcGroup called without entering", nil);
+                }
                 return;
             }
             
@@ -268,7 +292,14 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                 
                 result = canPerformRequest;
                 MSIDXpcProviderCache.sharedInstance.cachedXpcStatus = result;
-                dispatch_group_leave(xpcGroup);
+                if (xpcGroupEntered)
+                {
+                    dispatch_group_leave(xpcGroup);
+                }
+                else
+                {
+                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT dispatch_group_leave xpcGroup called without entering", nil);
+                }
             }];
         }];
         

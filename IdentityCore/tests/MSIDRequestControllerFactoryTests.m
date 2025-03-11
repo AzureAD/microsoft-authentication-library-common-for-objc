@@ -33,8 +33,10 @@
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDRequestParameters+Broker.h"
+#import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #if TARGET_OS_OSX
 #import "MSIDXpcSilentTokenRequestController.h"
+#import "MSIDSSOXpcInteractiveTokenRequestController.h"
 #endif
 
 @interface MSIDBaseRequestController (Testing)
@@ -200,6 +202,315 @@
 
 
 #if TARGET_OS_OSX
+- (void)testWhenInteractiveXpcIsBackup_andSsoExtensionIsDisabled_controllersOrder_areCorrect
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.msidXpcMode = MSIDXpcModeBackup;
+    
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionInteractiveTokenRequestController
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return NO;
+    }];
+    
+    
+    SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
+                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters tokenRequestProvider:provider error:&error];
+    if (![controller isMemberOfClass:MSIDLocalInteractiveController.class])
+    {
+        XCTFail();
+    }
+}
+
+- (void)testWhenInteractiveXpcIsBackup_andSsoExtensionIsEnabled_controllersOrder_areCorrect
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.msidXpcMode = MSIDXpcModeBackup;
+    
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionInteractiveTokenRequestController
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    
+    SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
+                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters tokenRequestProvider:provider error:&error];
+    if (![controller isMemberOfClass:MSIDSSOExtensionInteractiveTokenRequestController.class])
+    {
+        XCTFail();
+    }
+    
+    MSIDBaseRequestController *baseController = (MSIDBaseRequestController *)controller;
+    if (![baseController.fallbackController isMemberOfClass:MSIDSSOXpcInteractiveTokenRequestController.class])
+    {
+        XCTFail();
+    }
+    
+    controller = baseController.fallbackController;
+    baseController = (MSIDBaseRequestController *)controller;
+    if (![baseController.fallbackController isMemberOfClass:MSIDLocalInteractiveController.class])
+    {
+        XCTFail();
+    }
+    
+    controller = baseController.fallbackController;
+    baseController = (MSIDBaseRequestController *)controller;
+    XCTAssertNil(baseController.fallbackController);
+}
+
+- (void)testWhenInteractiveXpcIsDisabled_andSsoExtensionIsEnabled_controllersOrder_areCorrect
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.msidXpcMode = MSIDXpcModeBackup;
+    
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionInteractiveTokenRequestController
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    
+    SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
+                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return NO;
+    }];
+    
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters tokenRequestProvider:provider error:&error];
+    if (![controller isMemberOfClass:MSIDSSOExtensionInteractiveTokenRequestController.class])
+    {
+        XCTFail();
+    }
+    
+    MSIDBaseRequestController *baseController = (MSIDBaseRequestController *)controller;
+    controller = baseController.fallbackController;
+    baseController = (MSIDBaseRequestController *)controller;
+    if (![baseController isMemberOfClass:MSIDLocalInteractiveController.class])
+    {
+        XCTFail();
+    }
+    
+    controller = baseController.fallbackController;
+    baseController = (MSIDBaseRequestController *)controller;
+    XCTAssertNil(baseController.fallbackController);
+}
+
+- (void)testWhenInteractiveXpcIsDisabled_andSsoExtensionIsDisabled_controllersOrder_areCorrect
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.msidXpcMode = MSIDXpcModeBackup;
+    
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionInteractiveTokenRequestController
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return NO;
+    }];
+    
+    
+    SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
+                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return NO;
+    }];
+    
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters tokenRequestProvider:provider error:&error];
+    if (![controller isMemberOfClass:MSIDLocalInteractiveController.class])
+    {
+        XCTFail();
+    }
+    
+    MSIDBaseRequestController *baseController = (MSIDBaseRequestController *)controller;
+    XCTAssertNil(baseController.fallbackController);
+}
+
+- (void)testWhenInteractiveXpcIsFull_andSsoExtensionIsDisabled_controllersOrder_areCorrect
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.msidXpcMode = MSIDXpcModeFull;
+    
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionInteractiveTokenRequestController
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return NO;
+    }];
+    
+    
+    SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
+                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters tokenRequestProvider:provider error:&error];
+    if (![controller isMemberOfClass:MSIDSSOXpcInteractiveTokenRequestController.class])
+    {
+        XCTFail();
+    }
+    
+    MSIDBaseRequestController *baseController = (MSIDBaseRequestController *)controller;
+    controller = baseController.fallbackController;
+    baseController = (MSIDBaseRequestController *)controller;
+    if (![baseController isMemberOfClass:MSIDLocalInteractiveController.class])
+    {
+        XCTFail();
+    }
+    
+    controller = baseController.fallbackController;
+    baseController = (MSIDBaseRequestController *)controller;
+    XCTAssertNil(baseController.fallbackController);
+}
+
+
+- (void)testWhenInteractiveXpcIsFull_andSsoExtensionIsEnabled_controllersOrder_areCorrect
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.msidXpcMode = MSIDXpcModeFull;
+    
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionInteractiveTokenRequestController
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    
+    SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
+                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+    
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters tokenRequestProvider:provider error:&error];
+    if (![controller isMemberOfClass:MSIDSSOExtensionInteractiveTokenRequestController.class])
+    {
+        XCTFail();
+    }
+    
+    MSIDBaseRequestController *baseController = (MSIDBaseRequestController *)controller;
+    if (![baseController.fallbackController isMemberOfClass:MSIDSSOXpcInteractiveTokenRequestController.class])
+    {
+        XCTFail();
+    }
+    
+    controller = baseController.fallbackController;
+    baseController = (MSIDBaseRequestController *)controller;
+    if (![baseController.fallbackController isMemberOfClass:MSIDLocalInteractiveController.class])
+    {
+        XCTFail();
+    }
+    
+    controller = baseController.fallbackController;
+    baseController = (MSIDBaseRequestController *)controller;
+    XCTAssertNil(baseController.fallbackController);
+}
+
+
 - (void)testWhenSsoExtensionIsEnabled_andXpcIsPartiallyEnabled_andSsoExtensionIsDisabled_controllersOrder_areCorrect
 {
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
@@ -402,6 +713,7 @@
     XCTAssertTrue([(MSIDSilentController *)baseController forceRefresh]);
     XCTAssertTrue([(MSIDSilentController *)baseController isLocalFallbackMode]);
 }
+
 #endif
 
 - (void)testWhenSsoExtensionIsEnabled_andXpcIsDisabled_controllersOrder_areCorrect

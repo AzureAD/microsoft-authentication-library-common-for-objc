@@ -30,7 +30,10 @@
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
 #import "MSIDSSOExtensionSilentTokenRequest.h"
 #import "MSIDSSOExtensionInteractiveTokenRequest.h"
+#if TARGET_OS_OSX
 #import "MSIDSSOXpcSilentTokenRequest.h"
+#import "MSIDSSOXpcInteractiveTokenRequest.h"
+#endif
 
 @implementation MSIDDefaultTokenRequestProvider
 
@@ -100,7 +103,7 @@
     return request;
 }
 
-- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
 {
     __auto_type request = [[MSIDSSOExtensionInteractiveTokenRequest alloc] initWithRequestParameters:parameters
                                                                                         oauthFactory:self.oauthFactory
@@ -109,6 +112,21 @@
                                                                                 accountMetadataCache:self.accountMetadataCache
                                                                                   extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
     return request;
+}
+
+- (MSIDInteractiveTokenRequest *)interactiveXpcTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+{
+#if TARGET_OS_OSX
+    __auto_type request = [[MSIDSSOXpcInteractiveTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                        oauthFactory:self.oauthFactory
+                                                                              tokenResponseValidator:self.tokenResponseValidator
+                                                                                          tokenCache:self.tokenCache
+                                                                                accountMetadataCache:self.accountMetadataCache
+                                                                                  extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
+    return request;
+#else
+    return nil;
+#endif
 }
 
 - (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters

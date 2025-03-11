@@ -46,13 +46,7 @@
 + (BOOL)canPerformRequest
 {
     if (@available(macOS 13, *)) {
-        NSDate *startTime = [NSDate date];
-        BOOL result = [MSIDXpcSingleSignOnProvider canPerformRequest];
-        NSDate *endTime = [NSDate date];
-        NSTimeInterval elapsedTime = [endTime timeIntervalSinceDate:startTime];
-
-        NSLog(@"Benchmarking canPerformRequest: %f seconds", elapsedTime);
-        return result;
+        return [MSIDXpcSingleSignOnProvider canPerformRequest];
     } else {
         return NO;
     }
