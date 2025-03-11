@@ -32,8 +32,9 @@
 NSString *const MSID_XPC_CACHE_QUEUE_NAME = @"com.microsoft.msidxpcprovidercache";
 NSString *const MSID_XPC_PROVIDER_TYPE_KEY = @"xpc_provider_type";
 NSString *const MSID_XPC_LAST_UPDATE_TIME = @"last_update_time";
+NSString *const MSID_XPC_LAST_UPDATE_TIME_DESCRIPTION = @"last_update_time_description";
 NSString *const MSID_XPC_STATUS = @"xpc_status";
-NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 10.0;//14400.0;
+NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 
 @interface MSIDXpcProviderCache ()
 
@@ -41,6 +42,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 10.0;//14400.0;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
 @property (nonatomic) BOOL isMacBrokerXpcProviderInstalled;
 @property (nonatomic) BOOL isCompanyPortalXpcProviderInstalled;
+@property (nonatomic) NSUserDefaults *userDefaults;
 
 @end
 
@@ -64,6 +66,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 10.0;//14400.0;
     {
         NSString *queueName = [NSString stringWithFormat:@"%@-%@", MSID_XPC_CACHE_QUEUE_NAME, [NSUUID UUID].UUIDString];
         _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+        _userDefaults = [NSUserDefaults standardUserDefaults];
     }
     
     return self;
@@ -73,7 +76,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 10.0;//14400.0;
 {
     __block NSInteger result;
     dispatch_sync(self.synchronizationQueue, ^{
-        result = [[NSUserDefaults standardUserDefaults] integerForKey:MSID_XPC_PROVIDER_TYPE_KEY];
+        result = [self.userDefaults integerForKey:MSID_XPC_PROVIDER_TYPE_KEY];
     });
     
     return result;
@@ -82,7 +85,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 10.0;//14400.0;
 - (void)setCachedXpcProvider:(MSIDSsoProviderType)cachedXpcProvider
 {
     dispatch_barrier_sync(self.synchronizationQueue, ^{
-        [[NSUserDefaults standardUserDefaults] setInteger:cachedXpcProvider forKey:MSID_XPC_PROVIDER_TYPE_KEY];
+        [self.userDefaults setInteger:cachedXpcProvider forKey:MSID_XPC_PROVIDER_TYPE_KEY];
         self.xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:cachedXpcProvider];
     });
 }
@@ -210,8 +213,9 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 10.0;//14400.0;
             return;
         }
         
-        NSDictionary *xpcInfo = @{MSID_XPC_LAST_UPDATE_TIME:[[NSDate date] msidDateToTimestamp], MSID_XPC_STATUS:@(cachedXpcStatus)};
-        [[NSUserDefaults standardUserDefaults] setObject:xpcInfo forKey:self.xpcConfiguration.xpcMachServiceName];
+        NSDate *currentTime = [NSDate date];
+        NSDictionary *xpcInfo = @{MSID_XPC_LAST_UPDATE_TIME:[currentTime msidDateToTimestamp], MSID_XPC_LAST_UPDATE_TIME_DESCRIPTION:[currentTime msidToString], MSID_XPC_STATUS:@(cachedXpcStatus)};
+        [self.userDefaults setObject:xpcInfo forKey:self.xpcConfiguration.xpcMachServiceName];
     });
 }
 

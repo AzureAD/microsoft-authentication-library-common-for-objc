@@ -72,6 +72,7 @@ static NSArray *deviceModeEnumString;
 #if TARGET_OS_OSX
         _platformSSOStatus = [self platformSSOStatusEnumFromString:[json msidStringObjectForKey:MSID_PLATFORM_SSO_STATUS_KEY]];
         _ssoProviderType = [self ssoProviderTypeEnumFromString:[json msidStringObjectForKey:MSID_SSO_PROVIDER_TYPE_KEY]];
+        [self updateSsoProviderType];
 #endif
         
         NSString *jsonDataString = [json msidStringObjectForKey:MSID_ADDITIONAL_EXTENSION_DATA_KEY];
@@ -224,10 +225,21 @@ static NSArray *deviceModeEnumString;
 
 #if TARGET_OS_OSX
 
-- (void)setSsoProviderType:(MSIDSsoProviderType)ssoProviderType
+- (void)updateSsoProviderType
 {
-    _ssoProviderType = ssoProviderType;
-    [MSIDXpcProviderCache sharedInstance].cachedXpcProvider = ssoProviderType;
+    // Update the provider type from SsoExtension only if it is recognized.
+    //
+    // 1. An "unknown" type might occur when:
+    //    - The Broker version lacks an updated return value for `ssoProviderType`.
+    //      In such cases, since the broker likely doesn't have the XPC service,
+    //      `MSIDXpcProviderCache` will determine which XPC service to use.
+    //
+    // 2. An "unknown" type might also occur from:
+    //    - The XPC service response itself.
+    //      Here, we already know which XPC service is appropriate before this call,
+    //      so there's no need to update the provider type.
+    
+    if (self.ssoProviderType != MSIDUnknownSsoProvider) [MSIDXpcProviderCache sharedInstance].cachedXpcProvider = self.ssoProviderType;
 }
 
 #endif
