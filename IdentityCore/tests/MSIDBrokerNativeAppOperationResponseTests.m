@@ -83,7 +83,8 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(11, json.allKeys.count);
+    XCTAssertEqual(12, json.allKeys.count);
+    XCTAssertEqualObjects(json[MSID_SSO_PROVIDER_TYPE_KEY], @"unknown");
 #else
     XCTAssertEqual(10, json.allKeys.count);
 #endif
