@@ -200,24 +200,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                     return;
                 }
                 
-                /**This is for testing./debugging, and should make it write when MSIDSsoProviderType is merged into dev branch*/
-                switch (deviceInfo.platformSSOStatus) {
-                    case MSIDPlatformSSONotEnabled:
-                        MSIDXpcProviderCache.sharedInstance.cachedXpcProvider = MSIDUnknownSsoProvider;
-                        break;
-                    case MSIDPlatformSSOEnabledNotRegistered:
-                        MSIDXpcProviderCache.sharedInstance.cachedXpcProvider = MSIDMacBrokerSsoProvider;
-                        break;
-                    case MSIDPlatformSSOEnabledAndRegistered:
-                        MSIDXpcProviderCache.sharedInstance.cachedXpcProvider = MSIDCompanyPortalSsoProvider;
-                        break;
-                    default:
-                        MSIDXpcProviderCache.sharedInstance.cachedXpcProvider = MSIDUnknownSsoProvider;
-                        break;
-                }
-                
-                /**uncomment below code**/
-//                MSIDXpcProviderCache.sharedInstance.cachedXpcProvider = deviceInfo.platformSSOStatus;
+                MSIDXpcProviderCache.sharedInstance.cachedXpcProvider = deviceInfo.ssoProviderType;
                 dispatch_group_leave(group);
             }];
             

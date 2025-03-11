@@ -26,6 +26,10 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "NSJSONSerialization+MSIDExtensions.h"
 #import "MSIDJsonSerializer.h"
+#if TARGET_OS_OSX
+#import "MSIDXpcProviderCache.h"
+#endif
+
 
 static NSArray *deviceModeEnumString;
 
@@ -218,6 +222,16 @@ static NSArray *deviceModeEnumString;
     return MSIDPreferredAuthMethodNotConfigured;
 }
 
+#if TARGET_OS_OSX
+
+- (void)setSsoProviderType:(MSIDSsoProviderType)ssoProviderType
+{
+    _ssoProviderType = ssoProviderType;
+    [MSIDXpcProviderCache sharedInstance].cachedXpcProvider = ssoProviderType;
+}
+
+#endif
+
 - (NSString *)ssoProviderTypeStringFromEnum:(MSIDSsoProviderType)deviceMode
 {
     switch (deviceMode)
@@ -234,7 +248,7 @@ static NSArray *deviceModeEnumString;
 - (MSIDSsoProviderType)ssoProviderTypeEnumFromString:(NSString *)deviceModeString
 {
     if ([deviceModeString isEqualToString:@"companyPortal"])    return MSIDCompanyPortalSsoProvider;
-    if ([deviceModeString isEqualToString:@"macBroker"])  return MSIDMacBrokerSsoProvider;
+    if ([deviceModeString isEqualToString:@"macBroker"])    return MSIDMacBrokerSsoProvider;
 
     return MSIDUnknownSsoProvider;
 }
