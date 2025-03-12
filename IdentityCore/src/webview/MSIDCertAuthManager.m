@@ -50,6 +50,8 @@
     return sharedInstance;
 }
 
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+
 - (void)setRedirectUriPrefix:(NSString *)prefix
                    forScheme:(NSString *)scheme
 {
@@ -75,20 +77,16 @@
 }
 
 - (void)startWithURL:(NSURL *)startURL
-    parentController:(UIViewController *)parentViewController
+    parentController:(MSIDViewController *)parentViewController
              context:(id<MSIDRequestContext>)context
      completionBlock:(MSIDWebUICompletionHandler)completionBlock
 {
-#if MSID_EXCLUDE_SYSTEMWV
-    NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Cannot handle cba request: system webview is not available.", nil, nil, nil, nil, nil, YES);
-    if (completionBlock) completionBlock(nil, msidError);
-#else
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         self.isCertAuthInProgress = YES;
         
         NSURLComponents *requestURLComponents = [NSURLComponents componentsWithURL:startURL resolvingAgainstBaseURL:NO];
         NSArray<NSURLQueryItem *> *queryItems = [requestURLComponents queryItems];
-
+        
         NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
         newQueryItems[MSID_BROKER_IS_PERFORMING_CBA] = @"true";
         
@@ -122,7 +120,7 @@
         
         [self.systemWebViewController startWithCompletionHandler:completionBlock];
     }];
-#endif
 }
 
+#endif
 @end
