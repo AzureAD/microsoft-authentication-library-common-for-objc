@@ -3453,7 +3453,7 @@
 {
     [MSIDTestSwizzle instanceMethod:@selector(boolForKey:)
                               class:[MSIDFlightManager class]
-                              block:(id)^(id *obj, NSString *flightKey)
+                              block:(id)^(__unused id *obj, NSString *flightKey)
      {
         if ([flightKey isEqualToString:@"enable_client_sfrt_by_tenant_id"]) // TODO: Replace this by the constant from the other branch
         {
