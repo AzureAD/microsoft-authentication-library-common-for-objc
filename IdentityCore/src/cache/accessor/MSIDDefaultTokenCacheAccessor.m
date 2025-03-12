@@ -47,6 +47,7 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDFamilyRefreshToken.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -131,11 +132,19 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError *__autoreleasing *)error
 {
-    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error] == MSIDIsFRTEnabledStatusActive;
+    MSIDIsFRTEnabledStatus frtStatus = [_accountCredentialCache checkFRTEnabled:context error:error];
+    BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusActive;
     if (error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
     }
+    
+    MSIDAADTokenRequestServerTelemetry *serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+    NSString *telemetryMessage = [NSString stringWithFormat:@"sfrt%ld", frtStatus];
+    
+    [serverTelemetry handleError:[[NSError alloc] initWithDomain:telemetryMessage code:0 userInfo:nil]
+                     errorString:telemetryMessage
+                         context:context];
     
     MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
     
