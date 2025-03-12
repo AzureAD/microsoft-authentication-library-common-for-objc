@@ -153,8 +153,6 @@ extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION;
 
 extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEYCHAIN;
 extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEY;
-extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_APPS_ENABLED_KEY;
-extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_APPS_DISABLED_KEY;
 
 extern NSString * _Nonnull const MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY;
 
@@ -180,16 +178,17 @@ typedef NS_ENUM(NSInteger, MSIDPlatformSequenceIndex)
 
 typedef NS_ENUM(NSInteger, MSIDIsFRTEnabledStatus)
 {
-    MSIDIsFRTEnabledStatusActive = 0,
+    // FRT has not been explicitly enabled with keychain item
+    MSIDIsFRTEnabledStatusNotEnabled = 0,
+    
+    // FRT is enabled
+    MSIDIsFRTEnabledStatusActive,
     
     // Client app has disabled FRT through MSIDRequestParameters or was disabled previuosly by keychain item
     MSIDIsFRTEnabledStatusDisabledByClientApp,
     
     // There was an error reading keychain item
     MSIDIsFRTEnabledStatusDisabledByKeychainError,
-    
-    // FRT has not been explicitly enabled with keychain item
-    MSIDIsFRTEnabledStatusNotEnabled,
     
     // There was an error deserializing keychain item
     MSIDIsFRTEnabledStatusDisabledByDeserializationError,

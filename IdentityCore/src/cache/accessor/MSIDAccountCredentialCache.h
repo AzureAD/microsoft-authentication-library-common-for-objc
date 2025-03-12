@@ -201,11 +201,4 @@
 - (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
-/*
- Update cache item to enable/disable FRT
- */
-- (void)updateFRTSettings:(BOOL)enableFRT
-                  context:(nullable id<MSIDRequestContext>)context
-                    error:(NSError * _Nullable __autoreleasing * _Nullable)error;
-
 @end
