@@ -31,11 +31,11 @@ static NSArray *deviceModeEnumString;
 
 @implementation MSIDDeviceInfo
 
-
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
                   ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
                  isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
                      brokerVersion:(NSString *)brokerVersion
+                   ssoProviderType:(MSIDSsoProviderType)ssoProviderType
 {
     self = [super init];
     
@@ -45,6 +45,7 @@ static NSArray *deviceModeEnumString;
         _ssoExtensionMode = ssoExtensionMode;
         _wpjStatus = isWorkPlaceJoined ? MSIDWorkPlaceJoinStatusJoined : MSIDWorkPlaceJoinStatusNotJoined;
         _brokerVersion = brokerVersion;
+        _ssoProviderType = ssoProviderType;
     }
     
     return self;
@@ -67,6 +68,7 @@ static NSArray *deviceModeEnumString;
         
 #if TARGET_OS_OSX
         _platformSSOStatus = [self platformSSOStatusEnumFromString:[json msidStringObjectForKey:MSID_PLATFORM_SSO_STATUS_KEY]];
+        _ssoProviderType = [self ssoProviderTypeEnumFromString:[json msidStringObjectForKey:MSID_SSO_PROVIDER_TYPE_KEY]];
 #endif
         
         NSString *jsonDataString = [json msidStringObjectForKey:MSID_ADDITIONAL_EXTENSION_DATA_KEY];
@@ -99,6 +101,7 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_CLIENT_FLIGHTS_KEY] = self.clientFlights;
 #if TARGET_OS_OSX
     json[MSID_PLATFORM_SSO_STATUS_KEY] = [self platformSSOStatusStringFromEnum:self.platformSSOStatus];
+    json[MSID_SSO_PROVIDER_TYPE_KEY] = [self ssoProviderTypeStringFromEnum:self.ssoProviderType];
 #endif
     json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] = [self.additionalExtensionData msidJSONSerializeWithContext:nil];
     if (self.extraDeviceInfo)
@@ -215,6 +218,27 @@ static NSArray *deviceModeEnumString;
     if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthQRPIN"])            return MSIDPreferredAuthMethodQRPIN;
     
     return MSIDPreferredAuthMethodNotConfigured;
+}
+
+- (NSString *)ssoProviderTypeStringFromEnum:(MSIDSsoProviderType)deviceMode
+{
+    switch (deviceMode)
+    {
+        case MSIDCompanyPortalSsoProvider:
+            return @"companyPortal";
+        case MSIDMacBrokerSsoProvider:
+            return @"macBroker";
+        default:
+            return @"unknown";
+    }
+}
+
+- (MSIDSsoProviderType)ssoProviderTypeEnumFromString:(NSString *)deviceModeString
+{
+    if ([deviceModeString isEqualToString:@"companyPortal"])    return MSIDCompanyPortalSsoProvider;
+    if ([deviceModeString isEqualToString:@"macBroker"])  return MSIDMacBrokerSsoProvider;
+
+    return MSIDUnknownSsoProvider;
 }
 
 @end
