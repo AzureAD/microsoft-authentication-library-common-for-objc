@@ -39,8 +39,6 @@
 #import "MSIDXpcSilentTokenRequestController.h"
 #endif
 
-static NSString *newXpcController = @"new_xpc_controller";
-
 @implementation MSIDRequestControllerFactory
 
 + (nullable id<MSIDRequestControlling>)silentControllerForParameters:(MSIDRequestParameters *)parameters
@@ -49,29 +47,29 @@ static NSString *newXpcController = @"new_xpc_controller";
                                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError *__autoreleasing*)error
 {
-    if (parameters.msidXpcMode != MSIDXpcModeDisable)
+    if (parameters.msidXpcMode == MSIDXpcModeDisable)
     {
-        return [self v2SilentControllerForParameters:parameters
-                                        forceRefresh:forceRefresh
-                                         skipLocalRt:skipLocalRt
-                                tokenRequestProvider:tokenRequestProvider
-                                               error:error];
+        return [self SilentControllerWithoutXpcForParameters:parameters
+                                                forceRefresh:forceRefresh
+                                                 skipLocalRt:skipLocalRt
+                                        tokenRequestProvider:tokenRequestProvider
+                                                       error:error];
     }
     else
     {
-        return [self v1SilentControllerForParameters:parameters
-                                        forceRefresh:forceRefresh
-                                         skipLocalRt:skipLocalRt
-                                tokenRequestProvider:tokenRequestProvider
-                                               error:error];
+        return [self silentControllerWithXpcForParameters:parameters
+                                             forceRefresh:forceRefresh
+                                              skipLocalRt:skipLocalRt
+                                     tokenRequestProvider:tokenRequestProvider
+                                                    error:error];
     }
 }
 
-+ (nullable id<MSIDRequestControlling>)v1SilentControllerForParameters:(MSIDRequestParameters *)parameters
-                                                        forceRefresh:(BOOL)forceRefresh
-                                                         skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
-                                                tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError *__autoreleasing*)error
++ (nullable id<MSIDRequestControlling>)SilentControllerWithoutXpcForParameters:(MSIDRequestParameters *)parameters
+                                                                  forceRefresh:(BOOL)forceRefresh
+                                                                   skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
+                                                          tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                                         error:(NSError *__autoreleasing*)error
 {
     // Nested auth protocol - Reverse client id & redirect uri
     if ([parameters isNestedAuthProtocol])
@@ -106,12 +104,22 @@ static NSString *newXpcController = @"new_xpc_controller";
     // TODO: Performance optimization: check account source.
     // if (parameters.accountIdentifier.source == BROKER) return brokerController;
     
+    if (!brokerController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"No fallback brokerController is provided", nil);
+        return nil;
+    }
+    
     __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                                              forceRefresh:forceRefresh
                                                                      tokenRequestProvider:tokenRequestProvider
                                                             fallbackInteractiveController:brokerController
                                                                                     error:error];
-    if (!localController) return nil;
+    if (!localController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, parameters, @"failed to initialize silentController, return early", nil);
+        return nil;
+    }
     
     switch (skipLocalRt) {
         case MSIDSilentControllerForceSkippingLocalRt:
@@ -130,11 +138,11 @@ static NSString *newXpcController = @"new_xpc_controller";
     return localController;
 }
 
-+ (nullable id<MSIDRequestControlling>)v2SilentControllerForParameters:(MSIDRequestParameters *)parameters
-                                                        forceRefresh:(BOOL)forceRefresh
-                                                         skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
-                                                tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError *__autoreleasing*)error
++ (nullable id<MSIDRequestControlling>)silentControllerWithXpcForParameters:(MSIDRequestParameters *)parameters
+                                                               forceRefresh:(BOOL)forceRefresh
+                                                                skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
+                                                       tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                                      error:(NSError *__autoreleasing*)error
 {
     // Nested auth protocol - Reverse client id & redirect uri
     if ([parameters isNestedAuthProtocol])
@@ -185,12 +193,22 @@ static NSString *newXpcController = @"new_xpc_controller";
         }
     }
     
+    if (!fallbackController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"No fallbackController is provided", nil);
+        return nil;
+    }
+    
     MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                                                        forceRefresh:forceRefresh
                                                                                tokenRequestProvider:tokenRequestProvider
                                                                       fallbackInteractiveController:fallbackController
                                                                                               error:error];
-    if (!silentController) return nil;
+    if (!silentController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, parameters, @"failed to initialize silentController, return early", nil);
+        return nil;
+    }
     
     switch (skipLocalRt) {
         case MSIDSilentControllerForceSkippingLocalRt:
