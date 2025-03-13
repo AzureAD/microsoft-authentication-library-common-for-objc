@@ -47,7 +47,7 @@
                                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError *__autoreleasing*)error
 {
-    if (parameters.msidXpcMode == MSIDXpcModeDisable)
+    if (parameters.xpcMode == MSIDXpcModeDisable)
     {
         return [self SilentControllerWithoutXpcForParameters:parameters
                                                 forceRefresh:forceRefresh
@@ -165,14 +165,14 @@
     
         MSIDSilentController *xpcController = nil;
 #if TARGET_OS_OSX
-        if (parameters.msidXpcMode != MSIDXpcModeDisable && [MSIDXpcSilentTokenRequestController canPerformRequest])
+        if (parameters.xpcMode != MSIDXpcModeDisable && [MSIDXpcSilentTokenRequestController canPerformRequest])
         {
             xpcController = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                            forceRefresh:forceRefresh
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                           fallbackInteractiveController:fallbackController
                                                                                                   error:error];
-            if (parameters.msidXpcMode == MSIDXpcModeFull || parameters.msidXpcMode == MSIDXpcModeOverride)
+            if (parameters.xpcMode == MSIDXpcModeFull || parameters.xpcMode == MSIDXpcModeOverride)
             {
                 // If in Xpc full mode, the XPCController will work as a isolated controller when SsoExtension cannotPerformRequest
                 fallbackController = xpcController;
@@ -181,7 +181,7 @@
         }
 #endif
         
-        BOOL shouldSkipSsoExtension = parameters.msidXpcMode == MSIDXpcModeOverride;
+        BOOL shouldSkipSsoExtension = parameters.xpcMode == MSIDXpcModeOverride;
         
         if (!shouldSkipSsoExtension && [MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
         {
