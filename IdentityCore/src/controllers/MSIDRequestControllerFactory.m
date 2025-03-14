@@ -107,7 +107,6 @@
     if (!brokerController)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"No fallback brokerController is provided", nil);
-        return nil;
     }
     
     __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
@@ -196,7 +195,6 @@
     if (!fallbackController)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"No fallbackController is provided", nil);
-        return nil;
     }
     
     MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
