@@ -25,11 +25,17 @@
 
 #import "MSIDBrowserNativeMessageGetSupportedContractsResponse.h"
 #import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_SUPPORTED_CONTRACTS_KEY = @"contracts";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_SUPPORTED_CONTRACTS_DIVIDER = @",";
 
 @implementation MSIDBrowserNativeMessageGetSupportedContractsResponse
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
+}
 
 + (NSString *)responseType
 {
