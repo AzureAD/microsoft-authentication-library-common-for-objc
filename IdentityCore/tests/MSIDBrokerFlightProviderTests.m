@@ -78,26 +78,37 @@
     XCTAssertFalse([flightProvider boolForKey:@"flight2"]);
 }
 
-- (void)testInitWithBase64EncodedFlightsPayload_whenStringListFlight_shouldReadValues
+- (void)testInitWithBase64EncodedFlightsPayload_whenStringFlightPresent_shouldReadValue
 {
-    NSString *flightsPayload = @"eyJmbGlnaHQxIjp0cnVlLCJmbGlnaHQyIjpbInRlbmFudDEiLCJ0ZW5hbnQyIl19";
+    NSString *flightsPayload = @"eyJmbGlnaHQxIjp0cnVlLCJmbGlnaHQyIjoic3RyaW5nVmFsdWUifQ==";
     MSIDBrokerFlightProvider *flightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:flightsPayload];
     
-    NSArray *strings = [flightProvider stringsForFlightKey:@"flight2"];
+    NSString *string = [flightProvider stringForKey:@"flight2"];
     
     XCTAssertNotNil(flightProvider);
-    XCTAssertEqual(strings.count, 2);
+    XCTAssertFalse([NSString msidIsStringNilOrBlank:string]);
 }
 
-- (void)testInitWithBase64EncodedFlightsPayload_whenNotStringListFlight_shouldReturnNil
+- (void)testInitWithBase64EncodedFlightsPayload_whenStringFlightInvalidValueType_shouldReturnNil
 {
     NSString *flightsPayload = @"eyJmbGlnaHQxIjp0cnVlLCJmbGlnaHQyIjpbInRlbmFudDEiLCJ0ZW5hbnQyIl19";
     MSIDBrokerFlightProvider *flightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:flightsPayload];
     
-    NSArray *strings = [flightProvider stringsForFlightKey:@"flight1"];
+    NSString *string = [flightProvider stringForKey:@"flight2"];
     
     XCTAssertNotNil(flightProvider);
-    XCTAssertEqual(strings.count, 0);
+    XCTAssertNil(string);
+}
+
+- (void)testInitWithBase64EncodedFlightsPayload_whenNoStringFlightPresent_shouldReturnNil
+{
+    NSString *flightsPayload = @"eyJmbGlnaHQxIjp0cnVlLCJmbGlnaHQyIjpbInRlbmFudDEiLCJ0ZW5hbnQyIl19";
+    MSIDBrokerFlightProvider *flightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:flightsPayload];
+    
+    NSString *string = [flightProvider stringForKey:@"flightNotPresent"];
+    
+    XCTAssertNotNil(flightProvider);
+    XCTAssertNil(string);
 }
 
 @end

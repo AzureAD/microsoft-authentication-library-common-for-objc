@@ -26,6 +26,9 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "NSJSONSerialization+MSIDExtensions.h"
 #import "MSIDJsonSerializer.h"
+#if !AD_BROKER
+#import "MSIDBrokerFlightProvider.h"
+#endif
 
 static NSArray *deviceModeEnumString;
 
@@ -84,6 +87,15 @@ static NSArray *deviceModeEnumString;
             _extraDeviceInfo = [extraDeviceInfoStr msidJson];
         }
         
+#if !AD_BROKER
+        // Save client flights if available
+        if (![NSString msidIsStringNilOrBlank:_clientFlights])
+        {
+            MSIDBrokerFlightProvider *flightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:_clientFlights];
+            
+            [MSIDFlightManager sharedInstance].flightProvider = flightProvider;
+        }
+#endif
     }
     
     return self;

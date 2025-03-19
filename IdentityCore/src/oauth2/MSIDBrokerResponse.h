@@ -43,9 +43,6 @@
 @property (readonly) NSString *errorDomain;
 @property (readonly) NSString *target;
 
-// Client flights managed by broker, base64 encoded
-@property (readonly) NSString *clientFlights;
-
 // Derived properties
 @property (readonly) MSIDTokenResponse *tokenResponse;
 @property (readonly) MSIDAuthority *msidAuthority;

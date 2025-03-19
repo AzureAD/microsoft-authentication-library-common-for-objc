@@ -30,10 +30,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerFlightProvider : NSObject <MSIDFlightManagerInterface>
 
-- (instancetype)initWithBase64EncodedFlightsPayload:(nullable NSString *)base64EncodedFlightsPayload;
+- (instancetype _Nullable)initWithBase64EncodedFlightsPayload:(nullable NSString *)base64EncodedFlightsPayload NS_DESIGNATED_INITIALIZER;
 
-- (instancetype _Nullable )init NS_UNAVAILABLE;
-+ (instancetype _Nullable )new NS_UNAVAILABLE;
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
 
 @end
 

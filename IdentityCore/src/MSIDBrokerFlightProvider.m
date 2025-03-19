@@ -27,13 +27,13 @@
 
 @interface MSIDBrokerFlightProvider()
 
-@property (nonatomic, nullable) NSDictionary *clientFlightsPayload;
+@property (nonatomic, nullable, readonly) NSDictionary *clientFlightsPayload;
 
 @end
 
 @implementation MSIDBrokerFlightProvider
 
-- (instancetype)initWithBase64EncodedFlightsPayload:(nullable NSString *)base64EncodedFlightsPayload
+- (instancetype _Nullable)initWithBase64EncodedFlightsPayload:(nullable NSString *)base64EncodedFlightsPayload
 {
     self = [super init];
     
@@ -66,7 +66,7 @@
         
         if (clientFlightsDict)
         {
-            self.clientFlightsPayload = clientFlightsDict;
+            _clientFlightsPayload = clientFlightsDict;
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Client flights from broker is decoded successfully");
         }
     }
@@ -91,13 +91,13 @@
     return NO;
 }
 
-- (nullable NSArray<NSString *> *)stringsForFlightKey:(nonnull NSString *)flightKey
+- (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
 {
     if (self.clientFlightsPayload)
     {
         id value = self.clientFlightsPayload[flightKey];
         
-        if ([value isKindOfClass:[NSArray class]])
+        if ([value isKindOfClass:[NSString class]])
         {
             return value;
         }

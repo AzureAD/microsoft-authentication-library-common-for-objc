@@ -78,8 +78,7 @@ NSString *const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME = @"switch_browser_r
 
 NSString *const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY = @"use_v2_web_response_factory";
 NSString *const MSID_FLIGHT_SUPPORT_DUNA_CBA = @"support_duna_cba";
-NSString *const MSID_FLIGHT_ENABLE_CLIENT_SFRT_BY_TENANT_ID = @"enable_client_sfrt_by_tenant_id";
-NSString *const MSID_FLIGHT_DISABLE_CLIENT_SFRT_FOR_ALL_TENANTS = @"disable_client_sfrt_for_all";
+NSString *const MSID_FLIGHT_CLIENT_SFRT_STATUS = @"sfrt_status";
 
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
