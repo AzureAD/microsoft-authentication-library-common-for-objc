@@ -58,7 +58,7 @@
 - (dispatch_queue_t)initializeDispatchQueue
 {
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidflightmanager-%@", [NSUUID UUID].UUIDString];
-    return dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
+    return dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
 }
 
 - (void)setFlightProvider:(id<MSIDFlightManagerInterface>)flightProvider
