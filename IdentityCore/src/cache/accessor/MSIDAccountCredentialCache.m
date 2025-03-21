@@ -565,13 +565,16 @@
 {
     // This block will be used to check feature flags and update FRT settings if needed, depending on the current status
     // of the keychain item, avoiding an unnecessary read or update if status is the same
-    MSIDIsFRTEnabledStatus (^checkFeatureFlagsAndReturn)(MSIDIsFRTEnabledStatus) = ^MSIDIsFRTEnabledStatus(MSIDIsFRTEnabledStatus status) {
+    MSIDIsFRTEnabledStatus (^checkFeatureFlagsAndReturn)(MSIDIsFRTEnabledStatus) = ^MSIDIsFRTEnabledStatus(MSIDIsFRTEnabledStatus status)
+    {
         
         // Check if FRT is enabled by feature flight
         MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
-        BOOL flagEnableFRT = [flightManager boolForKey:@"enable_client_sfrt_by_tenant_id"]; // TODO: Replace this by the constant from the other branch, and remove the hardcoded YES
+        BOOL flagEnableFRT = [flightManager boolForKey:@"enable_client_sfrt_by_tenant_id"];// || YES; // TODO: Replace this by the constant from the other branch, and remove the hardcoded YES
         BOOL flagDisableAllFRT = [flightManager boolForKey:@"disable_client_sfrt_for_all"];
         BOOL shouldEnableFRT = flagEnableFRT && !flagDisableAllFRT;
+        MSIDIsFRTEnabledStatus newStatus = status;
+        NSError *updateError = nil;
         
         switch (status)
         {
@@ -579,8 +582,8 @@
             case MSIDIsFRTEnabledStatusNotEnabled:
                 if (shouldEnableFRT)
                 {
-                    [self updateFRTSettings:YES context:context error:nil];
-                    return MSIDIsFRTEnabledStatusActive;
+                    [self updateFRTSettings:YES context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusEnabled;
                 }
                 break;
                 
@@ -588,22 +591,28 @@
             case MSIDIsFRTEnabledStatusDisabledByDeserializationError:
                 if (shouldEnableFRT)
                 {
-                    [self updateFRTSettings:YES context:context error:nil];
-                    return MSIDIsFRTEnabledStatusActive;
+                    [self updateFRTSettings:YES context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusEnabled;
                 }
                 else if (flagDisableAllFRT)
                 {
-                    [self updateFRTSettings:NO context:context error:nil];
-                    return MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+                    [self updateFRTSettings:NO context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
                 }
                 break;
                 
                 // FRT is currently enabled, check to see if should be disabled
-            case MSIDIsFRTEnabledStatusActive:
+            case MSIDIsFRTEnabledStatusEnabled:
                 if (flagDisableAllFRT)
                 {
-                    [self updateFRTSettings:NO context:context error:nil];
-                    return MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+                    [self updateFRTSettings:NO context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+                    
+                    if (updateError)
+                    {
+                        // Even if there was an error updating the item, we should still return Disabled so that the feature is not active.
+                        status = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+                    }
                 }
                 break;
                 
@@ -611,8 +620,8 @@
             case MSIDIsFRTEnabledStatusDisabledByKeychainItem:
                 if (shouldEnableFRT)
                 {
-                    [self updateFRTSettings:YES context:context error:nil];
-                    return MSIDIsFRTEnabledStatusActive;
+                    [self updateFRTSettings:YES context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusEnabled;
                 }
                 break;
                 
@@ -625,7 +634,13 @@
                 break;
         }
         
-        return status;
+        if (updateError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error when trying to update FRT settings, error: %@", updateError);
+            newStatus = status;
+        }
+        
+        return newStatus;
     };
     
     // Check if FRT is disabled by client
@@ -668,7 +683,7 @@
     if(([useFRT isKindOfClass:[NSNumber class]] || [useFRT isKindOfClass:[NSString class]]) && [useFRT boolValue])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is enabled");
-        return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusActive);
+        return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusEnabled);
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is disabled");

@@ -3010,7 +3010,7 @@
     NSError *error = nil;
     MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusActive);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
 }
 
 - (void)testCheckFRTEnabled_whenNoItemInCacheAndFeatureEnabledAndDisabledForAll_shouldReturnNotEnabled
@@ -3081,7 +3081,7 @@
     
     MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusActive);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
 }
 
 - (void)testCheckFRTEnabled_whenItemInCacheInvalidAndFeatureEnabledAndDisabledForAll_shouldReturnDisabledByKeychainItem
@@ -3170,7 +3170,7 @@
     
     MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusActive);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
 }
 
 - (void)testCheckFRTEnabled_whenItemInCacheNotEnabledAndFeatureEnabledAndDisabledForAll_shouldReturnDisabledByKeychainItem
@@ -3236,7 +3236,7 @@
     
     MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusActive);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
 }
 
 - (void)testCheckFRTEnabled_whenItemInCacheIsEnabledAndFeatureEnabled_shouldReturnActive
@@ -3259,7 +3259,7 @@
     
     MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
     
-    XCTAssertEqual(result, MSIDIsFRTEnabledStatusActive);
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
 }
 
 - (void)testCheckFRTEnabled_whenItemInCacheIsEnabledAndFeatureEnabledAndDisabledForAll_shouldReturnDisabledByKeychainItem

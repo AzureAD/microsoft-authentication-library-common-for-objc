@@ -182,7 +182,7 @@ typedef NS_ENUM(NSInteger, MSIDIsFRTEnabledStatus)
     MSIDIsFRTEnabledStatusNotEnabled = 0,
     
     // FRT is enabled
-    MSIDIsFRTEnabledStatusActive,
+    MSIDIsFRTEnabledStatusEnabled,
     
     // Client app has disabled FRT through MSIDRequestParameters or was disabled previuosly by keychain item
     MSIDIsFRTEnabledStatusDisabledByClientApp,

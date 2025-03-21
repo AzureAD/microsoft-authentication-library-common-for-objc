@@ -133,7 +133,7 @@
                                            error:(NSError *__autoreleasing *)error
 {
     MSIDIsFRTEnabledStatus frtStatus = [_accountCredentialCache checkFRTEnabled:context error:error];
-    BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusActive;
+    BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
     if (error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
@@ -819,7 +819,7 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError *__autoreleasing*)error
 {
-    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error] == MSIDIsFRTEnabledStatusActive;
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error] == MSIDIsFRTEnabledStatusEnabled;
     if (error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
@@ -1005,7 +1005,7 @@
     {
         // Check if FRT is enabled, this will update the configuration object, and then use it to decide if
         // we should save the token as FRT or legacy RT (with familyId, if it contains that value).
-        BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error] == MSIDIsFRTEnabledStatusActive;
+        BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error] == MSIDIsFRTEnabledStatusEnabled;
         if (error)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not saving as new FRT.");
@@ -1285,7 +1285,7 @@
                                                   context:(id<MSIDRequestContext>)context
                                                     error:(NSError *__autoreleasing*)error
 {
-    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error] == MSIDIsFRTEnabledStatusActive;
+    BOOL frtEnabled = [_accountCredentialCache checkFRTEnabled:context error:error] == MSIDIsFRTEnabledStatusEnabled;
     if (error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
