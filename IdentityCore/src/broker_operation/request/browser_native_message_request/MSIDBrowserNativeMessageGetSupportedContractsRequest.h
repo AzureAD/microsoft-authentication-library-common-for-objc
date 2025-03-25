@@ -23,12 +23,12 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBaseBrokerOperationRequest.h"
+#import "MSIDBrokerOperationRequest.h"
 #import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrowserNativeMessageGetSupportedContractsRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>
+@interface MSIDBrowserNativeMessageGetSupportedContractsRequest : MSIDBrokerOperationRequest <MSIDJsonSerializable>
 
 @end
 
