@@ -23,22 +23,13 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
+#import "MSIDFlightManagerMockProvider.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDFlightManagerMockProvider
 
-@protocol MSIDFlightManagerInterface <NSObject>
-
-- (BOOL)boolForKey:(NSString *)flightKey;
-
-@end
-
-@interface MSIDFlightManager : NSObject <MSIDFlightManagerInterface>
-
-@property (nonatomic, nullable) id<MSIDFlightManagerInterface> flightProvider;
-
-+ (instancetype)sharedInstance;
+- (BOOL)boolForKey:(NSString *)flightKey
+{
+    return [self.boolForKeyContainer[flightKey] boolValue];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -42,4 +42,6 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error;
 
++ (BOOL)isMyUrl:(NSURL *)url operation:(NSString *)operation;
+
 @end
