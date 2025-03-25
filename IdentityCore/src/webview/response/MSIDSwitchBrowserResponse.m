@@ -74,7 +74,7 @@
     return useV2WebResponseHandling;
 }
 
-+ (BOOL)isMyUrl:(NSURL *)url operation:(NSString *)operation
++ (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation
 {
     if (url == nil) return NO;
     
@@ -120,7 +120,7 @@
         return NO;
     }
     
-    return [self.class isMyUrl:url operation:[self.class operation]];
+    return [self.class isDUNAActionUrl:url operation:[self.class operation]];
 }
 
 
