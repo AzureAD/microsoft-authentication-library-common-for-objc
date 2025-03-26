@@ -48,4 +48,7 @@
 - (nullable MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
                                                                         forceRefresh:(BOOL)forceRefresh;
 
+- (nullable MSIDSilentTokenRequest *)silentXpcTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
+                                                                        forceRefresh:(BOOL)forceRefresh;
+
 @end

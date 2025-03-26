@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,30 +20,27 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import <AuthenticationServices/AuthenticationServices.h>
-#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
-#import "MSIDSSOExtensionSilentTokenRequest.h"
-#import "MSIDRequestParameters.h"
-#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
-#import "MSIDSSOExtensionTokenRequestDelegate.h"
+
+#import "MSIDSSOXpcSilentTokenRequest.h"
+#import "MSIDSSOExtensionRequestDelegate.h"
 #import "MSIDBrokerOperationSilentTokenRequest.h"
-#import "NSDictionary+MSIDQueryItems.h"
-#import "ASAuthorizationController+MSIDExtensions.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDXpcSingleSignOnProvider.h"
+#import "MSIDBrokerOperationTokenResponse.h"
 
-@interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
+@interface MSIDSSOXpcSilentTokenRequest()
 
+@property (nonatomic, copy) MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock;
 @property (nonatomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
-@property (nonatomic) ASAuthorizationController *authorizationController;
-@property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
-@property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic) MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider;
+@property (nonatomic) id<MSIDRequestContext> context;
 
 @end
 
-@implementation MSIDSSOExtensionSilentTokenRequest
+@implementation MSIDSSOXpcSilentTokenRequest
 
 @synthesize requestCompletionBlock, operationRequest;
 
@@ -63,10 +61,9 @@
                          extendedTokenCache:extendedTokenCache];
     if (self)
     {
-        _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
-        _extensionDelegate.context = parameters;
-        _extensionDelegate.completionBlock = [super getCompletionBlock];
-        _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+        self.completionBlock = [super getCompletionBlock];
+        self.xpcSingleSignOnProvider = [MSIDXpcSingleSignOnProvider new];
+        self.context = parameters;
     }
 
     return self;
@@ -83,18 +80,29 @@
         return;
     }
 
-    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
-    ssoRequest.requestedOperation = [self.operationRequest.class operation];
-    __auto_type queryItems = [jsonDictionary msidQueryItems];
-    ssoRequest.authorizationOptions = queryItems;
-    [ASAuthorizationSingleSignOnProvider setRequiresUI:NO forRequest:ssoRequest];
-
-    self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
-    self.authorizationController.delegate = self.extensionDelegate;
-    
     self.requestCompletionBlock = completionBlock;
-    [self.authorizationController msidPerformRequests];
+    [self performXpcRequest:jsonDictionary];
+}
+
+- (void)performXpcRequest:(NSDictionary *)xpcRequest
+{
+    // Get the bundle object for the main bundle
+    NSBundle *mainBundle = [NSBundle mainBundle];
+
+    // Retrieve the bundle identifier
+    NSString *bundleIdentifier = [mainBundle bundleIdentifier];
+    NSDictionary *parameters = @{@"source_application": bundleIdentifier,
+                                 @"sso_request_param": xpcRequest,
+                                 @"is_silent": @(YES),
+                                 @"sso_request_operation": [self.operationRequest.class operation],
+                                 @"sso_request_id": [[NSUUID UUID] UUIDString]};
+    [self.xpcSingleSignOnProvider handleRequestParam:parameters
+                                           brokerKey:self.operationRequest.brokerKey
+                           assertKindOfResponseClass:MSIDBrokerOperationTokenResponse.class
+                                             context:self.context
+                                       continueBlock:^(id _Nullable response, NSError * _Nullable error) {
+        self.completionBlock(response, error);
+    }];
 }
 
 @end
-#endif
