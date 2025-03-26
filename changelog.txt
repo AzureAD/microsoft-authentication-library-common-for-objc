@@ -1,4 +1,5 @@
 TBD:
+* Fix resume response handling in DUNA #1493
 * Update supported contracts api #1492
 
 Version 1.9.0
