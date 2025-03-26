@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDFlightManager : NSObject <MSIDFlightManagerInterface>
 
-@property (nonatomic) id<MSIDFlightManagerInterface> flightProvider;
+@property (nonatomic, nullable) id<MSIDFlightManagerInterface> flightProvider;
 
 + (instancetype)sharedInstance;
 

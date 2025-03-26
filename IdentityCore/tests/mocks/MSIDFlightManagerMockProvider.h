@@ -23,25 +23,14 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDWebviewResponse.h"
+#import "MSIDFlightManager.h"
 
-@interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, readonly) NSString *actionUri;
-@property (nonatomic, readonly) NSString *switchBrowserSessionToken;
+@interface MSIDFlightManagerMockProvider : NSObject <MSIDFlightManagerInterface>
 
-- (instancetype )init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error NS_UNAVAILABLE;
-
-- (instancetype)initWithURL:(NSURL *)url
-                redirectUri:(NSString *)redirectUri
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error;
-
-+ (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation;
+@property (nonatomic) NSDictionary *boolForKeyContainer;
 
 @end
+
+NS_ASSUME_NONNULL_END
