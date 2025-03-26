@@ -32,4 +32,10 @@
     return [self.boolForKeyContainer[flightKey] boolValue];
 }
 
+- (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
+{
+    return self.stringForKeyContainer[flightKey];
+}
+
+
 @end
