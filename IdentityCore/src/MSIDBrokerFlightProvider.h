@@ -1,3 +1,4 @@
+
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -22,26 +23,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import <Foundation/Foundation.h>
+#import "MSIDFlightManager.h"
 
-#import "MSIDWebviewResponse.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
+@interface MSIDBrokerFlightProvider : NSObject <MSIDFlightManagerInterface>
 
-@property (nonatomic, readonly) NSString *actionUri;
-@property (nonatomic, readonly) NSString *switchBrowserSessionToken;
+- (instancetype _Nullable)initWithBase64EncodedFlightsPayload:(nullable NSString *)base64EncodedFlightsPayload NS_DESIGNATED_INITIALIZER;
 
-- (instancetype )init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error NS_UNAVAILABLE;
-
-- (instancetype)initWithURL:(NSURL *)url
-                redirectUri:(NSString *)redirectUri
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error;
-
-+ (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation;
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
 
 @end
+
+NS_ASSUME_NONNULL_END

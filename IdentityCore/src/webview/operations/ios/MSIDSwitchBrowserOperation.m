@@ -102,6 +102,7 @@
         
         NSError *localError;
         __auto_type response = [webRequestConfiguration responseWithResultURL:callbackURL factory:oauthFactory.webviewFactory context:requestParameters error:&localError];
+        response.parentResponse = self.switchBrowserResponse;
         
         if (localError)
         {
