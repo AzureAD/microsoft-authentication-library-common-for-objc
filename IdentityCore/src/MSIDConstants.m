@@ -64,6 +64,8 @@ NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";
 
 NSString *const MSID_USE_SINGLE_FRT_KEYCHAIN          = @"useSingleFRT";
 NSString *const MSID_USE_SINGLE_FRT_KEY               = @"use_single_frt";
+NSString *const MSID_FRT_STATUS_ENABLED               = @"on";
+NSString *const MSID_FRT_STATUS_DISABLED              = @"off";
 
 NSString *const MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY = @"SHARED_MODE_CURRENT_ACCOUNT_CHANGED";
 

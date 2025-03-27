@@ -197,6 +197,9 @@ typedef NS_ENUM(NSInteger, MSIDIsFRTEnabledStatus)
     MSIDIsFRTEnabledStatusDisabledByKeychainItem
 };
 
+extern NSString * _Nonnull const MSID_FRT_STATUS_ENABLED;
+extern NSString * _Nonnull const MSID_FRT_STATUS_DISABLED;
+
 extern NSString * _Nonnull const MSID_BROWSER_RESPONSE_SWITCH_BROWSER;
 extern NSString * _Nonnull const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME;
 
