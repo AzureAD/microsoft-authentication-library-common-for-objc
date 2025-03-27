@@ -62,6 +62,19 @@
         }
         
         _switchBrowserResumeResponse = (MSIDSwitchBrowserResumeResponse *)response;
+        
+        __auto_type parentResponse = _switchBrowserResumeResponse.parentResponse;
+        if (![parentResponse isKindOfClass:MSIDSwitchBrowserResponse.class])
+        {
+            NSString *errorMsg = [NSString stringWithFormat:@"Parent response of type %@ is required for creating %@", MSIDSwitchBrowserResponse.class, self.class];
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMsg);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMsg, nil, nil, nil, nil, nil, NO);
+            }
+            
+            return nil;
+        }
     }
     
     return self;
