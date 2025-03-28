@@ -154,6 +154,8 @@
 - (void)updateCustomHeadersForFRTSupportIfNeeded
 {
     // This is meant to be implemented by subclasses
+    NSAssert(NO, @"Abstract method.");
+    return;
 }
 
 #pragma mark - v2 code

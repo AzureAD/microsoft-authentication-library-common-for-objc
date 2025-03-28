@@ -26,9 +26,6 @@
 #import "MSIDRefreshToken.h"
 
 @interface MSIDFamilyRefreshToken : MSIDRefreshToken
-{
-    
-}
 
 - (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken;
 
