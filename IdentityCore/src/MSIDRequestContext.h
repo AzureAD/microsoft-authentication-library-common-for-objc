@@ -29,5 +29,10 @@
 - (NSString *)logComponent;
 - (NSString *)telemetryRequestId;
 - (NSDictionary *)appRequestMetadata;
+/**
+ Temporal property to disable Family Refresh Token. This will be removed in future, added to allow 1P apps to disable this feature themselves.
+ Enabled by default, also configured to be enabled/disabled remotely by Microsoft.
+ */
+@property (nonatomic, readwrite) BOOL disableFRT;
 
 @end

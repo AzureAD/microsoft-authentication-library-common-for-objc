@@ -33,6 +33,8 @@ NSString *const MSID_DEVICE_MODEL_KEY              = @"x-client-DM";
 NSString *const MSID_APP_NAME_KEY                  = @"x-app-name";
 NSString *const MSID_APP_VER_KEY                   = @"x-app-ver";
 NSString *const MSID_CCS_HINT_KEY                  = @"X-AnchorMailbox";
+NSString *const MSID_WEBAUTH_IGNORE_SSO_KEY        = @"x-ms-sso-Ignore-SSO";
+NSString *const MSID_WEBAUTH_REFRESH_TOKEN_KEY     = @"x-ms-sso-RefreshToken";
 
 NSString *const MSID_DEFAULT_FAMILY_ID             = @"1";
 NSString *const MSID_ADAL_SDK_NAME                 = @"adal-objc";
@@ -59,6 +61,11 @@ NSString *const MSID_POP_TOKEN_PRIVATE_KEY = @"com.microsoft.token.private.key";
 NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN = @"com.microsoft.identity.throttling.metadata";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";
+
+NSString *const MSID_USE_SINGLE_FRT_KEYCHAIN          = @"useSingleFRT";
+NSString *const MSID_USE_SINGLE_FRT_KEY               = @"use_single_frt";
+NSString *const MSID_FRT_STATUS_ENABLED               = @"on";
+NSString *const MSID_FRT_STATUS_DISABLED              = @"off";
 
 NSString *const MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY = @"SHARED_MODE_CURRENT_ACCOUNT_CHANGED";
 
