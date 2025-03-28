@@ -42,4 +42,6 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error;
 
++ (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation;
+
 @end

@@ -74,6 +74,24 @@
     return useV2WebResponseHandling;
 }
 
++ (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation
+{
+    if (url == nil) return NO;
+    
+    NSArray *pathComponents = url.pathComponents;
+    if ([pathComponents count] < 2)
+    {
+        return NO;
+    }
+    
+    if ([pathComponents[1] isEqualToString:operation])
+    {
+        return YES;
+    }
+    
+    return NO;
+}
+
 #pragma mark - Private
 
 - (BOOL)isMyUrl:(NSURL *)url
@@ -102,18 +120,7 @@
         return NO;
     }
     
-    NSArray *pathComponents = url.pathComponents;
-    if ([pathComponents count] < 2)
-    {
-        return NO;
-    }
-    
-    if ([pathComponents[1] isEqualToString:[self.class operation]])
-    {
-        return YES;
-    }
-    
-    return NO;
+    return [self.class isDUNAActionUrl:url operation:[self.class operation]];
 }
 
 

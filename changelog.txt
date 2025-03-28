@@ -1,3 +1,6 @@
+Version 1.9.1
+* Cherry pick DUNA "resume" action fix #1496
+
 Version 1.9.0
 * Remove MSAL perf telemetry as it's causing issue after SSO extension broker first strategy change (#1481)
 * Support DUNA protocol for CBA flow #1473
