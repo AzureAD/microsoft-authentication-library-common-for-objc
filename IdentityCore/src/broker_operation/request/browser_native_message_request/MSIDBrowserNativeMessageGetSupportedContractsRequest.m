@@ -25,6 +25,7 @@
 
 #import "MSIDBrowserNativeMessageGetSupportedContractsRequest.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @implementation MSIDBrowserNativeMessageGetSupportedContractsRequest
 
@@ -35,19 +36,7 @@
 
 + (NSString *)operation
 {
-    return @"GetSupportedContracts";
-}
-
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error 
-{
-    return [super init];
-}
-
-- (NSDictionary *)jsonDictionary 
-{ 
-    return @{};
+    return MSID_JSON_TYPE_OPERATION_REQUEST_BROWSER_NATIVE_GET_SUPPORTED_CONTRACTS;
 }
 
 @end

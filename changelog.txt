@@ -1,3 +1,8 @@
+Version TBD:
+* Fix resume response handling in DUNA #1493
+* Update supported contracts api #1492
+* Add feature flags provider to be controlled from broker (#1489)
+
 Version 1.9.0
 * Remove MSAL perf telemetry as it's causing issue after SSO extension broker first strategy change (#1481)
 * Support DUNA protocol for CBA flow #1473

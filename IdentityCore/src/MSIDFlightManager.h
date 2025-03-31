@@ -30,12 +30,14 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol MSIDFlightManagerInterface <NSObject>
 
 - (BOOL)boolForKey:(NSString *)flightKey;
+- (nullable NSString *)stringForKey:(NSString *)key;
+
 
 @end
 
 @interface MSIDFlightManager : NSObject <MSIDFlightManagerInterface>
 
-@property (nonatomic) id<MSIDFlightManagerInterface> flightProvider;
+@property (nonatomic, nullable) id<MSIDFlightManagerInterface> flightProvider;
 
 + (instancetype)sharedInstance;
 
