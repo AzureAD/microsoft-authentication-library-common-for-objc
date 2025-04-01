@@ -26,6 +26,9 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "NSJSONSerialization+MSIDExtensions.h"
 #import "MSIDJsonSerializer.h"
+#if !AD_BROKER
+#import "MSIDBrokerFlightProvider.h"
+#endif
 
 static NSArray *deviceModeEnumString;
 
@@ -64,6 +67,7 @@ static NSArray *deviceModeEnumString;
         _wpjStatus = [self wpjStatusEnumFromString:[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY]];
         _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
         _preferredAuthConfig = [self preferredAuthConfigurationEnumFromString:[json msidStringObjectForKey:MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY]];
+        _clientFlights = [json msidStringObjectForKey:MSID_BROKER_CLIENT_FLIGHTS_KEY];
         
 #if TARGET_OS_OSX
         _platformSSOStatus = [self platformSSOStatusEnumFromString:[json msidStringObjectForKey:MSID_PLATFORM_SSO_STATUS_KEY]];
@@ -83,6 +87,15 @@ static NSArray *deviceModeEnumString;
             _extraDeviceInfo = [extraDeviceInfoStr msidJson];
         }
         
+#if !AD_BROKER
+        // Save client flights if available
+        if (![NSString msidIsStringNilOrBlank:_clientFlights])
+        {
+            MSIDBrokerFlightProvider *flightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:_clientFlights];
+            
+            [MSIDFlightManager sharedInstance].flightProvider = flightProvider;
+        }
+#endif
     }
     
     return self;
@@ -97,6 +110,7 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
     json[MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY] = [self preferredAuthConfigurationStringFromEnum:self.preferredAuthConfig];
+    json[MSID_BROKER_CLIENT_FLIGHTS_KEY] = self.clientFlights;
 #if TARGET_OS_OSX
     json[MSID_PLATFORM_SSO_STATUS_KEY] = [self platformSSOStatusStringFromEnum:self.platformSSOStatus];
     json[MSID_SSO_PROVIDER_TYPE_KEY] = [self ssoProviderTypeStringFromEnum:self.ssoProviderType];

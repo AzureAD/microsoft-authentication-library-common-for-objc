@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSDictionary *extraAuthorizeURLQueryParameters;
 @property (nonatomic) BOOL enablePkce;
 @property (nonatomic) MSIDBrokerInvocationOptions *brokerInvocationOptions;
-@property (nonatomic) id<MSIDCustomHeaderProviding> crossDomainHeaderProvider;
+@property (nullable, nonatomic) id<MSIDCustomHeaderProviding> crossDomainHeaderProvider;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 - (NSDictionary *)allAuthorizeRequestExtraParameters DEPRECATED_MSG_ATTRIBUTE("Use -allAuthorizeRequestExtraParametersWithMetadata: instead");

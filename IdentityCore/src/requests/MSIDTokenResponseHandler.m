@@ -89,6 +89,7 @@
         return;
     }
     
+    
     tokenResult.brokerAppVersion = brokerAppVersion;
     void (^validateAccountAndCompleteBlock)(void) = ^
     {

@@ -1,3 +1,4 @@
+
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -22,20 +23,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import <Foundation/Foundation.h>
+#import "MSIDFlightManager.h"
 
-#import "MSIDFlightManagerMockProvider.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation MSIDFlightManagerMockProvider
+@interface MSIDBrokerFlightProvider : NSObject <MSIDFlightManagerInterface>
 
-- (BOOL)boolForKey:(NSString *)flightKey
-{
-    return [self.boolForKeyContainer[flightKey] boolValue];
-}
+- (instancetype _Nullable)initWithBase64EncodedFlightsPayload:(nullable NSString *)base64EncodedFlightsPayload NS_DESIGNATED_INITIALIZER;
 
-- (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
-{
-    return self.stringForKeyContainer[flightKey];
-}
-
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
 
 @end
+
+NS_ASSUME_NONNULL_END
