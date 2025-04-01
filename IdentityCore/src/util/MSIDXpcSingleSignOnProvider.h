@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,15 +20,34 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDSSORemoteSilentTokenRequest.h"
-#import "MSIDProviderType.h"
+
+#import <Foundation/Foundation.h>
+#import "MSIDSSOExtensionRequestDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSSOExtensionSilentTokenRequest : MSIDSSORemoteSilentTokenRequest
+@interface MSIDXpcSingleSignOnProvider : NSObject
 
-@end
+// For interactive auth request
+// Note: completion thread is not gurantee, please submit to the correct thread as needed
+- (void)handleRequestParam:(NSDictionary *)requestParam
+           parentViewFrame:(NSRect)frame
+                 brokerKey:brokerKey
+ assertKindOfResponseClass:(Class)aClass
+                   context:(id<MSIDRequestContext>)context
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+
+// For silent auth request
+- (void)handleRequestParam:(NSDictionary *)requestParam
+                 brokerKey:brokerKey
+ assertKindOfResponseClass:(Class)aClass
+                   context:(id<MSIDRequestContext>)context
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+
++ (BOOL)canPerformRequest;
 
 NS_ASSUME_NONNULL_END
+
+@end
