@@ -28,6 +28,7 @@
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDDeviceInfo.h"
 #import "MSIDXpcConfiguration.h"
+#import "MSIDLogger+Internal.h"
 
 NSString *const MSID_XPC_CACHE_QUEUE_NAME = @"com.microsoft.msidxpcprovidercache";
 NSString *const MSID_XPC_PROVIDER_TYPE_KEY = @"xpc_provider_type";
@@ -149,8 +150,25 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 
 - (BOOL)isXpcProviderExist:(NSString *)xpcIdentifier
 {
-    NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:xpcIdentifier];
-    return appURL != nil && [appURL.absoluteString containsString:@"Applications"] && [[NSFileManager defaultManager] fileExistsAtPath:[appURL path]];
+    if (@available(macOS 12.0, *))
+    {
+        NSArray <NSURL *> *appURLs = [[NSWorkspace sharedWorkspace] URLsForApplicationsWithBundleIdentifier:xpcIdentifier];
+        for (NSURL *appURL in appURLs)
+        {
+            if ([appURL.absoluteString containsString:@"Applications"] && [[NSFileManager defaultManager] fileExistsAtPath:[appURL path]])
+            {
+                return YES;
+            }
+        }
+    }
+    else
+    {
+        // This should not happen since the entry point has been guarded by version (macOS 13 and above)
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Entra broker] CLIENT - fall into unsupported platform end XPC disconnect from service!", nil);
+        return NO;
+    }
+    
+    return NO;
 }
 
 - (BOOL)shouldReturnCachedXpcStatus
