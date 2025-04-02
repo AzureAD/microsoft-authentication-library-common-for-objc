@@ -24,25 +24,74 @@
 
 
 #import "MSIDBrowserNativeMessageGetSupportedContractsResponse.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
+
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_SUPPORTED_CONTRACTS_KEY = @"contracts";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_SUPPORTED_CONTRACTS_DIVIDER = @",";
 
 @implementation MSIDBrowserNativeMessageGetSupportedContractsResponse
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
+}
+
++ (NSString *)responseType
+{
+    return MSID_JSON_TYPE_BROKER_OPERATION_BROWSER_NATIVE_GET_SUPPORTED_CONTRACTS_RESPONSE;
+}
 
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
-    @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
+    self = [super initWithJSONDictionary:json error:error];
+    
+    if (self)
+    {
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_SUPPORTED_CONTRACTS_KEY required:YES error:error]) return nil;
+        NSString *contracts = json[MSID_BROWSER_NATIVE_MESSAGE_SUPPORTED_CONTRACTS_KEY];
+        if ([NSString msidIsStringNilOrBlank:contracts])
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"contracts is nil or emtpy.", nil, nil, nil, nil, nil, YES);
+            }
+            
+            return nil;
+        }
+        
+        _supportedContracts = [contracts componentsSeparatedByString:MSID_BROWSER_NATIVE_MESSAGE_SUPPORTED_CONTRACTS_DIVIDER];
+        if (!_supportedContracts)
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to perase supported contracts.", nil, nil, nil, nil, nil, YES);
+            }
+            
+            return nil;
+        }
+    }
+    
+    return self;
 }
 
 - (NSDictionary *)jsonDictionary
 {
-    if (!self.supportedContracts)
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
+    
+    NSString *contracts = [self.supportedContracts componentsJoinedByString:MSID_BROWSER_NATIVE_MESSAGE_SUPPORTED_CONTRACTS_DIVIDER];
+    
+    if (!contracts)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create GetSupportedContracts json response.");
         return nil;
     }
     
-    return @{@"contracts": self.supportedContracts};
+    json[MSID_BROWSER_NATIVE_MESSAGE_SUPPORTED_CONTRACTS_KEY] = contracts;
+    
+    return json;
 }
-
 @end

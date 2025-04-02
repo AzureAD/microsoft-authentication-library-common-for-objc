@@ -23,25 +23,19 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDWebviewResponse.h"
+#import "MSIDFlightManagerMockProvider.h"
 
-@interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
+@implementation MSIDFlightManagerMockProvider
 
-@property (nonatomic, readonly) NSString *actionUri;
-@property (nonatomic, readonly) NSString *switchBrowserSessionToken;
+- (BOOL)boolForKey:(NSString *)flightKey
+{
+    return [self.boolForKeyContainer[flightKey] boolValue];
+}
 
-- (instancetype )init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+- (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
+{
+    return self.stringForKeyContainer[flightKey];
+}
 
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error NS_UNAVAILABLE;
-
-- (instancetype)initWithURL:(NSURL *)url
-                redirectUri:(NSString *)redirectUri
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error;
-
-+ (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation;
 
 @end

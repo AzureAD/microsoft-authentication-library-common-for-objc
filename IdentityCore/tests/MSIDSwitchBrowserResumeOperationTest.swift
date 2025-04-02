@@ -28,8 +28,15 @@ import XCTest
 final class MSIDSwitchBrowserResumeOperationTest: XCTestCase 
 {
     lazy var validSwitchBrowserResumeResponse: MSIDSwitchBrowserResumeResponse? = {
-        let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser_resume?action_uri=some_uri&code=some_code")!
-        return try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)
+        
+        let switchUrl = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code")!
+        let switchBrowserResponse = try? MSIDSwitchBrowserResponse(url: switchUrl, redirectUri: "msauth.com.microsoft.msaltestapp://auth",  context: nil)
+        
+        let resumeUrl = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser_resume?action_uri=some_uri&code=some_code")!
+        let resumeResponse = try? MSIDSwitchBrowserResumeResponse(url: resumeUrl, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)
+        resumeResponse?.parent = switchBrowserResponse
+        
+        return resumeResponse
     }()
     
     override func setUpWithError() throws
@@ -50,6 +57,19 @@ final class MSIDSwitchBrowserResumeOperationTest: XCTestCase
         let operation = try MSIDSwitchBrowserResumeOperation(response: response)
         
         XCTAssertNotNil(operation)
+    }
+    
+    func testInit_whenNoParentResponse_shouldReturnNil() throws
+    {
+        XCTAssertNotNil(self.validSwitchBrowserResumeResponse)
+        guard let response = self.validSwitchBrowserResumeResponse else { return }
+        response.parent = nil
+        
+        XCTAssertThrowsError(try MSIDSwitchBrowserResumeOperation(response: response)) { error in
+            XCTAssertEqual((error as NSError).code, MSIDErrorCode.internal.rawValue)
+            XCTAssertEqual((error as NSError).domain, MSIDErrorDomain)
+            XCTAssertEqual((error as NSError).userInfo["MSIDErrorDescriptionKey"] as? String, "Parent response of type MSIDSwitchBrowserResponse is required for creating MSIDSwitchBrowserResumeOperation")
+        }
     }
 
     func testInit_withInValidResponse_shouldReturnNil() throws

@@ -269,6 +269,12 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 - (NSString *)codeSignRequirementForBundleId:(NSString *)bundleId devIdentity:(NSString *)devIdentity
 {
 #if DEBUG
+    if ([NSString msidIsStringNilOrBlank:devIdentity])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"devIdentity is not provided, fail to set code sign requirement for Xpc service. End early", nil, nil);
+        return nil;
+    }
+    
     NSString *codeSignFormat = [NSString stringWithCString:developmentRequirement encoding:NSUTF8StringEncoding];
     NSString *baseRequirementWithDevIdentity = [NSString stringWithFormat:codeSignFormat, devIdentity];
     NSString *stringWithAdditionalRequirements = [NSString stringWithFormat:@"(identifier \"%@\") and %@"
@@ -368,12 +374,18 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     NSXPCConnection *connection = [[NSXPCConnection alloc] initWithMachServiceName:MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcMachServiceName options:0];
     
     NSString *codeSigningRequirement = [self codeSignRequirementForBundleId:MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcBrokerDispatchServiceBundleId devIdentity:[self signingIdentity]];
-    
+    if ([NSString msidIsStringNilOrBlank:codeSigningRequirement])
+    {
+        // This can only happen under debug build under development environment
+        continueBlock(nil, nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"[Entra broker] CLIENT -- developer error, codeSigningRequirement is not provided", nil, nil, nil, nil, nil, YES));
+        return;
+    }
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(MSIDXpcBrokerDispatcherProtocol)];
     if (@available(macOS 13.0, *)) {
         [connection setCodeSigningRequirement:codeSigningRequirement];
     } else {
         // Intentionally left empty because the entire XPC flow will only be available on macOS 13 and above and gaurded through canPerformRequest
+        return;
     }
     
     [connection resume];
@@ -406,6 +418,13 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         NSXPCConnection *directConnection = [[NSXPCConnection alloc] initWithListenerEndpoint:listenerEndpoint];
         directConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(MSIDXpcBrokerInstanceProtocol)];
         NSString *clientCodeSigningRequirement = [self codeSignRequirementForBundleId:MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcBrokerInstanceServiceBundleId devIdentity:[self signingIdentity]];
+        if ([NSString msidIsStringNilOrBlank:clientCodeSigningRequirement])
+        {
+            // This can only happen under debug build under development environment
+            continueBlock(nil, nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"[Entra broker] CLIENT -- developer error, codeSigningRequirement is not provided", nil, nil, nil, nil, nil, YES));
+            return;
+        }
+        
         if (@available(macOS 13.0, *)) {
             [directConnection setCodeSigningRequirement:clientCodeSigningRequirement];
         } else {

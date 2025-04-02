@@ -80,8 +80,8 @@
         return;
     }
 
-    [self performXpcRequest:jsonDictionary];
     self.requestCompletionBlock = completionBlock;
+    [self performXpcRequest:jsonDictionary];
 }
 
 - (void)performXpcRequest:(NSDictionary *)xpcRequest
@@ -99,7 +99,7 @@
     [self.xpcSingleSignOnProvider handleRequestParam:parameters
                            assertKindOfResponseClass:MSIDBrokerOperationTokenResponse.class
                                              context:self.context
-                                       continueBlock:^(id  _Nullable response, NSError * _Nullable error) {
+                                       continueBlock:^(id _Nullable response, NSError * _Nullable error) {
         self.completionBlock(response, error);
     }];
 }

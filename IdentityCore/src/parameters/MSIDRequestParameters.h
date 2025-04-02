@@ -109,7 +109,7 @@
 @property (nonatomic) MSIDExternalSSOContext *ssoContext;
 
 #pragma mark - Xpc Mode
-@property (nonatomic) MSIDXpcMode msidXpcMode;
+@property (nonatomic) MSIDXpcMode xpcMode;
 
 - (NSURL *)tokenEndpoint;
 
