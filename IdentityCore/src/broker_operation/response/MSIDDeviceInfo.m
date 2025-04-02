@@ -226,8 +226,7 @@ static NSArray *deviceModeEnumString;
 #if TARGET_OS_OSX
 
 - (void)updateSsoProviderType
-{
-    // Update the provider type from SsoExtension only if it is recognized.
+{    // Update the provider type from SsoExtension only if it is recognized.
     //
     // 1. An "unknown" type might occur when:
     //    - The Broker version lacks an updated return value for `ssoProviderType`.

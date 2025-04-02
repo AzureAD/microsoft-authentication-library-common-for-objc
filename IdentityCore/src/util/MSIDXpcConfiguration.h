@@ -28,8 +28,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
-static NSString *brokerMacBrokerInstance = @"com.microsoft.EntraIdentityBrokermacbroker.Service";
+static NSString *companyPortalXpcInstance = @"com.microsoft.EntraIdentityBroker.Service";
+static NSString *macBrokerAppXpcInstance = @"com.microsoft.EntraIdentityBrokermacbroker.Service";
 
 
 @interface MSIDXpcConfiguration : NSObject

@@ -72,8 +72,8 @@
                    parentViewFrame:(NSRect)frame
                    completionBlock:(void (^)(NSDictionary<NSString *,id> * _Nonnull, NSDate * _Nonnull, NSString * _Nonnull, NSError * _Nullable))blockName;
 
-- (void)canPerformWithAuthorization:(NSString *)url
-                    completionBlock:(void (^)(BOOL))blockName;
+- (void)canPerformWithMetadata:(NSDictionary *)passedInParams
+               completionBlock:(void (^)(BOOL))blockName;
 
 @end
 
@@ -144,7 +144,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 
 + (BOOL)canPerformRequest
 {
-    // Step 0: if none of the Xpc Component exits on device, return false.
+    // Step 0: if none of the Xpc Component (CP or MacBroApp) exits on device, return false.
     // Step 1: read from userDefault cache to find the correct Xpc configuration based on active SsoExtension
         // Step 1.1: Xpc configuration found, validate the corresponding Xpc component existence based on the configuration
             // Step 1.1.1: Xpc component does not exit on device, return false (This is unlikely to happen)
@@ -155,114 +155,113 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                 // Step 1.2.2.1: if use Xpc provider from MacBroker App and go to Step 2.
                 // Step 1.2.2.2: If use Xpc provider from CompanyPortal App and Step 2.
     // Step 2: Check canPerformRequest from XPC service
-        // XPC status caching logic is in this doc: https://microsoft-my.sharepoint-df.com/:w:/p/kasong/EeTyTIf6TbNIvquOtT80q6kBr38-nRx1Q_ssIxDzVXg88w?e=tG63sP
+        // XPC status caching logic: https://microsoft-my.sharepoint-df.com/:w:/p/kasong/EeTyTIf6TbNIvquOtT80q6kBr38-nRx1Q_ssIxDzVXg88w?e=tG63sP
         // In case the SsoExtension provider identifier changed, the code should invalid the XPC status and call canPerformRequest based on the new XPC Provider
     
-    @synchronized (self) {
-        /* Step 0 Start*/
-        if (!MSIDXpcProviderCache.sharedInstance.isXpcProviderInstalledOnDevice)
+    /* Step 0 Start*/
+    if (!MSIDXpcProviderCache.sharedInstance.isXpcProviderInstalledOnDevice)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT Xpc component is not available on device", nil, nil);
+        return NO;
+    }
+    /* Step 0 End*/
+    
+    /* Step 1 Start: decide Xpc configuration */
+    if (!MSIDXpcProviderCache.sharedInstance.xpcConfiguration && [MSIDSSOExtensionGetDeviceInfoRequest canPerformRequest])
+    {
+        MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:nil
+                                                                                     authScheme:nil
+                                                                                    redirectUri:nil
+                                                                                       clientId:nil
+                                                                                         scopes:nil
+                                                                                     oidcScopes:nil
+                                                                                  correlationId:[NSUUID UUID]
+                                                                                 telemetryApiId:nil
+                                                                            intuneAppIdentifier:nil
+                                                                                    requestType:MSIDRequestBrokeredType
+                                                                                          error:nil];
+        NSError *ssoExtensionRequestError = nil;
+        MSIDSSOExtensionGetDeviceInfoRequest *ssoExtensionRequest = [[MSIDSSOExtensionGetDeviceInfoRequest alloc] initWithRequestParameters:requestParams error:&ssoExtensionRequestError];
+        if (!ssoExtensionRequest || ssoExtensionRequestError)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT xpc component is not available on device", nil, nil);
-            return NO;
+            // This is unlikely to happen, but if it does, return NO
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT get error when creating getDeviceInfoRequest with error: %@", ssoExtensionRequestError);
         }
-        /* Step 0 End*/
-        
-        /* Step 1 Start: decide Xpc configuration */
-        if (!MSIDXpcProviderCache.sharedInstance.xpcConfiguration && [MSIDSSOExtensionGetDeviceInfoRequest canPerformRequest])
-        {
-            MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:nil
-                                                                                         authScheme:nil
-                                                                                        redirectUri:nil
-                                                                                           clientId:nil
-                                                                                             scopes:nil
-                                                                                         oidcScopes:nil
-                                                                                      correlationId:[NSUUID UUID]
-                                                                                     telemetryApiId:nil
-                                                                                intuneAppIdentifier:nil
-                                                                                        requestType:MSIDRequestBrokeredType
-                                                                                              error:nil];
-            NSError *ssoExtensionRequestError = nil;
-            MSIDSSOExtensionGetDeviceInfoRequest *ssoExtensionRequest = [[MSIDSSOExtensionGetDeviceInfoRequest alloc] initWithRequestParameters:requestParams error:&ssoExtensionRequestError];
-            if (!ssoExtensionRequest || ssoExtensionRequestError)
+    
+        dispatch_group_t group = dispatch_group_create();
+        dispatch_group_enter(group);
+        [ssoExtensionRequest executeRequestWithCompletion:^(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error)
+         {
+            if (error)
             {
-                // This is unlikely to happen, but if it does, return NO
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT get error when creating getDeviceInfoRequest with error: %@", ssoExtensionRequestError);
-            }
-        
-            dispatch_group_t group = dispatch_group_create();
-            dispatch_group_enter(group);
-            [ssoExtensionRequest executeRequestWithCompletion:^(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error)
-             {
-                if (error)
-                {
-                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT received deviceInfo with error: %@", error);
-                    dispatch_group_leave(group);
-                    return;
-                }
-                
-                MSIDXpcProviderCache.sharedInstance.cachedXpcProvider = deviceInfo.ssoProviderType;
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT received deviceInfo with error: %@", error);
                 dispatch_group_leave(group);
-            }];
-            
-            // waiting expired in 1 sec
-            dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
-            dispatch_group_wait(group, timeout);
-        }
-        
-        if (!MSIDXpcProviderCache.sharedInstance.xpcConfiguration)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no Xpc configuration available. start manual selection.", nil, nil);
-        }
-        
-        if (![MSIDXpcProviderCache.sharedInstance isXpcProviderExist])
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no %@ Xpc component found on device. skip Xpc flow", MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcHostAppName, nil);
-            // Reset the cached Xpc provider/configuration.
-            MSIDXpcProviderCache.sharedInstance.cachedXpcProvider = MSIDUnknownSsoProvider;
-            return NO;
-        }
-        
-        /* Step 1 Finish */
-        
-        /* Step 2 Start: Check Xpc status */
-        if ([MSIDXpcProviderCache.sharedInstance shouldReturnCachedXpcStatus])
-        {
-            return MSIDXpcProviderCache.sharedInstance.cachedXpcStatus;
-        }
-        
-        dispatch_group_t xpcGroup = dispatch_group_create();
-        dispatch_group_enter(xpcGroup);
-        
-        __block BOOL result = NO;
-        MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider = [MSIDXpcSingleSignOnProvider new];
-        
-        // Check canPerformAuthorization through real broker XPC service
-        [xpcSingleSignOnProvider getXpcService:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error) {
-            if (!xpcService || error)
-            {
-                dispatch_group_leave(xpcGroup);
                 return;
             }
             
-            NSURL *url = [NSURL URLWithString:MSID_DEFAULT_AAD_AUTHORITY];
-            [xpcService canPerformWithAuthorization:url.absoluteString completionBlock:^(BOOL canPerformRequest) {
-                [directConnection suspend];
-                [directConnection invalidate];
-                
-                result = canPerformRequest;
-                MSIDXpcProviderCache.sharedInstance.cachedXpcStatus = result;
-                dispatch_group_leave(xpcGroup);
-            }];
+            MSIDXpcProviderCache.sharedInstance.cachedXpcProviderType = deviceInfo.ssoProviderType;
+            dispatch_group_leave(group);
         }];
         
         // waiting expired in 1 sec
         dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
-        dispatch_group_wait(xpcGroup, timeout);
-        
-        return result;
-        
-        /* Step 2 End */
+        dispatch_group_wait(group, timeout);
     }
+    
+    if (!MSIDXpcProviderCache.sharedInstance.xpcConfiguration)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no Xpc configuration available. start manual selection.", nil, nil);
+    }
+    
+    if (![MSIDXpcProviderCache.sharedInstance isXpcProviderExist])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no %@ Xpc component found on device. skip Xpc flow", MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcHostAppName, nil);
+        // Reset the cached Xpc provider/configuration.
+        MSIDXpcProviderCache.sharedInstance.cachedXpcProviderType = MSIDUnknownSsoProvider;
+        return NO;
+    }
+    
+    /* Step 1 Finish */
+    
+    /* Step 2 Start: Check Xpc status */
+    if ([MSIDXpcProviderCache.sharedInstance shouldReturnCachedXpcStatus])
+    {
+        return MSIDXpcProviderCache.sharedInstance.cachedXpcStatus;
+    }
+    
+    dispatch_group_t xpcGroup = dispatch_group_create();
+    dispatch_group_enter(xpcGroup);
+    
+    __block BOOL result = NO;
+    MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider = [MSIDXpcSingleSignOnProvider new];
+    
+    // Check canPerformAuthorization through real broker XPC service
+    [xpcSingleSignOnProvider getXpcService:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error) {
+        if (!xpcService || error)
+        {
+            dispatch_group_leave(xpcGroup);
+            return;
+        }
+        
+        // For now, we are intentionally pass an empty dictionary.
+        // We can expand the param for Xpc service for further validation. e.g. (Authority url, tenant_id/upn)
+        [xpcService canPerformWithMetadata:@{} completionBlock:^(BOOL canPerformRequest) {
+            [directConnection suspend];
+            [directConnection invalidate];
+            
+            result = canPerformRequest;
+            MSIDXpcProviderCache.sharedInstance.cachedXpcStatus = result;
+            dispatch_group_leave(xpcGroup);
+        }];
+    }];
+    
+    // waiting expired in 1 sec
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
+    dispatch_group_wait(xpcGroup, timeout);
+    
+    return result;
+    
+    /* Step 2 End */
 }
 
 #pragma mark - Helpers

@@ -43,13 +43,13 @@ static NSString *brokerMacBrokerDispatcher = @"com.microsoft.entrabrokermacbroke
                 self.xpcHostAppName = @"Company Portal app";
                 self.xpcMachServiceName = machServiceName;
                 self.xpcBrokerDispatchServiceBundleId = brokerDispatcher;
-                self.xpcBrokerInstanceServiceBundleId = brokerInstance;
+                self.xpcBrokerInstanceServiceBundleId = companyPortalXpcInstance;
                 break;
             case MSIDMacBrokerSsoProvider:
                 self.xpcHostAppName = @"Mac Broker app";
                 self.xpcMachServiceName = machServiceMacBrokerName;
                 self.xpcBrokerDispatchServiceBundleId = brokerMacBrokerDispatcher;
-                self.xpcBrokerInstanceServiceBundleId = brokerMacBrokerInstance;
+                self.xpcBrokerInstanceServiceBundleId = macBrokerAppXpcInstance;
                 break;
             default:
                 return nil;

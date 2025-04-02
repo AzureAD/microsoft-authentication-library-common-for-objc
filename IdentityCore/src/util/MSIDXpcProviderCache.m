@@ -72,7 +72,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
     return self;
 }
 
-- (MSIDSsoProviderType)cachedXpcProvider
+- (MSIDSsoProviderType)cachedXpcProviderType
 {
     __block NSInteger result;
     dispatch_sync(self.synchronizationQueue, ^{
@@ -82,7 +82,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
     return result;
 }
 
-- (void)setCachedXpcProvider:(MSIDSsoProviderType)cachedXpcProvider
+- (void)setCachedXpcProviderType:(MSIDSsoProviderType)cachedXpcProvider
 {
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         [self.userDefaults setInteger:cachedXpcProvider forKey:MSID_XPC_PROVIDER_TYPE_KEY];
@@ -92,8 +92,10 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 
 - (BOOL)isXpcProviderInstalledOnDevice
 {
-    self.isMacBrokerXpcProviderInstalled = [self isXpcProviderExistWithIdentifier:brokerMacBrokerInstance];
-    self.isCompanyPortalXpcProviderInstalled = [self isXpcProviderExistWithIdentifier:brokerInstance];
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        self.isMacBrokerXpcProviderInstalled = [self isXpcProviderExist:macBrokerAppXpcInstance];
+        self.isCompanyPortalXpcProviderInstalled = [self isXpcProviderExist:companyPortalXpcInstance];
+    });
     
     return self.isMacBrokerXpcProviderInstalled || self.isCompanyPortalXpcProviderInstalled;
 }
@@ -103,41 +105,41 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
     if (!self.xpcConfiguration)
     {
         // if there is no xpcConfiguration here
-        // we will use manual logic and try best to use Xpc component from MacBrokerApp
+        // we will use manual logic and try best to use Xpc component from MacBrokerApp first
         // If fails, then try to use from CompanyPortalApp
         
         if (self.isMacBrokerXpcProviderInstalled)
         {
-            self.cachedXpcProvider = MSIDMacBrokerSsoProvider;
+            self.cachedXpcProviderType = MSIDMacBrokerSsoProvider;
             return YES;
         }
         else if (self.isCompanyPortalXpcProviderInstalled)
         {
-            self.cachedXpcProvider = MSIDCompanyPortalSsoProvider;
+            self.cachedXpcProviderType = MSIDCompanyPortalSsoProvider;
             return YES;
         }
         
         return NO;
     }
     
-    // Otherwise we will use the xpcIdentifier provided from cache and identify existence of the Xpc component
-    if (![self isXpcProviderExistWithIdentifier:self.xpcConfiguration.xpcBrokerInstanceServiceBundleId])
+    // Otherwise when xpcConfiguration mismatched with the existence of the Xpc provider (CP or MacBro App), fallback to the existed one on device
+    if (![self isXpcProviderExist:self.xpcConfiguration.xpcBrokerInstanceServiceBundleId])
     {
         // When cached Xpc configuration is available, but out of date and the Xpc component has been removed from device
         // Let's switch to the other Xpc configuration.
         if (self.isMacBrokerXpcProviderInstalled && self.xpcConfiguration.xpcProviderType == MSIDCompanyPortalSsoProvider)
         {
             // When BrokerApp Xpc is installed and cannot find CompanyPortal Xpc, we will switch to use BrokerApp Xpc
-            self.cachedXpcProvider = MSIDMacBrokerSsoProvider;
+            self.cachedXpcProviderType = MSIDMacBrokerSsoProvider;
         }
         else if (self.isCompanyPortalXpcProviderInstalled && self.xpcConfiguration.xpcProviderType == MSIDMacBrokerSsoProvider)
         {
             // When CompanyPortal Xpc is installed and cannot find BrokerApp Xpc, we will switch to use CompanyPortal Xpc
-            self.cachedXpcProvider = MSIDCompanyPortalSsoProvider;
+            self.cachedXpcProviderType = MSIDCompanyPortalSsoProvider;
         }
         else
         {
-            // No backup XPc provider available, return NO
+            // No backup Xpc provider available, return NO
             return NO;
         }
     }
@@ -145,7 +147,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
     return YES;
 }
 
-- (BOOL)isXpcProviderExistWithIdentifier:(NSString *)xpcIdentifier
+- (BOOL)isXpcProviderExist:(NSString *)xpcIdentifier
 {
     NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:xpcIdentifier];
     return appURL != nil && [[NSFileManager defaultManager] fileExistsAtPath:[appURL path]];
@@ -221,12 +223,14 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 
 - (MSIDXpcConfiguration *)xpcConfiguration
 {
-    if (!_xpcConfiguration)
-    {
-        _xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:self.cachedXpcProvider];
+    @synchronized (self) {
+        if (!_xpcConfiguration)
+        {
+            _xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:self.cachedXpcProviderType];
+        }
+        
+        return _xpcConfiguration;
     }
-    
-    return _xpcConfiguration;
 }
 
 @end
