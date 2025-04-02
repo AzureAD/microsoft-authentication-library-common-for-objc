@@ -250,7 +250,7 @@ static NSArray *deviceModeEnumString;
     //      Here, we already know which XPC service is appropriate before this call,
     //      so there's no need to update the provider type.
     
-    if (self.ssoProviderType != MSIDUnknownSsoProvider) [MSIDXpcProviderCache sharedInstance].cachedXpcProvider = self.ssoProviderType;
+    if (self.ssoProviderType != MSIDUnknownSsoProvider) [MSIDXpcProviderCache sharedInstance].cachedXpcProviderType = self.ssoProviderType;
 }
 
 #endif
