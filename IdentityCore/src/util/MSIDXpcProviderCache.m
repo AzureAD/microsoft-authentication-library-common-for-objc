@@ -150,7 +150,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 - (BOOL)isXpcProviderExist:(NSString *)xpcIdentifier
 {
     NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:xpcIdentifier];
-    return appURL != nil && [[NSFileManager defaultManager] fileExistsAtPath:[appURL path]];
+    return appURL != nil && [appURL.absoluteString containsString:@"Applications"] && [[NSFileManager defaultManager] fileExistsAtPath:[appURL path]];
 }
 
 - (BOOL)shouldReturnCachedXpcStatus
