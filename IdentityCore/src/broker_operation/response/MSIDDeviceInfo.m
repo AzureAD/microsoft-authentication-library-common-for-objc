@@ -271,7 +271,7 @@ static NSArray *deviceModeEnumString;
 - (MSIDSsoProviderType)ssoProviderTypeEnumFromString:(NSString *)deviceModeString
 {
     if ([deviceModeString isEqualToString:@"companyPortal"])    return MSIDCompanyPortalSsoProvider;
-    if ([deviceModeString isEqualToString:@"macBroker"])    return MSIDMacBrokerSsoProvider;
+    if ([deviceModeString isEqualToString:@"macBroker"])   return MSIDMacBrokerSsoProvider;
 
     return MSIDUnknownSsoProvider;
 }
