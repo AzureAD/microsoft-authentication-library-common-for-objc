@@ -4076,6 +4076,15 @@
 			path = mac;
 			sourceTree = "<group>";
 		};
+		2A83DFD32D9F4716004F9647 /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */,
+				2A2481512CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
 		589BDB162718BBC600BF3799 /* sso_cookies_request */ = {
 			isa = PBXGroup;
 			children = (
@@ -4997,6 +5006,7 @@
 		B2AF1D29218BCDEF0080C1A0 /* requests */ = {
 			isa = PBXGroup;
 			children = (
+				2A83DFD32D9F4716004F9647 /* mac */,
 				B2C708A0219A55CB00D917B8 /* sdk */,
 				B2C7087F2198DE0000D917B8 /* broker */,
 				B28D90BC218FE9FA00E230D6 /* result */,
@@ -5157,8 +5167,6 @@
 				B443EFF12AD629A300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.m */,
 				2A24814B2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h */,
 				2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */,
-				2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */,
-				2A2481512CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m */,
 			);
 			path = broker;
 			sourceTree = "<group>";
