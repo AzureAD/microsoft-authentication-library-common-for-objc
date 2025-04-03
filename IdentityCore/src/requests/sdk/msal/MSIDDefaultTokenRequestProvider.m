@@ -30,7 +30,9 @@
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
 #import "MSIDSSOExtensionSilentTokenRequest.h"
 #import "MSIDSSOExtensionInteractiveTokenRequest.h"
+#if TARGET_OS_OSX
 #import "MSIDSSOXpcSilentTokenRequest.h"
+#endif
 
 @implementation MSIDDefaultTokenRequestProvider
 
