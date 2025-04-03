@@ -148,19 +148,18 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 
 + (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache
 {
-    // Step 0: if none of the Xpc Component (CP or MacBroApp) exits on device, return false.
-    // Step 1: read from userDefault cache to find the correct Xpc configuration based on active SsoExtension
-        // Step 1.1: Xpc configuration found, validate the corresponding Xpc component existence based on the configuration
-            // Step 1.1.1: Xpc component does not exit on device, return false (This is unlikely to happen)
-            // Step 1.1.2: Xpc component exits on device, Step 2.
-        // Step 1.2: cache not found, handshake to SsoExtension (canPerformRequest -> getDeviceInfo)
-            // Step 1.2.1: handshake succeeded, update the Xpc provider cache and configuration, and go to Step 1.1
-            // Step 1.2.2: handshake failed due to canPerformRequest returns NO, use predefined logic to decide Xpc provider/configuration (user Xpc Componenet from MacBroker App then from CompanyPortal App)
-                // Step 1.2.2.1: if use Xpc provider from MacBroker App and go to Step 2.
-                // Step 1.2.2.2: If use Xpc provider from CompanyPortal App and Step 2.
-    // Step 2: Check canPerformRequest from XPC service
+    // Step 0: If none of the XPC components (CP or MacBrokerApp) exist on the device, return false.
+    // Step 1: Read from the userDefaults cache to find the correct XPC configuration based on the active SsoExtension.
+        // Step 1.1: If the XPC configuration is found, validate the existence of the corresponding XPC component based on the configuration.
+            // Step 1.1.1: If the XPC component no longer exists on the device, return false (this is unlikely to happen in a short time period).
+            // Step 1.1.2: If the XPC component exists on the device, proceed to Step 2.
+        // Step 1.2: If the cache is not found, perform a handshake with the SsoExtension (canPerformRequest -> getDeviceInfo).
+            // Step 1.2.1: If the handshake succeeds, update the XPC provider cache and configuration, then go to Step 1.1.
+            // Step 1.2.2: If the handshake fails because canPerformRequest returns NO, use predefined logic to decide the XPC provider/configuration (use the XPC component from the MacBrokerApp first, then from the CompanyPortal App).
+                // Step 1.2.2.1: If using the XPC provider from the MacBroker App, proceed to Step 2.
+                // Step 1.2.2.2: If using the XPC provider from the CompanyPortal App, proceed to Step 2.
+    // Step 2: Check canPerformRequest from the XPC service.
         // XPC status caching logic: https://microsoft-my.sharepoint-df.com/:w:/p/kasong/EeTyTIf6TbNIvquOtT80q6kBr38-nRx1Q_ssIxDzVXg88w?e=tG63sP
-        // In case the SsoExtension provider identifier changed, the code should invalid the XPC status and call canPerformRequest based on the new XPC Provider
     
     /* Step 0 Start*/
     if (!xpcProviderCache.isXpcProviderInstalledOnDevice)
@@ -239,7 +238,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     __block BOOL result = NO;
     MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider = [MSIDXpcSingleSignOnProvider new];
     
-    // Check canPerformAuthorization through real broker XPC service
+    // Check canPerformAuthorization through real broker Xpc service
     [xpcSingleSignOnProvider getXpcService:xpcProviderCache withContinueBlock:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error)
      {
         if (!xpcService || error)
