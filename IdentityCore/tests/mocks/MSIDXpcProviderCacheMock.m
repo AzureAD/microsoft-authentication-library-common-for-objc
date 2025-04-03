@@ -23,33 +23,48 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDSSOExtensionRequestDelegate.h"
-#import "MSIDRequestContext.h"
-#import "MSIDXpcProviderCaching.h"
+#import "MSIDXpcProviderCacheMock.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDXpcProviderCacheMock()
 
-@interface MSIDXpcSingleSignOnProvider : NSObject
-
-// For interactive auth request
-// Note: completion thread is not gurantee, please submit to the correct thread as needed
-- (void)handleRequestParam:(NSDictionary *)requestParam
-           parentViewFrame:(NSRect)frame
- assertKindOfResponseClass:(Class)aClass
-          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
-
-// For silent auth request
-- (void)handleRequestParam:(NSDictionary *)requestParam
- assertKindOfResponseClass:(Class)aClass
-          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
-
-+ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache;
-
-NS_ASSUME_NONNULL_END
+@property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
+@property (nonatomic) BOOL isXpcValidated;
+@property (nonatomic) BOOL shouldReturnCachedXpcStatus;
 
 @end
+
+@implementation MSIDXpcProviderCacheMock
+
+@synthesize cachedXpcStatus, xpcConfiguration, cachedXpcProviderType;
+
+- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
+                               isXpcValidated:(BOOL)isXpcValidated
+                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus
+{
+    self = [super init];
+    if (self) {
+        self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
+        self.isXpcValidated = isXpcValidated;
+        self.shouldReturnCachedXpcStatus = shouldReturnCachedXpcStatus;
+        
+        return self;
+    }
+    
+    return nil;
+}
+
+- (BOOL)validateCacheXpcProvider { 
+    return _isXpcValidated;
+}
+
+- (BOOL)isXpcProviderInstalledOnDevice { 
+    return _isXpcProviderInstalledOnDevice;
+}
+
+- (BOOL)shouldReturnCachedXpcStatus { 
+    return _shouldReturnCachedXpcStatus;
+}
+
+@end
+
+

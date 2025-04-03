@@ -22,34 +22,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #import <Foundation/Foundation.h>
-#import "MSIDSSOExtensionRequestDelegate.h"
-#import "MSIDRequestContext.h"
-#import "MSIDXpcProviderCaching.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDXpcSingleSignOnProvider : NSObject
+@interface MSIDXpcProviderCache : NSObject
 
-// For interactive auth request
-// Note: completion thread is not gurantee, please submit to the correct thread as needed
-- (void)handleRequestParam:(NSDictionary *)requestParam
-           parentViewFrame:(NSRect)frame
- assertKindOfResponseClass:(Class)aClass
-          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
++ (instancetype)sharedInstance;
 
-// For silent auth request
-- (void)handleRequestParam:(NSDictionary *)requestParam
- assertKindOfResponseClass:(Class)aClass
-          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
-
-+ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache;
-
-NS_ASSUME_NONNULL_END
+@property (nonatomic) NSInteger cachedXpcProvider;
 
 @end
+
+NS_ASSUME_NONNULL_END

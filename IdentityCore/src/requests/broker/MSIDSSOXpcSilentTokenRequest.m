@@ -29,6 +29,7 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDXpcSingleSignOnProvider.h"
 #import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDXpcProviderCache.h"
 
 @interface MSIDSSOXpcSilentTokenRequest()
 
@@ -97,8 +98,8 @@
                                  @"sso_request_operation": [self.operationRequest.class operation],
                                  @"sso_request_id": [[NSUUID UUID] UUIDString]};
     [self.xpcSingleSignOnProvider handleRequestParam:parameters
-                                           brokerKey:self.operationRequest.brokerKey
                            assertKindOfResponseClass:MSIDBrokerOperationTokenResponse.class
+                                    xpcProviderCache:MSIDXpcProviderCache.sharedInstance
                                              context:self.context
                                        continueBlock:^(id _Nullable response, NSError * _Nullable error) {
         self.completionBlock(response, error);

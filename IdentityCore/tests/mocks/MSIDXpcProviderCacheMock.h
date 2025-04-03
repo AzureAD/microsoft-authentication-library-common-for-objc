@@ -23,33 +23,16 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDSSOExtensionRequestDelegate.h"
-#import "MSIDRequestContext.h"
 #import "MSIDXpcProviderCaching.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDXpcSingleSignOnProvider : NSObject
+@interface MSIDXpcProviderCacheMock : NSObject <MSIDXpcProviderCaching>
 
-// For interactive auth request
-// Note: completion thread is not gurantee, please submit to the correct thread as needed
-- (void)handleRequestParam:(NSDictionary *)requestParam
-           parentViewFrame:(NSRect)frame
- assertKindOfResponseClass:(Class)aClass
-          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
-
-// For silent auth request
-- (void)handleRequestParam:(NSDictionary *)requestParam
- assertKindOfResponseClass:(Class)aClass
-          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
-
-+ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache;
-
-NS_ASSUME_NONNULL_END
+- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
+                               isXpcValidated:(BOOL)isXpcValidated
+                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus;
 
 @end
+
+NS_ASSUME_NONNULL_END
