@@ -175,7 +175,7 @@
     dictionary[MSID_AUTHORITY_TYPE_CACHE_KEY] = [MSIDAccountTypeHelpers accountTypeAsString:_accountType];
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_LOCAL_ACCOUNT_ID_CACHE_KEY] = _localAccountId;
-    dictionary[MSID_USERNAME_CACHE_KEY] = nil;
+    dictionary[MSID_USERNAME_CACHE_KEY] = _username;
     dictionary[MSID_GIVEN_NAME_CACHE_KEY] = _givenName;
     dictionary[MSID_MIDDLE_NAME_CACHE_KEY] = _middleName;
     dictionary[MSID_FAMILY_NAME_CACHE_KEY] = _familyName;
