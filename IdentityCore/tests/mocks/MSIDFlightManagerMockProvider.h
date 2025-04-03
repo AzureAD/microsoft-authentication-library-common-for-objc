@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDFlightManagerMockProvider : NSObject <MSIDFlightManagerInterface>
 
 @property (nonatomic) NSDictionary *boolForKeyContainer;
+@property (nonatomic) NSDictionary *stringForKeyContainer;
 
 @end
 

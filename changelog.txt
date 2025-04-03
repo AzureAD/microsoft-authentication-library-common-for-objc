@@ -1,3 +1,8 @@
+Version 1.10.0
+* Fix resume response handling in DUNA #1493
+* Update supported contracts api #1492
+* Add feature flags provider to be controlled from broker (#1489)
+
 Version 1.9.1
 * Cherry pick DUNA "resume" action fix #1496
 
