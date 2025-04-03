@@ -26,6 +26,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDSSOExtensionRequestDelegate.h"
 #import "MSIDRequestContext.h"
+#import "MSIDXpcProviderCaching.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,16 +37,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleRequestParam:(NSDictionary *)requestParam
            parentViewFrame:(NSRect)frame
  assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
 // For silent auth request
 - (void)handleRequestParam:(NSDictionary *)requestParam
  assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
-+ (BOOL)canPerformRequest;
++ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache;
 
 NS_ASSUME_NONNULL_END
 

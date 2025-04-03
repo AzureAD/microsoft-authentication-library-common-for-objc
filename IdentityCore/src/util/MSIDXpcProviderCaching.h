@@ -22,19 +22,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+
 #import <Foundation/Foundation.h>
 #import "MSIDDeviceInfo.h"
-#import "MSIDXpcProviderCaching.h"
 
 @class MSIDXpcConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDXpcProviderCache : NSObject <MSIDXpcProviderCaching>
+@protocol MSIDXpcProviderCaching <NSObject>
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-+ (instancetype)sharedInstance;
+// cachedXpcProvider is the Xpc provider's identifier from cache. This value can be updated through SsoExtension request
+@property (nonatomic) MSIDSsoProviderType cachedXpcProviderType;
+
+// cachedXpcStatus is the Xpc provider's status from cache.
+@property (nonatomic) BOOL cachedXpcStatus;
+
+// xpcConfigurationwill be used for the Xpc flow, the value will be determined based on the cachedXpcProvider
+@property (nonatomic) MSIDXpcConfiguration *xpcConfiguration;
+
+- (BOOL)isXpcProviderInstalledOnDevice;
+- (BOOL)validateCacheXpcProvider;
+- (BOOL)shouldReturnCachedXpcStatus;
 
 @end
 

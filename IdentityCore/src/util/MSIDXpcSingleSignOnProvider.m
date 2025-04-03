@@ -63,8 +63,8 @@
 #import "NSDate+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDLogger+Internal.h"
-#import "MSIDXpcProviderCache.h"
 #import "MSIDXpcConfiguration.h"
+#import "MSIDXpcProviderCaching.h"
 
 @protocol MSIDXpcBrokerInstanceProtocol <NSObject>
 
@@ -88,12 +88,14 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 
 - (void)handleRequestParam:(NSDictionary *)requestParam
  assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
     [self handleRequestParam:requestParam
              parentViewFrame:CGRectZero
    assertKindOfResponseClass:(Class)aClass
+            xpcProviderCache:xpcProviderCache
                      context:(id<MSIDRequestContext>)context
                continueBlock:continueBlock];
 }
@@ -101,10 +103,12 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 - (void)handleRequestParam:(NSDictionary *)requestParam
            parentViewFrame:(NSRect)frame
  assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
-    [self getXpcService:^(id<MSIDXpcBrokerInstanceProtocol> xpcService, NSXPCConnection *directConnection, NSError *error) {
+    [self getXpcService:xpcProviderCache withContinueBlock:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error)
+     {
         if (!xpcService || error)
         {
             if (continueBlock) continueBlock(nil, error);
@@ -142,7 +146,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     }];
 }
 
-+ (BOOL)canPerformRequest
++ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache
 {
     // Step 0: if none of the Xpc Component (CP or MacBroApp) exits on device, return false.
     // Step 1: read from userDefault cache to find the correct Xpc configuration based on active SsoExtension
@@ -159,7 +163,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         // In case the SsoExtension provider identifier changed, the code should invalid the XPC status and call canPerformRequest based on the new XPC Provider
     
     /* Step 0 Start*/
-    if (!MSIDXpcProviderCache.sharedInstance.isXpcProviderInstalledOnDevice)
+    if (!xpcProviderCache.isXpcProviderInstalledOnDevice)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT Xpc component is not available on device", nil, nil);
         return NO;
@@ -167,7 +171,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     /* Step 0 End*/
     
     /* Step 1 Start: decide Xpc configuration */
-    if (!MSIDXpcProviderCache.sharedInstance.xpcConfiguration && [MSIDSSOExtensionGetDeviceInfoRequest canPerformRequest])
+    if (!xpcProviderCache.xpcConfiguration && [MSIDSSOExtensionGetDeviceInfoRequest canPerformRequest])
     {
         MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:nil
                                                                                      authScheme:nil
@@ -199,7 +203,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                 return;
             }
             
-            MSIDXpcProviderCache.sharedInstance.cachedXpcProviderType = deviceInfo.ssoProviderType;
+            xpcProviderCache.cachedXpcProviderType = deviceInfo.ssoProviderType;
             dispatch_group_leave(group);
         }];
         
@@ -208,25 +212,25 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         dispatch_group_wait(group, timeout);
     }
     
-    if (!MSIDXpcProviderCache.sharedInstance.xpcConfiguration)
+    if (!xpcProviderCache.xpcConfiguration)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no Xpc configuration available. start manual selection.", nil, nil);
     }
     
-    if (![MSIDXpcProviderCache.sharedInstance isXpcProviderExist])
+    if (![xpcProviderCache validateCacheXpcProvider])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no %@ Xpc component found on device. skip Xpc flow", MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcHostAppName, nil);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no %@ Xpc component found on device. Failed to validate cached Xpc and skip Xpc flow", xpcProviderCache.xpcConfiguration.xpcHostAppName, nil);
         // Reset the cached Xpc provider/configuration.
-        MSIDXpcProviderCache.sharedInstance.cachedXpcProviderType = MSIDUnknownSsoProvider;
+        xpcProviderCache.cachedXpcProviderType = MSIDUnknownSsoProvider;
         return NO;
     }
     
     /* Step 1 Finish */
     
     /* Step 2 Start: Check Xpc status */
-    if ([MSIDXpcProviderCache.sharedInstance shouldReturnCachedXpcStatus])
+    if ([xpcProviderCache shouldReturnCachedXpcStatus])
     {
-        return MSIDXpcProviderCache.sharedInstance.cachedXpcStatus;
+        return xpcProviderCache.cachedXpcStatus;
     }
     
     dispatch_group_t xpcGroup = dispatch_group_create();
@@ -236,7 +240,8 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider = [MSIDXpcSingleSignOnProvider new];
     
     // Check canPerformAuthorization through real broker XPC service
-    [xpcSingleSignOnProvider getXpcService:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error) {
+    [xpcSingleSignOnProvider getXpcService:xpcProviderCache withContinueBlock:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error)
+     {
         if (!xpcService || error)
         {
             dispatch_group_leave(xpcGroup);
@@ -250,7 +255,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             [directConnection invalidate];
             
             result = canPerformRequest;
-            MSIDXpcProviderCache.sharedInstance.cachedXpcStatus = result;
+            xpcProviderCache.cachedXpcStatus = result;
             dispatch_group_leave(xpcGroup);
         }];
     }];
@@ -361,19 +366,19 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     }
 }
 
-- (void)getXpcService:(NSXPCListenerEndpointCompletionBlock)continueBlock
+- (void)getXpcService:(id<MSIDXpcProviderCaching>)xpcProviderCache withContinueBlock:(NSXPCListenerEndpointCompletionBlock)continueBlock
 {
-    if (!MSIDXpcProviderCache.sharedInstance.xpcConfiguration)
+    if (!xpcProviderCache.xpcConfiguration)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT - Code should not be triggerred at here", nil, nil);
         continueBlock(nil, nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT - Xpc configuration is not available", nil, nil, nil, nil, nil, YES));
         return;
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - started establishing connection to %@", MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcMachServiceName);
-    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithMachServiceName:MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcMachServiceName options:0];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - started establishing connection to %@", xpcProviderCache.xpcConfiguration.xpcMachServiceName);
+    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithMachServiceName:xpcProviderCache.xpcConfiguration.xpcMachServiceName options:0];
     
-    NSString *codeSigningRequirement = [self codeSignRequirementForBundleId:MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcBrokerDispatchServiceBundleId devIdentity:[self signingIdentity]];
+    NSString *codeSigningRequirement = [self codeSignRequirementForBundleId:xpcProviderCache.xpcConfiguration.xpcBrokerDispatchServiceBundleId devIdentity:[self signingIdentity]];
     if ([NSString msidIsStringNilOrBlank:codeSigningRequirement])
     {
         // This can only happen under debug build under development environment
@@ -417,7 +422,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - connected to new service endpoint %@", listenerEndpoint);
         NSXPCConnection *directConnection = [[NSXPCConnection alloc] initWithListenerEndpoint:listenerEndpoint];
         directConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(MSIDXpcBrokerInstanceProtocol)];
-        NSString *clientCodeSigningRequirement = [self codeSignRequirementForBundleId:MSIDXpcProviderCache.sharedInstance.xpcConfiguration.xpcBrokerInstanceServiceBundleId devIdentity:[self signingIdentity]];
+        NSString *clientCodeSigningRequirement = [self codeSignRequirementForBundleId:xpcProviderCache.xpcConfiguration.xpcBrokerInstanceServiceBundleId devIdentity:[self signingIdentity]];
         if ([NSString msidIsStringNilOrBlank:clientCodeSigningRequirement])
         {
             // This can only happen under debug build under development environment

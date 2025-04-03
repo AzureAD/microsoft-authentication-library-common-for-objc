@@ -22,20 +22,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDDeviceInfo.h"
-#import "MSIDXpcProviderCaching.h"
 
-@class MSIDXpcConfiguration;
+#import "MSIDXpcProviderCacheMock.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDXpcProviderCacheMock()
 
-@interface MSIDXpcProviderCache : NSObject <MSIDXpcProviderCaching>
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-+ (instancetype)sharedInstance;
+@property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
+@property (nonatomic) BOOL isXpcValidated;
+@property (nonatomic) BOOL shouldReturnCachedXpcStatus;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDXpcProviderCacheMock
+
+@synthesize cachedXpcStatus, xpcConfiguration, cachedXpcProviderType;
+
+- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
+                               isXpcValidated:(BOOL)isXpcValidated
+                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus
+{
+    self = [super init];
+    if (self) {
+        self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
+        self.isXpcValidated = isXpcValidated;
+        self.shouldReturnCachedXpcStatus = shouldReturnCachedXpcStatus;
+        
+        return self;
+    }
+    
+    return nil;
+}
+
+- (BOOL)validateCacheXpcProvider { 
+    return _isXpcValidated;
+}
+
+- (BOOL)isXpcProviderInstalledOnDevice { 
+    return _isXpcProviderInstalledOnDevice;
+}
+
+- (BOOL)shouldReturnCachedXpcStatus { 
+    return _shouldReturnCachedXpcStatus;
+}
+
+@end
+
+

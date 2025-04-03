@@ -22,19 +22,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDDeviceInfo.h"
-#import "MSIDXpcProviderCaching.h"
 
-@class MSIDXpcConfiguration;
+#import "MSIDXpcProviderCaching.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDXpcProviderCache : NSObject <MSIDXpcProviderCaching>
+@interface MSIDXpcProviderCacheMock : NSObject <MSIDXpcProviderCaching>
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-+ (instancetype)sharedInstance;
+- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
+                               isXpcValidated:(BOOL)isXpcValidated
+                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus;
 
 @end
 

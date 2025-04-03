@@ -49,6 +49,8 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 
 @implementation MSIDXpcProviderCache
 
+@synthesize xpcConfiguration = _xpcConfiguration;
+
 + (instancetype)sharedInstance
 {
     static MSIDXpcProviderCache *sharedInstance = nil;
@@ -101,7 +103,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
     return self.isMacBrokerXpcProviderInstalled || self.isCompanyPortalXpcProviderInstalled;
 }
 
-- (BOOL)isXpcProviderExist
+- (BOOL)validateCacheXpcProvider
 {
     if (!self.xpcConfiguration)
     {

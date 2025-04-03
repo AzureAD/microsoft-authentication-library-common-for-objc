@@ -532,13 +532,17 @@
 		2A0278A32D6E3787005655B4 /* MSIDLastRequestTelemetry+Tests.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A0278A22D6E3787005655B4 /* MSIDLastRequestTelemetry+Tests.h */; };
 		2A24814D2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */; };
 		2A24814E2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A24814B2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h */; };
-        2A24814F2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */; };
+		2A24814F2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */; };
 		2A2481532CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2481512CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m */; };
 		2A2481542CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */; };
 		2A2481582CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2481562CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m */; };
 		2A2481592CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A2481552CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h */; };
 		2A24815F2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24815D2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m */; };
 		2A2481602CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A24815C2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.h */; };
+		2A366B762D9EEB4400774DD4 /* MSIDXpcProviderCaching.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A366B752D9EEB4400774DD4 /* MSIDXpcProviderCaching.h */; };
+		2A366B782D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A366B772D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m */; };
+		2A366B7B2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */; };
+		2A366B7C2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A366B7A2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m */; };
 		2A59B4202D76618900304FB1 /* MSIDXpcProviderCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */; };
 		2A59B4212D76618900304FB1 /* MSIDXpcProviderCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */; };
 		2A59B42C2D776F3400304FB1 /* MSIDXpcConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B42B2D776F3400304FB1 /* MSIDXpcConfiguration.m */; };
@@ -2430,6 +2434,10 @@
 		2A2481562CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcSingleSignOnProvider.m; sourceTree = "<group>"; };
 		2A24815C2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcSilentTokenRequestController.h; sourceTree = "<group>"; };
 		2A24815D2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcSilentTokenRequestController.m; sourceTree = "<group>"; };
+		2A366B752D9EEB4400774DD4 /* MSIDXpcProviderCaching.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCaching.h; sourceTree = "<group>"; };
+		2A366B772D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcSingleSignOnProviderTest.m; sourceTree = "<group>"; };
+		2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCacheMock.h; sourceTree = "<group>"; };
+		2A366B7A2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcProviderCacheMock.m; sourceTree = "<group>"; };
 		2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCache.h; sourceTree = "<group>"; };
 		2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcProviderCache.m; sourceTree = "<group>"; };
 		2A59B42A2D776F3400304FB1 /* MSIDXpcConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcConfiguration.h; sourceTree = "<group>"; };
@@ -3771,6 +3779,8 @@
 				2A0278A22D6E3787005655B4 /* MSIDLastRequestTelemetry+Tests.h */,
 				23D4DEE42D92537D005A77E4 /* MSIDFlightManagerMockProvider.h */,
 				23D4DEE52D92537D005A77E4 /* MSIDFlightManagerMockProvider.m */,
+				2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */,
+				2A366B7A2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m */,
 			);
 			path = mocks;
 			sourceTree = "<group>";
@@ -5274,6 +5284,7 @@
 				B2AE0FDA2427E96800B8FAF1 /* MSIDKeychainUtilTests.m */,
 				58543C8A24930FBC00F7AC14 /* MSIDMacKeychainTokenCache+Test.h */,
 				B2ED904F24FDF3A900B6ED59 /* MSIDRedirectUriVerifierMacTests.m */,
+				2A366B772D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -5356,6 +5367,7 @@
 				237777C92853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.m */,
 				2A2481552CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h */,
 				2A2481562CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m */,
+				2A366B752D9EEB4400774DD4 /* MSIDXpcProviderCaching.h */,
 				2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */,
 				2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */,
 				2A59B42A2D776F3400304FB1 /* MSIDXpcConfiguration.h */,
@@ -6291,6 +6303,7 @@
 				B251CC3B2041058D005E0179 /* MSIDRefreshToken.h in Headers */,
 				B28BDA84217E9676003E5670 /* MSIDB2CIdTokenClaims.h in Headers */,
 				74F04D49246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.h in Headers */,
+				2A366B762D9EEB4400774DD4 /* MSIDXpcProviderCaching.h in Headers */,
 				B286B9D42389DF20007833AD /* MSIDAuthority+Internal.h in Headers */,
 				2309391B2189301600EAC95D /* MSIDJsonSerializing.h in Headers */,
 				B286B9902389DC40007833AD /* MSIDClaimsRequest.h in Headers */,
@@ -6360,6 +6373,7 @@
 				583BFCB424D908980035B901 /* MSIDTestBundle.h in Headers */,
 				B2E4A07524DDE578007CE642 /* MSIDTestTelemetryEventsObserver.h in Headers */,
 				B2968CA722F67B48005AFC33 /* MSIDTestLocalInteractiveController.h in Headers */,
+				2A366B7B2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h in Headers */,
 				B4C8501829E79E250055B0D3 /* MSIDTestURLSessionUploadTask.h in Headers */,
 				D626FFF91FBD200A00EE4487 /* MSIDTestURLSession.h in Headers */,
 				B2E4A07224DDE56A007CE642 /* MSIDTestCacheAccessorHelper.h in Headers */,
@@ -7675,6 +7689,7 @@
 				B2AE0FDB2427E96800B8FAF1 /* MSIDKeychainUtilTests.m in Sources */,
 				B26A0B972072B9CB006BD95A /* MSIDAADV1Oauth2FactoryTests.m in Sources */,
 				B208854C29ADC0FD00A50B88 /* MSIDPkeyAuthHelperTests.m in Sources */,
+				2A366B782D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m in Sources */,
 				5837A7DD28F4977C007B3F4E /* MSIDLegacyTokenCacheKey+UTest.m in Sources */,
 				2A0278922D6E3216005655B4 /* MSIDAADTokenRequestServerTelemetryTests.m in Sources */,
 				B2DD5BA2204761660084313F /* MSIDLegacySingleResourceTokenTests.m in Sources */,
@@ -7752,6 +7767,7 @@
 				961ACDFE22A1F60800B9266C /* NSData+MSIDTestUtil.m in Sources */,
 				583BFCB724D908980035B901 /* MSIDTestBundle.m in Sources */,
 				B2BE925F21A2529E00F5AB8C /* MSIDTestInteractiveTokenRequest.m in Sources */,
+				2A366B7C2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m in Sources */,
 				E75DD08C25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */,
 				B2BE925A21A24CB000F5AB8C /* MSIDTestSilentTokenRequest.m in Sources */,
 				B217863023A58A0E00839CE8 /* ASAuthorizationSingleSignOnCredentialMock.m in Sources */,
