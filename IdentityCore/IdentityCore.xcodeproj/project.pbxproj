@@ -3536,7 +3536,14 @@
 		1E62D0E1228B758B000E2BBC /* mac */ = {
 			isa = PBXGroup;
 			children = (
+				2A2481552CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h */,
 				1E62D0E3228B75E3000E2BBC /* MSIDKeychainUtil.m */,
+				2A2481562CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m */,
+				2A366B752D9EEB4400774DD4 /* MSIDXpcProviderCaching.h */,
+				2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */,
+				2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */,
+				2A59B42A2D776F3400304FB1 /* MSIDXpcConfiguration.h */,
+				2A59B42B2D776F3400304FB1 /* MSIDXpcConfiguration.m */,
 				B28686C5240655EF004E83FC /* MSIDLoginKeychainUtil.h */,
 				B28686C024065441004E83FC /* MSIDLoginKeychainUtil.m */,
 				B2AE0FDC2427E9FC00B8FAF1 /* MSIDKeychainUtil+MacInternal.h */,
@@ -4082,6 +4089,24 @@
 				23FB5C27225517AA002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.m */,
 			);
 			path = claims;
+			sourceTree = "<group>";
+		};
+		2A953DF62DA45A9700A748BA /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				2A24815C2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.h */,
+				2A24815D2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
+		2A953DF72DA45B3100A748BA /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */,
+				2A2481512CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m */,
+			);
+			path = mac;
 			sourceTree = "<group>";
 		};
 		589BDB162718BBC600BF3799 /* sso_cookies_request */ = {
@@ -5129,6 +5154,7 @@
 		B2C7087F2198DE0000D917B8 /* broker */ = {
 			isa = PBXGroup;
 			children = (
+				2A953DF72DA45B3100A748BA /* mac */,
 				B2C708812198DE0000D917B8 /* MSIDBrokerKeyProvider.h */,
 				B2C708822198DE0000D917B8 /* MSIDBrokerKeyProvider.m */,
 				B2C708862198DE3900D917B8 /* MSIDBrokerCryptoProvider.h */,
@@ -5165,8 +5191,6 @@
 				B443EFF12AD629A300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.m */,
 				2A24814B2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h */,
 				2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */,
-				2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */,
-				2A2481512CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m */,
 			);
 			path = broker;
 			sourceTree = "<group>";
@@ -5174,6 +5198,7 @@
 		B2C7089F219A54F200D917B8 /* broker */ = {
 			isa = PBXGroup;
 			children = (
+				2A953DF62DA45A9700A748BA /* mac */,
 				B286B9A22389DCDD007833AD /* ios */,
 				23B5DF7A234031ED002C530F /* MSIDSSOExtensionInteractiveTokenRequestController.h */,
 				23B5DF7C234031EE002C530F /* MSIDSSOExtensionInteractiveTokenRequestController.m */,
@@ -5181,8 +5206,6 @@
 				23B5DF7B234031ED002C530F /* MSIDSSOExtensionSilentTokenRequestController.m */,
 				B217863623A5994300839CE8 /* MSIDSSOExtensionSignoutController.h */,
 				B217863723A5994300839CE8 /* MSIDSSOExtensionSignoutController.m */,
-				2A24815C2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.h */,
-				2A24815D2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m */,
 			);
 			path = broker;
 			sourceTree = "<group>";
@@ -5365,13 +5388,6 @@
 				728209CF26FEA0F600B5F018 /* MSIDKeyOperationUtil.m */,
 				237777C82853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.h */,
 				237777C92853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.m */,
-				2A2481552CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h */,
-				2A2481562CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m */,
-				2A366B752D9EEB4400774DD4 /* MSIDXpcProviderCaching.h */,
-				2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */,
-				2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */,
-				2A59B42A2D776F3400304FB1 /* MSIDXpcConfiguration.h */,
-				2A59B42B2D776F3400304FB1 /* MSIDXpcConfiguration.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
