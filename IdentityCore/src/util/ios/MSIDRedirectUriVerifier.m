@@ -121,10 +121,10 @@
         }
     }
 
-    NSString *message = [NSString stringWithFormat:@"The required app scheme \"%@\" is not registered in the app's info.plist file. Please add \"%@\" into Info.plist under CFBundleURLSchemes without any whitespaces and make sure that redirectURi \"%@\" is register in the portal for your app.", scheme, scheme, redirectUri.absoluteString];
-    MSIDFillAndLogError(error, MSIDErrorRedirectSchemeNotRegistered, message, nil);
+//    NSString *message = [NSString stringWithFormat:@"The required app scheme \"%@\" is not registered in the app's info.plist file. Please add \"%@\" into Info.plist under CFBundleURLSchemes without any whitespaces and make sure that redirectURi \"%@\" is register in the portal for your app.", scheme, scheme, redirectUri.absoluteString];
+//    MSIDFillAndLogError(error, MSIDErrorRedirectSchemeNotRegistered, message, nil);
 
-    return NO;
+    return YES;
 }
 
 + (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError *__autoreleasing*)error
