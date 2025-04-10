@@ -48,7 +48,9 @@
 {
     if (@available(macOS 13, *)) {
         return [MSIDXpcSingleSignOnProvider canPerformRequest:MSIDXpcProviderCache.sharedInstance];
-    } else {
+    }
+    else
+    {
         return NO;
     }
 }

@@ -42,7 +42,8 @@
                   shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus
 {
     self = [super init];
-    if (self) {
+    if (self)
+    {
         self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
         self.isXpcValidated = isXpcValidated;
         self.shouldReturnCachedXpcStatus = shouldReturnCachedXpcStatus;

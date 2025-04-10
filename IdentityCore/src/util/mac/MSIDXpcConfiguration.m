@@ -29,6 +29,8 @@ static NSString *machServiceName = @"UBF8T346G9.com.microsoft.entrabroker.EntraI
 static NSString *machServiceMacBrokerName = @"UBF8T346G9.com.microsoft.entrabrokermacbroker.EntraIdentityBrokerXPC.Mach";
 static NSString *brokerDispatcher = @"com.microsoft.entrabroker.BrokerApp";
 static NSString *brokerMacBrokerDispatcher = @"com.microsoft.entrabrokermacbroker.BrokerApp";
+static NSString *companyPortalApp = @"Company Portal app";
+static NSString *macBrokerApp = @"Mac Broker app";
 
 @implementation MSIDXpcConfiguration
 
@@ -38,15 +40,16 @@ static NSString *brokerMacBrokerDispatcher = @"com.microsoft.entrabrokermacbroke
     if (self)
     {
         self.xpcProviderType = xpcProviderType;
-        switch (xpcProviderType) {
+        switch (xpcProviderType)
+        {
             case MSIDCompanyPortalSsoProvider:
-                self.xpcHostAppName = @"Company Portal app";
+                self.xpcHostAppName = companyPortalApp;
                 self.xpcMachServiceName = machServiceName;
                 self.xpcBrokerDispatchServiceBundleId = brokerDispatcher;
                 self.xpcBrokerInstanceServiceBundleId = companyPortalXpcInstance;
                 break;
             case MSIDMacBrokerSsoProvider:
-                self.xpcHostAppName = @"Mac Broker app";
+                self.xpcHostAppName = macBrokerApp;
                 self.xpcMachServiceName = machServiceMacBrokerName;
                 self.xpcBrokerDispatchServiceBundleId = brokerMacBrokerDispatcher;
                 self.xpcBrokerInstanceServiceBundleId = macBrokerAppXpcInstance;
