@@ -53,15 +53,18 @@
     return nil;
 }
 
-- (BOOL)validateCacheXpcProvider { 
+- (BOOL)validateCacheXpcProvider
+{
     return _isXpcValidated;
 }
 
-- (BOOL)isXpcProviderInstalledOnDevice { 
+- (BOOL)isXpcProviderInstalledOnDevice
+{
     return _isXpcProviderInstalledOnDevice;
 }
 
-- (BOOL)shouldReturnCachedXpcStatus { 
+- (BOOL)shouldReturnCachedXpcStatus
+{
     return _shouldReturnCachedXpcStatus;
 }
 
