@@ -154,10 +154,15 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 {
     if (@available(macOS 12.0, *))
     {
+#if DEBUG
+        NSString *folderConstrats = @"DerivedData";
+#else
+        NSString *folderConstrats = @"Applications";
+#endif
         NSArray <NSURL *> *appURLs = [[NSWorkspace sharedWorkspace] URLsForApplicationsWithBundleIdentifier:xpcIdentifier];
         for (NSURL *appURL in appURLs)
         {
-            if ([appURL.absoluteString containsString:@"Applications"] && [[NSFileManager defaultManager] fileExistsAtPath:[appURL path]])
+            if ([appURL.absoluteString containsString:folderConstrats] && [[NSFileManager defaultManager] fileExistsAtPath:[appURL path]])
             {
                 return YES;
             }
@@ -206,7 +211,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
     return result;
 }
 
-- (BOOL)cachedXpcStatus
+- (BOOL)cachedCanPerformRequestsStatus
 {
     __block BOOL result = NO;
     dispatch_sync(self.synchronizationQueue, ^{
@@ -227,7 +232,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
     return result;
 }
 
-- (void)setCachedXpcStatus:(BOOL)cachedXpcStatus
+- (void)setCachedCanPerformRequestsStatus:(BOOL)cachedCanPerformRequestsStatus
 {
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         if (!self.xpcConfiguration)
@@ -236,7 +241,7 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
         }
         
         NSDate *currentTime = [NSDate date];
-        NSDictionary *xpcInfo = @{MSID_XPC_LAST_UPDATE_TIME:[currentTime msidDateToTimestamp], MSID_XPC_LAST_UPDATE_TIME_DESCRIPTION:[currentTime msidToString], MSID_XPC_STATUS:@(cachedXpcStatus)};
+        NSDictionary *xpcInfo = @{MSID_XPC_LAST_UPDATE_TIME:[currentTime msidDateToTimestamp], MSID_XPC_LAST_UPDATE_TIME_DESCRIPTION:[currentTime msidToString], MSID_XPC_STATUS:@(cachedCanPerformRequestsStatus)};
         [self.userDefaults setObject:xpcInfo forKey:self.xpcConfiguration.xpcMachServiceName];
     });
 }

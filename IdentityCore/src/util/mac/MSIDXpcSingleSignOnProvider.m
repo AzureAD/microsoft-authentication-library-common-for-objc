@@ -189,11 +189,13 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         {
             // This is unlikely to happen, but if it does, return NO
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT get error when creating getDeviceInfoRequest with error: %@", ssoExtensionRequestError);
+            return NO;
         }
     
         dispatch_group_t group = dispatch_group_create();
         dispatch_group_enter(group);
-        [ssoExtensionRequest executeRequestWithCompletion:^(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error)
+        // deviceInfo is assigned to the Xpc configuration during json dictionary to model mapping in MSIDDeviceInfo.m
+        [ssoExtensionRequest executeRequestWithCompletion:^(MSIDDeviceInfo * __unused _Nullable deviceInfo, NSError * _Nullable error)
          {
             if (error)
             {
@@ -202,7 +204,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                 return;
             }
             
-            xpcProviderCache.cachedXpcProviderType = deviceInfo.ssoProviderType;
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT received deviceInfo successfully", nil);
             dispatch_group_leave(group);
         }];
         
@@ -229,7 +231,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     /* Step 2 Start: Check Xpc status */
     if ([xpcProviderCache shouldReturnCachedXpcStatus])
     {
-        return xpcProviderCache.cachedXpcStatus;
+        return xpcProviderCache.cachedCanPerformRequestsStatus;
     }
     
     dispatch_group_t xpcGroup = dispatch_group_create();
@@ -254,7 +256,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             [directConnection invalidate];
             
             result = canPerformRequest;
-            xpcProviderCache.cachedXpcStatus = result;
+            xpcProviderCache.cachedCanPerformRequestsStatus = result;
             dispatch_group_leave(xpcGroup);
         }];
     }];

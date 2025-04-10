@@ -35,7 +35,7 @@
 
 @implementation MSIDXpcProviderCacheMock
 
-@synthesize cachedXpcStatus, xpcConfiguration, cachedXpcProviderType;
+@synthesize cachedCanPerformRequestsStatus, xpcConfiguration, cachedXpcProviderType;
 
 - (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
                                isXpcValidated:(BOOL)isXpcValidated

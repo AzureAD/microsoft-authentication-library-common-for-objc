@@ -46,7 +46,9 @@
 
 - (void)testNoXpcComponentInstalledOnDevice_canPerformRequest_returnsFalse
 {
-    MSIDXpcProviderCacheMock *xpcProviderCacheMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:NO                                isXpcValidated:NO shouldReturnCachedXpcStatus:NO];
+    MSIDXpcProviderCacheMock *xpcProviderCacheMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:NO
+                                                                                                      isXpcValidated:NO
+                                                                                         shouldReturnCachedXpcStatus:NO];
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCacheMock]);
 }
 
@@ -61,12 +63,16 @@
         return NO;
     }];
     
-    MSIDXpcProviderCacheMock *xpcProviderCachedFalseMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:YES                                isXpcValidated:YES shouldReturnCachedXpcStatus:YES];
-    xpcProviderCachedFalseMock.cachedXpcStatus = NO;
+    MSIDXpcProviderCacheMock *xpcProviderCachedFalseMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:YES
+                                                                                                            isXpcValidated:YES
+                                                                                               shouldReturnCachedXpcStatus:YES];
+    xpcProviderCachedFalseMock.cachedCanPerformRequestsStatus = NO;
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedFalseMock]);
     
-    MSIDXpcProviderCacheMock *xpcProviderCachedTrueMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:YES                                isXpcValidated:YES shouldReturnCachedXpcStatus:YES];
-    xpcProviderCachedTrueMock.cachedXpcStatus = YES;
+    MSIDXpcProviderCacheMock *xpcProviderCachedTrueMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:YES
+                                                                                                           isXpcValidated:YES
+                                                                                              shouldReturnCachedXpcStatus:YES];
+    xpcProviderCachedTrueMock.cachedCanPerformRequestsStatus = YES;
     XCTAssertTrue([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedTrueMock]);
 }
 

@@ -35,8 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 // cachedXpcProvider is the Xpc provider's identifier from cache. This value can be updated through SsoExtension request
 @property (nonatomic) MSIDSsoProviderType cachedXpcProviderType;
 
-// cachedXpcStatus is the Xpc provider's status from cache.
-@property (nonatomic) BOOL cachedXpcStatus;
+// cachedCanPerformRequestsStatus is the Xpc provider's status from cache.
+@property (nonatomic) BOOL cachedCanPerformRequestsStatus;
 
 // xpcConfigurationwill be used for the Xpc flow, the value will be determined based on the cachedXpcProvider
 @property (nonatomic) MSIDXpcConfiguration *xpcConfiguration;
