@@ -57,14 +57,23 @@
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDRequestContext.h"
 #import "MSIDConstants.h"
+#import "MSIDSSOExtensionGetDeviceInfoRequest.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDDeviceInfo.h"
+#import "NSDate+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
+#import "MSIDLogger+Internal.h"
+#import "MSIDXpcConfiguration.h"
+#import "MSIDXpcProviderCaching.h"
 
 @protocol MSIDXpcBrokerInstanceProtocol <NSObject>
 
 - (void)handleXpcWithRequestParams:(NSDictionary *)passedInParams
-                                   parentViewFrame:(NSRect)frame
-                                   completionBlock:(void (^)(NSDictionary<NSString *,id> * _Nonnull, NSDate * _Nonnull, NSString * _Nonnull, NSError * _Nullable))blockName;
-- (void)canPerformAuthorization:(NSURL *)url
-                completionBlock:(void (^)(BOOL))blockName;
+                   parentViewFrame:(NSRect)frame
+                   completionBlock:(void (^)(NSDictionary<NSString *,id> * _Nonnull, NSDate * _Nonnull, NSString * _Nonnull, NSError * _Nullable))blockName;
+
+- (void)canPerformWithMetadata:(NSDictionary *)passedInParams
+               completionBlock:(void (^)(BOOL))blockName;
 
 @end
 
@@ -75,34 +84,31 @@
 
 typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstanceProtocol> _Nullable xpcService, NSXPCConnection  * _Nullable directConnection, NSError *error);
 
-static NSString *machServiceName = @"UBF8T346G9.com.microsoft.entrabroker.EntraIdentityBrokerXPC.Mach";
-static NSString *brokerDispatcher = @"com.microsoft.entrabroker.BrokerApp";
-static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
-
 @implementation MSIDXpcSingleSignOnProvider
 
 - (void)handleRequestParam:(NSDictionary *)requestParam
-                 brokerKey:brokerKey
  assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
     [self handleRequestParam:requestParam
              parentViewFrame:CGRectZero
-                   brokerKey:brokerKey
    assertKindOfResponseClass:(Class)aClass
+            xpcProviderCache:xpcProviderCache
                      context:(id<MSIDRequestContext>)context
                continueBlock:continueBlock];
 }
 
 - (void)handleRequestParam:(NSDictionary *)requestParam
            parentViewFrame:(NSRect)frame
-                 brokerKey:brokerKey
  assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
-    [self getXpcService:^(id<MSIDXpcBrokerInstanceProtocol> xpcService, NSXPCConnection *directConnection, NSError *error) {
+    [self getXpcService:xpcProviderCache withContinueBlock:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error)
+     {
         if (!xpcService || error)
         {
             if (continueBlock) continueBlock(nil, error);
@@ -140,39 +146,128 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
     }];
 }
 
-+ (BOOL)canPerformRequest
++ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache
 {
-    // TODO: The full implementation will be done in 3166516
-    // Synchronously entering this class method
-    @synchronized (self) {
+    // Step 0: If none of the XPC components (CP or MacBrokerApp) exist on the device, return false.
+    // Step 1: Read from the userDefaults cache to find the correct XPC configuration based on the active SsoExtension.
+        // Step 1.1: If the XPC configuration is found, validate the existence of the corresponding XPC component based on the configuration.
+            // Step 1.1.1: If the XPC component no longer exists on the device, return false (this is unlikely to happen in a short time period).
+            // Step 1.1.2: If the XPC component exists on the device, proceed to Step 2.
+        // Step 1.2: If the cache is not found, perform a handshake with the SsoExtension (canPerformRequest -> getDeviceInfo).
+            // Step 1.2.1: If the handshake succeeds, update the XPC provider cache and configuration, then go to Step 1.1.
+            // Step 1.2.2: If the handshake fails because canPerformRequest returns NO, use predefined logic to decide the XPC provider/configuration (use the XPC component from the MacBrokerApp first, then from the CompanyPortal App).
+                // Step 1.2.2.1: If using the XPC provider from the MacBroker App, proceed to Step 2.
+                // Step 1.2.2.2: If using the XPC provider from the CompanyPortal App, proceed to Step 2.
+    // Step 2: Check canPerformRequest from the XPC service.
+        // XPC status caching logic: https://microsoft-my.sharepoint-df.com/:w:/p/kasong/EeTyTIf6TbNIvquOtT80q6kBr38-nRx1Q_ssIxDzVXg88w?e=tG63sP
+    
+    /* Step 0 Start*/
+    if (!xpcProviderCache.isXpcProviderInstalledOnDevice)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT Xpc component is not available on device", nil, nil);
+        return NO;
+    }
+    /* Step 0 End*/
+    
+    /* Step 1 Start: decide Xpc configuration */
+    if (!xpcProviderCache.xpcConfiguration && [MSIDSSOExtensionGetDeviceInfoRequest canPerformRequest])
+    {
+        MSIDRequestParameters *requestParams = [[MSIDRequestParameters alloc] initWithAuthority:nil
+                                                                                     authScheme:nil
+                                                                                    redirectUri:nil
+                                                                                       clientId:nil
+                                                                                         scopes:nil
+                                                                                     oidcScopes:nil
+                                                                                  correlationId:[NSUUID UUID]
+                                                                                 telemetryApiId:nil
+                                                                            intuneAppIdentifier:nil
+                                                                                    requestType:MSIDRequestBrokeredType
+                                                                                          error:nil];
+        NSError *ssoExtensionRequestError = nil;
+        MSIDSSOExtensionGetDeviceInfoRequest *ssoExtensionRequest = [[MSIDSSOExtensionGetDeviceInfoRequest alloc] initWithRequestParameters:requestParams error:&ssoExtensionRequestError];
+        if (!ssoExtensionRequest || ssoExtensionRequestError)
+        {
+            // This is unlikely to happen, but if it does, return NO
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT get error when creating getDeviceInfoRequest with error: %@", ssoExtensionRequestError);
+            return NO;
+        }
+    
         dispatch_group_t group = dispatch_group_create();
         dispatch_group_enter(group);
-
-        __block BOOL result = NO;
-        MSIDXpcSingleSignOnProvider *localInstance = [MSIDXpcSingleSignOnProvider new];
-        [localInstance getXpcService:^(id<MSIDXpcBrokerInstanceProtocol> xpcService, NSXPCConnection *directConnection, NSError *error) {
-            if (!xpcService || error)
+        // deviceInfo is assigned to the Xpc configuration during json dictionary to model mapping in MSIDDeviceInfo.m
+        [ssoExtensionRequest executeRequestWithCompletion:^(MSIDDeviceInfo * __unused _Nullable deviceInfo, NSError * _Nullable error)
+         {
+            if (error)
             {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT received deviceInfo with error: %@", error);
                 dispatch_group_leave(group);
                 return;
             }
             
-            NSURL *url = [NSURL URLWithString:MSID_DEFAULT_AAD_AUTHORITY];
-            [xpcService canPerformAuthorization:url completionBlock:^(BOOL canPerformRequest) {
-                [directConnection suspend];
-                [directConnection invalidate];
-                
-                result = canPerformRequest;
-                dispatch_group_leave(group);
-            }];
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT received deviceInfo successfully", nil);
+            dispatch_group_leave(group);
         }];
         
-        // If nothing came back in 2 sec, return false and unblock this thread
-        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC);
+        // waiting expired in 1 sec
+        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
         dispatch_group_wait(group, timeout);
-
-        return result;
     }
+    
+    if (!xpcProviderCache.xpcConfiguration)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no Xpc configuration available. start manual selection.", nil, nil);
+    }
+    
+    if (![xpcProviderCache validateCacheXpcProvider])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no %@ Xpc component found on device. Failed to validate cached Xpc and skip Xpc flow", xpcProviderCache.xpcConfiguration.xpcHostAppName, nil);
+        // Reset the cached Xpc provider/configuration.
+        xpcProviderCache.cachedXpcProviderType = MSIDUnknownSsoProvider;
+        return NO;
+    }
+    
+    /* Step 1 Finish */
+    
+    /* Step 2 Start: Check Xpc status */
+    if ([xpcProviderCache shouldReturnCachedXpcStatus])
+    {
+        return xpcProviderCache.cachedCanPerformRequestsStatus;
+    }
+    
+    dispatch_group_t xpcGroup = dispatch_group_create();
+    dispatch_group_enter(xpcGroup);
+    
+    __block BOOL result = NO;
+    MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider = [MSIDXpcSingleSignOnProvider new];
+    
+    // Check canPerformAuthorization through real broker Xpc service
+    [xpcSingleSignOnProvider getXpcService:xpcProviderCache withContinueBlock:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error)
+     {
+        if (!xpcService || error)
+        {
+            dispatch_group_leave(xpcGroup);
+            return;
+        }
+        
+        // For now, we are intentionally pass an empty dictionary.
+        // We can expand the param for Xpc service for further validation. e.g. (Authority url, tenant_id/upn)
+        [xpcService canPerformWithMetadata:@{} completionBlock:^(BOOL canPerformRequest) {
+            [directConnection suspend];
+            [directConnection invalidate];
+            
+            result = canPerformRequest;
+            xpcProviderCache.cachedCanPerformRequestsStatus = result;
+            dispatch_group_leave(xpcGroup);
+        }];
+    }];
+    
+    // waiting expired in 1 sec
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
+    dispatch_group_wait(xpcGroup, timeout);
+    
+    return result;
+    
+    /* Step 2 End */
 }
 
 #pragma mark - Helpers
@@ -189,16 +284,16 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
     NSString *codeSignFormat = [NSString stringWithCString:developmentRequirement encoding:NSUTF8StringEncoding];
     NSString *baseRequirementWithDevIdentity = [NSString stringWithFormat:codeSignFormat, devIdentity];
     NSString *stringWithAdditionalRequirements = [NSString stringWithFormat:@"(identifier \"%@\") and %@"
-                        " and !(entitlement[\"com.apple.security.cs.allow-dyld-environment-variables\"] /* exists */)"
-                        " and !(entitlement[\"com.apple.security.cs.disable-library-validation\"] /* exists */)"
-                        " and !(entitlement[\"com.apple.security.cs.allow-unsigned-executable-memory\"] /* exists */)"
+                                                  " and !(entitlement[\"com.apple.security.cs.allow-dyld-environment-variables\"] /* exists */)"
+                                                  " and !(entitlement[\"com.apple.security.cs.disable-library-validation\"] /* exists */)"
+                                                  " and !(entitlement[\"com.apple.security.cs.allow-unsigned-executable-memory\"] /* exists */)"
                                                   " and !(entitlement[\"com.apple.security.cs.allow-jit\"] /* exists */)", bundleId, baseRequirementWithDevIdentity];
 #else
     NSString *baseRequirementWithDevIdentity = [NSString stringWithCString:distributionRequirement encoding:NSUTF8StringEncoding];
     NSString *stringWithAdditionalRequirements = [NSString stringWithFormat:@"(identifier \"%@\") and %@"
-                        " and !(entitlement[\"com.apple.security.cs.allow-dyld-environment-variables\"] /* exists */)"
-                        " and !(entitlement[\"com.apple.security.cs.disable-library-validation\"] /* exists */)"
-                        " and !(entitlement[\"com.apple.security.cs.allow-unsigned-executable-memory\"] /* exists */)"
+                                                  " and !(entitlement[\"com.apple.security.cs.allow-dyld-environment-variables\"] /* exists */)"
+                                                  " and !(entitlement[\"com.apple.security.cs.disable-library-validation\"] /* exists */)"
+                                                  " and !(entitlement[\"com.apple.security.cs.allow-unsigned-executable-memory\"] /* exists */)"
                                                   " and !(entitlement[\"com.apple.security.cs.allow-jit\"] /* exists */)"
                                                   " and !(entitlement[\"com.apple.security.get-task-allow\"] /* exists */)" , bundleId, baseRequirementWithDevIdentity];
 #endif
@@ -272,19 +367,25 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
     }
 }
 
-- (void)getXpcService:(NSXPCListenerEndpointCompletionBlock)continueBlock
+- (void)getXpcService:(id<MSIDXpcProviderCaching>)xpcProviderCache withContinueBlock:(NSXPCListenerEndpointCompletionBlock)continueBlock
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - started establishing connection");
-    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithMachServiceName:machServiceName options:0];
+    if (!xpcProviderCache.xpcConfiguration)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT - Code should not be triggerred at here", nil, nil);
+        continueBlock(nil, nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT - Xpc configuration is not available", nil, nil, nil, nil, nil, YES));
+        return;
+    }
     
-    NSString *codeSigningRequirement = [self codeSignRequirementForBundleId:brokerDispatcher devIdentity:[self signingIdentity]];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - started establishing connection to %@", xpcProviderCache.xpcConfiguration.xpcMachServiceName);
+    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithMachServiceName:xpcProviderCache.xpcConfiguration.xpcMachServiceName options:0];
+    
+    NSString *codeSigningRequirement = [self codeSignRequirementForBundleId:xpcProviderCache.xpcConfiguration.xpcBrokerDispatchServiceBundleId devIdentity:[self signingIdentity]];
     if ([NSString msidIsStringNilOrBlank:codeSigningRequirement])
     {
         // This can only happen under debug build under development environment
         continueBlock(nil, nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"[Entra broker] CLIENT -- developer error, codeSigningRequirement is not provided", nil, nil, nil, nil, nil, YES));
         return;
     }
-    
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(MSIDXpcBrokerDispatcherProtocol)];
     if (@available(macOS 13.0, *)) {
         [connection setCodeSigningRequirement:codeSigningRequirement];
@@ -295,13 +396,18 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
     
     [connection resume];
     [connection setInterruptionHandler:^{
-        NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is interrupted", nil, nil, nil, nil, nil, YES);
-        if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
+        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is interrupted", nil, nil, nil, nil, nil, YES);
+        if (continueBlock) continueBlock(nil, nil, xpcError);
+    }];
+    
+    [connection setInvalidationHandler:^{
+        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is invalidated", nil, nil, nil, nil, nil, YES);
+        if (continueBlock) continueBlock(nil, nil, xpcError);
     }];
     
     id<MSIDXpcBrokerDispatcherProtocol> parentXpcService = [connection remoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
-        NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, [NSString stringWithFormat:@"[Entra broker] CLIENT -- failed to connect to dispatcher, error: %@", error], nil, nil, nil, nil, nil, YES);
-        if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Entra broker] CLIENT -- failed to connect to dispatcher, error: %@", error);
+        [connection invalidate];
     }];
     
     [parentXpcService getBrokerInstanceEndpointWithReply:^(NSXPCListenerEndpoint * _Nullable listenerEndpoint, NSDictionary<NSString *, id> * _Nullable __unused params, NSError * _Nullable error) {
@@ -317,7 +423,7 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - connected to new service endpoint %@", listenerEndpoint);
         NSXPCConnection *directConnection = [[NSXPCConnection alloc] initWithListenerEndpoint:listenerEndpoint];
         directConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(MSIDXpcBrokerInstanceProtocol)];
-        NSString *clientCodeSigningRequirement = [self codeSignRequirementForBundleId:brokerInstance devIdentity:[self signingIdentity]];
+        NSString *clientCodeSigningRequirement = [self codeSignRequirementForBundleId:xpcProviderCache.xpcConfiguration.xpcBrokerInstanceServiceBundleId devIdentity:[self signingIdentity]];
         if ([NSString msidIsStringNilOrBlank:clientCodeSigningRequirement])
         {
             // This can only happen under debug build under development environment
@@ -334,13 +440,18 @@ static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
         
         [directConnection resume];
         [directConnection setInterruptionHandler:^{
-            NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- instance connection is interrupted", nil, nil, nil, nil, nil, YES);
-            if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
+            NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- instance connection is interrupted", nil, nil, nil, nil, nil, YES);
+            if (continueBlock) continueBlock(nil, nil, xpcError);
+        }];
+        
+        [directConnection setInvalidationHandler:^{
+            NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- instance connection is invalidated", nil, nil, nil, nil, nil, YES);
+            if (continueBlock) continueBlock(nil, nil, xpcError);
         }];
         
         id<MSIDXpcBrokerInstanceProtocol> directService = [directConnection remoteObjectProxyWithErrorHandler:^(NSError * _Nonnull callbackError) {
-            NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, [NSString stringWithFormat:@"[Entra broker] CLIENT -- failed to connect to instance, error: %@", callbackError], nil, nil, nil, nil, nil, YES);
-            if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Entra broker] CLIENT -- failed to connect to instance, error: %@", callbackError);
+            [directConnection invalidate];
         }];
         
         if (continueBlock) continueBlock(directService, directConnection, nil);

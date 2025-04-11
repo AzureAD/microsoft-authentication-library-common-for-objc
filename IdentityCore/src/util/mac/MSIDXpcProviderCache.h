@@ -22,34 +22,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#import "MSIDXpcSilentTokenRequestController.h"
-#import "MSIDSilentController+Internal.h"
-#import "MSIDXpcSingleSignOnProvider.h"
+#import <Foundation/Foundation.h>
+#import "MSIDDeviceInfo.h"
+#import "MSIDXpcProviderCaching.h"
 
-@implementation MSIDXpcSilentTokenRequestController
+@class MSIDXpcConfiguration;
 
-- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent broker xpc flow.");
-    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker xpc flow finished. Result %@, error: %ld error domain: %@, shouldFallBack: %@", _PII_NULLIFY(result), (long)error.code, error.domain, @(self.fallbackController != nil));
-        completionBlock(result, error);
-    };
-    
-    __auto_type request = [self.tokenRequestProvider silentXpcTokenRequestWithParameters:self.requestParameters
-                                                                            forceRefresh:self.forceRefresh];
-    [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
-}
+NS_ASSUME_NONNULL_BEGIN
 
-+ (BOOL)canPerformRequest
-{
-    if (@available(macOS 13, *)) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
+@interface MSIDXpcProviderCache : NSObject <MSIDXpcProviderCaching>
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
++ (instancetype)sharedInstance;
 
 @end
 
+NS_ASSUME_NONNULL_END
