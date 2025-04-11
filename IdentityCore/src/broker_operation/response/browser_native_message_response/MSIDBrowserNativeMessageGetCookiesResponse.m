@@ -55,6 +55,11 @@
     return self;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"[%@]: prtHeaders count: %lu, deviceHeaders count: %lu", self.className, self.cookiesResponse.prtHeaders.count, (unsigned long)(unsigned long)self.cookiesResponse.deviceHeaders.count];
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
@@ -99,3 +104,4 @@
 }
 
 @end
+ 
