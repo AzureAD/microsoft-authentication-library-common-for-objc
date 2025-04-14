@@ -109,7 +109,7 @@
     BOOL shouldFallback = NO;
     switch (error.code)
     {
-            // TODO define XPC error code that should fallback
+        // TODO: 3236668 define XPC error code that should fallback
         case ASAuthorizationErrorNotHandled:
         case ASAuthorizationErrorUnknown:
         case ASAuthorizationErrorFailed:
