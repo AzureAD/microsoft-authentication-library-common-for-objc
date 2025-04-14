@@ -57,7 +57,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"[%@]: prtHeaders count: %lu, deviceHeaders count: %lu", self.className, self.cookiesResponse.prtHeaders.count, (unsigned long)(unsigned long)self.cookiesResponse.deviceHeaders.count];
+    return [NSString stringWithFormat:@"[%@]: prtHeaders count: %lu, deviceHeaders count: %lu", self.class, self.cookiesResponse.prtHeaders.count, (unsigned long)(unsigned long)self.cookiesResponse.deviceHeaders.count];
 }
 
 #pragma mark - MSIDJsonSerializable

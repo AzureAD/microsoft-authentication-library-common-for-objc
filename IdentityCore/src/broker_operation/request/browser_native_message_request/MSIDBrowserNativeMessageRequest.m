@@ -33,7 +33,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"[%@]: sender: %@", self.className, self.sender.absoluteString];
+    return [NSString stringWithFormat:@"[%@]: sender: %@", self.class, self.sender.absoluteString];
 }
 
 #pragma mark - MSIDJsonSerializable

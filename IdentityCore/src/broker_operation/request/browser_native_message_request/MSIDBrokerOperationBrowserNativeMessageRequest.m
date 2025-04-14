@@ -49,7 +49,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPLN_KEY = @"parent_process_
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"[%@]: parentProcessTeamId: %@, parentProcessBundleIdentifier: %@, parentProcessLocalizedName %@, payload method: %@", self.className, self.parentProcessTeamId, self.parentProcessBundleIdentifier, self.parentProcessLocalizedName, self.method];
+    return [NSString stringWithFormat:@"[%@]: parentProcessTeamId: %@, parentProcessBundleIdentifier: %@, parentProcessLocalizedName %@, payload method: %@", self.class, self.parentProcessTeamId, self.parentProcessBundleIdentifier, self.parentProcessLocalizedName, self.method];
 }
 
 #pragma mark - MSIDBrokerOperationRequest
