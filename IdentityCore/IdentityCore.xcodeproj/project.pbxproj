@@ -533,8 +533,6 @@
 		2A24814D2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */; };
 		2A24814E2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A24814B2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h */; };
 		2A24814F2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */; };
-		2A2481532CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2481512CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m */; };
-		2A2481542CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */; };
 		2A2481582CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2481562CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m */; };
 		2A2481592CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A2481552CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h */; };
 		2A24815F2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24815D2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m */; };
@@ -555,6 +553,8 @@
 		2A59B4402D7924E400304FB1 /* MSIDSSOXpcInteractiveTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B43D2D7924E400304FB1 /* MSIDSSOXpcInteractiveTokenRequest.m */; };
 		2A59B4442D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A59B4412D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.h */; };
 		2A59B4452D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B4422D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.m */; };
+		2AADDAC72DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */; };
+		2AADDAC82DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */; };
 		580E25402719FD10003D1795 /* MSIDPrtHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 580E253E2719FD10003D1795 /* MSIDPrtHeader.h */; };
 		580E25412719FD10003D1795 /* MSIDPrtHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 580E253F2719FD10003D1795 /* MSIDPrtHeader.m */; };
 		580E25422719FD10003D1795 /* MSIDPrtHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 580E253F2719FD10003D1795 /* MSIDPrtHeader.m */; };
@@ -2435,8 +2435,6 @@
 		2A0278A22D6E3787005655B4 /* MSIDLastRequestTelemetry+Tests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDLastRequestTelemetry+Tests.h"; sourceTree = "<group>"; };
 		2A24814B2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSORemoteSilentTokenRequest.h; sourceTree = "<group>"; };
 		2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSORemoteSilentTokenRequest.m; sourceTree = "<group>"; };
-		2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOXpcSilentTokenRequest.h; sourceTree = "<group>"; };
-		2A2481512CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOXpcSilentTokenRequest.m; sourceTree = "<group>"; };
 		2A2481552CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcSingleSignOnProvider.h; sourceTree = "<group>"; };
 		2A2481562CB08050006FCB34 /* MSIDXpcSingleSignOnProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcSingleSignOnProvider.m; sourceTree = "<group>"; };
 		2A24815C2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcSilentTokenRequestController.h; sourceTree = "<group>"; };
@@ -2455,6 +2453,8 @@
 		2A59B43D2D7924E400304FB1 /* MSIDSSOXpcInteractiveTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOXpcInteractiveTokenRequest.m; sourceTree = "<group>"; };
 		2A59B4412D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOXpcInteractiveTokenRequestController.h; sourceTree = "<group>"; };
 		2A59B4422D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOXpcInteractiveTokenRequestController.m; sourceTree = "<group>"; };
+		2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOXpcSilentTokenRequest.h; sourceTree = "<group>"; };
+		2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOXpcSilentTokenRequest.m; sourceTree = "<group>"; };
 		51E364572863C0F300A97F82 /* MSIDTelemetryConditionalCompile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryConditionalCompile.h; sourceTree = "<group>"; };
 		580E253E2719FD10003D1795 /* MSIDPrtHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrtHeader.h; sourceTree = "<group>"; };
 		580E253F2719FD10003D1795 /* MSIDPrtHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPrtHeader.m; sourceTree = "<group>"; };
@@ -4109,6 +4109,8 @@
 			children = (
 				2A24815C2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.h */,
 				2A24815D2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m */,
+				2A59B4412D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.h */,
+				2A59B4422D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -4116,8 +4118,10 @@
 		2A953DF72DA45B3100A748BA /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */,
-				2A2481512CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m */,
+				2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */,
+				2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */,
+				2A59B43C2D7924E400304FB1 /* MSIDSSOXpcInteractiveTokenRequest.h */,
+				2A59B43D2D7924E400304FB1 /* MSIDSSOXpcInteractiveTokenRequest.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -5204,12 +5208,8 @@
 				B443EFF12AD629A300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.m */,
 				2A24814B2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h */,
 				2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */,
-				2A2481502CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h */,
-				2A2481512CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m */,
 				2A59B4372D78FE6B00304FB1 /* MSIDSSORemoteInteractiveTokenRequest.h */,
 				2A59B4382D78FE6B00304FB1 /* MSIDSSORemoteInteractiveTokenRequest.m */,
-				2A59B43C2D7924E400304FB1 /* MSIDSSOXpcInteractiveTokenRequest.h */,
-				2A59B43D2D7924E400304FB1 /* MSIDSSOXpcInteractiveTokenRequest.m */,
 			);
 			path = broker;
 			sourceTree = "<group>";
@@ -5221,8 +5221,6 @@
 				B286B9A22389DCDD007833AD /* ios */,
 				23B5DF7A234031ED002C530F /* MSIDSSOExtensionInteractiveTokenRequestController.h */,
 				23B5DF7C234031EE002C530F /* MSIDSSOExtensionInteractiveTokenRequestController.m */,
-				2A59B4412D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.h */,
-				2A59B4422D7A0CB500304FB1 /* MSIDSSOXpcInteractiveTokenRequestController.m */,
 				23B5DF79234031ED002C530F /* MSIDSSOExtensionSilentTokenRequestController.h */,
 				23B5DF7B234031ED002C530F /* MSIDSSOExtensionSilentTokenRequestController.m */,
 				B217863623A5994300839CE8 /* MSIDSSOExtensionSignoutController.h */,
@@ -6290,7 +6288,6 @@
 				74F04D4D246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h in Headers */,
 				238E19DD2086FE28004DF483 /* MSIDAADAuthorizationCodeRequest.h in Headers */,
 				B227037622A4C29800030ADC /* MSIDExtendedTokenCacheDataSource.h in Headers */,
-				2A2481542CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.h in Headers */,
 				B251CC49204105A7005E0179 /* MSIDIdToken.h in Headers */,
 				B2F671EC2467AB4500649855 /* MSIDInteractiveRequestControlling.h in Headers */,
 				B443F0002AD6327700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.h in Headers */,
@@ -6375,6 +6372,7 @@
 				B28D90A5218FD1E800E230D6 /* MSIDLegacyTokenResponseValidator.h in Headers */,
 				B2C708AA219A5A3D00D917B8 /* MSIDLegacySilentTokenRequest.h in Headers */,
 				96F21B3120A65896002B87C3 /* MSIDWebviewAuthorization.h in Headers */,
+				2AADDAC82DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h in Headers */,
 				B286B9C52389DE78007833AD /* MSIDAccountMetadata.h in Headers */,
 				B2F671E32467A30400649855 /* MSIDInteractiveAuthorizationCodeRequest.h in Headers */,
 				1E707FE02407336300716148 /* MSIDBrokerBrowserOperationResponse.h in Headers */,
@@ -7201,13 +7199,13 @@
 				583BFCAB24D88CED0035B901 /* MSIDRedirectUriVerifier.m in Sources */,
 				B253152723DD61FB00432133 /* MSIDSSOExtensionGetDeviceInfoRequest.m in Sources */,
 				2A24815F2CB08344006FCB34 /* MSIDXpcSilentTokenRequestController.m in Sources */,
+				2AADDAC72DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m in Sources */,
 				23C548062A2A5DBF00633DC0 /* MSIDBrokerOperationBrowserNativeMessageRequest.m in Sources */,
 				238D5D8C22B353830091A135 /* MSIDAADV2TokenResponseForV1Request.m in Sources */,
 				2352AF342AA7C7B700FA2253 /* MSIDBrowserNativeMessageGetTokenResponse.m in Sources */,
 				589BDB292718F18800BF3799 /* MSIDCredentialHeader.m in Sources */,
 				B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				5887EBF32BBF6490005F9634 /* MSIDAuthenticationSchemeSshCert.m in Sources */,
-				2A2481532CB07BCC006FCB34 /* MSIDSSOXpcSilentTokenRequest.m in Sources */,
 				B2C7088F2198E48E00D917B8 /* NSData+AES.m in Sources */,
 				96F21B3320A65896002B87C3 /* MSIDWebviewAuthorization.m in Sources */,
 				B27893832470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m in Sources */,

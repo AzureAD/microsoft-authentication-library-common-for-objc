@@ -209,8 +209,8 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         }];
         
         // waiting expired in 1 sec
-        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
-        dispatch_group_wait(group, timeout);
+//        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     }
     
     if (!xpcProviderCache.xpcConfiguration)
@@ -262,8 +262,8 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     }];
     
     // waiting expired in 1 sec
-    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
-    dispatch_group_wait(xpcGroup, timeout);
+//    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
+    dispatch_group_wait(xpcGroup, DISPATCH_TIME_FOREVER);
     
     return result;
     

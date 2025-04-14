@@ -30,6 +30,7 @@
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDXpcProviderCache.h"
 
 @interface MSIDSSOXpcInteractiveTokenRequest()
 
@@ -103,6 +104,7 @@
     [self.xpcSingleSignOnProvider handleRequestParam:parameters
                                      parentViewFrame:self.requestParameters.parentViewController.view.window.frame
                            assertKindOfResponseClass:MSIDBrokerOperationTokenResponse.class
+                                    xpcProviderCache:MSIDXpcProviderCache.sharedInstance
                                              context:self.context
                                        continueBlock:^(id  _Nullable response, NSError * _Nullable error) {
         self.completionBlock(response, error);

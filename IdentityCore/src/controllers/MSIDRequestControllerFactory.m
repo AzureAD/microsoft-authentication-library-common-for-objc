@@ -337,19 +337,19 @@
 {
     id<MSIDRequestControlling> xpcController = nil;
     
-    if (parameters.msidXpcMode != MSIDXpcModeDisable)
+    if (parameters.xpcMode != MSIDXpcModeDisable)
     {
         xpcController = [self xpcInteractiveController:parameters
                                      tokenRequestProvider:tokenRequestProvider
                                        fallbackController:fallbackController
                                                     error:error];
-        if (parameters.msidXpcMode == MSIDXpcModeBackup || parameters.msidXpcMode == MSIDXpcModeFull)
+        if (parameters.xpcMode == MSIDXpcModeBackup || parameters.xpcMode == MSIDXpcModeFull)
         {
             id<MSIDRequestControlling> ssoExtensionController = [self ssoExtensionInteractiveController:parameters
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                      fallbackController:xpcController?:fallbackController
                                                                                                   error:error];
-            if (parameters.msidXpcMode == MSIDXpcModeFull && !ssoExtensionController)
+            if (parameters.xpcMode == MSIDXpcModeFull && !ssoExtensionController)
             {
                 return xpcController;
             }
@@ -358,6 +358,7 @@
         }
         else
         {
+            // Development only: MSIDXpcModeOverride
             return xpcController;
         }
     }

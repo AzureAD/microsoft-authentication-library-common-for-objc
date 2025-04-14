@@ -30,6 +30,7 @@
 #import "MSIDThrottlingService.h"
 #import "MSIDInteractiveTokenRequest+Internal.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDXpcProviderCache.h"
 
 @implementation MSIDSSOXpcInteractiveTokenRequestController
 
@@ -84,7 +85,7 @@
 + (BOOL)canPerformRequest
 {
     if (@available(macOS 13, *)) {
-        return [MSIDXpcSingleSignOnProvider canPerformRequest];
+        return [MSIDXpcSingleSignOnProvider canPerformRequest:MSIDXpcProviderCache.sharedInstance];
     } else {
         return NO;
     }
