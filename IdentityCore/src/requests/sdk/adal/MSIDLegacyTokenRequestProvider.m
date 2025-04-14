@@ -98,7 +98,7 @@
 
 - (MSIDInteractiveTokenRequest *)interactiveXpcTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
 {
-    // TODO: not implemented yet.
+    // Not supported
     return nil;
 }
 
