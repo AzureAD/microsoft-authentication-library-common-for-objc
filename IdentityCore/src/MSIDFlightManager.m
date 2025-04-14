@@ -25,6 +25,13 @@
 
 #import "MSIDFlightManager.h"
 
+@interface MSIDFlightManager()
+
+@property (nonatomic) dispatch_queue_t synchronizationQueue;
+
+@end
+
+
 @implementation MSIDFlightManager
 
 + (instancetype)sharedInstance
@@ -32,19 +39,62 @@
     static MSIDFlightManager *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[self.class alloc] init];
+        sharedInstance = [[self.class alloc] initInternal];
     });
     
     return sharedInstance;
+}
+
+- (instancetype)initInternal
+{
+    self = [super init];
+    if (self)
+    {
+        _synchronizationQueue = [self initializeDispatchQueue];
+    }
+    return self;
+}
+
+- (dispatch_queue_t)initializeDispatchQueue
+{
+    NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidflightmanager-%@", [NSUUID UUID].UUIDString];
+    return dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+}
+
+- (void)setFlightProvider:(id<MSIDFlightManagerInterface>)flightProvider
+{
+    dispatch_barrier_async(self.synchronizationQueue, ^{
+        self->_flightProvider = flightProvider;
+    });
 }
 
 #pragma mark - MSIDFlightManagerInterface
 
 - (BOOL)boolForKey:(nonnull NSString *)flightKey 
 {
-    if (self.flightProvider) { return [self.flightProvider boolForKey:flightKey]; }
+    __block BOOL result = NO;
+    if (self.flightProvider)
+    {
+        dispatch_sync(self.synchronizationQueue, ^{
+            result = [self.flightProvider boolForKey:flightKey];
+        });
+    }
     
-    return NO;
+    return result;
 }
+
+- (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
+{
+    __block NSString* result = nil;
+    if (self.flightProvider)
+    {
+        dispatch_sync(self.synchronizationQueue, ^{
+            result = [self.flightProvider stringForKey:flightKey];
+        });
+    }
+    
+    return result;
+}
+
 
 @end

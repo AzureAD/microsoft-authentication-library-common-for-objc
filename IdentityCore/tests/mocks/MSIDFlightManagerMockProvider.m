@@ -23,30 +23,19 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDSSOExtensionRequestDelegate.h"
-#import "MSIDRequestContext.h"
+#import "MSIDFlightManagerMockProvider.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDFlightManagerMockProvider
 
-@interface MSIDXpcSingleSignOnProvider : NSObject
+- (BOOL)boolForKey:(NSString *)flightKey
+{
+    return [self.boolForKeyContainer[flightKey] boolValue];
+}
 
-// For interactive auth request
-// Note: completion thread is not gurantee, please submit to the correct thread as needed
-- (void)handleRequestParam:(NSDictionary *)requestParam
-           parentViewFrame:(NSRect)frame
- assertKindOfResponseClass:(Class)aClass
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+- (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
+{
+    return self.stringForKeyContainer[flightKey];
+}
 
-// For silent auth request
-- (void)handleRequestParam:(NSDictionary *)requestParam
- assertKindOfResponseClass:(Class)aClass
-                   context:(id<MSIDRequestContext>)context
-             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
-
-+ (BOOL)canPerformRequest;
-
-NS_ASSUME_NONNULL_END
 
 @end

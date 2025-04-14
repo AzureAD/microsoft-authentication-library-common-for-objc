@@ -23,25 +23,33 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDWebviewResponse.h"
+#import <Foundation/Foundation.h>
+#import "MSIDSSOExtensionRequestDelegate.h"
+#import "MSIDRequestContext.h"
+#import "MSIDXpcProviderCaching.h"
 
-@interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, readonly) NSString *actionUri;
-@property (nonatomic, readonly) NSString *switchBrowserSessionToken;
+@interface MSIDXpcSingleSignOnProvider : NSObject
 
-- (instancetype )init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+// For interactive auth request
+// Note: completion thread is not gurantee, please submit to the correct thread as needed
+- (void)handleRequestParam:(NSDictionary *)requestParam
+           parentViewFrame:(NSRect)frame
+ assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                   context:(id<MSIDRequestContext>)context
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error NS_UNAVAILABLE;
+// For silent auth request
+- (void)handleRequestParam:(NSDictionary *)requestParam
+ assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                   context:(id<MSIDRequestContext>)context
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
-- (instancetype)initWithURL:(NSURL *)url
-                redirectUri:(NSString *)redirectUri
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error;
++ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache;
 
-+ (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation;
+NS_ASSUME_NONNULL_END
 
 @end

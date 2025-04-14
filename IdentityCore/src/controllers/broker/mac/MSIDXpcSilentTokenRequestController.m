@@ -26,6 +26,7 @@
 #import "MSIDSilentController+Internal.h"
 #import "MSIDXpcSingleSignOnProvider.h"
 #import "MSIDLogger+Internal.h"
+#import "MSIDXpcProviderCache.h"
 
 @implementation MSIDXpcSilentTokenRequestController
 
@@ -45,13 +46,14 @@
 
 + (BOOL)canPerformRequest
 {
-    if (@available(macOS 13, *)) {
-        return [MSIDXpcSingleSignOnProvider canPerformRequest];
-    } else {
+    if (@available(macOS 13, *))
+    {
+        return [MSIDXpcSingleSignOnProvider canPerformRequest:MSIDXpcProviderCache.sharedInstance];
+    }
+    else
+    {
         return NO;
     }
 }
-	
 
 @end
-

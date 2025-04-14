@@ -95,10 +95,10 @@ typedef NS_ENUM(NSInteger, MSIDHeaderType)
 
 typedef NS_ENUM(NSUInteger, MSIDXpcMode)
 {
-    MSIDXpcModeDisable = 0,
-    MSIDXpcModeBackup,
-    MSIDXpcModeFull,
-    MSIDXpcModeOverride
+    MSIDXpcModeDisable = 0, // Broker Xpc service call is disabled
+    MSIDXpcModeBackup,// Broker Xpc service call is only used as a backup service when SsoExtension service failed. If SsoExtenion is not available on the device (canPerformRequest returns false), Broker Xpc service call will be disabled
+    MSIDXpcModeFull, // Broker Xpc service call is used as a backup call when SsoExtension service failed. If SsoExtenion is not available on the device, Xpc service call will be the primary auth service
+    MSIDXpcModeOverride // Development only: Broker Xpc service is used as main Sso service, and ignored SsoExtension service completely. This option will be ignored in production and will be treated same as MSIDXpcModeDisable
 };
 
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
@@ -184,5 +184,6 @@ extern NSString * _Nonnull const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME;
 
 extern NSString * _Nonnull const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_DUNA_CBA;
+extern NSString * _Nonnull const MSID_FLIGHT_CLIENT_SFRT_STATUS;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

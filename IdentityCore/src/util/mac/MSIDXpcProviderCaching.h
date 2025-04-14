@@ -26,21 +26,24 @@
 #import <Foundation/Foundation.h>
 #import "MSIDDeviceInfo.h"
 
+@class MSIDXpcConfiguration;
+
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *brokerInstance = @"com.microsoft.EntraIdentityBroker.Service";
-static NSString *brokerMacBrokerInstance = @"com.microsoft.EntraIdentityBrokermacbroker.Service";
+@protocol MSIDXpcProviderCaching <NSObject>
 
+// cachedXpcProvider is the Xpc provider's identifier from cache. This value can be updated through SsoExtension request
+@property (nonatomic) MSIDSsoProviderType cachedXpcProviderType;
 
-@interface MSIDXpcConfiguration : NSObject
+// cachedCanPerformRequestsStatus is the Xpc provider's status from cache.
+@property (nonatomic) BOOL cachedCanPerformRequestsStatus;
 
-@property (nonatomic) NSString *xpcHostAppName;
-@property (nonatomic) NSString *xpcMachServiceName;
-@property (nonatomic) NSString *xpcBrokerDispatchServiceBundleId;
-@property (nonatomic) NSString *xpcBrokerInstanceServiceBundleId;
-@property (nonatomic) MSIDSsoProviderType xpcProviderType;
+// xpcConfigurationwill be used for the Xpc flow, the value will be determined based on the cachedXpcProvider
+@property (nonatomic) MSIDXpcConfiguration *xpcConfiguration;
 
-- (instancetype)initWithXpcProviderType:(MSIDSsoProviderType)xpcProviderType;
+- (BOOL)isXpcProviderInstalledOnDevice;
+- (BOOL)validateCacheXpcProvider;
+- (BOOL)shouldReturnCachedXpcStatus;
 
 @end
 

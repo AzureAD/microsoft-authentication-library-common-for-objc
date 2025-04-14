@@ -23,25 +23,25 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDWebviewResponse.h"
+#import <Foundation/Foundation.h>
+#import "MSIDDeviceInfo.h"
 
-@interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, readonly) NSString *actionUri;
-@property (nonatomic, readonly) NSString *switchBrowserSessionToken;
+static NSString *companyPortalXpcInstance = @"com.microsoft.EntraIdentityBroker.Service";
+static NSString *macBrokerAppXpcInstance = @"com.microsoft.EntraIdentityBrokermacbroker.Service";
 
-- (instancetype )init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
 
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error NS_UNAVAILABLE;
+@interface MSIDXpcConfiguration : NSObject
 
-- (instancetype)initWithURL:(NSURL *)url
-                redirectUri:(NSString *)redirectUri
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error;
+@property (nonatomic) NSString *xpcHostAppName;
+@property (nonatomic) NSString *xpcMachServiceName;
+@property (nonatomic) NSString *xpcBrokerDispatchServiceBundleId;
+@property (nonatomic) NSString *xpcBrokerInstanceServiceBundleId;
+@property (nonatomic) MSIDSsoProviderType xpcProviderType;
 
-+ (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation;
+- (instancetype)initWithXpcProviderType:(MSIDSsoProviderType)xpcProviderType;
 
 @end
+
+NS_ASSUME_NONNULL_END

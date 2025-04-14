@@ -177,7 +177,8 @@
                                 @"wpj_status": @"notJoined",
                                 @"preferred_auth_config": @"preferredAuthNotConfigured",
 #if TARGET_OS_OSX
-                                @"platform_sso_status": @"platformSSONotEnabled"
+                                @"platform_sso_status": @"platformSSONotEnabled",
+                                @"sso_provider_type": @"unknown"
 #endif
     };
     

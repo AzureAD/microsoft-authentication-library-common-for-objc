@@ -92,7 +92,7 @@
 
 - (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
 {
-    // TODO: not implemented yet.
+    // Not supported
     return nil;
 }
 
@@ -105,12 +105,12 @@
 - (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters
                                                             forceRefresh:(__unused BOOL)forceRefresh
 {
-    // TODO: not implemented yet.
+    // Not supported
     return nil;
 }
 
 - (nullable MSIDSilentTokenRequest *)silentXpcTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters forceRefresh:(BOOL)forceRefresh { 
-    // TODO: not implemented yet.
+    // Not supported
     return nil;
 }
 

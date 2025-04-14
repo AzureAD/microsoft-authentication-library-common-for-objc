@@ -23,25 +23,52 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDWebviewResponse.h"
+#import "MSIDXpcProviderCacheMock.h"
 
-@interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
+@interface MSIDXpcProviderCacheMock()
 
-@property (nonatomic, readonly) NSString *actionUri;
-@property (nonatomic, readonly) NSString *switchBrowserSessionToken;
-
-- (instancetype )init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error NS_UNAVAILABLE;
-
-- (instancetype)initWithURL:(NSURL *)url
-                redirectUri:(NSString *)redirectUri
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *__autoreleasing*)error;
-
-+ (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation;
+@property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
+@property (nonatomic) BOOL isXpcValidated;
+@property (nonatomic) BOOL shouldReturnCachedXpcStatus;
 
 @end
+
+@implementation MSIDXpcProviderCacheMock
+
+@synthesize cachedCanPerformRequestsStatus, xpcConfiguration, cachedXpcProviderType;
+
+- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
+                               isXpcValidated:(BOOL)isXpcValidated
+                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus
+{
+    self = [super init];
+    if (self)
+    {
+        self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
+        self.isXpcValidated = isXpcValidated;
+        self.shouldReturnCachedXpcStatus = shouldReturnCachedXpcStatus;
+        
+        return self;
+    }
+    
+    return nil;
+}
+
+- (BOOL)validateCacheXpcProvider
+{
+    return _isXpcValidated;
+}
+
+- (BOOL)isXpcProviderInstalledOnDevice
+{
+    return _isXpcProviderInstalledOnDevice;
+}
+
+- (BOOL)shouldReturnCachedXpcStatus
+{
+    return _shouldReturnCachedXpcStatus;
+}
+
+@end
+
+

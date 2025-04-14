@@ -62,7 +62,6 @@ typedef NS_ENUM(NSInteger, MSIDSsoProviderType)
     MSIDCompanyPortalSsoProvider
 };
 
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDDeviceInfo : NSObject <MSIDJsonSerializable>
@@ -71,8 +70,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDSSOExtensionMode ssoExtensionMode;
 @property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
 @property (nonatomic, nullable) NSString *brokerVersion;
+@property (nonatomic) MSIDSsoProviderType ssoProviderType;
 @property (nonatomic) NSDictionary *additionalExtensionData;
 @property (nonatomic) MSIDPreferredAuthMethod preferredAuthConfig;
+@property (nonatomic) NSString *clientFlights;
 
 #if TARGET_OS_OSX
 @property (nonatomic) MSIDPlatformSSOStatus platformSSOStatus;
@@ -84,7 +85,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
                   ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
                  isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
-                     brokerVersion:(NSString *)brokerVersion;
+                     brokerVersion:(NSString *)brokerVersion
+                   ssoProviderType:(MSIDSsoProviderType)ssoProviderType;
 
 @end
 
