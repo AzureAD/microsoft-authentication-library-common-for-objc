@@ -93,27 +93,28 @@
                 self.ssoTokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
 #endif      
                 [self.ssoTokenResponseHandler handleOperationResponse:operationResponse
-                                                          requestParameters:self.requestParameters
-                                                     tokenResponseValidator:self.tokenResponseValidator
-                                                               oauthFactory:self.oauthFactory
-                                                                 tokenCache:self.tokenCache
-                                                       accountMetadataCache:self.accountMetadataCache
-                                                            validateAccount:NO
-                                                                      error:error
-                                                            completionBlock:^(MSIDTokenResult *result, NSError *localError)
+                                                    requestParameters:self.requestParameters
+                                               tokenResponseValidator:self.tokenResponseValidator
+                                                         oauthFactory:self.oauthFactory
+                                                           tokenCache:self.tokenCache
+                                                 accountMetadataCache:self.accountMetadataCache
+                                                      validateAccount:NO
+                                                                error:error
+                                                      completionBlock:^(MSIDTokenResult *result, NSError *localError)
                  {
                     MSIDRequestCompletionBlock completionBlock = self.requestCompletionBlock;
                     self.requestCompletionBlock = nil;
                     if (localError)
                     {
                         /**
-                         * If SSO-EXT responses error, we should update throttling db
+                         * If SSO-EXT/Xpc responses error, we should update throttling db
                          */
                         if ([MSIDThrottlingService isThrottlingEnabled])
                         {
                             [self.throttlingService updateThrottlingService:localError tokenRequest:self.operationRequest];
                         }
                     }
+                    
                     if (completionBlock) completionBlock(result, localError);
                 }];
             };

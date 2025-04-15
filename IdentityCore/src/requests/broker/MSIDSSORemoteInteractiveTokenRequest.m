@@ -95,10 +95,9 @@
     NSString *upn = self.requestParameters.accountIdentifier.displayableId ?: self.requestParameters.loginHint;
     
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
-                                           userPrincipalName:upn
-                                                     context:self.requestParameters
-                                             completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
-                                                               __unused BOOL validated, NSError *error)
+                                       userPrincipalName:upn
+                                                 context:self.requestParameters
+                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint, __unused BOOL validated, NSError *error)
      {
          if (error)
          {

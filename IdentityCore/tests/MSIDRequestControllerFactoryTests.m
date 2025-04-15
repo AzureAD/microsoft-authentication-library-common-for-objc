@@ -36,7 +36,7 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #if TARGET_OS_OSX
 #import "MSIDXpcSilentTokenRequestController.h"
-#import "MSIDSSOXpcInteractiveTokenRequestController.h"
+#import "MSIDXpcInteractiveTokenRequestController.h"
 #endif
 
 @interface MSIDBaseRequestController (Testing)
@@ -222,7 +222,7 @@
     
     SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
-                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           class:[MSIDXpcInteractiveTokenRequestController class]
                            block:(id)^(void)
     {
         return YES;
@@ -263,7 +263,7 @@
     
     SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
-                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           class:[MSIDXpcInteractiveTokenRequestController class]
                            block:(id)^(void)
     {
         return YES;
@@ -284,7 +284,7 @@
     }
     
     MSIDBaseRequestController *baseController = (MSIDBaseRequestController *)controller;
-    if (![baseController.fallbackController isMemberOfClass:MSIDSSOXpcInteractiveTokenRequestController.class])
+    if (![baseController.fallbackController isMemberOfClass:MSIDXpcInteractiveTokenRequestController.class])
     {
         XCTFail();
     }
@@ -321,7 +321,7 @@
     
     SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
-                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           class:[MSIDXpcInteractiveTokenRequestController class]
                            block:(id)^(void)
     {
         return NO;
@@ -374,7 +374,7 @@
     
     SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
-                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           class:[MSIDXpcInteractiveTokenRequestController class]
                            block:(id)^(void)
     {
         return NO;
@@ -418,7 +418,7 @@
     
     SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
-                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           class:[MSIDXpcInteractiveTokenRequestController class]
                            block:(id)^(void)
     {
         return YES;
@@ -433,7 +433,7 @@
     }];
     
     id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters tokenRequestProvider:provider error:&error];
-    if (![controller isMemberOfClass:MSIDSSOXpcInteractiveTokenRequestController.class])
+    if (![controller isMemberOfClass:MSIDXpcInteractiveTokenRequestController.class])
     {
         XCTFail();
     }
@@ -472,7 +472,7 @@
     
     SEL selectorForMSIDXpcInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDXpcInteractiveTokenRequestController
-                           class:[MSIDSSOXpcInteractiveTokenRequestController class]
+                           class:[MSIDXpcInteractiveTokenRequestController class]
                            block:(id)^(void)
     {
         return YES;
@@ -493,7 +493,7 @@
     }
     
     MSIDBaseRequestController *baseController = (MSIDBaseRequestController *)controller;
-    if (![baseController.fallbackController isMemberOfClass:MSIDSSOXpcInteractiveTokenRequestController.class])
+    if (![baseController.fallbackController isMemberOfClass:MSIDXpcInteractiveTokenRequestController.class])
     {
         XCTFail();
     }

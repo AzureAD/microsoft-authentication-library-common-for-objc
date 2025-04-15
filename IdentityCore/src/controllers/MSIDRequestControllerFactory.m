@@ -37,7 +37,7 @@
 #import "MSIDSignoutController.h"
 #if TARGET_OS_OSX
 #import "MSIDXpcSilentTokenRequestController.h"
-#import "MSIDSSOXpcInteractiveTokenRequestController.h"
+#import "MSIDXpcInteractiveTokenRequestController.h"
 #endif
 
 @implementation MSIDRequestControllerFactory
@@ -337,6 +337,7 @@
 {
     id<MSIDRequestControlling> xpcController = nil;
     
+    // By default the xpc flow is disable, and should fallback to previous flow in else condition
     if (parameters.xpcMode != MSIDXpcModeDisable)
     {
         xpcController = [self xpcInteractiveController:parameters
@@ -390,16 +391,16 @@
 
 #if TARGET_OS_OSX
 + (nullable id<MSIDRequestControlling>)xpcInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
-                                                    tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                      fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                                                   error:(NSError * _Nullable __autoreleasing * _Nullable)error
+                                           tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                             fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                                          error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
-    if ([MSIDSSOXpcInteractiveTokenRequestController canPerformRequest])
+    if ([MSIDXpcInteractiveTokenRequestController canPerformRequest])
     {
-        return [[MSIDSSOXpcInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
-                                                                                    tokenRequestProvider:tokenRequestProvider
-                                                                                      fallbackController:fallbackController
-                                                                                                   error:error];
+        return [[MSIDXpcInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                 tokenRequestProvider:tokenRequestProvider
+                                                                                   fallbackController:fallbackController
+                                                                                                error:error];
     }
     
     return nil;

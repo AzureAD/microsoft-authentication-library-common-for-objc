@@ -27,7 +27,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSSOXpcInteractiveTokenRequestController : MSIDLocalInteractiveController
+@interface MSIDXpcInteractiveTokenRequestController : MSIDLocalInteractiveController
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider

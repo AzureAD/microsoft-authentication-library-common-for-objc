@@ -23,7 +23,7 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDSSOXpcInteractiveTokenRequestController.h"
+#import "MSIDXpcInteractiveTokenRequestController.h"
 #import "MSIDLocalInteractiveController+Internal.h"
 #import "MSIDXpcSingleSignOnProvider.h"
 #import "MSIDLogger+Internal.h"
@@ -32,7 +32,7 @@
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDXpcProviderCache.h"
 
-@implementation MSIDSSOXpcInteractiveTokenRequestController
+@implementation MSIDXpcInteractiveTokenRequestController
 
 - (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
