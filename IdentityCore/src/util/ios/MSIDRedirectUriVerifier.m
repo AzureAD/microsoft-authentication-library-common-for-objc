@@ -58,7 +58,14 @@
             return nil;
         }
         
-        BOOL brokerCapable = !bypassRedirectValidation && [MSIDRedirectUri redirectUriIsBrokerCapable:redirectURI] == MSIDRedirectUriValidationResultMatched;
+        NSError *redirectError = nil;
+        MSIDRedirectUriValidationResult validationResult = [MSIDRedirectUri redirectUriIsBrokerCapable:redirectURI
+                                                                                                  error:&redirectError];
+        BOOL brokerCapable = !bypassRedirectValidation && (validationResult == MSIDRedirectUriValidationResultMatched);
+        if (error)
+        {
+            *error = redirectError;
+        }
         
         MSIDRedirectUri *redirectUri = [[MSIDRedirectUri alloc] initWithRedirectUri:redirectURI
                                                                       brokerCapable:brokerCapable];
