@@ -60,7 +60,7 @@
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
-    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 - (void)test_redirectUri_is_broker_capable_with_https_url
@@ -72,7 +72,7 @@
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
-    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 - (void)test_check_default_redirect_msal_format
@@ -118,7 +118,7 @@
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
-    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 
 }
 
@@ -129,7 +129,7 @@
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
-    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 - (void)test_checkRedirect_uri_msal_format_miss_host
@@ -139,7 +139,7 @@
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
-    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 - (void)test_checkRedirect_uri_msal_format_miss_scheme
@@ -149,7 +149,7 @@
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
-    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 @end
