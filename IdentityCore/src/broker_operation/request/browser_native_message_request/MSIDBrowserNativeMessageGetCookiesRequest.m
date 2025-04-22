@@ -40,6 +40,13 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri"
     return @"GetCookies";
 }
 
+- (NSString *)description
+{
+    __auto_type parentDescription = [super description];
+
+    return [NSString stringWithFormat:@"%@ uri host: %@", parentDescription, self.uriHost];
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
@@ -56,6 +63,17 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_GET_COOKIES_REQUEST_URI_KEY = @"uri"
 - (NSDictionary *)jsonDictionary
 {
     @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
+}
+
+#pragma mark - Private
+
+- (NSString *)uriHost
+{
+    if (!self.uri) return nil;
+    
+    NSURL *url = [[NSURL alloc] initWithString:self.uri];
+    
+    return url.host;
 }
 
 @end

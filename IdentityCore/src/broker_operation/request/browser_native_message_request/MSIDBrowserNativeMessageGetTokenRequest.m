@@ -58,6 +58,31 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
     return @"GetToken";
 }
 
+- (NSString *)description
+{
+    __auto_type parentDescription = [super description];
+    
+    NSString *logMessage = @"%@ accountId: (homeAccountId: %@ displayableId: %@), clientId: %@, authority: %@, scopes: %@, redirectUri: %@, prompt: %@, isSts: %@, nonce: %@, state: %@ loginHint: %@, instanceAware: %@, extraParameters: %@, platformSequence: %@, canShowUI: %@";
+    
+    return [NSString stringWithFormat:logMessage, parentDescription,
+            MSID_PII_LOG_TRACKABLE(self.accountId.homeAccountId),
+            MSID_PII_LOG_EMAIL(self.accountId.displayableId),
+            self.clientId,
+            self.authority,
+            self.scopes,
+            self.redirectUri,
+            MSIDPromptParamFromType(self.prompt),
+            @(self.isSts),
+            self.nonce,
+            _PII_NULLIFY(self.state),
+            MSID_PII_LOG_EMAIL(self.loginHint),
+            @(self.instanceAware),
+            [self.extraParameters msidJSONSerializeWithContext:nil],
+            self.platformSequence,
+            @(self.canShowUI)
+    ];
+}
+
 #pragma mark - MSIDBrokerOperationRequest
 
 - (NSString *)localizedApplicationInfo
