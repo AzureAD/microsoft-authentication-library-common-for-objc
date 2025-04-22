@@ -153,9 +153,11 @@
 
 - (void)updateCustomHeadersForFRTSupportIfNeeded
 {
+#if !EXCLUDE_FROM_MSALCPP && !AD_BROKER
     // This is meant to be implemented by subclasses
     NSAssert(NO, @"Abstract method.");
     return;
+#endif
 }
 
 #pragma mark - v2 code

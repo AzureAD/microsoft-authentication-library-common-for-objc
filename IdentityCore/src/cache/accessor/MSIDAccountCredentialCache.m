@@ -688,8 +688,7 @@
         return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusDisabledByDeserializationError);
     }
     
-    id useFRT = dict[MSID_USE_SINGLE_FRT_KEY];
-    if(([useFRT isKindOfClass:[NSNumber class]] || [useFRT isKindOfClass:[NSString class]]) && [useFRT boolValue])
+    if ([dict msidBoolObjectForKey:MSID_USE_SINGLE_FRT_KEY])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is enabled");
         return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusEnabled);

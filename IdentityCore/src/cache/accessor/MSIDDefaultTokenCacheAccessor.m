@@ -137,12 +137,12 @@
     BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
     if (frtError)
     {
-        if (error) *error = frtError;
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
+        // Log error, but continue to use old FRT code
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT. Error: %@", frtError);
     }
     
     MSIDAADTokenRequestServerTelemetry *serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
-    NSString *telemetryMessage = [NSString stringWithFormat:@"sfrt%ld", frtStatus];
+    NSString *telemetryMessage = [NSString stringWithFormat:@"sfrt(%ld)", frtStatus];
     
     [serverTelemetry handleError:[[NSError alloc] initWithDomain:telemetryMessage code:0 userInfo:nil]
                      errorString:telemetryMessage
@@ -275,21 +275,7 @@
 
         if (refreshToken)
         {
-            NSString *credentialTypeString = nil;
-            if (credentialType == MSIDPrimaryRefreshTokenType)
-            {
-                credentialTypeString = @"primary ";
-            }
-            else if (credentialType == MSIDFamilyRefreshTokenType)
-            {
-                credentialTypeString = @"single family ";
-            }
-            else
-            {
-                credentialTypeString = @"";
-            }
-            
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Found %@refresh token by home account id", credentialTypeString);
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Found %@ by home account id", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType]);
             return refreshToken;
         }
     }
