@@ -48,6 +48,8 @@
 
 @end
 
+static BOOL s_disableFRT = NO;
+
 @implementation MSIDAccountCredentialCache
 
 #pragma mark - Init
@@ -653,7 +655,7 @@
     };
     
     // Check if FRT is disabled by client
-    if (context.disableFRT)
+    if (s_disableFRT)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT disabled by MSAL client app, returning NO");
         return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusDisabledByClientApp);
@@ -723,6 +725,12 @@
             *error = saveError;
         }
     }
+}
+
++ (void)setDisableFRT:(BOOL)disableFRT
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"DisableFRT has been explicitly set by client to: %@", disableFRT ? @"YES" : @"NO");
+    s_disableFRT = disableFRT;
 }
 
 + (MSIDCacheKey *)checkFRTCacheKey

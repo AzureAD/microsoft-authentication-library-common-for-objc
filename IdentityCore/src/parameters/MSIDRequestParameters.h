@@ -91,11 +91,6 @@
 @property (nonatomic) NSString *telemetryRequestId;
 @property (nonatomic) NSDictionary *appRequestMetadata;
 @property (nonatomic) NSString *telemetryApiId;
-/**
- TODO: Temporal property to disable Family Refresh Token. This will be removed in future, added to allow 1P apps to disable this feature themselves.
- Enabled by default, also configured to be enabled/disabled remotely by Microsoft.
- */
-@property (nonatomic, readwrite) BOOL disableFRT;
 
 #pragma mark Conditional access
 @property (nonatomic) MSIDClaimsRequest *claimsRequest;

@@ -36,6 +36,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDConfiguration.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAccountCredentialCache.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -137,7 +139,26 @@
 - (void)updateCustomHeadersForFRTSupportIfNeeded
 {
 #if !EXCLUDE_FROM_MSALCPP && !AD_BROKER
-    if (self.requestParameters.promptType != MSIDPromptTypeLogin && !self.requestParameters.disableFRT)
+    
+    BOOL enableFRT = NO;
+    
+    if (self.tokenCache && [self.tokenCache isKindOfClass:MSIDDefaultTokenCacheAccessor.class])
+    {
+        MSIDAccountCredentialCache *credentialCache = ((MSIDDefaultTokenCacheAccessor *)self.tokenCache).accountCredentialCache;
+        if (credentialCache)
+        {
+            NSError *error = nil;
+            MSIDIsFRTEnabledStatus frtEnabledStatus = [credentialCache checkFRTEnabled:self.requestParameters error:&error];
+            
+            if (!error)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Error when checking if FRT is enabled: error code: %@", error);
+                enableFRT = (frtEnabledStatus == MSIDIsFRTEnabledStatusEnabled);
+            }
+        }
+    }
+    
+    if (self.requestParameters.promptType != MSIDPromptTypeLogin && enableFRT)
     {
         NSMutableDictionary *customHeaders = nil;
         if (self.requestParameters.customWebviewHeaders)
@@ -156,11 +177,7 @@
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Included refresh token to custom headers for webview");
             customHeaders[MSID_WEBAUTH_REFRESH_TOKEN_KEY] = refreshToken;
-        }
-        
-        // self.requestParameters.disableFRT could have been set to YES while checking the useSingleFRT keychain item, so we need to check again here
-        if (!self.requestParameters.disableFRT)
-        {
+ 
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Added ignore sso to custom headers for webview");
             customHeaders[MSID_WEBAUTH_IGNORE_SSO_KEY] = @"1";
             

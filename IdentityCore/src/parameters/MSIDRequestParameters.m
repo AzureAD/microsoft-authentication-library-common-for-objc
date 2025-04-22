@@ -365,7 +365,6 @@
     parameters->_clientId = [_clientId copyWithZone:zone];
     parameters->_nestedAuthBrokerClientId = [_nestedAuthBrokerClientId copyWithZone:zone];
     parameters->_nestedAuthBrokerRedirectUri = [_nestedAuthBrokerRedirectUri copyWithZone:zone];
-    parameters->_disableFRT = _disableFRT;
     parameters->_target = [_target copyWithZone:zone];
     parameters->_oidcScope = [_oidcScope copyWithZone:zone];
     parameters->_accountIdentifier = [_accountIdentifier copyWithZone:zone];

@@ -201,4 +201,6 @@
 - (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
++ (void)setDisableFRT:(BOOL)disableFRT;
+
 @end
