@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,15 +20,55 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDSSORemoteSilentTokenRequest.h"
-#import "MSIDProviderType.h"
 
-NS_ASSUME_NONNULL_BEGIN
+#import "MSIDXpcProviderCacheMock.h"
 
-@interface MSIDSSOExtensionSilentTokenRequest : MSIDSSORemoteSilentTokenRequest
+@interface MSIDXpcProviderCacheMock()
+
+@property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
+@property (nonatomic) BOOL isXpcValidated;
+@property (nonatomic) BOOL shouldReturnCachedXpcStatus;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDXpcProviderCacheMock
+
+@synthesize cachedCanPerformRequestsStatus, xpcConfiguration, cachedXpcProviderType;
+
+- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
+                               isXpcValidated:(BOOL)isXpcValidated
+                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus
+{
+    self = [super init];
+    if (self)
+    {
+        self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
+        self.isXpcValidated = isXpcValidated;
+        self.shouldReturnCachedXpcStatus = shouldReturnCachedXpcStatus;
+        
+        return self;
+    }
+    
+    return nil;
+}
+
+- (BOOL)validateCacheXpcProvider
+{
+    return _isXpcValidated;
+}
+
+- (BOOL)isXpcProviderInstalledOnDevice
+{
+    return _isXpcProviderInstalledOnDevice;
+}
+
+- (BOOL)shouldReturnCachedXpcStatus
+{
+    return _shouldReturnCachedXpcStatus;
+}
+
+@end
+
+

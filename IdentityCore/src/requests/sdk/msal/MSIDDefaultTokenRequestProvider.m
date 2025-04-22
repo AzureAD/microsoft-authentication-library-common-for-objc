@@ -30,6 +30,9 @@
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
 #import "MSIDSSOExtensionSilentTokenRequest.h"
 #import "MSIDSSOExtensionInteractiveTokenRequest.h"
+#if TARGET_OS_OSX
+#import "MSIDSSOXpcSilentTokenRequest.h"
+#endif
 
 @implementation MSIDDefaultTokenRequestProvider
 
@@ -122,5 +125,21 @@
                                                                              extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
     return request;
 }
+
+- (nullable MSIDSilentTokenRequest *)silentXpcTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters forceRefresh:(BOOL)forceRefresh {
+#if TARGET_OS_OSX
+    __auto_type request = [[MSIDSSOXpcSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                                             forceRefresh:forceRefresh
+                                                                             oauthFactory:self.oauthFactory
+                                                                   tokenResponseValidator:self.tokenResponseValidator
+                                                                               tokenCache:self.tokenCache
+                                                                     accountMetadataCache:self.accountMetadataCache
+                                                                       extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
+    return request;
+#else
+    return nil;
+#endif
+}
+
 
 @end

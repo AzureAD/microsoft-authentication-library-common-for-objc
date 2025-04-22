@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,14 +20,27 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDSSORemoteSilentTokenRequest.h"
-#import "MSIDProviderType.h"
+
+#import <Foundation/Foundation.h>
+#import "MSIDDeviceInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSSOExtensionSilentTokenRequest : MSIDSSORemoteSilentTokenRequest
+static NSString *companyPortalXpcInstance = @"com.microsoft.EntraIdentityBroker.Service";
+static NSString *macBrokerAppXpcInstance = @"com.microsoft.EntraIdentityBrokermacbroker.Service";
+
+
+@interface MSIDXpcConfiguration : NSObject
+
+@property (nonatomic) NSString *xpcHostAppName;
+@property (nonatomic) NSString *xpcMachServiceName;
+@property (nonatomic) NSString *xpcBrokerDispatchServiceBundleId;
+@property (nonatomic) NSString *xpcBrokerInstanceServiceBundleId;
+@property (nonatomic) MSIDSsoProviderType xpcProviderType;
+
+- (instancetype)initWithXpcProviderType:(MSIDSsoProviderType)xpcProviderType;
 
 @end
 
