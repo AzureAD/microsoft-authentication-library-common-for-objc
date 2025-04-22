@@ -68,6 +68,23 @@
 {
 }
 
+- (void)testDescription_whenNoParentProcessInfo_shouldReturnDescription
+{
+    
+    __auto_type request = [MSIDBrokerOperationBrowserNativeMessageRequest new];
+    XCTAssertEqualObjects(@"[MSIDBrokerOperationBrowserNativeMessageRequest]: parentProcessTeamId: (null), parentProcessBundleIdentifier: (null), parentProcessLocalizedName (null), payload method: (null)", [request description]);
+}
+
+- (void)testDescription_whenParentProcessInfoIsSet_shouldReturnDescription
+{
+    __auto_type request = [MSIDBrokerOperationBrowserNativeMessageRequest new];
+    request.parentProcessBundleIdentifier = @"com.qwe";
+    request.parentProcessTeamId = @"12345";
+    request.parentProcessLocalizedName = @"name1";
+    request.payloadJson = @{@"method": @"test_method"};
+    XCTAssertEqualObjects(@"[MSIDBrokerOperationBrowserNativeMessageRequest]: parentProcessTeamId: 12345, parentProcessBundleIdentifier: com.qwe, parentProcessLocalizedName name1, payload method: test_method", [request description]);
+}
+
 - (void)testOperation_shouldBeCorrect
 {
     XCTAssertEqualObjects(@"browser_native_message_operation", [MSIDBrokerOperationBrowserNativeMessageRequest operation]);
