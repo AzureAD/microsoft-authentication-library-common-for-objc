@@ -74,18 +74,14 @@
                                                         error:(NSError * __autoreleasing *)error
 {
     NSString *scheme = [NSString msidIsStringNilOrBlank:redirectUri.scheme] ? @"<custom_scheme>" : redirectUri.scheme;
-    NSString *bundleID = [NSString msidIsStringNilOrBlank:[[NSBundle mainBundle] bundleIdentifier]] ? @"[bundle_id]" : [[NSBundle mainBundle] bundleIdentifier];
-    
-    NSString *msalFormat = [NSString stringWithFormat:@"msauth.%@://auth", bundleID];
-    NSString *adalFormat = [NSString stringWithFormat:@"%@://%@", scheme, bundleID];
-    
+    NSURL *defaultADALRedirectUri = [NSURL URLWithString:[NSString stringWithFormat:@"%@://%@", scheme, [[NSBundle mainBundle] bundleIdentifier]]];
+    NSURL *defaultRedirectUri = [MSIDRedirectUri defaultBrokerCapableRedirectUri];
+
     if ([NSString msidIsStringNilOrBlank:redirectUri.absoluteString])
     {
-        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is nil or empty. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", msalFormat, adalFormat], nil);
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is nil or empty. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", defaultRedirectUri, defaultADALRedirectUri], nil);
         return MSIDRedirectUriValidationResultNilOrEmpty;
     }
-    
-    NSURL *defaultRedirectUri = [MSIDRedirectUri defaultBrokerCapableRedirectUri];
     
     // Check default MSAL format
     if ([defaultRedirectUri isEqual:redirectUri])
@@ -94,8 +90,7 @@
     }
     
     // Check default ADAL format
-    if ([redirectUri.host isEqualToString:[[NSBundle mainBundle] bundleIdentifier]]
-        && redirectUri.scheme.length > 0)
+    if ([defaultADALRedirectUri isEqual:redirectUri])
     {
         return MSIDRedirectUriValidationResultMatched;
     }
@@ -103,36 +98,36 @@
     // Add extra validation on why redirect_uri is not capable
     if ([redirectUri.scheme isEqualToString:@"http"] || [redirectUri.scheme isEqualToString:@"https"])
     {
-        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI uses an unsupported scheme (http(s)://host). Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", msalFormat, adalFormat], nil);
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI uses an unsupported scheme (http(s)://host). Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", defaultRedirectUri, defaultADALRedirectUri], nil);
         return MSIDRedirectUriValidationResultHttpFormatNotSupport;
     }
     else if ([redirectUri.host isEqualToString:@"auth"] && [redirectUri.absoluteString hasPrefix:@"msauth"])
     {
-        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI uses MSAL format (%@) but the bundle ID does not match the app’s bundle ID. Please ensure the scheme matches your app’s bundle ID.\nValid format: %@", msalFormat, msalFormat], nil);
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI uses MSAL format (%@) but the bundle ID does not match the app’s bundle ID. Please ensure the scheme matches your app’s bundle ID.\nValid format: %@", defaultRedirectUri, defaultADALRedirectUri], nil);
         return MSIDRedirectUriValidationResultMSALFormatBundleIdMismatched;
     }
     else if ([redirectUri.absoluteString hasPrefix:@"msauth"])
     {
-        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI uses MSAL scheme (msauth.<bundle_id>) but is missing the required host component \"auth\". Please ensure the URI follows the valid format: %@", msalFormat], nil);
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI uses MSAL scheme (msauth.<bundle_id>) but is missing the required host component \"auth\". Please ensure the URI follows the valid format: %@", defaultRedirectUri], nil);
         return MSIDRedirectUriValidationResultMSALFormatHostNilOrEmpty;
     }
     else if ([NSString msidIsStringNilOrBlank:redirectUri.scheme])
     {
-        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is missing a scheme. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@\nRegister your scheme in Info.plist under CFBundleURLSchemes.", msalFormat, adalFormat], nil);
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is missing a scheme. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@\nRegister your scheme in Info.plist under CFBundleURLSchemes.", defaultRedirectUri, defaultADALRedirectUri], nil);
         return MSIDRedirectUriValidationResultSchemeNilOrEmpty;
     }
     else if ([redirectUri.absoluteString isEqualToString:@"urn:ietf:wg:oauth:2.0:oob"])
     {
-        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI 'urn:ietf:wg:oauth:2.0:oob' is not supported. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", msalFormat, adalFormat], nil);
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI 'urn:ietf:wg:oauth:2.0:oob' is not supported. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", defaultRedirectUri, defaultADALRedirectUri], nil);
         return MSIDRedirectUriValidationResultoauth20FormatNotSupport;
     }
     else if ([NSString msidIsStringNilOrBlank:redirectUri.host])
     {
-        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is missing a host. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", msalFormat, adalFormat], nil);
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is missing a host. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", defaultRedirectUri, defaultADALRedirectUri], nil);
         return MSIDRedirectUriValidationResultHostNilOrEmpty;
     }
 
-    MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is invalid. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", msalFormat, adalFormat], nil);
+    MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is invalid. Please use one of the following valid formats instead:\n- MSAL: %@\n- ADAL: %@", defaultRedirectUri, defaultADALRedirectUri], nil);
     return MSIDRedirectUriValidationResultUnknownNotMatched;
 }
 
