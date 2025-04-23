@@ -1,5 +1,7 @@
 Version TBD
 * Use a single family refresh token (#1470)
+* Improve browser core logs #1506
+
 
 Version 1.10.0
 * Fix resume response handling in DUNA #1493

@@ -31,6 +31,11 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
 
 @implementation MSIDBrowserNativeMessageRequest
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"[%@]: sender: %@", self.class, self.sender.absoluteString];
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error

@@ -40,6 +40,13 @@
     return @"SignOut";
 }
 
+- (NSString *)description
+{
+    __auto_type parentDescription = [super description];
+
+    return [NSString stringWithFormat:@"%@ accountId: (homeAccountId: %@ displayableId: %@)", parentDescription, MSID_PII_LOG_TRACKABLE(self.accountId.homeAccountId), MSID_PII_LOG_EMAIL(self.accountId.displayableId)];
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
