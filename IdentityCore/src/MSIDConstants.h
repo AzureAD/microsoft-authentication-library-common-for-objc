@@ -130,6 +130,8 @@ extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
 extern NSString * _Nonnull const MSID_APP_NAME_KEY;
 extern NSString * _Nonnull const MSID_APP_VER_KEY;
 extern NSString * _Nonnull const MSID_CCS_HINT_KEY;
+extern NSString * _Nonnull const MSID_WEBAUTH_IGNORE_SSO_KEY;
+extern NSString * _Nonnull const MSID_WEBAUTH_REFRESH_TOKEN_KEY;
 
 extern NSString * _Nonnull const MSID_DEFAULT_FAMILY_ID;
 extern NSString * _Nonnull const MSID_ADAL_SDK_NAME;
@@ -157,6 +159,9 @@ extern NSString * _Nonnull const MSID_POP_TOKEN_KEY_LABEL;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION;
 
+extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEYCHAIN;
+extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEY;
+
 extern NSString * _Nonnull const MSID_SHARED_MODE_CURRENT_ACCOUNT_CHANGED_NOTIFICATION_KEY;
 
 extern NSString * _Nonnull const MSID_PREFERRED_AUTH_METHOD_KEY;
@@ -178,6 +183,30 @@ typedef NS_ENUM(NSInteger, MSIDPlatformSequenceIndex)
     MSIDPlatformSequenceIndexBrowserCore = 3,
     MSIDPlatformSequenceIndexLast = MSIDPlatformSequenceIndexBrowserCore,
 };
+
+typedef NS_ENUM(NSInteger, MSIDIsFRTEnabledStatus)
+{
+    // FRT has not been explicitly enabled with keychain item
+    MSIDIsFRTEnabledStatusNotEnabled = 0,
+    
+    // FRT is enabled
+    MSIDIsFRTEnabledStatusEnabled,
+    
+    // Client app has disabled FRT through MSIDRequestParameters or was disabled previuosly by keychain item
+    MSIDIsFRTEnabledStatusDisabledByClientApp,
+    
+    // There was an error reading keychain item
+    MSIDIsFRTEnabledStatusDisabledByKeychainError,
+    
+    // There was an error deserializing keychain item
+    MSIDIsFRTEnabledStatusDisabledByDeserializationError,
+    
+    // FRT has been disabled with keychain item
+    MSIDIsFRTEnabledStatusDisabledByKeychainItem
+};
+
+extern NSString * _Nonnull const MSID_FRT_STATUS_ENABLED;
+extern NSString * _Nonnull const MSID_FRT_STATUS_DISABLED;
 
 extern NSString * _Nonnull const MSID_BROWSER_RESPONSE_SWITCH_BROWSER;
 extern NSString * _Nonnull const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME;
