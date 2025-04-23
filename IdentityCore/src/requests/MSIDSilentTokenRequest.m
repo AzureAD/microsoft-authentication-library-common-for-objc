@@ -49,8 +49,8 @@
 
 typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
-    MSIDAppRefreshTokenType = 0,
-    MSIDFamilyRefreshTokenType
+    MSIDUseAppRefreshTokenType = 0,
+    MSIDUseFamilyRefreshTokenType
 };
 
 @interface MSIDSilentTokenRequest()
@@ -298,7 +298,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     NSError *rtError = nil;
     MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
     NSString *contextMsg = checkForFRT ? @"family refresh token" : @"app refresh token";
-    MSIDRefreshTokenTypes checkForTokenType = checkForFRT ? MSIDFamilyRefreshTokenType : MSIDAppRefreshTokenType;
+    MSIDRefreshTokenTypes checkForTokenType = checkForFRT ? MSIDUseFamilyRefreshTokenType : MSIDUseAppRefreshTokenType;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for %@...", contextMsg);
     if (checkForFRT)
@@ -342,7 +342,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
               tokenType:(MSIDRefreshTokenTypes)tokenType
         completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    BOOL isTryingWithAppRefreshToken = tokenType == MSIDAppRefreshTokenType;
+    BOOL isTryingWithAppRefreshToken = tokenType == MSIDUseAppRefreshTokenType;
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.requestParameters, @"Trying to acquire access token using %@ for clientId %@, authority %@, account %@", (isTryingWithAppRefreshToken ? @"App Refresh Token" : @"Family Refresh Token"), self.requestParameters.authority, self.requestParameters.clientId, self.requestParameters.accountIdentifier.maskedHomeAccountId);
     
     // When using ART or FRT, it will go through the same method below, and handle differently within the completion block
@@ -399,7 +399,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     if (familyRefreshToken && ![[familyRefreshToken refreshToken] isEqualToString:[refreshToken refreshToken]])
     {
         [self tryRefreshToken:familyRefreshToken
-                    tokenType:MSIDFamilyRefreshTokenType
+                    tokenType:MSIDUseFamilyRefreshTokenType
               completionBlock:completionBlock];
         return YES;
     }

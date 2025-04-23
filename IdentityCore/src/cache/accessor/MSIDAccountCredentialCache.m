@@ -36,6 +36,10 @@
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDExtendedTokenCacheDataSource.h"
+#import "MSIDConfiguration.h"
+#import "MSIDConstants.h"
+#import "MSIDJsonObject.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -43,6 +47,8 @@
 }
 
 @end
+
+static BOOL s_disableFRT = NO;
 
 @implementation MSIDAccountCredentialCache
 
@@ -382,7 +388,7 @@
     
     BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
     
-    if (result && credential.credentialType == MSIDRefreshTokenType)
+    if (result && (credential.credentialType == MSIDRefreshTokenType || credential.credentialType == MSIDFamilyRefreshTokenType))
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
@@ -554,6 +560,190 @@
     }
     
     return cacheItems;
+}
+
+- (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
+                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
+{
+    // This block will be used to check feature flags and update FRT settings if needed, depending on the current status
+    // of the keychain item, avoiding an unnecessary read or update if status is the same
+    MSIDIsFRTEnabledStatus (^checkFeatureFlagsAndReturn)(MSIDIsFRTEnabledStatus) = ^MSIDIsFRTEnabledStatus(MSIDIsFRTEnabledStatus status)
+    {
+        
+        // Check if FRT is enabled by feature flight, possible values:
+        // - MSID_FRT_STATUS_ENABLED => "on": FRT will be enabled
+        // - MSID_FRT_STATUS_DISABLED => "off": FRT will be disabled
+        // - nil, empty or any other value: no change to FRT
+        MSIDFlightManager *flightManager = [MSIDFlightManager sharedInstance];
+        NSString *flagEnableFRT = [flightManager stringForKey:MSID_FLIGHT_CLIENT_SFRT_STATUS];
+        BOOL shouldEnableFRT = [MSID_FRT_STATUS_ENABLED isEqualToString:flagEnableFRT];
+        BOOL shouldDisableFRT = [MSID_FRT_STATUS_DISABLED isEqualToString:flagEnableFRT];
+        
+        if ([NSString msidIsStringNilOrBlank:flagEnableFRT] || (!shouldEnableFRT && !shouldDisableFRT))
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"FRT flight set to keep current status: %ld", (long)status);
+            return status;
+        }
+        MSIDIsFRTEnabledStatus newStatus = status;
+        NSError *updateError = nil;
+        
+        switch (status)
+        {
+                // No entry in cache
+            case MSIDIsFRTEnabledStatusNotEnabled:
+                if (shouldEnableFRT)
+                {
+                    [self updateFRTSettings:YES context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusEnabled;
+                }
+                break;
+                
+                // Deserialization error, try to enable/disable if needed
+            case MSIDIsFRTEnabledStatusDisabledByDeserializationError:
+                if (shouldEnableFRT)
+                {
+                    [self updateFRTSettings:YES context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusEnabled;
+                }
+                else if (shouldDisableFRT)
+                {
+                    [self updateFRTSettings:NO context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+                }
+                break;
+                
+                // FRT is currently enabled, check to see if should be disabled
+            case MSIDIsFRTEnabledStatusEnabled:
+                if (shouldDisableFRT)
+                {
+                    [self updateFRTSettings:NO context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+                    
+                    if (updateError)
+                    {
+                        // Even if there was an error updating the item, we should still return Disabled so that the feature is not active.
+                        status = MSIDIsFRTEnabledStatusDisabledByKeychainItem;
+                    }
+                }
+                break;
+                
+            // FRT is disabled, check to see if should be enabled
+            case MSIDIsFRTEnabledStatusDisabledByKeychainItem:
+                if (shouldEnableFRT)
+                {
+                    [self updateFRTSettings:YES context:context error:&updateError];
+                    newStatus = MSIDIsFRTEnabledStatusEnabled;
+                }
+                break;
+                
+                // Error reading keychain item, do not update settings
+            case MSIDIsFRTEnabledStatusDisabledByKeychainError:
+                break;
+                
+                // Feature is disabled by client app, do nothing with keychain item
+            case MSIDIsFRTEnabledStatusDisabledByClientApp:
+                break;
+        }
+        
+        if (updateError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error when trying to update FRT settings, error: %@", updateError);
+            newStatus = status;
+        }
+        
+        return newStatus;
+    };
+    
+    // Check if FRT is disabled by client
+    if (s_disableFRT)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT disabled by MSAL client app, returning NO");
+        return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusDisabledByClientApp);
+    }
+    
+    NSError *readError = nil;
+    NSArray<MSIDJsonObject *> *jsonObjects = [_dataSource jsonObjectsWithKey:[MSIDAccountCredentialCache checkFRTCacheKey]
+                                                                  serializer:[MSIDCacheItemJsonSerializer new]
+                                                                     context:context
+                                                                       error:&readError];
+    
+    if (readError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to retrieve FRT cache entry, error: %@", readError);
+        if (error)
+        {
+            *error = readError;
+        }
+        return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusDisabledByKeychainError);
+    }
+    
+    if (![jsonObjects count])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No FRT cache entry found, returning NO");
+        return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusNotEnabled);
+    }
+    
+    NSDictionary *dict = [jsonObjects[0] jsonDictionary];
+    if (!dict || ![dict isKindOfClass:[NSDictionary class]] || [dict objectForKey:MSID_USE_SINGLE_FRT_KEY] == nil)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to deserialize FRT cache entry, returning NO");
+        return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusDisabledByDeserializationError);
+    }
+    
+    if ([dict msidBoolObjectForKey:MSID_USE_SINGLE_FRT_KEY])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is enabled");
+        return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusEnabled);
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT is disabled");
+    return checkFeatureFlagsAndReturn(MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+}
+
+- (void)updateFRTSettings:(BOOL)enableFRT
+                  context:(nullable id<MSIDRequestContext>)context
+                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Updating UseSingleFRT Item with enableFRT:%@", enableFRT ? @"YES" : @"NO");
+    
+    NSDictionary *settings = @{MSID_USE_SINGLE_FRT_KEY: @(enableFRT)};
+    
+    NSError *saveError = nil;
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:settings error:&saveError];
+
+    [_dataSource saveJsonObject:jsonObject
+                     serializer:[MSIDCacheItemJsonSerializer new]
+                            key:[MSIDAccountCredentialCache checkFRTCacheKey]
+                        context:context
+                          error:&saveError];
+    
+    if (saveError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to save FRT cache entry, error: %@", saveError);
+        if (error)
+        {
+            *error = saveError;
+        }
+    }
+}
+
++ (void)setDisableFRT:(BOOL)disableFRT
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"DisableFRT has been explicitly set by client to: %@", disableFRT ? @"YES" : @"NO");
+    s_disableFRT = disableFRT;
+}
+
++ (MSIDCacheKey *)checkFRTCacheKey
+{
+    static MSIDCacheKey *cacheKey = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cacheKey = [[MSIDCacheKey alloc] initWithAccount:MSID_USE_SINGLE_FRT_KEYCHAIN
+                                                 service:MSID_USE_SINGLE_FRT_KEYCHAIN
+                                                 generic:nil
+                                                    type:nil];
+    });
+    return cacheKey;
 }
 
 @end
