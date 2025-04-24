@@ -158,7 +158,10 @@
         }
     }
     
-    if (self.requestParameters.promptType != MSIDPromptTypeLogin && enableFRT)
+    if (enableFRT &&
+        self.requestParameters.promptType != MSIDPromptTypeLogin &&
+        self.requestParameters.promptType != MSIDPromptTypeSelectAccount &&
+        self.requestParameters.promptType != MSIDPromptTypeCreate)
     {
         NSMutableDictionary *customHeaders = nil;
         if (self.requestParameters.customWebviewHeaders)
