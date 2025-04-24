@@ -119,6 +119,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorMismatchedAccount          = -51117,
     
     MSIDErrorRedirectSchemeNotRegistered = -51118,
+    
+    MSIDErrorInvalidRedirectURI         = -51119,
 
     /*!
     =========================================================

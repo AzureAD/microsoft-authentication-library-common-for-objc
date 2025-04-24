@@ -271,6 +271,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorMismatchedAccount";
         case MSIDErrorRedirectSchemeNotRegistered:
             return @"MSIDErrorRedirectSchemeNotRegistered";
+        case MSIDErrorInvalidRedirectURI:
+            return @"MSIDErrorInvalidRedirectURI";
             // Cache errors
         case MSIDErrorCacheMultipleUsers:
             return @"MSIDErrorCacheMultipleUsers";
