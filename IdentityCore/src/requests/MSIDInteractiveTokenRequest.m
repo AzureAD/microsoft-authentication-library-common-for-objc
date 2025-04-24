@@ -149,11 +149,11 @@
         {
             NSError *error = nil;
             MSIDIsFRTEnabledStatus frtEnabledStatus = [credentialCache checkFRTEnabled:self.requestParameters error:&error];
+            enableFRT = (frtEnabledStatus == MSIDIsFRTEnabledStatusEnabled);
             
-            if (!error)
+            if (error)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Error when checking if FRT is enabled: error code: %@", error);
-                enableFRT = (frtEnabledStatus == MSIDIsFRTEnabledStatusEnabled);
             }
         }
     }
