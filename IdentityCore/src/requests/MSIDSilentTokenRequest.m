@@ -40,6 +40,7 @@
 #import "MSIDTokenResponseHandler.h"
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -616,7 +617,21 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                     MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Failed to remove invalid refresh token with error %@", MSID_PII_LOG_MASKABLE(removalError));
                 }
             }
-            
+
+            if (!result && [self shouldRemoveAccountArtifacts:localError])
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Account deleted, Removing any user account artifacts from device...");
+
+                NSError *metadataRemovalError;
+                [[self metadataCache] removeAccountMetadataForHomeAccountId:self.requestParameters.accountIdentifier.homeAccountId
+                                                                    context:self.requestParameters
+                                                                      error:&metadataRemovalError];
+                if (metadataRemovalError)
+                {
+                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Failed to remove account artifacts with error %@", MSID_PII_LOG_MASKABLE(metadataRemovalError));
+                }
+            }
+
             completionBlock(result, localError);
         }];
     }];
@@ -659,6 +674,12 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 }
 
 - (BOOL)shouldRemoveRefreshToken:(__unused NSError *)serverError
+{
+    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
+    return NO;
+}
+
+- (BOOL)shouldRemoveAccountArtifacts:(__unused NSError *)serverError
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return NO;

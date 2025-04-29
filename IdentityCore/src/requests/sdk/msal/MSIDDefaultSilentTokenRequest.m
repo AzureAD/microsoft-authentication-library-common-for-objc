@@ -226,6 +226,14 @@
     return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorBadToken];
 }
 
+- (BOOL)shouldRemoveAccountArtifacts:(NSError *)serverError
+{
+    // MSAL removes Account artifacts on invalid_grant + bad token combination
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
+    NSString *subError = serverError.msidSubError;
+    return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorUserAccountDeleted];
+}
+
 - (id<MSIDCacheAccessor>)tokenCache
 {
     return self.defaultAccessor;
