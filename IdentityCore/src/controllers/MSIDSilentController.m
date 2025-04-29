@@ -158,4 +158,9 @@
     }];
 }
 
+- (BOOL)shouldFallback:(NSError *)error
+{
+    return YES;
+}
+
 @end
