@@ -242,9 +242,9 @@
     }];
 }
 
-- (BOOL)shouldFallback:(NSError *)error
+- (void)shouldSkipAcquireTokenBasedOn:(NSError *)error
 {
-    return YES;
+    // This method is not used in this class.
 }
 
 @end

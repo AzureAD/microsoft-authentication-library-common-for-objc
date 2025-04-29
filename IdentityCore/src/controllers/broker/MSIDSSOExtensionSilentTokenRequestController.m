@@ -49,33 +49,5 @@
     return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
 }
 
-- (BOOL)shouldFallback:(NSError *)error
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking if we should fallback to fallback controller, error: %ld error domain: %@.", (long)error.code, error.domain);
-    
-    if (!self.fallbackController)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"fallback controller is nil, SSO extension controller should fallback: NO");
-        return NO;
-    }
-    
-    // If it is MSIDErrorDomain and Sso Extension returns unexpected error, we should fall back to local controler and unblock user
-    if (![error.domain isEqualToString:ASAuthorizationErrorDomain] && ![error.domain isEqualToString:MSIDErrorDomain]) return NO;
-    
-    BOOL shouldFallback = NO;
-    switch (error.code)
-    {
-        case ASAuthorizationErrorNotHandled:
-        case ASAuthorizationErrorUnknown:
-        case ASAuthorizationErrorFailed:
-        case MSIDErrorSSOExtensionUnexpectedError:
-            shouldFallback = YES;
-    }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"SSO extension controller should fallback: %@", shouldFallback ? @"YES" : @"NO");
-    
-    return shouldFallback;
-}
-
 @end
 #endif

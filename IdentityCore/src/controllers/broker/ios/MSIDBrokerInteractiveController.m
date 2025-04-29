@@ -478,6 +478,11 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     return result;
 }
 
+- (void)shouldSkipAcquireTokenBasedOn:(NSError *)error
+{
+    // This method is not used in this class.
+}
+
 #pragma mark - Fallback
 
 - (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController

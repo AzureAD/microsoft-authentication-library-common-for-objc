@@ -111,7 +111,7 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Passed nil completionBlock");
         return;
     }
-
+    
     CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, MSID_TELEMETRY_EVENT_API_EVENT);
     self.currentRequest = request;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
@@ -143,24 +143,26 @@
         self.currentRequest = nil;
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallResult, NSError *fallError)
         {
-            // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-            if (!fallResult && (fallError.code == MSIDErrorSSOExtensionUnexpectedError))
-            {
-                completionBlock(result, error);
-            }
-            else
+            // Only return fallback when there is a valid result, otherwise, return error from main controller
+            // (!result && !error) is a special case when using local silent controller and to skip local refreh token (broker first flow). In this case, the main controller is the 1st fallback controller, and should return the error
+            if (fallResult || (!result && !error))
             {
                 completionBlock(fallResult, fallError);
             }
+            else
+            {
+                completionBlock(result, error);
+            }
         };
-        
+            
+        [self.fallbackController shouldSkipAcquireTokenBasedOn:error];
         [self.fallbackController acquireToken:completionBlockWrapper];
     }];
 }
 
-- (BOOL)shouldFallback:(NSError *)error
+- (void)shouldSkipAcquireTokenBasedOn:(NSError *)error
 {
-    return YES;
+    // This method is not used in this class.
 }
 
 @end
