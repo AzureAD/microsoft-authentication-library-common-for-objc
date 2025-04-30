@@ -621,20 +621,36 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             if (!result && [self shouldRemoveAccountArtifacts:localError])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Account deleted, Removing any user account artifacts from device...");
-
-                NSError *metadataRemovalError;
-                [[self metadataCache] removeAccountMetadataForHomeAccountId:self.requestParameters.accountIdentifier.homeAccountId
-                                                                    context:self.requestParameters
-                                                                      error:&metadataRemovalError];
-                if (metadataRemovalError)
-                {
-                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Failed to remove account artifacts with error %@", MSID_PII_LOG_MASKABLE(metadataRemovalError));
-                }
+                [self removeAccountArtifacts:self.requestParameters];
             }
 
             completionBlock(result, localError);
         }];
     }];
+}
+
+- (void)removeAccountArtifacts:(MSIDRequestParameters *)requestParameters
+{
+    NSError *removalError = nil;
+    BOOL removalResult = [self.tokenCache clearCacheForAccount:requestParameters.accountIdentifier
+                                                     authority:requestParameters.authority
+                                                      clientId:requestParameters.clientId
+                                                      familyId:nil
+                                                       context:requestParameters
+                                                         error:&removalError];
+    if (!removalResult)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, requestParameters, @"Failed to clear cache with error %@", MSID_PII_LOG_MASKABLE(removalError));
+    }
+    
+    NSError *metadataRemovalError = nil;
+    [[self metadataCache] removeAccountMetadataForHomeAccountId:requestParameters.accountIdentifier.homeAccountId
+                                                        context:requestParameters
+                                                          error:&metadataRemovalError];
+    if (metadataRemovalError)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, requestParameters, @"Failed to remove account artifacts with error %@", MSID_PII_LOG_MASKABLE(metadataRemovalError));
+    }
 }
 #endif
 
