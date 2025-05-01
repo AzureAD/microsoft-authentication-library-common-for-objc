@@ -228,7 +228,7 @@
 
 - (BOOL)shouldRemoveAccountArtifacts:(NSError *)serverError
 {
-    // MSAL removes Account artifacts on invalid_grant + bad token combination
+    // Removing account artifacts on invalid_grant + user_deleted_account suberror combination
     MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
     NSString *subError = serverError.msidSubError;
     return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorUserAccountDeleted];
