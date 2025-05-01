@@ -141,12 +141,14 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT. Error: %@", frtError);
     }
     
+#if !EXCLUDE_FROM_MSALCPP
     MSIDAADTokenRequestServerTelemetry *serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
     NSString *telemetryMessage = [NSString stringWithFormat:@"sfrt(%ld)", frtStatus];
     
     [serverTelemetry handleError:[[NSError alloc] initWithDomain:telemetryMessage code:0 userInfo:nil]
                      errorString:telemetryMessage
                          context:context];
+#endif
     
     MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
     
