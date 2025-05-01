@@ -41,6 +41,7 @@
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDFlightManager.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -617,8 +618,11 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                     MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Failed to remove invalid refresh token with error %@", MSID_PII_LOG_MASKABLE(removalError));
                 }
             }
+            
+            BOOL disableRemoveAccountArtifacts = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS];
 
-            if (!result && [self shouldRemoveAccountArtifacts:localError])
+            // remove account artifacts only if we test flight feature is not disabled
+            if (!result && !disableRemoveAccountArtifacts && [self shouldRemoveAccountArtifacts:localError])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Account deleted, Removing any user account artifacts from device...");
                 [self removeAccountArtifacts:self.requestParameters];

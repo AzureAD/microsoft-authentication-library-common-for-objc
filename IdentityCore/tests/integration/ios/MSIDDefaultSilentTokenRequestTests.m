@@ -821,6 +821,12 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
 
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(accessToken);
+    
+    MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:accountIdentifier familyId:nil configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(refreshToken);
+    
     [silentRequest executeRequestWithCompletion:^(__unused MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
         XCTAssertNotNil(error);
@@ -832,11 +838,11 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
-    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
-    XCTAssertNil(accessToken);
+    accessToken = [tokenCache getAccessTokenForAccount:accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNil(accessToken, "AT have removed access token from cache");
 
-    MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:accountIdentifier familyId:nil configuration:silentParameters.msidConfiguration context:nil error:nil];
-    XCTAssertNil(refreshToken);
+    refreshToken = [tokenCache getRefreshTokenWithAccount:accountIdentifier familyId:nil configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNil(refreshToken, "RT have removed access token from cache");
     
     accountMetadataCacheItem = [self.accountMetadataCache retrieveAccountMetadataCacheItemForClientId:silentParameters.clientId
                                                                                               context:nil
