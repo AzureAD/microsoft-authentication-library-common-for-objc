@@ -21,7 +21,7 @@ resources:
      type: git
      endpoint: 'OfficeADO'
      name: OneAuth/OneAuth
-     ref: dev
+     ref: ios/add-missing-family-refresh-token-type
 
 jobs:
 - job: macOS_OnPrCommit
