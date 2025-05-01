@@ -242,4 +242,9 @@
     }];
 }
 
+- (void)shouldSkipAcquireTokenBasedOn:(NSError *)error
+{
+    // This method is not used in this class.
+}
+
 @end
