@@ -17,15 +17,15 @@ variables:
 
 resources:
  repositories:
-   - repository: microsoft-authentication-library-for-cpp
-     type: github
-     endpoint: 'PipelineConnectionCPP'
-     name: AzureAD/microsoft-authentication-library-for-cpp
-     ref: develop
+   - repository: OneAuth
+     type: git
+     endpoint: 'OfficeADO'
+     name: OneAuth/OneAuth
+     ref: dev
 
 jobs:
 - job: macOS_OnPrCommit
-  displayName: MSAL CPP checks per commit for macOS
+  displayName: OneAuth checks per commit for macOS
   timeoutInMinutes: 40
   cancelTimeoutInMinutes: 1
   workspace:
@@ -34,7 +34,7 @@ jobs:
   steps:
   - checkout: self
     path: CommonCore
-  - checkout: microsoft-authentication-library-for-cpp
+  - checkout: OneAuth
     path: s
 
   - task: UsePythonVersion@0
@@ -48,7 +48,7 @@ jobs:
   - task: PythonScript@0
     displayName: Update subtree and rename files
     inputs:
-     scriptPath: scripts/update_msalobjc_subtree.py
+     scriptPath: msal/scripts/update_msalobjc_subtree.py
      arguments: '--skip-checkout --msal-common-repo $(Agent.BuildDirectory)/CommonCore --remote-ref $(commit_number)'
 
   - task: UsePythonVersion@0
@@ -56,13 +56,13 @@ jobs:
   - script: |
      /bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"
 
-  - template: azure_pipelines/templates/macos-setup.yml@microsoft-authentication-library-for-cpp
+  - template: msal/azure_pipelines/templates/macos-setup.yml@OneAuth
 
   - task: PythonScript@0
     name: Build
     displayName: 'Build x64 Debug macOS'
     inputs:
-      scriptPath: build.py
+      scriptPath: msal/build.py
       arguments: '--clean --arch x64 --configuration Debug --platform macOS --djinni hashfail --test --test-type unit integration --build-projects tests'
     env:
       MSAL_LAB_VAULT_ACCESS_CERT_LOCATION: $(Agent.TempDirectory)
