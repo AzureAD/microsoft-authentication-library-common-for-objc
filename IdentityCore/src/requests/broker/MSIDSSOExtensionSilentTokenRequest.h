@@ -21,30 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
+#import "MSIDSSORemoteSilentTokenRequest.h"
 #import "MSIDProviderType.h"
-
-@class MSIDAccountMetadataCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSSOExtensionSilentTokenRequest : MSIDSilentTokenRequest
-
-@property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;
-
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator NS_UNAVAILABLE;
-
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
-                                extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
-                                NS_DESIGNATED_INITIALIZER;
+@interface MSIDSSOExtensionSilentTokenRequest : MSIDSSORemoteSilentTokenRequest
 
 @end
 

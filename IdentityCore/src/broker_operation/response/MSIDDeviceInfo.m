@@ -26,10 +26,12 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "NSJSONSerialization+MSIDExtensions.h"
 #import "MSIDJsonSerializer.h"
+#if TARGET_OS_OSX
+#import "MSIDXpcProviderCache.h"
+#endif
 #if !AD_BROKER
 #import "MSIDBrokerFlightProvider.h"
 #endif
-
 static NSArray *deviceModeEnumString;
 
 @implementation MSIDDeviceInfo
@@ -72,6 +74,7 @@ static NSArray *deviceModeEnumString;
 #if TARGET_OS_OSX
         _platformSSOStatus = [self platformSSOStatusEnumFromString:[json msidStringObjectForKey:MSID_PLATFORM_SSO_STATUS_KEY]];
         _ssoProviderType = [self ssoProviderTypeEnumFromString:[json msidStringObjectForKey:MSID_SSO_PROVIDER_TYPE_KEY]];
+        [self updateSsoProviderType];
 #endif
         
         NSString *jsonDataString = [json msidStringObjectForKey:MSID_ADDITIONAL_EXTENSION_DATA_KEY];
@@ -232,6 +235,30 @@ static NSArray *deviceModeEnumString;
     return MSIDPreferredAuthMethodNotConfigured;
 }
 
+#if TARGET_OS_OSX
+
+- (void)updateSsoProviderType
+{
+    // Update the provider type from SsoExtension only if it is recognized.
+    //
+    // 1. An "unknown" type might occur when:
+    //    - The Broker version lacks an updated return value for `ssoProviderType`.
+    //      In such cases, since the broker likely doesn't have the XPC service,
+    //      `MSIDXpcProviderCache` will determine which XPC service to use.
+    //
+    // 2. An "unknown" type might also occur from:
+    //    - The XPC service response itself.
+    //      Here, we already know which XPC service is appropriate before this call,
+    //      so there's no need to update the provider type.
+    
+    if (self.ssoProviderType != MSIDUnknownSsoProvider)
+    {
+        [MSIDXpcProviderCache sharedInstance].cachedXpcProviderType = self.ssoProviderType;
+    }
+}
+
+#endif
+
 - (NSString *)ssoProviderTypeStringFromEnum:(MSIDSsoProviderType)deviceMode
 {
     switch (deviceMode)
@@ -247,8 +274,15 @@ static NSArray *deviceModeEnumString;
 
 - (MSIDSsoProviderType)ssoProviderTypeEnumFromString:(NSString *)deviceModeString
 {
-    if ([deviceModeString isEqualToString:@"companyPortal"])    return MSIDCompanyPortalSsoProvider;
-    if ([deviceModeString isEqualToString:@"macBroker"])  return MSIDMacBrokerSsoProvider;
+    if ([deviceModeString isEqualToString:@"companyPortal"])
+    {
+        return MSIDCompanyPortalSsoProvider;
+    }
+    
+    if ([deviceModeString isEqualToString:@"macBroker"])
+    {
+        return MSIDMacBrokerSsoProvider;
+    }
 
     return MSIDUnknownSsoProvider;
 }

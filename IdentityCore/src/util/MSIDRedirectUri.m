@@ -71,14 +71,16 @@
 }
 
 + (MSIDRedirectUriValidationResult)redirectUriIsBrokerCapable:(NSURL *)redirectUri
+                                                        error:(NSError * __autoreleasing *)error
 {
+    NSURL *defaultRedirectUri = [MSIDRedirectUri defaultBrokerCapableRedirectUri];
+    NSString *defaultRedirectUriString = defaultRedirectUri.absoluteString;
+    
     if ([NSString msidIsStringNilOrBlank:redirectUri.absoluteString])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is nil or empty");
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is nil or empty. Please ensure the redirect URI follows the valid format: %@", defaultRedirectUriString], nil);
         return MSIDRedirectUriValidationResultNilOrEmpty;
     }
-    
-    NSURL *defaultRedirectUri = [MSIDRedirectUri defaultBrokerCapableRedirectUri];
     
     // Check default MSAL format
     if ([defaultRedirectUri isEqual:redirectUri])
@@ -96,35 +98,36 @@
     // Add extra validation on why redirect_uri is not capable
     if ([redirectUri.scheme isEqualToString:@"http"] || [redirectUri.scheme isEqualToString:@"https"])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is (http(s)://host), and is not supported");
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI uses an unsupported scheme (http(s)://host). Please ensure the redirect URI follows the valid format: %@", defaultRedirectUriString], nil);
         return MSIDRedirectUriValidationResultHttpFormatNotSupport;
     }
     else if ([redirectUri.host isEqualToString:@"auth"] && [redirectUri.absoluteString hasPrefix:@"msauth"])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is MSAL format, but bundle_id could mismatch");
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI uses MSAL format (msauth.<bundle_id>://auth) but the bundle ID does not match the app’s bundle ID. Please ensure the redirect URI follows the valid format: %@", defaultRedirectUriString], nil);
         return MSIDRedirectUriValidationResultMSALFormatBundleIdMismatched;
     }
     else if ([redirectUri.absoluteString hasPrefix:@"msauth"])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is as (msauth.bundle_id), and auth host is missing");
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI uses MSAL scheme (msauth.<bundle_id>) but is missing the required host component \"auth\". Please ensure the redirect URI follows the valid format: %@", defaultRedirectUriString], nil);
         return MSIDRedirectUriValidationResultMSALFormatHostNilOrEmpty;
     }
     else if ([NSString msidIsStringNilOrBlank:redirectUri.scheme])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is as (://host) without schema");
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is missing a scheme. Please ensure the redirect URI follows the valid format: %@\nRegister your scheme in Info.plist under CFBundleURLSchemes.", defaultRedirectUriString], nil);
         return MSIDRedirectUriValidationResultSchemeNilOrEmpty;
     }
     else if ([redirectUri.absoluteString isEqualToString:@"urn:ietf:wg:oauth:2.0:oob"])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is urn:ietf:wg:oauth:2.0:oob, and not supported");
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI 'urn:ietf:wg:oauth:2.0:oob' is not supported. Please ensure the redirect URI follows the valid format: %@", defaultRedirectUriString], nil);
         return MSIDRedirectUriValidationResultoauth20FormatNotSupport;
     }
     else if ([NSString msidIsStringNilOrBlank:redirectUri.host])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"MSIDRedirectUri validation: redirect_uri is as (scheme://) without host");
+        MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is missing a host. Please ensure the redirect URI follows the valid format: %@", defaultRedirectUriString], nil);
         return MSIDRedirectUriValidationResultHostNilOrEmpty;
     }
 
+    MSIDFillAndLogError(error, MSIDErrorInvalidRedirectURI, [NSString stringWithFormat:@"The provided redirect URI is invalid. Please ensure the redirect URI follows the valid format: %@", defaultRedirectUriString], nil);
     return MSIDRedirectUriValidationResultUnknownNotMatched;
 }
 

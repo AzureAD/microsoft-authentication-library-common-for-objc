@@ -12,6 +12,9 @@ pr:
 pool:
   vmImage: 'macOS-14'
 
+variables:
+- group: msal-ci-migration-vars
+
 resources:
  repositories:
    - repository: microsoft-authentication-library-for-cpp
