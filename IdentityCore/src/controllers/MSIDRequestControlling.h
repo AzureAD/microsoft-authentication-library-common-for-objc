@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol MSIDRequestControlling <NSObject>
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (void)shouldSkipAcquireTokenBasedOn:(nonnull NSError *)error;
 
 @end
 
