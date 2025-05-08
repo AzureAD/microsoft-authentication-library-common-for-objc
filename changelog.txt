@@ -1,4 +1,4 @@
-Version TBD
+Version 1.11.0
 * Use a single family refresh token (#1470)
 * Improve browser core logs #1506
 
