@@ -394,7 +394,8 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         return;
     }
     
-    // When a connection is not available, or the Xpc decides to reject the connection, both the interrupt handler and invalidation handler will be called, which will cause unexpected dispatch_group_leave in the completion block. Adding a manual check to prevent this from happening.
+    // Ensure that both the interruption handler and invalidation handler do not trigger unexpected dispatch_group_leave
+    // when the connection is unavailable or rejected by the XPC. This is achieved by adding a manual check.
     __block BOOL isConnectionErroredOut = NO;
     [connection resume];
     [connection setInterruptionHandler:^{
@@ -413,6 +414,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             isConnectionErroredOut = YES;
             continueBlock(nil, nil, xpcError);
         }
+        
         if (continueBlock) continueBlock(nil, nil, xpcError);
     }];
     
