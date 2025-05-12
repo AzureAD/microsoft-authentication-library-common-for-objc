@@ -25,6 +25,7 @@
 #import "MSIDCredentialType.h"
 #import "MSIDAccountType.h"
 #import "MSIDExtendedTokenCacheDataSource.h"
+#import "MSIDConstants.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDAppMetadataCacheItem;
@@ -34,6 +35,7 @@
 @class MSIDDefaultAccountCacheQuery;
 @class MSIDDefaultCredentialCacheKey;
 @class MSIDDefaultCredentialCacheQuery;
+@class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @protocol MSIDExtendedTokenCacheDataSource;
 
@@ -192,5 +194,13 @@
 - (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntriesWithQuery:(nonnull MSIDAppMetadataCacheQuery *)query
                                                                          context:(nullable id<MSIDRequestContext>)context
                                                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
+/*
+ Check if support FRT has been enabled
+ */
+- (MSIDIsFRTEnabledStatus)checkFRTEnabled:(nullable id<MSIDRequestContext>)context
+                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
++ (void)setDisableFRT:(BOOL)disableFRT;
 
 @end

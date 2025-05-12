@@ -53,12 +53,26 @@
 
 - (void)test_check_empty_redirectUri
 {
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@""]] == MSIDRedirectUriValidationResultNilOrEmpty);
+    NSError *error = nil;
+    MSIDRedirectUriValidationResult result = [MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@""] error:&error];
+    
+    XCTAssertEqual(result, MSIDRedirectUriValidationResultNilOrEmpty);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 - (void)test_redirectUri_is_broker_capable_with_https_url
 {
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"https://fakeurl.contoso.com"]] == MSIDRedirectUriValidationResultHttpFormatNotSupport);
+    NSError *error = nil;
+    MSIDRedirectUriValidationResult result = [MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"https://fakeurl.contoso.com"] error:&error];
+    
+    XCTAssertEqual(result, MSIDRedirectUriValidationResultHttpFormatNotSupport);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 - (void)test_check_default_redirect_msal_format
@@ -69,7 +83,10 @@
 #else
     url = [NSURL URLWithString:@"msauth.com.apple.dt.xctest.tool://auth"];
 #endif
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url] == MSIDRedirectUriValidationResultMatched);
+
+    NSError *error = nil;
+    XCTAssertEqual([MSIDRedirectUri redirectUriIsBrokerCapable:url error:&error], MSIDRedirectUriValidationResultMatched);
+    XCTAssertNil(error);
 
 }
 
@@ -81,8 +98,10 @@
 #else
     url = [NSURL URLWithString:@"myscheme://com.apple.dt.xctest.tool"];
 #endif
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url] == MSIDRedirectUriValidationResultMatched);
 
+    NSError *error = nil;
+    XCTAssertEqual([MSIDRedirectUri redirectUriIsBrokerCapable:url error:&error], MSIDRedirectUriValidationResultMatched);
+    XCTAssertNil(error);
 }
 
 - (void)test_check_default_redirect_adal_format_without_scheme
@@ -93,23 +112,44 @@
 #else
     url = [NSURL URLWithString:@"com.apple.dt.xctest.tool"];
 #endif
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:url] == MSIDRedirectUriValidationResultSchemeNilOrEmpty);
+
+    NSError *error = nil;
+    XCTAssertEqual([MSIDRedirectUri redirectUriIsBrokerCapable:url error:&error], MSIDRedirectUriValidationResultSchemeNilOrEmpty);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 
 }
 
 - (void)test_checkRedirect_uri_miss_host
 {
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"myscheme://"]] == MSIDRedirectUriValidationResultHostNilOrEmpty);
+    NSError *error = nil;
+    XCTAssertEqual([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"myscheme://"] error:&error], MSIDRedirectUriValidationResultHostNilOrEmpty);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 - (void)test_checkRedirect_uri_msal_format_miss_host
 {
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"msauth.com.microsoft.MSIDTestsHostApp://"]] == MSIDRedirectUriValidationResultMSALFormatHostNilOrEmpty);
+    NSError *error = nil;
+    XCTAssertEqual([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"msauth.com.microsoft.MSIDTestsHostApp://"] error:&error], MSIDRedirectUriValidationResultMSALFormatHostNilOrEmpty);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 - (void)test_checkRedirect_uri_msal_format_miss_scheme
 {
-    XCTAssertTrue([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"://auth"]] == MSIDRedirectUriValidationResultSchemeNilOrEmpty);
+    NSError *error = nil;
+    XCTAssertEqual([MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:@"://auth"] error:&error], MSIDRedirectUriValidationResultSchemeNilOrEmpty);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 @end

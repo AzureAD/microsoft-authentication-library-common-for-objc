@@ -62,7 +62,7 @@
                                                                                    error:&error];
     
     XCTAssertNotNil(redirectUri);
-    XCTAssertNil(error);
+    XCTAssertNotNil(error);
     XCTAssertFalse(redirectUri.brokerCapable);
 }
 
@@ -89,7 +89,7 @@
                                                                                    error:&error];
     
     XCTAssertNotNil(redirectUri);
-    XCTAssertNil(error);
+    XCTAssertNotNil(error);
     XCTAssertTrue(redirectUri.brokerCapable);
 }
 
@@ -116,7 +116,7 @@
                                                                                    error:&error];
     
     XCTAssertNotNil(redirectUri);
-    XCTAssertNil(error);
+    XCTAssertNotNil(error);
     XCTAssertTrue(redirectUri.brokerCapable);
 }
 
