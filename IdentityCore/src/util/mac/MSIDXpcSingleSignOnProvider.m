@@ -394,14 +394,25 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         return;
     }
     
+    // When a connection is not available, or the Xpc decides to reject the connection, both the interrupt handler and invalidation handler will be called, which will cause unexpected dispatch_group_leave in the completion block. Adding a manual check to prevent this from happening.
+    __block BOOL isConnectionErroredOut = NO;
     [connection resume];
     [connection setInterruptionHandler:^{
         NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is interrupted", nil, nil, nil, nil, nil, YES);
-        if (continueBlock) continueBlock(nil, nil, xpcError);
+        if (!isConnectionErroredOut && continueBlock)
+        {
+            isConnectionErroredOut = YES;
+            continueBlock(nil, nil, xpcError);
+        }
     }];
     
     [connection setInvalidationHandler:^{
         NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is invalidated", nil, nil, nil, nil, nil, YES);
+        if (!isConnectionErroredOut && continueBlock)
+        {
+            isConnectionErroredOut = YES;
+            continueBlock(nil, nil, xpcError);
+        }
         if (continueBlock) continueBlock(nil, nil, xpcError);
     }];
     
