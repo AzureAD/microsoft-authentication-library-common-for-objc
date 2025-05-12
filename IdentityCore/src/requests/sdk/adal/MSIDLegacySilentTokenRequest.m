@@ -28,6 +28,7 @@
 #import "MSIDAccessToken.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDSilentTokenRequest+Internal.h"
 
 @interface MSIDLegacySilentTokenRequest()
 
@@ -102,10 +103,7 @@
 
 - (BOOL)shouldRemoveAccountArtifacts:(NSError *)serverError
 {
-    // Removing account artifacts on invalid_grant + user_deleted_account suberror combination
-    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
-    NSString *subError = serverError.msidSubError;
-    return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorUserAccountDeleted];
+    return [super shouldRemoveAccountArtifacts:serverError];
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

@@ -699,10 +699,12 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     return NO;
 }
 
-- (BOOL)shouldRemoveAccountArtifacts:(__unused NSError *)serverError
+- (BOOL)shouldRemoveAccountArtifacts:(nonnull NSError *)serverError
 {
-    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
-    return NO;
+    // Removing account artifacts on invalid_grant + user_deleted_account suberror combination
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
+    NSString *subError = serverError.msidSubError;
+    return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorUserAccountDeleted];
 }
 
 - (id<MSIDCacheAccessor>)tokenCache
