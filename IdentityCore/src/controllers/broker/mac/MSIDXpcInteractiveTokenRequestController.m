@@ -54,12 +54,12 @@
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive Xpc service flow.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker Xpc service flow.");
     MSIDInteractiveTokenRequest *request = [self.tokenRequestProvider interactiveXpcTokenRequestWithParameters:self.interactiveRequestParamaters];
     
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive Broker Xpc flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         if (!error)
         {
             /**
@@ -103,7 +103,7 @@
         return NO;
     }
     
-    // If it is MSIDErrorDomain and Sso Extension returns unexpected error, we should fall back to local controler and unblock user
+    // If it is MSIDErrorDomain and Broker Xpc returns unexpected error, we should fall back to local controler and unblock user
     if (![error.domain isEqualToString:ASAuthorizationErrorDomain] && ![error.domain isEqualToString:MSIDErrorDomain]) return NO;
     
     BOOL shouldFallback = NO;
