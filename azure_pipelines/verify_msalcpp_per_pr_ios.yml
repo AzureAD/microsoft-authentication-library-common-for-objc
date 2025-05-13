@@ -26,7 +26,7 @@ resources:
 jobs:
 - job: iOS_OnPrCommit
   displayName: OneAuth checks per commit for iOS
-  timeoutInMinutes: 40
+  timeoutInMinutes: 60
   cancelTimeoutInMinutes: 1
   workspace:
     clean: all
