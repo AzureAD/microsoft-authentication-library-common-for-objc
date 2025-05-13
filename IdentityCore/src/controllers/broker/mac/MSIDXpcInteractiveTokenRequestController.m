@@ -113,7 +113,7 @@
         case ASAuthorizationErrorNotHandled:
         case ASAuthorizationErrorUnknown:
         case ASAuthorizationErrorFailed:
-        case MSIDErrorSSOExtensionUnexpectedError:
+        case MSIDErrorBrokerXpcUnexpectedError:
             shouldFallback = YES;
     }
     

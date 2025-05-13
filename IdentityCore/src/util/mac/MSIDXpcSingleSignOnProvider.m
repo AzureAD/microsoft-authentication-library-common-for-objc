@@ -372,7 +372,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     if (!xpcProviderCache.xpcConfiguration)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT - Code should not be triggerred at here", nil, nil);
-        continueBlock(nil, nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT - Xpc configuration is not available", nil, nil, nil, nil, nil, YES));
+        continueBlock(nil, nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT - Xpc configuration is not available", nil, nil, nil, nil, nil, YES));
         return;
     }
     
@@ -399,7 +399,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     __block BOOL isConnectionErroredOut = NO;
     [connection resume];
     [connection setInterruptionHandler:^{
-        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is interrupted", nil, nil, nil, nil, nil, YES);
+        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is interrupted", nil, nil, nil, nil, nil, YES);
         if (!isConnectionErroredOut && continueBlock)
         {
             isConnectionErroredOut = YES;
@@ -408,7 +408,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     }];
     
     [connection setInvalidationHandler:^{
-        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is invalidated", nil, nil, nil, nil, nil, YES);
+        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is invalidated", nil, nil, nil, nil, nil, YES);
         if (!isConnectionErroredOut && continueBlock)
         {
             isConnectionErroredOut = YES;
@@ -428,7 +428,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         [connection invalidate];
         if (error)
         {
-            NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, [NSString stringWithFormat:@"[Entra broker] CLIENT - get broker instance endpoint failed: %@", error], nil, nil, nil, nil, nil, YES);
+            NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, [NSString stringWithFormat:@"[Entra broker] CLIENT - get broker instance endpoint failed: %@", error], nil, nil, nil, nil, nil, YES);
             if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
             return;
         }
@@ -453,12 +453,12 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         
         [directConnection resume];
         [directConnection setInterruptionHandler:^{
-            NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- instance connection is interrupted", nil, nil, nil, nil, nil, YES);
+            NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- instance connection is interrupted", nil, nil, nil, nil, nil, YES);
             if (continueBlock) continueBlock(nil, nil, xpcError);
         }];
         
         [directConnection setInvalidationHandler:^{
-            NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"[Entra broker] CLIENT -- instance connection is invalidated", nil, nil, nil, nil, nil, YES);
+            NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- instance connection is invalidated", nil, nil, nil, nil, nil, YES);
             if (continueBlock) continueBlock(nil, nil, xpcError);
         }];
         
