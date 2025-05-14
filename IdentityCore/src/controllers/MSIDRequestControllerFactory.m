@@ -341,9 +341,9 @@
     if (parameters.xpcMode != MSIDXpcModeDisable)
     {
         xpcController = [self xpcInteractiveController:parameters
-                                     tokenRequestProvider:tokenRequestProvider
-                                       fallbackController:fallbackController
-                                                    error:error];
+                                  tokenRequestProvider:tokenRequestProvider
+                                    fallbackController:fallbackController
+                                                 error:error];
         if (parameters.xpcMode == MSIDXpcModeBackup || parameters.xpcMode == MSIDXpcModeFull)
         {
             id<MSIDRequestControlling> ssoExtensionController = [self ssoExtensionInteractiveController:parameters
