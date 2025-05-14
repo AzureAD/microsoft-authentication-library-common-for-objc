@@ -216,6 +216,122 @@
     error = nil;
 }
 
+- (void)testGenerateJweCryptoWithTransportKey_validInputs_shouldReturnJweCrypto
+{
+    NSError *error = nil;
+    NSString *apvPrefix = @"MsalClient";
+    NSDictionary *result = [[MSIDKeyOperationUtil sharedInstance] generateJweCryptoWithTransportKey:self.eccPublicKey
+                                                                                                alg:@"ECDH-ES"
+                                                                                                enc:@"A256GCM"
+                                                                                          apvPrefix:apvPrefix
+                                                                                            context:nil
+                                                                                              error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result[@"alg"], @"ECDH-ES");
+    XCTAssertEqualObjects(result[@"enc"], @"A256GCM");
+    XCTAssertTrue([result[@"apv"] length] > 0);
+    
+    NSString *apv = result[@"apv"];
+    NSData *apvData = [NSData msidDataFromBase64UrlEncodedString:apv];
+    XCTAssertNotNil(apvData);
+    XCTAssertTrue([apvData length] > 0);
+    
+    // APV: <Prefix Length> | <Prefix> | <Public Key Length> | <Public Key> | <Nonce Length> | <Nonce>
+    NSData *prefixLenData = [apvData subdataWithRange:NSMakeRange(0, sizeof(int))];
+    
+    // Extract prefix length from apv data
+    prefixLenData = [self convertToLittleEndian:prefixLenData];
+    NSUInteger prefixLen = [self convertHexBytesToInt:prefixLenData];
+    XCTAssertEqual(prefixLen, [apvPrefix length]);
+    
+    // Extract prefix from apv data
+    NSData *prefixFromApv = [apvData subdataWithRange:NSMakeRange(sizeof(int), prefixLen)];
+    XCTAssertEqualObjects([apvPrefix dataUsingEncoding:NSUTF8StringEncoding], prefixFromApv);
+    
+    // Check if apv data contains the public key
+    NSData *publicKeyData = CFBridgingRelease(SecKeyCopyExternalRepresentation(self.eccPublicKey, NULL));
+    
+    // Extract STK public key from APV
+    NSData *eccKeyLengthInApv = [apvData subdataWithRange:NSMakeRange(sizeof(int) + prefixLen , sizeof(int))];
+    eccKeyLengthInApv = [self convertToLittleEndian:eccKeyLengthInApv];
+    NSUInteger eccKeyLengthInApvInt = [self convertHexBytesToInt:eccKeyLengthInApv];
+    XCTAssertEqual(eccKeyLengthInApvInt, publicKeyData.length);
+    
+    NSData *stkPublicKeyFromApv = [apvData subdataWithRange:NSMakeRange(sizeof(int) + prefixLen + sizeof(int), eccKeyLengthInApvInt)];
+    XCTAssertEqualObjects(stkPublicKeyFromApv, publicKeyData);
+    
+    // Extract nonce length from apv data
+    NSData *nonceLengthInApv = [apvData subdataWithRange:NSMakeRange(sizeof(int) + prefixLen + sizeof(int) + eccKeyLengthInApvInt, sizeof(int))];
+    nonceLengthInApv = [self convertToLittleEndian:nonceLengthInApv];
+    NSUInteger nonceLengthInApvInt = [self convertHexBytesToInt:nonceLengthInApv];
+    XCTAssertEqual(nonceLengthInApvInt, [NSUUID UUID].UUIDString.length);
+    
+    // Extract nonce from apv data
+    NSData *nonceFromApv = [apvData subdataWithRange:NSMakeRange(sizeof(int) + prefixLen + sizeof(int) + eccKeyLengthInApvInt + sizeof(int), nonceLengthInApvInt)];
+    NSUUID *uuid = [[NSUUID alloc] initWithUUIDBytes:nonceFromApv.bytes];
+    XCTAssertNotNil(uuid);
+}
+
+- (void)testGenerateJweCryptoWithTransportKey_PrivateKey_shouldReturnError
+{
+    NSError *error = nil;
+    NSDictionary *result = [[MSIDKeyOperationUtil sharedInstance] generateJweCryptoWithTransportKey:self.eccPrivateKey
+                                                                                                alg:@"ECDH-ES"
+                                                                                                enc:@"A256GCM"
+                                                                                          apvPrefix:@"MsalClient"
+                                                                                            context:nil
+                                                                                              error:&error];
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Supplied key should be a public EC key.");
+}
+
+- (void)testGenerateJweCryptoWithTransportKey_invalidPublicKey_shouldReturnError
+{
+    SecKeyRef invalidKey = self.rsaPublicKey;
+    NSError *error = nil;
+    NSDictionary *result = [[MSIDKeyOperationUtil sharedInstance] generateJweCryptoWithTransportKey:invalidKey
+                                                                                                alg:@"ECDH-ES"
+                                                                                                enc:@"A256GCM"
+                                                                                          apvPrefix:@"MsalClient"
+                                                                                            context:nil
+                                                                                              error:&error];
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Supplied key is not a EC P-256 key.");
+}
+
+- (void)testGenerateJweCryptoWithTransportKey_invalidApvPrefix_shouldReturnError
+{
+    NSError *error = nil;
+    NSDictionary *result = [[MSIDKeyOperationUtil sharedInstance] generateJweCryptoWithTransportKey:self.eccPublicKey
+                                                                                                alg:@"ECDH-ES"
+                                                                                                enc:@"A256GCM"
+                                                                                          apvPrefix:@""
+                                                                                            context:nil
+                                                                                              error:&error];
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"APV prefix is not defined. A prefix must be provided to determine calling application type.");
+}
+
+- (void)testGenerateJweCryptoWithTransportKey_nilOptionalParameters_shouldUseDefaults
+{
+    NSError *error = nil;
+    NSDictionary *result = [[MSIDKeyOperationUtil sharedInstance] generateJweCryptoWithTransportKey:self.eccPublicKey
+                                                                                                alg:nil
+                                                                                                enc:nil
+                                                                                          apvPrefix:@"MsalClient"
+                                                                                            context:nil
+                                                                                              error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(result[@"alg"], @"ECDH-ES");
+    XCTAssertEqualObjects(result[@"enc"], @"A256GCM");
+    XCTAssertNotNil(result[@"apv"]);
+}
+
 #pragma mark -- Test Utility
 
 -(void) populateRsaKeys
@@ -235,4 +351,30 @@
         self.rsaPublicKey = SecKeyCopyPublicKey(self.rsaPrivateKey);
     }
 }
+
+- (NSData *)convertToLittleEndian:(NSData *)data {
+    NSUInteger length = [data length];
+    NSMutableData *littleEndianData = [NSMutableData dataWithLength:length];
+    const uint8_t *bytes = [data bytes];
+    uint8_t *reversedBytes = [littleEndianData mutableBytes];
+    
+    for (NSUInteger i = 0; i < length; i++) {
+        reversedBytes[i] = bytes[length - i - 1];
+    }
+    
+    return [littleEndianData copy];
+}
+
+- (NSInteger)convertHexBytesToInt:(NSData *)data {
+    const uint8_t *bytes = [data bytes];
+    NSUInteger length = [data length];
+    NSInteger result = 0;
+
+    for (NSUInteger i = 0; i < length; i++) {
+        result = (result << 8) | bytes[i];
+    }
+
+    return result;
+}
+
 @end
