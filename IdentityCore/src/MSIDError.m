@@ -447,6 +447,9 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorBrokerAppIsInactive";
         case MSIDErrorBrokerAppIsInBackground:
             return @"MSIDErrorBrokerAppIsInBackground";
+            // Broker Xpc internal error
+        case MSIDErrorBrokerXpcUnexpectedError:
+            return @"MSIDErrorBrokerXpcUnexpectedError";
     }
     
     return [NSString stringWithFormat:@"Unknown: %@", @(errorCode)];

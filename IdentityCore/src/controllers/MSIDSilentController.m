@@ -143,8 +143,8 @@
         self.currentRequest = nil;
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallResult, NSError *fallError)
         {
-            // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-            if (!fallResult && (fallError.code == MSIDErrorSSOExtensionUnexpectedError))
+            // We don't have any meaningful information from fallback controller (edge case of SSO/Xpc error) so we use the local controller result earlier
+            if (!fallResult && (fallError.code == MSIDErrorSSOExtensionUnexpectedError || fallError.code == MSIDErrorBrokerXpcUnexpectedError))
             {
                 completionBlock(result, error);
             }

@@ -37,6 +37,7 @@
 #import "MSIDSignoutController.h"
 #if TARGET_OS_OSX
 #import "MSIDXpcSilentTokenRequestController.h"
+#import "MSIDXpcInteractiveTokenRequestController.h"
 #endif
 
 @implementation MSIDRequestControllerFactory
@@ -328,15 +329,47 @@
     return nil;
 }
 #else
+
 + (nullable id<MSIDRequestControlling>)brokerController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                    tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                      fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                                   error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
-    return [self ssoExtensionInteractiveController:parameters
-                              tokenRequestProvider:tokenRequestProvider
-                                fallbackController:fallbackController
-                                             error:error];
+    id<MSIDRequestControlling> xpcController = nil;
+    
+    // By default the xpc flow is disable, and should fallback to previous flow in else condition
+    if (parameters.xpcMode != MSIDXpcModeDisable)
+    {
+        xpcController = [self xpcInteractiveController:parameters
+                                  tokenRequestProvider:tokenRequestProvider
+                                    fallbackController:fallbackController
+                                                 error:error];
+        if (parameters.xpcMode == MSIDXpcModeBackup || parameters.xpcMode == MSIDXpcModeFull)
+        {
+            id<MSIDRequestControlling> ssoExtensionController = [self ssoExtensionInteractiveController:parameters
+                                                                                   tokenRequestProvider:tokenRequestProvider
+                                                                                     fallbackController:xpcController?:fallbackController
+                                                                                                  error:error];
+            if (parameters.xpcMode == MSIDXpcModeFull && !ssoExtensionController)
+            {
+                return xpcController;
+            }
+            
+            return ssoExtensionController;
+        }
+        else
+        {
+            // Development only: MSIDXpcModeOverride
+            return xpcController;
+        }
+    }
+    else
+    {
+        return [self ssoExtensionInteractiveController:parameters
+                                  tokenRequestProvider:tokenRequestProvider
+                                    fallbackController:fallbackController
+                                                 error:error];
+    }
 }
 #endif
 
@@ -356,6 +389,23 @@
     return nil;
 }
 
+#if TARGET_OS_OSX
++ (nullable id<MSIDRequestControlling>)xpcInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
+                                           tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                             fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                                          error:(NSError * _Nullable __autoreleasing * _Nullable)error
+{
+    if ([MSIDXpcInteractiveTokenRequestController canPerformRequest])
+    {
+        return [[MSIDXpcInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                 tokenRequestProvider:tokenRequestProvider
+                                                                                   fallbackController:fallbackController
+                                                                                                error:error];
+    }
+    
+    return nil;
+}
+#endif
 
 + (nullable id<MSIDRequestControlling>)localInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
