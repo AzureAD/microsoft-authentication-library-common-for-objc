@@ -215,6 +215,7 @@
     XCTAssertNotNil(error);
     error = nil;
 }
+
 #pragma mark -- Test Utility
 
 -(void) populateRsaKeys
