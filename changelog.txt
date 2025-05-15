@@ -1,5 +1,5 @@
 TBD
-* Add utility method to generate jwe_crypto claim (#1522)
+* Add classes to define jwe_crypto and APV (#1522)
 
 Version 1.11.0
 * Use a single family refresh token (#1470)
