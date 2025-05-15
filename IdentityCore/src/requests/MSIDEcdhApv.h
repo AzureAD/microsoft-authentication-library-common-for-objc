@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,11 +20,26 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDJwtAlgorithm.h"
+NS_ASSUME_NONNULL_BEGIN
+/// The PartyVInfo for ECDH key agreement (APV)
+/// Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
+@interface MSIDEcdhApv : NSObject
 
-MSIDJwtAlgorithm MSID_JWT_ALG_RS256 = @"RS256";
-MSIDJwtAlgorithm MSID_JWT_ALG_ES256 = @"ES256";
-MSIDJwtAlgorithm MSID_JWT_ALG_A256GCM = @"A256GCM";
-MSIDJwtAlgorithm MSID_JWT_ALG_ECDH = @"ECDH-ES";
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+@property (nonatomic, readonly) NSString *APV;
+@property (nonatomic, readonly) NSData *nonce;
+@property (nonatomic, readonly) NSString *apvPrefix;
+@property (nonatomic, readonly) SecKeyRef publicKey;
+
+// Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
+- (instancetype)initWithKey:(SecKeyRef)publicKey
+                  apvPrefix:(NSString *)prefix
+                    context:(id<MSIDRequestContext> _Nullable)context
+                      error:(NSError * _Nullable __autoreleasing *)error;
+
+@end
+NS_ASSUME_NONNULL_END

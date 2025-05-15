@@ -26,3 +26,10 @@ typedef NSString *const MSIDJwtAlgorithm NS_TYPED_ENUM;
 
 extern MSIDJwtAlgorithm const MSID_JWT_ALG_RS256;    // RSASSA-PKCS-v1_5 using SHA-256
 extern MSIDJwtAlgorithm const MSID_JWT_ALG_ES256;    // ECDSA using P-256 and SHA-256
+
+
+// Encryption Algorithms
+extern MSIDJwtAlgorithm const MSID_JWT_ALG_A256GCM;    // AES GCM using 256-bit key
+
+// Key exchange Algorithms
+extern MSIDJwtAlgorithm const MSID_JWT_ALG_ECDH;    // Key Agreement with Elliptic Curve Diffie-Hellman
