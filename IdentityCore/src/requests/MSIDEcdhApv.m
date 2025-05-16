@@ -60,7 +60,7 @@
         return nil;
     }
     
-    if (stkData.length != 65)
+    if (stkData.length != kExpectedECP256KeyLength)
     {
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Supplied key is not a EC P-256 key.", nil, nil, nil, context.correlationId, nil, NO);
         return nil;
