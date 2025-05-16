@@ -42,13 +42,15 @@
 {
     _testApplicationTag = @"Microsoft ECC Test App";
     NSString *prefix = @"SGGM6D27TK";
+    BOOL useSecureEnclave = NO;
 #if TARGET_OS_IPHONE
     prefix = @"UBF8T346G9";
+    useSecureEnclave = YES;
 #endif
     _sharedAccessGroup = [NSString stringWithFormat:@"%@.%@", prefix, @"com.microsoft.MSIDTestsHostApp"]; // Using SGGM6D27TK as prefix for complete shared group
     if (!self.generator)
     {
-        self.generator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:_sharedAccessGroup useSecureEnclave:YES applicationTag:_testApplicationTag];
+        self.generator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:_sharedAccessGroup useSecureEnclave:useSecureEnclave applicationTag:_testApplicationTag];
     }
     self.eccPrivateKey = [self.generator eccPrivateKey];
     self.eccPublicKey = [self.generator eccPublicKey];

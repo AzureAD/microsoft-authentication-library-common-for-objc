@@ -46,8 +46,15 @@
     }
 
     CFErrorRef errorRef = NULL;
+    CFDictionaryRef attributes = SecKeyCopyAttributes(publicKey);
+    CFStringRef keyType = CFDictionaryGetValue(attributes, kSecAttrKeyType);
+    CFStringRef keyClass = CFDictionaryGetValue(attributes, kSecAttrKeyClass);
+
+    BOOL isECPrivateKey = (keyType == kSecAttrKeyTypeECSECPrimeRandom) && (keyClass == kSecAttrKeyClassPrivate);
+
+    if (attributes) CFRelease(attributes);
     NSData *stkData = CFBridgingRelease(SecKeyCopyExternalRepresentation(publicKey, NULL));
-    if (!stkData)
+    if (isECPrivateKey || !stkData)
     {
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Supplied key should be a public EC key. Could not export EC key data.", nil, nil, CFBridgingRelease(errorRef), context.correlationId, nil, NO);
         return nil;
