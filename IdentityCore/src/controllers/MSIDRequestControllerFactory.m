@@ -344,13 +344,13 @@
                                   tokenRequestProvider:tokenRequestProvider
                                     fallbackController:fallbackController
                                                  error:error];
-        if (parameters.xpcMode == MSIDXpcModeSSOExtBackup || parameters.xpcMode == MSIDXpcModePrimary)
+        if (parameters.xpcMode == MSIDXpcModeSSOExtBackup || parameters.xpcMode == MSIDXpcModeSSOExtCompanion)
         {
             id<MSIDRequestControlling> ssoExtensionController = [self ssoExtensionInteractiveController:parameters
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                      fallbackController:xpcController?:fallbackController
                                                                                                   error:error];
-            if (parameters.xpcMode == MSIDXpcModePrimary && !ssoExtensionController)
+            if (parameters.xpcMode == MSIDXpcModeSSOExtCompanion && !ssoExtensionController)
             {
                 return xpcController;
             }
