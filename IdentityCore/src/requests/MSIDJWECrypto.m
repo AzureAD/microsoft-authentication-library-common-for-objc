@@ -23,6 +23,7 @@
 // THE SOFTWARE.  
 #import "MSIDJWECrypto.h"
 #import "MSIDEcdhApv.h"
+#import "MSIDJwtAlgorithm.h"
 
 @implementation MSIDJWECrypto
 
@@ -56,14 +57,14 @@
             return nil;
         }
         
-        if (![@"ECDH-ES" isEqual:keyExchangeAlgorithm])
+        if (![MSID_JWT_ALG_ECDH isEqual:keyExchangeAlgorithm])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"JWE crypto generation failed: Unsupported key exchange algorithm %@", keyExchangeAlgorithm);
             MSIDFillAndLogError(error, MSIDErrorInternal, [NSString stringWithFormat:@"JWE crypto generation failed: Unsupported key exchange algorithm %@", keyExchangeAlgorithm], context.correlationId);
             return nil;
         }
         
-        if (![@"A256GCM" isEqual:encryptionAlgorithm])
+        if (![MSID_JWT_ALG_A256GCM isEqual:encryptionAlgorithm])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"JWE crypto generation failed: Unsupported encryption algorithm %@", encryptionAlgorithm);
             MSIDFillAndLogError(error, MSIDErrorInternal, [NSString stringWithFormat:@"JWE crypto generation failed: Unsupported encryption algorithm %@", encryptionAlgorithm], context.correlationId);
