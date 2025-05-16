@@ -48,7 +48,7 @@
                                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError *__autoreleasing*)error
 {
-    if (parameters.xpcMode == MSIDXpcModeDisable)
+    if (parameters.xpcMode == MSIDXpcModeDisabled)
     {
         return [self SilentControllerWithoutXpcForParameters:parameters
                                                 forceRefresh:forceRefresh
@@ -165,14 +165,14 @@
     
         MSIDSilentController *xpcController = nil;
 #if TARGET_OS_OSX
-        if (parameters.xpcMode != MSIDXpcModeDisable && [MSIDXpcSilentTokenRequestController canPerformRequest])
+        if (parameters.xpcMode != MSIDXpcModeDisabled && [MSIDXpcSilentTokenRequestController canPerformRequest])
         {
             xpcController = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                            forceRefresh:forceRefresh
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                           fallbackInteractiveController:fallbackController
                                                                                                   error:error];
-            if (parameters.xpcMode == MSIDXpcModeFull || parameters.xpcMode == MSIDXpcModeOverride)
+            if (parameters.xpcMode == MSIDXpcModeSSOExtCompanion || parameters.xpcMode == MSIDXpcModePrimary)
             {
                 // If in Xpc full mode, the XPCController will work as a isolated controller when SsoExtension cannotPerformRequest
                 fallbackController = xpcController;
@@ -181,7 +181,7 @@
         }
 #endif
         
-        BOOL shouldSkipSsoExtension = parameters.xpcMode == MSIDXpcModeOverride;
+        BOOL shouldSkipSsoExtension = parameters.xpcMode == MSIDXpcModePrimary;
         
         if (!shouldSkipSsoExtension && [MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
         {
@@ -338,19 +338,19 @@
     id<MSIDRequestControlling> xpcController = nil;
     
     // By default the xpc flow is disable, and should fallback to previous flow in else condition
-    if (parameters.xpcMode != MSIDXpcModeDisable)
+    if (parameters.xpcMode != MSIDXpcModeDisabled)
     {
         xpcController = [self xpcInteractiveController:parameters
                                   tokenRequestProvider:tokenRequestProvider
                                     fallbackController:fallbackController
                                                  error:error];
-        if (parameters.xpcMode == MSIDXpcModeBackup || parameters.xpcMode == MSIDXpcModeFull)
+        if (parameters.xpcMode == MSIDXpcModeSSOExtBackup || parameters.xpcMode == MSIDXpcModePrimary)
         {
             id<MSIDRequestControlling> ssoExtensionController = [self ssoExtensionInteractiveController:parameters
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                      fallbackController:xpcController?:fallbackController
                                                                                                   error:error];
-            if (parameters.xpcMode == MSIDXpcModeFull && !ssoExtensionController)
+            if (parameters.xpcMode == MSIDXpcModePrimary && !ssoExtensionController)
             {
                 return xpcController;
             }
@@ -359,7 +359,7 @@
         }
         else
         {
-            // Development only: MSIDXpcModeOverride
+            // Development only: MSIDXpcModePrimary
             return xpcController;
         }
     }
