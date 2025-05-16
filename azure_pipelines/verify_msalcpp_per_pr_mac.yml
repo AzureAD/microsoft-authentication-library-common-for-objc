@@ -21,7 +21,7 @@ resources:
      type: git
      endpoint: 'OfficeADO'
      name: OneAuth/OneAuth
-     ref: dev
+     ref: shared/msal-objc-script-fix
 
 jobs:
 - job: macOS_OnPrCommit
