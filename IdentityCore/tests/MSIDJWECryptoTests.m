@@ -145,13 +145,15 @@
         (id)kSecAttrKeySizeInBits: @(2048),
         (id)kSecPrivateKeyAttrs: @{(id)kSecAttrIsPermanent: @NO}
     };
-    SecKeyRef publicKey = NULL;
+
     SecKeyRef privateKey = NULL;
 
+    CFErrorRef error = NULL;
     // Generate the key pair
-    OSStatus status = SecKeyGeneratePair((__bridge CFDictionaryRef)parameters, &publicKey, &privateKey);
-    XCTAssertEqual(status, errSecSuccess);
-    SecKeyRef invalidKey = publicKey;
+    privateKey = (__bridge SecKeyRef)CFBridgingRelease(SecKeyCreateRandomKey((__bridge CFDictionaryRef)parameters, &error));
+    XCTAssertTrue(privateKey != NULL);
+    
+    SecKeyRef invalidKey = SecKeyCopyPublicKey(privateKey);
     NSString *apvPrefix = @"MsalClient";
     NSError *cryptoerror = nil;
     MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:invalidKey apvPrefix:apvPrefix context:nil error:&cryptoerror];
