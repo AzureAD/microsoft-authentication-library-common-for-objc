@@ -40,6 +40,8 @@
 #import "MSIDTokenResponseHandler.h"
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDFlightManager.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -617,9 +619,42 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                 }
             }
             
+            BOOL disableRemoveAccountArtifacts = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS];
+
+            // remove account artifacts only if we test flight feature is not disabled
+            if (!result && !disableRemoveAccountArtifacts && [self shouldRemoveAccountArtifacts:localError])
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Account deleted, Removing any user account artifacts from device...");
+                [self removeAccountArtifacts:self.requestParameters];
+            }
+
             completionBlock(result, localError);
         }];
     }];
+}
+
+- (void)removeAccountArtifacts:(MSIDRequestParameters *)requestParameters
+{
+    NSError *removalError = nil;
+    BOOL removalResult = [self.tokenCache clearCacheForAccount:requestParameters.accountIdentifier
+                                                     authority:requestParameters.authority
+                                                      clientId:requestParameters.clientId
+                                                      familyId:nil
+                                                       context:requestParameters
+                                                         error:&removalError];
+    if (!removalResult)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, requestParameters, @"Failed to clear cache with error %@", MSID_PII_LOG_MASKABLE(removalError));
+    }
+    
+    NSError *metadataRemovalError = nil;
+    [[self metadataCache] removeAccountMetadataForHomeAccountId:requestParameters.accountIdentifier.homeAccountId
+                                                        context:requestParameters
+                                                          error:&metadataRemovalError];
+    if (metadataRemovalError)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, requestParameters, @"Failed to remove account artifacts with error %@", MSID_PII_LOG_MASKABLE(metadataRemovalError));
+    }
 }
 #endif
 
@@ -662,6 +697,14 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return NO;
+}
+
+- (BOOL)shouldRemoveAccountArtifacts:(nonnull NSError *)serverError
+{
+    // Removing account artifacts on invalid_grant + user_deleted_account suberror combination
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
+    NSString *subError = serverError.msidSubError;
+    return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorUserAccountDeleted];
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

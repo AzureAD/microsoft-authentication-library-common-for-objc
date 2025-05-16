@@ -215,4 +215,15 @@ extern NSString * _Nonnull const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_CLIENT_SFRT_STATUS;
 
+/**
+ * Flight to indicate if remove account artifacts should be disabled
+ * Owner: Antonio
+ * Link: N/A - No ECS flag created as this is a disable flight to be created on demand
+ * Created Date: N/A
+ * Status: Not started
+ * Fully Allocated: Not Started
+ * WorkItem: 3168316
+ */
+extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS;
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
