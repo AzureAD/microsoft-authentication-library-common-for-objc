@@ -27,6 +27,7 @@
 
 @implementation MSIDEcdhApv
 
+const NSUInteger kExpectedECP256KeyLength = 65;
 
 - (instancetype)initWithKey:(SecKeyRef)publicKey
                   apvPrefix:(NSString *)apvPrefix
