@@ -208,7 +208,7 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
-    parameters.xpcMode = MSIDXpcModeSSOExtBackup;
+    parameters.xpcMode = MSIDXpcModeSSOExtCompanion;
     
     NSError *error;
     SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
@@ -249,7 +249,7 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
-    parameters.xpcMode = MSIDXpcModeSSOExtBackup;
+    parameters.xpcMode = MSIDXpcModeSSOExtCompanion;
     
     NSError *error;
     SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
@@ -307,7 +307,7 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
-    parameters.xpcMode = MSIDXpcModeSSOExtBackup;
+    parameters.xpcMode = MSIDXpcModeSSOExtCompanion;
     
     NSError *error;
     SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
@@ -360,7 +360,7 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
-    parameters.xpcMode = MSIDXpcModeSSOExtBackup;
+    parameters.xpcMode = MSIDXpcModeSSOExtCompanion;
     
     NSError *error;
     SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
@@ -517,7 +517,7 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDRequestParameters *parameters = [self requestParameters];
-    parameters.xpcMode = MSIDXpcModeSSOExtBackup;
+    parameters.xpcMode = MSIDXpcModeSSOExtCompanion;
     parameters.allowUsingLocalCachedRtWhenSsoExtFailed = YES;
     
     NSError *error;
@@ -578,7 +578,7 @@
                                                                                               testError:nil
                                                                                   testWebMSAuthResponse:nil];
     MSIDRequestParameters *parameters = [self requestParameters];
-    parameters.xpcMode = MSIDXpcModeSSOExtBackup;
+    parameters.xpcMode = MSIDXpcModeSSOExtCompanion;
     parameters.allowUsingLocalCachedRtWhenSsoExtFailed = YES;
     
     NSError *error;

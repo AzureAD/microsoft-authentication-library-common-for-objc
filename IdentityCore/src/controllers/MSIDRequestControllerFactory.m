@@ -172,7 +172,7 @@
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                           fallbackInteractiveController:fallbackController
                                                                                                   error:error];
-            if (parameters.xpcMode == MSIDXpcModeSSOExtCompanion || parameters.xpcMode == MSIDXpcModePrimary)
+            if (parameters.xpcMode == MSIDXpcModeSSOExtBackup || parameters.xpcMode == MSIDXpcModePrimary)
             {
                 // If in Xpc full mode, the XPCController will work as a isolated controller when SsoExtension cannotPerformRequest
                 fallbackController = xpcController;
@@ -344,13 +344,13 @@
                                   tokenRequestProvider:tokenRequestProvider
                                     fallbackController:fallbackController
                                                  error:error];
-        if (parameters.xpcMode == MSIDXpcModeSSOExtBackup || parameters.xpcMode == MSIDXpcModeSSOExtCompanion)
+        if (parameters.xpcMode == MSIDXpcModeSSOExtCompanion || parameters.xpcMode == MSIDXpcModeSSOExtBackup)
         {
             id<MSIDRequestControlling> ssoExtensionController = [self ssoExtensionInteractiveController:parameters
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                      fallbackController:xpcController?:fallbackController
                                                                                                   error:error];
-            if (parameters.xpcMode == MSIDXpcModeSSOExtCompanion && !ssoExtensionController)
+            if (parameters.xpcMode == MSIDXpcModeSSOExtBackup && !ssoExtensionController)
             {
                 return xpcController;
             }
