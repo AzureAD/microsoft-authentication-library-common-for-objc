@@ -68,21 +68,5 @@ NS_ASSUME_NONNULL_BEGIN
                                 signingAlgorithm:(SecKeyAlgorithm)algorithm
                                          context:(_Nullable id<MSIDRequestContext>)context
                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
-
-
-/// Generates JWE crypto using the supplied public key and algorithm.
-/// @param publicStk The public session transport key used to generate APV in jwe_crypto.
-/// @param alg The algorithm used for the purpose of the jwe_crypto. Defaults to ECDH-ES
-/// @param enc Encryption algorithm that client wants server to use to encrypt JWE repsonse. Defaults to A256GCM
-/// @param apvPrefix A prefix string attached to APV to differentiate clients.
-/// @param context request context
-/// @param error error
-- (NSDictionary *)generateJweCryptoWithTransportKey:(SecKeyRef _Nonnull)publicStk
-                                                alg:(nullable NSString *)alg
-                                                enc:(nullable NSString *)enc
-                                          apvPrefix:(nonnull NSString *)apvPrefix
-                                            context:(_Nullable id<MSIDRequestContext>)context
-                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
-                                               
 @end
 NS_ASSUME_NONNULL_END
