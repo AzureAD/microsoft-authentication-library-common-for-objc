@@ -35,11 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
-- (instancetype)initWithKeyExchangeAlg:(NSString *)keyExchangeAlgorithm
-                   encryptionAlgorithm:(NSString *)encryptionAlgorithm
-                                   apv:(MSIDEcdhApv *)apv
-                               context:(_Nullable id<MSIDRequestContext>)context
-                                 error:(NSError * _Nullable __autoreleasing *)error;
+- (nullable instancetype)initWithKeyExchangeAlg:(NSString *)keyExchangeAlgorithm
+                            encryptionAlgorithm:(NSString *)encryptionAlgorithm
+                                            apv:(MSIDEcdhApv *)apv
+                                        context:(_Nullable id<MSIDRequestContext>)context
+                                          error:(NSError * _Nullable __autoreleasing *)error;
 
 - (NSString *)urlEncodedJweCrypto;
 - (NSDictionary *)jweCryptoDictionary;

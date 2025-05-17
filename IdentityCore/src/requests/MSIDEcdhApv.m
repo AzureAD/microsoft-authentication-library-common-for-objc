@@ -36,13 +36,13 @@ const NSUInteger kExpectedECP256KeyLength = 65;
 {
     if (publicKey == NULL)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Public STK provided is not defined.", nil, nil, nil, context.correlationId, nil, NO);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Public STK provided is not defined.", nil, nil, nil, context.correlationId, nil, NO);
         return nil;
     }
     
     if ([NSString msidIsStringNilOrBlank:apvPrefix])
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"APV prefix is not defined. A prefix must be provided to determine calling application type.", nil, nil, nil, context.correlationId, nil, NO);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"APV prefix is not defined. A prefix must be provided to determine calling application type.", nil, nil, nil, context.correlationId, nil, NO);
         return nil;
     }
 
@@ -57,13 +57,13 @@ const NSUInteger kExpectedECP256KeyLength = 65;
     NSData *stkData = CFBridgingRelease(SecKeyCopyExternalRepresentation(publicKey, NULL));
     if (isECPrivateKey || !stkData)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Supplied key should be a public EC key. Could not export EC key data.", nil, nil, CFBridgingRelease(errorRef), context.correlationId, nil, NO);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Supplied key should be a public EC key. Could not export EC key data.", nil, nil, CFBridgingRelease(errorRef), context.correlationId, nil, NO);
         return nil;
     }
     
     if (stkData.length != kExpectedECP256KeyLength)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Supplied key is not a EC P-256 key.", nil, nil, nil, context.correlationId, nil, NO);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Supplied key is not a EC P-256 key.", nil, nil, nil, context.correlationId, nil, NO);
         return nil;
     }
     

@@ -36,10 +36,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) SecKeyRef publicKey;
 
 // Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
-- (instancetype)initWithKey:(SecKeyRef)publicKey
-                  apvPrefix:(NSString *)prefix
-                    context:(id<MSIDRequestContext> _Nullable)context
-                      error:(NSError * _Nullable __autoreleasing *)error;
+- (nullable instancetype)initWithKey:(SecKeyRef)publicKey
+                           apvPrefix:(NSString *)prefix
+                             context:(id<MSIDRequestContext> _Nullable)context
+                               error:(NSError * _Nullable __autoreleasing *)error;
 
 @end
 NS_ASSUME_NONNULL_END
