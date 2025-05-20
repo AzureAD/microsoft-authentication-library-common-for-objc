@@ -70,11 +70,10 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Return cached Nonce."];
     
-    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
-        
+    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    {
         XCTAssertNil(error);
         XCTAssertEqualObjects(resultNonce, @"my-nonce");
-        
         [expectation fulfill];
     }];
     
@@ -104,12 +103,11 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire Nonce."];
     
-    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
-        
+    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    {
         XCTAssertNotNil(resultNonce);
         XCTAssertNil(error);
         XCTAssertEqualObjects(resultNonce, @"1234_nonce_abcd");
-        
         [expectation fulfill];
     }];
     
@@ -127,8 +125,7 @@
     NSError *nonceError = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:@{@"MSIDErrorDescriptionKey": @"Could not get nonce from server."}];
     
     MSIDTestURLResponse *nonceResponse = [MSIDTestURLResponse request:parameters.authority.metadata.tokenEndpoint
-                                                              respondWithError:nonceError];
-    
+                                                     respondWithError:nonceError];
     
     nonceResponse->_requestHeaders = [self mockedRequestHeaders];
     [MSIDTestURLSession addResponse:nonceResponse];
@@ -137,12 +134,11 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire Nonce."];
     
-    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
-        
+    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    {
         XCTAssertNil(resultNonce);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Could not get nonce from server.");
-        
         [expectation fulfill];
     }];
     
@@ -169,12 +165,11 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire Nonce for invalid nonce."];
     
-    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
-        
+    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    {
         XCTAssertNil(resultNonce);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Didn't receive valid nonce in response");
-        
         [expectation fulfill];
     }];
     
@@ -186,13 +181,11 @@
     request = [[MSIDNonceTokenRequest alloc] initWithRequestParameters:parameters];
     
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"Acquire Nonce for invalid nonce."];
-    
-    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
-        
+    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    {
         XCTAssertNil(resultNonce);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Response is not of the expected type: NSDictionary.");
-        
         [expectation1 fulfill];
     }];
     
@@ -205,12 +198,11 @@
     
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"Acquire Nonce for invalid nonce."];
     
-    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
-        
+    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    {
         XCTAssertNil(resultNonce);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Didn't receive valid nonce in response");
-        
         [expectation2 fulfill];
     }];
     
@@ -243,11 +235,10 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire new Nonce."];
     
-    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
-        
+    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    {
         XCTAssertNil(error);
         XCTAssertEqualObjects(resultNonce, @"1234_nonce_abcd");
-        
         [expectation fulfill];
     }];
     
@@ -282,12 +273,10 @@
     MSIDNonceTokenRequest *request = [[MSIDNonceTokenRequest alloc] initWithRequestParameters:parameters];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire new Nonce."];
-    
-    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
-        
+    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    {
         XCTAssertNil(error);
         XCTAssertEqualObjects(resultNonce, @"1234_nonce_abcd");
-        
         [expectation fulfill];
     }];
     
@@ -328,11 +317,10 @@
     [MSIDTestURLSession addResponse:oidcResponse];
     
     request.openIdMetadataToUpdateInAuthority.tokenEndpoint = nil;
-    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
-        
+    [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
+    {
         XCTAssertNil(error);
         XCTAssertEqualObjects(resultNonce, @"1234_nonce_abcd");
-        
         [expectation fulfill];
     }];
     
@@ -344,7 +332,10 @@
 - (MSIDInteractiveTokenRequestParameters *)testRequestParameters
 {
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
-    parameters.authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/1234567"] rawTenant:nil context:nil error:nil];
+    parameters.authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/1234567"]
+                                                       rawTenant:nil
+                                                         context:nil
+                                                           error:nil];
     parameters.authority.metadata = [MSIDOpenIdProviderMetadata new];
     parameters.authority.metadata.tokenEndpoint = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/1234567/oauth2/v2.0/token"];
     parameters.providedAuthority = parameters.authority;

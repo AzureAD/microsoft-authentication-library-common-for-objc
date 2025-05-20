@@ -35,12 +35,10 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
 {
     self = [super init];
-    
     if (self)
     {
         _requestParameters = parameters;
     }
-    
     return self;
 }
 
@@ -88,8 +86,8 @@
 - (void)executeNetworkRequestWithCompletion:(nonnull MSIDNonceRequestCompletion)completionBlock
 {
     MSIDHttpRequest *nonceRequest = [self configureNonceNetworkRequestForEndpoint:self.requestParameters.tokenEndpoint context:self.requestParameters];
-    [nonceRequest sendWithBlock:^(NSDictionary *response, NSError *error) {
-        
+    [nonceRequest sendWithBlock:^(NSDictionary *response, NSError *error)
+    {
         if (error)
         {
             if (completionBlock) completionBlock(nil, error);
