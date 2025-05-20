@@ -96,6 +96,7 @@
     
     [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
         
+        XCTAssertNotNil(resultNonce);
         XCTAssertNil(error);
         XCTAssertEqualObjects(resultNonce, @"1234_nonce_abcd");
         
@@ -128,6 +129,7 @@
     
     [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
         
+        XCTAssertNil(resultNonce);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Could not get nonce from server.");
         
@@ -159,6 +161,7 @@
     
     [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
         
+        XCTAssertNil(resultNonce);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Didn't receive valid nonce in response");
         
@@ -176,6 +179,7 @@
     
     [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
         
+        XCTAssertNil(resultNonce);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Response is not of the expected type: NSDictionary.");
         
@@ -193,6 +197,7 @@
     
     [request executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error) {
         
+        XCTAssertNil(resultNonce);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Didn't receive valid nonce in response");
         
