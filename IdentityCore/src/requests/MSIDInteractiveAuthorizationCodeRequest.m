@@ -108,9 +108,7 @@
 }
 
 - (void)getAuthCodeWithCompletionImpl:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock
-{
-    [self updateCustomHeadersForFRTSupportIfNeeded];
-    
+{   
     self.webViewConfiguration = [self.oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:self.requestParameters];
     
     __typeof__(self) __weak weakSelf = self;

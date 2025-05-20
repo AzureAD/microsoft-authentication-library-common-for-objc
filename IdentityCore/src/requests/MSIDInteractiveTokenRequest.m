@@ -94,6 +94,8 @@
         
         [self.requestParameters updateAppRequestMetadata:result.accountIdentifier];
         
+        [self updateCustomHeadersForFRTSupportIfNeeded];
+        
         [self acquireTokenWithCodeResult:result completion:completionBlock];
     }];
 #endif
