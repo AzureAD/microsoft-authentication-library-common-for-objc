@@ -44,8 +44,18 @@
 
 - (void)setUp
 {
+    [super setUp];
     MSIDCache *nonceCache = [MSIDNonceTokenRequest.class nonceCache];
     [nonceCache removeAllObjects];
+    [MSIDTestURLSession clearResponses];
+}
+
+-(void)tearDown
+{
+    [super tearDown];
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
+    [MSIDTestURLSession clearResponses];
+    [MSIDAuthority.openIdConfigurationCache removeAllObjects];
 }
 
 - (void)testExecuteRequestWithCompletion_whenCachedNonceExists_shouldReturnCachedNonce
@@ -307,15 +317,14 @@
     
     MSIDNonceTokenRequestMock *request = [[MSIDNonceTokenRequestMock alloc] initWithRequestParameters:parameters];
     request.openIdMetadataToUpdateInAuthority = parameters.authority.metadata;
-    request.shouldLoadopenIdMetadata = YES;
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire new Nonce."];
     
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:parameters.authority.url.absoluteString];
-    discoveryResponse->_requestHeaders = [self mockedRequestHeaders];
+    discoveryResponse.requestHeaders = [self mockedRequestHeaders];
     [MSIDTestURLSession addResponse:discoveryResponse];
 
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:parameters.authority.url.absoluteString];
-    oidcResponse->_requestHeaders = [self mockedRequestHeaders];
+    oidcResponse.requestHeaders = [self mockedRequestHeaders];
     [MSIDTestURLSession addResponse:oidcResponse];
     
     request.openIdMetadataToUpdateInAuthority.tokenEndpoint = nil;

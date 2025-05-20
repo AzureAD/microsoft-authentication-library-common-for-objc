@@ -38,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) NSInteger executeRequestInvokedCount;
 @property (nonatomic) MSIDOpenIdProviderMetadata *openIdMetadataToUpdateInAuthority;
-@property (nonatomic) BOOL shouldLoadopenIdMetadata;
 
 @end
 
