@@ -138,11 +138,9 @@
     XCTAssertEqualObjects(request.parentProcessTeamId, @"12345");
     XCTAssertEqualObjects(request.parentProcessLocalizedName, @"name1");
     XCTAssertEqualObjects(request.callerBundleIdentifier, @"com.qwe");
-    if (@available(macOS 11.0, *)) {
-        XCTAssertEqualObjects(request.callerTeamIdentifier, @"12345");
-        XCTAssertEqualObjects(request.localizedCallerDisplayName, @"name1");
-        XCTAssertEqualObjects(request.localizedApplicationInfo, @"mock_app_info");
-    }
+    XCTAssertEqualObjects(request.callerTeamIdentifier, @"12345");
+    XCTAssertEqualObjects(request.localizedCallerDisplayName, @"name1");
+    XCTAssertEqualObjects(request.localizedApplicationInfo, @"mock_app_info");
 }
 
 - (void)testInitWithJSONDictionary_whenNoParentProcessInfo_shouldReturnNA
@@ -159,11 +157,9 @@
     XCTAssertEqual(request.protocolVersion, 1);
     XCTAssertEqualObjects(request.payloadJson, @{@"method":@"GetCookies"});
     XCTAssertEqualObjects(request.callerBundleIdentifier, @"N/A");
-    if (@available(macOS 11.0, *)) {
-        XCTAssertEqualObjects(request.callerTeamIdentifier, @"N/A");
-        XCTAssertEqualObjects(request.localizedCallerDisplayName, @"N/A");
-        XCTAssertEqualObjects(request.localizedApplicationInfo, @"N/A");
-    }
+    XCTAssertEqualObjects(request.callerTeamIdentifier, @"N/A");
+    XCTAssertEqualObjects(request.localizedCallerDisplayName, @"N/A");
+    XCTAssertEqualObjects(request.localizedApplicationInfo, @"N/A");
     XCTAssertNil(request.parentProcessBundleIdentifier);
     XCTAssertNil(request.parentProcessTeamId);
     XCTAssertNil(request.parentProcessLocalizedName);
