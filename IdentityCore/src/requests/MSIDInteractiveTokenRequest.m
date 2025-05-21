@@ -84,6 +84,8 @@
     [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 #endif
     
+    [self updateCustomHeadersForFRTSupportIfNeeded];
+    
     [super getAuthCodeWithCompletion:^(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse)
     {
         if (!result)
@@ -93,8 +95,6 @@
         }
         
         [self.requestParameters updateAppRequestMetadata:result.accountIdentifier];
-        
-        [self updateCustomHeadersForFRTSupportIfNeeded];
         
         [self acquireTokenWithCodeResult:result completion:completionBlock];
     }];
