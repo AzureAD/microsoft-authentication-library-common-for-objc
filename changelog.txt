@@ -1,3 +1,6 @@
+Version TBD
+* Fix crash when adding existing RT on interactive calls (#1528)
+
 Version 1.11.0
 * Use a single family refresh token (#1470)
 * Improve browser core logs #1506
