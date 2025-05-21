@@ -1,5 +1,5 @@
-Version 1.11.1
-* Fix crash when adding existing RT on interactive calls (#1526)
+Version TBD
+* Fix crash when adding existing RT on interactive calls (#1528)
 
 Version 1.11.0
 * Use a single family refresh token (#1470)
