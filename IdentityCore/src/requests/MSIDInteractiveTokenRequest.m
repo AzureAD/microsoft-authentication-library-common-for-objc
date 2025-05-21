@@ -162,7 +162,6 @@
     
     if (enableFRT &&
         self.requestParameters.promptType != MSIDPromptTypeLogin &&
-        self.requestParameters.promptType != MSIDPromptTypeSelectAccount &&
         self.requestParameters.promptType != MSIDPromptTypeCreate)
     {
         NSMutableDictionary *customHeaders = nil;
@@ -175,6 +174,10 @@
             customHeaders = [NSMutableDictionary new];
         }
         
+        // Always include `x-ms-sso-Ignore-SSO` header with or without a refresh token
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Added ignore sso to custom headers for webview");
+        customHeaders[MSID_WEBAUTH_IGNORE_SSO_KEY] = @"1";
+        
         NSString *refreshToken = nil;
         refreshToken = [self getRefreshTokenForRequest];
         
@@ -182,12 +185,9 @@
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Included refresh token to custom headers for webview");
             customHeaders[MSID_WEBAUTH_REFRESH_TOKEN_KEY] = refreshToken;
- 
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Added ignore sso to custom headers for webview");
-            customHeaders[MSID_WEBAUTH_IGNORE_SSO_KEY] = @"1";
-            
-            self.requestParameters.customWebviewHeaders = customHeaders;
         }
+        
+        self.requestParameters.customWebviewHeaders = customHeaders;
     }
 #endif
 }
