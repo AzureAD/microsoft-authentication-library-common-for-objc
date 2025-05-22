@@ -44,9 +44,4 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)urlEncodedJweCrypto;
 - (NSDictionary *)jweCryptoDictionary;
 @end
-
-@interface MSIDJWECrypto()
-    @property (nonatomic, readonly) NSDictionary *jweCryptoDictionary;
-    @property (nonatomic, readonly) NSString *urlEncodedCachedJweCrypto;
-@end
 NS_ASSUME_NONNULL_END

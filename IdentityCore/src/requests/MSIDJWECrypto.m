@@ -25,6 +25,11 @@
 #import "MSIDEcdhApv.h"
 #import "MSIDJwtAlgorithm.h"
 
+@interface MSIDJWECrypto()
+    @property (nonatomic, readonly) NSDictionary *jweCryptoDictionary;
+    @property (nonatomic, readonly) NSString *urlEncodedCachedJweCrypto;
+@end
+
 @implementation MSIDJWECrypto
 
 - (instancetype)initWithKeyExchangeAlg:(NSString *)keyExchangeAlgorithm
@@ -75,9 +80,9 @@
         _encryptionAlgorithm = encryptionAlgorithm;
         _apv = apv;
         _jweCryptoDictionary = @{
-                                @"alg": keyExchangeAlgorithm,
-                                @"enc": encryptionAlgorithm,
-                                @"apv": apv.APV
+                                    MSID_JWT_ALG: keyExchangeAlgorithm,
+                                    MSID_JWT_ENC: encryptionAlgorithm,
+                                    MSID_JWT_APV: apv.APV
                                 };
     }
     
