@@ -1,6 +1,6 @@
-TBD
-
+Version TBD
 * Add Request class to get nonce from server (#1525)
+* Fix crash when adding existing RT on interactive calls (#1528)
 
 Version 1.11.0
 * Use a single family refresh token (#1470)

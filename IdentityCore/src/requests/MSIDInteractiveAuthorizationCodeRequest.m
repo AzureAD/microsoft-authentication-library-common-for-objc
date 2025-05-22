@@ -108,9 +108,7 @@
 }
 
 - (void)getAuthCodeWithCompletionImpl:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock
-{
-    [self updateCustomHeadersForFRTSupportIfNeeded];
-    
+{   
     self.webViewConfiguration = [self.oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:self.requestParameters];
     
     __typeof__(self) __weak weakSelf = self;
@@ -149,15 +147,6 @@
                                               context:self.requestParameters
                                     completionHandler:completionHandler];
 
-}
-
-- (void)updateCustomHeadersForFRTSupportIfNeeded
-{
-#if !EXCLUDE_FROM_MSALCPP && !AD_BROKER
-    // This is meant to be implemented by subclasses
-    NSAssert(NO, @"Abstract method.");
-    return;
-#endif
 }
 
 #pragma mark - v2 code
