@@ -22,28 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAuthorizationCodeResult.h"
-#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDCacheAccessor.h"
+#import "MSIDConstants.h"
+#import "MSIDThrottlingService.h"
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDWebWPJResponse;
+@interface MSIDSilentTokenRequest (Internal)
 
-typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDInteractiveAuthorizationCodeRequest : NSObject
-
-@property (nonatomic, readonly) MSIDInteractiveTokenRequestParameters *requestParameters;
-@property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
-
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory;
-
-- (void)getAuthCodeWithCompletion:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock;
+- (BOOL)shouldRemoveAccountArtifacts:(nonnull NSError *)serverError;
 
 @end
 
-NS_ASSUME_NONNULL_END

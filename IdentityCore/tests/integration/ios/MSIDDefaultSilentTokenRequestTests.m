@@ -52,6 +52,7 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDIdToken.h"
 #import "MSIDLRUCache.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -764,6 +765,92 @@
 
     MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:accountIdentifier familyId:nil configuration:silentParameters.msidConfiguration context:nil error:nil];
     XCTAssertNil(refreshToken);
+}
+
+- (void)testAcquireTokenSilent_whenATExpired_AndFailedToRefreshTokenWithUserAccountDeleted_shouldReturnError_AndRemoveAccountMetadata_AndRemoveRefreshTokenInCache
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    silentParameters.accountIdentifier = accountIdentifier;
+    [self saveExpiredTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    
+    NSError *updateError = nil;
+    [self.accountMetadataCache updateSignInStateForHomeAccountId:silentParameters.accountIdentifier.homeAccountId
+                                                        clientId:silentParameters.clientId
+                                                           state:MSIDAccountMetadataStateSignedIn
+                                                         context:nil
+                                                           error:&updateError];
+    XCTAssertNil(updateError);
+    
+    NSError *metadataCacheError;
+    MSIDAccountMetadataCacheItem *accountMetadataCacheItem = [self.accountMetadataCache retrieveAccountMetadataCacheItemForClientId:silentParameters.clientId
+                                                                                                                            context:nil
+                                                                                                                              error:&metadataCacheError];
+    XCTAssertNil(metadataCacheError);
+    XCTAssertEqualObjects(silentParameters.clientId, accountMetadataCacheItem.clientId, "Valid item should be in the metadata cache");
+    MSIDAccountMetadata *accountMetadata = [accountMetadataCacheItem accountMetadataForHomeAccountId:silentParameters.accountIdentifier.homeAccountId];
+    XCTAssertNil(metadataCacheError);
+    XCTAssertNotNil(accountMetadata);
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse errorRefreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                     requestClaims:nil
+                                                                                     requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                     responseError:@"invalid_grant"
+                                                                                       description:@"test"
+                                                                                          subError:@"user_account_deleted"
+                                                                                               url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                      responseCode:200];
+
+    [MSIDTestURLSession addResponse:tokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(accessToken);
+    
+    MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:accountIdentifier familyId:nil configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(refreshToken);
+    
+    [silentRequest executeRequestWithCompletion:^(__unused MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
+        XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"user_account_deleted");
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    accessToken = [tokenCache getAccessTokenForAccount:accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNil(accessToken, "AT have removed access token from cache");
+
+    refreshToken = [tokenCache getRefreshTokenWithAccount:accountIdentifier familyId:nil configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNil(refreshToken, "RT have removed access token from cache");
+    
+    accountMetadataCacheItem = [self.accountMetadataCache retrieveAccountMetadataCacheItemForClientId:silentParameters.clientId
+                                                                                              context:nil
+                                                                                                error:&metadataCacheError];
+    XCTAssertNil(metadataCacheError);
+    accountMetadata = [accountMetadataCacheItem accountMetadataForHomeAccountId:silentParameters.accountIdentifier.homeAccountId];
+    XCTAssertNil(metadataCacheError);
+    XCTAssertNil(accountMetadata, "Account metadata should have been removed from cache");
 }
 
 - (void)testAcquireTokenSilent_whenATExpiresIn50WithinExpirationBuffer100_shouldReAcquireToken

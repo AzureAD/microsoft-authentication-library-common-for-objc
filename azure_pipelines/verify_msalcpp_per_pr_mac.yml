@@ -26,7 +26,7 @@ resources:
 jobs:
 - job: macOS_OnPrCommit
   displayName: OneAuth checks per commit for macOS
-  timeoutInMinutes: 40
+  timeoutInMinutes: 60
   cancelTimeoutInMinutes: 1
   workspace:
     clean: all

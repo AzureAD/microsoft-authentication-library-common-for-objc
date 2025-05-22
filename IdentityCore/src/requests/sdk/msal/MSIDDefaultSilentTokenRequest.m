@@ -37,6 +37,7 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDThrottlingService.h"
+#import "MSIDSilentTokenRequest+Internal.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -224,6 +225,11 @@
     MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
     NSString *subError = serverError.msidSubError;
     return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorBadToken];
+}
+
+- (BOOL)shouldRemoveAccountArtifacts:(NSError *)serverError
+{
+    return [super shouldRemoveAccountArtifacts:serverError];
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

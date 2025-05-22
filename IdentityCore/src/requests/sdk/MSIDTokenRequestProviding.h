@@ -45,6 +45,8 @@
 
 - (nullable MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
 
+- (nullable MSIDInteractiveTokenRequest *)interactiveXpcTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
+
 - (nullable MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
                                                                         forceRefresh:(BOOL)forceRefresh;
 

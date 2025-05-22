@@ -23,43 +23,43 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDSSOXpcSilentTokenRequest.h"
-#import "MSIDSSOExtensionRequestDelegate.h"
-#import "MSIDBrokerOperationSilentTokenRequest.h"
-#import "MSIDRequestParameters.h"
+#import "MSIDSSOXpcInteractiveTokenRequest.h"
+#import "MSIDBrokerOperationInteractiveTokenRequest.h"
+#import "MSIDInteractiveRequestControlling.h"
 #import "MSIDXpcSingleSignOnProvider.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDMainThreadUtil.h"
 #import "MSIDXpcProviderCache.h"
 
-@interface MSIDSSOXpcSilentTokenRequest()
+@interface MSIDSSOXpcInteractiveTokenRequest()
 
 @property (nonatomic, copy) MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock;
-@property (nonatomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
-@property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
+@property (nonatomic, copy) MSIDInteractiveRequestCompletionBlock requestCompletionBlock;
+@property (nonatomic) MSIDBrokerOperationInteractiveTokenRequest *operationRequest;
 @property (nonatomic) MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider;
 @property (nonatomic) id<MSIDRequestContext> context;
 
 @end
 
-@implementation MSIDSSOXpcSilentTokenRequest
+@implementation MSIDSSOXpcInteractiveTokenRequest
 
 @synthesize requestCompletionBlock, operationRequest;
 
-- (instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
-                             forceRefresh:(BOOL)forceRefresh
+- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
                    tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
                      accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
-                       extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
+                       extendedTokenCache:(id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
 {
     self = [super initWithRequestParameters:parameters
-                               forceRefresh:forceRefresh
                                oauthFactory:oauthFactory
                      tokenResponseValidator:tokenResponseValidator
                                  tokenCache:tokenCache
                        accountMetadataCache:accountMetadataCache
                          extendedTokenCache:extendedTokenCache];
+
     if (self)
     {
         self.completionBlock = [super getCompletionBlock];
@@ -70,19 +70,23 @@
     return self;
 }
 
-- (void)executeRequestImplWithCompletionBlock:(MSIDRequestCompletionBlock _Nonnull)completionBlock
+#pragma mark - MSIDSSORemoteInteractiveTokenRequest
+
+- (void)executeRequestImplWithCompletionBlock:(MSIDInteractiveRequestCompletionBlock)completionBlock
 {
     NSDictionary *jsonDictionary = [self.operationRequest jsonDictionary];
 
     if (!jsonDictionary)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for silent xpc token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        completionBlock(nil, error);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for interactive xpc token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        completionBlock(nil, error, nil);
         return;
     }
 
-    self.requestCompletionBlock = completionBlock;
-    [self performXpcRequest:jsonDictionary];
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        [self performXpcRequest:jsonDictionary];
+        self.requestCompletionBlock = completionBlock;
+    }];
 }
 
 - (void)performXpcRequest:(NSDictionary *)xpcRequest
@@ -94,14 +98,15 @@
     NSString *bundleIdentifier = [mainBundle bundleIdentifier];
     NSDictionary *parameters = @{@"source_application": bundleIdentifier,
                                  @"sso_request_param": xpcRequest,
-                                 @"is_silent": @(YES),
+                                 @"is_silent": @(NO),
                                  @"sso_request_operation": [self.operationRequest.class operation],
                                  @"sso_request_id": [[NSUUID UUID] UUIDString]};
     [self.xpcSingleSignOnProvider handleRequestParam:parameters
+                                     parentViewFrame:self.requestParameters.parentViewController.view.window.frame
                            assertKindOfResponseClass:MSIDBrokerOperationTokenResponse.class
                                     xpcProviderCache:MSIDXpcProviderCache.sharedInstance
                                              context:self.context
-                                       continueBlock:^(id _Nullable response, NSError * _Nullable error) {
+                                       continueBlock:^(id  _Nullable response, NSError * _Nullable error) {
         self.completionBlock(response, error);
     }];
 }
