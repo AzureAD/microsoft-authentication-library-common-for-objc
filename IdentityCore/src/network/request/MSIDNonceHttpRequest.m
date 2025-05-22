@@ -20,34 +20,34 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
+#import "MSIDNonceHttpRequest.h"
+#import "MSIDAADRequestConfigurator.h"
 
-@class MSIDRequestParameters;
-NS_ASSUME_NONNULL_BEGIN
-@interface MSIDCachedNonce : NSObject
+@implementation MSIDNonceHttpRequest
 
-@property (nonatomic, readonly, nonnull) NSString *nonce;
-@property (nonatomic, readonly, nonnull) NSDate *cachedDate;
+- (nonnull instancetype)initWithTokenEndpoint:(nonnull NSURL *)tokenEndpoint context:(nonnull id<MSIDRequestContext>)context
+{
+    self = [super init];
+    if (self)
+    {
+        if (!tokenEndpoint)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No endpoint provided to get nonce from!");
+            NSParameterAssert(tokenEndpoint);
+            return nil;
+        }
+        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
+        urlRequest.URL = tokenEndpoint;
+        urlRequest.HTTPMethod = @"POST";
+        _urlRequest = urlRequest;
+        
+        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
+        [requestConfigurator configure:self];
+        _parameters = @{MSID_OAUTH2_GRANT_TYPE : @"srv_challenge"};
+    }
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)initWithNonce:(nonnull NSString *)nonce;
+    return self;
+}
 
 @end
-NS_ASSUME_NONNULL_END
-
-typedef void (^MSIDNonceRequestCompletion)(NSString * _Nullable resultNonce, NSError * _Nullable error);
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDNonceTokenRequest : NSObject
-
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDNonceRequestCompletion)completionBlock;
-
-@end
-
-NS_ASSUME_NONNULL_END

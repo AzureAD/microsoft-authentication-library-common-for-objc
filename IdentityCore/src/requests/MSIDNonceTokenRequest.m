@@ -20,16 +20,16 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 #import "MSIDNonceTokenRequest.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAuthority.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDHttpRequest.h"
-#import "MSIDAADRequestConfigurator.h"
+#import "MSIDNonceHttpRequest.h"
 
+const static NSUInteger kMSIDNonceLifetimeInSeconds = 180;
 @implementation MSIDNonceTokenRequest
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
@@ -44,23 +44,23 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDNonceRequestCompletion)completionBlock
 {
-    MSIDCachedNonce *cachedNonce = [self.class getCachedNonceForKey:_requestParameters.authority.environment];
+    MSIDCachedNonce *cachedNonce = [self.class getCachedNonceForKey:self.requestParameters.authority.environment];
     if (cachedNonce)
     {
         completionBlock(cachedNonce.nonce, nil);
         return;
     }
 
-    if (_requestParameters.authority.metadata.tokenEndpoint)
+    if (self.requestParameters.authority.metadata.tokenEndpoint)
     {
         [self executeNetworkRequestWithCompletion:completionBlock];
         return;
     }
     
-    [_requestParameters.authority resolveAndValidate:YES
-                                   userPrincipalName:_requestParameters.accountIdentifier.displayableId
-                                             context:_requestParameters
-                                     completionBlock:^(NSURL __unused *openIdConfigurationEndpoint, BOOL __unused validated, NSError *error)
+    [self.requestParameters.authority resolveAndValidate:YES
+                                       userPrincipalName:_requestParameters.accountIdentifier.displayableId
+                                                 context:_requestParameters
+                                         completionBlock:^(NSURL __unused *openIdConfigurationEndpoint, BOOL __unused validated, NSError *error)
     {
         if (error)
         {
@@ -68,8 +68,8 @@
             return;
         }
         
-        [self->_requestParameters.authority loadOpenIdMetadataWithContext:self->_requestParameters
-                                                    completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *openIdError)
+        [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
+                                                        completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *openIdError)
          {
              
              if (openIdError)
@@ -85,7 +85,8 @@
 
 - (void)executeNetworkRequestWithCompletion:(nonnull MSIDNonceRequestCompletion)completionBlock
 {
-    MSIDHttpRequest *nonceRequest = [self configureNonceNetworkRequestForEndpoint:self.requestParameters.tokenEndpoint context:self.requestParameters];
+    MSIDNonceHttpRequest *nonceRequest = [[MSIDNonceHttpRequest alloc] initWithTokenEndpoint:self.requestParameters.tokenEndpoint
+                                                                                     context:self.requestParameters];
     [nonceRequest sendWithBlock:^(NSDictionary *response, NSError *error)
     {
         if (error)
@@ -119,34 +120,6 @@
         }
     }];
 }
-
-- (MSIDHttpRequest *)configureNonceNetworkRequestForEndpoint:(NSURL *)endpoint context:(id<MSIDRequestContext>)context
-{
-    if (!endpoint)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No endpoint provided to get nonce from!");
-        NSParameterAssert(endpoint);
-        return nil;
-    }
-    
-    MSIDHttpRequest *request = [[MSIDHttpRequest alloc] init];
-    NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
-    urlRequest.URL = endpoint;
-    urlRequest.HTTPMethod = @"POST";
-    request.urlRequest = urlRequest;
-    
-    __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
-    [requestConfigurator configure:request];
-    
-    NSMutableDictionary *parameters = [NSMutableDictionary new];
-    
-    parameters[MSID_OAUTH2_GRANT_TYPE] = @"srv_challenge";
-    [parameters addEntriesFromDictionary:parameters];
-    request.parameters = parameters;
-    request.urlRequest = urlRequest;
-    return request;
-}
-
 
 #pragma mark - Cache
 

@@ -20,34 +20,14 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
-@class MSIDRequestParameters;
+#import "MSIDHttpRequest.h"
+
 NS_ASSUME_NONNULL_BEGIN
-@interface MSIDCachedNonce : NSObject
-
-@property (nonatomic, readonly, nonnull) NSString *nonce;
-@property (nonatomic, readonly, nonnull) NSDate *cachedDate;
-
+@interface MSIDNonceHttpRequest : MSIDHttpRequest
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
-- (instancetype)initWithNonce:(nonnull NSString *)nonce;
-
+- (instancetype) initWithTokenEndpoint:(NSURL *)tokenEndpoint context:(id<MSIDRequestContext>)context;
 @end
-NS_ASSUME_NONNULL_END
-
-typedef void (^MSIDNonceRequestCompletion)(NSString * _Nullable resultNonce, NSError * _Nullable error);
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDNonceTokenRequest : NSObject
-
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDNonceRequestCompletion)completionBlock;
-
-@end
-
 NS_ASSUME_NONNULL_END
