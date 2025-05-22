@@ -107,7 +107,7 @@
 
 + (BOOL)isIdentityPersistenceEnabled
 {
-    return [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA];
+    return ![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA];
 }
 
 + (void)respondCertAuthChallengeWithIdentity:(nonnull SecIdentityRef)identity
