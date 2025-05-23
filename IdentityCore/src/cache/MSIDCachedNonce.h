@@ -22,19 +22,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-@class MSIDRequestParameters;
-typedef void (^MSIDNonceRequestCompletion)(NSString * _Nullable resultNonce, NSError * _Nullable error);
-
 NS_ASSUME_NONNULL_BEGIN
+@interface MSIDCachedNonce : NSObject
 
-@interface MSIDNonceTokenRequest : NSObject
+@property (nonatomic, readonly, nonnull) NSString *nonce;
+@property (nonatomic, readonly, nonnull) NSDate *cachedDate;
 
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDNonceRequestCompletion)completionBlock;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)initWithNonce:(nonnull NSString *)nonce;
 
 @end
-
 NS_ASSUME_NONNULL_END
+

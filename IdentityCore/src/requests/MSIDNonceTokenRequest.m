@@ -28,6 +28,7 @@
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDNonceHttpRequest.h"
+#import "MSIDCachedNonce.h"
 
 const static NSUInteger kMSIDNonceLifetimeInSeconds = 180;
 @implementation MSIDNonceTokenRequest
@@ -160,19 +161,5 @@ const static NSUInteger kMSIDNonceLifetimeInSeconds = 180;
     MSIDCachedNonce *cachedNonce = [[MSIDCachedNonce alloc] initWithNonce:nonce];
     [self.class.nonceCache setObject:cachedNonce forKey:key];
     return YES;
-}
-@end
-
-@implementation MSIDCachedNonce
-
-- (instancetype)initWithNonce:(NSString *)nonce
-{
-    self = [super init];
-    if (self)
-    {
-        _nonce = nonce;
-        _cachedDate = [NSDate date];
-    }
-    return self;
 }
 @end

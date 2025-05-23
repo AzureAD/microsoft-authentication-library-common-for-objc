@@ -36,6 +36,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDTestURLResponse+Util.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDCachedNonce.h"
 
 @interface MSIDNonceTokenRequestTest: XCTestCase
 @end
