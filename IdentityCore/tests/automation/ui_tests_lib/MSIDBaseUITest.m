@@ -335,6 +335,18 @@ static MSIDTestConfigurationProvider *s_confProvider;
                             app:application
                       isMainApp:isMainApp];
         }
+        else
+        {
+            useMyPasswordButton = application.buttons[@"Use your password"];
+            if (useMyPasswordButton.exists)
+            {
+                [useMyPasswordButton tap];
+                [self enterPassword:password
+                                app:application
+                          isMainApp:isMainApp];
+            }
+            
+        }
     }
     
 }
