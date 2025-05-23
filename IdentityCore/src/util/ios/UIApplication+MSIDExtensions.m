@@ -36,20 +36,17 @@
     
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return nil;
     
-    NSArray<UIScene *> *scenes; NSArray<UIWindow *> *windows;
-
-    scenes = [[[MSIDAppExtensionUtil sharedApplication] connectedScenes] allObjects];
-
-    if (scenes && scenes.count != 0)
+    for (UIWindowScene* scene in [[MSIDAppExtensionUtil sharedApplication] connectedScenes])
     {
-        windows = [(UIWindowScene *)[scenes objectAtIndex:0] windows];
-    }
-
-    for (UIWindow *window in windows)
-    {
-        if (window.isKeyWindow)
+        if (scene.activationState == UISceneActivationStateForegroundActive)
         {
-            return [self msidCurrentViewControllerWithRootViewController:window.rootViewController];
+            for (UIWindow *window in scene.windows)
+            {
+                if (window.isKeyWindow)
+                {
+                    return [self msidCurrentViewControllerWithRootViewController:window.rootViewController];
+                }
+            }
         }
     }
     
