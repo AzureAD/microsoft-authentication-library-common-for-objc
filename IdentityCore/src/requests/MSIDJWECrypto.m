@@ -43,35 +43,30 @@
     {
         if ([NSString msidIsStringNilOrBlank:keyExchangeAlgorithm])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"JWE crypto generation failed: Key exchange algorithm is nil or blank");
             MSIDFillAndLogError(error, MSIDErrorInternal, @"JWE crypto generation failed: Key exchange algorithm is nil or blank", context.correlationId);
             return nil;
         }
         
         if ([NSString msidIsStringNilOrBlank:encryptionAlgorithm])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"JWE crypto generation failed: Encryption algorithm is nil or blank");
             MSIDFillAndLogError(error, MSIDErrorInternal, @"JWE crypto generation failed: Encryption algorithm is nil or blank", context.correlationId);
             return nil;
         }
         
         if (!apv)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"JWE crypto generation failed: APV is nil");
             MSIDFillAndLogError(error, MSIDErrorInternal, @"JWE crypto generation failed: APV is nil", context.correlationId);
             return nil;
         }
         
         if (![MSID_JWT_ALG_ECDH isEqual:keyExchangeAlgorithm])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"JWE crypto generation failed: Unsupported key exchange algorithm %@", keyExchangeAlgorithm);
             MSIDFillAndLogError(error, MSIDErrorInternal, [NSString stringWithFormat:@"JWE crypto generation failed: Unsupported key exchange algorithm %@", keyExchangeAlgorithm], context.correlationId);
             return nil;
         }
         
         if (![MSID_JWT_ALG_A256GCM isEqual:encryptionAlgorithm])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"JWE crypto generation failed: Unsupported encryption algorithm %@", encryptionAlgorithm);
             MSIDFillAndLogError(error, MSIDErrorInternal, [NSString stringWithFormat:@"JWE crypto generation failed: Unsupported encryption algorithm %@", encryptionAlgorithm], context.correlationId);
             return nil;
         }
