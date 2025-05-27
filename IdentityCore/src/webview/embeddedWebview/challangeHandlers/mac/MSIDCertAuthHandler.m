@@ -25,6 +25,8 @@
 #import "MSIDCertificateChooser.h"
 #import "NSDate+MSIDExtensions.h"
 #import "MSIDKeychainUtil.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDCertAuthHandler
 
@@ -40,20 +42,23 @@
 {
     NSString *host = challenge.protectionSpace.host;
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
-    
-    // Check if a preferred identity is set for this host
-    SecIdentityRef identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
-    
-    if (!identity)
+    BOOL isIdentityValid = false;
+    SecIdentityRef identity = NULL;
+    if ([self isIdentityPersistenceEnabled])
     {
-        // If there was no identity matched for the exact host, try to match by URL
-        // URL matching is more flexible, as it's doing a wildcard matching for different subdomains
-        // However, we need to do both, because if there's an entry by hostname, matching by URL won't find it
-        identity = SecIdentityCopyPreferred((CFStringRef)webview.URL.absoluteString, NULL, (CFArrayRef)distinguishedNames);
+        // Check if a preferred identity is set for this host
+        identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
+        
+        if (!identity)
+        {
+            // If there was no identity matched for the exact host, try to match by URL
+            // URL matching is more flexible, as it's doing a wildcard matching for different subdomains
+            // However, we need to do both, because if there's an entry by hostname, matching by URL won't find it
+            identity = SecIdentityCopyPreferred((CFStringRef)webview.URL.absoluteString, NULL, (CFArrayRef)distinguishedNames);
+        }
+        isIdentityValid  = [self isIdentityValid:identity context:context];
     }
-    
-    BOOL isIdentityValid = [self isIdentityValid:identity context:context];
-    
+      
     if (isIdentityValid)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Using preferred identity");
@@ -81,7 +86,7 @@
             // If there is no preferred identity saved, we must set preferred identity certificate using hostname and key usage parameters: kSecAttrCanSign to create digital signature in Keychain and kSecAttrCanEn/Decrypt to specify certain attributes of identity to be stored in encrypted format
             NSArray *arr = @[(__bridge NSString *)kSecAttrCanSign, (__bridge NSString *)kSecAttrCanEncrypt, (__bridge NSString *)kSecAttrCanDecrypt];
             CFArrayRef arrayRef = (__bridge CFArrayRef)arr;
-            if (host)
+            if (host && [self isIdentityPersistenceEnabled])
             {
                 OSStatus status = SecIdentitySetPreferred(selectedIdentity, (CFStringRef)host, arrayRef);
                 if (!status)
@@ -98,6 +103,11 @@
     }
     
     return YES;
+}
+
++ (BOOL)isIdentityPersistenceEnabled
+{
+    return ![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA];
 }
 
 + (void)respondCertAuthChallengeWithIdentity:(nonnull SecIdentityRef)identity
