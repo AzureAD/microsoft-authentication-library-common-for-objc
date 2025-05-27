@@ -48,7 +48,7 @@
                 }
             }
         }
-    }
+    } 
     
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Couldn't find key window");
     return nil;
