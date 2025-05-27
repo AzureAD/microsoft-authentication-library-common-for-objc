@@ -413,6 +413,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         {
             isConnectionErroredOut = YES;
             continueBlock(nil, nil, xpcError);
+            return;
         }
         
         if (continueBlock) continueBlock(nil, nil, xpcError);
