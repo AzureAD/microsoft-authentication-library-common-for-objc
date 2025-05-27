@@ -98,6 +98,7 @@
         XCTAssertNil(error);
         XCTAssertTrue(success);
         [expectation fulfill];
+        [MSIDTestURLSession clearResponses];
     }];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -142,6 +143,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
     
     [logoutRequest executeRequestWithCompletion:^(BOOL success, NSError * _Nullable error) {
+        [MSIDTestURLSession clearResponses];
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
         XCTAssertEqual(error.code, MSIDErrorServerInvalidState);
