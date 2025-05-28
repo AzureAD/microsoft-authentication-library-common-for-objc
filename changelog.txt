@@ -1,4 +1,5 @@
 Version TBD
+* Add classes to define jwe_crypto and APV (#1522)
 * Add Request class to get nonce from server (#1525)
 * Fix crash when adding existing RT on interactive calls (#1528)
 * Disable preferred identity in CBA flow (#1529)

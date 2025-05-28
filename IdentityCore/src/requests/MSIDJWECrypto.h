@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,15 +20,28 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDJwtAlgorithm.h"
+@class MSIDEcdhApv;
+NS_ASSUME_NONNULL_BEGIN
+@interface MSIDJWECrypto : NSObject
 
-MSIDJwtAlgorithm MSID_JWT_ALG_RS256 = @"RS256";
-MSIDJwtAlgorithm MSID_JWT_ALG_ES256 = @"ES256";
-MSIDJwtAlgorithm MSID_JWT_ALG_A256GCM = @"A256GCM";
-MSIDJwtAlgorithm MSID_JWT_ALG_ECDH = @"ECDH-ES";
+/// JWE response encryption algorithm
+@property (nonatomic, readonly) NSString *encryptionAlgorithm;
+/// Key exchange algorithm
+@property (nonatomic, readonly) NSString *keyExchangeAlgorithm;
+/// APV . Contains this party's public key for key exchange.
+@property (nonatomic, readonly) MSIDEcdhApv *apv;
 
-MSIDJwtParameterName MSID_JWT_ALG = @"alg";
-MSIDJwtParameterName MSID_JWT_ENC = @"enc";
-MSIDJwtParameterName MSID_JWT_APV = @"apv";
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+- (nullable instancetype)initWithKeyExchangeAlg:(NSString *)keyExchangeAlgorithm
+                            encryptionAlgorithm:(NSString *)encryptionAlgorithm
+                                            apv:(MSIDEcdhApv *)apv
+                                        context:(_Nullable id<MSIDRequestContext>)context
+                                          error:(NSError * _Nullable __autoreleasing *)error;
+
+- (NSString *)urlEncodedJweCrypto;
+- (NSDictionary *)jweCryptoDictionary;
+@end
+NS_ASSUME_NONNULL_END
