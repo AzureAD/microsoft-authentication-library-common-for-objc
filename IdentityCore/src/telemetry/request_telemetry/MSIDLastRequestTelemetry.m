@@ -308,12 +308,7 @@ static int maxErrorCountToArchive = 75;
         }
         
         NSData *dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
-        
-        if (@available(macOS 11.0, *)) {
-            [dataToArchive writeToFile:saveLocation options:(NSDataWritingAtomic | NSDataWritingFileProtectionCompleteUntilFirstUserAuthentication) error:nil];
-        } else {
-            [dataToArchive writeToFile:saveLocation atomically:YES];
-        }
+        [dataToArchive writeToFile:saveLocation options:(NSDataWritingAtomic | NSDataWritingFileProtectionCompleteUntilFirstUserAuthentication) error:nil];
     }
 }
 

@@ -193,9 +193,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(request);
-    if (@available(macOS 11.0, *)) {
-        XCTAssertEqualObjects(@"Client ID: 29a788ca-7bcf-4732-b23c-c8d294347e5b Redirect URI: https://login.microsoft.com", request.localizedApplicationInfo);
-    }
+    XCTAssertEqualObjects(@"Client ID: 29a788ca-7bcf-4732-b23c-c8d294347e5b Redirect URI: https://login.microsoft.com", request.localizedApplicationInfo);
 }
 
 @end
