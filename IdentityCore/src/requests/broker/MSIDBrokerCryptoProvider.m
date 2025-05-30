@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerCryptoProvider.h"
-#import "NSData+AES.h"
+#import "NSData+MSIDAES.h"
 #import "NSData+MSIDExtensions.h"
 #import <CommonCrypto/CommonCrypto.h>
 #import "NSData+MSIDExtensions.h"
