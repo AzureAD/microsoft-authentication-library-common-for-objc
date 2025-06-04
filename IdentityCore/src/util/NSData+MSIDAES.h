@@ -21,13 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJwtAlgorithm.h"
+@interface NSData (MSIDAES)
 
-MSIDJwtAlgorithm MSID_JWT_ALG_RS256 = @"RS256";
-MSIDJwtAlgorithm MSID_JWT_ALG_ES256 = @"ES256";
-MSIDJwtAlgorithm MSID_JWT_ALG_A256GCM = @"A256GCM";
-MSIDJwtAlgorithm MSID_JWT_ALG_ECDH = @"ECDH-ES";
+- (NSData *)msidAES128DecryptedDataWithKey:(const void *)key
+                                   keySize:(size_t)keySize;
 
-MSIDJwtParameterName MSID_JWT_ALG = @"alg";
-MSIDJwtParameterName MSID_JWT_ENC = @"enc";
-MSIDJwtParameterName MSID_JWT_APV = @"apv";
+@end

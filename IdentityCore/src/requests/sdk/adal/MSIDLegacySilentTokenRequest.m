@@ -28,6 +28,7 @@
 #import "MSIDAccessToken.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDSilentTokenRequest+Internal.h"
 
 @interface MSIDLegacySilentTokenRequest()
 
@@ -98,6 +99,11 @@
     // ADAL removes RTs on invalid_grant
     MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
     return oauthError == MSIDErrorServerInvalidGrant;
+}
+
+- (BOOL)shouldRemoveAccountArtifacts:(NSError *)serverError
+{
+    return [super shouldRemoveAccountArtifacts:serverError];
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

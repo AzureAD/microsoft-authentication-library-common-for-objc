@@ -112,6 +112,10 @@
     return nil;
 }
 
+- (nullable MSIDInteractiveTokenRequest *)interactiveXpcTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
+{
+    return nil;
+}
 
 - (nullable MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(nonnull __unused MSIDRequestParameters *)parameters forceRefresh:(__unused BOOL)forceRefresh
 {

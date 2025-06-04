@@ -21,13 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJwtAlgorithm.h"
+#import <Foundation/Foundation.h>
+#import "MSIDCacheAccessor.h"
+#import "MSIDConstants.h"
+#import "MSIDThrottlingService.h"
 
-MSIDJwtAlgorithm MSID_JWT_ALG_RS256 = @"RS256";
-MSIDJwtAlgorithm MSID_JWT_ALG_ES256 = @"ES256";
-MSIDJwtAlgorithm MSID_JWT_ALG_A256GCM = @"A256GCM";
-MSIDJwtAlgorithm MSID_JWT_ALG_ECDH = @"ECDH-ES";
+@interface MSIDSilentTokenRequest (Internal)
 
-MSIDJwtParameterName MSID_JWT_ALG = @"alg";
-MSIDJwtParameterName MSID_JWT_ENC = @"enc";
-MSIDJwtParameterName MSID_JWT_APV = @"apv";
+- (BOOL)shouldRemoveAccountArtifacts:(nonnull NSError *)serverError;
+
+@end
+

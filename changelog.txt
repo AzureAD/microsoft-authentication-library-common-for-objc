@@ -1,3 +1,10 @@
+Version 1.12.0
+* Add classes to define jwe_crypto and APV (#1522)
+* Add Request class to get nonce from server (#1525)
+* Fix crash when adding existing RT on interactive calls (#1528)
+* Disable preferred identity in CBA flow (#1529)
+* Update minimum version to iOS 16.0 and MacOS 11.0 (#1524)
+
 Version 1.11.0
 * Use a single family refresh token (#1470)
 * Improve browser core logs #1506

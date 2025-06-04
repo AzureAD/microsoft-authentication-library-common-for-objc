@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,15 +20,22 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDJwtAlgorithm.h"
 
-MSIDJwtAlgorithm MSID_JWT_ALG_RS256 = @"RS256";
-MSIDJwtAlgorithm MSID_JWT_ALG_ES256 = @"ES256";
-MSIDJwtAlgorithm MSID_JWT_ALG_A256GCM = @"A256GCM";
-MSIDJwtAlgorithm MSID_JWT_ALG_ECDH = @"ECDH-ES";
+#import "MSIDLocalInteractiveController.h"
 
-MSIDJwtParameterName MSID_JWT_ALG = @"alg";
-MSIDJwtParameterName MSID_JWT_ENC = @"enc";
-MSIDJwtParameterName MSID_JWT_APV = @"apv";
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDXpcInteractiveTokenRequestController : MSIDLocalInteractiveController
+
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
+                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                           fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error NS_DESIGNATED_INITIALIZER;
+
++ (BOOL)canPerformRequest;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,14 +21,33 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+#import "MSIDNonceHttpRequest.h"
+#import "MSIDAADRequestConfigurator.h"
 
-#import "MSIDJwtAlgorithm.h"
+@implementation MSIDNonceHttpRequest
 
-MSIDJwtAlgorithm MSID_JWT_ALG_RS256 = @"RS256";
-MSIDJwtAlgorithm MSID_JWT_ALG_ES256 = @"ES256";
-MSIDJwtAlgorithm MSID_JWT_ALG_A256GCM = @"A256GCM";
-MSIDJwtAlgorithm MSID_JWT_ALG_ECDH = @"ECDH-ES";
+- (nonnull instancetype)initWithTokenEndpoint:(nonnull NSURL *)tokenEndpoint context:(nonnull id<MSIDRequestContext>)context
+{
+    self = [super init];
+    if (self)
+    {
+        if (!tokenEndpoint)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No endpoint provided to get nonce from!");
+            NSParameterAssert(tokenEndpoint);
+            return nil;
+        }
+        NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];
+        urlRequest.URL = tokenEndpoint;
+        urlRequest.HTTPMethod = @"POST";
+        _urlRequest = urlRequest;
+        
+        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
+        [requestConfigurator configure:self];
+        _parameters = @{MSID_OAUTH2_GRANT_TYPE : @"srv_challenge"};
+    }
 
-MSIDJwtParameterName MSID_JWT_ALG = @"alg";
-MSIDJwtParameterName MSID_JWT_ENC = @"enc";
-MSIDJwtParameterName MSID_JWT_APV = @"apv";
+    return self;
+}
+
+@end

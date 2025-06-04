@@ -77,4 +77,9 @@
 - (MSIDAccountMetadataCacheItem *)retrieveAccountMetadataCacheItemForClientId:(NSString *)clientId
                                                                       context:(id<MSIDRequestContext>)context
                                                                         error:(NSError *__autoreleasing*)error;
+
+- (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError *__autoreleasing*)error;
+
 @end

@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,15 +20,21 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDJwtAlgorithm.h"
+@class MSIDRequestParameters;
+typedef void (^MSIDNonceRequestCompletion)(NSString * _Nullable resultNonce, NSError * _Nullable error);
 
-MSIDJwtAlgorithm MSID_JWT_ALG_RS256 = @"RS256";
-MSIDJwtAlgorithm MSID_JWT_ALG_ES256 = @"ES256";
-MSIDJwtAlgorithm MSID_JWT_ALG_A256GCM = @"A256GCM";
-MSIDJwtAlgorithm MSID_JWT_ALG_ECDH = @"ECDH-ES";
+NS_ASSUME_NONNULL_BEGIN
 
-MSIDJwtParameterName MSID_JWT_ALG = @"alg";
-MSIDJwtParameterName MSID_JWT_ENC = @"enc";
-MSIDJwtParameterName MSID_JWT_APV = @"apv";
+@interface MSIDNonceTokenRequest : NSObject
+
+@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters;
+
+- (void)executeRequestWithCompletion:(nonnull MSIDNonceRequestCompletion)completionBlock;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -46,7 +46,8 @@
 
 + (BOOL)canPerformRequest
 {
-    if (@available(macOS 13, *)) {
+    if (@available(macOS 13, *))
+    {
         return [MSIDXpcSingleSignOnProvider canPerformRequest:MSIDXpcProviderCache.sharedInstance];
     }
     else

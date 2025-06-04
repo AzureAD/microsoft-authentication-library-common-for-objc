@@ -21,11 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "NSData+AES.h"
+#import "NSData+MSIDAES.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
 
-@implementation NSData (AES)
+@implementation NSData (MSIDAES)
 
 - (NSData *)msidAES128DecryptedDataWithKey:(const void *)key
                                    keySize:(size_t)keySize

@@ -364,6 +364,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // App state while failed to open broker error
     MSIDErrorBrokerAppIsInactive = -51902,
     MSIDErrorBrokerAppIsInBackground = -51903,
+    
+    // Broker Xpc internal error
+    MSIDErrorBrokerXpcUnexpectedError = -52001,
 
 };
 

@@ -25,19 +25,11 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDSSOExtensionInteractiveTokenRequest.h"
-#import "MSIDInteractiveTokenRequest+Internal.h"
-#import "MSIDJsonSerializer.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
-#import "MSIDAccountIdentifier.h"
-#import "MSIDAuthority.h"
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
-#import "MSIDOauth2Factory.h"
-#import "MSIDBrokerOperationTokenResponse.h"
-#import "MSIDIntuneEnrollmentIdsCache.h"
-#import "MSIDIntuneMAMResourcesCache.h"
-#import "MSIDSSOTokenResponseHandler.h"
+#import "MSIDInteractiveRequestControlling.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
 
 #if TARGET_OS_IPHONE
@@ -50,15 +42,13 @@
 @property (nonatomic, copy) MSIDInteractiveRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
-@property (nonatomic, readonly) MSIDProviderType providerType;
-@property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
-@property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
-@property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
-@property (nonatomic) NSDate *requestSentDate;
+@property (nonatomic) MSIDBrokerOperationInteractiveTokenRequest *operationRequest;
 
 @end
 
 @implementation MSIDSSOExtensionInteractiveTokenRequest
+
+@synthesize requestCompletionBlock, operationRequest;
 
 - (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
@@ -76,110 +66,44 @@
 
     if (self)
     {
-        _ssoTokenResponseHandler = [MSIDSSOTokenResponseHandler new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
-        __typeof__(self) __weak weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
-        {
-#if TARGET_OS_IPHONE
-            [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-#endif
-            __typeof__(self) strongSelf = weakSelf;
-            
-#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
-            strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
-#endif
-            [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
-                                                      requestParameters:strongSelf.requestParameters
-                                                 tokenResponseValidator:strongSelf.tokenResponseValidator
-                                                           oauthFactory:strongSelf.oauthFactory
-                                                             tokenCache:strongSelf.tokenCache
-                                                   accountMetadataCache:strongSelf.accountMetadataCache
-                                                        validateAccount:strongSelf.requestParameters.shouldValidateResultAccount
-                                                                  error:error
-                                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
-             {
-                MSIDInteractiveRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
-                weakSelf.requestCompletionBlock = nil;
-                if (completionBlock) completionBlock(result, localError, nil);
-            }];
-        };
-        
+        _extensionDelegate.completionBlock = [super getCompletionBlock];
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
-        _providerType = [oauthFactory.class providerType];
-        _enrollmentIdsCache = [MSIDIntuneEnrollmentIdsCache sharedCache];
-        _mamResourcesCache = [MSIDIntuneMAMResourcesCache sharedCache];
     }
 
     return self;
 }
 
-#pragma mark - MSIDInteractiveTokenRequest
+#pragma mark - MSIDSSORemoteInteractiveTokenRequest
 
-- (void)executeRequestWithCompletion:(MSIDInteractiveRequestCompletionBlock)completionBlock
+- (void)executeRequestImplWithCompletionBlock:(MSIDInteractiveRequestCompletionBlock)completionBlock
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker flow.");
+    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
+    ssoRequest.requestedOperation = [self.operationRequest.class operation];
+    [ASAuthorizationSingleSignOnProvider setRequiresUI:YES forRequest:ssoRequest];
+    NSDictionary *jsonDictionary = [self.operationRequest jsonDictionary];
     
-    if (!completionBlock)
+    if (!jsonDictionary)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End silent broker flow.");
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for interactive token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        completionBlock(nil, error, nil);
         return;
     }
     
-    NSString *upn = self.requestParameters.accountIdentifier.displayableId ?: self.requestParameters.loginHint;
+    __auto_type queryItems = [jsonDictionary msidQueryItems];
+    ssoRequest.authorizationOptions = queryItems;
     
-    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
-                                           userPrincipalName:upn
-                                                     context:self.requestParameters
-                                             completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
-                                                               __unused BOOL validated, NSError *error)
-     {
-         if (error)
-         {
-             completionBlock(nil, error, nil);
-             return;
-         }
-        
-        NSDictionary *enrollmentIds = [self.enrollmentIdsCache enrollmentIdsJsonDictionaryWithContext:self.requestParameters
-                                                                                                error:nil];
-        NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
-                                                                                          error:nil];
-        
-        self.requestSentDate = [NSDate date];
-        __auto_type operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
-                                                                                                 providerType:self.providerType
-                                                                                                enrollmentIds:enrollmentIds
-                                                                                                 mamResources:mamResources
-                                                                                              requestSentDate:self.requestSentDate];
-    
-        ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
-        ssoRequest.requestedOperation = [operationRequest.class operation];
-        [ASAuthorizationSingleSignOnProvider setRequiresUI:YES forRequest:ssoRequest];
-        
-        NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
-        
-        if (!jsonDictionary)
-        {
-            error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for interactive token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-            completionBlock(nil, error, nil);
-            return;
-        }
-        
-        __auto_type queryItems = [jsonDictionary msidQueryItems];
-        ssoRequest.authorizationOptions = queryItems;
-        
 #if TARGET_OS_IPHONE
-        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 #endif
-        
-        self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
-        self.authorizationController.delegate = self.extensionDelegate;
-        self.authorizationController.presentationContextProvider = self;
-        self.requestCompletionBlock = completionBlock;
-        
-        [self.authorizationController msidPerformRequests];
-     }];
+    
+    self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+    self.authorizationController.delegate = self.extensionDelegate;
+    self.authorizationController.presentationContextProvider = self;
+    self.requestCompletionBlock = completionBlock;
+    
+    [self.authorizationController msidPerformRequests];
 }
 
 #pragma mark - ASAuthorizationControllerPresentationContextProviding

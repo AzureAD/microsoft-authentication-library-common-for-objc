@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,9 +22,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface NSData (AES)
+#import "MSIDHttpRequest.h"
 
-- (NSData *)msidAES128DecryptedDataWithKey:(const void *)key
-                                   keySize:(size_t)keySize;
-
+NS_ASSUME_NONNULL_BEGIN
+@interface MSIDNonceHttpRequest : MSIDHttpRequest
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype) initWithTokenEndpoint:(NSURL *)tokenEndpoint context:(id<MSIDRequestContext>)context;
 @end
+NS_ASSUME_NONNULL_END
