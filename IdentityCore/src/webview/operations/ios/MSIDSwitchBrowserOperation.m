@@ -86,10 +86,17 @@
     NSURLComponents *requestURLComponents = [[NSURLComponents alloc] initWithString:self.switchBrowserResponse.actionUri];
     requestURLComponents.percentEncodedQuery = [queryItems msidURLEncode];
     NSURL *startURL = requestURLComponents.URL;
+    BOOL usePrivateSession = YES;
+
+    if (self.switchBrowserResponse.bitMask)
+    {
+        usePrivateSession = (self.switchBrowserResponse.bitMask & (1 << 0)) != 0;
+    }
     
     [self.certAuthManager startWithURL:startURL
                       parentController:requestParameters.parentViewController
                                context:requestParameters
+            ephemeralWebBrowserSession:usePrivateSession
                        completionBlock:^(NSURL *callbackURL, NSError *error)
      {
         [self.certAuthManager resetState];

@@ -49,6 +49,8 @@
         if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
         
         _actionUri = self.parameters[@"action_uri"];
+        _bitMask = [self.parameters[@"browser_modes"] integerValue];
+        
         if ([NSString msidIsStringNilOrBlank:_actionUri])
         {
             if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"action_uri is nil.", nil, nil, nil, context.correlationId, nil, YES);
