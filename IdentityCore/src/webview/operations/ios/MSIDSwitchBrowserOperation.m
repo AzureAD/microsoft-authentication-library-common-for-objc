@@ -88,7 +88,7 @@
     NSURL *startURL = requestURLComponents.URL;
     BOOL usePrivateSession = YES;
 
-    if (self.switchBrowserResponse.bitMask)
+    if (self.switchBrowserResponse.hasBitMask)
     {
         usePrivateSession = (self.switchBrowserResponse.bitMask & (1 << 0)) != 0;
     }

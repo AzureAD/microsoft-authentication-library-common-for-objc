@@ -30,6 +30,7 @@
 @property (nonatomic, readonly) NSString *actionUri;
 @property (nonatomic, readonly) NSString *switchBrowserSessionToken;
 @property (nonatomic, readonly) NSInteger bitMask;
+@property (nonatomic, readonly) BOOL hasBitMask;
 
 - (instancetype )init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;

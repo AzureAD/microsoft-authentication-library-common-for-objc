@@ -47,9 +47,15 @@
     if (self)
     {
         if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
-        
+        _bitMask = 0;
+        _hasBitMask = NO;
         _actionUri = self.parameters[@"action_uri"];
-        _bitMask = [self.parameters[@"browser_modes"] integerValue];
+        
+        if (self.parameters[@"browser_modes"])
+        {
+            _bitMask = [self.parameters[@"browser_modes"] integerValue];
+            _hasBitMask = YES;
+        }
         
         if ([NSString msidIsStringNilOrBlank:_actionUri])
         {
