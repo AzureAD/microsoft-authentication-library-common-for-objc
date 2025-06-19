@@ -63,9 +63,10 @@
                 {
                     bitmask = (bitmask << 8) | bytes[i];
                 }
+                
+                _bitMask = bitmask;
+                _hasBitMask = YES;
             }
-            _bitMask = bitmask;
-            _hasBitMask = YES;
         }
         
         if ([NSString msidIsStringNilOrBlank:_actionUri])
