@@ -53,7 +53,15 @@
         
         if (self.parameters[@"browser_modes"])
         {
-            _bitMask = [self.parameters[@"browser_modes"] integerValue];
+            NSData *decoded = [[NSData alloc] initWithBase64EncodedString:self.parameters[@"browser_modes"] options:0];
+            NSInteger bitmask = 0;
+            if (decoded.length > 0) {
+                const uint8_t *bytes = decoded.bytes;
+                for (NSUInteger i = 0; i < decoded.length; i++) {
+                    bitmask = (bitmask << 8) | bytes[i];
+                }
+            }
+            _bitMask = bitmask;
             _hasBitMask = YES;
         }
         
