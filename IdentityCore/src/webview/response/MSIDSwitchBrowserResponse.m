@@ -23,6 +23,7 @@
 // THE SOFTWARE.  
 
 
+#import "MSIDSwitchBrowserModes.h"
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDConstants.h"
@@ -51,22 +52,18 @@
         _hasBitMask = NO;
         _actionUri = self.parameters[@"action_uri"];
         
-        if (self.parameters[@"browser_modes"])
+        NSString* browserOptionsString = self.parameters[@"browser_modes"];
+        if (browserOptionsString)
         {
-            NSData *decoded = [[NSData alloc] initWithBase64EncodedString:self.parameters[@"browser_modes"] options:0];
-            NSInteger bitmask = 0;
-            
-            if (decoded.length > 0)
-            {
-                const uint8_t *bytes = decoded.bytes;
-                for (NSUInteger i = 0; i < decoded.length; i++)
-                {
-                    bitmask = (bitmask << 8) | bytes[i];
-                }
-                
-                _bitMask = bitmask;
-                _hasBitMask = YES;
-            }
+            browserOptionsString = Base64URLToStandardBase64(browserOptionsString);
+            NSData *data = [[NSData alloc] initWithBase64EncodedString:browserOptionsString options:0];
+
+            uint32_t flagsValue = 0;
+            [data getBytes:&flagsValue length:sizeof(flagsValue)];
+
+            flagsValue = CFSwapInt32BigToHost(flagsValue);
+            _bitMask = flagsValue;
+            _hasBitMask = YES;
         }
         
         if ([NSString msidIsStringNilOrBlank:_actionUri])
@@ -143,5 +140,19 @@
     return [self.class isDUNAActionUrl:url operation:[self.class operation]];
 }
 
+NSString *Base64URLToStandardBase64(NSString *base64URL) {
+    NSMutableString *base64 = [[base64URL stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
+                                              mutableCopy];
+    [base64 replaceOccurrencesOfString:@"_" withString:@"/"
+                               options:0
+                                 range:NSMakeRange(0, base64.length)];
+
+    // Pad with '=' to make length a multiple of 4
+    while (base64.length % 4 != 0) {
+        [base64 appendString:@"="];
+    }
+
+    return base64;
+}
 
 @end

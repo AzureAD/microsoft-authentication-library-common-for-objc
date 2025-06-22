@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
+#import "MSIDSwitchBrowserModes.h"
 #import "MSIDSwitchBrowserOperation.h"
 #import "MSIDSystemWebviewController.h"
 #import "MSIDWebviewResponse.h"
@@ -90,7 +90,8 @@
 
     if (self.switchBrowserResponse.hasBitMask)
     {
-        usePrivateSession = (self.switchBrowserResponse.bitMask & (1 << 0)) != 0;
+        MSIDSwitchBrowserModes modes = (MSIDSwitchBrowserModes)self.switchBrowserResponse.bitMask;
+        usePrivateSession = modes & BrowserModePrivateSession;
     }
     
     [self.certAuthManager startWithURL:startURL

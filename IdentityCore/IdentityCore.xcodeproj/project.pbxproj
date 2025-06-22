@@ -2481,6 +2481,7 @@
 		2A59B4422D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcInteractiveTokenRequestController.m; sourceTree = "<group>"; };
 		2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOXpcSilentTokenRequest.h; sourceTree = "<group>"; };
 		2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOXpcSilentTokenRequest.m; sourceTree = "<group>"; };
+		4B7AFDE82E05E53700FFFDEE /* MSIDSwitchBrowserModes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSwitchBrowserModes.h; sourceTree = "<group>"; };
 		51E364572863C0F300A97F82 /* MSIDTelemetryConditionalCompile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryConditionalCompile.h; sourceTree = "<group>"; };
 		580E253E2719FD10003D1795 /* MSIDPrtHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrtHeader.h; sourceTree = "<group>"; };
 		580E253F2719FD10003D1795 /* MSIDPrtHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPrtHeader.m; sourceTree = "<group>"; };
@@ -3774,6 +3775,7 @@
 		235C2B012D6FAF7900DEFEFB /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				4B7AFDE82E05E53700FFFDEE /* MSIDSwitchBrowserModes.h */,
 				235C2AFD2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.h */,
 				235C2AFE2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.m */,
 				235C2AFF2D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.h */,
@@ -5098,7 +5100,6 @@
 		B2AF1D29218BCDEF0080C1A0 /* requests */ = {
 			isa = PBXGroup;
 			children = (
-
 				720B5B542DD57D6600318FE5 /* MSIDEcdhApv.m */,
 				720B5B522DD57C3700318FE5 /* MSIDEcdhApv.h */,
 				720B5B4F2DD577C100318FE5 /* MSIDJWECrypto.m */,
