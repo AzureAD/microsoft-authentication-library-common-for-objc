@@ -27,6 +27,7 @@
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDConstants.h"
 #import "MSIDFlightManager.h"
+#import "NSData+MSIDExtensions.h"
 
 @implementation MSIDSwitchBrowserResponse
 
@@ -54,9 +55,7 @@
         NSString* browserOptionsString = self.parameters[@"browser_modes"];
         if (browserOptionsString)
         {
-            browserOptionsString = Base64URLToStandardBase64(browserOptionsString);
-            NSData *data = [[NSData alloc] initWithBase64EncodedString:browserOptionsString options:0];
-
+            NSData *data = [NSData msidDataFromBase64UrlEncodedString:browserOptionsString];
             uint32_t flagsValue = 0;
             [data getBytes:&flagsValue length:sizeof(flagsValue)];
 

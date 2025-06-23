@@ -82,7 +82,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
     }
     
-    func testInit_whenValidBrowserMode_shouldCreateObject() throws
+    func testInit_whenValidBrowserMode_hasBitmaskPrivateSessionShouldBeTrue() throws
     {
         let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAQ")!
         
@@ -95,7 +95,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertEqual(response?.bitMask, 1)
     }
     
-    func testInit_whenInvalidBrowserMode_hasBitmaskShouldBeFalse() throws
+    func testInit_whenInvalidBrowserMode_hasBitmaskPrivateSessionShouldBeFalse() throws
     {
         let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA")!
         
