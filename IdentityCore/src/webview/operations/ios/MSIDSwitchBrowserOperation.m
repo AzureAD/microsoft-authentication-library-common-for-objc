@@ -22,7 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#import "MSIDSwitchBrowserModes.h"
 #import "MSIDSwitchBrowserOperation.h"
 #import "MSIDSystemWebviewController.h"
 #import "MSIDWebviewResponse.h"

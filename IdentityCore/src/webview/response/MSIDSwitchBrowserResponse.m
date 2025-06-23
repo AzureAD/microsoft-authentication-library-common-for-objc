@@ -23,7 +23,6 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDSwitchBrowserModes.h"
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDConstants.h"
