@@ -138,19 +138,4 @@
     return [self.class isDUNAActionUrl:url operation:[self.class operation]];
 }
 
-NSString *Base64URLToStandardBase64(NSString *base64URL) {
-    NSMutableString *base64 = [[base64URL stringByReplacingOccurrencesOfString:@"-" withString:@"+"]
-                                              mutableCopy];
-    [base64 replaceOccurrencesOfString:@"_" withString:@"/"
-                               options:0
-                                 range:NSMakeRange(0, base64.length)];
-
-    // Pad with '=' to make length a multiple of 4
-    while (base64.length % 4 != 0) {
-        [base64 appendString:@"="];
-    }
-
-    return base64;
-}
-
 @end
