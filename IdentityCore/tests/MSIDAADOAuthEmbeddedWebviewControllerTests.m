@@ -250,7 +250,9 @@
     NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"http://www.web-cp.com/check"]];
     MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
 
-    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) { }];
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+    }];
 
     XCTAssertFalse(result);
 }
