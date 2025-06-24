@@ -84,7 +84,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     
     func testInit_whenValidBrowserMode_hasBitmaskPrivateSessionShouldBeTrue() throws
     {
-        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAQ")!
+        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AQAAAA")!
         
         let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", context: nil)
         

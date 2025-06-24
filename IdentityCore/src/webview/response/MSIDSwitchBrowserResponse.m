@@ -59,7 +59,6 @@
             uint32_t flagsValue = 0;
             [data getBytes:&flagsValue length:sizeof(flagsValue)];
 
-            flagsValue = CFSwapInt32BigToHost(flagsValue);
             _bitMask = flagsValue;
             _hasBitMask = YES;
         }
