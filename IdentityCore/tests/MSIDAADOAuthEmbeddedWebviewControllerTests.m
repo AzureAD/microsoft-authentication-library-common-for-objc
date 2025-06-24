@@ -235,6 +235,26 @@
     XCTAssertTrue(result);
 }
 
+- (void)testDecidePolicyForNavigationAction_whenExternalDecidePolicyForBrowserActionLegacyFlowNonHttps_shouldCancelActionAndReturnNoAndCallExternalMethod
+{
+    [MSIDWebAuthNUtil setAmIRunningInExtension:NO];
+    
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"http://www.web-cp.com/check"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) { }];
+
+    XCTAssertFalse(result);
+}
+
 @end
 
 #endif
