@@ -34,6 +34,7 @@ class MSIDCertAuthManagerMock: MSIDCertAuthManager
     override func start(with startURL: URL,
                         parentController parentViewController: UIViewController,
                         context: any MSIDRequestContext,
+                        ephemeralWebBrowserSession: Bool,
                         completionBlock: @escaping MSIDWebUICompletionHandler)
     {
         startWithUrlInvokedCount += 1

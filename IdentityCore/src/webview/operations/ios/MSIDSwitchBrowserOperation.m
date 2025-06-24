@@ -22,7 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #import "MSIDSwitchBrowserOperation.h"
 #import "MSIDSystemWebviewController.h"
 #import "MSIDWebviewResponse.h"
@@ -90,6 +89,7 @@
     [self.certAuthManager startWithURL:startURL
                       parentController:requestParameters.parentViewController
                                context:requestParameters
+            ephemeralWebBrowserSession:self.switchBrowserResponse.useEphemeralWebBrowserSession
                        completionBlock:^(NSURL *callbackURL, NSError *error)
      {
         [self.certAuthManager resetState];

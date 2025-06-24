@@ -27,8 +27,14 @@
 
 @interface MSIDSwitchBrowserResponse : MSIDWebviewResponse
 
+typedef NS_OPTIONS(NSInteger, MSIDSwitchBrowserModes) {
+    BrowserModePrivateSession = 1 << 0,
+    // Add future flags here
+};
+
 @property (nonatomic, readonly) NSString *actionUri;
 @property (nonatomic, readonly) NSString *switchBrowserSessionToken;
+@property (nonatomic, readonly) BOOL useEphemeralWebBrowserSession;
 
 - (instancetype )init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
