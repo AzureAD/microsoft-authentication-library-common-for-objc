@@ -85,6 +85,7 @@ NSString *const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME = @"switch_browser_r
 
 NSString *const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY = @"use_v2_web_response_factory";
 NSString *const MSID_FLIGHT_SUPPORT_DUNA_CBA = @"support_duna_cba_v2";
+NSString *const MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH = @"disable_jit_remediation_legacy_auth";
 NSString *const MSID_FLIGHT_CLIENT_SFRT_STATUS = @"sfrt_v2";
 NSString *const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA = @"dis_pre_iden_cba";
 
