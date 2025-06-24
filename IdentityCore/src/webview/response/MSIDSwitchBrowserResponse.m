@@ -48,9 +48,8 @@
     if (self)
     {
         if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
-        _bitMask = 0;
-        _hasBitMask = NO;
         _actionUri = self.parameters[@"action_uri"];
+        _useEphemeralWebBrowserSession = YES;
         
         NSString* browserOptionsString = self.parameters[@"browser_modes"];
         if (browserOptionsString)
@@ -58,9 +57,9 @@
             NSData *data = [NSData msidDataFromBase64UrlEncodedString:browserOptionsString];
             uint32_t flagsValue = 0;
             [data getBytes:&flagsValue length:sizeof(flagsValue)];
-
-            _bitMask = flagsValue;
-            _hasBitMask = YES;
+            
+            MSIDSwitchBrowserModes modes = (MSIDSwitchBrowserModes)flagsValue;
+            _useEphemeralWebBrowserSession = modes & BrowserModePrivateSession;
         }
         
         if ([NSString msidIsStringNilOrBlank:_actionUri])

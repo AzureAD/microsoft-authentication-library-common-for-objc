@@ -91,8 +91,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
         XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
-        XCTAssertEqual(response?.hasBitMask, true)
-        XCTAssertEqual(response?.bitMask, 1)
+        XCTAssertEqual(response?.useEphemeralWebBrowserSession, true)
     }
     
     func testInit_whenInvalidBrowserMode_hasBitmaskPrivateSessionShouldBeFalse() throws
@@ -104,8 +103,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
         XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
-        XCTAssertEqual(response?.hasBitMask, true)
-        XCTAssertEqual(response?.bitMask, 0)
+        XCTAssertEqual(response?.useEphemeralWebBrowserSession, false)
     }
     
     func testInit_whenInvalidUrl_shouldReturnNil() throws

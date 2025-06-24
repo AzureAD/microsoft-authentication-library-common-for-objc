@@ -34,8 +34,7 @@ typedef NS_OPTIONS(NSInteger, MSIDSwitchBrowserModes) {
 
 @property (nonatomic, readonly) NSString *actionUri;
 @property (nonatomic, readonly) NSString *switchBrowserSessionToken;
-@property (nonatomic, readonly) NSInteger bitMask;
-@property (nonatomic, readonly) BOOL hasBitMask;
+@property (nonatomic, readonly) BOOL useEphemeralWebBrowserSession;
 
 - (instancetype )init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
