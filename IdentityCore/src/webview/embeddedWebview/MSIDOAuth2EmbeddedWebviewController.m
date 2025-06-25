@@ -446,32 +446,34 @@ NSString *const CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feature.
     if (self.customHeaderProvider)
     {
         [self.customHeaderProvider getCustomHeaders:navigationAction.request
-                                                    forHost:requestURL.host
-                                            completionBlock:^(NSDictionary<NSString *, NSString *> *extraHeaders, NSError *error){
-            if (extraHeaders && extraHeaders.count > 0)
-            {
-                NSMutableURLRequest *newUrlRequest = [navigationAction.request mutableCopy];
-                
-                for (NSString *headerKey in extraHeaders)
+                                            forHost:requestURL.host
+                                    completionBlock:^(NSDictionary<NSString *, NSString *> *extraHeaders, NSError *error){
+            [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+                if (extraHeaders && extraHeaders.count > 0)
                 {
-                    if (![NSString msidIsStringNilOrBlank:extraHeaders[headerKey]])
+                    NSMutableURLRequest *newUrlRequest = [navigationAction.request mutableCopy];
+                    
+                    for (NSString *headerKey in extraHeaders)
                     {
-                        [newUrlRequest setValue:extraHeaders[headerKey] forHTTPHeaderField:headerKey];
+                        if (![NSString msidIsStringNilOrBlank:extraHeaders[headerKey]])
+                        {
+                            [newUrlRequest setValue:extraHeaders[headerKey] forHTTPHeaderField:headerKey];
+                        }
                     }
+                    
+                    decisionHandler(WKNavigationActionPolicyCancel);
+                    [self loadRequest:newUrlRequest];
+                    return;
                 }
                 
-                decisionHandler(WKNavigationActionPolicyCancel);
-                [self loadRequest:newUrlRequest];
+                if (error)
+                {
+                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Error received while getting custom headers in embedded webview: %@", MSID_PII_LOG_MASKABLE(error));
+                }
+                
+                decisionHandler(WKNavigationActionPolicyAllow);
                 return;
-            }
-            
-            if (error)
-            {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Error received while getting custom headers in embedded webview: %@", MSID_PII_LOG_MASKABLE(error));
-            }
-            
-            decisionHandler(WKNavigationActionPolicyAllow);
-            return;
+            }];
         }];
     }
     else
