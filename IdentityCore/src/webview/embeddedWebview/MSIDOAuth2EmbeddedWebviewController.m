@@ -65,7 +65,8 @@
 
 #if AD_BROKER
 NSString *const SSO_EXTENSION_USER_DEFAULTS_KEY = @"group.com.microsoft.azureauthenticator.sso";
-NSString *const CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feature.sdm_suppress_camera_consent";
+NSString *const CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feature.suppress_camera_consent";
+NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feature.sdm_suppress_camera_consent";
 #endif
 
 - (id)initWithStartURL:(NSURL *)startURL
@@ -501,10 +502,19 @@ initiatedByFrame:(WKFrameInfo *)frame
     
     NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:SSO_EXTENSION_USER_DEFAULTS_KEY];
     id cameraConsentValue = [userDefaults objectForKey:CAMERA_CONSENT_PROMPT_SUPPRESS_KEY];
+    id sdmCameraConsentValue = [userDefaults objectForKey:SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY];
     
     if (cameraConsentValue && ([cameraConsentValue isKindOfClass:NSNumber.class] || [cameraConsentValue isKindOfClass:NSString.class]))
     {
         if ([cameraConsentValue boolValue] && type == WKMediaCaptureTypeCamera)
+        {
+            decisionHandler(WKPermissionDecisionGrant);
+            return;
+        }
+    }
+    else if (sdmCameraConsentValue && ([sdmCameraConsentValue isKindOfClass:NSNumber.class] || [sdmCameraConsentValue isKindOfClass:NSString.class]))
+    {
+        if ([sdmCameraConsentValue boolValue] && type == WKMediaCaptureTypeCamera)
         {
             decisionHandler(WKPermissionDecisionGrant);
             return;
