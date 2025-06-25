@@ -499,28 +499,31 @@ initiatedByFrame:(WKFrameInfo *)frame
             type:(WKMediaCaptureType)type
  decisionHandler:(void (^)(WKPermissionDecision decision))decisionHandler API_AVAILABLE(ios(15.0), macos(12.0))
 {
-    
-    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:SSO_EXTENSION_USER_DEFAULTS_KEY];
-    id cameraConsentValue = [userDefaults objectForKey:CAMERA_CONSENT_PROMPT_SUPPRESS_KEY];
-    id sdmCameraConsentValue = [userDefaults objectForKey:SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY];
-    
-    if (cameraConsentValue && ([cameraConsentValue isKindOfClass:NSNumber.class] || [cameraConsentValue isKindOfClass:NSString.class]))
+    // Prompt suppression is only allowed for the camera
+    if (type == WKMediaCaptureTypeCamera)
     {
-        if ([cameraConsentValue boolValue] && type == WKMediaCaptureTypeCamera)
+        NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:SSO_EXTENSION_USER_DEFAULTS_KEY];
+        id cameraConsentValue = [userDefaults objectForKey:CAMERA_CONSENT_PROMPT_SUPPRESS_KEY];
+        id sdmCameraConsentValue = [userDefaults objectForKey:SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY];
+        
+        if (cameraConsentValue && ([cameraConsentValue isKindOfClass:NSNumber.class] || [cameraConsentValue isKindOfClass:NSString.class]))
         {
-            decisionHandler(WKPermissionDecisionGrant);
-            return;
+            if ([cameraConsentValue boolValue])
+            {
+                decisionHandler(WKPermissionDecisionGrant);
+                return;
+            }
+        }
+        else if (sdmCameraConsentValue && ([sdmCameraConsentValue isKindOfClass:NSNumber.class] || [sdmCameraConsentValue isKindOfClass:NSString.class]))
+        {
+            if ([sdmCameraConsentValue boolValue])
+            {
+                decisionHandler(WKPermissionDecisionGrant);
+                return;
+            }
         }
     }
-    else if (sdmCameraConsentValue && ([sdmCameraConsentValue isKindOfClass:NSNumber.class] || [sdmCameraConsentValue isKindOfClass:NSString.class]))
-    {
-        if ([sdmCameraConsentValue boolValue] && type == WKMediaCaptureTypeCamera)
-        {
-            decisionHandler(WKPermissionDecisionGrant);
-            return;
-        }
-    }
-    
+
     decisionHandler(WKPermissionDecisionPrompt);
 }
 #endif
