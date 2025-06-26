@@ -1,3 +1,9 @@
+Version 1.13.0
+* Improve logic for checking camera consent suppression flags (#1538)
+* Fix a potential crash related to webview in iOS26 (#1537)
+* Improve JIT troubleshooting in legacy auth flow (#1535)
+* Added ephemeral browser session to DUNA (#1534)
+
 Version 1.12.0
 * Add classes to define jwe_crypto and APV (#1522)
 * Add Request class to get nonce from server (#1525)
