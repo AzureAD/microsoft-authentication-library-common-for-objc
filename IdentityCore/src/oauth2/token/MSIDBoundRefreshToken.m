@@ -30,7 +30,7 @@
 - (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken
                        boundDeviceId:(NSString *)boundDeviceId
 {
-    if (refreshToken && [refreshToken.class isKindOfClass:MSIDRefreshToken.class] && ![NSString msidIsStringNilOrBlank:boundDeviceId])
+    if (refreshToken && ![NSString msidIsStringNilOrBlank:boundDeviceId])
     {
         MSIDBoundRefreshToken *boundRefreshToken = [MSIDBoundRefreshToken new];
         boundRefreshToken.refreshToken = refreshToken.refreshToken;
@@ -44,8 +44,10 @@
         boundRefreshToken.accountIdentifier = refreshToken.accountIdentifier;
         boundRefreshToken.speInfo = refreshToken.speInfo;
         self = boundRefreshToken;
+        return self;
     }
-    return self;
+
+    return nil;
 }
 
 - (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
@@ -55,7 +57,12 @@
     if (self)
     {
         NSDictionary *jsonDictionary = tokenCacheItem.jsonDictionary;
-        _boundDeviceId = [jsonDictionary msidObjectForKey:MSID_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
+        _boundDeviceId = [jsonDictionary msidObjectForKey:MSID_BOUND_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
+        if ([NSString msidIsStringNilOrBlank:_boundDeviceId])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token: bound device ID is nil or blank.");
+            return nil;
+        }
     }
     
     return self;
@@ -112,14 +119,13 @@
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     NSError *error;
-    MSIDBoundRefreshTokenCacheItem *boundRtCacheItem = [[MSIDBoundRefreshTokenCacheItem alloc] initWithJSONDictionary:cacheItem.jsonDictionary error:&error];
-    if (!boundRtCacheItem)
+    if (!self.boundDeviceId)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token cache item from base cache item: %@", error.description);
         return nil;
     }
-    boundRtCacheItem.deviceID = self.boundDeviceId;
-    return boundRtCacheItem;
+    cacheItem.boundDeviceId = self.boundDeviceId;
+    return cacheItem;
 }
 
 #pragma mark - Token type

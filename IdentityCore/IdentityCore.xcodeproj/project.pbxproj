@@ -761,6 +761,8 @@
 		72C1EBFC2DEA8199004C40A4 /* MSIDBoundRefreshTokenCacheItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 72C1EBFB2DEA8185004C40A4 /* MSIDBoundRefreshTokenCacheItem.h */; };
 		72C1EBFE2DEA81A1004C40A4 /* MSIDBoundRefreshTokenCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 72C1EBFD2DEA819E004C40A4 /* MSIDBoundRefreshTokenCacheItem.m */; };
 		72C1EBFF2DEA81A1004C40A4 /* MSIDBoundRefreshTokenCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 72C1EBFD2DEA819E004C40A4 /* MSIDBoundRefreshTokenCacheItem.m */; };
+		72C764F92E09CFB800043AB1 /* MSIDBoundRefreshTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 72C764F82E09CFA400043AB1 /* MSIDBoundRefreshTokenTests.m */; };
+		72C764FA2E09CFB800043AB1 /* MSIDBoundRefreshTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 72C764F82E09CFA400043AB1 /* MSIDBoundRefreshTokenTests.m */; };
 		72D961AE2DE12F1F005DED66 /* MSIDCachedNonce.h in Headers */ = {isa = PBXBuildFile; fileRef = 72D961AD2DE12F19005DED66 /* MSIDCachedNonce.h */; };
 		72D961B02DE12F30005DED66 /* MSIDCachedNonce.m in Sources */ = {isa = PBXBuildFile; fileRef = 72D961AF2DE12F2E005DED66 /* MSIDCachedNonce.m */; };
 		72D961B12DE12F30005DED66 /* MSIDCachedNonce.m in Sources */ = {isa = PBXBuildFile; fileRef = 72D961AF2DE12F2E005DED66 /* MSIDCachedNonce.m */; };
@@ -2673,6 +2675,7 @@
 		72C1EBF62DE91ACC004C40A4 /* MSIDBoundRefreshToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshToken.m; sourceTree = "<group>"; };
 		72C1EBFB2DEA8185004C40A4 /* MSIDBoundRefreshTokenCacheItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBoundRefreshTokenCacheItem.h; sourceTree = "<group>"; };
 		72C1EBFD2DEA819E004C40A4 /* MSIDBoundRefreshTokenCacheItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshTokenCacheItem.m; sourceTree = "<group>"; };
+		72C764F82E09CFA400043AB1 /* MSIDBoundRefreshTokenTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshTokenTests.m; sourceTree = "<group>"; };
 		72D961AD2DE12F19005DED66 /* MSIDCachedNonce.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCachedNonce.h; sourceTree = "<group>"; };
 		72D961AF2DE12F2E005DED66 /* MSIDCachedNonce.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCachedNonce.m; sourceTree = "<group>"; };
 		740340B72460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCurrentRequestTelemetrySerializedItem.h; sourceTree = "<group>"; };
@@ -5724,6 +5727,7 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				72C764F82E09CFA400043AB1 /* MSIDBoundRefreshTokenTests.m */,
 				720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */,
 				729357F22DDBD3F60001D03C /* MSIDNonceTokenRequestTest.m */,
 				A0410E4F25E88B5E004D80FD /* MSIDThrottlingMetaDataTest.m */,
@@ -7085,6 +7089,7 @@
 				9668B6F72148796A0039AB0A /* MSIDDataExtensionsTests.m in Sources */,
 				B286B9F12389F866007833AD /* MSIDWebviewFactoryTests.m in Sources */,
 				B252913B2096698100E78695 /* MSIDAADIdTokenClaimsFactoryTests.m in Sources */,
+				72C764FA2E09CFB800043AB1 /* MSIDBoundRefreshTokenTests.m in Sources */,
 				B2BE923121A0EFB100F5AB8C /* MSIDDefaultTokenRequestProviderTests.m in Sources */,
 				729357F42DDBD3F80001D03C /* MSIDNonceTokenRequestTest.m in Sources */,
 				23FB5C20225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */,
@@ -7764,6 +7769,7 @@
 				B2BE926221A25A8600F5AB8C /* MSIDInteractiveControllerIntegrationTests.m in Sources */,
 				B2BE923521A0F80100F5AB8C /* MSIDLegacyTokenRequestProviderTests.m in Sources */,
 				B48FC0632D7A90FA007B80DB /* MSIDBrokerFlightProviderTests.m in Sources */,
+				72C764F92E09CFB800043AB1 /* MSIDBoundRefreshTokenTests.m in Sources */,
 				23FB5C21225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */,
 				E75DD02625D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */,
 				B286BA07238A110A007833AD /* MSIDOIDCSignoutRequestTests.m in Sources */,

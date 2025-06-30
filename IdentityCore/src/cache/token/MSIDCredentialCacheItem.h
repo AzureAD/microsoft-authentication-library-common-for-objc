@@ -90,6 +90,9 @@
 // Redirect Uri
 @property (atomic, readwrite, nullable) NSString *redirectUri;
 
+// Bound device Id
+@property (atomic, readwrite, nullable) NSString *boundDeviceId;
+
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;

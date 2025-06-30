@@ -151,6 +151,7 @@ NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"IdToken";
 NSString *const MSID_LEGACY_ID_TOKEN_CACHE_TYPE          = @"V1IdToken";
 NSString *const MSID_PRT_TOKEN_CACHE_TYPE                = @"PrimaryRefreshToken";
 NSString *const MSID_FRT_TOKEN_CACHE_TYPE                = @"FamilyRefreshToken";
+NSString *const MSID_BOUND_RT_TOKEN_CACHE_TYPE           = @"BoundRefreshToken";
 NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
 NSString *const MSID_GENERAL_CACHE_ITEM_TYPE             = @"general_cache_item";
 NSString *const MSID_APP_METADATA_CACHE_TYPE             = @"appmetadata";
@@ -177,3 +178,5 @@ NSString *const MSID_CCS_REQUEST_ID_RESPONSE             = @"ccs-requestid";
 
 NSString *const MSID_CCS_REQUEST_SEQUENCE_KEY            = @"x-ms-srs";
 NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE       = @"ccs-request-sequence";
+
+NSString *const MSID_BOUND_DEVICE_ID_CACHE_KEY           = @"bound_device_id";

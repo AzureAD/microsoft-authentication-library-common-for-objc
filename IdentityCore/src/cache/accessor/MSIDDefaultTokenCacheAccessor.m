@@ -307,7 +307,7 @@
             }
             else
             {
-                credentialTypeString = @"";
+                credentialTypeString = [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType];
             }
             
             MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Found %@refresh token by legacy account id", credentialTypeString);
