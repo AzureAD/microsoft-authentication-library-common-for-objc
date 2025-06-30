@@ -40,158 +40,166 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Indicates if the token came from cache.
  *
- * A boolean flag where YES means the broker returned a cached token without a network call,
- * and NO means a network request was made.
+ * A boolean flag where YES (1) means the broker returned a cached token without a network call,
+ * and NO (0) means a network request was made to acquire a new token. This helps measure
+ * how often silent SSO worked via cache vs network.
  *
- * Example: YES (token was found in cache), NO (network request required)
+ * Example: YES (token was served from cache), NO (fresh call required)
  */
 @property (nonatomic) BOOL isCached;
 
 /**
  * Version of the broker handling the request.
  *
- * Typically a string of the broker app or library version. This helps identify which
- * broker implementation produced the telemetry.
+ * Broker app version that identifies the version/build of the native broker. Useful to
+ * correlate issues or ensure compatibility. On Windows, this might be the WAM or plugin
+ * version; on Mac, the AzureTokenBroker version.
  *
- * Example: @"3.2.7" (broker version 3.2.7)
+ * Example: @"10.0.27731.1000" (Windows WAM version), @"1.3.5.0" (Mac broker version)
  */
 @property (nonatomic, nullable) NSString *brokerVersion;
 
 /**
- * Device/account join state at start.
+ * Account state at start.
  *
- * Indicates the device's join status (or the account's join status to the device) before
- * the token request. Common values might be: "Azure AD Joined", "Azure AD Registered",
- * "Domain Joined", or "None" if the device wasn't workplace joined at start.
- * On macOS/iOS, "Azure AD Registered" typically means the device or account had a
- * work/school account registered via Company Portal.
+ * Describes the account's join state when the request started. Common values include:
+ * - "supplied" - The request had an account explicitly provided (user selected or login hint)
+ * - "not_supplied" - No account was pre-specified; broker will prompt user to choose
+ * On Mac, this may be "primary" vs "secondary" indicating device's primary vs added account.
  *
- * Example: @"None" (no AAD join at start)
+ * Example: @"supplied" (homeAccountId provided), @"not_supplied" (user had to pick account)
  */
 @property (nonatomic, nullable) NSString *accountJoinOnStart;
 
 /**
- * Device/account join state at end.
+ * Account state at end.
  *
- * The join status after the token request completes. This could change during an
- * interactive login if the user registered the device. For example, it might switch
- * from "None" to "Azure AD Registered" if the login process involved device registration.
+ * Describes how the account is joined/registered on the device after the operation.
+ * Common values:
+ * - "None" - No account was added or operation failed
+ * - "Connected" - Account is primary AAD Joined account (Windows)
+ * - "Associated" - Account is Azure AD Registered (Workplace joined)
+ * - "SecondaryOnConnected" - Secondary account on AAD Joined device
+ * - "secondary" - (Mac) account added as secondary (non-primary)
  *
- * Example: @"Azure AD Registered" (device joined during login)
+ * Example: @"Connected" (became device's AAD primary), @"secondary" (Mac secondary account)
  */
 @property (nonatomic, nullable) NSString *accountJoinOnEnd;
 
 /**
- * Overall device join type.
+ * Device's AAD join status.
  *
- * This describes the device's management state. Possible strings include
- * "Azure AD Joined" (AADJ), "Azure AD Registered" (workplace joined),
- * "Hybrid AD Joined", or "Not Joined". On Apple devices, this is usually
- * "Azure AD Registered" if any work account is added, otherwise "Not Joined".
+ * Indicates the device's registration state in Entra ID (Azure AD). Typical values:
+ * - "AzureADJoined" - Device is fully AAD joined (managed by org)
+ * - "AzureADRegistered" - Device is registered (workplace join)
+ * - "DomainJoined" - Domain joined device
+ * - "not_joined" - Device not joined to AAD
+ * This field helps identify if device is corporate-managed or personal.
  *
- * Example: @"Azure AD Registered" (device has work account registered)
+ * Example: @"AzureADJoined" (managed device), @"not_joined" (personal device)
  */
 @property (nonatomic, nullable) NSString *deviceJoin;
 
 /**
- * Prompt behavior used.
+ * Type of prompt that occurred.
  *
- * Describes how the broker decided to prompt the user. For example, "auto" if the
- * broker tried silent first and only prompted if needed, "always" or "force_login"
- * if it forced an interactive prompt. This typically mirrors the MSAL Prompt parameter.
+ * Reflects the UI interaction required. Values borrowed from MSAL's prompt parameters:
+ * - "none" - No prompt was needed (silent token acquired)
+ * - "login" - User was prompted to sign in (enter credentials)
+ * - "consent" - User was prompted for consent
+ * - "select_account" - User was prompted to select account
  *
- * Example: @"auto" (prompt only if necessary)
+ * Example: @"none" (silent SSO), @"login" (credentials required)
  */
 @property (nonatomic, nullable) NSString *promptBehavior;
 
 /**
- * Broker API error code.
+ * Broker/IDP error code.
  *
- * If an error occurred in the broker, this numeric code identifies it. A value of 0
- * means no error at the API layer. Non-zero values correspond to specific failure
- * reasons (e.g., a COM error code or internal broker error).
+ * A numeric code representing the error if the token request failed. 0 if the operation
+ * succeeded or no specific error. If the broker returns an OS or AAD error, that code
+ * is given. This helps identify failure reasons.
  *
- * Example: 0 (no broker-level error) or 3400017 (example error code)
+ * Example: 0 (no error, success), -895418145 (authentication_failed error)
  */
 @property (nonatomic) NSInteger apiErrorCode;
 
 /**
- * Whether any UI was shown.
+ * Was UI shown?
  *
- * Boolean flag: YES if the broker displayed an interactive UI (such as a sign-in
- * webview or account picker), NO if the operation was completely silent.
+ * Boolean flag: YES if the broker showed any UI to the user (like a webview for
+ * credentials or an account picker), NO if the entire flow was silent/invisible.
+ * This directly indicates if the user was interrupted with a prompt.
  *
- * Example: NO (no UI needed because token was in cache)
+ * Example: YES (user saw sign-in window), NO (completely silent SSO)
  */
 @property (nonatomic) BOOL uiVisible;
 
 /**
- * Silent attempt result code.
+ * Silent attempt error code.
  *
- * If the broker attempted a silent token request first (using cached refresh token
- * or SSO), this is the result code of that attempt. 0 typically means silent succeeded.
- * Non-zero means silent failed and an interactive step was needed. This might map to
- * an AAD or broker error code; e.g., code for "interaction required".
+ * If the broker attempted to get a token silently (using cached credentials or refresh
+ * token) and that attempt failed, this is the error code from the silent try. 0 if
+ * silent succeeded or no error was encountered silently.
  *
- * Example: 0 (silent succeeded) or 65001 (InteractionRequired error code)
+ * Example: 0 (silent succeeded or not attempted), 3399549151 (silent failure code)
  */
 @property (nonatomic) NSInteger silentCode;
 
 /**
- * Silent attempt sub-code.
+ * Silent sub-error code.
  *
- * Additional info about the silent failure, if any. "BI" could stand for
- * Broker/Identity substatus. This might be an internal sub-error or detailed status
- * from the token service. It's an integer providing granular error detail beyond silentCode.
+ * When a silent token request fails, AAD may provide a suberror (like "basic_action",
+ * "interaction_required", etc., encoded in telemetry). This field captures an integer
+ * sub-code if available. Often 0 if not used.
  *
- * Example: 0 (no sub-error) or 1001 (example sub-code)
+ * Example: 0 (no sub-error or not applicable), other values for specific suberrors
  */
 @property (nonatomic) NSInteger silentBiSubCode;
 
 /**
- * Silent attempt message.
+ * Silent attempt error message.
  *
- * A textual message or description corresponding to the silent attempt result.
- * Often this is the error description if silentCode is non-zero.
+ * A short text description of why the silent attempt failed, if an error occurred.
+ * This often comes from the broker or underlying IdP. If silent succeeded, this may
+ * be empty. Including this helps debugging exact silent failure reasons.
  *
- * Example: @"User interaction required for consent"
+ * Example: @"" (silent succeeded), @"The web page and the redirect uri must be on the same origin."
  */
 @property (nonatomic, nullable) NSString *silentMessage;
 
 /**
- * Silent attempt status.
+ * Outcome of silent request (status code).
  *
- * A numeric status indicator for the silent flow. This can overlap with silentCode
- * but usually represents a category (e.g., 0 for success, 1 for failure, 2 for
- * interaction required). It may map to internal status enums (for example,
- * 0 = SUCCESS, 1 = FAILURE_NEED_UI).
+ * Corresponds to the broker's internal status enum for a silent token attempt.
+ * Common values based on WebTokenRequestStatus:
+ * - 0 (Success) - Silent token obtained successfully
+ * - 3 (UserInteractionRequired) - Silent attempt concluded that user interaction is required
+ * - 5 (ProviderError) - Silent attempt hit a provider error
  *
- * Example: 1 (silent token failed, needs UI)
+ * Example: 0 (silent success), 3 (interaction required), 5 (provider error)
  */
 @property (nonatomic) NSInteger silentStatus;
 
 /**
- * HTTP status code from token endpoint.
+ * HTTP response code from token endpoint.
  *
- * If a network request was made to Azure AD (STS), this captures the HTTP response code.
- * 200 indicates success. In error cases, you might see 400 (bad request, e.g. token
- * refresh error) or other 4xx/5xx codes from the server. If no network call happened
- * (cache hit), this may be 0.
+ * If the broker made a network request to AAD (for token, device code, etc.), this
+ * captures the HTTP status code. 200 for success, 4xx/5xx for various errors.
+ * Will be 0 if no network call occurred (e.g., fully cached token).
  *
- * Example: 200 (OK success from STS) or 400 (bad request error)
+ * Example: 200 (token obtained successfully), 400 (bad request), 500 (server error)
  */
 @property (nonatomic) NSInteger httpStatus;
 
 /**
  * Number of HTTP calls made.
  *
- * How many HTTP network requests the broker made to AAD during the operation.
- * For a cache-only scenario this is 0. A silent refresh token attempt would typically
- * be 1. An interactive flow might involve 1 (token endpoint) or 2 calls (e.g., token
- * endpoint and maybe device registration or discovery). This helps assess if multiple
- * round-trips occurred.
+ * Counts how many web requests were performed during the token acquisition.
+ * 0 means no network call (pure cache usage), 1 means one token request to AAD,
+ * 2 might indicate a retry or an extra OIDC metadata call, etc.
  *
- * Example: 1 (one network request made to token endpoint)
+ * Example: 0 (cache hit), 1 (typical token acquisition), 2 (token + metadata call)
  */
 @property (nonatomic) NSInteger httpEventCount;
 
