@@ -27,6 +27,7 @@
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDConstants.h"
 #import "MSIDFlightManager.h"
+#import "NSData+MSIDExtensions.h"
 
 @implementation MSIDSwitchBrowserResponse
 
@@ -47,8 +48,20 @@
     if (self)
     {
         if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
-        
         _actionUri = self.parameters[@"action_uri"];
+        _useEphemeralWebBrowserSession = YES;
+        
+        NSString* browserOptionsString = self.parameters[@"browser_modes"];
+        if (browserOptionsString)
+        {
+            NSData *data = [NSData msidDataFromBase64UrlEncodedString:browserOptionsString];
+            uint32_t flagsValue = 0;
+            [data getBytes:&flagsValue length:sizeof(flagsValue)];
+            
+            MSIDSwitchBrowserModes modes = (MSIDSwitchBrowserModes)flagsValue;
+            _useEphemeralWebBrowserSession = modes & BrowserModePrivateSession;
+        }
+        
         if ([NSString msidIsStringNilOrBlank:_actionUri])
         {
             if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"action_uri is nil.", nil, nil, nil, context.correlationId, nil, YES);
@@ -122,6 +135,5 @@
     
     return [self.class isDUNAActionUrl:url operation:[self.class operation]];
 }
-
 
 @end

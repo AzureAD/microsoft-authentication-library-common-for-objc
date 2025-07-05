@@ -5098,7 +5098,6 @@
 		B2AF1D29218BCDEF0080C1A0 /* requests */ = {
 			isa = PBXGroup;
 			children = (
-
 				720B5B542DD57D6600318FE5 /* MSIDEcdhApv.m */,
 				720B5B522DD57C3700318FE5 /* MSIDEcdhApv.h */,
 				720B5B4F2DD577C100318FE5 /* MSIDJWECrypto.m */,

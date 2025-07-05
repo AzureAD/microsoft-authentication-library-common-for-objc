@@ -82,6 +82,30 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
     }
     
+    func testInit_whenValidBrowserMode_hasBitmaskPrivateSessionShouldBeTrue() throws
+    {
+        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AQAAAA")!
+        
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", context: nil)
+        
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response?.actionUri, "some_uri")
+        XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
+        XCTAssertEqual(response?.useEphemeralWebBrowserSession, true)
+    }
+    
+    func testInit_whenInvalidBrowserMode_hasBitmaskPrivateSessionShouldBeFalse() throws
+    {
+        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA")!
+        
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", context: nil)
+        
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response?.actionUri, "some_uri")
+        XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
+        XCTAssertEqual(response?.useEphemeralWebBrowserSession, false)
+    }
+    
     func testInit_whenInvalidUrl_shouldReturnNil() throws
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/abc?action_uri=some_uri&code=some_code")!
