@@ -334,18 +334,43 @@ static MSIDTestConfigurationProvider *s_confProvider;
             [self enterPassword:password
                             app:application
                       isMainApp:isMainApp];
+            return;
         }
-        else
+        
+        useMyPasswordButton = application.buttons[@"Use your password"];
+        if (useMyPasswordButton.exists)
         {
+            [useMyPasswordButton tap];
+            [self enterPassword:password
+                            app:application
+                      isMainApp:isMainApp];
+            return;
+        }
+        
+        useMyPasswordButton = application.buttons[@"Use your password instead"];
+        if (useMyPasswordButton.exists)
+        {
+            [useMyPasswordButton tap];
+            [self enterPassword:password
+                            app:application
+                      isMainApp:isMainApp];
+            return;
+        }
+        
+        useMyPasswordButton = application.buttons[@"Other ways to sign in"];
+        if (useMyPasswordButton.exists)
+        {
+            [useMyPasswordButton tap];
+            
             useMyPasswordButton = application.buttons[@"Use your password"];
-            if (useMyPasswordButton.exists)
+            result = [self waitForElementsAndContinueIfNotAppear:useMyPasswordButton];
+            if (result == XCTWaiterResultCompleted)
             {
                 [useMyPasswordButton tap];
                 [self enterPassword:password
                                 app:application
                           isMainApp:isMainApp];
             }
-            
         }
     }
     
