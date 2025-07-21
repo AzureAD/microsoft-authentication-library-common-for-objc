@@ -82,7 +82,14 @@
     NSMutableDictionary *queryItems = [NSMutableDictionary new];
     queryItems[@"code"] = self.switchBrowserResponse.switchBrowserSessionToken;
     queryItems[MSID_OAUTH2_REDIRECT_URI] = requestParameters.redirectUri;
-    NSURLComponents *requestURLComponents = [[NSURLComponents alloc] initWithString:self.switchBrowserResponse.actionUri];
+    
+    NSMutableString *urlString = [self.switchBrowserResponse.actionUri mutableCopy];
+    if (self.switchBrowserResponse.state)
+    {
+        [urlString appendFormat:@"&state=%@", [self.switchBrowserResponse.state msidWWWFormURLEncode]];
+    }
+    
+    NSURLComponents *requestURLComponents = [[NSURLComponents alloc] initWithString:urlString];
     requestURLComponents.percentEncodedQuery = [queryItems msidURLEncode];
     NSURL *startURL = requestURLComponents.URL;
     

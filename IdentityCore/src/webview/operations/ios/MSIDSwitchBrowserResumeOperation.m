@@ -87,10 +87,21 @@
      webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
    authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock
 {
+    MSIDSwitchBrowserResponse *parentResponse = (MSIDSwitchBrowserResponse *)self.switchBrowserResumeResponse.parentResponse;
+    NSError *stateValidationError = nil;
+    
+    if (![MSIDSwitchBrowserResponse validateStateParameter:self.switchBrowserResumeResponse.state
+                                             expectedState:parentResponse.state
+                                                     error:&stateValidationError])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, requestParameters, @"Resume operation rejected due to state validation failure");
+        if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(nil, stateValidationError);
+        return;
+    }
+    
     webRequestConfiguration.startURL = [[NSURL alloc] initWithString:self.switchBrowserResumeResponse.actionUri];
     NSMutableDictionary *customHeaders = [webRequestConfiguration.customHeaders mutableCopy] ?: [NSMutableDictionary new];
     customHeaders[@"Authorization"] = [NSString stringWithFormat:@"Bearer %@", self.switchBrowserResumeResponse.switchBrowserSessionToken];
-    customHeaders[MSID_OAUTH2_STATE] = self.switchBrowserResumeResponse.state;
     webRequestConfiguration.customHeaders = customHeaders;
     
     NSObject<MSIDWebviewInteracting> *webView = [oauthFactory.webviewFactory webViewWithConfiguration:webRequestConfiguration

@@ -38,6 +38,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                 redirectUri:(NSString *)redirectUri
+               requestState:(NSString *)requestState
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error
 {
@@ -48,6 +49,20 @@
     if (self)
     {
         if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
+        
+        NSError *stateCheckError = nil;
+        BOOL stateValidated = [MSIDSwitchBrowserResponse validateStateParameter:self.parameters[MSID_OAUTH2_STATE]
+                                                                  expectedState:requestState
+                                                                          error:&stateCheckError];
+        if (!stateValidated)
+        {
+            if (stateCheckError)
+            {
+                *error = stateCheckError;
+            }
+            return nil;
+        }
+        
         _actionUri = self.parameters[@"action_uri"];
         _useEphemeralWebBrowserSession = YES;
         _state = self.parameters[MSID_OAUTH2_STATE];
@@ -104,6 +119,40 @@
     }
     
     return NO;
+}
+
++ (BOOL)validateStateParameter:(NSString *)receivedState
+                 expectedState:(NSString *)expectedState
+                         error:(NSError *__autoreleasing*)error
+{
+    if (!expectedState || !receivedState)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidState,
+                                     [NSString stringWithFormat:@"Missing or invalid state returned state: %@", receivedState],
+                                     nil, nil, nil, nil, nil, NO);
+        }
+        return NO;
+    }
+    
+    BOOL result = [receivedState isEqualToString:expectedState];
+    
+    if (!result)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"State parameter mismatch");
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidState,
+                                     [NSString stringWithFormat:@"Missing or invalid state returned state: %@", receivedState],
+                                     nil, nil, nil, nil, nil, NO);
+        }
+        return NO;
+    }
+    
+    return YES;
 }
 
 #pragma mark - Private
