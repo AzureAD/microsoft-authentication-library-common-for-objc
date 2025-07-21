@@ -90,9 +90,10 @@
     MSIDSwitchBrowserResponse *parentResponse = (MSIDSwitchBrowserResponse *)self.switchBrowserResumeResponse.parentResponse;
     NSError *stateValidationError = nil;
     
-    if (![MSIDSwitchBrowserResponse validateStateParameter:self.switchBrowserResumeResponse.state
-                                             expectedState:parentResponse.state
-                                                     error:&stateValidationError])
+    BOOL stateValidated = [MSIDSwitchBrowserResponse validateStateParameter:self.switchBrowserResumeResponse.state
+                                                              expectedState:parentResponse.state
+                                                                      error:&stateValidationError];
+    if (!stateValidated)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, requestParameters, @"Resume operation rejected due to state validation failure");
         if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(nil, stateValidationError);
