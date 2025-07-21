@@ -50,6 +50,7 @@
         if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
         _actionUri = self.parameters[@"action_uri"];
         _useEphemeralWebBrowserSession = YES;
+        _state = self.parameters[MSID_OAUTH2_STATE];
         
         NSString* browserOptionsString = self.parameters[@"browser_modes"];
         if (browserOptionsString)
