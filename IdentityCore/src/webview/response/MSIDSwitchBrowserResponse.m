@@ -146,7 +146,7 @@
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidState,
-                                     [NSString stringWithFormat:@"Missing or invalid state returned state: %@", receivedState],
+                                     [NSString stringWithFormat:@"State parameter mismatch. Expected: %@, Received: %@", expectedState, receivedState],
                                      nil, nil, nil, nil, nil, NO);
         }
         return NO;
