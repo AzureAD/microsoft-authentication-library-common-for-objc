@@ -85,7 +85,7 @@
     
     if (self.switchBrowserResponse.state)
     {
-        queryItems[@"state"] = self.switchBrowserResponse.state;
+        queryItems[MSID_OAUTH2_STATE] = self.switchBrowserResponse.state;
     }
     
     NSURLComponents *requestURLComponents = [[NSURLComponents alloc] initWithString:self.switchBrowserResponse.actionUri];
