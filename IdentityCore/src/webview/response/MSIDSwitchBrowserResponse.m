@@ -137,7 +137,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidState,
                                      [NSString stringWithFormat:@"Missing or invalid state returned state: %@", receivedState],
-                                     nil, nil, nil, nil, nil, NO);
+                                     nil, nil, nil, nil, nil, YES);
         }
         return NO;
     }
@@ -152,7 +152,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidState,
                                      [NSString stringWithFormat:@"State parameter mismatch. Expected: %@, Received: %@", expectedState, receivedState],
-                                     nil, nil, nil, nil, nil, NO);
+                                     nil, nil, nil, nil, nil, YES);
         }
         return NO;
     }
