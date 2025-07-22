@@ -41,7 +41,7 @@ final class MSIDSwitchBrowserResumeResponseTest: XCTestCase
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser_resume?action_uri=some_uri&code=some_code")!
         
-        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)
+        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)
         
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
@@ -52,7 +52,7 @@ final class MSIDSwitchBrowserResumeResponseTest: XCTestCase
     {
         let url = URL(string: "msauth://broker_bundle_id//switch_browser_resume?action_uri=some_uri&code=some_code")!
         
-        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth://broker_bundle_id", context: nil)
+        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: nil, context: nil)
         
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
@@ -63,7 +63,7 @@ final class MSIDSwitchBrowserResumeResponseTest: XCTestCase
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/abc?action_uri=some_uri&code=some_code")!
         
-        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)
+        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)
         
         XCTAssertNil(response)
     }
@@ -72,7 +72,7 @@ final class MSIDSwitchBrowserResumeResponseTest: XCTestCase
     {
         let url = URL(string: "abc.com.microsoft.msaltestapp://auth/switch_browser_resume?action_uri=some_uri&code=some_code")!
         
-        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "qwe://auth", context: nil)
+        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "qwe://auth", requestState: nil, context: nil)
         
         XCTAssertNil(response)
     }
@@ -81,7 +81,7 @@ final class MSIDSwitchBrowserResumeResponseTest: XCTestCase
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser_resume?code=some_code")!
         
-        XCTAssertThrowsError(try MSIDSwitchBrowserResumeResponse(url: url, redirectUri:"msauth.com.microsoft.msaltestapp://auth", context: nil)) { error in
+        XCTAssertThrowsError(try MSIDSwitchBrowserResumeResponse(url: url, redirectUri:"msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)) { error in
             XCTAssertEqual((error as NSError).code, MSIDErrorCode.serverInvalidResponse.rawValue)
             XCTAssertEqual((error as NSError).domain, MSIDOAuthErrorDomain)
             XCTAssertEqual((error as NSError).userInfo["MSIDErrorDescriptionKey"] as? String, "action_uri is nil.")
@@ -92,7 +92,7 @@ final class MSIDSwitchBrowserResumeResponseTest: XCTestCase
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser_resume?action_uri=some_uri")!
         
-        XCTAssertThrowsError(try MSIDSwitchBrowserResumeResponse(url: url, redirectUri:"msauth.com.microsoft.msaltestapp://auth", context: nil)) { error in
+        XCTAssertThrowsError(try MSIDSwitchBrowserResumeResponse(url: url, redirectUri:"msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)) { error in
             XCTAssertEqual((error as NSError).code, MSIDErrorCode.serverInvalidResponse.rawValue)
             XCTAssertEqual((error as NSError).domain, MSIDOAuthErrorDomain)
             XCTAssertEqual((error as NSError).userInfo["MSIDErrorDescriptionKey"] as? String, "code is nil.")

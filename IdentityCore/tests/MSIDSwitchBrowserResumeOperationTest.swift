@@ -30,10 +30,10 @@ final class MSIDSwitchBrowserResumeOperationTest: XCTestCase
     lazy var validSwitchBrowserResumeResponse: MSIDSwitchBrowserResumeResponse? = {
         
         let switchUrl = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code")!
-        let switchBrowserResponse = try? MSIDSwitchBrowserResponse(url: switchUrl, redirectUri: "msauth.com.microsoft.msaltestapp://auth",  context: nil)
+        let switchBrowserResponse = try? MSIDSwitchBrowserResponse(url: switchUrl, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil,  context: nil)
         
         let resumeUrl = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser_resume?action_uri=some_uri&code=some_code")!
-        let resumeResponse = try? MSIDSwitchBrowserResumeResponse(url: resumeUrl, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)
+        let resumeResponse = try? MSIDSwitchBrowserResumeResponse(url: resumeUrl, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)
         resumeResponse?.parent = switchBrowserResponse
         
         return resumeResponse

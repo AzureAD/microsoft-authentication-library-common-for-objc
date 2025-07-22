@@ -125,6 +125,11 @@
                  expectedState:(NSString *)expectedState
                          error:(NSError *__autoreleasing*)error
 {
+    if (!receivedState && !expectedState)
+    {
+        return YES;
+    }
+    
     if (!expectedState || !receivedState)
     {
         if (error)
