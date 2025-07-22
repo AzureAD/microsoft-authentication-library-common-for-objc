@@ -56,7 +56,7 @@
                                                                           error:&stateCheckError];
         if (!stateValidated)
         {
-            if (stateCheckError)
+            if (stateCheckError && error)
             {
                 *error = stateCheckError;
             }
