@@ -78,8 +78,8 @@ class MSIDAuthorizeWebRequestConfigurationMock : MSIDAuthorizeWebRequestConfigur
 final class MSIDSwitchBrowserOperationTest: XCTestCase 
 {
     lazy var validSwitchBrowserResponse: MSIDSwitchBrowserResponse? = {
-        let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code")!
-        return try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)
+        let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code&state=state")!
+        return try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: "state", context: nil)
     }()
     
     override func setUpWithError() throws

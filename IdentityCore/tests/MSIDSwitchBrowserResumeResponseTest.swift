@@ -59,6 +59,15 @@ final class MSIDSwitchBrowserResumeResponseTest: XCTestCase
         XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
     }
     
+    func testInit_whenStateIsPresentInUrl_shouldCreateObject() throws
+    {
+        let url = URL(string: "msauth://broker_bundle_id//switch_browser_resume?action_uri=some_uri&code=some_code&state=state")!
+        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: "state", context: nil)
+        
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response?.state, "state")
+    }
+    
     func testInit_whenInvalidUrl_shouldReturnNil() throws
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/abc?action_uri=some_uri&code=some_code")!
@@ -98,5 +107,12 @@ final class MSIDSwitchBrowserResumeResponseTest: XCTestCase
             XCTAssertEqual((error as NSError).userInfo["MSIDErrorDescriptionKey"] as? String, "code is nil.")
         }
     }
-
+    
+    func testInit_whenStateIsMissingFromUrl_shouldReturnNil() throws
+    {
+        let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser_resume?action_uri=some_uri&code=some_code")!
+        let response = try? MSIDSwitchBrowserResumeResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: "state", context: nil)
+        
+        XCTAssertNil(response)
+    }
 }

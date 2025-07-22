@@ -82,7 +82,16 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
     }
     
-    func testInit_whenValidBrowserMode_hasBitmaskPrivateSessionShouldBeTrue() throws
+    func testInit_whenStateIsPresentInUrl_shouldCreateObject() throws
+    {
+        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA&state=state")!
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: "state", context: nil)
+        
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response?.state, "state")
+    }
+    
+    func testInit_whenValidBrowserMode_hasBitmaskPrivateSession_shouldBeTrue() throws
     {
         let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AQAAAA")!
         
@@ -94,7 +103,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertEqual(response?.useEphemeralWebBrowserSession, true)
     }
     
-    func testInit_whenInvalidBrowserMode_hasBitmaskPrivateSessionShouldBeFalse() throws
+    func testInit_whenInvalidBrowserMode_hasBitmaskPrivateSession_shouldBeFalse() throws
     {
         let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA")!
         
@@ -104,6 +113,14 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertEqual(response?.actionUri, "some_uri")
         XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
         XCTAssertEqual(response?.useEphemeralWebBrowserSession, false)
+    }
+    
+    func testInit_whenStateIsMissingFromUrl_shouldReturnNil() throws
+    {
+        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA")!
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: "state", context: nil)
+        
+        XCTAssertNil(response)
     }
     
     func testInit_whenInvalidUrl_shouldReturnNil() throws
