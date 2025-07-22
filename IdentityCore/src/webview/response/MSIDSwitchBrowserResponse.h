@@ -35,6 +35,7 @@ typedef NS_OPTIONS(NSInteger, MSIDSwitchBrowserModes) {
 @property (nonatomic, readonly) NSString *actionUri;
 @property (nonatomic, readonly) NSString *switchBrowserSessionToken;
 @property (nonatomic, readonly) BOOL useEphemeralWebBrowserSession;
+@property (nonatomic, readonly) NSString *state;
 
 - (instancetype )init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
@@ -45,9 +46,13 @@ typedef NS_OPTIONS(NSInteger, MSIDSwitchBrowserModes) {
 
 - (instancetype)initWithURL:(NSURL *)url
                 redirectUri:(NSString *)redirectUri
+               requestState:(NSString *)requestState
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error;
 
 + (BOOL)isDUNAActionUrl:(NSURL *)url operation:(NSString *)operation;
 
++ (BOOL)validateStateParameter:(NSString *)receivedState
+                 expectedState:(NSString *)expectedState
+                         error:(NSError *__autoreleasing*)error;
 @end
