@@ -148,7 +148,7 @@ final class MSIDSwitchBrowserOperationTest: XCTestCase
         
         XCTAssertEqual(1, certAuthManagerMock.startWithUrlInvokedCount)
         XCTAssertEqual(1, certAuthManagerMock.resetStateInvokedCount)
-        XCTAssertEqual(URL(string: "some_uri?code=some_code"), certAuthManagerMock.startURLProvidedParam)
+        XCTAssertEqual(URL(string: "some_uri?state=state&code=some_code"), certAuthManagerMock.startURLProvidedParam)
     }
     
     func testInvoke_whenWebRequestConfigurationReturnError_shouldReturnError() async throws
@@ -186,7 +186,7 @@ final class MSIDSwitchBrowserOperationTest: XCTestCase
         
         XCTAssertEqual(1, certAuthManagerMock.startWithUrlInvokedCount)
         XCTAssertEqual(1, certAuthManagerMock.resetStateInvokedCount)
-        XCTAssertEqual(URL(string: "some_uri?code=some_code"), certAuthManagerMock.startURLProvidedParam)
+        XCTAssertEqual(URL(string: "some_uri?state=state&code=some_code"), certAuthManagerMock.startURLProvidedParam)
         XCTAssertEqual(1, webRequestConfigurationMock.responseWithResultURLInvokedCount)
     }
     
@@ -222,7 +222,7 @@ final class MSIDSwitchBrowserOperationTest: XCTestCase
         
         XCTAssertEqual(1, certAuthManagerMock.startWithUrlInvokedCount)
         XCTAssertEqual(1, certAuthManagerMock.resetStateInvokedCount)
-        XCTAssertEqual(URL(string: "some_uri?code=some_code"), certAuthManagerMock.startURLProvidedParam)
+        XCTAssertEqual(URL(string: "some_uri?state=state&code=some_code"), certAuthManagerMock.startURLProvidedParam)
         XCTAssertEqual(1, webRequestConfigurationMock.responseWithResultURLInvokedCount)
     }
 }
