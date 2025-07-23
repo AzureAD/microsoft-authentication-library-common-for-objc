@@ -95,7 +95,7 @@
         NSError *stateValidationError = nil;
         
         BOOL stateValidated = [MSIDSwitchBrowserResponse validateStateParameter:self.switchBrowserResumeResponse.state
-                                                                  expectedState:parentResponse.state
+                                                                  expectedState:parentResponse.state.msidBase64UrlDecode
                                                                           error:&stateValidationError];
         if (!stateValidated)
         {

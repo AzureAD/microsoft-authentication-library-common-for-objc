@@ -145,7 +145,7 @@
         return NO;
     }
     
-    BOOL result = [receivedState isEqualToString:expectedState];
+    BOOL result = [receivedState.msidBase64UrlDecode isEqualToString:expectedState];
     
     if (!result)
     {
