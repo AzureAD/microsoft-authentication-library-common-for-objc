@@ -50,7 +50,7 @@
     {
         if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
         
-        if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_VALIDATION_DUNA_CBA])
+        if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA])
         {
             NSError *stateCheckError = nil;
             BOOL stateValidated = [MSIDSwitchBrowserResponse validateStateParameter:self.parameters[MSID_OAUTH2_STATE]

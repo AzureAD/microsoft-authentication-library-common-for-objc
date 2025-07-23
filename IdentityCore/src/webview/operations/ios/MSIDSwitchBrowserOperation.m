@@ -85,7 +85,7 @@
     queryItems[@"code"] = self.switchBrowserResponse.switchBrowserSessionToken;
     queryItems[MSID_OAUTH2_REDIRECT_URI] = requestParameters.redirectUri;
     
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_VALIDATION_DUNA_CBA] && self.switchBrowserResponse.state)
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA] && self.switchBrowserResponse.state)
     {
         queryItems[MSID_OAUTH2_STATE] = self.switchBrowserResponse.state;
     }

@@ -89,7 +89,7 @@
      webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
    authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock
 {
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_VALIDATION_DUNA_CBA])
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA])
     {
         MSIDSwitchBrowserResponse *parentResponse = (MSIDSwitchBrowserResponse *)self.switchBrowserResumeResponse.parentResponse;
         NSError *stateValidationError = nil;
