@@ -50,17 +50,20 @@
     {
         if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
         
-        NSError *stateCheckError = nil;
-        BOOL stateValidated = [MSIDSwitchBrowserResponse validateStateParameter:self.parameters[MSID_OAUTH2_STATE]
-                                                                  expectedState:requestState
-                                                                          error:&stateCheckError];
-        if (!stateValidated)
+        if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA])
         {
-            if (stateCheckError && error)
+            NSError *stateCheckError = nil;
+            BOOL stateValidated = [MSIDSwitchBrowserResponse validateStateParameter:self.parameters[MSID_OAUTH2_STATE]
+                                                                      expectedState:requestState
+                                                                              error:&stateCheckError];
+            if (!stateValidated)
             {
-                *error = stateCheckError;
+                if (stateCheckError && error)
+                {
+                    *error = stateCheckError;
+                }
+                return nil;
             }
-            return nil;
         }
         
         _actionUri = self.parameters[@"action_uri"];
@@ -142,7 +145,7 @@
         return NO;
     }
     
-    BOOL result = [receivedState isEqualToString:expectedState];
+    BOOL result = [receivedState.msidBase64UrlDecode isEqualToString:expectedState];
     
     if (!result)
     {

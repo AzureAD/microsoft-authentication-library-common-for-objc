@@ -31,6 +31,9 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     override func setUpWithError() throws 
     {
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        let flightProvider = MSIDFlightManagerMockProvider()
+        flightProvider.boolForKeyContainer = [MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA: true]
+        MSIDFlightManager.sharedInstance().flightProvider = flightProvider
     }
 
     override func tearDownWithError() throws 
@@ -84,11 +87,11 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     
     func testInit_whenStateIsPresentInUrl_shouldCreateObject() throws
     {
-        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA&state=state")!
+        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA&state=c3RhdGU")!
         let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: "state", context: nil)
         
         XCTAssertNotNil(response)
-        XCTAssertEqual(response?.state, "state")
+        XCTAssertEqual(response?.state, "c3RhdGU")
     }
     
     func testInit_whenValidBrowserMode_hasBitmaskPrivateSession_shouldBeTrue() throws

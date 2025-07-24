@@ -28,6 +28,8 @@
 #import "MSIDWebviewFactory.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDWebResponseOperationFactory.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDSwitchBrowserResumeOperation()
 
@@ -87,17 +89,20 @@
      webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
    authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock
 {
-    MSIDSwitchBrowserResponse *parentResponse = (MSIDSwitchBrowserResponse *)self.switchBrowserResumeResponse.parentResponse;
-    NSError *stateValidationError = nil;
-    
-    BOOL stateValidated = [MSIDSwitchBrowserResponse validateStateParameter:self.switchBrowserResumeResponse.state
-                                                              expectedState:parentResponse.state
-                                                                      error:&stateValidationError];
-    if (!stateValidated)
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, requestParameters, @"Resume operation rejected due to state validation failure");
-        if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(nil, stateValidationError);
-        return;
+        MSIDSwitchBrowserResponse *parentResponse = (MSIDSwitchBrowserResponse *)self.switchBrowserResumeResponse.parentResponse;
+        NSError *stateValidationError = nil;
+        
+        BOOL stateValidated = [MSIDSwitchBrowserResponse validateStateParameter:self.switchBrowserResumeResponse.state
+                                                                  expectedState:parentResponse.state.msidBase64UrlDecode
+                                                                          error:&stateValidationError];
+        if (!stateValidated)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, requestParameters, @"Resume operation rejected due to state validation failure");
+            if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(nil, stateValidationError);
+            return;
+        }
     }
     
     webRequestConfiguration.startURL = [[NSURL alloc] initWithString:self.switchBrowserResumeResponse.actionUri];
