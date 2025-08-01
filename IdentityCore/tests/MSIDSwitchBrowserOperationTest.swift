@@ -78,13 +78,16 @@ class MSIDAuthorizeWebRequestConfigurationMock : MSIDAuthorizeWebRequestConfigur
 final class MSIDSwitchBrowserOperationTest: XCTestCase 
 {
     lazy var validSwitchBrowserResponse: MSIDSwitchBrowserResponse? = {
-        let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code")!
-        return try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)
+        let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code&state=c3RhdGU")!
+        return try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: "state", context: nil)
     }()
     
     override func setUpWithError() throws
     {
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        let flightProvider = MSIDFlightManagerMockProvider()
+        flightProvider.boolForKeyContainer = [MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA: true]
+        MSIDFlightManager.sharedInstance().flightProvider = flightProvider
     }
 
     override func tearDownWithError() throws 
@@ -148,7 +151,7 @@ final class MSIDSwitchBrowserOperationTest: XCTestCase
         
         XCTAssertEqual(1, certAuthManagerMock.startWithUrlInvokedCount)
         XCTAssertEqual(1, certAuthManagerMock.resetStateInvokedCount)
-        XCTAssertEqual(URL(string: "some_uri?code=some_code"), certAuthManagerMock.startURLProvidedParam)
+        XCTAssertEqual(URL(string: "some_uri?state=c3RhdGU&code=some_code"), certAuthManagerMock.startURLProvidedParam)
     }
     
     func testInvoke_whenWebRequestConfigurationReturnError_shouldReturnError() async throws
@@ -186,7 +189,7 @@ final class MSIDSwitchBrowserOperationTest: XCTestCase
         
         XCTAssertEqual(1, certAuthManagerMock.startWithUrlInvokedCount)
         XCTAssertEqual(1, certAuthManagerMock.resetStateInvokedCount)
-        XCTAssertEqual(URL(string: "some_uri?code=some_code"), certAuthManagerMock.startURLProvidedParam)
+        XCTAssertEqual(URL(string: "some_uri?state=c3RhdGU&code=some_code"), certAuthManagerMock.startURLProvidedParam)
         XCTAssertEqual(1, webRequestConfigurationMock.responseWithResultURLInvokedCount)
     }
     
@@ -222,7 +225,7 @@ final class MSIDSwitchBrowserOperationTest: XCTestCase
         
         XCTAssertEqual(1, certAuthManagerMock.startWithUrlInvokedCount)
         XCTAssertEqual(1, certAuthManagerMock.resetStateInvokedCount)
-        XCTAssertEqual(URL(string: "some_uri?code=some_code"), certAuthManagerMock.startURLProvidedParam)
+        XCTAssertEqual(URL(string: "some_uri?state=c3RhdGU&code=some_code"), certAuthManagerMock.startURLProvidedParam)
         XCTAssertEqual(1, webRequestConfigurationMock.responseWithResultURLInvokedCount)
     }
 }

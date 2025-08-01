@@ -27,13 +27,13 @@
 
 @implementation MSIDEcdhApv
 
-const NSUInteger kExpectedECP256KeyLength = 65;
-
 - (instancetype)initWithKey:(SecKeyRef)publicKey
                   apvPrefix:(NSString *)apvPrefix
                     context:(id<MSIDRequestContext> _Nullable)context
                       error:(NSError * _Nullable __autoreleasing *)error
 {
+    const NSUInteger kExpectedECP256KeyLength = 65;
+    
     if (publicKey == NULL)
     {
         if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Public STK provided is not defined.", nil, nil, nil, context.correlationId, nil, NO);
