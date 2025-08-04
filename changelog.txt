@@ -1,3 +1,6 @@
+Version 1.14.0
+* Added state validation to DUNA flow (#1543)
+
 Version 1.13.0
 * Improve logic for checking camera consent suppression flags (#1538)
 * Fix a potential crash related to webview in iOS26 (#1537)
@@ -14,7 +17,6 @@ Version 1.12.0
 Version 1.11.0
 * Use a single family refresh token (#1470)
 * Improve browser core logs #1506
-
 
 Version 1.10.0
 * Fix resume response handling in DUNA #1493
