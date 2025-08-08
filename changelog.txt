@@ -1,3 +1,6 @@
+TBD
+* Introduce a class and cache item class to represent bound refresh tokens (#1548)
+
 Version 1.14.0
 * Added state validation to DUNA flow (#1543)
 
