@@ -27,6 +27,7 @@
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDConstants.h"
 #import "MSIDFlightManager.h"
+#import "NSData+MSIDExtensions.h"
 
 @implementation MSIDSwitchBrowserResponse
 
@@ -37,6 +38,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                 redirectUri:(NSString *)redirectUri
+               requestState:(NSString *)requestState
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error
 {
@@ -48,7 +50,37 @@
     {
         if (![self isMyUrl:url redirectUri:redirectUri]) return nil;
         
+        if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA])
+        {
+            NSError *stateCheckError = nil;
+            BOOL stateValidated = [MSIDSwitchBrowserResponse validateStateParameter:self.parameters[MSID_OAUTH2_STATE]
+                                                                      expectedState:requestState
+                                                                              error:&stateCheckError];
+            if (!stateValidated)
+            {
+                if (stateCheckError && error)
+                {
+                    *error = stateCheckError;
+                }
+                return nil;
+            }
+        }
+        
         _actionUri = self.parameters[@"action_uri"];
+        _useEphemeralWebBrowserSession = YES;
+        _state = self.parameters[MSID_OAUTH2_STATE];
+        
+        NSString* browserOptionsString = self.parameters[@"browser_modes"];
+        if (browserOptionsString)
+        {
+            NSData *data = [NSData msidDataFromBase64UrlEncodedString:browserOptionsString];
+            uint32_t flagsValue = 0;
+            [data getBytes:&flagsValue length:sizeof(flagsValue)];
+            
+            MSIDSwitchBrowserModes modes = (MSIDSwitchBrowserModes)flagsValue;
+            _useEphemeralWebBrowserSession = modes & BrowserModePrivateSession;
+        }
+        
         if ([NSString msidIsStringNilOrBlank:_actionUri])
         {
             if (error) *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerInvalidResponse, @"action_uri is nil.", nil, nil, nil, context.correlationId, nil, YES);
@@ -92,6 +124,45 @@
     return NO;
 }
 
++ (BOOL)validateStateParameter:(NSString *)receivedState
+                 expectedState:(NSString *)expectedState
+                         error:(NSError *__autoreleasing*)error
+{
+    if (!receivedState && !expectedState)
+    {
+        return YES;
+    }
+    
+    if (!expectedState || !receivedState)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidState,
+                                     [NSString stringWithFormat:@"Missing or invalid state returned state: %@", receivedState],
+                                     nil, nil, nil, nil, nil, YES);
+        }
+        return NO;
+    }
+    
+    BOOL result = [receivedState.msidBase64UrlDecode isEqualToString:expectedState];
+    
+    if (!result)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"State parameter mismatch");
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidState,
+                                     [NSString stringWithFormat:@"State parameter mismatch. Expected: %@, Received: %@", expectedState, receivedState],
+                                     nil, nil, nil, nil, nil, YES);
+        }
+        return NO;
+    }
+    
+    return YES;
+}
+
 #pragma mark - Private
 
 - (BOOL)isMyUrl:(NSURL *)url
@@ -122,6 +193,5 @@
     
     return [self.class isDUNAActionUrl:url operation:[self.class operation]];
 }
-
 
 @end

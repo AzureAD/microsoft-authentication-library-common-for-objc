@@ -26,6 +26,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWKNavigationActionMock.h"
+#import "MSIDWebAuthNUtil.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -193,6 +194,67 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
     XCTAssertTrue(result);
+}
+
+- (void)testDecidePolicyForNavigationAction_whenExternalDecidePolicyForBrowserActionLegacyFlow_shouldCancelActionAndReturnYesAndCallExternalMethod
+{
+    [MSIDWebAuthNUtil setAmIRunningInExtension:NO];
+    
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"https://www.web-cp.com/check"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectationExternalDecisionHandler = [self expectationWithDescription:@"external decision handler"];
+    XCTestExpectation *expectationDecisionHandler = [self expectationWithDescription:@"decision handler"];
+
+    webVC.externalDecidePolicyForBrowserAction = ^NSURLRequest *(MSIDOAuth2EmbeddedWebviewController *webView, NSURL *url) {
+
+        XCTAssertNotNil(webView);
+        XCTAssertEqualObjects([url absoluteString], @"browser://www.web-cp.com/check");
+        [expectationExternalDecisionHandler fulfill];
+
+        return [[NSURLRequest alloc] initWithURL:url];
+    };
+
+
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+        [expectationDecisionHandler fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(result);
+}
+
+- (void)testDecidePolicyForNavigationAction_whenExternalDecidePolicyForBrowserActionLegacyFlowNonHttps_shouldCancelActionAndReturnNoAndCallExternalMethod
+{
+    [MSIDWebAuthNUtil setAmIRunningInExtension:NO];
+    
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"http://www.web-cp.com/check"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+    }];
+
+    XCTAssertFalse(result);
 }
 
 @end

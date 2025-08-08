@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@interface NSData (AES)
+@interface NSData (MSIDAES)
 
 - (NSData *)msidAES128DecryptedDataWithKey:(const void *)key
                                    keySize:(size_t)keySize;

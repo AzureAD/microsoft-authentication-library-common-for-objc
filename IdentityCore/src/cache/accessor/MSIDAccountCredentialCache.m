@@ -581,7 +581,7 @@ static BOOL s_disableFRT = NO;
         
         if ([NSString msidIsStringNilOrBlank:flagEnableFRT] || (!shouldEnableFRT && !shouldDisableFRT))
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"FRT flight set to keep current status: %ld", (long)status);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"FRT flight set to keep current status: %ld", (long)status);
             return status;
         }
         MSIDIsFRTEnabledStatus newStatus = status;

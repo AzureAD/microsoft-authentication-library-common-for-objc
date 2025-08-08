@@ -29,6 +29,9 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDWorkPlaceJoinUtil.h"
+#import "MSIDWebAuthNUtil.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -66,6 +69,28 @@
     // Stop at broker or browser
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+    
+    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH])
+    {
+        // When not running in SSO extension, the CA block page will return with "https" scheme instead of "browser"
+        if (requestURL && ![MSIDWebAuthNUtil amIRunningInExtension] &&
+            self.externalDecidePolicyForBrowserAction &&
+            [@"https" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame)
+        {
+            // Create new URL replacing 'https' scheme with 'browser' scheme
+            NSURL *legacyFlowUrl = [NSURL URLWithString:[NSString stringWithFormat:@"browser%@", [requestURL.absoluteString substringFromIndex:5]]];
+            NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(self, legacyFlowUrl);
+
+            if (challengeResponse)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Found AAD policy for navigation using https url and externalDecidePolicyForBrowserAction in legacy auth flow.");
+                decisionHandler(WKNavigationActionPolicyCancel);
+                [self loadRequest:challengeResponse];
+
+                return YES;
+            }
+        }
+    }
     
     if (isBrokerUrl || isBrowserUrl)
     {

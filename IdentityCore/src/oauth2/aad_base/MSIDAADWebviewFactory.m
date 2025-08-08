@@ -206,12 +206,14 @@
     {
         MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
                                                                                               redirectUri:endRedirectUri
+                                                                                             requestState:requestState
                                                                                                   context:context
                                                                                                     error:nil];
         if (switchBrowserResponse) return switchBrowserResponse;
         
         MSIDSwitchBrowserResumeResponse *switchBrowserResumeResponse = [[MSIDSwitchBrowserResumeResponse alloc] initWithURL:url
                                                                                                                 redirectUri:endRedirectUri
+                                                                                                               requestState:requestState
                                                                                                                     context:context
                                                                                                                       error:nil];
         if (switchBrowserResumeResponse) return switchBrowserResumeResponse;

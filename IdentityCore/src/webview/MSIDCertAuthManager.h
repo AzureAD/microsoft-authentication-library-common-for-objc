@@ -44,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startWithURL:(NSURL *)startURL
     parentController:(MSIDViewController *)parentViewController
              context:(id<MSIDRequestContext>)context
+ephemeralWebBrowserSession:(BOOL)ephemeralWebBrowserSession
      completionBlock:(MSIDWebUICompletionHandler)completionBlock;
 
 - (BOOL)completeWithCallbackURL:(NSURL *)url;
