@@ -23,7 +23,7 @@
 // THE SOFTWARE.  
 
 #import <Foundation/Foundation.h>
-#import "MSIDLegacyTokenCacheItem.h"
+#import "MSIDCredentialCacheItem.h"
 
 /**
  * @class MSIDBoundRefreshTokenCacheItem
