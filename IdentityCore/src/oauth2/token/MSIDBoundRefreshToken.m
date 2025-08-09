@@ -50,13 +50,20 @@
     return nil;
 }
 
-- (instancetype)initWithTokenCacheItem:(MSIDBoundRefreshTokenCacheItem *)tokenCacheItem
+- (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
 {
-    self = [super initWithTokenCacheItem:tokenCacheItem];
+    if (![tokenCacheItem isKindOfClass:[MSIDBoundRefreshTokenCacheItem class]])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token: tokenCacheItem is not of type MSIDBoundRefreshTokenCacheItem.");
+        return nil;
+    }
+
+    MSIDBoundRefreshTokenCacheItem *boundTokenCacheItem = (MSIDBoundRefreshTokenCacheItem *)tokenCacheItem;
+    self = [super initWithTokenCacheItem:boundTokenCacheItem];
     
     if (self)
     {
-        NSDictionary *jsonDictionary = tokenCacheItem.jsonDictionary;
+        NSDictionary *jsonDictionary = boundTokenCacheItem.jsonDictionary;
         _boundDeviceId = [jsonDictionary msidObjectForKey:MSID_BOUND_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
         if ([NSString msidIsStringNilOrBlank:_boundDeviceId])
         {
