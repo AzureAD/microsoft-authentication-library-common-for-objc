@@ -29,12 +29,14 @@
  * @class MSIDBoundRefreshTokenCacheItem
  * @brief Represents a bound refresh token cache item that is bound to the device.
  */
-@interface MSIDBoundRefreshTokenCacheItem : MSIDLegacyTokenCacheItem
+@interface MSIDBoundRefreshTokenCacheItem : MSIDCredentialCacheItem <NSSecureCoding>
 
 /**
- * @property deviceID
+ * @property boundDeviceId
  * @brief The unique identifier of the device to which the refresh token is bound.
  */
-@property (atomic) NSString *deviceID;
+@property (atomic) NSString *boundDeviceId;
+
+@property (nonatomic, readonly) NSString *boundRefreshToken;
 
 @end

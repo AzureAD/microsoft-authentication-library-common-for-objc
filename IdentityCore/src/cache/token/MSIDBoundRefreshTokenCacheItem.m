@@ -28,6 +28,11 @@
 
 @implementation MSIDBoundRefreshTokenCacheItem
 
+- (NSString *)boundRefreshToken
+{
+    return self.secret;
+}
+
 #pragma mark - NSSecureCoding
 
 + (BOOL)supportsSecureCoding
@@ -37,17 +42,19 @@
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    [super encodeWithCoder:coder];
-    [coder encodeObject:self.deviceID forKey:@"deviceID"];
+    [coder encodeObject:[self jsonDictionary] forKey:@"cacheItem"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
-    self = [super initWithCoder:decoder];
-    if (self)
+    if (!(self = [super init]))
     {
-        self.deviceID = [decoder decodeObjectOfClass:[NSString class] forKey:@"deviceID"];
-        self.credentialType = MSIDBoundRefreshTokenType;
+        return nil;
+    }
+    NSDictionary *json = [decoder decodeObjectOfClass:[NSDictionary class] forKey:@"cacheItem"];
+    if (json)
+    {
+        self = [self initWithJSONDictionary:json error:nil];
     }
     return self;
 }
@@ -61,7 +68,19 @@
         return nil;
     }
     
-    _deviceID = [json msidObjectForKey:MSID_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
+    if (!self.secret)
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Couldn't read bound refresh token.", nil, nil, nil, nil, nil, YES);
+        return nil;
+    }
+    
+    _boundDeviceId = [json msidObjectForKey:MSID_BOUND_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
+    if (!_boundDeviceId)
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Bound device ID is nil. Cannot initialize bound refresh token cache item without bound device id", nil, nil, nil, nil, nil, YES);
+        return nil;
+    }
+    
     return self;
 }
 
@@ -74,7 +93,7 @@
         dictionary = [NSMutableDictionary new];
     }
 
-    dictionary[MSID_DEVICE_ID_CACHE_KEY] = self.deviceID;
+    dictionary[MSID_BOUND_DEVICE_ID_CACHE_KEY] = self.boundDeviceId;
     return dictionary;
 }
 
@@ -98,15 +117,29 @@
 - (BOOL)isEqualToItem:(MSIDBoundRefreshTokenCacheItem *)item
 {
     BOOL result = [super isEqualToItem:item];
-    result &= (!self.deviceID && !item.deviceID) || [self.deviceID isEqualToString:item.deviceID];
+    result &= (!self.boundDeviceId && !item.boundDeviceId) || [self.boundDeviceId isEqualToString:item.boundDeviceId];
     return result;
 }
 
 - (NSUInteger)hash
 {
     NSUInteger hash = [super hash];
-    hash = hash * 31 + self.deviceID.hash;
+    hash = hash * 31 + self.boundDeviceId.hash;
     return hash;
 }
 
+- (NSString *)description
+{
+    NSString *baseDescription = [super description];
+    return [NSString stringWithFormat:@"%@, boundDeviceId: %@", baseDescription, self.boundDeviceId ? self.boundDeviceId : @"<nil>"];
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDBoundRefreshTokenCacheItem *item = (MSIDBoundRefreshTokenCacheItem *)[super copyWithZone:zone];
+    item.boundDeviceId = [self.boundDeviceId copyWithZone:zone];
+    return item;
+}
 @end

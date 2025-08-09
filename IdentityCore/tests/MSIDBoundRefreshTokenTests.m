@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDTestUtil.h"
@@ -29,6 +29,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClientInfo.h"
 #import "MSIDBoundRefreshToken.h"
+#import "MSIDBoundRefreshTokenCacheItem.h"
 
 @interface MSIDBoundRefreshTokenTests : XCTestCase
 
@@ -129,7 +130,7 @@
 
 - (void)testInitWithTokenCacheItem_whenNoRefreshToken_shouldReturnNil
 {
-    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    MSIDBoundRefreshTokenCacheItem *cacheItem = [MSIDBoundRefreshTokenCacheItem new];
     cacheItem.credentialType = MSIDBoundRefreshTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.speInfo = @"test";
@@ -157,7 +158,7 @@
 
 - (void)testInitWithTokenCacheItem_whenAllFieldsSet_shouldReturnToken
 {
-    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    MSIDBoundRefreshTokenCacheItem *cacheItem = [MSIDBoundRefreshTokenCacheItem new];
     cacheItem.credentialType = MSIDBoundRefreshTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.speInfo = @"test";
@@ -184,7 +185,7 @@
 - (void)testTokenCacheItem_whenAllFieldsSet_shouldReturnValidCacheItem
 {
     MSIDBoundRefreshToken *token = [self createToken];
-    MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
+    MSIDBoundRefreshTokenCacheItem *cacheItem = (MSIDBoundRefreshTokenCacheItem *)[token tokenCacheItem];
     
     XCTAssertNotNil(cacheItem);
     XCTAssertEqual(cacheItem.credentialType, MSIDBoundRefreshTokenType);
@@ -200,6 +201,74 @@
 {
     MSIDBoundRefreshToken *token = [self createToken];
     XCTAssertEqual([token credentialType], MSIDBoundRefreshTokenType);
+}
+
+#pragma mark - Additional Coverage Tests
+
+- (void)testInitWithRefreshToken_whenNilRefreshToken_shouldReturnNil
+{
+    MSIDRefreshToken *undefinedRefreshToken = nil;
+    MSIDBoundRefreshToken *token = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:undefinedRefreshToken boundDeviceId:@"device_id"];
+    XCTAssertNil(token);
+}
+
+- (void)testInitWithRefreshToken_whenBlankDeviceId_shouldReturnNil
+{
+    MSIDRefreshToken *refreshToken = [self createRefreshToken];
+    MSIDBoundRefreshToken *token = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:refreshToken boundDeviceId:@""];
+    XCTAssertNil(token);
+}
+
+- (void)testCopyWithZone_shouldReturnEqualButDistinctInstance
+{
+    MSIDBoundRefreshToken *token = [self createToken];
+    MSIDBoundRefreshToken *tokenCopy = [token copyWithZone:nil];
+    XCTAssertEqualObjects(token, tokenCopy);
+    XCTAssertFalse(token == tokenCopy);
+}
+
+- (void)testIsEqualToItem_whenOtherIsNil_shouldReturnFalse
+{
+    MSIDBoundRefreshToken *token = [self createToken];
+    XCTAssertFalse([token isEqualToItem:nil]);
+}
+
+- (void)testIsEqual_whenOtherClass_shouldReturnFalse
+{
+    MSIDBoundRefreshToken *token = [self createToken];
+    NSObject *other = [NSObject new];
+    XCTAssertFalse([token isEqual:other]);
+}
+
+- (void)testHash_shouldBeEqualForEqualObjects
+{
+    MSIDBoundRefreshToken *token1 = [self createToken];
+    MSIDBoundRefreshToken *token2 = [self createToken];
+    XCTAssertEqual(token1.hash, token2.hash);
+}
+
+- (void)testHash_shouldDifferForDifferentBoundDeviceId
+{
+    MSIDBoundRefreshToken *token1 = [self createToken];
+    MSIDBoundRefreshToken *token2 = [self createToken];
+    token2.boundDeviceId = @"other_device_id";
+    XCTAssertNotEqual(token1.hash, token2.hash);
+}
+
+- (void)testTokenCacheItem_whenBoundDeviceIdIsNil_shouldReturnNil
+{
+    MSIDBoundRefreshToken *token = [self createToken];
+    NSString *undefinedDeviceId = nil;
+    token.boundDeviceId = undefinedDeviceId;
+    XCTAssertNil([token tokenCacheItem]);
+}
+
+- (void)testDescription_shouldContainRefreshTokenAndDeviceId
+{
+    MSIDBoundRefreshToken *token = [self createToken];
+    NSString *desc = [token description];
+    XCTAssertTrue([desc containsString:@"bound refresh token"]);
+    XCTAssertTrue([desc containsString:token.boundDeviceId]);
 }
 
 #pragma mark - Private

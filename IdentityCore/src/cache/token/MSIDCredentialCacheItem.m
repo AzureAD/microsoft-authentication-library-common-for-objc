@@ -51,9 +51,9 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, refreshOn: %@, cachedAt: %@, last recovery attempted at: %@, recovery attempt count: %@, last recovery attempt succeeded: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@, redirectUri: %@ Bound Device ID: %@",
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, refreshOn: %@, cachedAt: %@, last recovery attempted at: %@, recovery attempt count: %@, last recovery attempt succeeded: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@, redirectUri: %@",
             self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn,
-            self.extendedExpiresOn, self.refreshOn, self.cachedAt, self.lastRecoveryAttempt, self.recoveryAttemptCount, self.lastRecoveryAttemptFailed, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash], MSID_PII_LOG_TRACKABLE(self.redirectUri), self.boundDeviceId];
+            self.extendedExpiresOn, self.refreshOn, self.cachedAt, self.lastRecoveryAttempt, self.recoveryAttemptCount, self.lastRecoveryAttemptFailed, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash], MSID_PII_LOG_TRACKABLE(self.redirectUri)];
 }
 
 #pragma mark - MSIDCacheItem
@@ -94,7 +94,6 @@
     result &= (!self.kid && !item.kid) || [self.kid isEqual:item.kid];
     result &= (!self.requestedClaims && !item.requestedClaims) || [self.requestedClaims isEqual:item.requestedClaims];
     result &= (!self.redirectUri && !item.redirectUri) || [self.redirectUri isEqual:item.redirectUri];
-    result &= (!self.boundDeviceId && !item.boundDeviceId) || [self.boundDeviceId isEqualToString:item.boundDeviceId];
     // Ignore the lastMod properties (two otherwise-identical items with different
     // last modification informational values should be considered equal)
     return result;
@@ -123,7 +122,6 @@
     hash = hash * 31 + self.kid.hash;
     hash = hash * 31 + self.requestedClaims.hash;
     hash = hash * 31 + self.redirectUri.hash;
-    hash = hash * 31 + self.boundDeviceId.hash;
     return hash;
 }
 
@@ -157,7 +155,6 @@
     item.kid = [self.kid copyWithZone:zone];
     item.requestedClaims = [self.requestedClaims copyWithZone:zone];
     item.redirectUri = [self.redirectUri copyWithZone:zone];
-    item.boundDeviceId = [self.boundDeviceId copyWithZone:zone];
     return item;
 }
 
@@ -215,7 +212,6 @@
     _expiryInterval = [json msidStringObjectForKey:MSID_EXPIRES_IN_CACHE_KEY];
     _requestedClaims = [json msidStringObjectForKey:MSID_REQUESTED_CLAIMS_CACHE_KEY];
     _redirectUri = [json msidStringObjectForKey:MSID_OAUTH2_REDIRECT_URI];
-    _boundDeviceId = [json msidStringObjectForKey:MSID_BOUND_DEVICE_ID_CACHE_KEY];
     return self;
 }
 
@@ -256,7 +252,6 @@
     dictionary[MSID_OAUTH2_TOKEN_TYPE] = _tokenType;
     dictionary[MSID_REQUESTED_CLAIMS_CACHE_KEY] = _requestedClaims;
     dictionary[MSID_OAUTH2_REDIRECT_URI] = _redirectUri;
-    dictionary[MSID_BOUND_DEVICE_ID_CACHE_KEY] = _boundDeviceId;
     return dictionary;
 }
 

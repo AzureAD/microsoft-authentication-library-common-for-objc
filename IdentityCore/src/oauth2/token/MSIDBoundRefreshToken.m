@@ -50,7 +50,7 @@
     return nil;
 }
 
-- (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
+- (instancetype)initWithTokenCacheItem:(MSIDBoundRefreshTokenCacheItem *)tokenCacheItem
 {
     self = [super initWithTokenCacheItem:tokenCacheItem];
     
@@ -118,14 +118,15 @@
 - (MSIDCredentialCacheItem *)tokenCacheItem
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
-    NSError *error;
+    NSMutableDictionary *jsonDictionary = [NSMutableDictionary dictionaryWithDictionary:cacheItem.jsonDictionary];
     if (!self.boundDeviceId)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token cache item from base cache item: %@", error.description);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token cache item from base cache item: %@", nil);
         return nil;
     }
-    cacheItem.boundDeviceId = self.boundDeviceId;
-    return cacheItem;
+    jsonDictionary[MSID_BOUND_DEVICE_ID_CACHE_KEY] = self.boundDeviceId;
+    MSIDBoundRefreshTokenCacheItem *boundRtCacheItem = [[MSIDBoundRefreshTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:nil];
+    return boundRtCacheItem;
 }
 
 #pragma mark - Token type
