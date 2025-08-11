@@ -299,18 +299,18 @@
             NSString *credentialTypeString = nil;
             if (credentialType == MSIDPrimaryRefreshTokenType)
             {
-                credentialTypeString = @"primary ";
+                credentialTypeString = @"primary";
             }
             else if (credentialType == MSIDFamilyRefreshTokenType)
             {
-                credentialTypeString = @"single family ";
+                credentialTypeString = @"single family";
             }
             else
             {
                 credentialTypeString = [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType];
             }
             
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Found %@refresh token by legacy account id", credentialTypeString);
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) Found %@ refresh token by legacy account id", credentialTypeString);
             return refreshToken;
         }
     }

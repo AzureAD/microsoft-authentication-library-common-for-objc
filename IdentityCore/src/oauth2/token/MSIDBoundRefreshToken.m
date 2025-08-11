@@ -30,20 +30,22 @@
 - (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken
                        boundDeviceId:(NSString *)boundDeviceId
 {
-    if (refreshToken && ![NSString msidIsStringNilOrBlank:boundDeviceId])
+    if (refreshToken && ![NSString msidIsStringNilOrBlank:boundDeviceId] && [refreshToken isKindOfClass:[MSIDRefreshToken class]])
     {
-        MSIDBoundRefreshToken *boundRefreshToken = [MSIDBoundRefreshToken new];
-        boundRefreshToken.refreshToken = refreshToken.refreshToken;
-        boundRefreshToken.boundDeviceId = boundDeviceId;
-        boundRefreshToken.familyId = refreshToken.familyId;
-        boundRefreshToken.storageEnvironment = refreshToken.storageEnvironment;
-        boundRefreshToken.environment = refreshToken.environment;
-        boundRefreshToken.realm = refreshToken.realm;
-        boundRefreshToken.clientId = refreshToken.clientId;
-        boundRefreshToken.additionalServerInfo = refreshToken.additionalServerInfo;
-        boundRefreshToken.accountIdentifier = refreshToken.accountIdentifier;
-        boundRefreshToken.speInfo = refreshToken.speInfo;
-        self = boundRefreshToken;
+        self = [super init];
+        if (self)
+        {
+            self.refreshToken = refreshToken.refreshToken;
+            self.boundDeviceId = boundDeviceId;
+            self.familyId = refreshToken.familyId;
+            self.storageEnvironment = refreshToken.storageEnvironment;
+            self.environment = refreshToken.environment;
+            self.realm = refreshToken.realm;
+            self.clientId = refreshToken.clientId;
+            self.additionalServerInfo = refreshToken.additionalServerInfo;
+            self.accountIdentifier = refreshToken.accountIdentifier;
+            self.speInfo = refreshToken.speInfo;
+        }
         return self;
     }
 
