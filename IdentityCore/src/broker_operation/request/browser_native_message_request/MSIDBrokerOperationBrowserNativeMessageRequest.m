@@ -61,17 +61,17 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPLN_KEY = @"parent_process_
 
 - (NSString *)callerBundleIdentifier
 {
-    return self.parentProcessBundleIdentifier;
+    return self.parentProcessBundleIdentifier ?: @"";
 }
 
 - (NSString *)callerTeamIdentifier
 {
-    return self.parentProcessTeamId;
+    return self.parentProcessTeamId ?: @"";
 }
 
 - (NSString *)localizedCallerDisplayName
 {
-    return self.parentProcessLocalizedName;
+    return self.parentProcessLocalizedName ?: @"";
 }
 
 - (NSString *)localizedApplicationInfo
@@ -87,7 +87,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_PPLN_KEY = @"parent_process_
         return brokerOperationRequest.localizedApplicationInfo;
     }
     
-    return nil;
+    return @"";
 }
 
 #pragma mark - MSIDJsonSerializable
