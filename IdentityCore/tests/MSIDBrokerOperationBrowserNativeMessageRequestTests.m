@@ -143,7 +143,7 @@
     XCTAssertEqualObjects(request.localizedApplicationInfo, @"mock_app_info");
 }
 
-- (void)testInitWithJSONDictionary_whenNoParentProcessInfo_shouldReturnNA
+- (void)testInitWithJSONDictionary_whenNoParentProcessInfo_shouldReturnEmptyValues
 {
     __auto_type json = @{@"broker_key": @"some key",
                          @"msg_protocol_ver": @"1",
@@ -156,10 +156,10 @@
     XCTAssertEqualObjects(request.brokerKey, @"some key");
     XCTAssertEqual(request.protocolVersion, 1);
     XCTAssertEqualObjects(request.payloadJson, @{@"method":@"GetCookies"});
-    XCTAssertEqualObjects(request.callerBundleIdentifier, @"N/A");
-    XCTAssertEqualObjects(request.callerTeamIdentifier, @"N/A");
-    XCTAssertEqualObjects(request.localizedCallerDisplayName, @"N/A");
-    XCTAssertEqualObjects(request.localizedApplicationInfo, @"N/A");
+    XCTAssertEqualObjects(request.callerBundleIdentifier, @"");
+    XCTAssertEqualObjects(request.callerTeamIdentifier, @"");
+    XCTAssertEqualObjects(request.localizedCallerDisplayName, @"");
+    XCTAssertEqualObjects(request.localizedApplicationInfo, @"");
     XCTAssertNil(request.parentProcessBundleIdentifier);
     XCTAssertNil(request.parentProcessTeamId);
     XCTAssertNil(request.parentProcessLocalizedName);
