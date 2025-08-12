@@ -31,6 +31,9 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     override func setUpWithError() throws 
     {
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        let flightProvider = MSIDFlightManagerMockProvider()
+        flightProvider.boolForKeyContainer = [MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA: true]
+        MSIDFlightManager.sharedInstance().flightProvider = flightProvider
     }
 
     override func tearDownWithError() throws 
@@ -42,7 +45,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code")!
         
-        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth",  context: nil)
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil,  context: nil)
         
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
@@ -53,7 +56,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     {
         let url = URL(string: "MSAUTH.COM.MICROSOFT.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code")!
         
-        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://AUTH",  context: nil)
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://AUTH", requestState: nil,  context: nil)
         
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
@@ -64,7 +67,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code#ff")!
         
-        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth#fragment",  context: nil)
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth#fragment", requestState: nil,  context: nil)
         
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
@@ -75,18 +78,27 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     {
         let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code")!
         
-        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", context: nil)
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: nil, context: nil)
         
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
         XCTAssertEqual(response?.switchBrowserSessionToken, "some_code")
     }
     
-    func testInit_whenValidBrowserMode_hasBitmaskPrivateSessionShouldBeTrue() throws
+    func testInit_whenStateIsPresentInUrl_shouldCreateObject() throws
+    {
+        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA&state=c3RhdGU")!
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: "state", context: nil)
+        
+        XCTAssertNotNil(response)
+        XCTAssertEqual(response?.state, "c3RhdGU")
+    }
+    
+    func testInit_whenValidBrowserMode_hasBitmaskPrivateSession_shouldBeTrue() throws
     {
         let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AQAAAA")!
         
-        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", context: nil)
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: nil, context: nil)
         
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
@@ -94,11 +106,11 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertEqual(response?.useEphemeralWebBrowserSession, true)
     }
     
-    func testInit_whenInvalidBrowserMode_hasBitmaskPrivateSessionShouldBeFalse() throws
+    func testInit_whenInvalidBrowserMode_hasBitmaskPrivateSession_shouldBeFalse() throws
     {
         let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA")!
         
-        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", context: nil)
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: nil, context: nil)
         
         XCTAssertNotNil(response)
         XCTAssertEqual(response?.actionUri, "some_uri")
@@ -106,11 +118,19 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
         XCTAssertEqual(response?.useEphemeralWebBrowserSession, false)
     }
     
+    func testInit_whenStateIsMissingFromUrl_shouldReturnNil() throws
+    {
+        let url = URL(string: "msauth://broker_bundle_id//switch_browser?action_uri=some_uri&code=some_code&browser_modes=AAAAAA")!
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth://broker_bundle_id", requestState: "state", context: nil)
+        
+        XCTAssertNil(response)
+    }
+    
     func testInit_whenInvalidUrl_shouldReturnNil() throws
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/abc?action_uri=some_uri&code=some_code")!
         
-        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)
         
         XCTAssertNil(response)
     }
@@ -119,7 +139,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     {
         let url = URL(string: "abc.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri&code=some_code")!
         
-        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)
+        let response = try? MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)
         
         XCTAssertNil(response)
     }
@@ -128,7 +148,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?code=some_code")!
         
-        XCTAssertThrowsError(try MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)) { error in
+        XCTAssertThrowsError(try MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)) { error in
             XCTAssertEqual((error as NSError).code, MSIDErrorCode.serverInvalidResponse.rawValue)
             XCTAssertEqual((error as NSError).domain, MSIDOAuthErrorDomain)
             XCTAssertEqual((error as NSError).userInfo["MSIDErrorDescriptionKey"] as? String, "action_uri is nil.")
@@ -139,7 +159,7 @@ final class MSIDSwitchBrowserResponseTest: XCTestCase
     {
         let url = URL(string: "msauth.com.microsoft.msaltestapp://auth/switch_browser?action_uri=some_uri")!
         
-        XCTAssertThrowsError(try MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", context: nil)) { error in
+        XCTAssertThrowsError(try MSIDSwitchBrowserResponse(url: url, redirectUri: "msauth.com.microsoft.msaltestapp://auth", requestState: nil, context: nil)) { error in
             XCTAssertEqual((error as NSError).code, MSIDErrorCode.serverInvalidResponse.rawValue)
             XCTAssertEqual((error as NSError).domain, MSIDOAuthErrorDomain)
             XCTAssertEqual((error as NSError).userInfo["MSIDErrorDescriptionKey"] as? String, "code is nil.")
