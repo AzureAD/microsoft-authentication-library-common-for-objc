@@ -93,6 +93,8 @@
 
 @property (nonatomic, readonly, nullable) NSString *accountUpn;
 
+@property (nonatomic) BOOL createdFromCache;
+
 - (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
                                    refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token
                                           error:(NSError * _Nullable __autoreleasing *_Nullable)error;

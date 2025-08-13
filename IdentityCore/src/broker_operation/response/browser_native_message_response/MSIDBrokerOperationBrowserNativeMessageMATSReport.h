@@ -28,6 +28,38 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * MATS Silent Status Enum
+ *
+ * Represents the outcome of a silent token request attempt.
+ * Based on WebTokenRequestStatus values used in Windows WAM.
+ */
+typedef NS_ENUM(NSInteger, MSIDMATSSilentStatus) {
+    /**
+     * Silent token obtained successfully
+     */
+    MSIDMATSSilentStatusSuccess = 0,
+    
+    /**
+     * User cancelled the silent token request
+     */
+    MSIDMATSSilentStatusUserCancel = 1,
+    
+    /**
+     * Silent attempt concluded that user interaction is required
+     */
+    MSIDMATSSilentStatusUserInteractionRequired = 3,
+    
+    /**
+     * Silent attempt hit a provider error (e.g., refresh token expired)
+     */
+    MSIDMATSSilentStatusProviderError = 5
+};
+
+typedef NSString *MSIDMATSDeviceJoinStatus NS_TYPED_ENUM;
+extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined;
+extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
+
+/**
  * Microsoft Authentication Telemetry System (MATS) Report
  *
  * This class represents detailed telemetry information about the token acquisition process
@@ -89,16 +121,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Device's AAD join status.
  *
- * Indicates the device's registration state in Entra ID (Azure AD). Typical values:
- * - "AzureADJoined" - Device is fully AAD joined (managed by org)
- * - "AzureADRegistered" - Device is registered (workplace join)
- * - "DomainJoined" - Domain joined device
- * - "not_joined" - Device not joined to AAD
+ * Indicates the device's registration state in Entra ID (Azure AD). Possible values:
+ * - MSIDMATSDeviceJoinStatusAADJ (@"aadj") - Device is Azure AD joined (managed by org)
+ * - MSIDMATSDeviceJoinStatusNotJoined (@"not_joined") - Device is not joined to AAD
  * This field helps identify if device is corporate-managed or personal.
  *
- * Example: @"AzureADJoined" (managed device), @"not_joined" (personal device)
+ * Example: MSIDMATSDeviceJoinStatusAADJ (managed device), MSIDMATSDeviceJoinStatusNotJoined (personal device)
  */
-@property (nonatomic, nullable) NSString *deviceJoin;
+@property (nonatomic, nullable) MSIDMATSDeviceJoinStatus deviceJoin;
 
 /**
  * Type of prompt that occurred.
@@ -172,14 +202,15 @@ NS_ASSUME_NONNULL_BEGIN
  * Outcome of silent request (status code).
  *
  * Corresponds to the broker's internal status enum for a silent token attempt.
- * Common values based on WebTokenRequestStatus:
- * - 0 (Success) - Silent token obtained successfully
- * - 3 (UserInteractionRequired) - Silent attempt concluded that user interaction is required
- * - 5 (ProviderError) - Silent attempt hit a provider error
+ * Values based on WebTokenRequestStatus:
+ * - MSIDMATSSilentStatusSuccess (0) - Silent token obtained successfully
+ * - MSIDMATSSilentStatusUserCancel (1) - User cancelled the silent token request
+ * - MSIDMATSSilentStatusUserInteractionRequired (3) - Silent attempt concluded that user interaction is required
+ * - MSIDMATSSilentStatusProviderError (5) - Silent attempt hit a provider error
  *
- * Example: 0 (silent success), 3 (interaction required), 5 (provider error)
+ * Example: MSIDMATSSilentStatusSuccess (silent success), MSIDMATSSilentStatusUserInteractionRequired (interaction required)
  */
-@property (nonatomic) NSInteger silentStatus;
+@property (nonatomic) MSIDMATSSilentStatus silentStatus;
 
 /**
  * HTTP response code from token endpoint.
@@ -202,6 +233,15 @@ NS_ASSUME_NONNULL_BEGIN
  * Example: 0 (cache hit), 1 (typical token acquisition), 2 (token + metadata call)
  */
 @property (nonatomic) NSInteger httpEventCount;
+
+/**
+ * JSON string representation of the report.
+ *
+ * Converts the MATS report into a JSON string format for easy logging or transmission.
+ *
+ * @return A JSON string representing the MATS report, or nil if serialization fails.
+ */
+- (NSString *)jsonString;
 
 @end
 

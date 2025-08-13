@@ -40,6 +40,10 @@ NSString *const MSID_MATS_SILENT_STATUS_KEY = @"silent_status";
 NSString *const MSID_MATS_HTTP_STATUS_KEY = @"http_status";
 NSString *const MSID_MATS_HTTP_EVENT_COUNT_KEY = @"http_event_count";
 
+// Device Join Status Constants
+MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ = @"aadj";
+MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined = @"not_joined";
+
 @implementation MSIDBrokerOperationBrowserNativeMessageMATSReport
 
 - (instancetype)init
@@ -124,6 +128,23 @@ NSString *const MSID_MATS_HTTP_EVENT_COUNT_KEY = @"http_event_count";
     json[MSID_MATS_HTTP_EVENT_COUNT_KEY] = @(self.httpEventCount);
     
     return json;
+}
+
+- (NSString *)jsonString
+{
+    NSDictionary *matsDict = [self jsonDictionary];
+    if (matsDict)
+    {
+        NSString *matsString = [matsDict msidJSONSerializeWithContext:nil];
+        if (!matsString)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to serialize MATS report to JSON string.");
+        }
+        
+        return matsString;
+    }
+    
+    return nil;
 }
 
 @end
