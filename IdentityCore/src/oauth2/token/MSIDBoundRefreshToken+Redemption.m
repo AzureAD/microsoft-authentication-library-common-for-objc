@@ -37,8 +37,8 @@
 
 - (NSString *)getTokenRedemptionJwtForTenantId:(nullable NSString *)tenantId
                      tokenRedemptionParameters:(MSIDBoundRefreshTokenRedemptionParameters *) requestParameters
-                                     jweCrypto:(NSDictionary * _Nullable __autoreleasing)jweCrypto
                                        context:(id<MSIDRequestContext> _Nullable)context
+                                     jweCrypto:(NSDictionary * __autoreleasing _Nullable *_Nullable)jweCrypto
                                          error:(NSError *__autoreleasing  _Nullable * _Nullable)error
 {
     if (![self validateRequestParameters:requestParameters context:context error:error])
@@ -83,11 +83,11 @@
         return nil;
     }
     
-    jweCrypto = [jweCryptoObj.jweCryptoDictionary copy];
+    *jweCrypto = [jweCryptoObj.jweCryptoDictionary copy];
     
     NSMutableDictionary *jwtPayload = [requestParameters jsonDictionary];
     [jwtPayload setObject:self.refreshToken forKey:MSID_OAUTH2_REFRESH_TOKEN];
-    [jwtPayload setObject:jweCrypto forKey:@"jwe_crypto"];
+    [jwtPayload setObject:*jweCrypto forKey:@"jwe_crypto"];
     
     NSArray *certificateData = @[[NSString stringWithFormat:@"%@", [[workplacejoinData certificateData] base64EncodedStringWithOptions:kNilOptions]]];
     NSDictionary *header = @{
