@@ -57,7 +57,7 @@ typedef NS_ENUM(NSInteger, MSIDMATSSilentStatus) {
 
 typedef NSString *MSIDMATSDeviceJoinStatus NS_TYPED_ENUM;
 extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined;
-extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
+extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ; 
 
 /**
  * Microsoft Authentication Telemetry System (MATS) Report
@@ -83,38 +83,18 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
 /**
  * Version of the broker handling the request.
  *
- * Broker app version that identifies the version/build of the native broker. Useful to
- * correlate issues or ensure compatibility. On Windows, this might be the WAM or plugin
- * version; on Mac, the AzureTokenBroker version.
- *
- * Example: @"10.0.27731.1000" (Windows WAM version), @"1.3.5.0" (Mac broker version)
+ * Example:  "3.9.0"
  */
 @property (nonatomic, nullable) NSString *brokerVersion;
 
 /**
  * Account state at start.
- *
- * Describes the account's join state when the request started. Common values include:
- * - "supplied" - The request had an account explicitly provided (user selected or login hint)
- * - "not_supplied" - No account was pre-specified; broker will prompt user to choose
- * On Mac, this may be "primary" vs "secondary" indicating device's primary vs added account.
- *
- * Example: @"supplied" (homeAccountId provided), @"not_supplied" (user had to pick account)
  */
 @property (nonatomic, nullable) NSString *accountJoinOnStart;
 
 /**
  * Account state at end.
  *
- * Describes how the account is joined/registered on the device after the operation.
- * Common values:
- * - "None" - No account was added or operation failed
- * - "Connected" - Account is primary AAD Joined account (Windows)
- * - "Associated" - Account is Azure AD Registered (Workplace joined)
- * - "SecondaryOnConnected" - Secondary account on AAD Joined device
- * - "secondary" - (Mac) account added as secondary (non-primary)
- *
- * Example: @"Connected" (became device's AAD primary), @"secondary" (Mac secondary account)
  */
 @property (nonatomic, nullable) NSString *accountJoinOnEnd;
 
@@ -147,21 +127,19 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
  * Broker/IDP error code.
  *
  * A numeric code representing the error if the token request failed. 0 if the operation
- * succeeded or no specific error. If the broker returns an OS or AAD error, that code
- * is given. This helps identify failure reasons.
+ * succeeded or no specific error.
  *
- * Example: 0 (no error, success), -895418145 (authentication_failed error)
+ * Example: 0 (no error, success), -50005 (MSALErrorUserCanceled)
  */
 @property (nonatomic) NSInteger apiErrorCode;
 
 /**
  * Was UI shown?
  *
- * Boolean flag: YES if the broker showed any UI to the user (like a webview for
- * credentials or an account picker), NO if the entire flow was silent/invisible.
+ * Boolean flag: YES if the broker showed any UI to the user. NO if the entire flow was silent/invisible.
  * This directly indicates if the user was interrupted with a prompt.
  *
- * Example: YES (user saw sign-in window), NO (completely silent SSO)
+ * Example: YES (user saw sign-in window), NO (completely silent SSO).
  */
 @property (nonatomic) BOOL uiVisible;
 
@@ -172,18 +150,12 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
  * token) and that attempt failed, this is the error code from the silent try. 0 if
  * silent succeeded or no error was encountered silently.
  *
- * Example: 0 (silent succeeded or not attempted), 3399549151 (silent failure code)
+ * Example: 0 (silent succeeded or not attempted), -50002 (MSALErrorInteractionRequired)
  */
 @property (nonatomic) NSInteger silentCode;
 
 /**
- * Silent sub-error code.
- *
- * When a silent token request fails, AAD may provide a suberror (like "basic_action",
- * "interaction_required", etc., encoded in telemetry). This field captures an integer
- * sub-code if available. Often 0 if not used.
- *
- * Example: 0 (no sub-error or not applicable), other values for specific suberrors
+ * Transient error code, not used on Mac.
  */
 @property (nonatomic) NSInteger silentBiSubCode;
 
@@ -191,8 +163,7 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
  * Silent attempt error message.
  *
  * A short text description of why the silent attempt failed, if an error occurred.
- * This often comes from the broker or underlying IdP. If silent succeeded, this may
- * be empty. Including this helps debugging exact silent failure reasons.
+ * Including this helps debugging exact silent failure reasons.
  *
  * Example: @"" (silent succeeded), @"The web page and the redirect uri must be on the same origin."
  */
