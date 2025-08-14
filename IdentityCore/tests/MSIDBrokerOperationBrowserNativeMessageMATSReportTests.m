@@ -31,11 +31,11 @@
 
 @implementation MSIDBrokerOperationBrowserNativeMessageMATSReportTests
 
-- (void)setUp 
+- (void)setUp
 {
 }
 
-- (void)tearDown 
+- (void)tearDown
 {
 }
 
@@ -335,15 +335,15 @@
 {
     __auto_type json = @{
         @"is_cached": @(0),
-        @"broker_version": @"3.2.7",
-        @"device_join": @"Not Joined",
-        @"prompt_behavior": @"auto",
-        @"api_error_code": @(3400017),
+        @"broker_version": @"3.9.0",
+        @"device_join": MSIDMATSDeviceJoinStatusNotJoined,
+        @"prompt_behavior": @"login",
+        @"api_error_code": @(-50005),
         @"ui_visible": @(NO),
-        @"silent_code": @(400),
-        @"silent_bi_sub_code": @(2001),
-        @"silent_message": @"Invalid request",
-        @"silent_status": @(1),
+        @"silent_code": @(-50002),
+        @"silent_bi_sub_code": @(0),
+        @"silent_message": @"The web page and the redirect uri must be on the same origin.",
+        @"silent_status": @(MSIDMATSSilentStatusProviderError),
         @"http_status": @(400),
         @"http_event_count": @(1)
     };
@@ -354,11 +354,80 @@
     XCTAssertNil(error);
     XCTAssertNotNil(report);
     XCTAssertFalse(report.isCached);
-    XCTAssertEqual(3400017, report.apiErrorCode);
-    XCTAssertEqual(400, report.silentCode);
-    XCTAssertEqual(2001, report.silentBiSubCode);
-    XCTAssertEqualObjects(@"Invalid request", report.silentMessage);
+    XCTAssertEqual(-50005, report.apiErrorCode);
+    XCTAssertEqual(-50002, report.silentCode);
+    XCTAssertEqualObjects(@"The web page and the redirect uri must be on the same origin.", report.silentMessage);
+    XCTAssertEqual(MSIDMATSSilentStatusProviderError, report.silentStatus);
     XCTAssertEqual(400, report.httpStatus);
+    XCTAssertEqualObjects(MSIDMATSDeviceJoinStatusNotJoined, report.deviceJoin);
 }
 
+- (void)testDeviceJoinStatusConstants_shouldUseCorrectValues
+{
+    // Test AAD joined device
+    __auto_type aadReport = [[MSIDBrokerOperationBrowserNativeMessageMATSReport alloc] init];
+    aadReport.deviceJoin = MSIDMATSDeviceJoinStatusAADJ;
+    
+    __auto_type aadJson = [aadReport jsonDictionary];
+    XCTAssertEqualObjects(@"aadj", aadJson[@"device_join"]);
+    
+    // Test not joined device
+    __auto_type notJoinedReport = [[MSIDBrokerOperationBrowserNativeMessageMATSReport alloc] init];
+    notJoinedReport.deviceJoin = MSIDMATSDeviceJoinStatusNotJoined;
+    
+    __auto_type notJoinedJson = [notJoinedReport jsonDictionary];
+    XCTAssertEqualObjects(@"not_joined", notJoinedJson[@"device_join"]);
+}
+
+- (void)testSilentStatusEnum_shouldUseCorrectValues
+{
+    // Test all silent status enum values
+    __auto_type report = [[MSIDBrokerOperationBrowserNativeMessageMATSReport alloc] init];
+    
+    // Success
+    report.silentStatus = MSIDMATSSilentStatusSuccess;
+    __auto_type json = [report jsonDictionary];
+    XCTAssertEqualObjects(@(0), json[@"silent_status"]);
+    
+    // User Cancel
+    report.silentStatus = MSIDMATSSilentStatusUserCancel;
+    json = [report jsonDictionary];
+    XCTAssertEqualObjects(@(1), json[@"silent_status"]);
+    
+    // User Interaction Required
+    report.silentStatus = MSIDMATSSilentStatusUserInteractionRequired;
+    json = [report jsonDictionary];
+    XCTAssertEqualObjects(@(3), json[@"silent_status"]);
+    
+    // Provider Error
+    report.silentStatus = MSIDMATSSilentStatusProviderError;
+    json = [report jsonDictionary];
+    XCTAssertEqualObjects(@(5), json[@"silent_status"]);
+}
+
+- (void)testPromptBehaviorValues_shouldAcceptStandardValues
+{
+    NSArray *validPromptBehaviors = @[@"none", @"login", @"consent", @"select_account"];
+    
+    for (NSString *promptBehavior in validPromptBehaviors) {
+        __auto_type json = @{
+            @"prompt_behavior": promptBehavior,
+            @"is_cached": @(NO),
+            @"api_error_code": @(0),
+            @"ui_visible": @(NO),
+            @"silent_code": @(0),
+            @"silent_bi_sub_code": @(0),
+            @"silent_status": @(MSIDMATSSilentStatusSuccess),
+            @"http_status": @(200),
+            @"http_event_count": @(1)
+        };
+        
+        NSError *error;
+        __auto_type report = [[MSIDBrokerOperationBrowserNativeMessageMATSReport alloc] initWithJSONDictionary:json error:&error];
+        
+        XCTAssertNil(error);
+        XCTAssertNotNil(report);
+        XCTAssertEqualObjects(promptBehavior, report.promptBehavior);
+    }
+}
 @end

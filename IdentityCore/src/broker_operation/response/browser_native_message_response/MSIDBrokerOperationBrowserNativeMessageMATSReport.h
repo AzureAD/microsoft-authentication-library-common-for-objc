@@ -88,17 +88,6 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
 @property (nonatomic, nullable) NSString *brokerVersion;
 
 /**
- * Account state at start.
- */
-@property (nonatomic, nullable) NSString *accountJoinOnStart;
-
-/**
- * Account state at end.
- *
- */
-@property (nonatomic, nullable) NSString *accountJoinOnEnd;
-
-/**
  * Device's AAD join status.
  *
  * Indicates the device's registration state in Entra ID (Azure AD). Possible values:
@@ -153,11 +142,6 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
  * Example: 0 (silent succeeded or not attempted), -50002 (MSALErrorInteractionRequired)
  */
 @property (nonatomic) NSInteger silentCode;
-
-/**
- * Transient error code, not used on Mac.
- */
-@property (nonatomic) NSInteger silentBiSubCode;
 
 /**
  * Silent attempt error message.
