@@ -24,6 +24,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDJsonSerializable.h"
+#import "MSIDConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -101,16 +102,8 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
 
 /**
  * Type of prompt that occurred.
- *
- * Reflects the UI interaction required. Values borrowed from MSAL's prompt parameters:
- * - "none" - No prompt was needed (silent token acquired)
- * - "login" - User was prompted to sign in (enter credentials)
- * - "consent" - User was prompted for consent
- * - "select_account" - User was prompted to select account
- *
- * Example: @"none" (silent SSO), @"login" (credentials required)
  */
-@property (nonatomic, nullable) NSString *promptBehavior;
+@property (nonatomic) MSIDPromptType promptBehavior;
 
 /**
  * Broker/IDP error code.
@@ -118,7 +111,7 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
  * A numeric code representing the error if the token request failed. 0 if the operation
  * succeeded or no specific error.
  *
- * Example: 0 (no error, success), -50005 (MSALErrorUserCanceled)
+ * Example: 0 (no error, success)
  */
 @property (nonatomic) NSInteger apiErrorCode;
 
@@ -139,7 +132,7 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
  * token) and that attempt failed, this is the error code from the silent try. 0 if
  * silent succeeded or no error was encountered silently.
  *
- * Example: 0 (silent succeeded or not attempted), -50002 (MSALErrorInteractionRequired)
+ * Example: 0 (silent succeeded or not attempted)
  */
 @property (nonatomic) NSInteger silentCode;
 

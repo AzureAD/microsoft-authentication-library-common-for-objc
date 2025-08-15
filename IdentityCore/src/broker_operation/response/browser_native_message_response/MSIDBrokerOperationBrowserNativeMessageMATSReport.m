@@ -24,6 +24,7 @@
 
 #import "MSIDBrokerOperationBrowserNativeMessageMATSReport.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDPromptType_Internal.h"
 
 NSString *const MSID_MATS_IS_CACHED_KEY = @"is_cached";
 NSString *const MSID_MATS_BROKER_VERSION_KEY = @"broker_version";
@@ -66,7 +67,7 @@ MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined = @"not_joined"
             @(self.isCached),
             self.brokerVersion,
             self.deviceJoin,
-            self.promptBehavior,
+            MSIDPromptParamFromType(self.promptBehavior),
             (long)self.apiErrorCode,
             @(self.uiVisible),
             (long)self.silentCode,
@@ -86,7 +87,8 @@ MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined = @"not_joined"
     _isCached = [json msidBoolObjectForKey:MSID_MATS_IS_CACHED_KEY];
     _brokerVersion = [json msidStringObjectForKey:MSID_MATS_BROKER_VERSION_KEY];
     _deviceJoin = [json msidStringObjectForKey:MSID_MATS_DEVICE_JOIN_KEY];
-    _promptBehavior = [json msidStringObjectForKey:MSID_MATS_PROMPT_BEHAVIOR_KEY];
+    NSString *promptString = [json msidStringObjectForKey:MSID_MATS_PROMPT_BEHAVIOR_KEY];
+    _promptBehavior = MSIDPromptTypeFromString(promptString);
     _apiErrorCode = [json msidIntegerObjectForKey:MSID_MATS_API_ERROR_CODE_KEY];
     _uiVisible = [json msidBoolObjectForKey:MSID_MATS_UI_VISIBLE_KEY];
     _silentCode = [json msidIntegerObjectForKey:MSID_MATS_SILENT_CODE_KEY];
@@ -105,10 +107,14 @@ MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined = @"not_joined"
     json[MSID_MATS_IS_CACHED_KEY] = @(self.isCached);
     if (self.brokerVersion) json[MSID_MATS_BROKER_VERSION_KEY] = self.brokerVersion;
     if (self.deviceJoin) json[MSID_MATS_DEVICE_JOIN_KEY] = self.deviceJoin;
-    if (self.promptBehavior) json[MSID_MATS_PROMPT_BEHAVIOR_KEY] = self.promptBehavior;
+    
+    NSString *promptString = MSIDPromptParamFromType(self.promptBehavior);
+    if (![NSString msidIsStringNilOrBlank:promptString]) json[MSID_MATS_PROMPT_BEHAVIOR_KEY] = promptString;
+    
     json[MSID_MATS_API_ERROR_CODE_KEY] = @(self.apiErrorCode);
     json[MSID_MATS_UI_VISIBLE_KEY] = @(self.uiVisible);
     json[MSID_MATS_SILENT_CODE_KEY] = @(self.silentCode);
+    json[MSID_MATS_SILENT_MESSAGE_KEY] = self.silentMessage;
     json[MSID_MATS_SILENT_STATUS_KEY] = @(self.silentStatus);
     json[MSID_MATS_HTTP_STATUS_KEY] = @(self.httpStatus);
     json[MSID_MATS_HTTP_EVENT_COUNT_KEY] = @(self.httpEventCount);
