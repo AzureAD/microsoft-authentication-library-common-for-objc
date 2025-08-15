@@ -96,6 +96,7 @@ static BOOL s_disableCertBasedAuth = NO;
     [MSIDCertAuthManager.sharedInstance startWithURL:requestURL
                                     parentController:parentViewController
                                              context:context
+                          ephemeralWebBrowserSession:YES
                                      completionBlock:^(NSURL *callbackURL, NSError *error)
      {
         MSIDWebviewSession *session = [MSIDWebviewAuthorization currentSession];
