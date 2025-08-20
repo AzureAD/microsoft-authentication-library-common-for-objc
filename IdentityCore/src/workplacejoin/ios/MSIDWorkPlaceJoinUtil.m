@@ -90,6 +90,7 @@
     {
         info = [[MSIDRegistrationInformation alloc] initWithIdentity:identity
                                                           privateKey:privateKey
+                                          privateSessionTransportKey:NULL
                                                          certificate:certificate
                                                    certificateIssuer:certificateIssuer];
         if (!info)

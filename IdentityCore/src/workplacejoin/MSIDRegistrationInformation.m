@@ -28,6 +28,7 @@
 
 - (instancetype)initWithIdentity:(SecIdentityRef)identity
                       privateKey:(SecKeyRef)privateKey
+      privateSessionTransportKey:(nullable SecKeyRef)privateSessionTransportKey
                      certificate:(SecCertificateRef)certificate
                certificateIssuer:(nullable NSString *)issuer
 {
@@ -37,6 +38,7 @@
     }
     
     self = [super initWithPrivateKey:privateKey
+          privateSessionTransportKey:privateSessionTransportKey
                          certificate:certificate
                    certificateIssuer:issuer];
 

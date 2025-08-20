@@ -80,6 +80,7 @@
         }
         
         MSIDWPJKeyPairWithCert *keypair = [[MSIDWPJKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
+                                                                  privateSessionTransportKey:nil
                                                                                  certificate:certificateRef
                                                                            certificateIssuer:nil];
         

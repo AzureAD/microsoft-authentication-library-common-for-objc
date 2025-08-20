@@ -47,6 +47,7 @@ typedef NS_ENUM(NSInteger, MSIDWPJKeychainAccessGroup)
     NSString *_certificateSubject;
     NSString *_certificateIssuer;
     SecKeyRef _privateKeyRef;
+    SecKeyRef _privateTransportKeyRef;
 }
 
 @property (nonatomic, readonly) SecKeyRef privateKeyRef;
@@ -55,8 +56,11 @@ typedef NS_ENUM(NSInteger, MSIDWPJKeychainAccessGroup)
 @property (nonatomic, readonly) NSString *certificateSubject;
 @property (nonatomic, readonly) NSString *certificateIssuer;
 @property (nonatomic) MSIDWPJKeychainAccessGroup keyChainVersion;
+// The private session transport key. Only populated if the private STK is stored in the secure enclave.
+@property (nonatomic, readonly) SecKeyRef privateTransportKeyRef;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                 privateSessionTransportKey:(nullable SecKeyRef)privateTransportKey
                                 certificate:(SecCertificateRef)certificate
                           certificateIssuer:(nullable NSString *)issuer;
 

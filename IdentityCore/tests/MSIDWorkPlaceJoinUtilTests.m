@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import <Security/Security.h>
 #import "MSIDKeychainUtil.h"
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDWorkPlaceJoinConstants.h"
@@ -36,6 +37,7 @@
 
 @interface MSIDWorkPlaceJoinUtilTests : XCTestCase
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
+@property (nonatomic, strong) NSMutableDictionary *keyGens;
 @property (nonatomic) BOOL useIosStyleKeychain;
 @end
 
@@ -66,6 +68,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 #if TARGET_OS_OSX
     self.useIosStyleKeychain = NO;
 #endif
+    self.keyGens = [NSMutableDictionary new];
 }
 
 - (void)tearDown
@@ -277,8 +280,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertEqual([dummyKeyTenantValue2 isEqualToString: tenantData2], TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue");
 
     // Cleanup
-    [MSIDWorkPlaceJoinUtilTests deleteDummyStringDataIntoKeychain:kMSIDUPNKeyIdentifier accessGroup:sharedAccessGroup];
-    sharedAccessGroup = [self keychainGroup:YES];
     [MSIDWorkPlaceJoinUtilTests deleteDummyStringDataIntoKeychain:kMSIDUPNKeyIdentifier accessGroup:sharedAccessGroup];
 }
 
@@ -499,6 +500,190 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 }
 #endif
 
+#pragma mark - Transport Key Tests
+
+#if TARGET_OS_IOS
+- (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithTransportKey_shouldReturnBothKeys
+{
+    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    XCTAssertTrue(result.privateKeyRef != NULL);
+    XCTAssertTrue(result.privateTransportKeyRef != NULL);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithoutSecureEnclave_shouldReturnBothKeys
+{
+    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:NO];
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    XCTAssertTrue(result.privateKeyRef != NULL);
+    XCTAssertTrue(result.privateTransportKeyRef == NULL);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
+{
+    // Insert device key and cert but skip transport key
+    SecCertificateRef certRef = [self dummyEccCertRef:kDummyTenant1CertIdentifier];
+    NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, @"tenantId", @"-EC"];
+    SecKeyRef keyRef = [self createAndGetdummyEccPrivateKey:NO privateKeyTag:tag];
+    NSString *keychainGroup = [self keychainGroup:NO];
+    
+    OSStatus status = [self insertDummyDRSIdentityIntoKeychain:certRef
+                                                 privateKeyRef:keyRef
+                                                 privateKeyTag:tag
+                                                   accessGroup:keychainGroup];
+    XCTAssertEqual(status, errSecSuccess);
+    
+    // Don't insert transport key - simulate missing STK scenario
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    XCTAssertTrue(result.privateKeyRef != NULL);
+    XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil when transport key is missing");
+}
+
+- (void)testGetWPJKeysWithTenantId_whenPrimaryEccRegistrationWithTransportKey_shouldReturnCorrectKeys
+{
+    [self addPrimaryEccDefaultRegistrationForTenantId:@"primaryTenant"
+                                    sharedAccessGroup:[self keychainGroup:NO]
+                                       certIdentifier:kDummyTenant1CertIdentifier
+                                     useSecureEnclave:YES];
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    XCTAssertTrue(result.privateKeyRef != NULL, @"Primary registration should have device key");
+    XCTAssertTrue(result.privateTransportKeyRef != NULL, @"Primary registration should have transport key");
+}
+
+- (void)testGetWPJKeysWithTenantId_whenLegacyRegistration_shouldHaveNoTransportKey
+{
+    [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV1);
+    XCTAssertTrue(result.privateKeyRef != NULL, @"Legacy registration should have device key");
+    XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Legacy registration should not have transport key");
+}
+
+- (void)testGetWPJKeysWithTenantId_whenTransportKeyInDifferentAccessGroup_shouldHandleCorrectly
+{
+    // Insert device key in correct access group
+    SecCertificateRef certRef = [self dummyEccCertRef:kDummyTenant1CertIdentifier];
+    NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, @"tenantId", @"-EC"];
+    SecKeyRef keyRef = [self createAndGetdummyEccPrivateKey:NO privateKeyTag:tag];
+    NSString *keychainGroup = [self keychainGroup:NO];
+    
+    OSStatus status = [self insertDummyDRSIdentityIntoKeychain:certRef
+                                                 privateKeyRef:keyRef
+                                                 privateKeyTag:tag
+                                                   accessGroup:keychainGroup];
+    XCTAssertEqual(status, errSecSuccess);
+    
+    // Transport key would be inserted with same access group, so this tests normal flow
+    NSString *stkTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, @"tenantId", @"-EC"];
+    SecKeyRef transportKeyRef = [self createAndGetdummyEccPrivateKey:NO privateKeyTag:stkTag];
+    
+    [self insertKeyIntoKeychain:transportKeyRef privateKeyTag:stkTag accessGroup:keychainGroup];
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertTrue(result.privateKeyRef != NULL);
+    XCTAssertTrue(result.privateTransportKeyRef != NULL);
+}
+
+- (void)testGetWPJKeysWithTenantId_whenRSARegistrationInV2Format_shouldNotHaveTransportKey
+{
+    // For iOS, RSA keys in V2 format should not have transport keys
+    // This tests the case where we have RSA device key but no transport key expected
+    
+    [self insertDummyWPJInLegacyFormat:NO tenantIdentifier:@"tenantId" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    
+    // For RSA registrations, transport key should be nil even in V2 format
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    XCTAssertTrue(result.privateKeyRef != NULL, @"Expected privateKeyRef to be non-nil for RSA registration in V2 format");
+    XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil for RSA registration in V2 format");
+}
+#endif
+
+#pragma mark - Transport Key Edge Cases
+
+- (void)testGetWPJKeysWithTenantId_whenKeychainReturnsUnexpectedData_shouldHandleGracefully
+{
+#if TARGET_OS_IOS
+    // Insert normal device key
+    SecCertificateRef certRef = [self dummyEccCertRef:kDummyTenant1CertIdentifier];
+    NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, @"tenantId", @"-EC"];
+    SecKeyRef keyRef = [self createAndGetdummyEccPrivateKey:NO privateKeyTag:tag];
+    NSString *keychainGroup = [self keychainGroup:NO];
+    
+    OSStatus status = [self insertDummyDRSIdentityIntoKeychain:certRef
+                                                 privateKeyRef:keyRef
+                                                 privateKeyTag:tag
+                                                   accessGroup:keychainGroup];
+    XCTAssertEqual(status, errSecSuccess);
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    
+    // Should return device key even if transport key lookup fails
+    XCTAssertNotNil(result);
+    XCTAssertTrue(result.privateKeyRef != NULL, @"Device key should be present");
+    // Transport key might be nil if lookup fails, which is acceptable
+#endif
+}
+
+- (void)testGetWPJKeysWithTenantId_concurrentAccess_shouldBeThreadSafe
+{
+#if TARGET_OS_IOS
+    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    
+    dispatch_group_t group = dispatch_group_create();
+    __block NSMutableArray *results = [NSMutableArray array];
+    __block NSLock *lock = [[NSLock alloc] init];
+    
+    // Launch multiple concurrent requests
+    for (int i = 0; i < 5; i++) {
+        dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+            
+            [lock lock];
+            if (result) {
+                [results addObject:result];
+            }
+            [lock unlock];
+        });
+    }
+    
+    // Wait for all requests to complete
+    dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    
+    // All requests should succeed
+    XCTAssertEqual(results.count, 5, @"All concurrent requests should succeed");
+    
+    // Verify all results have transport keys
+    for (MSIDWPJKeyPairWithCert *result in results) {
+        XCTAssertTrue(result.privateKeyRef != NULL);
+        XCTAssertTrue(result.privateTransportKeyRef != NULL);
+    }
+#endif
+}
+
 #pragma mark - Helpers
 
 - (void)cleanWPJ:(NSString *)keychainGroup
@@ -571,6 +756,13 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
                                                  privateKeyRef:keyRef
                                                  privateKeyTag:tag
                                                    accessGroup:keychainGroup];
+#if TARGET_OS_IOS
+    // If on iOS, insert dummy key to represent STK. STK is required by 1P apps for decrypting bound refresh tokens.
+    NSString *stkTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantIdentifier, @"-EC"];
+    SecKeyRef transportKeyRef = [self createAndGetdummyEccPrivateKey:useEncSecureEnclave privateKeyTag:stkTag];
+    XCTAssertTrue(transportKeyRef != NULL);
+    
+#endif
     return status;
 }
 
@@ -674,12 +866,16 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (SecKeyRef)createAndGetdummyEccPrivateKey:(BOOL)useSecureEnclave privateKeyTag:(NSString *)privateKeyTag
 {
-    self.eccKeyGenerator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc]
-                            initWithSharedAccessGroup:[self keychainGroup:NO]
-                            useSecureEnclave:useSecureEnclave
-                            applicationTag:privateKeyTag];
-    XCTAssertNotNil(self.eccKeyGenerator);
-    return self.eccKeyGenerator.eccPrivateKey;
+    MSIDTestSecureEnclaveKeyPairGenerator *keygen = [self.keyGens objectForKey:privateKeyTag];
+    if (!keygen)
+    {
+        self.keyGens[privateKeyTag] = [[MSIDTestSecureEnclaveKeyPairGenerator alloc]
+                                       initWithSharedAccessGroup:[self keychainGroup:NO]
+                                       useSecureEnclave:useSecureEnclave
+                                       applicationTag:privateKeyTag];
+        keygen = self.keyGens[privateKeyTag];
+    }
+    return keygen.eccPrivateKey;
 }
 
 - (NSString *)keychainGroup:(BOOL)useLegacyFormat

@@ -39,6 +39,7 @@
 @implementation MSIDWPJKeyPairWithCert
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                 privateSessionTransportKey:(SecKeyRef)privateSessionTransportKey
                                 certificate:(SecCertificateRef)certRef
                           certificateIssuer:(nullable NSString *)issuer
 {
@@ -60,6 +61,10 @@
         
         _privateKeyRef = privateKey;
         CFRetain(_privateKeyRef);
+        
+        _privateTransportKeyRef = privateSessionTransportKey;
+        if (_privateTransportKeyRef)
+            CFRetain(_privateTransportKeyRef);
         
         _certificateRef = certRef;
         CFRetain(_certificateRef);
@@ -100,6 +105,12 @@
     {
         CFRelease(_privateKeyRef);
         _privateKeyRef = NULL;
+    }
+    
+    if (_privateTransportKeyRef)
+    {
+        CFRelease(_privateTransportKeyRef);
+        _privateTransportKeyRef = NULL;
     }
 }
 

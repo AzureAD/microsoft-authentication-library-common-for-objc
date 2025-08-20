@@ -192,8 +192,71 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 }
 
 + (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
+                                                                        transportKeyAttributes:(nullable NSDictionary *)transportKeyAttributes
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
                                                                                        context:(nullable id<MSIDRequestContext>)context
+{
+    NSData *applicationLabel = nil;
+    // Query the keychain for private device key
+    SecKeyRef privateKeyRef = [self getPrivateKeyForAttributes:queryAttributes keyApplicationLabel:&applicationLabel];
+    if (!privateKeyRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No private device key ref found. Aborting lookup.");
+        return nil;
+    }
+// Query the session transport key only for iOS.
+// 1P apps use transport key to decrypt ECDH JWE responses when redeeming bound regular refresh tokens
+    SecKeyRef transportKeyRef = NULL;
+#if TARGET_OS_IOS
+    // Query the keychain for private session transport key only for iOS when it is ECC.
+    id keyType = transportKeyAttributes[(__bridge id)kSecAttrKeyType];
+    if (keyType && [keyType isEqual: (__bridge id)kSecAttrKeyTypeECSECPrimeRandom])
+    {
+        transportKeyRef = [self getPrivateKeyForAttributes:transportKeyAttributes keyApplicationLabel:nil];
+        if (!transportKeyRef)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No private session transport key ref found. Aborting lookup.");
+            // If STK is not found for whatever reason, we can still return the private device key and certificate as caller might not need STK.
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found ECC private session transport key ref in keychain.");
+        }
+    }
+#endif
+    NSMutableDictionary *mutableCertQuery = [NSMutableDictionary new];
+    if (certAttributes)
+    {
+        [mutableCertQuery addEntriesFromDictionary:certAttributes];
+#if TARGET_OS_OSX
+        [mutableCertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
+#endif
+    }
+    
+    mutableCertQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassCertificate;
+    mutableCertQuery[(__bridge id)kSecAttrPublicKeyHash] = applicationLabel;
+    mutableCertQuery[(__bridge id)kSecReturnRef] = @YES;
+    
+    SecCertificateRef certRef;
+    OSStatus status = noErr;
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)mutableCertQuery, (CFTypeRef*)&certRef); // +1 certRef
+    
+    if (status != errSecSuccess || !certRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find certificate for public key hash with status %ld", (long)status);
+        return nil;
+    }
+    
+    MSIDWPJKeyPairWithCert *keyPair = [[MSIDWPJKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
+                                                              privateSessionTransportKey:transportKeyRef
+                                                                             certificate:certRef
+                                                                       certificateIssuer:nil];
+    CFReleaseNull(certRef);
+    return keyPair;
+}
+
++ (SecKeyRef)getPrivateKeyForAttributes:(NSDictionary *)queryAttributes
+                    keyApplicationLabel:(NSData *__nullable __autoreleasing*)keyApplicationLabel
 {
     OSStatus status = noErr;
     CFTypeRef privateKeyCFDict = NULL;
@@ -212,7 +275,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
     if (status != errSecSuccess)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find workplace join private key with status %ld", (long)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find private key with status %ld", (long)status);
         return nil;
     }
         
@@ -230,41 +293,18 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         return nil;
     }
     
-    SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
+    if (keyApplicationLabel)
+    {
+        *keyApplicationLabel = applicationLabel;
+    }
     
+    SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
     if (!privateKeyRef)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No private key ref found. Aborting lookup.");
         return nil;
     }
-    
-    NSMutableDictionary *mutableCertQuery = [NSMutableDictionary new];
-    if (certAttributes)
-    {
-        [mutableCertQuery addEntriesFromDictionary:certAttributes];
-#if TARGET_OS_OSX
-        [mutableCertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
-#endif
-    }
-    
-    mutableCertQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassCertificate;
-    mutableCertQuery[(__bridge id)kSecAttrPublicKeyHash] = applicationLabel;
-    mutableCertQuery[(__bridge id)kSecReturnRef] = @YES;
-    
-    SecCertificateRef certRef;
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)mutableCertQuery, (CFTypeRef*)&certRef); // +1 certRef
-    
-    if (status != errSecSuccess || !certRef)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find certificate for public key hash with status %ld", (long)status);
-        return nil;
-    }
-    
-    MSIDWPJKeyPairWithCert *keyPair = [[MSIDWPJKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
-                                                                             certificate:certRef
-                                                                       certificateIssuer:nil];
-    CFReleaseNull(certRef);
-    return keyPair;
+    return privateKeyRef;
 }
 
 + (MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(__unused NSString *)tenantId context:(__unused id<MSIDRequestContext>)context
@@ -291,7 +331,10 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     extraCertAttributes = nil;
 #endif
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking Legacy keychain for registration.");
-    MSIDWPJKeyPairWithCert *legacyKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
+    MSIDWPJKeyPairWithCert *legacyKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraPrivateKeyAttributes
+                                                                                  transportKeyAttributes:nil
+                                                                                          certAttributes:extraCertAttributes
+                                                                                                 context:context];
         
     if (legacyKeys)
     {
@@ -335,7 +378,10 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                                             (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA };
         
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking keychain for default registration done using RSA key.");
-        defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraDefaultPrivateKeyAttributes certAttributes:extraCertAttributes context:context];
+        defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:extraDefaultPrivateKeyAttributes
+                                                               transportKeyAttributes:nil
+                                                                       certAttributes:extraCertAttributes
+                                                                              context:context];
 
         // If secondary Identity was found, return it
         if (defaultKeys)
@@ -375,7 +421,19 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 #if TARGET_OS_OSX
     [privateKeyAttributes setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
 #endif
-    defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes certAttributes:extraCertAttributes context:context];
+    NSMutableDictionary *transportKeyAttributes = nil;
+#if TARGET_OS_IOS
+    // For iOS, we need to query for the transport key as well, so we'll use the same tag as for the private key.
+    transportKeyAttributes = [privateKeyAttributes mutableCopy];
+    // Query for STK and populate workplacejoin key data
+    NSString *stkTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantId, kECPrivateKeyTagSuffix];
+    NSData *stkTagData = [stkTag dataUsingEncoding:NSUTF8StringEncoding];
+    [transportKeyAttributes setObject:stkTagData forKey:(__bridge id)kSecAttrApplicationTag];
+#endif
+    defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes
+                                                           transportKeyAttributes:transportKeyAttributes
+                                                                   certAttributes:extraCertAttributes
+                                                                          context:context];
     if (defaultKeys)
     {
         defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;

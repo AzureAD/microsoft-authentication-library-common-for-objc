@@ -35,10 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithIdentity:(SecIdentityRef)identity
                       privateKey:(SecKeyRef)privateKey
+      privateSessionTransportKey:(nullable SecKeyRef)privateSessionTransportKey
                      certificate:(SecCertificateRef)certificate
                certificateIssuer:(nullable NSString *)issuer;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                 privateSessionTransportKey:(nullable SecKeyRef)privateSessionTransportKey
                                 certificate:(SecCertificateRef)certificate
                           certificateIssuer:(nullable NSString *)issuer NS_UNAVAILABLE;
 

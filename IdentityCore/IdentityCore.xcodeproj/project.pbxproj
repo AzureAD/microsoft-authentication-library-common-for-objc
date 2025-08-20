@@ -2676,7 +2676,7 @@
 		80878AED247A7BBF000BC522 /* MSIDWorkPlaceJoinUtilBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWorkPlaceJoinUtilBase.h; sourceTree = "<group>"; };
 		80878AEE247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWorkPlaceJoinUtilBase.m; sourceTree = "<group>"; };
 		809B38212480C3C8001DF9D4 /* MSIDWorkPlaceJoinUtilBase+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDWorkPlaceJoinUtilBase+Internal.h"; sourceTree = "<group>"; };
-		80B6BF3B2480A3E30031BFE8 /* MSIDWorkPlaceJoinUtilTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWorkPlaceJoinUtilTests.m; sourceTree = "<group>"; };
+		80B6BF3B2480A3E30031BFE8 /* MSIDWorkPlaceJoinUtilTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWorkPlaceJoinUtilTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		886F516829CCA68A00F09471 /* MSIDCIAMAuthority.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCIAMAuthority.h; sourceTree = "<group>"; };
 		886F516A29CCA6B800F09471 /* MSIDCIAMAuthority.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCIAMAuthority.m; sourceTree = "<group>"; };
 		886F516D29CCA83000F09471 /* MSIDCIAMAuthorityResolver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCIAMAuthorityResolver.h; sourceTree = "<group>"; };

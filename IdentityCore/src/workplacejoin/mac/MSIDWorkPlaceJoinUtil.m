@@ -125,6 +125,7 @@
         // We found all the required WPJ information.
         info = [[MSIDRegistrationInformation alloc] initWithIdentity:identity
                                                           privateKey:privateKeyRef
+                                          privateSessionTransportKey:nil
                                                          certificate:certificateRef
                                                    certificateIssuer:certIssuer];
     }

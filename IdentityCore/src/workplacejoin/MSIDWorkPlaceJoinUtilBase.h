@@ -42,13 +42,15 @@
     Helper API to lookup both the private key and the associated certificate from the keychain.
     Functionality of the API can be customized by specifying custom private and cert lookup attributes.
  
-    @param queryAttributes Additional private key lookup attributes. Caller can specify additional parameters like kSecAttrAccessGroup, or kSecAttrApplicationTag to make private key lookup more specific.
+    @param queryAttributes Additional private device key lookup attributes. Caller can specify additional parameters like kSecAttrAccessGroup, or kSecAttrApplicationTag to make private device key lookup more specific.
+    @param transportKeyAttributes Additional private session transport key lookup attributes. Caller can specify additional parameters like kSecAttrAccessGroup, or kSecAttrApplicationTag to make private session transport key lookup more specific.
     @param certAttributes Additional certificate lookup attributes. Caller can specify additional parameters like kSecAttrAccessGroup to make certificate lookup more specific.
     @param context   Additional request context used for logging and telemetry.
  
-    @return MSIDWPJKeyPairWithCert representing a combination of a private key and a certificate if it was found, nil otherwise. Currently only looks up RSA private keys until full ECC test setup is available. 
+    @return MSIDWPJKeyPairWithCert representing a combination of a private key and a certificate if it was found, nil otherwise. Currently only looks up RSA private keys until full ECC test setup is available.
 */
 + (nullable MSIDWPJKeyPairWithCert *)findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:(nonnull NSDictionary *)queryAttributes
+                                                                        transportKeyAttributes:(nullable NSDictionary *)transportKeyAttributes
                                                                                 certAttributes:(nullable NSDictionary *)certAttributes
                                                                                        context:(nullable id<MSIDRequestContext>)context;
 
