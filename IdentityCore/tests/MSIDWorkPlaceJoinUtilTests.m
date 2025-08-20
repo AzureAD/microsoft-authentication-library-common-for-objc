@@ -669,7 +669,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
     
     // All requests should succeed
-    XCTAssertEqual(results.count, 5, @"All concurrent requests should succeed");
+    XCTAssertTrue(results.count == 5, @"All concurrent requests should succeed");
     
     // Verify all results have transport keys
     for (MSIDWPJKeyPairWithCert *result in results) {
