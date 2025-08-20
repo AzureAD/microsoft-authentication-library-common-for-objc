@@ -78,6 +78,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
         [self cleanWPJ:[self keychainGroup:YES]];
         [self cleanWPJ:[self keychainGroup:NO]];
     }
+    self.keyGens = nil;
     [MSIDTestSwizzle reset];
 }
 
@@ -280,6 +281,8 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertEqual([dummyKeyTenantValue2 isEqualToString: tenantData2], TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue");
 
     // Cleanup
+    [MSIDWorkPlaceJoinUtilTests deleteDummyStringDataIntoKeychain:kMSIDUPNKeyIdentifier accessGroup:sharedAccessGroup];
+    sharedAccessGroup = [self keychainGroup:YES];
     [MSIDWorkPlaceJoinUtilTests deleteDummyStringDataIntoKeychain:kMSIDUPNKeyIdentifier accessGroup:sharedAccessGroup];
 }
 
