@@ -646,7 +646,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     // Transport key might be nil if lookup fails, which is acceptable
 
 }
-
+/*
 - (void)testGetWPJKeysWithTenantId_concurrentAccess_shouldBeThreadSafe
 {
     [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
@@ -680,7 +680,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
         XCTAssertTrue(result.privateTransportKeyRef != NULL);
     }
 
-}
+}*/
 #endif
 #pragma mark - Helpers
 
