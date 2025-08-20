@@ -529,9 +529,10 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
 {
+    NSString *tenantId = @"tenantId-test-abc";
     // Insert device key and cert but skip transport key
     SecCertificateRef certRef = [self dummyEccCertRef:kDummyTenant1CertIdentifier];
-    NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, @"tenantId", @"-EC"];
+    NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, tenantId, @"-EC"];
     SecKeyRef keyRef = [self createAndGetdummyEccPrivateKey:NO privateKeyTag:tag];
     NSString *keychainGroup = [self keychainGroup:NO];
     
@@ -543,7 +544,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     // Don't insert transport key - simulate missing STK scenario
     
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:nil];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
