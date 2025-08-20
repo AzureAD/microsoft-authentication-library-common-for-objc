@@ -215,7 +215,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         transportKeyRef = [self getPrivateKeyForAttributes:transportKeyAttributes keyApplicationLabel:nil];
         if (!transportKeyRef)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No private session transport key ref found. Aborting lookup.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No private session transport key ref found. Continuing without transport key.");
             // If STK is not found for whatever reason, we can still return the private device key and certificate as caller might not need STK.
         }
         else
