@@ -275,7 +275,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
     if (status != errSecSuccess)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find private key with status %ld", (long)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find private device key with status %ld", (long)status);
         return nil;
     }
         
