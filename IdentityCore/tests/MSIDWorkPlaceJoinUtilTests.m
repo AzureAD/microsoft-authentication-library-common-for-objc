@@ -498,11 +498,8 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     NSString *expectedSubject = [kDummyTenant1CertIdentifier msidBase64UrlDecode];
     XCTAssertEqualObjects(expectedSubject, result.certificateSubject);
 }
-#endif
 
 #pragma mark - Transport Key Tests
-
-#if TARGET_OS_IOS
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithTransportKey_shouldReturnBothKeys
 {
     [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
@@ -621,13 +618,11 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertTrue(result.privateKeyRef != NULL, @"Expected privateKeyRef to be non-nil for RSA registration in V2 format");
     XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil for RSA registration in V2 format");
 }
-#endif
 
 #pragma mark - Transport Key Edge Cases
 
 - (void)testGetWPJKeysWithTenantId_whenKeychainReturnsUnexpectedData_shouldHandleGracefully
 {
-#if TARGET_OS_IOS
     // Insert normal device key
     SecCertificateRef certRef = [self dummyEccCertRef:kDummyTenant1CertIdentifier];
     NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, @"tenantId", @"-EC"];
@@ -646,12 +641,11 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertNotNil(result);
     XCTAssertTrue(result.privateKeyRef != NULL, @"Device key should be present");
     // Transport key might be nil if lookup fails, which is acceptable
-#endif
+
 }
 
 - (void)testGetWPJKeysWithTenantId_concurrentAccess_shouldBeThreadSafe
 {
-#if TARGET_OS_IOS
     [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
     
     dispatch_group_t group = dispatch_group_create();
@@ -682,9 +676,9 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
         XCTAssertTrue(result.privateKeyRef != NULL);
         XCTAssertTrue(result.privateTransportKeyRef != NULL);
     }
-#endif
-}
 
+}
+#endif
 #pragma mark - Helpers
 
 - (void)cleanWPJ:(NSString *)keychainGroup
