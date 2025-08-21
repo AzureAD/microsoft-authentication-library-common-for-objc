@@ -742,27 +742,29 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
                                            certIdentifier:(NSString *)certIdentifier
                                         useSecureEnclave:(BOOL)useEncSecureEnclave
 {
-    SecCertificateRef certRef = [self dummyEccCertRef:certIdentifier];
-    XCTAssertTrue(certRef != NULL);
-    // Append Suffix kMSIDPrivateKeyIdentifier
-    NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, tenantIdentifier, @"-EC"];
-    SecKeyRef keyRef = [self createAndGetdummyEccPrivateKey:useEncSecureEnclave privateKeyTag:tag];
-    XCTAssertTrue(keyRef != NULL);
-    NSString *keychainGroup = [self keychainGroup:NO];
-    OSStatus status = [self insertDummyDRSIdentityIntoKeychain:certRef
-                                                 privateKeyRef:keyRef
-                                                 privateKeyTag:tag
-                                                   accessGroup:keychainGroup];
+    @synchronized (self) {
+        SecCertificateRef certRef = [self dummyEccCertRef:certIdentifier];
+        XCTAssertTrue(certRef != NULL);
+        // Append Suffix kMSIDPrivateKeyIdentifier
+        NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, tenantIdentifier, @"-EC"];
+        SecKeyRef keyRef = [self createAndGetdummyEccPrivateKey:useEncSecureEnclave privateKeyTag:tag];
+        XCTAssertTrue(keyRef != NULL);
+        NSString *keychainGroup = [self keychainGroup:NO];
+        OSStatus status = [self insertDummyDRSIdentityIntoKeychain:certRef
+                                                     privateKeyRef:keyRef
+                                                     privateKeyTag:tag
+                                                       accessGroup:keychainGroup];
 #if TARGET_OS_IOS
-    // If on iOS, insert dummy key to represent STK. STK is required by 1P apps for decrypting bound refresh tokens.
-    NSString *stkTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantIdentifier, @"-EC"];
-    SecKeyRef transportKeyRef = [self createAndGetdummyEccPrivateKey:useEncSecureEnclave privateKeyTag:stkTag];
-    XCTAssertTrue(transportKeyRef != NULL);
-    [self insertKeyIntoKeychain:transportKeyRef
-                  privateKeyTag:stkTag
-                    accessGroup:keychainGroup];
+        // If on iOS, insert dummy key to represent STK. STK is required by 1P apps for decrypting bound refresh tokens.
+        NSString *stkTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantIdentifier, @"-EC"];
+        SecKeyRef transportKeyRef = [self createAndGetdummyEccPrivateKey:useEncSecureEnclave privateKeyTag:stkTag];
+        XCTAssertTrue(transportKeyRef != NULL);
+        [self insertKeyIntoKeychain:transportKeyRef
+                      privateKeyTag:stkTag
+                        accessGroup:keychainGroup];
 #endif
-    return status;
+        return status;
+    }
 }
 
 - (OSStatus)insertDummyDRSIdentityIntoKeychain:(SecCertificateRef)certRef
