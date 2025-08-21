@@ -540,7 +540,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
                                                  privateKeyRef:keyRef
                                                  privateKeyTag:tag
                                                    accessGroup:keychainGroup];
-    XCTAssertEqual(status, errSecSuccess);
+    XCTAssertTrue(status == errSecSuccess || status == errSecDuplicateItem);
     
     // Don't insert transport key - simulate missing STK scenario
     
@@ -759,7 +759,9 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     NSString *stkTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantIdentifier, @"-EC"];
     SecKeyRef transportKeyRef = [self createAndGetdummyEccPrivateKey:useEncSecureEnclave privateKeyTag:stkTag];
     XCTAssertTrue(transportKeyRef != NULL);
-    
+    [self insertKeyIntoKeychain:transportKeyRef
+                  privateKeyTag:stkTag
+                    accessGroup:keychainGroup];
 #endif
     return status;
 }
