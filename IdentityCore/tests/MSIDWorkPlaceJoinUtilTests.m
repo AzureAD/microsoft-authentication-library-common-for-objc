@@ -524,7 +524,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertNotNil(result);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
     XCTAssertTrue(result.privateKeyRef != NULL);
-    XCTAssertTrue(result.privateTransportKeyRef == NULL);
+    XCTAssertTrue(result.privateTransportKeyRef != NULL);
 }
 
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
