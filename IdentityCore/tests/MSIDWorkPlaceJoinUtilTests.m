@@ -37,7 +37,7 @@
 
 @interface MSIDWorkPlaceJoinUtilTests : XCTestCase
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
-@property (nonatomic, strong) NSMutableDictionary *keyGens;
+@property (atomic, strong) NSMutableDictionary *keyGens;
 @property (nonatomic) BOOL useIosStyleKeychain;
 @end
 
