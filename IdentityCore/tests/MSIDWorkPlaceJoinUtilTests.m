@@ -38,6 +38,7 @@
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
 @property (nonatomic) BOOL useIosStyleKeychain;
 @property (atomic) MSIDTestSecureEnclaveKeyPairGenerator *stkEccKeyGenerator;
+@property (atomic) NSString *tenantId;
 @end
 
 NSString * const dummyKeyIdendetifier = @"com.microsoft.workplacejoin.dummyKeyIdentifier";
@@ -67,6 +68,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 #if TARGET_OS_OSX
     self.useIosStyleKeychain = NO;
 #endif
+    self.tenantId = NSUUID.UUID.UUIDString;
 }
 
 - (void)tearDown
@@ -76,6 +78,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
         [self cleanWPJ:[self keychainGroup:YES]];
         [self cleanWPJ:[self keychainGroup:NO]];
     }
+    self.tenantId = nil;
     [MSIDTestSwizzle reset];
 }
 
@@ -96,8 +99,8 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 #if TARGET_OS_OSX
     self.useIosStyleKeychain = NO;
 #endif
-    [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId1" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:self.tenantId writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"some-other-tenantId" context:nil];
     XCTAssertNotNil(result);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV1);
 }
@@ -134,8 +137,8 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithSameTenant_EccBasedRegUsingSecureEnclave_shouldReturnDefault
 {
-    [self insertDummyEccRegistrationForTenantIdentifier:@"tenantId-some-tid" certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId-some-tid" context:nil];
+    [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     XCTAssertNotNil(result);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
     CFStringRef cName = NULL;
@@ -773,15 +776,20 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 #if TARGET_OS_IOS
 @interface MSIDWorkPlaceJoinUtilTests (TransportKeyTests)
- -(void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier keychainGroup:(NSString *)keychainGroup;
+ -(void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier;
 @end
 
 @implementation MSIDWorkPlaceJoinUtilTests (TransportKeyTests)
 
-- (void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier keychainGroup:(NSString *)keychainGroup
+- (void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier
 {
+    NSString *keychainGroup = [self keychainGroup:NO];
     NSString *stkTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantIdentifier, @"-EC"];
-    SecKeyRef transportKeyRef = [self createAndGetdummyEccPrivateKey:YES privateKeyTag:stkTag];
+    if (!self.stkEccKeyGenerator)
+        self.stkEccKeyGenerator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:keychainGroup
+                                                                                          useSecureEnclave:YES
+                                                                                            applicationTag:stkTag];
+    SecKeyRef transportKeyRef = self.stkEccKeyGenerator.eccPrivateKey;
     XCTAssertTrue(transportKeyRef != NULL);
     [self insertKeyIntoKeychain:transportKeyRef
                   privateKeyTag:stkTag
@@ -790,10 +798,9 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithTransportKey_shouldReturnBothKeys
 {
-    NSString *tid = [[NSUUID UUID] UUIDString];
-    [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
-    [self insertEccStkKeyForTenantIdentifier:tid keychainGroup:[self keychainGroup:NO]];
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tid context:nil];
+    [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    [self insertEccStkKeyForTenantIdentifier:self.tenantId];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
