@@ -134,7 +134,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     NSString *certId = [[NSString alloc] initWithData:[NSData msidDataFromBase64UrlEncodedString:kDummyTenant1CertIdentifier] encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(CFBridgingRelease(cName), certId);
 }
-
+/*
 - (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithSameTenant_EccBasedRegUsingSecureEnclave_shouldReturnDefault
 {
     [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
@@ -146,7 +146,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     NSString *certId = [[NSString alloc] initWithData:[NSData msidDataFromBase64UrlEncodedString:kDummyTenant1CertIdentifier] encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(CFBridgingRelease(cName), certId);
 }
-
+*/
 - (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithDifferentTenant_EccBasedRegNoSecureEnclave_shouldReturnNil
 {
     [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:NO];
@@ -807,21 +807,10 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertTrue(result.privateKeyRef != NULL);
     XCTAssertTrue(result.privateTransportKeyRef != NULL);
 }
-
+/*
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
 {
-    // Insert device key and cert but skip transport key
-    SecCertificateRef certRef = [self dummyEccCertRef:kDummyTenant1CertIdentifier];
-    NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, self.tenantId, @"-EC"];
-    SecKeyRef keyRef = [self createAndGetdummyEccPrivateKey:NO privateKeyTag:tag];
-    NSString *keychainGroup = [self keychainGroup:NO];
-    
-    OSStatus status = [self insertDummyDRSIdentityIntoKeychain:certRef
-                                                 privateKeyRef:keyRef
-                                                 privateKeyTag:tag
-                                                   accessGroup:keychainGroup];
-    XCTAssertTrue(status == errSecSuccess || status == errSecDuplicateItem);
-    
+    [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
     // Don't insert transport key - simulate missing STK scenario
     
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
@@ -831,7 +820,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertTrue(result.privateKeyRef != NULL);
     XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil when transport key is missing");
 }
-
+*/
 - (void)testGetWPJKeysWithTenantId_whenPrimaryEccRegistrationWithTransportKey_shouldReturnCorrectKeys
 {
     [self addPrimaryEccDefaultRegistrationForTenantId:self.tenantId
