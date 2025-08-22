@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 #import <XCTest/XCTest.h>
 #import "MSIDWorkPlaceJoinUtilTests.h"
 #import "MSIDKeychainUtil.h"
@@ -35,6 +35,101 @@
 @end
 
 @implementation MSIDWorkPlaceJoinUtilTransportKeyTests
+
+// Helper method to delete all STK keys for a given tenant ID
+- (OSStatus)deleteAllSTKKeysForTenantId:(NSString *)tenantId
+{
+    if (!tenantId) {
+        return errSecParam;
+    }
+    
+    NSString *keychainGroup = [self keychainGroup:NO]; // Use V2 keychain group
+    NSString *stkTagPrefix = [NSString stringWithFormat:@"%@#%@", kMSIDPrivateTransportKeyIdentifier, tenantId];
+    
+    // Create query to find all STK keys for this tenant
+    NSMutableDictionary *deleteQuery = [[NSMutableDictionary alloc] init];
+    [deleteQuery setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
+    [deleteQuery setObject:(__bridge id)kSecAttrTokenIDSecureEnclave forKey:(__bridge id)kSecAttrTokenID];
+    [deleteQuery setObject:keychainGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    
+    // Use the STK tag prefix to match all STK keys for this tenant
+    // This will match both "-EC" suffix and any other potential suffixes
+    [deleteQuery setObject:[stkTagPrefix dataUsingEncoding:NSUTF8StringEncoding] forKey:(__bridge id)kSecAttrApplicationTag];
+    
+    OSStatus status = SecItemDelete((__bridge CFDictionaryRef)deleteQuery);
+    
+    // If no items found, that's also considered success for cleanup purposes
+    if (status == errSecItemNotFound) {
+        status = errSecSuccess;
+    }
+    
+    return status;
+}
+
+// Alternative method that uses a more targeted approach by querying first, then deleting
+- (OSStatus)deleteAllSTKKeysForTenantIdWithQuery:(NSString *)tenantId
+{
+    if (!tenantId) {
+        return errSecParam;
+    }
+    
+    NSString *keychainGroup = [self keychainGroup:NO];
+    NSString *stkTagPrefix = [NSString stringWithFormat:@"%@#%@", kMSIDPrivateTransportKeyIdentifier, tenantId];
+    
+    // First, query for all STK keys for this tenant
+    NSMutableDictionary *queryDict = [[NSMutableDictionary alloc] init];
+    [queryDict setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
+    [queryDict setObject:(__bridge id)kSecAttrTokenIDSecureEnclave forKey:(__bridge id)kSecAttrTokenID];
+    [queryDict setObject:keychainGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    [queryDict setObject:(__bridge id)kSecMatchLimitAll forKey:(__bridge id)kSecMatchLimit];
+    [queryDict setObject:@YES forKey:(__bridge id)kSecReturnAttributes];
+    
+    CFArrayRef items = NULL;
+    OSStatus queryStatus = SecItemCopyMatching((__bridge CFDictionaryRef)queryDict, (CFTypeRef *)&items);
+    
+    if (queryStatus == errSecItemNotFound) {
+        return errSecSuccess; // No items to delete
+    }
+    
+    if (queryStatus != errSecSuccess) {
+        return queryStatus;
+    }
+    
+    OSStatus deleteStatus = errSecSuccess;
+    NSArray *itemsArray = (__bridge_transfer NSArray *)items;
+    
+    // Iterate through found items and delete those that match our tenant's STK pattern
+    for (NSDictionary *item in itemsArray) {
+        NSData *tagData = item[(__bridge id)kSecAttrApplicationTag];
+        if (tagData) {
+            NSString *tag = [[NSString alloc] initWithData:tagData encoding:NSUTF8StringEncoding];
+            if ([tag hasPrefix:stkTagPrefix]) {
+                // Create delete query for this specific key
+                NSMutableDictionary *deleteQuery = [[NSMutableDictionary alloc] init];
+                [deleteQuery setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
+                [deleteQuery setObject:(__bridge id)kSecAttrTokenIDSecureEnclave forKey:(__bridge id)kSecAttrTokenID];
+                [deleteQuery setObject:keychainGroup forKey:(__bridge id)kSecAttrAccessGroup];
+                [deleteQuery setObject:tagData forKey:(__bridge id)kSecAttrApplicationTag];
+                
+                OSStatus itemDeleteStatus = SecItemDelete((__bridge CFDictionaryRef)deleteQuery);
+                if (itemDeleteStatus != errSecSuccess && itemDeleteStatus != errSecItemNotFound) {
+                    deleteStatus = itemDeleteStatus; // Keep track of any deletion failures
+                }
+            }
+        }
+    }
+    
+    return deleteStatus;
+}
+
+// Teardown
+- (void)tearDown
+{
+    [super tearDown];
+    [self deleteAllSTKKeysForTenantIdWithQuery:self.tenantId];
+}
+
+
 
 - (void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier
 {
@@ -87,6 +182,7 @@
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:nil];
     
     XCTAssertNotNil(result);
+    NSLog(@"Keychain version %ld. TenantId: %@ DK %@ STK: %@", result.keyChainVersion, self.tenantId, result.privateKeyRef, result.privateTransportKeyRef);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
     XCTAssertTrue(result.privateKeyRef != NULL, @"Primary registration should have device key");
     XCTAssertTrue(result.privateTransportKeyRef != NULL, @"Primary registration should have transport key");
