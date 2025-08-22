@@ -45,18 +45,18 @@ NSString * const dummyKeyIdendetifier = @"com.microsoft.workplacejoin.dummyKeyId
 NSString * const dummyKeyV2Idendeifier = @"com.microsoft.workplacejoin.v2.dummyKeyIdentifier";
 
 // WPJ test values
-NSString *dummyKeyIdentifierValue1 = @"dummyupn@microsoft.com";
-NSString *dummyKeyTenantValue1 = @"72f988bf-86f1-41af-91ab-2d7cd011db47";
+NSString * const dummyKeyIdentifierValue1 = @"dummyupn@microsoft.com";
+NSString * const dummyKeyTenantValue1 = @"72f988bf-86f1-41af-91ab-2d7cd011db47";
 
-NSString *dummyKeyIdentifierValue2 = @"dummyupn@m365x957144.onmicrosoft.com";
-NSString *dummyKeyTenantValue2 = @"ef5e032c-f4cf-4d87-a328-286ff45dc5b0";
+NSString * const dummyKeyIdentifierValue2 = @"dummyupn@m365x957144.onmicrosoft.com";
+NSString * const dummyKeyTenantValue2 = @"ef5e032c-f4cf-4d87-a328-286ff45dc5b0";
 
-NSString *dummyKeyIdentifierValue3 = @"dummyupn@m365x193839.onmicrosoft.com";
-NSString *dummyKeyTenantValue3 = @"5ac3f3c6-e654-4968-a4c7-f2a7e4bde783";
+NSString * const dummyKeyIdentifierValue3 = @"dummyupn@m365x193839.onmicrosoft.com";
+NSString * const dummyKeyTenantValue3 = @"5ac3f3c6-e654-4968-a4c7-f2a7e4bde783";
 
-static NSString *kDummyTenant1CertIdentifier = @"OWVlNWYzM2ItOTc0OS00M2U3LTk1NjctODMxOGVhNDEyNTRi";
-static NSString *kDummyTenant2CertIdentifier = @"OWZmNWYzM2ItOTc0OS00M2U3LTk1NjctODMxOGVhNDEyNTRi";
-static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1NjctODMxOGVhNDEyNTRi";
+NSString * const kDummyTenant1CertIdentifier = @"OWVlNWYzM2ItOTc0OS00M2U3LTk1NjctODMxOGVhNDEyNTRi";
+NSString * const kDummyTenant2CertIdentifier = @"OWZmNWYzM2ItOTc0OS00M2U3LTk1NjctODMxOGVhNDEyNTRi";
+NSString * const kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1NjctODMxOGVhNDEyNTRi";
 
 
 @implementation MSIDWorkPlaceJoinUtilTests
