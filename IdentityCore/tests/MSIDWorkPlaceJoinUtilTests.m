@@ -69,6 +69,7 @@ NSString * const kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     self.useIosStyleKeychain = NO;
 #endif
     self.tenantId = NSUUID.UUID.UUIDString;
+    sleep(2.0);
 }
 
 - (void)tearDown
