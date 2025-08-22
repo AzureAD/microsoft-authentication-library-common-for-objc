@@ -457,10 +457,13 @@ NSString * const kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJKeysWithTenantId_whenMultipleWPJInLegacyAndDefaultFormat_andMatchingDefaultOne_shouldReturnDefaultRegistration
 {
-    [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId1" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
-    [self insertDummyWPJInLegacyFormat:NO tenantIdentifier:@"tenantId2" writeTenantMetadata:NO certIdentifier:kDummyTenant3CertIdentifier];
+    NSString *tidBase = self.tenantId;
+    NSString *tid1 = [NSString stringWithFormat:@"%@-1", tidBase];
+    NSString *tid2 = [NSString stringWithFormat:@"%@-2", tidBase];
+    [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:tid1 writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
+    [self insertDummyWPJInLegacyFormat:NO tenantIdentifier:tid2 writeTenantMetadata:NO certIdentifier:kDummyTenant3CertIdentifier];
     
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId2" context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tid2 context:nil];
     XCTAssertEqual(result.keyChainVersion == MSIDWPJKeychainAccessGroupV2, TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue");
     XCTAssertNotNil(result);
     

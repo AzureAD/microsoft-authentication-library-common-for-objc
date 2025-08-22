@@ -182,7 +182,6 @@
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:nil context:nil];
     
     XCTAssertNotNil(result);
-    NSLog(@"Keychain version %ld. TenantId: %@ DK %@ STK: %@", result.keyChainVersion, self.tenantId, result.privateKeyRef, result.privateTransportKeyRef);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
     XCTAssertTrue(result.privateKeyRef != NULL, @"Primary registration should have device key");
     XCTAssertTrue(result.privateTransportKeyRef != NULL, @"Primary registration should have transport key");
