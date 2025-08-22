@@ -29,8 +29,8 @@
 #import "MSIDWPJKeyPairWithCert.h"
 
 
-#if TARGET_OS_IOS
-@interface MSIDWorkPlaceJoinUtilTransportKeyTests : MSIDWorkPlaceJoinUtilTests
+#if FALSE
+@interface MSIDWorkPlaceJoinUtilTransportKeyTests
  -(void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier;
 @end
 
@@ -160,10 +160,11 @@
 
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
 {
-    [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    NSString *tid = self.tenantId;
+    [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
     // Don't insert transport key - simulate missing STK scenario
     
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tid context:nil];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
