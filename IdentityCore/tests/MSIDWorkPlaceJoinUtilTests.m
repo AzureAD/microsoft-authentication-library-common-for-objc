@@ -70,6 +70,8 @@ NSString * const kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     self.useIosStyleKeychain = NO;
 #endif
     self.tenantId = NSUUID.UUID.UUIDString;
+    [self cleanWPJ:[self keychainGroup:YES]];
+    [self cleanWPJ:[self keychainGroup:NO]];
 }
 
 - (void)tearDown
@@ -139,8 +141,9 @@ NSString * const kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJKeysWithTenantId_whenWPJInDefaultWithSameTenant_EccBasedRegUsingSecureEnclave_shouldReturnDefault
 {
-    [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
+    NSString *tid = self.tenantId;
+    [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tid context:nil];
     XCTAssertNotNil(result);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
     CFStringRef cName = NULL;
