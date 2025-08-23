@@ -48,10 +48,6 @@
     if (self)
     {
         _privateTransportKeyRef = privateTransportKeyRef;
-        if (_privateTransportKeyRef)
-        {
-            CFRetain(_privateTransportKeyRef);
-        }
     }
 }
 
