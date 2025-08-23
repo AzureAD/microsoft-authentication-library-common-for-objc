@@ -45,10 +45,7 @@
         }
     }
      */
-    if (self)
-    {
-        _privateTransportKeyRef = privateTransportKeyRef;
-    }
+    _privateTransportKeyRef = privateTransportKeyRef;
 }
 
 @end
