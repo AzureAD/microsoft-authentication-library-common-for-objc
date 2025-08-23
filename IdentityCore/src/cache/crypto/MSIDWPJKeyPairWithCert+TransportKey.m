@@ -46,11 +46,11 @@
     }
      */
     _privateTransportKeyRef = privateTransportKeyRef;
-    if (_privateTransportKeyRef)
+    /*if (_privateTransportKeyRef)
     {
         
         CFRetain(_privateTransportKeyRef);
-    }
+    }*/
 }
 
 @end
