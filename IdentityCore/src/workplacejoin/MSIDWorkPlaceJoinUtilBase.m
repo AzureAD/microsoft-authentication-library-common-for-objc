@@ -27,7 +27,7 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDWPJMetadata.h"
-#import "MSIDWPJKeyPairWithCert+TransportKey.h"
+//#import "MSIDWPJKeyPairWithCert+TransportKey.h"
 
 static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
 static NSString *kECPrivateKeyTagSuffix = @"-EC";
