@@ -45,7 +45,11 @@
         }
     }
      */
-    _privateTransportKeyRef = privateTransportKeyRef;
+    if (_privateTransportKeyRef)
+    {
+        _privateTransportKeyRef = privateTransportKeyRef;
+        CFRetain(_privateTransportKeyRef);
+    }
 }
 
 @end
