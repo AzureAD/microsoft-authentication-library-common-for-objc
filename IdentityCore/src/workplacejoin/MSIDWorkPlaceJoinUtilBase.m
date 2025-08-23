@@ -207,6 +207,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 // Query the session transport key only for iOS.
 // 1P apps use transport key to decrypt ECDH JWE responses when redeeming bound regular refresh tokens
     SecKeyRef transportKeyRef = NULL;
+    /*
 #if TARGET_OS_IOS
     // Query the keychain for private session transport key only for iOS when it is ECC.
     id keyType = transportKeyAttributes[(__bridge id)kSecAttrKeyType];
@@ -224,6 +225,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         }
     }
 #endif
+     */
     NSMutableDictionary *mutableCertQuery = [NSMutableDictionary new];
     if (certAttributes)
     {
