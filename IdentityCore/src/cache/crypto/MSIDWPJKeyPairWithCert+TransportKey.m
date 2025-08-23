@@ -29,6 +29,7 @@
 
 - (void)setPrivateTransportKeyRef:(SecKeyRef)privateTransportKeyRef
 {
+    /*
     if (_privateTransportKeyRef != privateTransportKeyRef)
     {
         if (_privateTransportKeyRef)
@@ -38,6 +39,15 @@
         
         _privateTransportKeyRef = privateTransportKeyRef;
         
+        if (_privateTransportKeyRef)
+        {
+            CFRetain(_privateTransportKeyRef);
+        }
+    }
+     */
+    if (self)
+    {
+        _privateTransportKeyRef = privateTransportKeyRef;
         if (_privateTransportKeyRef)
         {
             CFRetain(_privateTransportKeyRef);
