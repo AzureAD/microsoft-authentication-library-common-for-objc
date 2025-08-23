@@ -62,7 +62,6 @@ NSString * const kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 @implementation MSIDWorkPlaceJoinUtilTests
 
 - (void)setUp {
-    [MSIDTestSwizzle reset];
     // Put setup code here. This method is called before the invocation of each test method in the class.
     // Setting use iOS style keychain to true by default. Set it to NO in test cases that require ACL.
     self.useIosStyleKeychain = YES;
