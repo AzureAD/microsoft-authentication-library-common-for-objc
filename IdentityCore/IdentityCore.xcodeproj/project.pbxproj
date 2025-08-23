@@ -741,6 +741,8 @@
 		728209D026FEA0F600B5F018 /* MSIDKeyOperationUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209CF26FEA0F600B5F018 /* MSIDKeyOperationUtil.m */; };
 		728209D126FEA0F600B5F018 /* MSIDKeyOperationUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209CF26FEA0F600B5F018 /* MSIDKeyOperationUtil.m */; };
 		728209D62702AF8900B5F018 /* MSIDBackgroundTaskManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209D32702AE9300B5F018 /* MSIDBackgroundTaskManagerTests.m */; };
+		728ABAC92E597B2A00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 728ABAC82E597B1F00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.m */; };
+		728ABACA2E597B2A00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 728ABAC82E597B1F00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.m */; };
 		728D9E4628245DD7001D990F /* MSIDTestSecureEnclaveKeyPairGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 728D9E4528245DD7001D990F /* MSIDTestSecureEnclaveKeyPairGenerator.m */; };
 		728D9E4728245DD7001D990F /* MSIDTestSecureEnclaveKeyPairGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 728D9E4528245DD7001D990F /* MSIDTestSecureEnclaveKeyPairGenerator.m */; };
 		728D9E492824A323001D990F /* MSIDPkeyAuthHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C5E220A68D400768729 /* MSIDPkeyAuthHelperTests.m */; };
@@ -2654,6 +2656,8 @@
 		728209CD26FEA0D800B5F018 /* MSIDKeyOperationUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeyOperationUtil.h; sourceTree = "<group>"; };
 		728209CF26FEA0F600B5F018 /* MSIDKeyOperationUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyOperationUtil.m; sourceTree = "<group>"; };
 		728209D32702AE9300B5F018 /* MSIDBackgroundTaskManagerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskManagerTests.m; sourceTree = "<group>"; };
+		728ABAC72E597AFB00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWorkPlaceJoinUtilTransportKeyTests.h; sourceTree = "<group>"; };
+		728ABAC82E597B1F00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWorkPlaceJoinUtilTransportKeyTests.m; sourceTree = "<group>"; };
 		728D9E4528245DD7001D990F /* MSIDTestSecureEnclaveKeyPairGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestSecureEnclaveKeyPairGenerator.m; sourceTree = "<group>"; };
 		728D9E4828247D4C001D990F /* MSIDTestSecureEnclaveKeyPairGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestSecureEnclaveKeyPairGenerator.h; sourceTree = "<group>"; };
 		729357E72DD810C70001D03C /* MSIDNonceTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDNonceTokenRequest.h; sourceTree = "<group>"; };
@@ -5710,6 +5714,8 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				728ABAC82E597B1F00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.m */,
+				728ABAC72E597AFB00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.h */,
 				720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */,
 				729357F22DDBD3F60001D03C /* MSIDNonceTokenRequestTest.m */,
 				A0410E4F25E88B5E004D80FD /* MSIDThrottlingMetaDataTest.m */,
@@ -7197,6 +7203,7 @@
 				B210F4501FDDF5D2005A8F76 /* MSIDClientInfoTests.m in Sources */,
 				6080B9A523886DD9009B1322 /* MSIDBrokerOperationGetDeviceInfoRequestTests.m in Sources */,
 				B431B5292AF05C890020CD3D /* MSIDBrokerOperationGetPasskeyAssertionResponseTests.m in Sources */,
+				728ABAC92E597B2A00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.m in Sources */,
 				96D3A44E20E6F7D8001BD428 /* MSIDPkceTests.m in Sources */,
 				B286BA02238A0919007833AD /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */,
 				23D00DA82ABD0805006D7F16 /* MSIDBrowserNativeMessageGetTokenRequestTests.m in Sources */,
@@ -7766,6 +7773,7 @@
 				606B108F20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m in Sources */,
 				B20E3CB31FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				2376D8DE2D88FDE900ADC271 /* MSIDBrowserNativeMessageGetSupportedContractsResponseTests.m in Sources */,
+				728ABACA2E597B2A00FCE434 /* MSIDWorkPlaceJoinUtilTransportKeyTests.m in Sources */,
 				B2936F7A20ABF8310050C585 /* MSIDLegacyAccessTokenTests.m in Sources */,
 				B223B0A422ADEE4500FB8713 /* MSIDMaskedUsernameLogParameterTests.m in Sources */,
 				6074800423561F8300C5308F /* MSIDAccountMetadataCacheAccessorTests.m in Sources */,
