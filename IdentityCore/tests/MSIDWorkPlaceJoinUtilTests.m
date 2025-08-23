@@ -502,21 +502,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 }
 
 #pragma mark - Session transport key tests
-- (void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier
-{
-    NSString *keychainGroup = [self keychainGroup:NO];
-    NSString *stkTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantIdentifier, @"-EC"];
-    if (!self.stkEccKeyGenerator)
-        self.stkEccKeyGenerator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:keychainGroup
-                                                                                          useSecureEnclave:YES
-                                                                                            applicationTag:stkTag];
-    SecKeyRef transportKeyRef = self.stkEccKeyGenerator.eccPrivateKey;
-    XCTAssertTrue(transportKeyRef != NULL);
-    [self insertKeyIntoKeychain:transportKeyRef
-                  privateKeyTag:stkTag
-                    accessGroup:keychainGroup];
-}
-
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithTransportKey_shouldReturnBothKeys
 {
     [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
@@ -891,6 +876,21 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
         return status;
     }
     return [self insertDummyEccRegistrationForTenantIdentifier:tenantId certIdentifier:certIdentifier useSecureEnclave:useSecureEnclave];
+}
+
+- (void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier
+{
+    NSString *keychainGroup = [self keychainGroup:NO];
+    NSString *stkTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantIdentifier, @"-EC"];
+    if (!self.stkEccKeyGenerator)
+        self.stkEccKeyGenerator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:keychainGroup
+                                                                                          useSecureEnclave:YES
+                                                                                            applicationTag:stkTag];
+    SecKeyRef transportKeyRef = self.stkEccKeyGenerator.eccPrivateKey;
+    XCTAssertTrue(transportKeyRef != NULL);
+    [self insertKeyIntoKeychain:transportKeyRef
+                  privateKeyTag:stkTag
+                    accessGroup:keychainGroup];
 }
 
 @end
