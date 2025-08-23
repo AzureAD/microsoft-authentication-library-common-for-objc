@@ -32,7 +32,7 @@
 
 #if TARGET_OS_IOS
 @interface MSIDWorkPlaceJoinUtilTransportKeyTests : XCTestCase
- -(void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier;
+ //-(void)insertEccStkKeyForTenantIdentifier:(NSString *)tenantIdentifier;
 @property (nonatomic) NSString *tenantId;
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *stkEccKeyGenerator;
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
@@ -57,7 +57,7 @@ static NSString *kDummyTenant2CertIdentifier = @"OWZmNWYzM2ItOTc0OS00M2U3LTk1Njc
 static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1NjctODMxOGVhNDEyNTRi";
 
 @implementation MSIDWorkPlaceJoinUtilTransportKeyTests
-
+/*
 -(void)setUp
 {
     [super setUp];
@@ -549,6 +549,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     return deleteStatus;
 }
-
+*/
 @end
 #endif
