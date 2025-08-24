@@ -61,12 +61,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 @implementation MSIDWorkPlaceJoinUtilTests
 
-#if TARGET_OS_IPHONE
-+ (BOOL)serialized
-{
-    return YES;
-}
-#endif
 - (void)setUp
 {
     // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -83,7 +77,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     if (self.useIosStyleKeychain)
     {
         [self cleanWPJ:[self keychainGroup:YES]];
-        [self cleanWPJ:[self keychainGroup:NO]];
+        //[self cleanWPJ:[self keychainGroup:NO]];
     }
     [MSIDTestSwizzle reset];
 }
