@@ -29,29 +29,21 @@
 
 - (void)setPrivateTransportKeyRef:(SecKeyRef)privateTransportKeyRef
 {
-    @synchronized (self) {
-        if (_privateTransportKeyRef != privateTransportKeyRef)
+    if (_privateTransportKeyRef != privateTransportKeyRef)
+    {
+        if (_privateTransportKeyRef)
         {
-            if (_privateTransportKeyRef)
-            {
-                CFRelease(_privateTransportKeyRef);
-                _privateTransportKeyRef = NULL;
-            }
-            
-            _privateTransportKeyRef = privateTransportKeyRef;
-            
-            if (_privateTransportKeyRef)
-            {
-                CFRetain(_privateTransportKeyRef);
-            }
+            CFRelease(_privateTransportKeyRef);
+            _privateTransportKeyRef = NULL;
+        }
+        
+        _privateTransportKeyRef = privateTransportKeyRef;
+        
+        if (_privateTransportKeyRef)
+        {
+            CFRetain(_privateTransportKeyRef);
         }
     }
-    /*_privateTransportKeyRef = privateTransportKeyRef;
-    if (_privateTransportKeyRef)
-    {
-        
-        CFRetain(_privateTransportKeyRef);
-    }*/
 }
 
 @end
