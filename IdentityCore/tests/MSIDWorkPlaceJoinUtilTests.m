@@ -77,7 +77,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     if (self.useIosStyleKeychain)
     {
         [self cleanWPJ:[self keychainGroup:YES]];
-        //[self cleanWPJ:[self keychainGroup:NO]];
+        [self cleanWPJ:[self keychainGroup:NO]];
     }
     [MSIDTestSwizzle reset];
 }
@@ -503,18 +503,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 }
 
 #pragma mark - Session transport key tests
-- (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithTransportKey_shouldReturnBothKeys
-{
-    [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
-    [self insertEccStkKeyForTenantIdentifier:self.tenantId];
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
-    
-    XCTAssertNotNil(result);
-    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
-    XCTAssertTrue(result.privateKeyRef != NULL);
-    XCTAssertTrue(result.privateTransportKeyRef != NULL);
-}
-
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
 {
     NSString *tid = self.tenantId;
@@ -527,6 +515,18 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
     XCTAssertTrue(result.privateKeyRef != NULL);
     XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil when transport key is missing");
+}
+
+- (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithTransportKey_shouldReturnBothKeys
+{
+    [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    [self insertEccStkKeyForTenantIdentifier:self.tenantId];
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    XCTAssertTrue(result.privateKeyRef != NULL);
+    XCTAssertTrue(result.privateTransportKeyRef != NULL);
 }
 
 - (void)testGetWPJKeysWithTenantId_whenPrimaryEccRegistrationWithTransportKey_shouldReturnCorrectKeys
