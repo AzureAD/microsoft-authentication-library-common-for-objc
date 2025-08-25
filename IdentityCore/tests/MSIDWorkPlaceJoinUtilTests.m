@@ -405,6 +405,14 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 #pragma mark - iOS WPJ tests
 
 #if TARGET_OS_IPHONE
+- (void)testGetWPJKeysWithTenantId_whenWPJInLegacyFormat_andTenantIdMatches_shouldReturnRegistration
+{
+    [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
+    XCTAssertEqual(result.keyChainVersion == MSIDWPJKeychainAccessGroupV1, TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue");
+    XCTAssertNotNil(result);
+}
 
 - (void)testGetWPJKeysWithTenantId_whenWPJInLegacyFormat_andTenantIdMatches_shouldReturnRegistrationV2
 {
@@ -412,15 +420,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
     XCTAssertEqual(result.keyChainVersion == MSIDWPJKeychainAccessGroupV2, TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue");
-    XCTAssertNotNil(result);
-}
-
-- (void)testGetWPJKeysWithTenantId_whenWPJInLegacyFormat_andTenantIdMatches_shouldReturnRegistration
-{
-    [self insertDummyWPJInLegacyFormat:YES tenantIdentifier:@"tenantId" writeTenantMetadata:YES certIdentifier:kDummyTenant1CertIdentifier];
-    
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:@"tenantId" context:nil];
-    XCTAssertEqual(result.keyChainVersion == MSIDWPJKeychainAccessGroupV1, TRUE, "Expected registrationInfo.tenantID to be same as test dummyKeyTenantValue");
     XCTAssertNotNil(result);
 }
 
