@@ -72,8 +72,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 #if TARGET_OS_OSX
     self.useIosStyleKeychain = NO;
 #endif
-    [self.class initialize];
-    [self.class acquireGlobalWPJTestLockWithTimeout:2.0];
 }
 
 - (void)tearDown
@@ -83,7 +81,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
         [self cleanWPJ:[self keychainGroup:YES]];
         [self cleanWPJ:[self keychainGroup:NO]];
     }
-    [self.class releaseGlobalWPJTestLock];
     [MSIDTestSwizzle reset];
 }
 
@@ -507,20 +504,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 }
 
 #pragma mark - Session transport key tests
-- (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
-{
-    NSString *tid = self.tenantId;
-    [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
-    // Don't insert transport key - simulate missing STK scenario
-    
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tid context:nil];
-    
-    XCTAssertNotNil(result);
-    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
-    XCTAssertTrue(result.privateKeyRef != NULL);
-    XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil when transport key is missing");
-}
-
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithTransportKey_shouldReturnBothKeys
 {
     [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
@@ -560,6 +543,21 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertTrue(result.privateKeyRef != NULL, @"Legacy registration should have device key");
     XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Legacy registration should not have transport key");
 }
+
+- (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
+{
+    NSString *tid = self.tenantId;
+    [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    // Don't insert transport key - simulate missing STK scenario
+    
+    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tid context:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    XCTAssertTrue(result.privateKeyRef != NULL);
+    XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil when transport key is missing");
+}
+
 
 - (void)testGetWPJKeysWithTenantId_whenRSARegistrationInV2Format_shouldNotHaveTransportKey
 {
@@ -897,64 +895,4 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
                   privateKeyTag:stkTag
                     accessGroup:keychainGroup];
 }
-# pragma mark -- Serial execution of tests
-
-// Global interprocess semaphore (named; no file fallback)
-static sem_t *s_wpjNamedSem = SEM_FAILED;
-
-+ (void)initialize
-{
-    if (self != [MSIDWorkPlaceJoinUtilTests class]) return;
-
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        // Named POSIX semaphore (not file-based). Name must start with '/'.
-        s_wpjNamedSem = sem_open("/com.microsoft.msid.wpj.tests.sem", O_CREAT, 0666, 1);
-    });
-}
-
-+ (BOOL)acquireGlobalWPJTestLockWithTimeout:(NSTimeInterval)timeoutSec
-{
-    if (s_wpjNamedSem == SEM_FAILED) return NO;
-
-    // Blocking acquire if timeout is negative
-    if (timeoutSec < 0) {
-        int rc;
-        do { rc = sem_wait(s_wpjNamedSem); } while (rc == -1 && errno == EINTR);
-        return rc == 0;
-    }
-
-    // Immediate try if timeout is zero
-    if (timeoutSec == 0) {
-        int rc;
-        do { rc = sem_trywait(s_wpjNamedSem); } while (rc == -1 && errno == EINTR);
-        return rc == 0;
-    }
-
-    CFAbsoluteTime deadline = CFAbsoluteTimeGetCurrent() + timeoutSec;
-    struct timespec sleepTs = { .tv_sec = 0, .tv_nsec = 10 * 1000 * 1000 }; // 10ms
-
-    for (;;) {
-        int rc = sem_trywait(s_wpjNamedSem);
-        if (rc == 0) return YES;
-
-        if (errno != EAGAIN && errno != EINTR) {
-            return NO; // unexpected error
-        }
-
-        if (CFAbsoluteTimeGetCurrent() >= deadline) {
-            return NO; // timed out
-        }
-
-        nanosleep(&sleepTs, NULL);
-    }
-}
-
-+ (void)releaseGlobalWPJTestLock
-{
-    if (s_wpjNamedSem != SEM_FAILED) {
-        sem_post(s_wpjNamedSem);
-    }
-}
-
 @end
