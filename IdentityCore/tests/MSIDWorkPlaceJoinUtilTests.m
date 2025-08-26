@@ -544,6 +544,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
 {
+    [self cleanWPJ:[self keychainGroup:YES]];
     NSString *tid = self.tenantId;
     OSStatus status = [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
     // Don't insert transport key - simulate missing STK scenario
