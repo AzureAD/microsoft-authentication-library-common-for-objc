@@ -101,13 +101,18 @@
     // This is also aligned when providing anchor window for the SSO Extension
     CGRect xpcAnchorFrame = CGRectZero;
     MSIDViewController *strongParentViewController = self.requestParameters.parentViewController;
-    if (strongParentViewController) {
+    if (strongParentViewController)
+    {
         xpcAnchorFrame = strongParentViewController.view.window.frame;
-    } else if (self.requestParameters.presentationAnchorWindow) {
+    }
+    else if (self.requestParameters.presentationAnchorWindow)
+    {
         xpcAnchorFrame = self.requestParameters.presentationAnchorWindow.frame;
     }
-    
-    // If there is no xpcAnchorFrame at this moment, the xpc window will try best effort to be presented on the screen with default size and position.
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Anchor window is missing, the xpc window will try best effort to be presented on the screen with default size and position.");
+    }
 
     NSDictionary *parameters = @{@"source_application": bundleIdentifier,
                                  @"sso_request_param": xpcRequest,
