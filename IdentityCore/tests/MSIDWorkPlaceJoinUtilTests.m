@@ -545,9 +545,12 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
 {
     NSString *tid = self.tenantId;
-    [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
+    OSStatus status = [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
     // Don't insert transport key - simulate missing STK scenario
-    NSLog(@"Testing for tid: %@", tid);
+    if (status != errSecSuccess)
+    {
+        XCTFail(@"Could not insert WPJ registration for tenant %@. Error code: %d", tid, (int)status);
+    }
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tid context:nil];
     if (!result)
     {
