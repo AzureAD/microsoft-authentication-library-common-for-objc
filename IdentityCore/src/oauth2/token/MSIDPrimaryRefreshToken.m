@@ -216,6 +216,12 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     return prtVersion >= 3.0 && [NSString msidIsStringNilOrBlank:self.deviceID];
 }
 
+- (BOOL)isDevicelessPRTv3
+{
+    CGFloat prtVersion = [self.prtProtocolVersion floatValue];
+    return prtVersion == 3.0 && [NSString msidIsStringNilOrBlank:self.deviceID];
+}
+
 - (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval
 {
     if (!self.expiresOn)

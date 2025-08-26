@@ -59,6 +59,9 @@
 @property (nonatomic) NSString *clientSku;
 @property (nonatomic) BOOL skipValidateResultAccount;
 @property (nonatomic) BOOL forceRefresh;
+// If YES — redirect URI validation is bypassed.
+// This flag may be set by either the MSAL app or the broker process.
+// - When set by the MSAL app: brokered flows are disabled, and MSAL falls back to local auth flows.
 @property (nonatomic) BOOL bypassRedirectURIValidation;
 
 // Telemetry metadata
