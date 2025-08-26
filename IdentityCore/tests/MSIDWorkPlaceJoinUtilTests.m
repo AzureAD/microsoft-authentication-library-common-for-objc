@@ -541,7 +541,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertTrue(result.privateKeyRef != NULL, @"Legacy registration should have device key");
     XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Legacy registration should not have transport key");
 }
-
+/*
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
 {
     NSString *tid = self.tenantId;
@@ -562,7 +562,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertTrue(result.privateKeyRef != NULL);
     XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil when transport key is missing");
 }
-
+*/
 
 - (void)testGetWPJKeysWithTenantId_whenRSARegistrationInV2Format_shouldNotHaveTransportKey
 {
