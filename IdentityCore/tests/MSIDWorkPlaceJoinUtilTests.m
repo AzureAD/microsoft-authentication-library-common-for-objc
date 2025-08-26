@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <semaphore.h>
-
 #import <XCTest/XCTest.h>
 #import "MSIDKeychainUtil.h"
 #import "MSIDWorkPlaceJoinUtil.h"
@@ -899,4 +897,40 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
                   privateKeyTag:stkTag
                     accessGroup:keychainGroup];
 }
+@end
+
+@implementation MSIDWorkPlaceJoinUtilTests (ExclusiveExecution)
+
++ (dispatch_semaphore_t)msid_classSemaphore
+{
+    static dispatch_semaphore_t s;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        s = dispatch_semaphore_create(1); // binary semaphore (mutex)
+    });
+    return s;
+}
+
+- (void)invokeTest
+{
+    dispatch_semaphore_t sem = [self.class msid_classSemaphore];
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(30 * NSEC_PER_SEC));
+    long acquired = dispatch_semaphore_wait(sem, timeout);
+
+    if (acquired != 0)
+    {
+        XCTFail(@"Failed to acquire class lock before running test");
+        return;
+    }
+
+    @try
+    {
+        [super invokeTest];
+    }
+    @finally
+    {
+        dispatch_semaphore_signal(sem);
+    }
+}
+
 @end
