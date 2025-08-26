@@ -549,8 +549,12 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     NSString *tid = self.tenantId;
     [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
     // Don't insert transport key - simulate missing STK scenario
-    
+    NSLog(@"Testing for tid: %@", tid);
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tid context:nil];
+    if (!result)
+    {
+        XCTFail(@"Could not retrieve WPJ keys for tenant %@. result : %@", tid, result);
+    }
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
