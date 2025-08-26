@@ -28,6 +28,7 @@
 #import "MSIDTestIdentifiers.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDCredentialType.h"
+#import "MSIDAccessToken.h"
 
 @interface MSIDFamilyRefreshTokenTests : XCTestCase
 
