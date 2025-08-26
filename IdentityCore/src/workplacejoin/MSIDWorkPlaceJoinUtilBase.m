@@ -386,7 +386,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         id keyType = privateKeyAttributes[(__bridge id)kSecAttrKeyType];
         if (keyType && [keyType isEqual: (__bridge id)kSecAttrKeyTypeECSECPrimeRandom])
         {
-            defaultKeys.privateTransportKeyRef = [self getSessionTransportKeyFromSecureEnclaveForTenantId:tenantId context:context];
+            defaultKeys.privateTransportKeyRef = [self getSessionTransportKeyRefFromSecureEnclaveForTenantId:tenantId context:context];
         }
         return defaultKeys;
     }
@@ -501,7 +501,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     return nil;
 }
 
-+ (SecKeyRef)getSessionTransportKeyFromSecureEnclaveForTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
++ (SecKeyRef)getSessionTransportKeyRefFromSecureEnclaveForTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
 {
     SecKeyRef transportKeyRef = nil;
 #if TARGET_OS_IPHONE
