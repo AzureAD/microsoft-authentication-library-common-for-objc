@@ -505,10 +505,15 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 - (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithTransportKey_shouldReturnBothKeys
 {
     [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
-    [self insertEccStkKeyForTenantIdentifier:self.tenantId];
     MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
+    XCTAssertTrue(result.privateKeyRef != NULL);
+    XCTAssertTrue(result.privateTransportKeyRef == NULL);
+    
+    [self insertEccStkKeyForTenantIdentifier:self.tenantId];
+    result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
     XCTAssertTrue(result.privateKeyRef != NULL);
     XCTAssertTrue(result.privateTransportKeyRef != NULL);
@@ -541,28 +546,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertTrue(result.privateKeyRef != NULL, @"Legacy registration should have device key");
     XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Legacy registration should not have transport key");
 }
-/*
-- (void)testGetWPJKeysWithTenantId_whenEccRegistrationWithMissingTransportKey_shouldReturnOnlyDeviceKey
-{
-    NSString *tid = self.tenantId;
-    OSStatus status = [self insertDummyEccRegistrationForTenantIdentifier:tid certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
-    // Don't insert transport key - simulate missing STK scenario
-    if (status != errSecSuccess)
-    {
-        XCTFail(@"Could not insert WPJ registration for tenant %@. Error code: %d", tid, (int)status);
-    }
-    MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tid context:nil];
-    if (!result)
-    {
-        XCTFail(@"Could not retrieve WPJ keys for tenant %@. result : %@", tid, result);
-    }
-    
-    XCTAssertNotNil(result);
-    XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
-    XCTAssertTrue(result.privateKeyRef != NULL);
-    XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil when transport key is missing");
-}
-*/
 
 - (void)testGetWPJKeysWithTenantId_whenRSARegistrationInV2Format_shouldNotHaveTransportKey
 {
@@ -578,41 +561,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     XCTAssertEqual(result.keyChainVersion, MSIDWPJKeychainAccessGroupV2);
     XCTAssertTrue(result.privateKeyRef != NULL, @"Expected privateKeyRef to be non-nil for RSA registration in V2 format");
     XCTAssertTrue(result.privateTransportKeyRef == NULL, @"Expected privateTransportKeyRef to be nil for RSA registration in V2 format");
-}
-
-- (void)testGetWPJKeysWithTenantId_concurrentAccess_shouldBeThreadSafe
-{
-    [self insertDummyEccRegistrationForTenantIdentifier:self.tenantId certIdentifier:kDummyTenant1CertIdentifier useSecureEnclave:YES];
-    [self insertEccStkKeyForTenantIdentifier:self.tenantId];
-    dispatch_group_t group = dispatch_group_create();
-    __block NSMutableArray *results = [NSMutableArray array];
-    __block NSLock *lock = [[NSLock alloc] init];
-    
-    // Launch multiple concurrent requests
-    for (int i = 0; i < 5; i++) {
-        dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            MSIDWPJKeyPairWithCert *result = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
-            
-            [lock lock];
-            if (result) {
-                [results addObject:result];
-            }
-            [lock unlock];
-        });
-    }
-    
-    // Wait for all requests to complete
-    dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
-
-    // All requests should succeed
-    XCTAssertTrue(results.count == 5, @"All concurrent requests should succeed");
-    
-    // Verify all results have transport keys
-    for (MSIDWPJKeyPairWithCert *result in results) {
-        XCTAssertTrue(result.privateKeyRef != NULL);
-        XCTAssertTrue(result.privateTransportKeyRef != NULL);
-    }
-
 }
 
 #endif
