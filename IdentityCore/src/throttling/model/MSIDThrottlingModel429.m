@@ -22,7 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #import <Foundation/Foundation.h>
 #import "MSIDThrottlingModel429.h"
 #import "NSError+MSIDThrottlingExtension.h"
@@ -124,7 +123,7 @@ NSInteger const MSID_THROTTLING_MAX_RETRY_AFTER = 3600;
 
 - (void) updateServerTelemetry
 {
-    // TODO implement telemetry update here
+    // TODO integrate telemetry update here.
     return ;
 }
 
