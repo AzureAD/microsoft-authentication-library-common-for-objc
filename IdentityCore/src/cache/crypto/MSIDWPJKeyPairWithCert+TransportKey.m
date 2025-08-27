@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,22 +22,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDWPJKeyPairWithCert.h"
+#import "MSIDWPJKeyPairWithCert+TransportKey.h"
 
-#pragma once
+@implementation MSIDWPJKeyPairWithCert (TransportKey)
 
-extern NSString *const kMSIDPrivateKeyIdentifier;
-extern NSString *const kMSIDPrivateTransportKeyIdentifier;
-extern NSString *const kMSIDTenantKeyIdentifier;
-extern NSString *const kMSIDUPNKeyIdentifier;
-extern NSString *const kMSIDWPJThumbprintIdentifier;
-extern NSString *const kMSIDWPJCertificateCommonNameIdentifier;
-extern NSString *const kMSIDWPJCloudEnvironmentIdentifier;
-extern NSString *const kMSIDProtectionSpaceDistinguishedName;
-extern NSString *const kMSIDPKeyAuthUrn;
-extern NSString *const kMSIDPKeyAuthHeader;
-extern NSString *const kMSIDPKeyAuthHeaderVersion;
-extern NSString *const kMSIDWwwAuthenticateHeader;
-extern NSString *const kMSIDPKeyAuthName;
-extern NSString *const kMSIDPKeyAuthKeyWordForUserAgent;
-extern NSString *const kMSIDWPJKeychainGroupV2;
+- (void)setPrivateTransportKeyRef:(SecKeyRef)privateTransportKeyRef
+{
+    if (_privateTransportKeyRef != privateTransportKeyRef)
+    {
+        if (_privateTransportKeyRef)
+        {
+            CFRelease(_privateTransportKeyRef);
+            _privateTransportKeyRef = NULL;
+        }
+        
+        _privateTransportKeyRef = privateTransportKeyRef;
+        
+        if (_privateTransportKeyRef)
+        {
+            CFRetain(_privateTransportKeyRef);
+        }
+    }
+}
+
+@end
