@@ -1,4 +1,5 @@
 TBD
+* Query and populate ECC STK in Workplacejoin information for iOS (#1555)
 * Return MATS blob for GetToken api response #1551
 
 Version 1.14.0

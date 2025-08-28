@@ -101,6 +101,12 @@
         CFRelease(_privateKeyRef);
         _privateKeyRef = NULL;
     }
+    
+    if (_privateTransportKeyRef)
+    {
+        CFRelease(_privateTransportKeyRef);
+        _privateTransportKeyRef = NULL;
+    }
 }
 
 @end
