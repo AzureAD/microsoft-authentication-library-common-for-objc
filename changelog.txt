@@ -1,3 +1,8 @@
+Version 1.15.0
+* Bypassed redirect URL validation for MSAL.js apps using the native Browser SSO Extension flow on Edge.
+* Fixed AppInfo handling for Edge Native MSAL.js Native Bridge SSO flow.
+* Updated bound refresh token redemption to use PRTv4.0 with STK decryption; STK is now populated on iOS only when ECC is used.
+
 Version 1.14.0
 * Added state validation to DUNA flow (#1543)
 
