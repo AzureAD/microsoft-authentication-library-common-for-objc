@@ -1,4 +1,4 @@
-TBD
+Version 1.15.0
 * Query and populate ECC STK in Workplacejoin information for iOS (#1555)
 
 Version 1.14.0
