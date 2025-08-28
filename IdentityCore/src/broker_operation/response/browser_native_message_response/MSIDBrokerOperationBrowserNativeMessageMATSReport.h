@@ -172,17 +172,6 @@ extern MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusAADJ;
 @property (nonatomic) NSInteger httpStatus;
 
 /**
- * Number of HTTP calls made.
- *
- * Counts how many web requests were performed during the token acquisition.
- * 0 means no network call (pure cache usage), 1 means one token request to AAD,
- * 2 might indicate a retry or an extra OIDC metadata call, etc.
- *
- * Example: 0 (cache hit), 1 (typical token acquisition), 2 (token + metadata call)
- */
-@property (nonatomic) NSInteger httpEventCount;
-
-/**
  * JSON string representation of the report.
  *
  * Converts the MATS report into a JSON string format for easy logging or transmission.

@@ -56,14 +56,13 @@ MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined = @"not_joined"
         _silentCode = 0;
         _silentStatus = MSIDMATSSilentStatusSuccess;
         _httpStatus = 0;
-        _httpEventCount = 0;
     }
     return self;
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDBrokerOperationBrowserNativeMessageMATSReport: isCached: %@, brokerVersion: %@, deviceJoin: %@, promptBehavior: %@, apiErrorCode: %ld, uiVisible: %@, silentCode: %ld, silentMessage: %@, silentStatus: %ld, httpStatus: %ld, httpEventCount: %ld",
+    return [NSString stringWithFormat:@"MSIDBrokerOperationBrowserNativeMessageMATSReport: isCached: %@, brokerVersion: %@, deviceJoin: %@, promptBehavior: %@, apiErrorCode: %ld, uiVisible: %@, silentCode: %ld, silentMessage: %@, silentStatus: %ld, httpStatus: %ld",
             @(self.isCached),
             self.brokerVersion,
             self.deviceJoin,
@@ -73,8 +72,7 @@ MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined = @"not_joined"
             (long)self.silentCode,
             self.silentMessage,
             (long)self.silentStatus,
-            (long)self.httpStatus,
-            (long)self.httpEventCount];
+            (long)self.httpStatus];
 }
 
 #pragma mark - MSIDJsonSerializable
@@ -95,7 +93,6 @@ MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined = @"not_joined"
     _silentMessage = [json msidStringObjectForKey:MSID_MATS_SILENT_MESSAGE_KEY];
     _silentStatus = [json msidIntegerObjectForKey:MSID_MATS_SILENT_STATUS_KEY];
     _httpStatus = [json msidIntegerObjectForKey:MSID_MATS_HTTP_STATUS_KEY];
-    _httpEventCount = [json msidIntegerObjectForKey:MSID_MATS_HTTP_EVENT_COUNT_KEY];
     
     return self;
 }
@@ -117,7 +114,6 @@ MSIDMATSDeviceJoinStatus const MSIDMATSDeviceJoinStatusNotJoined = @"not_joined"
     json[MSID_MATS_SILENT_MESSAGE_KEY] = self.silentMessage;
     json[MSID_MATS_SILENT_STATUS_KEY] = @(self.silentStatus);
     json[MSID_MATS_HTTP_STATUS_KEY] = @(self.httpStatus);
-    json[MSID_MATS_HTTP_EVENT_COUNT_KEY] = @(self.httpEventCount);
     
     return json;
 }

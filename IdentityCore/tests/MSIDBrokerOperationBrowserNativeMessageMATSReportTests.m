@@ -51,8 +51,7 @@
         @"silent_code": @(0),
         @"silent_message": @"",
         @"silent_status": @(MSIDMATSSilentStatusUserInteractionRequired),
-        @"http_status": @(200),
-        @"http_event_count": @(1)
+        @"http_status": @(200)
     };
     
     NSError *error;
@@ -70,7 +69,6 @@
     XCTAssertEqualObjects(@"", report.silentMessage);
     XCTAssertEqual(3, report.silentStatus);
     XCTAssertEqual(200, report.httpStatus);
-    XCTAssertEqual(1, report.httpEventCount);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValidAndMinimalFieldsProvided_shouldInit
@@ -82,7 +80,6 @@
         @"silent_code": @(0),
         @"silent_status": @(0),
         @"http_status": @(400),
-        @"http_event_count": @(2)
     };
     
     NSError *error;
@@ -100,7 +97,6 @@
     XCTAssertNil(report.silentMessage);
     XCTAssertEqual(0, report.silentStatus);
     XCTAssertEqual(400, report.httpStatus);
-    XCTAssertEqual(2, report.httpEventCount);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonEmpty_shouldInitWithDefaults
@@ -122,7 +118,6 @@
     XCTAssertNil(report.silentMessage);
     XCTAssertEqual(0, report.silentStatus);
     XCTAssertEqual(0, report.httpStatus);
-    XCTAssertEqual(0, report.httpEventCount);
 }
 
 - (void)testJsonDictionary_whenAllFieldsSet_shouldReturnCompleteJson
@@ -138,7 +133,6 @@
     report.silentMessage = @"User interaction required.";
     report.silentStatus = 1;
     report.httpStatus = 200;
-    report.httpEventCount = 1;
     
     __auto_type json = [report jsonDictionary];
     
@@ -153,7 +147,6 @@
     XCTAssertEqualObjects(@"User interaction required.", json[@"silent_message"]);
     XCTAssertEqualObjects(@(1), json[@"silent_status"]);
     XCTAssertEqualObjects(@(200), json[@"http_status"]);
-    XCTAssertEqualObjects(@(1), json[@"http_event_count"]);
 }
 
 - (void)testJsonDictionary_whenMinimalFieldsSet_shouldReturnPartialJson
@@ -165,7 +158,6 @@
     report.silentCode = 0;
     report.silentStatus = 0;
     report.httpStatus = 400;
-    report.httpEventCount = 2;
     
     __auto_type json = [report jsonDictionary];
     
@@ -180,7 +172,6 @@
     XCTAssertNil(json[@"silent_message"]);
     XCTAssertEqualObjects(@(0), json[@"silent_status"]);
     XCTAssertEqualObjects(@(400), json[@"http_status"]);
-    XCTAssertEqualObjects(@(2), json[@"http_event_count"]);
 }
 
 - (void)testJsonDictionary_whenDefaultValues_shouldReturnJsonWithDefaults
@@ -200,7 +191,6 @@
     XCTAssertNil(json[@"silent_message"]);
     XCTAssertEqualObjects(@(0), json[@"silent_status"]);
     XCTAssertEqualObjects(@(0), json[@"http_status"]);
-    XCTAssertEqualObjects(@(0), json[@"http_event_count"]);
 }
 
 - (void)testErrorScenario_shouldHaveCorrectValues
