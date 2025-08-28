@@ -44,7 +44,7 @@
 {
     __auto_type parentDescription = [super description];
 
-    return [NSString stringWithFormat:@"%@ accountId: (homeAccountId: %@ displayableId: %@)", parentDescription, MSID_PII_LOG_TRACKABLE(self.accountId.homeAccountId), MSID_PII_LOG_EMAIL(self.accountId.displayableId)];
+    return [NSString stringWithFormat:@"%@ accountId: (homeAccountId: %@ displayableId: %@), correlationId: %@", parentDescription, MSID_PII_LOG_TRACKABLE(self.accountId.homeAccountId), MSID_PII_LOG_EMAIL(self.accountId.displayableId), self.correlationId.UUIDString];
 }
 
 #pragma mark - MSIDJsonSerializable
@@ -58,6 +58,11 @@
     if (![MSIDAccountIdentifier isAccountIdValid:homeAccountId error:error]) return nil;
 
     _accountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:homeAccountId];
+    
+    // Parse correlationId from JSON - optional field
+    if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY required:NO error:error]) return nil;
+    NSString *uuidString = [json msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
+    _correlationId = uuidString ? [[NSUUID alloc] initWithUUIDString:uuidString] : [NSUUID UUID];
     
     return self;
 }
