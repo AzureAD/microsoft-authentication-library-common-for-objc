@@ -30,7 +30,6 @@
 #import "MSIDConstants.h"
 #import "MSIDPromptType_Internal.h"
 
-NSString *const MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY = @"correlationId";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY = @"clientId";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY = @"authority";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_SCOPE_KEY = @"scope";
