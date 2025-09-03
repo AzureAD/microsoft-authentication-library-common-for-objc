@@ -1,5 +1,6 @@
 TBD
 * Query and populate ECC STK in Workplacejoin information for iOS (#1555)
+* Introduce a class and cache item class to represent bound refresh tokens (#1548)
 
 Version 1.14.0
 * Added state validation to DUNA flow (#1543)

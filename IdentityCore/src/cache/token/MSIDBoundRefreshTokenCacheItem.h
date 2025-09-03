@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,30 +20,23 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
 #import <Foundation/Foundation.h>
+#import "MSIDCredentialCacheItem.h"
 
-typedef NS_ENUM(NSInteger, MSIDCredentialType)
-{
-    MSIDCredentialTypeOther = 0,
-    MSIDAccessTokenType = 1,
-    MSIDRefreshTokenType = 2,
-    MSIDIDTokenType = 3,
-    MSIDLegacySingleResourceTokenType = 4,
-    MSIDPrimaryRefreshTokenType = 5,
-    MSIDLegacyIDTokenType = 6,
-    MSIDAccessTokenWithAuthSchemeType = 7,
-    MSIDFamilyRefreshTokenType = 8,
-    MSIDBoundRefreshTokenType = 9,
-    MSIDCredentialTypeLast
-};
+/**
+ * @class MSIDBoundRefreshTokenCacheItem
+ * @brief Represents a bound refresh token cache item that is bound to the device.
+ */
+@interface MSIDBoundRefreshTokenCacheItem : MSIDCredentialCacheItem <NSSecureCoding>
 
-@interface MSIDCredentialTypeHelpers : NSObject
+/**
+ * @property boundDeviceId
+ * @brief The unique identifier of the device to which the refresh token is bound.
+ */
+@property (atomic) NSString *boundDeviceId;
 
-+ (NSString *)credentialTypeAsString:(MSIDCredentialType)type;
-+ (MSIDCredentialType)credentialTypeFromString:(NSString *)type;
-+ (MSIDCredentialType)credentialTypeWithRefreshToken:(NSString *)refreshToken accessToken:(NSString *)accessToken;
-+ (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType;
+@property (nonatomic, readonly) NSString *boundRefreshToken;
 
 @end
