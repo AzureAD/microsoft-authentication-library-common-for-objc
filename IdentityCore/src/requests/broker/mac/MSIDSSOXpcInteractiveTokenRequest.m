@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 
 #import "MSIDSSOXpcInteractiveTokenRequest.h"
@@ -96,13 +96,31 @@
 
     // Retrieve the bundle identifier
     NSString *bundleIdentifier = [mainBundle bundleIdentifier];
+
+    // Use parentViewController frame if available, otherwise fall back to presentationAnchorWindow frame.
+    // This is also aligned when providing anchor window for the SSO Extension
+    CGRect xpcAnchorFrame = CGRectZero;
+    MSIDViewController *strongParentViewController = self.requestParameters.parentViewController;
+    if (strongParentViewController)
+    {
+        xpcAnchorFrame = strongParentViewController.view.window.frame;
+    }
+    else if (self.requestParameters.presentationAnchorWindow)
+    {
+        xpcAnchorFrame = self.requestParameters.presentationAnchorWindow.frame;
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Anchor window is missing, the xpc window will try best effort to be presented on the screen with default size and position.");
+    }
+
     NSDictionary *parameters = @{@"source_application": bundleIdentifier,
                                  @"sso_request_param": xpcRequest,
                                  @"is_silent": @(NO),
                                  @"sso_request_operation": [self.operationRequest.class operation],
                                  @"sso_request_id": [[NSUUID UUID] UUIDString]};
     [self.xpcSingleSignOnProvider handleRequestParam:parameters
-                                     parentViewFrame:self.requestParameters.parentViewController.view.window.frame
+                                     parentViewFrame:xpcAnchorFrame
                            assertKindOfResponseClass:MSIDBrokerOperationTokenResponse.class
                                     xpcProviderCache:MSIDXpcProviderCache.sharedInstance
                                              context:self.context
