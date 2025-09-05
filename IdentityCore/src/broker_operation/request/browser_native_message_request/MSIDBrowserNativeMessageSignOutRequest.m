@@ -62,7 +62,12 @@
     // Parse correlationId from JSON - optional field
     if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY required:NO error:error]) return nil;
     NSString *uuidString = [json msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
-    _correlationId = uuidString ? [[NSUUID alloc] initWithUUIDString:uuidString] : [NSUUID UUID];
+    _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
+    if (!_correlationId)
+    {
+        _correlationId = [NSUUID UUID];
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationID is invalid or not in UUID format: %@. Use new correlationId: %@", uuidString, _correlationId);
+    }
     
     return self;
 }
