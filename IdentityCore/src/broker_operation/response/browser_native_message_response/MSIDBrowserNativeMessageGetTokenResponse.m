@@ -20,13 +20,14 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 
 #import "MSIDBrowserNativeMessageGetTokenResponse.h"
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDOAuth2Constants.h"
+#import "MSIDBrokerOperationBrowserNativeMessageMATSReport.h"
 
 @interface MSIDBrowserNativeMessageGetTokenResponse()
 
@@ -80,6 +81,9 @@
     __auto_type propertiesJson = [NSMutableDictionary new];
     // TODO: once ests follow the latest protocol, this should be removed. Account ID should be read from accountJson.
     propertiesJson[@"UPN"] = accountJson[@"userName"];
+    // Add MATS report as JSON string
+    propertiesJson[@"MATS"] = [self.matsReport jsonString];
+    
     response[@"properties"] = propertiesJson;
     
     return response;
