@@ -35,7 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 // Client nonce GUID to be used in bound refresh token redemption request payload.
 @property (nonatomic, copy) NSString *nonce;
 
+// Audience (token endpoint URL) for the bound refresh token redemption request
+@property (nonatomic, copy) NSString *audience;
+
 - (instancetype)initWithClientId:(NSString *)clientId
+               authorityEndpoint:(NSURL *)authorityEndpoint
                           scopes:(NSSet <NSString *>*)scopes
                            nonce:(NSString *)nonce;
 

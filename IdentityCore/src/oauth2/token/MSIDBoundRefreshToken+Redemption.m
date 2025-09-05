@@ -30,6 +30,7 @@
 #import "MSIDEcdhApv.h"
 #import "MSIDJwtAlgorithm.h"
 #import "MSIDJWTHelper.h"
+#import "MSIDKeyOperationUtil.h"
 
 @implementation MSIDBoundRefreshToken (Redemption)
 
@@ -38,7 +39,7 @@
 - (NSString *)getTokenRedemptionJwtForTenantId:(nullable NSString *)tenantId
                      tokenRedemptionParameters:(MSIDBoundRefreshTokenRedemptionParameters *) requestParameters
                                        context:(id<MSIDRequestContext> _Nullable)context
-                                     jweCrypto:(NSDictionary * __autoreleasing _Nullable *_Nullable)jweCrypto
+                                     jweCrypto:(NSDictionary * __autoreleasing __nonnull *__nonnull)jweCrypto
                                          error:(NSError *__autoreleasing  _Nullable * _Nullable)error
 {
     if (![self validateRequestParameters:requestParameters context:context error:error])
@@ -53,22 +54,25 @@
         return nil;
     }
     
-    MSIDWPJKeyPairWithCert *workplacejoinData = [self validateAndGetWorkplaceJoinData:tenantId context:context error:error];
+    MSIDWPJKeyPairWithCert *workplacejoinData = [self getWorkplaceJoinDataAndValidateForTenantId:tenantId context:context error:error];
     if (!workplacejoinData)
     {
         return nil;
     }
     
-    // TODO: Use new method to query STK private reference
-    SecKeyRef publicSessionTransportKeyRef = NULL;
-    NSString *apvPrefix = @"MsalClient"; // TODO: Make this a constant
-    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:publicSessionTransportKeyRef
-                                                             apvPrefix:apvPrefix
+    SecKeyRef publicTransportKeyRef = SecKeyCopyPublicKey(workplacejoinData.privateTransportKeyRef);
+    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:publicTransportKeyRef
+                                                             apvPrefix:MSID_MSAL_CLIENT_APV_PREFIX
                                                                context:context
                                                                  error:error];
     if (!ecdhPartyVInfoData)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] Failed to create ECDH APV data for bound RT redemption JWT.");
+        if (error)
+            *error = [self createErrorWithDomain:MSIDErrorDomain
+                                            code:MSIDErrorInvalidInternalParameter
+                                        description:@"Failed to create ECDH APV data for bound RT redemption JWT."
+                                            context:context];
         return nil;
     }
 
@@ -80,14 +84,20 @@
     if (!jweCryptoObj)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] Failed to create JWE crypto for bound RT redemption JWT.");
+        if (error)
+            *error = [self createErrorWithDomain:MSIDErrorDomain
+                                            code:MSIDErrorInvalidInternalParameter
+                                     description:@"Failed to create JWE crypto for bound RT redemption JWT."
+                                         context:context];
         return nil;
     }
     
-    *jweCrypto = [jweCryptoObj.jweCryptoDictionary copy];
+    if (jweCrypto)
+        *jweCrypto = [jweCryptoObj.jweCryptoDictionary copy];
     
     NSMutableDictionary *jwtPayload = [requestParameters jsonDictionary];
     [jwtPayload setObject:self.refreshToken forKey:MSID_OAUTH2_REFRESH_TOKEN];
-    [jwtPayload setObject:*jweCrypto forKey:@"jwe_crypto"];
+    [jwtPayload setObject:jweCryptoObj.jweCryptoDictionary forKey:@"jwe_crypto"];
     
     NSArray *certificateData = @[[NSString stringWithFormat:@"%@", [[workplacejoinData certificateData] base64EncodedStringWithOptions:kNilOptions]]];
     NSDictionary *header = @{
@@ -145,9 +155,9 @@
     return YES;
 }
 
-- (MSIDWPJKeyPairWithCert *)validateAndGetWorkplaceJoinData:(NSString *)tenantId
-                                                    context:(id<MSIDRequestContext>)context
-                                                      error:(NSError *__autoreleasing * _Nullable)error
+- (MSIDWPJKeyPairWithCert *)getWorkplaceJoinDataAndValidateForTenantId:(NSString *)tenantId
+                                                               context:(id<MSIDRequestContext>)context
+                                                                 error:(NSError *__autoreleasing * _Nullable)error
 {
     MSIDWPJKeyPairWithCert *workplacejoinData = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
     if (!workplacejoinData)
@@ -192,6 +202,60 @@
                                             code:MSIDErrorWorkplaceJoinRequired
                                      description:@"Failed to obtain private device key for signing bound RT redemption JWT."
                                          context:context];
+        return nil;
+    }
+    
+    SecKeyRef privateTransportKey = workplacejoinData.privateTransportKeyRef;
+    if (!privateTransportKey)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] Failed to obtain private transport key for bound RT redemption JWT.");
+        if (error)
+        {
+            *error = [self createErrorWithDomain:MSIDErrorDomain
+                                            code:MSIDErrorWorkplaceJoinRequired
+                                     description:@"Failed to obtain private transport key for bound RT redemption JWT."
+                                         context:context];
+        }
+        return nil;
+    }
+    
+    SecKeyRef publicSessionTransportKeyRef = SecKeyCopyPublicKey(privateTransportKey);
+    if (!publicSessionTransportKeyRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] Failed to calculate public session transport key from private key for bound RT redemption JWT.");
+        if (error)
+        {
+            *error = [self createErrorWithDomain:MSIDErrorDomain
+                                            code:MSIDErrorWorkplaceJoinRequired
+                                     description:@"[Bound Refresh token redemption] Failed to calculate public session transport key from private key for bound RT redemption JWT."
+                                         context:context];
+        }
+        return nil;
+    }
+    
+    if (![[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:workplacejoinData.privateKeyRef])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] The private device key for bound RT redemption JWT is not from Secure Enclave. Binding will not be satisfied.");
+        if (error)
+        {
+            *error = [self createErrorWithDomain:MSIDErrorDomain
+                                            code:MSIDErrorWorkplaceJoinRequired
+                                        description:@"The private device key for bound RT redemption JWT is not from Secure Enclave. Binding will not be satisfied."
+                                            context:context];
+        }
+        return nil;
+    }
+    
+    if (![[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:workplacejoinData.privateTransportKeyRef])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] The private transport key for bound RT redemption JWT is not from Secure Enclave. Binding will not be satisfied.");
+        if (error)
+        {
+            *error = [self createErrorWithDomain:MSIDErrorDomain
+                                            code:MSIDErrorWorkplaceJoinRequired
+                                        description:@"The private transport key for bound RT redemption JWT is not from Secure Enclave. Binding will not be satisfied."
+                                            context:context];
+        }
         return nil;
     }
     

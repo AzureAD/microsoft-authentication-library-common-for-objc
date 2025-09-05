@@ -733,6 +733,8 @@
 		720B5B582DD58A7F00318FE5 /* MSIDJWECryptoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */; };
 		720B5B592DD58A7F00318FE5 /* MSIDJWECryptoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */; };
 		72371CEB27051CC200EF5475 /* MSIDKeyOperationUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */; };
+		724C9DD42E6906290039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */; };
+		724C9DD52E6906290039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */; };
 		728209C326FA9C9A00B5F018 /* MSIDBackgroundTaskData.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C226FA9C9A00B5F018 /* MSIDBackgroundTaskData.m */; };
 		728209C926FE94D800B5F018 /* MSIDJwtAlgorithm.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */; };
 		728209CA26FE94D800B5F018 /* MSIDJwtAlgorithm.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */; };
@@ -2664,6 +2666,7 @@
 		720B5B542DD57D6600318FE5 /* MSIDEcdhApv.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDEcdhApv.m; sourceTree = "<group>"; };
 		720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJWECryptoTests.m; sourceTree = "<group>"; };
 		72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyOperationUtilTest.m; sourceTree = "<group>"; };
+		724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshTokenRedemptionTests.m; sourceTree = "<group>"; };
 		728209C126FA9C9A00B5F018 /* MSIDBackgroundTaskData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskData.h; sourceTree = "<group>"; };
 		728209C226FA9C9A00B5F018 /* MSIDBackgroundTaskData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskData.m; sourceTree = "<group>"; };
 		728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJwtAlgorithm.m; sourceTree = "<group>"; };
@@ -5748,6 +5751,7 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */,
 				72C764F82E09CFA400043AB1 /* MSIDBoundRefreshTokenTests.m */,
 				720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */,
 				729357F22DDBD3F60001D03C /* MSIDNonceTokenRequestTest.m */,
@@ -7138,6 +7142,7 @@
 				2347D6692D5453A400372D20 /* MSIDSwitchBrowserOperationTest.swift in Sources */,
 				23419F82239B36F500EA78C5 /* MSIDAccountIdentifierTests.m in Sources */,
 				589BDB1D2718CD7D00BF3799 /* MSIDBrokerOperationGetSsoCookiesRequestTests.m in Sources */,
+				724C9DD52E6906290039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m in Sources */,
 				B210F42E1FDDE6A5005A8F76 /* MSIDJsonObjectTests.m in Sources */,
 				B2E97FB32914CC4500AFD558 /* MSIDBrokerNativeAppOperationResponseTests.m in Sources */,
 				B29F7805213DFA5600D61FC8 /* MSIDErrorTests.m in Sources */,
@@ -7773,6 +7778,7 @@
 				96CD652A20C885E2004813EE /* MSIDWebviewFactoryTests.m in Sources */,
 				239DF9C220E04BC9002D428B /* MSIDB2CAuthorityTests.m in Sources */,
 				B281B339226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m in Sources */,
+				724C9DD42E6906290039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m in Sources */,
 				B2808005204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m in Sources */,
 				23419F64239896E500EA78C5 /* MSIDBrokerOperationResponseTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,

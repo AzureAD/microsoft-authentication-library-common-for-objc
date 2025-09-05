@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *) getTokenRedemptionJwtForTenantId: (nullable NSString *)tenantId
                       tokenRedemptionParameters: (MSIDBoundRefreshTokenRedemptionParameters *)requestParameters
                                         context:(id<MSIDRequestContext> _Nullable)context
-                                      jweCrypto: (NSDictionary * __autoreleasing *)jweCrypto
+                                      jweCrypto: (NSDictionary * __nonnull __autoreleasing *__nonnull)jweCrypto
                                           error: (NSError * __autoreleasing *)error;
 @end
 NS_ASSUME_NONNULL_END

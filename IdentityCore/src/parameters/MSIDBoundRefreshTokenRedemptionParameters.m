@@ -26,7 +26,10 @@
 
 @implementation MSIDBoundRefreshTokenRedemptionParameters
 
-- (nonnull instancetype)initWithClientId:(nonnull NSString *)clientId scopes:(nonnull NSSet *)scopes nonce:(nonnull NSString *)nonce
+- (nonnull instancetype)initWithClientId:(nonnull NSString *)clientId
+                       authorityEndpoint:(nonnull NSURL *)authorityEndpoint
+                                  scopes:(nonnull NSSet *)scopes
+                                   nonce:(nonnull NSString *)nonce
 {
     self = [super init];
     if (self)
@@ -36,17 +39,26 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token redemption parameters: clientId is nil or blank.");
             return nil;
         }
+        
+        if ([NSString msidIsStringNilOrBlank:authorityEndpoint.absoluteString])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token redemption parameters: authorityEndpoint is nil.");
+            return nil;
+        }
+        
         if (!scopes || scopes.count == 0)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token redemption parameters: scope is nil or empty.");
             return nil;
         }
-        if ([NSString msidIsStringNilOrBlank:nonce])
+                
+        if ([scopes containsObject:@"aza"])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token redemption parameters: nonce is nil or blank.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token redemption parameters: scopes contains aza.");
             return nil;
         }
         
+        _audience = authorityEndpoint.absoluteString;
         _clientId = clientId;
         _scopes = scopes;
         _nonce = nonce;
@@ -58,14 +70,16 @@
 {
     NSMutableDictionary *jsonDict = [NSMutableDictionary new];
     jsonDict[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
-    jsonDict[@"purpose"] = @"bound_rt_exchange"; // TODO: Add constants for purposes
+    jsonDict[MSID_BOUND_REFRESH_TOKEN_EXCHANGE] = @1;
+    jsonDict[@"aud"] = self.audience;
     jsonDict[@"iss"] = self.clientId; // Issuer is the client ID
-    NSNumber *now = @([[NSDate date] timeIntervalSince1970]);
-    jsonDict[@"iat"] = [NSString stringWithFormat:@"%ld", [now longValue]]; // Issued at time
-    jsonDict[@"exp"] = @([[NSDate dateWithTimeIntervalSinceNow:5 * 60] timeIntervalSince1970]); // 5 minutes
-    jsonDict[@"nbf"] = [NSString stringWithFormat:@"%ld", [now longValue]]; // Not before time
+    NSInteger now = round([[NSDate date] timeIntervalSince1970]);
+    jsonDict[@"iat"] = [NSNumber numberWithInteger:now]; // Issued at time
+    jsonDict[@"exp"] = [NSNumber numberWithInteger:now + 300]; // 5 minutes
+    jsonDict[@"nbf"] = [NSNumber numberWithInteger:now]; // Not before time
     [jsonDict setObject:self.clientId forKey:MSID_OAUTH2_CLIENT_ID];
-    [jsonDict setObject:self.nonce forKey:@"nonce"];
+    if (![NSString msidIsStringNilOrBlank:self.nonce])
+        [jsonDict setObject:self.nonce forKey:@"nonce"];
     NSString *scopeString = [self.scopes.allObjects componentsJoinedByString:@" "];
     [jsonDict setObject:scopeString forKey:MSID_OAUTH2_SCOPE];
     return jsonDict;
