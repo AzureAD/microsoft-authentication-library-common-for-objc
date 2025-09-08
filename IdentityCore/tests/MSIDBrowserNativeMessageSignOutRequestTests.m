@@ -54,6 +54,7 @@
     XCTAssertEqualObjects(@"https://login.microsoft.com", request.sender.absoluteString);
     XCTAssertEqualObjects(@"uid", request.accountId.uid);
     XCTAssertEqualObjects(@"utid", request.accountId.utid);
+    XCTAssertNotNil(request.correlationId); // Should generate a UUID if not provided
 }
 
 - (void)testInitWithJSONDictionary_whenAccountIdIsInvalid_shouldFail
@@ -70,6 +71,66 @@
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"account Id is invalid.");
+}
+
+- (void)testInitWithJSONDictionary_whenCorrelationIdProvided_shouldUseProvidedCorrelationId
+{
+    __auto_type json = @{
+        @"method": @"SignOut",
+        @"accountId": @"uid.utid",
+        @"correlationId": @"2e34a931-fc34-442a-a248-a044e42d3027",
+        @"sender": @"https://localhost:8000"
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageSignOutRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(@"https://localhost:8000", request.sender.absoluteString);
+    XCTAssertEqualObjects(@"uid", request.accountId.uid);
+    XCTAssertEqualObjects(@"utid", request.accountId.utid);
+    XCTAssertEqualObjects(@"2E34A931-FC34-442A-A248-A044E42D3027", request.correlationId.UUIDString);
+}
+
+- (void)testInitWithJSONDictionary_whenCorrelationIdNotProvided_shouldGenerateCorrelationId
+{
+    __auto_type json = @{
+        @"method": @"SignOut",
+        @"accountId": @"uid.utid",
+        @"sender": @"https://localhost:8000"
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageSignOutRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(@"https://localhost:8000", request.sender.absoluteString);
+    XCTAssertEqualObjects(@"uid", request.accountId.uid);
+    XCTAssertEqualObjects(@"utid", request.accountId.utid);
+    XCTAssertNotNil(request.correlationId);
+    XCTAssertNotNil(request.correlationId.UUIDString);
+}
+
+- (void)testInitWithJSONDictionary_whenCorrelationIdProvidedInWrongFormat_shouldGenerateCorrelationId
+{
+    __auto_type json = @{
+        @"method": @"SignOut",
+        @"accountId": @"uid.utid",
+        @"correlationId": @"abc",
+        @"sender": @"https://localhost:8000"
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageSignOutRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(@"https://localhost:8000", request.sender.absoluteString);
+    XCTAssertEqualObjects(@"uid", request.accountId.uid);
+    XCTAssertEqualObjects(@"utid", request.accountId.utid);
+    XCTAssertNotNil(request.correlationId.UUIDString);
 }
 
 @end
