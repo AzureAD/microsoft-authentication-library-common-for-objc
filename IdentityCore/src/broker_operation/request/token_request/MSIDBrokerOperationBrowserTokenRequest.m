@@ -57,6 +57,11 @@
         _requestURL = requestURL;
         
         [self printRequestURLInfo:requestURL];
+        if (![httpBody length])
+        {
+            // Apple doesn't provide/expose the HTTP method of the request SSO extension intercepted. If httpBody is nil we assume GET else POST.
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Browser SSO] Request body is empty or undefined. SSO extension will assume HTTP method to GET.");
+        }
         
         if (![requestValidator shouldHandleURL:_requestURL])
         {
@@ -121,8 +126,8 @@
             return logProtocolNames[keyword];
         }
     }
-    
-    return @"N/A";
+    NSString *lastPathComponent = [requestURL lastPathComponent];
+    return [NSString msidIsStringNilOrBlank:lastPathComponent] ? @"N/A" : lastPathComponent;
 }
 
 - (void)printRequestURLInfo:(NSURL *)requestURL
