@@ -415,8 +415,6 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             continueBlock(nil, nil, xpcError);
             return;
         }
-        
-        if (continueBlock) continueBlock(nil, nil, xpcError);
     }];
     
     id<MSIDXpcBrokerDispatcherProtocol> parentXpcService = [connection remoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
