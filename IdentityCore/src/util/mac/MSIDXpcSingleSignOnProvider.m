@@ -70,7 +70,7 @@
 
 - (void)handleXpcWithRequestParams:(NSDictionary *)passedInParams
                    parentViewFrame:(NSRect)frame
-                   completionBlock:(void (^)(NSDictionary<NSString *,id> * _Nonnull, NSDate * _Nonnull, NSString * _Nonnull, NSError * _Nullable))blockName;
+                   completionBlock:(void (^)(NSDictionary<NSString *,id> * _Nullable, NSDate * _Nonnull, NSString * _Nonnull, NSError * _Nullable))blockName;
 
 - (void)canPerformWithMetadata:(NSDictionary *)passedInParams
                completionBlock:(void (^)(BOOL))blockName;
@@ -115,7 +115,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             return;
         }
         
-        [xpcService handleXpcWithRequestParams:requestParam parentViewFrame:frame completionBlock:^(NSDictionary<NSString *,id> * _Nonnull replyParam, NSDate * _Nonnull __unused xpcStartDate, NSString * _Nonnull __unused processId, NSError * _Nonnull callbackError) {
+        [xpcService handleXpcWithRequestParams:requestParam parentViewFrame:frame completionBlock:^(NSDictionary<NSString *,id> * _Nullable replyParam, NSDate * _Nonnull __unused xpcStartDate, NSString * _Nonnull __unused processId, NSError * _Nullable callbackError) {
             [directConnection suspend];
             [directConnection invalidate];
             
