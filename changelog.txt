@@ -1,3 +1,7 @@
+Version 1.12.1
+* Remove a line that could cause crash when XPC service refuse to take the incoming connection (#1522)
+* Resolve UBSan issue due to Xpc protocol I/O  (#1522)
+
 Version 1.12.0
 * Add classes to define jwe_crypto and APV (#1522)
 * Add Request class to get nonce from server (#1525)
