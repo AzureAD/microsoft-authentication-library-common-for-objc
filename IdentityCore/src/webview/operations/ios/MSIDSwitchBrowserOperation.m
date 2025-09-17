@@ -22,7 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #import "MSIDSwitchBrowserOperation.h"
 #import "MSIDSystemWebviewController.h"
 #import "MSIDWebviewResponse.h"
@@ -33,6 +32,8 @@
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDCertAuthManager.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDSwitchBrowserOperation()
 
@@ -83,6 +84,12 @@
     NSMutableDictionary *queryItems = [NSMutableDictionary new];
     queryItems[@"code"] = self.switchBrowserResponse.switchBrowserSessionToken;
     queryItems[MSID_OAUTH2_REDIRECT_URI] = requestParameters.redirectUri;
+    
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA] && self.switchBrowserResponse.state)
+    {
+        queryItems[MSID_OAUTH2_STATE] = self.switchBrowserResponse.state;
+    }
+    
     NSURLComponents *requestURLComponents = [[NSURLComponents alloc] initWithString:self.switchBrowserResponse.actionUri];
     requestURLComponents.percentEncodedQuery = [queryItems msidURLEncode];
     NSURL *startURL = requestURLComponents.URL;
@@ -90,6 +97,7 @@
     [self.certAuthManager startWithURL:startURL
                       parentController:requestParameters.parentViewController
                                context:requestParameters
+            ephemeralWebBrowserSession:self.switchBrowserResponse.useEphemeralWebBrowserSession
                        completionBlock:^(NSURL *callbackURL, NSError *error)
      {
         [self.certAuthManager resetState];

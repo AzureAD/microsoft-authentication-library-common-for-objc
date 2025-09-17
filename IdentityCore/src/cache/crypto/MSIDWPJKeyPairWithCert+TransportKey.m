@@ -20,30 +20,30 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import "MSIDWPJKeyPairWithCert.h"
+#import "MSIDWPJKeyPairWithCert+TransportKey.h"
 
-#import <Foundation/Foundation.h>
-#import <AuthenticationServices/AuthenticationServices.h>
+@implementation MSIDWPJKeyPairWithCert (TransportKey)
 
-@class MSIDWPJKeyPairWithCert;
-@protocol MSIDRequestContext;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDExternalSSOContext : NSObject
-
-#if TARGET_OS_OSX
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
-@property (nonatomic, nullable, strong) ASAuthorizationProviderExtensionLoginManager *loginManager API_AVAILABLE(macos(13.0));
-@property (nonatomic) BOOL isDeviceRegistered API_AVAILABLE(macos(13.0));
-@property (nonatomic) BOOL isPlatformSSORegistrationFlow API_AVAILABLE(macos(13.0));
-#endif
-#endif
-
-- (nullable MSIDWPJKeyPairWithCert *)wpjKeyPairWithCertWithContext:(nullable id<MSIDRequestContext>)context;
-- (nullable NSURL *)tokenEndpointURL;
+- (void)setPrivateTransportKeyRef:(SecKeyRef)privateTransportKeyRef
+{
+    if (_privateTransportKeyRef != privateTransportKeyRef)
+    {
+        if (_privateTransportKeyRef)
+        {
+            CFRelease(_privateTransportKeyRef);
+            _privateTransportKeyRef = NULL;
+        }
+        
+        _privateTransportKeyRef = privateTransportKeyRef;
+        
+        if (_privateTransportKeyRef)
+        {
+            CFRetain(_privateTransportKeyRef);
+        }
+    }
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

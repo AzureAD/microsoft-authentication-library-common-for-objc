@@ -79,6 +79,7 @@
 - (void)startWithURL:(NSURL *)startURL
     parentController:(MSIDViewController *)parentViewController
              context:(id<MSIDRequestContext>)context
+   ephemeralWebBrowserSession:(BOOL)ephemeralWebBrowserSession
      completionBlock:(MSIDWebUICompletionHandler)completionBlock
 {
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
@@ -113,7 +114,7 @@
                                                                             parentController:parentViewController
                                                                     useAuthenticationSession:self.useAuthSession
                                                                    allowSafariViewController:YES
-                                                                  ephemeralWebBrowserSession:YES
+                                                                  ephemeralWebBrowserSession:ephemeralWebBrowserSession
                                                                                      context:context];
         
         self.systemWebViewController.appActivities = self.activities;

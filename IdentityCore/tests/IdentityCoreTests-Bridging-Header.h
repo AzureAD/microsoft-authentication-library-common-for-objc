@@ -20,3 +20,5 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDSwitchBrowserResumeOperation.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDFlightManager.h"
