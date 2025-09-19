@@ -64,6 +64,8 @@
 // - When set by the MSAL app: brokered flows are disabled, and MSAL falls back to local auth flows.
 @property (nonatomic) BOOL bypassRedirectURIValidation;
 
+@property (nonatomic) BOOL showHeadsUp;
+
 // Telemetry metadata
 @property (nonatomic) NSString *platformSequence;
 

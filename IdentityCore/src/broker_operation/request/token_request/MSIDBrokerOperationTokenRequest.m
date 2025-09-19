@@ -69,6 +69,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.allowAnyExtraURLQueryParameters = parameters.allowAnyExtraURLQueryParameters;
     request.ignoreScopeValidation = parameters.ignoreScopeValidation;
     request.bypassRedirectURIValidation = parameters.bypassRedirectURIValidation;
+    request.showHeadsUp = parameters.showHeadsUp;
     return YES;
 }
 

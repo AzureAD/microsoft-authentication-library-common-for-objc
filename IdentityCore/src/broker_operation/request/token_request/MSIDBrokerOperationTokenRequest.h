@@ -51,6 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL forceRefresh;
 @property (nonatomic) BOOL ignoreScopeValidation;
 @property (nonatomic) BOOL bypassRedirectURIValidation;
+@property (nonatomic) BOOL showHeadsUp;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
