@@ -98,19 +98,4 @@
     }
     return self;
 }
-
-- (NSData *)reverseByteOrder:(NSData *)data
-{
-    NSUInteger length = [data length];
-    NSMutableData *littleEndianData = [NSMutableData dataWithLength:length];
-    const uint8_t *bytes = [data bytes];
-    uint8_t *reversedBytes = [littleEndianData mutableBytes];
-    
-    for (NSUInteger i = 0; i < length; i++) {
-        reversedBytes[i] = bytes[length - i - 1];
-    }
-    
-    return [littleEndianData copy];
-}
-
 @end
