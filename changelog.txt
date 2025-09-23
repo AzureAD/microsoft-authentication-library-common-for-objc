@@ -1,7 +1,8 @@
-TBD
+Version 1.15.0
 * Query and populate ECC STK in Workplacejoin information for iOS (#1555)
 * Return MATS blob for GetToken api response #1551 
 * Introduce a class and cache item class to represent bound refresh tokens (#1548)
+* Parse sign out correlation id #1563
 
 Version 1.14.0
 * Added state validation to DUNA flow (#1543)
