@@ -1,3 +1,6 @@
+TBD
+* Ability to decrypt Bound app refresh token response (#1572)
+
 Version 1.15.0
 * Query and populate ECC STK in Workplacejoin information for iOS (#1555)
 * Return MATS blob for GetToken api response #1551 
