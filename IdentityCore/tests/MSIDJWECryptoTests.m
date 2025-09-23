@@ -65,7 +65,7 @@
 {
     NSError *error = nil;
     NSString *apvPrefix = @"MsalClient";
-    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:apvPrefix context:nil error:&error];
+    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:apvPrefix customClientNonce:nil context:nil error:&error];
     XCTAssertNotNil(ecdhPartyVInfoData);
     XCTAssertNil(error);
     
@@ -95,7 +95,6 @@
     NSData *prefixLenData = [apvData subdataWithRange:NSMakeRange(0, sizeof(int))];
     
     // Extract prefix length from apv data
-    prefixLenData = [self convertToLittleEndian:prefixLenData];
     NSUInteger prefixLen = [self convertHexBytesToInt:prefixLenData];
     XCTAssertEqual(prefixLen, [apvPrefix length]);
     
@@ -108,7 +107,6 @@
     
     // Extract STK public key from APV
     NSData *eccKeyLengthInApv = [apvData subdataWithRange:NSMakeRange(sizeof(int) + prefixLen , sizeof(int))];
-    eccKeyLengthInApv = [self convertToLittleEndian:eccKeyLengthInApv];
     NSUInteger eccKeyLengthInApvInt = [self convertHexBytesToInt:eccKeyLengthInApv];
     XCTAssertEqual(eccKeyLengthInApvInt, publicKeyData.length);
     
@@ -117,7 +115,6 @@
     
     // Extract nonce length from apv data
     NSData *nonceLengthInApv = [apvData subdataWithRange:NSMakeRange(sizeof(int) + prefixLen + sizeof(int) + eccKeyLengthInApvInt, sizeof(int))];
-    nonceLengthInApv = [self convertToLittleEndian:nonceLengthInApv];
     NSUInteger nonceLengthInApvInt = [self convertHexBytesToInt:nonceLengthInApv];
     XCTAssertEqual(nonceLengthInApvInt, [NSUUID UUID].UUIDString.length);
     
@@ -131,7 +128,7 @@
 {
     NSError *error = nil;
     NSString *apvPrefix = @"MsalClient";
-    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPrivateKey apvPrefix:apvPrefix context:nil error:&error];
+    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPrivateKey apvPrefix:apvPrefix customClientNonce:nil context:nil error:&error];
     XCTAssertNil(ecdhPartyVInfoData);
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Supplied key should be a public EC key. Could not export EC key data.");
@@ -156,7 +153,7 @@
     SecKeyRef invalidKey = SecKeyCopyPublicKey(privateKey);
     NSString *apvPrefix = @"MsalClient";
     NSError *cryptoerror = nil;
-    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:invalidKey apvPrefix:apvPrefix context:nil error:&cryptoerror];
+    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:invalidKey apvPrefix:apvPrefix customClientNonce:nil context:nil error:&cryptoerror];
     XCTAssertNil(ecdhPartyVInfoData);
     XCTAssertNotNil(cryptoerror);
     XCTAssertEqualObjects(cryptoerror.userInfo[@"MSIDErrorDescriptionKey"], @"Supplied key is not a EC P-256 key.");
@@ -165,7 +162,7 @@
 - (void)testGenerateJweCryptoWithTransportKey_invalidApvPrefix_shouldReturnError
 {
     NSError *error = nil;
-    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:@"" context:nil error:&error];
+    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:@"" customClientNonce:nil context:nil error:&error];
     XCTAssertNil(ecdhPartyVInfoData);
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"APV prefix is not defined. A prefix must be provided to determine calling application type.");
@@ -175,13 +172,13 @@
 {
     NSError *error = nil;
     self.eccPublicKey = nil;
-    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:@"" context:nil error:&error];
+    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:@"" customClientNonce:nil context:nil error:&error];
     XCTAssertNil(ecdhPartyVInfoData);
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"Public STK provided is not defined.");
     
     self.eccPublicKey = [self.generator eccPublicKey];
-    ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:@"" context:nil error:&error];
+    ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:@"" customClientNonce:nil context:nil error:&error];
     XCTAssertNil(ecdhPartyVInfoData);
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.userInfo[@"MSIDErrorDescriptionKey"], @"APV prefix is not defined. A prefix must be provided to determine calling application type.");
@@ -190,7 +187,7 @@
 - (void)testGenerateJweCrypto_withNilArguments_shouldError
 {
     NSError *error = nil;
-    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:@"MsalClient" context:nil error:&error];
+    MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:self.eccPublicKey apvPrefix:@"MsalClient" customClientNonce:nil context:nil error:&error];
     XCTAssertNotNil(ecdhPartyVInfoData);
     XCTAssertNil(error);
     NSString *nilArgument = nil;
@@ -242,20 +239,6 @@
 }
 
 #pragma mark - Helper methods
-- (NSData *)convertToLittleEndian:(NSData *)data
-{
-    NSUInteger length = [data length];
-    NSMutableData *littleEndianData = [NSMutableData dataWithLength:length];
-    const uint8_t *bytes = [data bytes];
-    uint8_t *reversedBytes = [littleEndianData mutableBytes];
-    
-    for (NSUInteger i = 0; i < length; i++) {
-        reversedBytes[i] = bytes[length - i - 1];
-    }
-    
-    return [littleEndianData copy];
-}
-
 - (NSInteger)convertHexBytesToInt:(NSData *)data
 {
     const uint8_t *bytes = [data bytes];
