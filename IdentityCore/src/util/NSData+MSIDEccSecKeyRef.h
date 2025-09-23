@@ -22,25 +22,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+
+#import <Foundation/Foundation.h>
+
 NS_ASSUME_NONNULL_BEGIN
-/// The PartyVInfo for ECDH key agreement (APV)
-/// Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
-@interface MSIDEcdhApv : NSObject
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+@interface NSData (MSIDEccSecKeyRef)
 
-@property (nonatomic, readonly) NSString *APV;
-@property (nonatomic, readonly) NSData *nonce;
-@property (nonatomic, readonly) NSString *apvPrefix;
-@property (nonatomic, readonly) SecKeyRef publicKey;
++ (nullable SecKeyRef)createECCKeyFromEccJsonWebKey:(NSDictionary *)jsonWebKey
+                                              error:(NSError *_Nullable*_Nullable)error;
 
-// Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
-- (nullable instancetype)initWithKey:(SecKeyRef)publicKey
-                           apvPrefix:(NSString *)prefix
-                   customClientNonce:(NSString * _Nullable)customNonce
-                             context:(id<MSIDRequestContext> _Nullable)context
-                               error:(NSError * _Nullable __autoreleasing *)error;
+- (nullable SecKeyRef)createECCKeyFromEccJsonWebKey:(NSError *_Nullable*_Nullable)error;
 
 @end
+
 NS_ASSUME_NONNULL_END

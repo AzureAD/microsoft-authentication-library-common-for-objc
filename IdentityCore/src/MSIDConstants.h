@@ -229,4 +229,9 @@ extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA;
  */
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS;
 
+/// Flight to enable support for bound app RT
+/// Owner: amepatil
+/// ECS configuration id: /1678824
+extern NSString * _Nonnull const MSID_FLIGHT_IS_BART_SUPPORTED;
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

@@ -22,25 +22,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import <Foundation/Foundation.h>
+#import "MSIDJweResponse.h"
+#import "MSIDRequestContext.h"
+#import "MSIDJWECrypto.h"
+#import "MSIDJsonSerializable.h"
+
+typedef NSString *const MSIDJWECryptoKeyExchangeAlgorithm NS_TYPED_ENUM;
+typedef NSString *const MSIDJWECryptoKeyResponseEncryptionAlgorithm NS_TYPED_ENUM;
+
+extern MSIDJWECryptoKeyExchangeAlgorithm const _Nonnull MSID_KEY_EXCHANGE_ALGORITHM_ECDH_ES;
+extern MSIDJWECryptoKeyResponseEncryptionAlgorithm const _Nonnull MSID_RESPONSE_ENCRYPTION_ALGORITHM_A256GCM;
+
 NS_ASSUME_NONNULL_BEGIN
-/// The PartyVInfo for ECDH key agreement (APV)
-/// Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
-@interface MSIDEcdhApv : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-@property (nonatomic, readonly) NSString *APV;
-@property (nonatomic, readonly) NSData *nonce;
-@property (nonatomic, readonly) NSString *apvPrefix;
-@property (nonatomic, readonly) SecKeyRef publicKey;
-
-// Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
-- (nullable instancetype)initWithKey:(SecKeyRef)publicKey
-                           apvPrefix:(NSString *)prefix
-                   customClientNonce:(NSString * _Nullable)customNonce
-                             context:(id<MSIDRequestContext> _Nullable)context
-                               error:(NSError * _Nullable __autoreleasing *)error;
-
+@interface MSIDJweResponse (EcdhAesGcm)
+- (BOOL)IsJweResponseAlgorithmSupported:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (nullable NSDictionary *)decryptJweResponseWithPrivateStk:(SecKeyRef)privateStk
+                                                  jweCrypto:(MSIDJWECrypto *)jweCrypto
+                                                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 @end
 NS_ASSUME_NONNULL_END

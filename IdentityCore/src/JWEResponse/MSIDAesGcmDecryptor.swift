@@ -22,25 +22,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-NS_ASSUME_NONNULL_BEGIN
-/// The PartyVInfo for ECDH key agreement (APV)
-/// Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
-@interface MSIDEcdhApv : NSObject
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+import Foundation
+import CryptoKit
 
-@property (nonatomic, readonly) NSString *APV;
-@property (nonatomic, readonly) NSData *nonce;
-@property (nonatomic, readonly) NSString *apvPrefix;
-@property (nonatomic, readonly) SecKeyRef publicKey;
-
-// Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
-- (nullable instancetype)initWithKey:(SecKeyRef)publicKey
-                           apvPrefix:(NSString *)prefix
-                   customClientNonce:(NSString * _Nullable)customNonce
-                             context:(id<MSIDRequestContext> _Nullable)context
-                               error:(NSError * _Nullable __autoreleasing *)error;
-
-@end
-NS_ASSUME_NONNULL_END
+public class MSIDAesGcmDecryptor: NSObject {
+    
+    @objc public func decryptWithAES256GCMHandler(message ciphertext: Data, iv nonce: Data, key keyData: Data, tag: Data, aad: Data) throws -> Data
+    {
+        let sealedBox = try AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: nonce), ciphertext: ciphertext, tag: tag)
+        let key = SymmetricKey(data: keyData)
+        return try AES.GCM.open(sealedBox, using: key, authenticating: aad)
+    }
+}
