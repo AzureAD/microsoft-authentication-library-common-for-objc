@@ -32,6 +32,8 @@
 #import "MSIDEcdhApv.h"
 #import "MSIDJsonSerializer.h"
 #import "IdentityCore-Swift.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 MSIDJWECryptoKeyExchangeAlgorithm const MSID_KEY_EXCHANGE_ALGORITHM_ECDH_ES = @"ECDH-ES";
 MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGORITHM_A256GCM = @"A256GCM";
@@ -42,6 +44,11 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
                                                   jweCrypto:(nonnull MSIDJWECrypto *)jweCrypto
                                                       error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
+    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_IS_BART_SUPPORTED])
+    {
+        return nil;
+    }
+    
     // 1. Check for necessary request parameters
     NSData *apv = [NSData msidDataFromBase64UrlEncodedString:jweCrypto.apv.APV];
     

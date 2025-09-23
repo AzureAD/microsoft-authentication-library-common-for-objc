@@ -94,4 +94,7 @@ NSString *const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA = @"support_state_duna_cba";
 NSString *const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS = @"disable_rm_metadata";
 
 
+NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
+
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
