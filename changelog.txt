@@ -1,4 +1,4 @@
-TBD:
+Version 1.15.1
 Allow cookies in duna resume request #1574
 
 Version 1.15.0
