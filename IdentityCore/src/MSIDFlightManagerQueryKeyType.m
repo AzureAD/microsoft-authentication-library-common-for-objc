@@ -27,7 +27,6 @@
 MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeTenantId = @"tenantId";
 MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeAppBundleId = @"appBundleId";
 MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeEcsRegion = @"ecsRegion";
-MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypePlatform = @"platform";
 MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUpn = @"upn";
 MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUserId = @"userId";
 MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeVersionNumber = @"version_number";

@@ -53,9 +53,15 @@
 
 - (BOOL)isDUNASupportedForTenantId:(NSString *)tenantId
 {
+    BOOL allowDUNAGlobal = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    
+    if (allowDUNAGlobal)
+    {
+        return YES;
+    }
+    
     BOOL allowDUNAByTenant = NO;
-    BOOL allowDUNAGlobal = NO;
-    MSIDFlightManager* flightManager;
+    MSIDFlightManager *flightManager;
     
     if (![NSString msidIsStringNilOrBlank:tenantId])
     {
@@ -65,9 +71,8 @@
     {
         allowDUNAByTenant = [flightManager boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
     }
-    allowDUNAGlobal = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
     
-    return allowDUNAGlobal || allowDUNAByTenant;
+    return allowDUNAByTenant;
 }
 
 #pragma mark - Public Methods
@@ -108,7 +113,7 @@
     result[@"haschrome"] = @"1";
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
     
-    NSString* tenantId = parameters.accountIdentifier.utid;
+    NSString *tenantId = parameters.accountIdentifier.utid;
     
 #if TARGET_OS_IPHONE
     if ([self isDUNASupportedForTenantId:tenantId])
@@ -228,7 +233,7 @@
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
     
-    NSString* tenantId = wpjResponse.clientInfo.utid;
+    NSString *tenantId = wpjResponse.clientInfo.utid;
     
     if ([self isDUNASupportedForTenantId:tenantId])
     {
