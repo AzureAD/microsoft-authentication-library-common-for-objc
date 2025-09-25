@@ -112,15 +112,11 @@ class MSIDFlightManagerTests: XCTestCase {
         let flightManager = MSIDFlightManager.sharedInstance()
         mockFlightProvider.boolValues["test-key"] = true
         
-        // Use a more reliable synchronization approach
-        let expectation = XCTestExpectation(description: "Flight provider set")
+        // Set the flight provider
         flightManager.flightProvider = mockFlightProvider
         
-        // Give a small delay to ensure the barrier async completes
-        DispatchQueue.main.async {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
+        // Simple approach: wait for the barrier async to complete
+        Thread.sleep(forTimeInterval: 0.1)
         
         let result = flightManager.bool(forKey: "test-key")
         
@@ -143,15 +139,11 @@ class MSIDFlightManagerTests: XCTestCase {
         let expectedValue = "test-value"
         mockFlightProvider.stringValues["test-key"] = expectedValue
         
-        // Use a more reliable synchronization approach
-        let expectation = XCTestExpectation(description: "Flight provider set")
+        // Set the flight provider
         flightManager.flightProvider = mockFlightProvider
         
-        // Give a small delay to ensure the barrier async completes
-        DispatchQueue.main.async {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
+        // Simple approach: wait for the barrier async to complete
+        Thread.sleep(forTimeInterval: 0.1)
         
         let result = flightManager.string(forKey: "test-key")
         
