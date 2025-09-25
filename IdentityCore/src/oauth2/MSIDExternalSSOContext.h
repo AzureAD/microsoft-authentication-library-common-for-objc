@@ -38,9 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable, strong) ASAuthorizationProviderExtensionLoginManager *loginManager API_AVAILABLE(macos(13.0));
 @property (nonatomic) BOOL isDeviceRegistered API_AVAILABLE(macos(13.0));
 @property (nonatomic) BOOL isPlatformSSORegistrationFlow API_AVAILABLE(macos(13.0));
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
 @property (nonatomic) BOOL isSetupAssistantFlow API_AVAILABLE(macos(26.0));
-#endif
 #endif
 #endif
 
