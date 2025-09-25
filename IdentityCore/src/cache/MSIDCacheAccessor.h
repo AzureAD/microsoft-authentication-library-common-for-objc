@@ -23,13 +23,13 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDCredentialType.h"
+#import "MSIDAccountIdentifier.h"
 
 @class MSIDOauth2Factory;
 @class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @class MSIDTokenResponse;
 @class MSIDRefreshToken;
-@class MSIDAccountIdentifier;
 @protocol MSIDRefreshableToken;
 @protocol MSIDTokenCacheDataSource;
 @class MSIDBrokerResponse;

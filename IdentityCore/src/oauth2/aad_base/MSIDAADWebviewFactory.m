@@ -41,7 +41,6 @@
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDSwitchBrowserResumeResponse.h"
 #import "MSIDFlightManager.h"
-#import "MSIDAccountIdentifier.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDJITTroubleshootingResponse.h"

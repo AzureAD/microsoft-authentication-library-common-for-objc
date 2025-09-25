@@ -25,7 +25,6 @@
 #import "MSIDRequestContext.h"
 #import "MSIDCacheAccessor.h"
 #import "MSIDConstants.h"
-#import "MSIDAccountIdentifier.h"
 
 @class MSIDAuthority;
 @class MSIDAccountIdentifier;
