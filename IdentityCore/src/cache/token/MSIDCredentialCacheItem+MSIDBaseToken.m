@@ -34,6 +34,7 @@
 #import "MSIDFamilyRefreshToken.h"
 #import "MSIDV1IdToken.h"
 #import "MSIDAccessTokenWithAuthScheme.h"
+#import "MSIDBoundRefreshToken.h"
 
 @implementation MSIDCredentialCacheItem (MSIDBaseToken)
 
@@ -72,6 +73,10 @@
         case MSIDFamilyRefreshTokenType:
         {
             return [[MSIDFamilyRefreshToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDBoundRefreshTokenType:
+        {
+            return [[MSIDBoundRefreshToken alloc] initWithTokenCacheItem:self];
         }
         default:
             return [[MSIDBaseToken alloc] initWithTokenCacheItem:self];

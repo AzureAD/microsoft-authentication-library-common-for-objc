@@ -28,6 +28,12 @@
 #import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
 
+@interface MSIDBaseToken()
+
+@property (atomic) BOOL createdFromCacheItem;
+
+@end
+
 @implementation MSIDBaseToken
 
 #pragma mark - NSCopying
@@ -42,6 +48,7 @@
     item->_accountIdentifier = [_accountIdentifier copyWithZone:zone];
     item->_speInfo = [_speInfo copyWithZone:zone];
     item->_additionalServerInfo = [_additionalServerInfo copyWithZone:zone];
+    item->_createdFromCacheItem = _createdFromCacheItem;
     return item;
 }
 
@@ -149,6 +156,8 @@
             _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:tokenCacheItem.homeAccountId];
         }
     }
+    
+    _createdFromCacheItem = YES;
     
     return self;
 }

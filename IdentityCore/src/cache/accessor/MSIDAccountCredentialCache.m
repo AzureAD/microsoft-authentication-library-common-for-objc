@@ -388,7 +388,7 @@ static BOOL s_disableFRT = NO;
     
     BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
     
-    if (result && (credential.credentialType == MSIDRefreshTokenType || credential.credentialType == MSIDFamilyRefreshTokenType))
+    if (result && (credential.credentialType == MSIDRefreshTokenType || credential.credentialType == MSIDFamilyRefreshTokenType || credential.credentialType == MSIDBoundRefreshTokenType))
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
