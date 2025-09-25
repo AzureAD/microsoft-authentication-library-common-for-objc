@@ -90,7 +90,7 @@ class MSIDFlightManagerTests: XCTestCase {
         let sharedInstance = MSIDFlightManager.sharedInstance()
         sharedInstance.queryKeyFlightProvider = mockQueryKeyDelegate
         
-        let instance = MSIDFlightManager.sharedInstance(byQueryKey: queryKey, keyType: .tenantId)
+        _ = MSIDFlightManager.sharedInstance(byQueryKey: queryKey, keyType: .tenantId)
         
         XCTAssertTrue(mockQueryKeyDelegate.flightProviderForQueryKeyCalled)
         XCTAssertEqual(mockQueryKeyDelegate.lastQueryKey, queryKey)
@@ -111,7 +111,16 @@ class MSIDFlightManagerTests: XCTestCase {
     func testBoolForKey_WithFlightProvider_ReturnsProviderValue() {
         let flightManager = MSIDFlightManager.sharedInstance()
         mockFlightProvider.boolValues["test-key"] = true
+        
+        // Use a more reliable synchronization approach
+        let expectation = XCTestExpectation(description: "Flight provider set")
         flightManager.flightProvider = mockFlightProvider
+        
+        // Give a small delay to ensure the barrier async completes
+        DispatchQueue.main.async {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
         
         let result = flightManager.bool(forKey: "test-key")
         
@@ -133,7 +142,16 @@ class MSIDFlightManagerTests: XCTestCase {
         let flightManager = MSIDFlightManager.sharedInstance()
         let expectedValue = "test-value"
         mockFlightProvider.stringValues["test-key"] = expectedValue
+        
+        // Use a more reliable synchronization approach
+        let expectation = XCTestExpectation(description: "Flight provider set")
         flightManager.flightProvider = mockFlightProvider
+        
+        // Give a small delay to ensure the barrier async completes
+        DispatchQueue.main.async {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
         
         let result = flightManager.string(forKey: "test-key")
         
@@ -179,7 +197,7 @@ class MSIDFlightManagerTests: XCTestCase {
         let expectation = XCTestExpectation(description: "All operations complete")
         expectation.expectedFulfillmentCount = 100
         
-        for i in 0..<50 {
+        for _ in 0..<50 {
             DispatchQueue.global().async {
                 _ = flightManager.bool(forKey: "bool-key")
                 expectation.fulfill()
