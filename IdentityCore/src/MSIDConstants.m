@@ -89,6 +89,7 @@ NSString *const MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH = @"disable_
 NSString *const MSID_FLIGHT_CLIENT_SFRT_STATUS = @"sfrt_v2";
 NSString *const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA = @"dis_pre_iden_cba";
 NSString *const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA = @"support_state_duna_cba";
+NSString *const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME = @"ignore_cookies_in_duna_resume";
 
 // Making the flight string short to avoid legacy broker url size limit
 NSString *const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS = @"disable_rm_metadata";
