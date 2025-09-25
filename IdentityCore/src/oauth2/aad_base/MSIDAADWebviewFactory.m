@@ -41,6 +41,7 @@
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDSwitchBrowserResumeResponse.h"
 #import "MSIDFlightManager.h"
+#import "MSIDAccountIdentifier.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDJITTroubleshootingResponse.h"
@@ -111,10 +112,9 @@
     
     result[@"haschrome"] = @"1";
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
-    
-    NSString *tenantId = parameters.accountIdentifier.utid;
-    
+        
 #if TARGET_OS_IPHONE
+    NSString *tenantId = parameters.accountIdentifier.utid;
     if ([self isDUNASupportedForTenantId:tenantId])
     {
         // Let server know that we support new cba flow
