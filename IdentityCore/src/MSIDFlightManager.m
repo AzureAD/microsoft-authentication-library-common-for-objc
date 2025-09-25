@@ -50,7 +50,7 @@
 {
     if ([NSString msidIsStringNilOrBlank:queryKey])
     {
-        // Use shared flight manager if tenant id is nil or empty
+        // Use shared flight manager if queryKey is nil or empty
         return [MSIDFlightManager sharedInstance];
     }
     
