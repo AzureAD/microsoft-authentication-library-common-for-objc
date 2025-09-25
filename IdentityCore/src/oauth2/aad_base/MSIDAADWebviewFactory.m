@@ -49,6 +49,29 @@
 
 @implementation MSIDAADWebviewFactory
 
+#pragma mark - Private Methods
+
+- (BOOL)isDUNASupportedForTenantId:(NSString *)tenantId
+{
+    BOOL allowDUNAByTenant = NO;
+    BOOL allowDUNAGlobal = NO;
+    MSIDFlightManager* flightManager;
+    
+    if (![NSString msidIsStringNilOrBlank:tenantId])
+    {
+        flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId keyType:MSIDFlightManagerQueryKeyTypeTenantId];
+    }
+    if (flightManager)
+    {
+        allowDUNAByTenant = [flightManager boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    }
+    allowDUNAGlobal = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    
+    return allowDUNAGlobal || allowDUNAByTenant;
+}
+
+#pragma mark - Public Methods
+
 - (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                                                                          pkce:(MSIDPkce *)pkce
                                                                                  requestState:(NSString *)state
@@ -86,22 +109,9 @@
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
     
     NSString* tenantId = parameters.accountIdentifier.utid;
-    BOOL allowDUNAByTenant = NO;
-    BOOL allowDUNAGlobal = NO;
-    MSIDFlightManager* flightManager;
-    
-    if (![NSString msidIsStringNilOrBlank:tenantId])
-    {
-        flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId keyType:MSIDFlightManagerQueryKeyTypeTenantId];
-    }
-    if (flightManager)
-    {
-        allowDUNAByTenant = [flightManager boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
-    }
-    allowDUNAGlobal = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
     
 #if TARGET_OS_IPHONE
-    if (allowDUNAGlobal || allowDUNAByTenant)
+    if ([self isDUNASupportedForTenantId:tenantId])
     {
         // Let server know that we support new cba flow
         result[MSID_BROWSER_RESPONSE_SWITCH_BROWSER] = @"1";
@@ -219,21 +229,8 @@
     if (browserResponse) return browserResponse;
     
     NSString* tenantId = wpjResponse.clientInfo.utid;
-    BOOL allowDUNAByTenant = NO;
-    BOOL allowDUNAGlobal = NO;
-    MSIDFlightManager* flightManager;
     
-    if (![NSString msidIsStringNilOrBlank:tenantId])
-    {
-        flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId keyType:MSIDFlightManagerQueryKeyTypeTenantId];
-    }
-    if (flightManager)
-    {
-        allowDUNAByTenant = [flightManager boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
-    }
-    allowDUNAGlobal = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
-    
-    if (allowDUNAGlobal || allowDUNAByTenant)
+    if ([self isDUNASupportedForTenantId:tenantId])
     {
         MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
                                                                                               redirectUri:endRedirectUri
