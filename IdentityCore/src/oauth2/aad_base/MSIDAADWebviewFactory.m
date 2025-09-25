@@ -41,6 +41,7 @@
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDSwitchBrowserResumeResponse.h"
 #import "MSIDFlightManager.h"
+#import "MSIDAccountIdentifier.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDJITTroubleshootingResponse.h"
@@ -84,8 +85,23 @@
     result[@"haschrome"] = @"1";
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
     
+    NSString* tenantId = parameters.accountIdentifier.utid;
+    BOOL allowDUNAByTenant = NO;
+    BOOL allowDUNAGlobal = NO;
+    MSIDFlightManager* flightManager;
+    
+    if (![NSString msidIsStringNilOrBlank:tenantId])
+    {
+        flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId keyType:MSIDFlightManagerQueryKeyTypeTenantId];
+    }
+    if (flightManager)
+    {
+        allowDUNAByTenant = [flightManager boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    }
+    allowDUNAGlobal = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    
 #if TARGET_OS_IPHONE
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    if (allowDUNAGlobal || allowDUNAByTenant)
     {
         // Let server know that we support new cba flow
         result[MSID_BROWSER_RESPONSE_SWITCH_BROWSER] = @"1";
@@ -202,7 +218,22 @@
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
     
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    NSString* tenantId = wpjResponse.clientInfo.utid;
+    BOOL allowDUNAByTenant = NO;
+    BOOL allowDUNAGlobal = NO;
+    MSIDFlightManager* flightManager;
+    
+    if (![NSString msidIsStringNilOrBlank:tenantId])
+    {
+        flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId keyType:MSIDFlightManagerQueryKeyTypeTenantId];
+    }
+    if (flightManager)
+    {
+        allowDUNAByTenant = [flightManager boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    }
+    allowDUNAGlobal = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    
+    if (allowDUNAGlobal || allowDUNAByTenant)
     {
         MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
                                                                                               redirectUri:endRedirectUri

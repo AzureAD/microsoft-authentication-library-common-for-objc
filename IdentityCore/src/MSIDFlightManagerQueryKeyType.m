@@ -20,31 +20,14 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import "MSIDFlightManagerQueryKeyType.h"
 
-#import <Foundation/Foundation.h>
-#import "MSIDFlightManagerQueryKeyDelegate.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-@protocol MSIDFlightManagerInterface <NSObject>
-
-- (BOOL)boolForKey:(NSString *)flightKey;
-- (nullable NSString *)stringForKey:(NSString *)key;
-
-
-@end
-
-@interface MSIDFlightManager : NSObject <MSIDFlightManagerInterface>
-
-@property (nonatomic, nullable) id<MSIDFlightManagerInterface> flightProvider;
-@property (nonatomic, nullable) id<MSIDFlightManagerQueryKeyDelegate> queryKeyFlightProvider;
-
-+ (instancetype)sharedInstance;
-+ (instancetype)sharedInstanceByQueryKey:(NSString *)queryKey
-                                 keyType:(MSIDFlightManagerQueryKeyType)keyType;
-
-@end
-
-NS_ASSUME_NONNULL_END
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeTenantId = @"tenantId";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeAppBundleId = @"appBundleId";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeEcsRegion = @"ecsRegion";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypePlatform = @"platform";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUpn = @"upn";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUserId = @"userId";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeVersionNumber = @"version_number";

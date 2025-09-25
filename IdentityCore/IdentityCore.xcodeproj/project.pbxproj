@@ -555,6 +555,10 @@
 		2A59B4452D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B4422D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m */; };
 		2AADDAC72DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */; };
 		2AADDAC82DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */; };
+		4B6D22262E831B0B00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B6D22252E831AEA00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h */; };
+		4B6D222C2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B6D222A2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h */; };
+		4B6D222D2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */; };
+		4B6D222E2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */; };
 		580E25402719FD10003D1795 /* MSIDPrtHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 580E253E2719FD10003D1795 /* MSIDPrtHeader.h */; };
 		580E25412719FD10003D1795 /* MSIDPrtHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 580E253F2719FD10003D1795 /* MSIDPrtHeader.m */; };
 		580E25422719FD10003D1795 /* MSIDPrtHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 580E253F2719FD10003D1795 /* MSIDPrtHeader.m */; };
@@ -2484,6 +2488,9 @@
 		2A59B4422D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcInteractiveTokenRequestController.m; sourceTree = "<group>"; };
 		2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOXpcSilentTokenRequest.h; sourceTree = "<group>"; };
 		2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOXpcSilentTokenRequest.m; sourceTree = "<group>"; };
+		4B6D22252E831AEA00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyDelegate.h; sourceTree = "<group>"; };
+		4B6D222A2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyType.h; sourceTree = "<group>"; };
+		4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFlightManagerQueryKeyType.m; sourceTree = "<group>"; };
 		51E364572863C0F300A97F82 /* MSIDTelemetryConditionalCompile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryConditionalCompile.h; sourceTree = "<group>"; };
 		580E253E2719FD10003D1795 /* MSIDPrtHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrtHeader.h; sourceTree = "<group>"; };
 		580E253F2719FD10003D1795 /* MSIDPrtHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPrtHeader.m; sourceTree = "<group>"; };
@@ -5708,6 +5715,9 @@
 				728209CB26FE951900B5F018 /* MSIDJwtAlgorithm.h */,
 				237F8F2C2D5166FE0095F164 /* MSIDFlightManager.h */,
 				237F8F2D2D5166FE0095F164 /* MSIDFlightManager.m */,
+				4B6D222A2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h */,
+				4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */,
+				4B6D22252E831AEA00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h */,
 				B48FC02E2D726A48007B80DB /* MSIDBrokerFlightProvider.h */,
 				B48FC0302D726A64007B80DB /* MSIDBrokerFlightProvider.m */,
 			);
@@ -6298,6 +6308,7 @@
 				B2E2A923239221A000BA2EA3 /* MSIDBrokerOperationSignoutFromDeviceRequest.h in Headers */,
 				B2C708B3219A620B00D917B8 /* MSIDBrokerKeyProvider.h in Headers */,
 				23B39ABC209BD47D000AA905 /* MSIDB2CAuthorityResolver.h in Headers */,
+				4B6D22262E831B0B00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h in Headers */,
 				B443EFF62AD62BB900782168 /* MSIDPasskeyCredential.h in Headers */,
 				B286B99D2389DCA6007833AD /* MSIDSSOExtensionTokenRequestDelegate.h in Headers */,
 				B210F4551FDDFA7B005A8F76 /* MSIDBrokerResponse.h in Headers */,
@@ -6360,6 +6371,7 @@
 				74F04D4D246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h in Headers */,
 				238E19DD2086FE28004DF483 /* MSIDAADAuthorizationCodeRequest.h in Headers */,
 				B227037622A4C29800030ADC /* MSIDExtendedTokenCacheDataSource.h in Headers */,
+				4B6D222C2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h in Headers */,
 				B251CC49204105A7005E0179 /* MSIDIdToken.h in Headers */,
 				B2F671EC2467AB4500649855 /* MSIDInteractiveRequestControlling.h in Headers */,
 				B443F0002AD6327700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.h in Headers */,
@@ -7593,6 +7605,7 @@
 				96B8D57C20946D2600E3F4A6 /* MSIDPkce.m in Sources */,
 				2A59B42E2D776F3400304FB1 /* MSIDXpcConfiguration.m in Sources */,
 				6057EE9120B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m in Sources */,
+				4B6D222D2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m in Sources */,
 				238E19DF2086FE28004DF483 /* MSIDTokenRequest.m in Sources */,
 				B2CDB5741FE2F4DF003A4B5C /* NSOrderedSet+MSIDExtensions.m in Sources */,
 				1E74094A24197E9200133EF7 /* NSDictionary+MSIDLogging.m in Sources */,
@@ -8043,6 +8056,7 @@
 				8878C62E29DCA0E2002F5F4B /* MSIDCIAMTokenResponse.m in Sources */,
 				1E00D282248F27ED006E4BAE /* MSIDAuthScheme.m in Sources */,
 				600D19AE20964CC00004CD43 /* MSIDRegistrationInformation.m in Sources */,
+				4B6D222E2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m in Sources */,
 				B2C07482246B70F70008D701 /* MSIDAssymetricKeyPair.m in Sources */,
 				B227035F22A367A000030ADC /* MSIDMaskedHashableLogParameter.m in Sources */,
 				B2C7B3B4213C681F009FFCC1 /* MSIDErrorConverter.m in Sources */,

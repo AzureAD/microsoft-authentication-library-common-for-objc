@@ -45,6 +45,56 @@
     return sharedInstance;
 }
 
++ (instancetype)sharedInstanceByQueryKey:(NSString *)queryKey
+                                 keyType:(MSIDFlightManagerQueryKeyType)keyType
+{
+    if ([NSString msidIsStringNilOrBlank:queryKey])
+    {
+        // Use shared flight manager if tenant id is nil or empty
+        return [MSIDFlightManager sharedInstance];
+    }
+    
+    static NSMutableDictionary<NSString *, MSIDFlightManager *> *instancesByQueryKey = nil;
+    static dispatch_once_t onceToken;
+    static dispatch_queue_t synchronizationQueue;
+    
+    dispatch_once(&onceToken, ^{
+        instancesByQueryKey = [NSMutableDictionary new];
+        synchronizationQueue = dispatch_queue_create("com.microsoft.msidflightmanager.querykey", DISPATCH_QUEUE_CONCURRENT);
+    });
+    
+    __block MSIDFlightManager *instance = nil;
+    
+    // First, try to read the instance concurrently
+    dispatch_sync(synchronizationQueue, ^{
+        instance = instancesByQueryKey[queryKey];
+    });
+    
+    if (!instance)
+    {
+        // If not found, create and insert with a barrier write
+        dispatch_barrier_sync(synchronizationQueue, ^{
+            instance = instancesByQueryKey[queryKey];
+            if (!instance)
+            {
+                instance = [[self.class alloc] initInternal];
+                
+                id<MSIDFlightManagerInterface> flightProvider = [[MSIDFlightManager sharedInstance].queryKeyFlightProvider
+                                                                 flightProviderForQueryKey:queryKey
+                                                                 keyType:keyType];
+                if (flightProvider)
+                {
+                    instance.flightProvider = flightProvider;
+                }
+                
+                instancesByQueryKey[queryKey] = instance;
+            }
+        });
+    }
+    
+    return instance;
+}
+
 - (instancetype)initInternal
 {
     self = [super init];
