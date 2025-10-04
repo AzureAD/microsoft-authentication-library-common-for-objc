@@ -33,6 +33,7 @@
 @property (nonatomic) NSString *certificateSubject;
 @property (nonatomic) NSString *certificateIssuer;
 @property (nonatomic) SecKeyRef privateKeyRef;
+@property (nonatomic) SecKeyRef privateTransportKeyRef;
 
 @end
 
@@ -88,6 +89,30 @@
     return self;
 }
 
+- (nullable instancetype)initializePrivateTransportKeyRef:(nonnull SecKeyRef)privateTransportKeyRef
+{
+    if (self && privateTransportKeyRef)
+    {
+        if (_privateTransportKeyRef != privateTransportKeyRef)
+        {
+            if (_privateTransportKeyRef)
+            {
+                CFReleaseNull(_privateTransportKeyRef);
+                _privateTransportKeyRef = NULL;
+            }
+            
+            _privateTransportKeyRef = privateTransportKeyRef;
+            
+            if (_privateTransportKeyRef)
+            {
+                CFRetain(_privateTransportKeyRef);
+            }
+        }
+    }
+    return self;
+}
+
+
 - (void)dealloc
 {
     if (_certificateRef)
@@ -104,7 +129,7 @@
     
     if (_privateTransportKeyRef)
     {
-        CFRelease(_privateTransportKeyRef);
+        CFReleaseNull(_privateTransportKeyRef);
         _privateTransportKeyRef = NULL;
     }
 }

@@ -27,7 +27,8 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDWPJMetadata.h"
-#import "MSIDWPJKeyPairWithCert+TransportKey.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
 static NSString *kECPrivateKeyTagSuffix = @"-EC";
@@ -381,13 +382,16 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     {
         defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning EC private device key from default registration.");
+#if TARGET_OS_IPHONE
+        bool isQueryingDisabledViaFlight = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_QUERYING_STK];
         // Query the session transport key only for iOS.
         // 1P apps use transport key to decrypt ECDH JWE responses when redeeming bound regular refresh tokens
         id keyType = privateKeyAttributes[(__bridge id)kSecAttrKeyType];
-        if (keyType && [keyType isEqual: (__bridge id)kSecAttrKeyTypeECSECPrimeRandom])
+        if (!isQueryingDisabledViaFlight && keyType && [keyType isEqual: (__bridge id)kSecAttrKeyTypeECSECPrimeRandom])
         {
-            defaultKeys.privateTransportKeyRef = [self getSessionTransportKeyRefFromSecureEnclaveForTenantId:tenantId context:context];
+            [defaultKeys initializePrivateTransportKeyRef:[self getSessionTransportKeyRefFromSecureEnclaveForTenantId:tenantId context:context]];
         }
+#endif
         return defaultKeys;
     }
 
