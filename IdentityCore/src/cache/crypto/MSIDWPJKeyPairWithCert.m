@@ -129,7 +129,7 @@
     
     if (_privateTransportKeyRef)
     {
-        CFReleaseNull(_privateTransportKeyRef);
+        CFRelease(_privateTransportKeyRef);
         _privateTransportKeyRef = NULL;
     }
 }

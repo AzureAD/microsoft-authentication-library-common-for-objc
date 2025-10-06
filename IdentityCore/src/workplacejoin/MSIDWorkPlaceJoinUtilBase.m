@@ -391,7 +391,9 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
             id keyType = privateKeyAttributes[(__bridge id)kSecAttrKeyType];
             if (keyType && [keyType isEqual: (__bridge id)kSecAttrKeyTypeECSECPrimeRandom])
             {
-                [defaultKeys initializePrivateTransportKeyRef:[self getSessionTransportKeyRefFromSecureEnclaveForTenantId:tenantId context:context]];
+                [self setSessionTransportKeyRefFromSecureEnclaveForTenantId:tenantId
+                                                            keyPairWithCert:defaultKeys
+                                                                    context:context];
             }
         }
 #endif
@@ -508,14 +510,15 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     return nil;
 }
 
-+ (SecKeyRef)getSessionTransportKeyRefFromSecureEnclaveForTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
++ (void)setSessionTransportKeyRefFromSecureEnclaveForTenantId:(NSString *)tenantId
+                                                   keyPairWithCert:(MSIDWPJKeyPairWithCert *)keyPairWithCert
+                                                           context:(id<MSIDRequestContext>)context
 {
     SecKeyRef transportKeyRef = nil;
 #if TARGET_OS_IPHONE
     if (!tenantId)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No tenantId provided to read secure enclave session transport key.");
-        return nil;
     }
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
@@ -538,7 +541,6 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (status != errSecSuccess)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to find secure enclave session transport private key with status %ld", (long)status);
-        return nil;
     }
         
     NSDictionary *privateKeyDict = CFBridgingRelease(privateKeyCFDict); // -1 privateKeyCFDict
@@ -550,9 +552,9 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     }
     else
     {
+        [keyPairWithCert initializePrivateTransportKeyRef:transportKeyRef];
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found secure enclave private session transport key ref in keychain.");
     }
 #endif
-    return transportKeyRef;
 }
 @end
