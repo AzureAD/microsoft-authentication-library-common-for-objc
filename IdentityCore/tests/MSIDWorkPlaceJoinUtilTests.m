@@ -34,6 +34,7 @@
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 #import "MSIDWPJMetadata.h"
 #import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
 
 @interface MSIDWorkPlaceJoinUtilTests : XCTestCase
@@ -69,7 +70,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     // Setting use iOS style keychain to true by default. Set it to NO in test cases that require ACL.
     self.useIosStyleKeychain = YES;
     self.tenantId = NSUUID.UUID.UUIDString;
-    [self swizzleFlight];
+    [self mockFlightValues];
 #if TARGET_OS_OSX
     self.useIosStyleKeychain = NO;
 #endif
@@ -852,18 +853,10 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
                     accessGroup:keychainGroup];
 }
 
-- (void)swizzleFlight
+- (void)mockFlightValues
 {
-    [MSIDTestSwizzle instanceMethod:@selector(boolForKey:)
-                                  class:[MSIDFlightManager class]
-                                  block:(id)^(NSString *flightKey)
-         {
-            if ([flightKey isEqualToString:MSID_FLIGHT_ENABLE_QUERYING_STK])
-            {
-                return YES;
-            }
-            return NO;
-        }];
-     
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_QUERYING_STK: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 @end
