@@ -503,8 +503,8 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 
 + (SecKeyRef)getSessionTransportKeyRefFromSecureEnclaveForTenantId:(NSString *)tenantId context:(id<MSIDRequestContext>)context
 {
-    SecKeyRef transportKeyRef = nil;
 #if TARGET_OS_IPHONE
+    SecKeyRef transportKeyRef = nil;
     if (!tenantId)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No tenantId provided to read secure enclave session transport key.");
