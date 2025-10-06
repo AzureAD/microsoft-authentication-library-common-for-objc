@@ -1,3 +1,6 @@
+Version 1.15.2
+* Feature flag gating STK querying and getting rid of category for its setter. (#1586)
+
 Version 1.15.1
 Allow cookies in duna resume request #1574
 
