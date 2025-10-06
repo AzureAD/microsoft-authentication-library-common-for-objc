@@ -856,7 +856,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 {
     [MSIDTestSwizzle instanceMethod:@selector(boolForKey:)
                                   class:[MSIDFlightManager class]
-                                  block:(id)^(id obj,NSString *flightKey)
+                                  block:(id)^(NSString *flightKey)
          {
             if ([flightKey isEqualToString:MSID_FLIGHT_ENABLE_QUERYING_STK])
             {
