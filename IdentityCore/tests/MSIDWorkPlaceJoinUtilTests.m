@@ -33,6 +33,9 @@
 #import "MSIDTestSwizzle.h"
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 #import "MSIDWPJMetadata.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
 
 @interface MSIDWorkPlaceJoinUtilTests : XCTestCase
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
@@ -67,6 +70,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     // Setting use iOS style keychain to true by default. Set it to NO in test cases that require ACL.
     self.useIosStyleKeychain = YES;
     self.tenantId = NSUUID.UUID.UUIDString;
+    [self mockFlightValues];
 #if TARGET_OS_OSX
     self.useIosStyleKeychain = NO;
 #endif
@@ -847,5 +851,12 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     [self insertKeyIntoKeychain:transportKeyRef
                   privateKeyTag:stkTag
                     accessGroup:keychainGroup];
+}
+
+- (void)mockFlightValues
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_QUERYING_STK: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 @end
