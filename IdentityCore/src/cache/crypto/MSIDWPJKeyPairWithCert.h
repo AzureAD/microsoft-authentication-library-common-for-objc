@@ -63,6 +63,7 @@ typedef NS_ENUM(NSInteger, MSIDWPJKeychainAccessGroup)
                                 certificate:(SecCertificateRef)certificate
                           certificateIssuer:(nullable NSString *)issuer;
 
+- (nullable instancetype)initializePrivateTransportKeyRef:(SecKeyRef)privateTransportKeyRef;
 @end
 
 NS_ASSUME_NONNULL_END
