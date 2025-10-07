@@ -94,5 +94,7 @@ NSString *const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME = @"ignore_cookies_in_
 // Making the flight string short to avoid legacy broker url size limit
 NSString *const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS = @"disable_rm_metadata";
 
+NSString *const MSID_FLIGHT_ENABLE_QUERYING_STK = @"enable_querying_stk";
+
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
