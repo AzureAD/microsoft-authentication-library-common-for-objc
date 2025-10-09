@@ -113,7 +113,7 @@
     result[@"haschrome"] = @"1";
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
         
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || TARGET_OS_OSX
     NSString *tenantId = parameters.accountIdentifier.utid;
     if ([self isDUNASupportedForTenantId:tenantId])
     {
