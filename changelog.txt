@@ -2,6 +2,9 @@ Version 1.16.0
 * Filter based Flighting capabilities (#1580)
 * Filter based Flighting for DUNA feature (#1580)
 
+Version 1.15.2
+* Feature flag gating STK querying and getting rid of category for its setter. (#1586)
+
 Version 1.15.1
 * Allow cookies in duna resume request #1574
 
