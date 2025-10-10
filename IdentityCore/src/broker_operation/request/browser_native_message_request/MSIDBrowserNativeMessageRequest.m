@@ -28,6 +28,7 @@
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY = @"sender";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_METHOD_KEY = @"method";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY = @"correlationId";
 
 @implementation MSIDBrowserNativeMessageRequest
 

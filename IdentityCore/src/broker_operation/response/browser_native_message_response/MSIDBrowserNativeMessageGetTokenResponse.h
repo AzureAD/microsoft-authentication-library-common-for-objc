@@ -26,6 +26,7 @@
 #import "MSIDBrokerNativeAppOperationResponse.h"
 
 @class MSIDBrokerOperationTokenResponse;
+@class MSIDBrokerOperationBrowserNativeMessageMATSReport;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
 
 @property (nonatomic, nullable) NSString *state;
+@property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
+
 
 @end
 

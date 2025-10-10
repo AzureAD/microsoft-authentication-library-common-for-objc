@@ -41,12 +41,41 @@
 #import "MSIDSwitchBrowserResponse.h"
 #import "MSIDSwitchBrowserResumeResponse.h"
 #import "MSIDFlightManager.h"
+#import "MSIDAccountIdentifier.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDJITTroubleshootingResponse.h"
 #endif
 
 @implementation MSIDAADWebviewFactory
+
+#pragma mark - Private Methods
+
+- (BOOL)isDUNASupportedForTenantId:(NSString *)tenantId
+{
+    BOOL allowDUNAGlobal = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    
+    if (allowDUNAGlobal)
+    {
+        return YES;
+    }
+    
+    BOOL allowDUNAByTenant = NO;
+    MSIDFlightManager *flightManager;
+    
+    if (![NSString msidIsStringNilOrBlank:tenantId])
+    {
+        flightManager = [MSIDFlightManager sharedInstanceByQueryKey:tenantId keyType:MSIDFlightManagerQueryKeyTypeTenantId];
+    }
+    if (flightManager)
+    {
+        allowDUNAByTenant = [flightManager boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA];
+    }
+    
+    return allowDUNAByTenant;
+}
+
+#pragma mark - Public Methods
 
 - (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                                                                          pkce:(MSIDPkce *)pkce
@@ -83,9 +112,10 @@
     
     result[@"haschrome"] = @"1";
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
-    
+        
 #if TARGET_OS_IPHONE
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    NSString *tenantId = parameters.accountIdentifier.utid;
+    if ([self isDUNASupportedForTenantId:tenantId])
     {
         // Let server know that we support new cba flow
         result[MSID_BROWSER_RESPONSE_SWITCH_BROWSER] = @"1";
@@ -202,7 +232,9 @@
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
     
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    NSString *tenantId = wpjResponse.clientInfo.utid;
+    
+    if ([self isDUNASupportedForTenantId:tenantId])
     {
         MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
                                                                                               redirectUri:endRedirectUri

@@ -22,23 +22,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import <Foundation/Foundation.h>
+#import "MSIDCredentialCacheItem.h"
 
-#import "MSIDBaseBrokerOperationRequest.h"
-#import "MSIDJsonSerializable.h"
+/**
+ * @class MSIDBoundRefreshTokenCacheItem
+ * @brief Represents a bound refresh token cache item that is bound to the device.
+ */
+@interface MSIDBoundRefreshTokenCacheItem : MSIDCredentialCacheItem <NSSecureCoding>
 
-NS_ASSUME_NONNULL_BEGIN
+/**
+ * @property boundDeviceId
+ * @brief The unique identifier of the device to which the refresh token is bound.
+ */
+@property (atomic) NSString *boundDeviceId;
 
-@interface MSIDBrowserNativeMessageRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>
-
-/// Url of the request sender.
-@property (nonatomic) NSURL *sender;
-
-@property (nonatomic, readonly) NSString *localizedApplicationInfo;
+@property (nonatomic, readonly) NSString *boundRefreshToken;
 
 @end
-
-NS_ASSUME_NONNULL_END
-
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY;
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_METHOD_KEY;
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY;

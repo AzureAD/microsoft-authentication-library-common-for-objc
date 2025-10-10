@@ -24,6 +24,7 @@
 
 
 #import <Foundation/Foundation.h>
+#import "MSIDFlightManagerQueryKeyDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,8 +39,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDFlightManager : NSObject <MSIDFlightManagerInterface>
 
 @property (nonatomic, nullable) id<MSIDFlightManagerInterface> flightProvider;
+@property (nonatomic, nullable) id<MSIDFlightManagerQueryKeyDelegate> queryKeyFlightProvider;
 
 + (instancetype)sharedInstance;
++ (instancetype)sharedInstanceByQueryKey:(NSString *)queryKey
+                                 keyType:(MSIDFlightManagerQueryKeyType)keyType;
 
 @end
 

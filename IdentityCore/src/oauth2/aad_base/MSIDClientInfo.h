@@ -33,6 +33,7 @@
 @property (readonly) NSString *utid;
 @property (readonly) NSString *rawClientInfo;
 @property (readonly) NSString *accountIdentifier;
+@property (readonly) NSString *xms_tdbr;
 
 - (id)initWithRawClientInfo:(NSString *)rawClientInfo
                       error:(NSError *__autoreleasing *)error;

@@ -20,25 +20,19 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
-
-#import "MSIDBaseBrokerOperationRequest.h"
-#import "MSIDJsonSerializable.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrowserNativeMessageRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>
+typedef NSString * MSIDFlightManagerQueryKeyType NS_STRING_ENUM;
 
-/// Url of the request sender.
-@property (nonatomic) NSURL *sender;
-
-@property (nonatomic, readonly) NSString *localizedApplicationInfo;
-
-@end
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeTenantId;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeAppBundleId;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeEcsRegion;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUpn;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUserId;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeVersionNumber;
 
 NS_ASSUME_NONNULL_END
-
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY;
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_METHOD_KEY;
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY;
