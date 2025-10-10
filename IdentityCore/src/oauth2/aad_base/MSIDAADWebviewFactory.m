@@ -231,10 +231,8 @@
                                                                                           context:context
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
-    
-    NSString *tenantId = wpjResponse.clientInfo.utid;
-    
-    if ([self isDUNASupportedForTenantId:tenantId])
+        
+    if ([self isDUNASupportedForTenantId:nil])
     {
         MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
                                                                                               redirectUri:endRedirectUri
