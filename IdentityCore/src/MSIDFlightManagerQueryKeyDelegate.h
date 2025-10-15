@@ -20,25 +20,16 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
+#import "MSIDFlightManagerQueryKeyType.h"
 
-#import "MSIDBaseBrokerOperationRequest.h"
-#import "MSIDJsonSerializable.h"
+@protocol MSIDFlightManagerInterface;
 
-NS_ASSUME_NONNULL_BEGIN
+@protocol MSIDFlightManagerQueryKeyDelegate <NSObject>
 
-@interface MSIDBrowserNativeMessageRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>
-
-/// Url of the request sender.
-@property (nonatomic) NSURL *sender;
-
-@property (nonatomic, readonly) NSString *localizedApplicationInfo;
+- (nullable id<MSIDFlightManagerInterface>)flightProviderForQueryKey:(nonnull NSString *)queryKey
+                                                             keyType:(nonnull MSIDFlightManagerQueryKeyType)keyType;
 
 @end
-
-NS_ASSUME_NONNULL_END
-
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY;
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_METHOD_KEY;
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY;

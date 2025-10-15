@@ -30,7 +30,6 @@
 #import "MSIDConstants.h"
 #import "MSIDPromptType_Internal.h"
 
-NSString *const MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY = @"correlationId";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY = @"clientId";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY = @"authority";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_SCOPE_KEY = @"scope";
@@ -160,7 +159,13 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
 
     if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY required:NO error:error]) return nil;
     NSString *uuidString = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
-    _correlationId = uuidString ? [[NSUUID alloc] initWithUUIDString:uuidString] : [NSUUID UUID];
+    _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
+    if (!_correlationId)
+    {
+        _correlationId = [NSUUID UUID];
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationID is invalid or not in UUID format: %@. Use new correlationId: %@", uuidString, _correlationId);
+    }
+    
     _platformSequence = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY];
     
     id canShowUIValue = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY];

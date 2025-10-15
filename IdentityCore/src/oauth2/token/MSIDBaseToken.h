@@ -56,6 +56,7 @@
 @property (atomic, readwrite) NSDictionary *additionalServerInfo;
 @property (atomic, readwrite) MSIDAccountIdentifier *accountIdentifier;
 @property (atomic, readwrite) NSString *speInfo;
+@property (atomic, readonly) BOOL createdFromCacheItem;
 
 - (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem;
 - (MSIDCredentialCacheItem *)tokenCacheItem;

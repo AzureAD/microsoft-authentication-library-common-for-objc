@@ -34,6 +34,7 @@ typedef NS_ENUM(NSInteger, MSIDCredentialType)
     MSIDLegacyIDTokenType = 6,
     MSIDAccessTokenWithAuthSchemeType = 7,
     MSIDFamilyRefreshTokenType = 8,
+    MSIDBoundRefreshTokenType = 9,
     MSIDCredentialTypeLast
 };
 

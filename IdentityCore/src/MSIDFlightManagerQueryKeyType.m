@@ -20,25 +20,13 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import "MSIDFlightManagerQueryKeyType.h"
 
-#import "MSIDBaseBrokerOperationRequest.h"
-#import "MSIDJsonSerializable.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrowserNativeMessageRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>
-
-/// Url of the request sender.
-@property (nonatomic) NSURL *sender;
-
-@property (nonatomic, readonly) NSString *localizedApplicationInfo;
-
-@end
-
-NS_ASSUME_NONNULL_END
-
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY;
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_METHOD_KEY;
-extern NSString * _Nonnull const MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY;
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeTenantId = @"tenantId";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeAppBundleId = @"appBundleId";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeEcsRegion = @"ecsRegion";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUpn = @"upn";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUserId = @"userId";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeVersionNumber = @"version_number";
