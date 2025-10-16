@@ -92,7 +92,9 @@ brokerRequestReceivedTimeStamp:(nullable NSDate*)brokerRequestReceivedTimeStamp
     }
     
     
-    [tokenResult insertBrokerMetaData:brokerAppVersion forKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
+    if (brokerAppVersion) {
+        [tokenResult insertBrokerMetaData:brokerAppVersion forKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
+    }
     // Calculate time intervals before storing
     NSTimeInterval responseLatency = 0;
     NSTimeInterval brokerHandlingTime = 0;
