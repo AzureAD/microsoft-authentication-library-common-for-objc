@@ -79,6 +79,8 @@
               validateAccount:validateAccount
              saveSSOStateOnly:saveSSOStateOnly
              brokerAppVersion:[operationResponse.deviceInfo brokerVersion]
+brokerResponseGenerationTimeStamp:operationResponse.responseGenerationTimeStamp
+brokerRequestReceivedTimeStamp:operationResponse.requestReceivedTimeStamp
                         error:error
               completionBlock:completionBlock];
 }

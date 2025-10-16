@@ -688,6 +688,8 @@
                                                  validateAccount:
                                                 saveSSOStateOnly:
                                                 brokerAppVersion:
+                                          brokerResponseGenerationTimeStamp:
+                                             brokerRequestReceivedTimeStamp:
                                                            error:
                                                  completionBlock:)
                              class:[MSIDTokenResponseHandler class]
@@ -703,6 +705,8 @@
                                          __unused BOOL validateAccount,
                                          __unused BOOL saveSSOStateOnly,
                                          __unused NSString *brokerAppVersion,
+                                         __unused NSDate *brokerResponseGenerationTimeStamp,
+                                         __unused NSDate *brokerRequestReceivedTimeStamp,
                                          __unused NSError *error,
                                          MSIDRequestCompletionBlock completionBlock)
     {
@@ -835,6 +839,8 @@
                                                  validateAccount:
                                                 saveSSOStateOnly:
                                                  brokerAppVersion:
+                                             brokerResponseGenerationTimeStamp:
+                                                brokerRequestReceivedTimeStamp:
                                                            error:
                                                  completionBlock:)
                              class:[MSIDTokenResponseHandler class]
@@ -850,6 +856,8 @@
                                          __unused BOOL validateAccount,
                                          __unused BOOL saveSSOStateOnly,
                                          __unused NSString *brokerAppVersion,
+                                         __unused NSDate *brokerResponseGenerationTimeStamp,
+                                         __unused NSDate *brokerRequestReceivedTimeStamp,
                                          __unused NSError *error,
                                          MSIDRequestCompletionBlock completionBlock)
     {
