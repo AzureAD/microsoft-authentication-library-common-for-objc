@@ -53,8 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
             validateAccount:(BOOL)validateAccount
            saveSSOStateOnly:(BOOL)saveSSOStateOnly
            brokerAppVersion:(nullable NSString *)brokerAppVersion
-brokerResponseGenerationTimeStamp:(nullable NSDate*)responseGenerationTimeStamp
-brokerRequestReceivedTimeStamp:(nullable NSDate*)brokerRequestReceivedTimeStamp
+brokerResponseGenerationTimeStamp:(nullable NSDate *)responseGenerationTimeStamp
+brokerRequestReceivedTimeStamp:(nullable NSDate *)brokerRequestReceivedTimeStamp
                       error:(nullable NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
