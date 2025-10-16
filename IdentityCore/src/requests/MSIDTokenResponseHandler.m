@@ -45,8 +45,8 @@
             validateAccount:(BOOL)validateAccount
            saveSSOStateOnly:(BOOL)saveSSOStateOnly
            brokerAppVersion:(NSString *)brokerAppVersion
-brokerResponseGenerationTimeStamp:(nullable NSDate*)responseGenerationTimeStamp
-brokerRequestReceivedTimeStamp:(nullable NSDate*)brokerRequestReceivedTimeStamp
+brokerResponseGenerationTimeStamp:(nullable NSDate *)responseGenerationTimeStamp
+brokerRequestReceivedTimeStamp:(nullable NSDate *)brokerRequestReceivedTimeStamp
                       error:(NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
