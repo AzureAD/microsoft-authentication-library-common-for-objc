@@ -433,9 +433,10 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     {
         [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
     
-        if (tokenResult.brokerAppVersion)
+        id brokerAppVersion = [tokenResult.brokerMetaData objectForKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
+        if (brokerAppVersion && [brokerAppVersion isKindOfClass:NSString.class])
         {
-            [brokerEvent setBrokerAppVersion:tokenResult.brokerAppVersion];
+            [brokerEvent setBrokerAppVersion:brokerAppVersion];
         }
 
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];

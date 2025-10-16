@@ -45,6 +45,8 @@
             validateAccount:(BOOL)validateAccount
            saveSSOStateOnly:(BOOL)saveSSOStateOnly
            brokerAppVersion:(NSString *)brokerAppVersion
+brokerResponseGenerationTimeStamp:(nullable NSDate*)responseGenerationTimeStamp
+brokerRequestReceivedTimeStamp:(nullable NSDate*)brokerRequestReceivedTimeStamp
                       error:(NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
@@ -90,7 +92,21 @@
     }
     
     
-    tokenResult.brokerAppVersion = brokerAppVersion;
+    [tokenResult insertBrokerMetaData:brokerAppVersion forKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
+    // Calculate time intervals before storing
+    NSTimeInterval responseLatency = 0;
+    NSTimeInterval brokerHandlingTime = 0;
+
+    if (responseGenerationTimeStamp) {
+        responseLatency = [[NSDate date] timeIntervalSinceDate:responseGenerationTimeStamp];
+    }
+
+    if (brokerRequestReceivedTimeStamp && responseGenerationTimeStamp) {
+        brokerHandlingTime = [responseGenerationTimeStamp timeIntervalSinceDate:brokerRequestReceivedTimeStamp];
+    }
+
+    [tokenResult insertBrokerMetaData:@(responseLatency) forKey:MSID_TOKEN_RESULT_BROKER_APP_RESPONSE_LATENCY];
+    [tokenResult insertBrokerMetaData:@(brokerHandlingTime) forKey:MSID_TOKEN_RESULT_BROKER_APP_BROKER_HANDLING_TIME_INTERVAL];
     void (^validateAccountAndCompleteBlock)(void) = ^
     {
         if (validateAccount)
