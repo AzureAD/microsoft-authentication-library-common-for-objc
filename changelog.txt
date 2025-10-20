@@ -1,5 +1,6 @@
 ## [TBD]
 * Allow duna external idp on MacOs #1593
+* Ability to decrypt Bound app refresh token response (#1572)
 
 Version 1.16.0
 * Filter based Flighting capabilities (#1580)

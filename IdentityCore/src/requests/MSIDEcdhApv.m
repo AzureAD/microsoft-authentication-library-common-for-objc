@@ -29,6 +29,7 @@
 
 - (instancetype)initWithKey:(SecKeyRef)publicKey
                   apvPrefix:(NSString *)apvPrefix
+          customClientNonce:(NSString * _Nullable)customNonce
                     context:(id<MSIDRequestContext> _Nullable)context
                       error:(NSError * _Nullable __autoreleasing *)error
 {
@@ -69,18 +70,19 @@
     
     NSMutableData *data = [NSMutableData new];
     
-    int prefixLen = (int)apvPrefix.length;
+    int prefixLen = NSSwapHostIntToBig((int)apvPrefix.length);
     NSData *prefixLenData = [NSData dataWithBytes:&prefixLen length:sizeof(prefixLen)];
     [data appendData:prefixLenData];
     [data appendData:[apvPrefix dataUsingEncoding:NSUTF8StringEncoding]];
     
-    int stkLen = (int)stkData.length;
+    int stkLen = NSSwapHostIntToBig((int)stkData.length);
     NSData *stkLenData = [NSData dataWithBytes:&stkLen length:sizeof(stkLen)];
     [data appendData:stkLenData];
     [data appendData:stkData];
     
-    NSData *nonceData = [[NSUUID UUID].UUIDString dataUsingEncoding:NSASCIIStringEncoding];
-    int nonceLen = (int)nonceData.length;
+    NSString *nonceString = customNonce ? customNonce : [[NSUUID UUID] UUIDString];
+    NSData *nonceData = [nonceString dataUsingEncoding:NSASCIIStringEncoding];
+    int nonceLen = NSSwapHostIntToBig((int)nonceData.length);
     NSData *nonceLenData = [NSData dataWithBytes:&nonceLen length:sizeof(nonceLen)];
     [data appendData:nonceLenData];
     [data appendData:nonceData];
@@ -96,5 +98,4 @@
     }
     return self;
 }
-
 @end
