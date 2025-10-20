@@ -162,6 +162,10 @@
 #if TARGET_OS_IPHONE
     [queryDictionary msidSetNonEmptyString:self.brokerKey forKey:@"broker_key"];
     [queryDictionary msidSetNonEmptyString:self.brokerNonce forKey:@"broker_nonce"];
+    //if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_IS_BART_SUPPORTED])
+    //{
+        [queryDictionary msidSetNonEmptyString:@"1" forKey:@"bound_rt_redeem"];
+    //}
 #endif
     [queryDictionary msidSetNonEmptyString:[MSIDVersion sdkVersion] forKey:@"client_version"];
     [queryDictionary msidSetNonEmptyString:claimsString forKey:@"claims"];
