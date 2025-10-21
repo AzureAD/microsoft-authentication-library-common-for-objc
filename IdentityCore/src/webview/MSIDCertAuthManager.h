@@ -33,13 +33,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)sharedInstance;
 
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+#if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
 
 @property (nonatomic) BOOL useAuthSession;
 @property (nonatomic, readonly) BOOL isCertAuthInProgress;
 @property (nonatomic, readonly) NSString *redirectPrefix;
-@property (nonatomic, readonly) NSString *redirectScheme;;
+@property (nonatomic, readonly) NSString *redirectScheme;
+
+#if TARGET_OS_IPHONE
 @property (nonatomic) NSArray<UIActivity *> *activities;
+#else
+// macOS equivalent
+@property (nonatomic) NSArray<NSSharingService *> *activities;
+#endif
 
 - (void)startWithURL:(NSURL *)startURL
     parentController:(MSIDViewController *)parentViewController
