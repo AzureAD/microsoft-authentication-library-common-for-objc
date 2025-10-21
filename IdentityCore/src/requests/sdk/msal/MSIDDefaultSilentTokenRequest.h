@@ -36,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
-                              accountMetadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+                              accountMetadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                         telemetry:(nullable id<MSIDTelemetryProviding>)telemetry;
 
 -(MSIDIdToken *)getIDTokenForTokenType:(MSIDCredentialType)idTokenType
                                  error:(NSError *__autoreleasing*)error;

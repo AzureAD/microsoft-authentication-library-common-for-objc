@@ -48,12 +48,14 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         telemetry:(id<MSIDTelemetryProviding>)telemetry
                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     return [self initWithRequestParameters:parameters
                               forceRefresh:forceRefresh
                       tokenRequestProvider:tokenRequestProvider
              fallbackInteractiveController:nil
+                                 telemetry:(id<MSIDTelemetryProviding>)telemetry
                                      error:error];
 }
 
@@ -61,11 +63,13 @@
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                      fallbackInteractiveController:(nullable id<MSIDRequestControlling>)fallbackController
+                                         telemetry:(nullable id<MSIDTelemetryProviding>)telemetry
                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
                          fallbackController:fallbackController
+                                  telemetry:(id<MSIDTelemetryProviding>)telemetry
                                       error:error];
     
     if (self)
@@ -96,7 +100,8 @@
     };
     
     __auto_type request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
-                                                                         forceRefresh:self.forceRefresh];
+                                                                         forceRefresh:self.forceRefresh
+                                                                            telemetry:self.telemetry];
     request.skipLocalRt = self.skipLocalRt;
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }

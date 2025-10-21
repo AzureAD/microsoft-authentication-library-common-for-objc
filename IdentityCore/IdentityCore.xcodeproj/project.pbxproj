@@ -546,6 +546,7 @@
 		2A366B782D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A366B772D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m */; };
 		2A366B7B2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */; };
 		2A366B7C2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A366B7A2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m */; };
+		2A36F39B2EA6B58300E27528 /* MSIDTelemetryProviding.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A36F39A2EA6B58300E27528 /* MSIDTelemetryProviding.h */; };
 		2A59B4202D76618900304FB1 /* MSIDXpcProviderCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */; };
 		2A59B4212D76618900304FB1 /* MSIDXpcProviderCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */; };
 		2A59B42C2D776F3400304FB1 /* MSIDXpcConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B42B2D776F3400304FB1 /* MSIDXpcConfiguration.m */; };
@@ -2494,6 +2495,7 @@
 		2A366B772D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcSingleSignOnProviderTest.m; sourceTree = "<group>"; };
 		2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCacheMock.h; sourceTree = "<group>"; };
 		2A366B7A2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcProviderCacheMock.m; sourceTree = "<group>"; };
+		2A36F39A2EA6B58300E27528 /* MSIDTelemetryProviding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryProviding.h; sourceTree = "<group>"; };
 		2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCache.h; sourceTree = "<group>"; };
 		2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcProviderCache.m; sourceTree = "<group>"; };
 		2A59B42A2D776F3400304FB1 /* MSIDXpcConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcConfiguration.h; sourceTree = "<group>"; };
@@ -4653,6 +4655,7 @@
 				233E96F222652C5B007FCE2A /* MSIDTelemetryEventsObserving.h */,
 				233E96F422652D3A007FCE2A /* MSIDAggregatedDispatcher.h */,
 				233E96F522652D3A007FCE2A /* MSIDAggregatedDispatcher.m */,
+				2A36F39A2EA6B58300E27528 /* MSIDTelemetryProviding.h */,
 			);
 			path = telemetry;
 			sourceTree = "<group>";
@@ -6346,6 +6349,7 @@
 				B2EF143A1FF2F225005DC1C0 /* MSIDAADV2TokenResponse.h in Headers */,
 				9641B5011FCF3E2700AFA0EC /* MSIDTokenCacheDataSource.h in Headers */,
 				B49323912AD491C600E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.h in Headers */,
+				2A36F39B2EA6B58300E27528 /* MSIDTelemetryProviding.h in Headers */,
 				233E96F122652B8B007FCE2A /* MSIDDefaultDispatcher+Internal.h in Headers */,
 				B2AE0FDD2427E9FC00B8FAF1 /* MSIDKeychainUtil+MacInternal.h in Headers */,
 				23F9FD4622EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h in Headers */,

@@ -39,17 +39,21 @@
  responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
  externalSSOContext:(MSIDExternalSSOContext *)ssoContext
             context:(id<MSIDRequestContext>)context
+          telemetry:(id<MSIDTelemetryProviding>)telemetry
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     BOOL shouldRetry = YES;
     shouldRetry &= httpRequest.retryCounter > 0;
+    [telemetry appendPropertyChildFlowPrefix:[@(httpRequest.retryCounter) stringValue]];
     if (!httpResponse)
     {
+        [telemetry setTelemetryProperty:@"handle_http_error" value:@"no_response"];
         BOOL shouldRetryNetworkingFailure = NO;
         if (shouldRetry && error)
         {
             // Networking errors (-1001, -1003. -1004. -1005. -1009)
             shouldRetryNetworkingFailure = [MSIDAADRequestErrorHandler shouldRetryNetworkingFailure:error.code];
+            [telemetry setTelemetryProperty:@"http_error_code" value:@(error.code)];
             if (shouldRetryNetworkingFailure && error.code == NSURLErrorNotConnectedToInternet)
             {
                 // For handling the NSURLErrorNotConnectedToInternet error, retry the network request after a longer delay.
@@ -67,15 +71,20 @@
     else
     {
         // 5xx Server errors.
+        [telemetry setTelemetryProperty:@"handle_http_error" value:@"5xx_error"];
+        [telemetry setTelemetryProperty:@"http_error_code" value:@(httpResponse.statusCode)];
         if (shouldRetry) shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
     }
     
+    [telemetry setTelemetryProperty:@"http_should_retry" value:@(shouldRetry)];
     if (shouldRetry)
     {
+
         httpRequest.retryCounter--;
         
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
-        
+    
+        [telemetry setTelemetryProperty:@"http_retry_interval" value:@(httpRequest.retryInterval)];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
