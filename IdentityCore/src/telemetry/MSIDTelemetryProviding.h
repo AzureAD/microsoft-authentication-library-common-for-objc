@@ -37,9 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 - (void)setTelemetryTimingProperty:(nonnull NSString *)key startTime:(nonnull NSDate *)startTime endTime:(nonnull NSDate *)endTime;
 - (void)logTelemetryEvent:(nonnull NSString *)eventName properties:(nullable NSDictionary *)properties;
+// setPropertyChildFlowPrefix is recommanded to be used when an action include more than 1 flows.
 - (void)setPropertyChildFlowPrefix:(NSString *)prefixKey;
+// This is needed to prevent key overriding in sub-flows when certain key is resued
 - (void)appendPropertyChildFlowPrefix:(nullable NSString*)prefixKey;
+// This resets the previously added flow prefix
 - (void)resetPropertyChildFlowPrefix;
 @end
 
 NS_ASSUME_NONNULL_END
+

@@ -42,6 +42,9 @@
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDFlightManager.h"
+#import "MSIDLogger+Internal.h"
+#import "NSString+MSIDExtensions.h"
+#import "MSIDRequestTelemetryConstants.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -171,7 +174,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             
             enrollmentIdMatch = currentEnrollmentId && [currentEnrollmentId isEqualToString:accessToken.enrollmentId];
             
-            [self.telemetry setTelemetryProperty:@"enroll_id_match" value:@(enrollmentIdMatch)];
+            [self.telemetry setTelemetryProperty:MSID_TELE_ENROLL_ID_MATCH value:@(enrollmentIdMatch)];
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Enrollment id match result = %@, access token's enrollment id : %@, cached enrollment id: %@, ", enrollmentIdMatch ? @"True" : @"False", MSID_PII_LOG_MASKABLE(accessToken.enrollmentId), MSID_PII_LOG_MASKABLE(currentEnrollmentId));
         }
         
@@ -180,7 +183,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             accessTokenExpired = [accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer];
             if (accessTokenExpired && [self.telemetry respondsToSelector:@selector(setTelemetryTimingProperty:startTime:endTime:)])
             {
-                [self.telemetry setTelemetryTimingProperty:@"at_exipred_interval" startTime:accessToken.expiresOn endTime:[NSDate date]];
+                [self.telemetry setTelemetryTimingProperty:MSID_TELE_ACCESS_TOKEN_EXPIRED_INTERVAL startTime:accessToken.expiresOn endTime:[NSDate date]];
             }
         }
         
@@ -196,13 +199,13 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         
         if (accessToken && !accessTokenExpired && enrollmentIdMatch && accessTokenKeyThumbprintMatch && nestedAuthRedirectUriMatch)
         {
-            [self.telemetry setTelemetryProperty:@"found_valid_at" value:@(YES)];
+            [self.telemetry setTelemetryProperty:MSID_TELE_FOUND_VALID_ACCESS_TOKEN value:@(YES)];
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
             
             // unexpired token exists , check if refresh needed, if no refresh needed, return the unexpired token
             if (!accessToken.refreshNeeded)
             {
-                [self.telemetry setTelemetryProperty:@"at_refresh_needed" value:@(NO)];
+                [self.telemetry setTelemetryProperty:MSID_TELE_ACCESS_TOKEN_REFRESHED_NEEDED value:@(NO)];
                 __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
                 [self fetchCachedTokenAndCheckForFRTFirst:YES shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
                     refreshableToken = token;
@@ -227,7 +230,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             else
             {
                 // unexpired token exists, but needs refresh. Store token to return if refresh attempt fails due to AAD being down
-                [self.telemetry setTelemetryProperty:@"at_refresh_needed" value:@(YES)];
+                [self.telemetry setTelemetryProperty:MSID_TELE_ACCESS_TOKEN_REFRESHED_NEEDED value:@(YES)];
                 self.unexpiredRefreshNeededAccessToken = accessToken;
                 CONDITIONAL_SET_REFRESH_TYPE(self.currentRequestTelemetry.tokenCacheRefreshType, TokenCacheRefreshTypeProactiveTokenRefresh);
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Unexpired access token exists, but needs refresh, since refresh expired.");
@@ -280,7 +283,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     
     if (self.skipLocalRt)
     {
-        [self.telemetry setTelemetryProperty:@"at_local_rt_skip" value:@(YES)];
+        [self.telemetry setTelemetryProperty:MSID_TELE_SKIP_LOCAL_REFRESH_TOKEN value:@(YES)];
         // Skipping using local RT for token acquisition
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached RT is not allowed to be used for token acquisition, skipping.");
         completionBlock(nil, nil);

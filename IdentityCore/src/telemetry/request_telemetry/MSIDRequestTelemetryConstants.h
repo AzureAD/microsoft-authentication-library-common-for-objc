@@ -30,3 +30,22 @@ extern NSString* const MSID_WPJ_V2_TELEMETRY_KEY;
 extern NSString* const MSID_WPJ_V1_TELEMETRY_KEY;
 
 #endif
+
+/* MSAL TELEMETRY PROVIDING */
+
+// Key
+extern NSString* const MSID_TELE_HANDLING_HTTP_ERROR;
+extern NSString* const MSID_TELE_HTTP_ERROR_CODE;
+extern NSString* const MSID_TELE_HTTP_SHOULD_RETRY;
+extern NSString* const MSID_TELE_HTTP_RETRY_INTERVAL;
+extern NSString* const MSID_TELE_HTTP_RETRY_INTERVAL;
+extern NSString* const MSID_TELE_ENROLL_ID_MATCH;
+extern NSString* const MSID_TELE_ACCESS_TOKEN_EXPIRED_INTERVAL;
+extern NSString* const MSID_TELE_FOUND_VALID_ACCESS_TOKEN;
+extern NSString* const MSID_TELE_ACCESS_TOKEN_REFRESHED_NEEDED;
+extern NSString* const MSID_TELE_SKIP_LOCAL_REFRESH_TOKEN;
+
+
+// Value
+extern NSString* const MSID_TELE_NO_HTTP_RESPONSE;
+extern NSString* const MSID_TELE_5XX_ERROR;

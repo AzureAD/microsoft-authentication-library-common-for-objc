@@ -29,6 +29,9 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDRequestTelemetryConstants.h"
+#import "MSIDLogger+Internal.h"
+#import "NSString+MSIDExtensions.h"
 
 @implementation MSIDAADRequestErrorHandler
 
@@ -47,13 +50,13 @@
     [telemetry appendPropertyChildFlowPrefix:[@(httpRequest.retryCounter) stringValue]];
     if (!httpResponse)
     {
-        [telemetry setTelemetryProperty:@"handle_http_error" value:@"no_response"];
+        [telemetry setTelemetryProperty:MSID_TELE_HANDLING_HTTP_ERROR value:MSID_TELE_NO_HTTP_RESPONSE];
         BOOL shouldRetryNetworkingFailure = NO;
         if (shouldRetry && error)
         {
             // Networking errors (-1001, -1003. -1004. -1005. -1009)
             shouldRetryNetworkingFailure = [MSIDAADRequestErrorHandler shouldRetryNetworkingFailure:error.code];
-            [telemetry setTelemetryProperty:@"http_error_code" value:@(error.code)];
+            [telemetry setTelemetryProperty:MSID_TELE_HTTP_ERROR_CODE value:@(error.code)];
             if (shouldRetryNetworkingFailure && error.code == NSURLErrorNotConnectedToInternet)
             {
                 // For handling the NSURLErrorNotConnectedToInternet error, retry the network request after a longer delay.
@@ -71,20 +74,19 @@
     else
     {
         // 5xx Server errors.
-        [telemetry setTelemetryProperty:@"handle_http_error" value:@"5xx_error"];
-        [telemetry setTelemetryProperty:@"http_error_code" value:@(httpResponse.statusCode)];
+        [telemetry setTelemetryProperty:MSID_TELE_HANDLING_HTTP_ERROR value:MSID_TELE_5XX_ERROR];
+        [telemetry setTelemetryProperty:MSID_TELE_HTTP_ERROR_CODE value:@(httpResponse.statusCode)];
         if (shouldRetry) shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
     }
     
-    [telemetry setTelemetryProperty:@"http_should_retry" value:@(shouldRetry)];
+    [telemetry setTelemetryProperty:MSID_TELE_HTTP_SHOULD_RETRY value:@(shouldRetry)];
     if (shouldRetry)
     {
-
         httpRequest.retryCounter--;
         
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
     
-        [telemetry setTelemetryProperty:@"http_retry_interval" value:@(httpRequest.retryInterval)];
+        [telemetry setTelemetryProperty:MSID_TELE_HTTP_RETRY_INTERVAL value:@(httpRequest.retryInterval)];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
