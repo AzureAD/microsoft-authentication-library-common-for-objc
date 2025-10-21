@@ -36,6 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
+                              accountMetadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
                               accountMetadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                          telemetry:(nullable id<MSIDTelemetryProviding>)telemetry;
 
