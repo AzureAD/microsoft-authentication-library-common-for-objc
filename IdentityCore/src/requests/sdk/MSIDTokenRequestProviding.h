@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDInteractiveRequestControlling.h"
+#import "MSIDTelemetryProviding.h"
 
 @class MSIDInteractiveTokenRequest;
 @class MSIDSilentTokenRequest;
@@ -35,7 +36,8 @@
 
 - (nullable id<MSIDInteractiveRequestControlling>)interactiveTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
 - (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
-                                                         forceRefresh:(BOOL)forceRefresh;
+                                                         forceRefresh:(BOOL)forceRefresh
+                                                            telemetry:(nullable id<MSIDTelemetryProviding>)telemetry;
 
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                             brokerKey:(nonnull NSString *)brokerKey

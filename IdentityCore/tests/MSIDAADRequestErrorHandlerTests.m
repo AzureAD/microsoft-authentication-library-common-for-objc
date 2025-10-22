@@ -28,6 +28,7 @@
 #import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAADTokenResponse.h"
+#import "MSIDTestTelemetryProvider.h"
 
 @interface MSIDHttpTestRequest : NSObject <MSIDHttpRequestProtocol>
 
@@ -100,6 +101,7 @@
                                                          headerFields:nil];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
+    __auto_type telemetry = [MSIDTestTelemetryProvider new];
     __block BOOL isBlockInvoked = NO;
     __auto_type block = ^(__unused id response, __unused NSError *error) {
         isBlockInvoked = YES;
@@ -114,6 +116,7 @@
                 responseSerializer:[MSIDHttpResponseSerializer new]
                 externalSSOContext:nil
                            context:context
+                         telemetry:telemetry
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -132,6 +135,7 @@
                                                          headerFields:nil];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
+    __auto_type telemetry = [MSIDTestTelemetryProvider new];
     __block BOOL isBlockInvoked = NO;
     __auto_type block = ^(__unused id response, __unused NSError *error) {
         isBlockInvoked = YES;
@@ -147,6 +151,7 @@
                 responseSerializer:[MSIDHttpResponseSerializer new]
                 externalSSOContext:nil
                            context:context
+                         telemetry:telemetry
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -164,7 +169,7 @@
                                                          headerFields:@{@"headerKey":@"headerValue"}];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
-
+    __auto_type telemetry = [MSIDTestTelemetryProvider new];
     __block id errorResponse;
     __block NSError *returnError;
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
@@ -185,6 +190,7 @@
                 responseSerializer:serializer
                 externalSSOContext:nil
                            context:context
+                         telemetry:telemetry
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -206,7 +212,7 @@
                                                          headerFields:@{@"headerKey":@"headerValue"}];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
-
+    __auto_type telemetry = [MSIDTestTelemetryProvider new];
     __block id errorResponse;
     __block NSError *returnError;
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
@@ -232,6 +238,7 @@
                 responseSerializer:serializer
                 externalSSOContext:nil
                            context:context
+                         telemetry:telemetry
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -254,6 +261,7 @@
                                                          headerFields:nil];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
+    __auto_type telemetry = [MSIDTestTelemetryProvider new];
     __block NSError *returnError;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
@@ -271,6 +279,7 @@
                 responseSerializer:serializer
                 externalSSOContext:nil
                            context:context
+                         telemetry:telemetry
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -290,6 +299,7 @@
                                                          headerFields:nil];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
+    __auto_type telemetry = [MSIDTestTelemetryProvider new];
     __block NSError *returnError;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
@@ -307,6 +317,7 @@
                 responseSerializer:serializer
                 externalSSOContext:nil
                            context:context
+                         telemetry:telemetry
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -323,6 +334,7 @@
                                                          headerFields:nil];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
+    __auto_type telemetry = [MSIDTestTelemetryProvider new];
     __block MSIDAADTokenResponse *errorResponse;
     __block NSError *returnError;
 
@@ -345,6 +357,7 @@
                 responseSerializer:serializer
                 externalSSOContext:nil
                            context:context
+                         telemetry:telemetry
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -358,6 +371,7 @@
     NSError *networkError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorNetworkConnectionLost userInfo:nil];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
+    __auto_type telemetry = [MSIDTestTelemetryProvider new];
     __block BOOL isBlockInvoked = NO;
     __auto_type block = ^(__unused id response, __unused NSError *error) {
         isBlockInvoked = YES;
@@ -372,6 +386,7 @@
                 responseSerializer:[MSIDHttpResponseSerializer new]
                 externalSSOContext:nil
                            context:context
+                         telemetry:telemetry
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -387,6 +402,7 @@
     NSError *networkError = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
     __auto_type httpRequest = [MSIDHttpTestRequest new];
     __auto_type context = [MSIDTestContext new];
+    __auto_type telemetry = [MSIDTestTelemetryProvider new];
     __block BOOL isBlockInvoked = NO;
     XCTestExpectation *expectation = [self expectationWithDescription:@"Block invoked"];
     __auto_type block = ^(__unused id response, __unused NSError *error) {
@@ -401,6 +417,7 @@
                 responseSerializer:[MSIDHttpResponseSerializer new]
                 externalSSOContext:nil
                            context:context
+                         telemetry:telemetry
                    completionBlock:block];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];

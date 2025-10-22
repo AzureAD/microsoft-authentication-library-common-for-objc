@@ -66,11 +66,13 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                                    telemetry:(nullable id<MSIDTelemetryProviding>)telemetry
                                                         error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
                          fallbackController:fallbackController
+                                  telemetry:telemetry
                                       error:error];
 
     if (self)
@@ -86,11 +88,13 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                             brokerInstallLink:(nonnull NSURL *)brokerInstallLink
+                                                    telemetry:(nullable id<MSIDTelemetryProviding>)telemetry
                                                         error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [self initWithInteractiveRequestParameters:parameters
                                  tokenRequestProvider:tokenRequestProvider
                                    fallbackController:nil
+                                            telemetry:telemetry
                                                 error:error];
 
     if (self)

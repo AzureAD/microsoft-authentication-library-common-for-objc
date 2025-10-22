@@ -69,6 +69,7 @@
 
 - (MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDRequestParameters *)parameters
                                                 forceRefresh:(BOOL)forceRefresh
+                                                   telemetry:(__unused id<MSIDTelemetryProviding>)telemetry
 {
     return [[MSIDLegacySilentTokenRequest alloc] initWithRequestParameters:parameters
                                                               forceRefresh:forceRefresh

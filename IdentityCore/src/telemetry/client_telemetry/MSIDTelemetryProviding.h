@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,25 +20,30 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDHttpRequestProtocol.h"
-#import "MSIDResponseSerialization.h"
-#import "MSIDTelemetryProviding.h"
 
-@class MSIDExternalSSOContext;
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDHttpRequestErrorHandling <NSObject>
+@protocol MSIDTelemetryProviding <NSObject>
 
-- (void)handleError:(NSError * )error
-       httpResponse:(NSHTTPURLResponse *)httpResponse
-               data:(NSData *)data
-        httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
- responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
- externalSSOContext:(MSIDExternalSSOContext *)ssoContext
-            context:(id<MSIDRequestContext>)context
-          telemetry:(id<MSIDTelemetryProviding>)telemetry
-    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+@required
+- (void)setTelemetryProperty:(nonnull NSString *)key value:(nullable id)value;
+- (void)setTelemetryError:(nonnull NSError *)error;
+- (void)setTelemetryFeatureFlag:(nonnull NSString *)featureFlagName;
 
+@optional
+- (void)setTelemetryTimingProperty:(nonnull NSString *)key startTime:(nonnull NSDate *)startTime endTime:(nonnull NSDate *)endTime;
+- (void)logTelemetryEvent:(nonnull NSString *)eventName properties:(nullable NSDictionary *)properties;
+// setPropertyChildFlowPrefix is recommended to be used when an action includes more than 1 flow.
+- (void)setPropertyChildFlowPrefix:(NSString *)prefixKey;
+// This is needed to prevent key overriding in sub-flows when certain key is reused
+- (void)appendPropertyChildFlowPrefix:(nullable NSString*)prefixKey;
+// This resets the previously added flow prefix
+- (void)resetPropertyChildFlowPrefix;
 @end
+
+NS_ASSUME_NONNULL_END
+

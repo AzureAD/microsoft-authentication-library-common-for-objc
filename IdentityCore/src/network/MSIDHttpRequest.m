@@ -148,6 +148,7 @@ static NSDictionary *s_experimentBag = nil;
                               responseSerializer:nil
                               externalSSOContext:nil
                                          context:self.context
+                                       telemetry:self.telemetryProvider
                                  completionBlock:completeBlockWrapper];
               }
               else
@@ -182,6 +183,7 @@ static NSDictionary *s_experimentBag = nil;
                               responseSerializer:responseSerializer
                               externalSSOContext:self.externalSSOContext
                                          context:self.context
+                                       telemetry:self.telemetryProvider
                                  completionBlock:completeBlockWrapper];
               }
               else
