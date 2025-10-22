@@ -32,7 +32,7 @@ NSString* const MSID_TELE_HTTP_SHOULD_RETRY = @"http_should_retry";
 NSString* const MSID_TELE_HTTP_RETRY_INTERVAL = @"http_retry_interval";
 
 NSString* const MSID_TELE_ENROLL_ID_MATCH = @"enroll_id_match";
-NSString* const MSID_TELE_ACCESS_TOKEN_EXPIRED_INTERVAL = @"at_exipred_interval";
+NSString* const MSID_TELE_ACCESS_TOKEN_EXPIRED_INTERVAL = @"at_expired_interval";
 NSString* const MSID_TELE_FOUND_VALID_ACCESS_TOKEN = @"found_valid_at";
 NSString* const MSID_TELE_ACCESS_TOKEN_REFRESHED_NEEDED = @"at_refresh_needed";
 NSString* const MSID_TELE_SKIP_LOCAL_REFRESH_TOKEN = @"skip_local_rt";
