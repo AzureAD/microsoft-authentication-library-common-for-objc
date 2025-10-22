@@ -566,6 +566,9 @@
 		4B6D222E2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */; };
 		4BADFA5E2E85D7FC00E8C26F /* MSIDFlightManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */; };
 		4BADFA5F2E85D7FC00E8C26F /* MSIDFlightManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */; };
+		4BF51DD42E96DAC700434A36 /* MSIDSwitchBrowserResumeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2B002D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.m */; };
+		4BF51DD52E96DACD00434A36 /* MSIDSwitchBrowserOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2AFE2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.m */; };
+		4BF51DD62E96E0AC00434A36 /* MSIDCertAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F19F2D2866F700E44F6E /* MSIDCertAuthManager.m */; };
 		580E25402719FD10003D1795 /* MSIDPrtHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 580E253E2719FD10003D1795 /* MSIDPrtHeader.h */; };
 		580E25412719FD10003D1795 /* MSIDPrtHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 580E253F2719FD10003D1795 /* MSIDPrtHeader.m */; };
 		580E25422719FD10003D1795 /* MSIDPrtHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 580E253F2719FD10003D1795 /* MSIDPrtHeader.m */; };
@@ -3802,17 +3805,6 @@
 			path = error_handler;
 			sourceTree = "<group>";
 		};
-		235C2B012D6FAF7900DEFEFB /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				235C2AFD2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.h */,
-				235C2AFE2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.m */,
-				235C2AFF2D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.h */,
-				235C2B002D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.m */,
-			);
-			path = ios;
-			sourceTree = "<group>";
-		};
 		23642AB32187D88C00F97009 /* mocks */ = {
 			isa = PBXGroup;
 			children = (
@@ -4233,7 +4225,10 @@
 		58B81F7F24AD0F7700E8799E /* operations */ = {
 			isa = PBXGroup;
 			children = (
-				235C2B012D6FAF7900DEFEFB /* ios */,
+				235C2AFD2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.h */,
+				235C2AFE2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.m */,
+				235C2AFF2D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.h */,
+				235C2B002D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.m */,
 				58B81F7A24AD0E7A00E8799E /* MSIDWebResponseOperationFactory.h */,
 				58B81F7B24AD0E7A00E8799E /* MSIDWebResponseOperationFactory.m */,
 				58B81F8024AD0F8B00E8799E /* MSIDWebResponseBaseOperation.h */,
@@ -7400,6 +7395,7 @@
 				B297E1ED20A1388E00F370EC /* MSIDDefaultAccountCacheQuery.m in Sources */,
 				235480CC20DDF81000246F72 /* MSIDB2CAuthority.m in Sources */,
 				B26A0B842071B6CC006BD95A /* MSIDAADOauth2Factory.m in Sources */,
+				4BF51DD62E96E0AC00434A36 /* MSIDCertAuthManager.m in Sources */,
 				23B39A8D209A53B7000AA905 /* MSIDDRSDiscoveryRequest.m in Sources */,
 				23B39A8820993572000AA905 /* MSIDAADAuthorityMetadataRequest.m in Sources */,
 				B49323932AD491CF00E0CBC0 /* MSIDBrokerOperationPasskeyAssertionRequest.m in Sources */,
@@ -7494,6 +7490,7 @@
 				2306D2A020AB672A00F875A3 /* MSIDAADEndpointProvider.m in Sources */,
 				B49323972AD4DA2A00E0CBC0 /* MSIDBrokerOperationGetPasskeyAssertionResponse.m in Sources */,
 				B251CC4B204105A7005E0179 /* MSIDBaseToken.m in Sources */,
+				4BF51DD52E96DACD00434A36 /* MSIDSwitchBrowserOperation.m in Sources */,
 				235480D120DDF81000246F72 /* MSIDADFSAuthority.m in Sources */,
 				23391BD82B17F2FD00EB121B /* MSIDBrowserNativeMessageSignOutRequest.m in Sources */,
 				B2EF143B1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */,
@@ -7612,6 +7609,7 @@
 				B286B9A42389DCEB007833AD /* MSIDSSOExtensionSilentTokenRequestController.m in Sources */,
 				B2C7B3BC213C69C8009FFCC1 /* MSIDDefaultErrorConverter.m in Sources */,
 				A0E541B125CDC5F10016E167 /* MSIDThrottlingMetaData.m in Sources */,
+				4BF51DD42E96DAC700434A36 /* MSIDSwitchBrowserResumeOperation.m in Sources */,
 				B443F0032AD6328700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.m in Sources */,
 				B27ACAAA22EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */,
 				729358112DDFADE70001D03C /* MSIDNonceHttpRequest.m in Sources */,
