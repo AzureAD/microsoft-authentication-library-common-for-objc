@@ -44,7 +44,7 @@
 #import "MSIDFlightManager.h"
 #import "MSIDLogger+Internal.h"
 #import "NSString+MSIDExtensions.h"
-#import "MSIDRequestTelemetryConstants.h"
+#import "MSIDClientTelemetryConstants.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"

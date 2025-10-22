@@ -30,6 +30,7 @@
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDMainThreadUtil.h"
 #import "MSIDRequestTelemetryConstants.h"
+#import "MSIDClientTelemetryConstants.h"
 #import "MSIDLogger+Internal.h"
 #import "NSString+MSIDExtensions.h"
 

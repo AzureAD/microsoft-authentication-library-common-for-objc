@@ -33,20 +33,3 @@ NSString* const MSID_WPJ_V2_TELEMETRY_KEY = @"wpj-v2";
 NSString* const MSID_WPJ_V1_TELEMETRY_KEY = @"wpj-v1";
 
 #endif
-
-/* MSAL TELEMETRY PROVIDING */
-// Key
-NSString* const MSID_TELE_HANDLING_HTTP_ERROR = @"handle_http_error";
-NSString* const MSID_TELE_HTTP_ERROR_CODE = @"http_error_code";
-NSString* const MSID_TELE_HTTP_SHOULD_RETRY = @"http_should_retry";
-NSString* const MSID_TELE_HTTP_RETRY_INTERVAL = @"http_retry_interval";
-
-NSString* const MSID_TELE_ENROLL_ID_MATCH = @"enroll_id_match";
-NSString* const MSID_TELE_ACCESS_TOKEN_EXPIRED_INTERVAL = @"at_exipred_interval";
-NSString* const MSID_TELE_FOUND_VALID_ACCESS_TOKEN = @"found_valid_at";
-NSString* const MSID_TELE_ACCESS_TOKEN_REFRESHED_NEEDED = @"at_refresh_needed";
-NSString* const MSID_TELE_SKIP_LOCAL_REFRESH_TOKEN = @"skip_local_rt";
-
-// Value
-NSString* const MSID_TELE_NO_HTTP_RESPONSE = @"no_response";
-NSString* const MSID_TELE_5XX_ERROR = @"5xx_error";
