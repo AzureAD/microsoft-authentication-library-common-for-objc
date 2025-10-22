@@ -55,7 +55,7 @@
                               forceRefresh:forceRefresh
                       tokenRequestProvider:tokenRequestProvider
              fallbackInteractiveController:nil
-                                 telemetry:(id<MSIDTelemetryProviding>)telemetry
+                                 telemetry:telemetry
                                      error:error];
 }
 
@@ -69,7 +69,7 @@
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
                          fallbackController:fallbackController
-                                  telemetry:(id<MSIDTelemetryProviding>)telemetry
+                                  telemetry:telemetry
                                       error:error];
     
     if (self)
