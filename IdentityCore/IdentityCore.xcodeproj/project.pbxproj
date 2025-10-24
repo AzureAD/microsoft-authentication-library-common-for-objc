@@ -560,6 +560,10 @@
 		2A59B4452D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B4422D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m */; };
 		2AADDAC72DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */; };
 		2AADDAC82DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */; };
+		2AC2EA6E2EAABDB000C94BF3 /* MSIDGCDStarvationDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AC2EA6D2EAABDB000C94BF3 /* MSIDGCDStarvationDetector.m */; };
+		2AC2EA712EAAE98400C94BF3 /* MSIDGCDStarvationHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AC2EA702EAAE98400C94BF3 /* MSIDGCDStarvationHandler.m */; };
+		2AC2EA722EAAE98400C94BF3 /* MSIDGCDStarvationHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2AC2EA6F2EAAE98400C94BF3 /* MSIDGCDStarvationHandler.h */; };
+		2AC2EA732EAAE98400C94BF3 /* MSIDGCDStarvationHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AC2EA702EAAE98400C94BF3 /* MSIDGCDStarvationHandler.m */; };
 		4B6D22262E831B0B00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B6D22252E831AEA00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h */; };
 		4B6D222C2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B6D222A2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h */; };
 		4B6D222D2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */; };
@@ -2506,6 +2510,10 @@
 		2A59B4422D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcInteractiveTokenRequestController.m; sourceTree = "<group>"; };
 		2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOXpcSilentTokenRequest.h; sourceTree = "<group>"; };
 		2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOXpcSilentTokenRequest.m; sourceTree = "<group>"; };
+		2AC2EA6C2EAABDB000C94BF3 /* MSIDGCDStarvationDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDGCDStarvationDetector.h; sourceTree = "<group>"; };
+		2AC2EA6D2EAABDB000C94BF3 /* MSIDGCDStarvationDetector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDGCDStarvationDetector.m; sourceTree = "<group>"; };
+		2AC2EA6F2EAAE98400C94BF3 /* MSIDGCDStarvationHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDGCDStarvationHandler.h; sourceTree = "<group>"; };
+		2AC2EA702EAAE98400C94BF3 /* MSIDGCDStarvationHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDGCDStarvationHandler.m; sourceTree = "<group>"; };
 		4B6D22252E831AEA00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyDelegate.h; sourceTree = "<group>"; };
 		4B6D222A2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyType.h; sourceTree = "<group>"; };
 		4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFlightManagerQueryKeyType.m; sourceTree = "<group>"; };
@@ -4558,6 +4566,10 @@
 				96F21AEC20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.m */,
 				96F21B0420A4FB27002B87C3 /* MSIDAppExtensionUtil.m */,
 				583BFCAE24D9052E0035B901 /* MSIDRedirectUriVerifier.m */,
+				2AC2EA6C2EAABDB000C94BF3 /* MSIDGCDStarvationDetector.h */,
+				2AC2EA6D2EAABDB000C94BF3 /* MSIDGCDStarvationDetector.m */,
+				2AC2EA6F2EAAE98400C94BF3 /* MSIDGCDStarvationHandler.h */,
+				2AC2EA702EAAE98400C94BF3 /* MSIDGCDStarvationHandler.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -6235,6 +6247,7 @@
 				23B4CC6F2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.h in Headers */,
 				B286B9B82389DD99007833AD /* MSIDAADNetworkConfiguration.h in Headers */,
 				230FF0D624BE93BE00A4DC6B /* MSIDLoggerConnecting.h in Headers */,
+				2AC2EA722EAAE98400C94BF3 /* MSIDGCDStarvationHandler.h in Headers */,
 				23071655229F56AE00FDD044 /* MSIDAADV2Oauth2FactoryForV1Request.h in Headers */,
 				B286B9CF2389DF03007833AD /* MSIDLogger+Trace.h in Headers */,
 				B286B9AA2389DD43007833AD /* MSIDCertificateChooser.h in Headers */,
@@ -7279,6 +7292,7 @@
 				233E96F822652D3A007FCE2A /* MSIDAggregatedDispatcher.m in Sources */,
 				B2A3C2812145D04E0082525C /* MSIDAuthorityCacheRecord.m in Sources */,
 				B2C708B2219A620700D917B8 /* MSIDBrokerKeyProvider.m in Sources */,
+				2AC2EA732EAAE98400C94BF3 /* MSIDGCDStarvationHandler.m in Sources */,
 				B2AF1D1E218BCD7C0080C1A0 /* MSIDLocalInteractiveController.m in Sources */,
 				B2000C9B20EC64FE0092790A /* MSIDDefaultCredentialCacheKey.m in Sources */,
 				2A59B4402D7924E400304FB1 /* MSIDSSOXpcInteractiveTokenRequest.m in Sources */,
@@ -8334,6 +8348,7 @@
 				B286B9572385F01A007833AD /* MSIDOIDCSignoutRequest.m in Sources */,
 				B210F4561FDDFA7B005A8F76 /* MSIDBrokerResponse.m in Sources */,
 				B2DD4B2720A7D67C0047A66E /* MSIDLegacyRefreshToken.m in Sources */,
+				2AC2EA712EAAE98400C94BF3 /* MSIDGCDStarvationHandler.m in Sources */,
 				1EE541412458B30300A86414 /* MSIDDevicePopManager.m in Sources */,
 				B27ACAA922EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */,
 				B297E1E220A1272600F370EC /* MSIDLegacyTokenCacheQuery.m in Sources */,
@@ -8366,6 +8381,7 @@
 				B208854A29ADB86200A50B88 /* MSIDExternalSSOContextMock.m in Sources */,
 				B2B1D57320425DFD00DD81F0 /* MSIDAccountCacheItem.m in Sources */,
 				2A59B42C2D776F3400304FB1 /* MSIDXpcConfiguration.m in Sources */,
+				2AC2EA6E2EAABDB000C94BF3 /* MSIDGCDStarvationDetector.m in Sources */,
 				589BDB282718F18800BF3799 /* MSIDCredentialHeader.m in Sources */,
 				23B5DF7F234031EE002C530F /* MSIDSSOExtensionSilentTokenRequestController.m in Sources */,
 				1E36589C247EF3260044A072 /* MSIDAuthenticationSchemePop.m in Sources */,
