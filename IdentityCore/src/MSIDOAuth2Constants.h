@@ -182,3 +182,4 @@ extern NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE;
 extern NSString *const MSID_REFRESH_TOKEN_TYPE;
 extern NSString *const MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT;
 extern NSString *const MSID_BOUND_DEVICE_ID_CACHE_KEY;
+extern NSString *const MSID_BOUND_RT_EXCHANGE;
