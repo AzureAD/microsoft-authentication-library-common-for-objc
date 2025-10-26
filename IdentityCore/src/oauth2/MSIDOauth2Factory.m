@@ -27,6 +27,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDBaseToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBoundRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
@@ -170,6 +171,15 @@
     BOOL result = [self fillRefreshToken:refreshToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
+    if (refreshToken)
+    {
+        // Saving RT from a token network response
+        if ([response.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE] isEqualToString:MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT])
+        {
+            MSIDBoundRefreshToken *bart = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:refreshToken boundDeviceId:response.boundAppRefreshTokenDeviceId];
+            return bart;
+        }
+    }
     return refreshToken;
 }
 

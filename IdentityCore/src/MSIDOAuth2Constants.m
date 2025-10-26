@@ -180,4 +180,6 @@ NSString *const MSID_CCS_REQUEST_ID_RESPONSE             = @"ccs-requestid";
 NSString *const MSID_CCS_REQUEST_SEQUENCE_KEY            = @"x-ms-srs";
 NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE       = @"ccs-request-sequence";
 
+NSString *const MSID_REFRESH_TOKEN_TYPE                  = @"refresh_token_type";
+NSString *const MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT     = @"bound_app_rt";
 NSString *const MSID_BOUND_DEVICE_ID_CACHE_KEY           = @"bound_device_id";
