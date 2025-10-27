@@ -432,13 +432,10 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     else
     {
         [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
-    
-        id brokerAppVersion = [tokenResult.brokerMetaData objectForKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
-        if (brokerAppVersion && [brokerAppVersion isKindOfClass:NSString.class])
-        {
-            [brokerEvent setBrokerAppVersion:brokerAppVersion];
-        }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        [brokerEvent setBrokerAppVersion:error.userInfo[MSIDBrokerVersionKey]];
+#pragma clang diagnostic pop
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:tokenResult.account];
         [self stopTelemetryEvent:telemetryEvent error:nil];
