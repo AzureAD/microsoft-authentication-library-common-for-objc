@@ -66,10 +66,10 @@ NSString *const MSID_TOKEN_RESULT_BROKER_APP_BROKER_HANDLING_TIME_INTERVAL = @"b
 }
 
 - (NSString *)brokerAppVersion {
-    id brokerAppVersion = [self.brokerMetaData objectForKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
-    if (brokerAppVersion && [brokerAppVersion isKindOfClass:NSString.class])
+    id brkVersion = [self.brokerMetaData objectForKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
+    if (brkVersion && [brkVersion isKindOfClass:NSString.class])
     {
-        return brokerAppVersion;
+        return brkVersion;
     }
     
     return nil;
