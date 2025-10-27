@@ -73,7 +73,7 @@
     jsonDict[MSID_BOUND_REFRESH_TOKEN_EXCHANGE] = @1;
     jsonDict[@"aud"] = self.audience;
     jsonDict[@"iss"] = self.clientId; // Issuer is the client ID
-    NSInteger now = round([[NSDate date] timeIntervalSince1970]);
+    NSInteger now = round((long)[[NSDate date] timeIntervalSince1970]);
     jsonDict[@"iat"] = [NSNumber numberWithInteger:now]; // Issued at time
     jsonDict[@"exp"] = [NSNumber numberWithInteger:now + 300]; // 5 minutes
     jsonDict[@"nbf"] = [NSNumber numberWithInteger:now]; // Not before time
