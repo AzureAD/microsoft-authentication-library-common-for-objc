@@ -32,12 +32,13 @@
 #import "MSIDJWTHelper.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTestSecureEnclaveKeyPairGenerator.h"
-#import "MSIDWPJKeyPairWithCert+TransportKey.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDKeychainUtil.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDWorkPlaceJoinUtil.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
 
 @interface MSIDBoundRefreshTokenRedemptionTests : XCTestCase
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *deviceKeyGenerator;
@@ -64,6 +65,9 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     self.deviceKeyGenerator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:self.accessGroup useSecureEnclave:YES applicationTag:self.deviceKeyTag];
     self.transportKeyGenerator = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:self.accessGroup useSecureEnclave:YES applicationTag:self.transportKeyTag];
     self.deviceId = @"9ee5f33b-9749-43e7-9567-8318ea41254b";
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_ENABLE_QUERYING_STK: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 
 - (void)tearDown
@@ -393,7 +397,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
         NSData *mockCertData = [NSData msidDataFromBase64UrlEncodedString:[self dummyEccCertificate]];
         SecCertificateRef mockCert = SecCertificateCreateWithData(NULL, (__bridge CFDataRef)mockCertData);
         MSIDWPJKeyPairWithCert *wpjKeys = [[MSIDWPJKeyPairWithCert alloc] initWithPrivateKey:dkGen.eccPrivateKey certificate:mockCert certificateIssuer:@"some-issuer"];
-        wpjKeys.privateTransportKeyRef = stkGen.eccPrivateKey;
+        [wpjKeys initializePrivateTransportKeyRef:stkGen.eccPrivateKey];
         return wpjKeys;
     }];
     

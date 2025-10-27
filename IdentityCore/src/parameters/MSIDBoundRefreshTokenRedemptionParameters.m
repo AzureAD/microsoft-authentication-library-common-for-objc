@@ -73,10 +73,10 @@
     jsonDict[MSID_BOUND_REFRESH_TOKEN_EXCHANGE] = @1;
     jsonDict[@"aud"] = self.audience;
     jsonDict[@"iss"] = self.clientId; // Issuer is the client ID
-    NSInteger now = round((long)[[NSDate date] timeIntervalSince1970]);
-    jsonDict[@"iat"] = [NSNumber numberWithInteger:now]; // Issued at time
-    jsonDict[@"exp"] = [NSNumber numberWithInteger:now + 300]; // 5 minutes
-    jsonDict[@"nbf"] = [NSNumber numberWithInteger:now]; // Not before time
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    jsonDict[@"iat"] = @((long)now); // Issued at time
+    jsonDict[@"exp"] = @((long)now + 300); // 5 minutes
+    jsonDict[@"nbf"] = @((long)now); // Not before time
     [jsonDict setObject:self.clientId forKey:MSID_OAUTH2_CLIENT_ID];
     if (![NSString msidIsStringNilOrBlank:self.nonce])
         [jsonDict setObject:self.nonce forKey:@"nonce"];
