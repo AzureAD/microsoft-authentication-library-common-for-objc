@@ -434,7 +434,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        [brokerEvent setBrokerAppVersion:error.userInfo[MSIDBrokerVersionKey]];
+        [brokerEvent setBrokerAppVersion:tokenResult.brokerAppVersion];
 #pragma clang diagnostic pop
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:tokenResult.account];
