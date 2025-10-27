@@ -221,7 +221,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     
     XCTAssertNil(jwt);
     XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidGrant);
+    XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
     XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"Bound device ID does not match device ID from WPJ keys"]);
 }
 
