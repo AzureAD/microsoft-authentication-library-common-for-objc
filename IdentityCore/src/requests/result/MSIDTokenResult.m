@@ -65,16 +65,6 @@ NSString *const MSID_TOKEN_RESULT_BROKER_APP_BROKER_HANDLING_TIME_INTERVAL = @"b
     [self.brokerMetaData setObject:obj forKey:key];
 }
 
-- (NSString *)brokerAppVersion {
-    id brkVersion = [self.brokerMetaData objectForKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
-    if (brkVersion && [brkVersion isKindOfClass:NSString.class])
-    {
-        return brkVersion;
-    }
-    
-    return nil;
-}
-
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"MSIDTokenResult: access token %@, refresh token %@, raw ID token %@, authority %@, correlationID %@, token response %@, account %@", _PII_NULLIFY(_accessToken), _PII_NULLIFY(_refreshToken), _PII_NULLIFY(_rawIdToken), _authority, _correlationId, _PII_NULLIFY(_tokenResponse), _account];
