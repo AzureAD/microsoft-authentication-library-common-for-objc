@@ -55,6 +55,10 @@
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic) BOOL validateAuthority;
 @property (nonatomic) BOOL ignoreScopeValidation;
+/*
+ forceUI is used in broker to skip cache.
+ */
+@property (nonatomic) BOOL forceUI;
 @property (nonatomic) NSString *nonce;
 @property (nonatomic) NSString *clientSku;
 @property (nonatomic) BOOL skipValidateResultAccount;
@@ -63,6 +67,8 @@
 // This flag may be set by either the MSAL app or the broker process.
 // - When set by the MSAL app: brokered flows are disabled, and MSAL falls back to local auth flows.
 @property (nonatomic) BOOL bypassRedirectURIValidation;
+
+@property (nonatomic) BOOL showHeadsUp;
 
 // Telemetry metadata
 @property (nonatomic) NSString *platformSequence;

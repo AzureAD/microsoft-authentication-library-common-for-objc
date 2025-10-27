@@ -20,14 +20,19 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
-@interface MSIDWPJKeyPairWithCert (TransportKey)
 
-@property (nonatomic) SecKeyRef privateTransportKeyRef;
+typedef NSString * MSIDFlightManagerQueryKeyType NS_STRING_ENUM;
 
-@end
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeTenantId;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeAppBundleId;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeEcsRegion;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUpn;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUserId;
+extern MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeVersionNumber;
+
 NS_ASSUME_NONNULL_END

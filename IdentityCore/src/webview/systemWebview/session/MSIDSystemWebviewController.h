@@ -52,6 +52,8 @@
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIModalPresentationStyle presentationType;
 @property (nonatomic) NSArray<UIActivity *> *appActivities;
+#else
+@property (nonatomic) NSArray<NSSharingService *> *appActivities;
 #endif
 
 + (instancetype)sharedController;

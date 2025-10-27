@@ -217,6 +217,7 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_
 extern NSString * _Nonnull const MSID_FLIGHT_CLIENT_SFRT_STATUS;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA;
+extern NSString * _Nonnull const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME;
 
 /**
  * Flight to indicate if remove account artifacts should be disabled
@@ -228,5 +229,7 @@ extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA;
  * WorkItem: 3168316
  */
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS;
+
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

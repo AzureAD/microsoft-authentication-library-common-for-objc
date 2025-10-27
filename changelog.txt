@@ -1,9 +1,22 @@
-TBD
-* Introduce a class and cache item class to represent bound refresh tokens (#1548)
-* Add category for redeeming a Bound application refresh token
+## [TBD]
+* Allow duna external idp on MacOs #1593
+* Add category for redeeming a Bound application refresh token #1565
+
+Version 1.16.0
+* Filter based Flighting capabilities (#1580)
+* Filter based Flighting for DUNA feature (#1580)
+
+Version 1.15.2
+* Feature flag gating STK querying and getting rid of category for its setter. (#1586)
+
+Version 1.15.1
+* Allow cookies in duna resume request #1574
 
 Version 1.15.0
 * Query and populate ECC STK in Workplacejoin information for iOS (#1555)
+* Return MATS blob for GetToken api response #1551 
+* Introduce a class and cache item class to represent bound refresh tokens (#1548)
+* Parse sign out correlation id #1563
 
 Version 1.14.0
 * Added state validation to DUNA flow (#1543)
@@ -13,6 +26,10 @@ Version 1.13.0
 * Fix a potential crash related to webview in iOS26 (#1537)
 * Improve JIT troubleshooting in legacy auth flow (#1535)
 * Added ephemeral browser session to DUNA (#1534)
+
+Version 1.12.1
+* Remove a line that could cause crash when XPC service refuse to take the incoming connection (#1566)
+* Resolve UBSan issue due to Xpc protocol I/O  (#1566)
 
 Version 1.12.0
 * Add classes to define jwe_crypto and APV (#1522)

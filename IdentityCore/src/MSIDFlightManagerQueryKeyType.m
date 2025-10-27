@@ -20,48 +20,13 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import "MSIDFlightManagerQueryKeyType.h"
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDCertAuthManager : NSObject
-
-+ (instancetype)sharedInstance;
-
-#if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
-
-@property (nonatomic) BOOL useAuthSession;
-@property (nonatomic, readonly) BOOL isCertAuthInProgress;
-@property (nonatomic, readonly) NSString *redirectPrefix;
-@property (nonatomic, readonly) NSString *redirectScheme;
-
-#if TARGET_OS_IPHONE
-@property (nonatomic) NSArray<UIActivity *> *activities;
-#else
-// macOS equivalent
-@property (nonatomic) NSArray<NSSharingService *> *activities;
-#endif
-
-- (void)startWithURL:(NSURL *)startURL
-    parentController:(MSIDViewController *)parentViewController
-             context:(id<MSIDRequestContext>)context
-ephemeralWebBrowserSession:(BOOL)ephemeralWebBrowserSession
-     completionBlock:(MSIDWebUICompletionHandler)completionBlock;
-
-- (BOOL)completeWithCallbackURL:(NSURL *)url;
-
-- (void)setRedirectUriPrefix:(NSString *)prefix
-                   forScheme:(NSString *)scheme;
-
-- (void)resetState;
-
-#endif
-
-@end
-
-NS_ASSUME_NONNULL_END
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeTenantId = @"tenantId";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeAppBundleId = @"appBundleId";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeEcsRegion = @"ecsRegion";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUpn = @"upn";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeUserId = @"userId";
+MSIDFlightManagerQueryKeyType const MSIDFlightManagerQueryKeyTypeVersionNumber = @"version_number";
