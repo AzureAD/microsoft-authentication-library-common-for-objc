@@ -22,28 +22,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDWPJKeyPairWithCert.h"
-#import "MSIDWPJKeyPairWithCert+TransportKey.h"
+#import <Foundation/Foundation.h>
+#import "MSIDFlightManagerQueryKeyType.h"
 
-@implementation MSIDWPJKeyPairWithCert (TransportKey)
+@protocol MSIDFlightManagerInterface;
 
-- (void)setPrivateTransportKeyRef:(SecKeyRef)privateTransportKeyRef
-{
-    if (_privateTransportKeyRef != privateTransportKeyRef)
-    {
-        if (_privateTransportKeyRef)
-        {
-            CFRelease(_privateTransportKeyRef);
-            _privateTransportKeyRef = NULL;
-        }
-        
-        _privateTransportKeyRef = privateTransportKeyRef;
-        
-        if (_privateTransportKeyRef)
-        {
-            CFRetain(_privateTransportKeyRef);
-        }
-    }
-}
+@protocol MSIDFlightManagerQueryKeyDelegate <NSObject>
+
+- (nullable id<MSIDFlightManagerInterface>)flightProviderForQueryKey:(nonnull NSString *)queryKey
+                                                             keyType:(nonnull MSIDFlightManagerQueryKeyType)keyType;
 
 @end
