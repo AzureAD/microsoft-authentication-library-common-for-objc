@@ -1,5 +1,6 @@
 ## [TBD]
 * Allow duna external idp on MacOs #1593
+* Add category for redeeming a Bound application refresh token #1565
 
 Version 1.16.0
 * Filter based Flighting capabilities (#1580)
