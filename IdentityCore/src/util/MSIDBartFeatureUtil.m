@@ -58,8 +58,8 @@ static NSString *const k_bartCacheKey = @"com.microsoft.msid.bart_feature_enable
     if (isFeatureEnableViaFlight)
     {
         // Enable feature if it is enabled by app setting
-        BOOL cachedValue = [[self.class sharedCache] objectForKey:k_bartCacheKey];
-        return cachedValue;
+        id cachedValue = [[self.class sharedCache] objectForKey:k_bartCacheKey];
+        return [cachedValue boolValue];
     }
     return NO;
 #else

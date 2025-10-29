@@ -635,6 +635,74 @@
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }
 
+- (void)testInitBrokerRequest_whenValidParameters_andBoundRefreshTokenExchangeNotRequestedWhenFlightEnabledButCacheNotEnabled
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+    XCTAssertFalse([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled]);
+    
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:@[@"capability1", @"capability2"] error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"sdk_broker_capabilities": @"capability1,capability2",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
+                                      };
+
+    NSURL *actualURL = request.brokerRequestURL;
+
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+}
+
+- (void)testInitBrokerRequest_whenValidParameters_andBoundRefreshTokenExchangeNotRequestedWhenFlightDisabledButCacheEnabled
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_IS_BART_SUPPORTED: @NO };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    XCTAssertFalse([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled]);
+    
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:@[@"capability1", @"capability2"] error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"sdk_broker_capabilities": @"capability1,capability2",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
+                                      };
+
+    NSURL *actualURL = request.brokerRequestURL;
+
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+}
+
 - (void)setBoundAppRefreshTokenFlight
 {
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
