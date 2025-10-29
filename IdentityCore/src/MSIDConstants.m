@@ -96,5 +96,7 @@ NSString *const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS = @"disable_rm_meta
 
 NSString *const MSID_FLIGHT_ENABLE_QUERYING_STK = @"enable_querying_stk";
 
+NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
+
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
