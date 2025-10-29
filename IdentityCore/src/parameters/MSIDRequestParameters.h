@@ -122,6 +122,8 @@
 
 - (NSURL *)tokenEndpoint;
 
+@property (nonatomic) BOOL isBoundAppRefreshTokenRequested;
+
 #pragma mark Methods
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
 - (NSString *)allTokenRequestScopes;
