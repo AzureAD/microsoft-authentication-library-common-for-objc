@@ -25,6 +25,7 @@
 #import "MSIDBartFeatureUtil.h"
 #import "MSIDCache.h"
 #import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 static NSString *const k_bartCacheKey = @"com.microsoft.msid.bart_feature_enabled";
 @implementation MSIDBartFeatureUtil
@@ -63,6 +64,13 @@ static NSString *const k_bartCacheKey = @"com.microsoft.msid.bart_feature_enable
     return NO;
 #else
     return NO;
+#endif
+}
+
+- (void)setBartSupportInAppCache:(BOOL)isEnabled
+{
+#if TARGET_OS_IPHONE
+    [[self.class sharedCache] setObject:@(isEnabled) forKey:k_bartCacheKey];
 #endif
 }
 @end

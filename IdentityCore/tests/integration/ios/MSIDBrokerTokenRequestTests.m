@@ -36,11 +36,18 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthenticationSchemeSshCert.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDBartFeatureUtil.h"
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
 @end
 
 @implementation MSIDBrokerTokenRequestTests
+
+- (void)setUp
+{
+    [self setBoundAppRefreshTokenFlight];
+}
 
 - (void)tearDown
 {
@@ -626,6 +633,14 @@
     };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
+}
+
+- (void)setBoundAppRefreshTokenFlight
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_IS_BART_SUPPORTED: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
 }
 
 @end

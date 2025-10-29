@@ -28,6 +28,6 @@
 
 + (instancetype)sharedInstance;
 - (BOOL)isBartFeatureEnabled;
-
+- (void)setBartSupportInAppCache:(BOOL)isEnabled;
 @end
 
