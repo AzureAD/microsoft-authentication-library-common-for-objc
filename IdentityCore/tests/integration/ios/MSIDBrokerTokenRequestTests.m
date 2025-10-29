@@ -191,7 +191,7 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
-                                      @"bound_rt_redeem": @"1",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -239,7 +239,7 @@
                                       @"application_token" : @"brokerApplicationToken",
                                       @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
                                       @"token_type" : @"Pop",
-                                      @"bound_rt_redeem": @"1",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
     };
@@ -292,7 +292,7 @@
                                       @"key_id":@"key_id_value",
                                       @"req_cnf" : [NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent],
                                       @"token_type" : @"ssh-cert",
-                                      @"bound_rt_redeem": @"1",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
     };
@@ -342,7 +342,7 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
-                                      @"bound_rt_redeem": @"1",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -380,7 +380,7 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
-                                      @"bound_rt_redeem": @"1",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -427,7 +427,7 @@
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
                                       @"sdk_broker_capabilities": @"capability1,capability2",
-                                      @"bound_rt_redeem": @"1",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -511,7 +511,7 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
-                                      @"bound_rt_redeem": @"1",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -599,7 +599,7 @@
             @"application_token" : @"brokerApplicationToken",
             @"brk_client_id" : @"123-456-7890-123",
             @"brk_redirect_uri" : @"msauth.com.app.id://auth",
-            @"bound_rt_redeem": @"1",
+            MSID_BOUND_RT_REDEEM : @"1",
             @"client_sku" : [self clientSku],
             @"skip_validate_result_account" : @"NO"
     };
