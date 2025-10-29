@@ -1,5 +1,6 @@
 ## [TBD]
 * Allow duna external idp on MacOs #1593
+* Add flag to indicate app is requesting broker for Bound app RT #1578
 
 Version 1.16.0
 * Filter based Flighting capabilities (#1580)
