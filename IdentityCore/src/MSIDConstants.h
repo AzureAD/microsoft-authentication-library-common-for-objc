@@ -235,4 +235,6 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS;
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
 extern NSString * _Nonnull const MSID_FLIGHT_IS_BART_SUPPORTED;
 
+extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
