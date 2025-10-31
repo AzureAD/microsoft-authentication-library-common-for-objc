@@ -44,11 +44,6 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
                                                   jweCrypto:(nonnull MSIDJWECrypto *)jweCrypto
                                                       error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
-    /*if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_IS_BART_SUPPORTED])
-    {
-        return nil;
-    }*/
-    
     // 1. Check for necessary request parameters
     NSData *apv = [NSData msidDataFromBase64UrlEncodedString:jweCrypto.apv.APV];
     
