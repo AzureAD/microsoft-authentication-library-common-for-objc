@@ -9339,7 +9339,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				SWIFT_OBJC_BRIDGING_HEADER = "src/util/IdentityCore Mac-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -9354,7 +9354,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				SWIFT_OBJC_BRIDGING_HEADER = "src/util/IdentityCore Mac-Bridging-Header.h";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -9409,7 +9409,7 @@
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xros xrsimulator";
 				SWIFT_OBJC_BRIDGING_HEADER = "src/util/IdentityTest iOS-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Debug;
@@ -9423,7 +9423,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xros xrsimulator";
 				SWIFT_OBJC_BRIDGING_HEADER = "src/util/IdentityTest iOS-Bridging-Header.h";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Release;
@@ -9437,7 +9437,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				SWIFT_OBJC_BRIDGING_HEADER = "src/util/IdentityTest Mac-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -9448,7 +9448,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				SWIFT_OBJC_BRIDGING_HEADER = "src/util/IdentityTest Mac-Bridging-Header.h";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -9502,7 +9502,7 @@
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
 				SWIFT_OBJC_BRIDGING_HEADER = "src/util/IdentityCore iOS-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Debug;
@@ -9520,7 +9520,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
 				SWIFT_OBJC_BRIDGING_HEADER = "src/util/IdentityCore iOS-Bridging-Header.h";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Release;
