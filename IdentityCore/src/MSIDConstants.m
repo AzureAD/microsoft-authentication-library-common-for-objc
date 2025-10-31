@@ -98,8 +98,6 @@ NSString *const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME = @"ignore_cookies_in_
 NSString *const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS = @"disable_rm_metadata";
 
 NSString *const MSID_FLIGHT_ENABLE_QUERYING_STK = @"enable_querying_stk";
-NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_msal_bart_supported";
-
 NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 
 
