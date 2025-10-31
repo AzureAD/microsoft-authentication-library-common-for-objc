@@ -55,6 +55,10 @@
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic) BOOL validateAuthority;
 @property (nonatomic) BOOL ignoreScopeValidation;
+/*
+ forceUI is used in broker to skip cache.
+ */
+@property (nonatomic) BOOL forceUI;
 @property (nonatomic) NSString *nonce;
 @property (nonatomic) NSString *clientSku;
 @property (nonatomic) BOOL skipValidateResultAccount;

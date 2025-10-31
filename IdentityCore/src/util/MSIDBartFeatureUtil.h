@@ -18,32 +18,16 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDWPJKeyPairWithCert.h"
-#import "MSIDWPJKeyPairWithCert+TransportKey.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDWPJKeyPairWithCert (TransportKey)
+@interface MSIDBartFeatureUtil : NSObject
 
-- (void)setPrivateTransportKeyRef:(SecKeyRef)privateTransportKeyRef
-{
-    if (_privateTransportKeyRef != privateTransportKeyRef)
-    {
-        if (_privateTransportKeyRef)
-        {
-            CFRelease(_privateTransportKeyRef);
-            _privateTransportKeyRef = NULL;
-        }
-        
-        _privateTransportKeyRef = privateTransportKeyRef;
-        
-        if (_privateTransportKeyRef)
-        {
-            CFRetain(_privateTransportKeyRef);
-        }
-    }
-}
-
++ (instancetype)sharedInstance;
+- (BOOL)isBartFeatureEnabled;
+- (void)setBartSupportInAppCache:(BOOL)isEnabled;
 @end
+

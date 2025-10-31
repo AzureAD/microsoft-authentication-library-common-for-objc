@@ -18,50 +18,54 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
-
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDCache.h"
+#import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
 
-NS_ASSUME_NONNULL_BEGIN
+static NSString *const k_bartCacheKey = @"com.microsoft.msid.bart_feature_enabled";
+@implementation MSIDBartFeatureUtil
 
-@interface MSIDCertAuthManager : NSObject
++ (instancetype)sharedInstance
+{
+    static MSIDBartFeatureUtil *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] init];
+        [self sharedCache];
+    });
+    return sharedInstance;
+}
 
-+ (instancetype)sharedInstance;
++ (MSIDCache *)sharedCache
+{
+    static MSIDCache *k_nonceCache;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        k_nonceCache = [MSIDCache new];
+    });
+    return k_nonceCache;
+}
 
-#if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
-
-@property (nonatomic) BOOL useAuthSession;
-@property (nonatomic, readonly) BOOL isCertAuthInProgress;
-@property (nonatomic, readonly) NSString *redirectPrefix;
-@property (nonatomic, readonly) NSString *redirectScheme;
-
+- (BOOL)isBartFeatureEnabled
+{
 #if TARGET_OS_IPHONE
-@property (nonatomic) NSArray<UIActivity *> *activities;
+    // Enable feature if it is enabled by app setting
+    id cachedValue = [[self.class sharedCache] objectForKey:k_bartCacheKey];
+    return [cachedValue boolValue];
 #else
-// macOS equivalent
-@property (nonatomic) NSArray<NSSharingService *> *activities;
+    return NO;
 #endif
+}
 
-- (void)startWithURL:(NSURL *)startURL
-    parentController:(MSIDViewController *)parentViewController
-             context:(id<MSIDRequestContext>)context
-ephemeralWebBrowserSession:(BOOL)ephemeralWebBrowserSession
-     completionBlock:(MSIDWebUICompletionHandler)completionBlock;
-
-- (BOOL)completeWithCallbackURL:(NSURL *)url;
-
-- (void)setRedirectUriPrefix:(NSString *)prefix
-                   forScheme:(NSString *)scheme;
-
-- (void)resetState;
-
+- (void)setBartSupportInAppCache:(BOOL)isEnabled
+{
+#if TARGET_OS_IPHONE
+    [[self.class sharedCache] setObject:@(isEnabled) forKey:k_bartCacheKey];
 #endif
-
+}
 @end
-
-NS_ASSUME_NONNULL_END

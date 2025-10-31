@@ -22,12 +22,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-
 NS_ASSUME_NONNULL_BEGIN
-@interface MSIDWPJKeyPairWithCert (TransportKey)
+@interface MSIDBoundRefreshTokenRedemptionParameters : NSObject
 
-@property (nonatomic) SecKeyRef privateTransportKeyRef;
+
+// client ID, client_id claim in request payload
+@property (nonatomic, copy) NSString *clientId;
+
+// Set of scopes to request in bound refresh token redemption request payload
+@property (nonatomic, copy) NSSet <NSString *>*scopes;
+
+// Client nonce GUID to be used in bound refresh token redemption request payload.
+@property (nonatomic, copy) NSString *nonce;
+
+// Audience (token endpoint URL) for the bound refresh token redemption request
+@property (nonatomic, copy) NSString *audience;
+
+- (instancetype)initWithClientId:(NSString *)clientId
+               authorityEndpoint:(NSURL *)authorityEndpoint
+                          scopes:(NSSet <NSString *>*)scopes
+                           nonce:(NSString *)nonce;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+// Returns a modifiable claims payload dictionary for the bound refresh token redemption request.
+- (NSMutableDictionary *)jsonDictionary;
 
 @end
 NS_ASSUME_NONNULL_END
+

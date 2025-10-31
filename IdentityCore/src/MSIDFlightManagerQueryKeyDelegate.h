@@ -20,48 +20,16 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
-
+// THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
+#import "MSIDFlightManagerQueryKeyType.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@protocol MSIDFlightManagerInterface;
 
-@interface MSIDCertAuthManager : NSObject
+@protocol MSIDFlightManagerQueryKeyDelegate <NSObject>
 
-+ (instancetype)sharedInstance;
-
-#if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
-
-@property (nonatomic) BOOL useAuthSession;
-@property (nonatomic, readonly) BOOL isCertAuthInProgress;
-@property (nonatomic, readonly) NSString *redirectPrefix;
-@property (nonatomic, readonly) NSString *redirectScheme;
-
-#if TARGET_OS_IPHONE
-@property (nonatomic) NSArray<UIActivity *> *activities;
-#else
-// macOS equivalent
-@property (nonatomic) NSArray<NSSharingService *> *activities;
-#endif
-
-- (void)startWithURL:(NSURL *)startURL
-    parentController:(MSIDViewController *)parentViewController
-             context:(id<MSIDRequestContext>)context
-ephemeralWebBrowserSession:(BOOL)ephemeralWebBrowserSession
-     completionBlock:(MSIDWebUICompletionHandler)completionBlock;
-
-- (BOOL)completeWithCallbackURL:(NSURL *)url;
-
-- (void)setRedirectUriPrefix:(NSString *)prefix
-                   forScheme:(NSString *)scheme;
-
-- (void)resetState;
-
-#endif
+- (nullable id<MSIDFlightManagerInterface>)flightProviderForQueryKey:(nonnull NSString *)queryKey
+                                                             keyType:(nonnull MSIDFlightManagerQueryKeyType)keyType;
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -108,6 +108,15 @@
     webRequestConfiguration.startURL = [[NSURL alloc] initWithString:self.switchBrowserResumeResponse.actionUri];
     NSMutableDictionary *customHeaders = [webRequestConfiguration.customHeaders mutableCopy] ?: [NSMutableDictionary new];
     customHeaders[@"Authorization"] = [NSString stringWithFormat:@"Bearer %@", self.switchBrowserResumeResponse.switchBrowserSessionToken];
+
+    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME])
+    {
+        if (customHeaders[MSID_REFRESH_TOKEN_CREDENTIAL] && [customHeaders[@"Cookie"] isEqualToString:@""])
+        {
+            [customHeaders removeObjectForKey:@"Cookie"];
+        }
+    }
+    
     webRequestConfiguration.customHeaders = customHeaders;
     
     NSObject<MSIDWebviewInteracting> *webView = [oauthFactory.webviewFactory webViewWithConfiguration:webRequestConfiguration
