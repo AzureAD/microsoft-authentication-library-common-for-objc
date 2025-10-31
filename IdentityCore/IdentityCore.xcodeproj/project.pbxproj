@@ -747,6 +747,8 @@
 		720B5B582DD58A7F00318FE5 /* MSIDJWECryptoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */; };
 		720B5B592DD58A7F00318FE5 /* MSIDJWECryptoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */; };
 		72371CEB27051CC200EF5475 /* MSIDKeyOperationUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */; };
+		724C9DD42E6906290039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */; };
+		724C9DD52E6906290039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */; };
 		724C9E0E2E6F9F2A0039BAA0 /* NSData+MSIDEccSecKeyRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 724C9E0D2E6F9F030039BAA0 /* NSData+MSIDEccSecKeyRef.h */; };
 		724C9E102E6F9F430039BAA0 /* NSData+MSIDEccSecKeyRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E0F2E6F9F410039BAA0 /* NSData+MSIDEccSecKeyRef.m */; };
 		724C9E112E6F9F430039BAA0 /* NSData+MSIDEccSecKeyRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E0F2E6F9F410039BAA0 /* NSData+MSIDEccSecKeyRef.m */; };
@@ -756,8 +758,6 @@
 		724C9E352E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
 		724C9E592E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */; };
 		724C9E5A2E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */; };
-		724C9DD42E6906290039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */; };
-		724C9DD52E6906290039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */; };
 		728209C326FA9C9A00B5F018 /* MSIDBackgroundTaskData.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C226FA9C9A00B5F018 /* MSIDBackgroundTaskData.m */; };
 		728209C926FE94D800B5F018 /* MSIDJwtAlgorithm.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */; };
 		728209CA26FE94D800B5F018 /* MSIDJwtAlgorithm.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */; };
@@ -2696,6 +2696,7 @@
 		720B5B542DD57D6600318FE5 /* MSIDEcdhApv.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDEcdhApv.m; sourceTree = "<group>"; };
 		720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJWECryptoTests.m; sourceTree = "<group>"; };
 		72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyOperationUtilTest.m; sourceTree = "<group>"; };
+		724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshTokenRedemptionTests.m; sourceTree = "<group>"; };
 		724C9E0D2E6F9F030039BAA0 /* NSData+MSIDEccSecKeyRef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MSIDEccSecKeyRef.h"; sourceTree = "<group>"; };
 		724C9E0F2E6F9F410039BAA0 /* NSData+MSIDEccSecKeyRef.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MSIDEccSecKeyRef.m"; sourceTree = "<group>"; };
 		724C9E2D2E6FAB170039BAA0 /* IdentityCore iOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityCore iOS-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -2704,7 +2705,6 @@
 		724C9E302E6FAB170039BAA0 /* IdentityTest Mac-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityTest Mac-Bridging-Header.h"; sourceTree = "<group>"; };
 		724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDConcatKdfProvider.swift; sourceTree = "<group>"; };
 		724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJweResponseDecryptionTests.m; sourceTree = "<group>"; };
-		724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshTokenRedemptionTests.m; sourceTree = "<group>"; };
 		728209C126FA9C9A00B5F018 /* MSIDBackgroundTaskData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskData.h; sourceTree = "<group>"; };
 		728209C226FA9C9A00B5F018 /* MSIDBackgroundTaskData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskData.m; sourceTree = "<group>"; };
 		728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJwtAlgorithm.m; sourceTree = "<group>"; };
@@ -3503,20 +3503,8 @@
 		F7AB272FEBCF984722F26558 /* MSIDWPJMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDWPJMetadata.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		724C9E032E6F91AD0039BAA0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				MSIDJweResponse.h,
-				MSIDJweResponse.m,
-				"MSIDJweResponse+EcdhAesGcm.h",
-			);
-			target = D626FFDF1FBD1F5700EE4487 /* IdentityTest Mac */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		724C9DFB2E6F90A90039BAA0 /* JWEResponse */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (724C9E032E6F91AD0039BAA0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = JWEResponse; sourceTree = "<group>"; };
+		724C9DFB2E6F90A90039BAA0 /* JWEResponse */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = JWEResponse; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
