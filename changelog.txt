@@ -2,6 +2,7 @@
 * Allow duna external idp on MacOs #1593
 * Add flag to indicate app is requesting broker for Bound app RT #1578
 * Add category for redeeming a Bound application refresh token #1565
+* Ability to decrypt Bound app refresh token response (#1572)
 
 Version 1.16.1
 * Allow duna external idp on MacOs #1593
