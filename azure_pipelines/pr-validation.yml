@@ -83,6 +83,11 @@ jobs:
         python ./scripts/update_xcode_config_cpp_checks.py
       failOnStderr: true
   - task: Bash@3
+    displayName: 'Select Xcode version'
+    inputs:
+      targetType: 'inline'
+      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.3.app"'
+  - task: Bash@3
     displayName: Run Build script & check for Errors
     inputs:
       targetType: 'inline'
