@@ -232,8 +232,12 @@ extern NSString * _Nonnull const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME;
  */
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS;
 
-extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
+/// Flight to enable support for bound app RT
+/// Owner: amepatil
+/// ECS configuration id: /1678824
 extern NSString * _Nonnull const MSID_FLIGHT_IS_BART_SUPPORTED;
+
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
 
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 

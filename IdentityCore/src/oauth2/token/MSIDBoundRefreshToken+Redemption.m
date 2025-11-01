@@ -39,8 +39,8 @@
 - (NSString *)getTokenRedemptionJwtForTenantId:(nullable NSString *)tenantId
                      tokenRedemptionParameters:(MSIDBoundRefreshTokenRedemptionParameters *) requestParameters
                                        context:(id<MSIDRequestContext> _Nullable)context
-                                     jweCrypto:(NSDictionary * __autoreleasing __nonnull *__nonnull)jweCrypto
-                                         error:(NSError *__autoreleasing  _Nullable * _Nullable)error
+                                     jweCrypto:(NSDictionary * __autoreleasing *)jweCrypto
+                                         error:(NSError * __autoreleasing *)error
 {
     if (![self validateRequestParameters:requestParameters context:context error:error])
     {
@@ -63,11 +63,12 @@
     SecKeyRef publicTransportKeyRef = SecKeyCopyPublicKey(workplacejoinData.privateTransportKeyRef);
     MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:publicTransportKeyRef
                                                              apvPrefix:MSID_MSAL_CLIENT_APV_PREFIX
+                                                     customClientNonce:nil
                                                                context:context
                                                                  error:error];
     if (!ecdhPartyVInfoData)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] Failed to create ECDH APV data for bound RT redemption JWT.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to create ECDH APV data for bound RT redemption JWT..");
         if (error)
             *error = [self createErrorWithDomain:MSIDErrorDomain
                                             code:MSIDErrorInvalidInternalParameter

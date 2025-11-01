@@ -79,7 +79,9 @@
     jsonDict[@"nbf"] = @((long)now); // Not before time
     [jsonDict setObject:self.clientId forKey:MSID_OAUTH2_CLIENT_ID];
     if (![NSString msidIsStringNilOrBlank:self.nonce])
+    {
         [jsonDict setObject:self.nonce forKey:@"nonce"];
+    }
     NSString *scopeString = [self.scopes.allObjects componentsJoinedByString:@" "];
     [jsonDict setObject:scopeString forKey:MSID_OAUTH2_SCOPE];
     return jsonDict;

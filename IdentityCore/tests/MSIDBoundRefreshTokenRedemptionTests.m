@@ -300,7 +300,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     NSError *error;
     NSDictionary *jweCrypto;
     
-    [MSIDTestSwizzle instanceMethod:@selector(initWithKey:apvPrefix:context:error:)
+    [MSIDTestSwizzle instanceMethod:@selector(initWithKey:apvPrefix:customClientNonce:context:error:)
                            class:MSIDEcdhApv.class
                            block:^(void)
     {
@@ -426,11 +426,12 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
                         nonce:@"nonce123"];
     [self insertWorkPlaceJoinInformation];
     NSDictionary *jweCrypto;
+    NSError *error;
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:self.tenantId
                                  tokenRedemptionParameters:params
                                                    context:nil
                                                  jweCrypto:&jweCrypto
-                                                     error:nil];
+                                                     error:&error];
     
     XCTAssertNotNil(jwt);
     // Should not crash when error is nil
