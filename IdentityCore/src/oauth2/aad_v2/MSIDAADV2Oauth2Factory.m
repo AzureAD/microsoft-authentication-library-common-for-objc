@@ -48,6 +48,10 @@
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDBoundRefreshTokenRedemptionParameters.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDBoundRefreshToken+Redemption.h"
+#import "MSIDBoundRefreshTokenGrantRequest.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -287,6 +291,56 @@
     }
 #endif
     return tokenRequest;
+}
+
+- (MSIDAADV1RefreshTokenGrantRequest *)boundRefreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                                             refreshToken:(MSIDBoundRefreshToken *)boundRefreshToken
+{
+    // TODO: check how to handle claims and client capabilities here
+    MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:requestParameters.clientCapabilities
+                                                                          claimsRequest:requestParameters.claimsRequest];
+    NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:requestParameters];
+    NSString *enrollmentId = [requestParameters.authority enrollmentIdForHomeAccountId:requestParameters.accountIdentifier.homeAccountId
+                                                                   legacyUserId:requestParameters.accountIdentifier.displayableId
+                                                                        context:requestParameters
+                                                                          error:nil];
+    if (boundRefreshToken)
+    {
+        //TODO: check what resource should be passed here
+        MSIDBoundRefreshTokenGrantRequest *tokenRequest = [[MSIDBoundRefreshTokenGrantRequest alloc] initWithEndpoint:requestParameters.tokenEndpoint
+                                                                authScheme:requestParameters.authScheme
+                                                                  clientId:requestParameters.clientId
+                                                                     scope:requestParameters.allTokenRequestScopes
+                                                         boundrefreshToken:boundRefreshToken         redirectUri:requestParameters.redirectUri
+                                                                  resource:@""
+                                                                    enrollmentId:enrollmentId
+                                                                    claims:claims
+                                                           extraParameters:requestParameters.extraTokenRequestParameters
+                                                                ssoContext:requestParameters.ssoContext context:requestParameters];
+        tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+        [tokenRequest configureDecryptionPreProcessorUsingKey];
+        if ([requestParameters isNestedAuthProtocol])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to code grant request");
+            NSMutableDictionary<NSString *, NSString *> *nestedAuthParams = [tokenRequest.parameters mutableCopy];
+
+            // Nested auth protocol
+            nestedAuthParams[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = requestParameters.nestedAuthBrokerClientId;
+            nestedAuthParams[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = requestParameters.nestedAuthBrokerRedirectUri;
+
+            tokenRequest.parameters = nestedAuthParams;
+        }
+    #if !EXCLUDE_FROM_MSALCPP
+        if (requestParameters.currentRequestTelemetry)
+        {
+            __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+            serverTelemetry.currentRequestTelemetry = requestParameters.currentRequestTelemetry;
+            tokenRequest.serverTelemetry = serverTelemetry;
+        }
+    #endif
+        return tokenRequest;
+    }
+    return nil;
 }
 
 #endif

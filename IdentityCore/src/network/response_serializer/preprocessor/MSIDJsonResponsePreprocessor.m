@@ -33,6 +33,18 @@
     id jsonObject;
     if (data)
     {
+        if (self.jweDecryptPreProcessor)
+        {
+            // Decrypt JWE first and assign jsonObject
+            jsonObject = [self.jweDecryptPreProcessor decryptJweResponseData:data
+                                                                   jweCrypto:self.jweDecryptPreProcessor.jweCrypto
+                                                                     context:context
+                                                                       error:error];
+            if (jsonObject)
+            {
+                data = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:error];
+            }
+        }
         jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:error];
     }
     

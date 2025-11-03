@@ -24,6 +24,7 @@
 
 #import "MSIDBoundRefreshToken.h"
 #import "MSIDBoundRefreshTokenRedemptionParameters.h"
+#import "MSIDJWECrypto.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBoundRefreshToken (Redemption)
@@ -37,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *) getTokenRedemptionJwtForTenantId: (nullable NSString *)tenantId
                       tokenRedemptionParameters: (MSIDBoundRefreshTokenRedemptionParameters *)requestParameters
                                         context:(id<MSIDRequestContext> _Nullable)context
-                                      jweCrypto: (NSDictionary *__nonnull *__nonnull)jweCrypto
+                                      jweCrypto: (MSIDJWECrypto *__nonnull *__nonnull)jweCrypto
                                           error: (NSError *__nonnull __autoreleasing *__nonnull)error;
 @end
 NS_ASSUME_NONNULL_END

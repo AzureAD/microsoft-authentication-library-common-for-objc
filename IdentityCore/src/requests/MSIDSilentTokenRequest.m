@@ -42,6 +42,11 @@
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDFlightManager.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDBoundRefreshToken+Redemption.h"
+#import "MSIDBoundRefreshTokenRedemptionParameters.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDAADV1RefreshTokenGrantRequest.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -487,9 +492,21 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
 #if !EXCLUDE_FROM_MSALCPP
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
+    MSIDRefreshTokenGrantRequest *tokenRequest;
+    if (refreshToken.credentialType == MSIDBoundRefreshTokenType)
+    {
+        MSIDBoundRefreshToken *boundRT = (MSIDBoundRefreshToken *)refreshToken;
+        MSIDAADV2Oauth2Factory *aadv2TokenFactory = [[MSIDAADV2Oauth2Factory alloc] init];
+        tokenRequest =
+        [aadv2TokenFactory boundRefreshTokenRequestWithRequestParameters:self.requestParameters
+                                                            refreshToken:boundRT];
     
-    MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
-                                                                                                refreshToken:refreshToken.refreshToken];
+    }
+    else
+    {
+        tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
+                                                                      refreshToken:refreshToken.refreshToken];
+    }
     // Currently SilentTokenRequest has 3 child classes: Legacy, Default (local) and SSO. We will init the throttling service in Default and SSO and exclude Legacy. So the nil check of throttling service is needed
     if (!self.throttlingService || ![MSIDThrottlingService isThrottlingEnabled])
     {

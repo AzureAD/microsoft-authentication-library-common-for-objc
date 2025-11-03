@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,16 +20,23 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-
-#import <Foundation/Foundation.h>
+// THE SOFTWARE.  
+#import "MSIDJWECrypto.h"
 #import "MSIDResponseSerialization.h"
-#import "MSIDJweResponseDecryptPreProcessor.h"
-
 NS_ASSUME_NONNULL_BEGIN
+@interface MSIDJweResponseDecryptPreProcessor : NSObject <MSIDResponseSerialization>
 
-@interface MSIDJsonResponsePreprocessor : NSObject <MSIDResponseSerialization>
-@property (nonatomic, nullable) MSIDJweResponseDecryptPreProcessor* jweDecryptPreProcessor;
+@property (nonatomic, nonnull) SecKeyRef decryptionKey;
+@property (nonatomic, nonnull) MSIDJWECrypto *jweCrypto;
+@property (nonatomic, nullable) NSDictionary *additionalResponseClaims;
+
+- (instancetype _Nonnull )initWithDecryptionKey:(SecKeyRef _Nonnull )decryptionKey
+                                      jweCrypto:(MSIDJWECrypto *_Nonnull)jweCrypto
+                       additionalResponseClaims:(NSDictionary *)additionalResponseClaims;
+
+- (nullable NSDictionary *)decryptJweResponseData:(NSData *_Nonnull)responseData
+                                        jweCrypto:(MSIDJWECrypto *_Nonnull)jweCrypto
+                                          context:(id <MSIDRequestContext>_Nullable)context
+                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 @end
-
 NS_ASSUME_NONNULL_END

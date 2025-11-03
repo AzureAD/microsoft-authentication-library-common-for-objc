@@ -383,7 +383,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning EC private device key from default registration.");
 #if TARGET_OS_IPHONE
-        bool isQueryingEnabledViaFlight = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_QUERYING_STK];
+        bool isQueryingEnabledViaFlight = true;//[MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_QUERYING_STK];
         if (isQueryingEnabledViaFlight)
         {
             // Query the session transport key only for iOS.
