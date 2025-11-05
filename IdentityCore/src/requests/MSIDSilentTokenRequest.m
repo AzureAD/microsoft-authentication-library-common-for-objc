@@ -594,6 +594,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                        validateAccount:NO
                                       saveSSOStateOnly:NO
                                       brokerAppVersion:nil
+                     brokerResponseGenerationTimeStamp:nil
+                        brokerRequestReceivedTimeStamp:nil
                                                  error:nil
                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
          {

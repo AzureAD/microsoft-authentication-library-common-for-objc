@@ -211,6 +211,8 @@ extern NSString * _Nonnull const MSID_FRT_STATUS_DISABLED;
 extern NSString * _Nonnull const MSID_BROWSER_RESPONSE_SWITCH_BROWSER;
 extern NSString * _Nonnull const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME;
 
+extern NSString * _Nonnull const MSID_BOUND_RT_REDEEM;
+
 extern NSString * _Nonnull const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH;
@@ -231,5 +233,8 @@ extern NSString * _Nonnull const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
+extern NSString * _Nonnull const MSID_FLIGHT_IS_BART_SUPPORTED;
+
+extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
