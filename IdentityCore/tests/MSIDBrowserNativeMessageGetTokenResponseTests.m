@@ -34,10 +34,18 @@
 @interface MSIDTokenResponseMock : MSIDTokenResponse
 
 @property (nonatomic) NSDictionary *responseJson;
+@property (nonatomic) BOOL returnNilAccounUpn;
 
 @end
 
 @implementation MSIDTokenResponseMock
+
+- (NSString *)accountUpn
+{
+    if (self.returnNilAccounUpn) return nil;
+    
+    return [super accountUpn];
+}
 
 - (NSDictionary *)jsonDictionary
 {
@@ -89,6 +97,40 @@
         },
         @"properties": @{
             @"UPN": tokenResponseMock.idTokenObj.username
+        },
+        @"state": @"1234",
+        @"some_key": @"some_value"
+    };
+    
+    XCTAssertNotNil([response jsonDictionary]);
+    XCTAssertEqualObjects(expectedJson, [response jsonDictionary]);
+}
+
+- (void)testJsonDictionary_whenNoUpnInReponse_shouldUseProvidedUpn
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                  subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+    
+    NSDictionary *jsonInput = @{@"id_token": idToken};
+    
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:jsonInput error:nil];
+    tokenResponseMock.returnNilAccounUpn = YES;
+    tokenResponseMock.responseJson = @{@"some_key": @"some_value"};
+    
+    __auto_type operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+    operationTokenResponse.tokenResponse = tokenResponseMock;
+    
+    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse];
+    response.state = @"1234";
+    response.accountUpn = @"a@b.c";
+    
+    __auto_type expectedJson = @{
+        @"account": @{
+            @"id": tokenResponseMock.accountIdentifier,
+            @"userName": @"a@b.c"
+        },
+        @"properties": @{
+            @"UPN": @"a@b.c"
         },
         @"state": @"1234",
         @"some_key": @"some_value"
