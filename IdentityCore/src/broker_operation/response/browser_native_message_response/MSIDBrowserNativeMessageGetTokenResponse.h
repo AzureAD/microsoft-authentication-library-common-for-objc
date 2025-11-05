@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
 
 @property (nonatomic, nullable) NSString *state;
-@property (nonatomic, nullable) NSString *accountUpn;
+@property (nonatomic, nullable) NSString *requestAccountUpn;
 @property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
 
 

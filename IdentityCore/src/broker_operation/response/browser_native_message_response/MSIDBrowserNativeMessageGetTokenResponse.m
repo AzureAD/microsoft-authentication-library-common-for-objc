@@ -72,7 +72,7 @@
     }
     
     __auto_type accountJson = [NSMutableDictionary new];
-    accountJson[@"userName"] = tokenResponse.accountUpn ?: self.accountUpn;
+    accountJson[@"userName"] = tokenResponse.accountUpn ?: self.requestAccountUpn;
     accountJson[@"id"] = tokenResponse.accountIdentifier;
     
     response[@"account"] = accountJson;

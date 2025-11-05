@@ -122,7 +122,7 @@
     
     __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse];
     response.state = @"1234";
-    response.accountUpn = @"a@b.c";
+    response.requestAccountUpn = @"a@b.c";
     
     __auto_type expectedJson = @{
         @"account": @{
