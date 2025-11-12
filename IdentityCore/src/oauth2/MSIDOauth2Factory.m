@@ -174,7 +174,7 @@
     if (refreshToken)
     {
         // Saving RT from a token network response
-        if ([response.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE] isEqualToString:MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT])
+        if ([self doesResponseHaveBoundAppRefreshToken:response])
         {
             MSIDBoundRefreshToken *bart = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:refreshToken boundDeviceId:response.boundAppRefreshTokenDeviceId];
             return bart;
@@ -419,6 +419,12 @@
     metadata.clientId = configuration.clientId;
     metadata.environment = cacheAuthority.environment;
     return YES;
+}
+
+- (BOOL)doesResponseHaveBoundAppRefreshToken:(MSIDTokenResponse *)response
+{
+    return ![NSString msidIsStringNilOrBlank:response.boundAppRefreshTokenDeviceId] && ([response.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE] isEqualToString:MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT] ||
+                [response.additionalServerInfo[MSID_BART_DEVICE_ID_KEY] length] > 0);
 }
 
 #pragma mark - Webview
