@@ -127,29 +127,38 @@
 
 - (MSIDSSOExtensionRequestDelegateCompletionBlock)getCompletionBlock
 {
+    __typeof__(self) __weak weakSelf = self;
     return ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
     {
-#if TARGET_OS_IPHONE
-        [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-#endif
-        
-#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
-        self.ssoTokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
-#endif
-        [self.ssoTokenResponseHandler handleOperationResponse:operationResponse
-                                                  requestParameters:self.requestParameters
-                                             tokenResponseValidator:self.tokenResponseValidator
-                                                       oauthFactory:self.oauthFactory
-                                                         tokenCache:self.tokenCache
-                                               accountMetadataCache:self.accountMetadataCache
-                                                    validateAccount:self.requestParameters.shouldValidateResultAccount
-                                                              error:error
-                                                    completionBlock:^(MSIDTokenResult *result, NSError *localError)
-         {
-            MSIDInteractiveRequestCompletionBlock completionBlock = self.requestCompletionBlock;
-            self.requestCompletionBlock = nil;
-            if (completionBlock) completionBlock(result, localError, nil);
-        }];
+        __typeof__(self) strongSelf = weakSelf;
+        if (strongSelf)
+        {
+    #if TARGET_OS_IPHONE
+            [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+    #endif
+            
+    #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
+            strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
+    #endif
+            __typeof__(strongSelf) __weak weakStrongSelf = strongSelf;
+            [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
+                                                      requestParameters:strongSelf.requestParameters
+                                                 tokenResponseValidator:strongSelf.tokenResponseValidator
+                                                           oauthFactory:strongSelf.oauthFactory
+                                                             tokenCache:strongSelf.tokenCache
+                                                   accountMetadataCache:strongSelf.accountMetadataCache
+                                                        validateAccount:strongSelf.requestParameters.shouldValidateResultAccount
+                                                                  error:error
+                                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
+             {
+                __typeof__(weakStrongSelf) __strong innerStrongSelf = weakStrongSelf;
+                if (!innerStrongSelf) return;
+                
+                MSIDInteractiveRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;
+                innerStrongSelf.requestCompletionBlock = nil;
+                if (completionBlock) completionBlock(result, localError, nil);
+            }];
+        }
     };
 }
 
