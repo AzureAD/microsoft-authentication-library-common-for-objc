@@ -171,14 +171,9 @@
     BOOL result = [self fillRefreshToken:refreshToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
-    if (refreshToken)
+    if (refreshToken && [self doesResponseHaveBoundAppRefreshToken:response])
     {
-        // Saving RT from a token network response
-        if ([self doesResponseHaveBoundAppRefreshToken:response])
-        {
-            MSIDBoundRefreshToken *bart = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:refreshToken boundDeviceId:response.boundAppRefreshTokenDeviceId];
-            return bart;
-        }
+        return [[MSIDBoundRefreshToken alloc] initWithRefreshToken:refreshToken boundDeviceId:response.boundAppRefreshTokenDeviceId];
     }
     return refreshToken;
 }
