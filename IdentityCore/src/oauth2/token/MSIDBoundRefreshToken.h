@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return An initialized instance of MSIDBoundRefreshToken.
  */
 - (instancetype)initWithRefreshToken:(MSIDRefreshToken *)refreshToken
-                      boundDeviceId:(NSString *)boundDeviceId;
+                       boundDeviceId:(NSString *)boundDeviceId;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
