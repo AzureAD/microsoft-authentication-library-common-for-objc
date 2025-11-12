@@ -107,7 +107,7 @@
                                                                     error:error
                                                           completionBlock:^(MSIDTokenResult *result, NSError *localError)
                      {
-                        __typeof__(weakStrongSelf) __strong innerStrongSelf = weakStrongSelf;
+                        __strong __typeof__(weakStrongSelf) innerStrongSelf = weakStrongSelf;
                         if (!innerStrongSelf) return;
                         
                         MSIDRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;
