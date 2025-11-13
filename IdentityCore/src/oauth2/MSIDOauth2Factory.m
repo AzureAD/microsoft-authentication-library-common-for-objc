@@ -418,7 +418,8 @@
 
 - (BOOL)doesResponseHaveBoundAppRefreshToken:(MSIDTokenResponse *)response
 {
-    return ![NSString msidIsStringNilOrBlank:response.boundAppRefreshTokenDeviceId] && ([response.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE] isEqualToString:MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT] ||
+    return ![NSString msidIsStringNilOrBlank:response.boundAppRefreshTokenDeviceId] &&
+    ([MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT isEqualToString:response.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE]] ||
                 [response.additionalServerInfo[MSID_BART_DEVICE_ID_KEY] length] > 0);
 }
 

@@ -263,7 +263,7 @@
         return nil;
     }
     
-    if ([tokenResponse.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE] isEqualToString:MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT] && tokenResponse.boundAppRefreshTokenDeviceId)
+    if ([MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT isEqualToString:tokenResponse.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE]] && tokenResponse.boundAppRefreshTokenDeviceId)
     {
         tokenResult.refreshToken = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:(MSIDRefreshToken *)tokenResult.refreshToken
                                                                          boundDeviceId:tokenResponse.boundAppRefreshTokenDeviceId];
