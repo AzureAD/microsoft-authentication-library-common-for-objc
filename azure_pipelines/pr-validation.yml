@@ -55,7 +55,7 @@ jobs:
     displayName: 'Select Xcode version'
     inputs:
       targetType: 'inline'
-      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"'
+      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"'
   - task: Bash@3
     displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
     inputs:
@@ -72,7 +72,7 @@ jobs:
       script: |
         if [ $(target) == 'vision_library' ]; then
             echo "Downloading simulator for visionOS"
-            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+            sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
             defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
             defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
             xcodebuild -downloadPlatform visionOS

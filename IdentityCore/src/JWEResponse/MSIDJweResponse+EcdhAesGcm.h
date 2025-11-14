@@ -22,24 +22,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import <Foundation/Foundation.h>
+#import "MSIDJweResponse.h"
+#import "MSIDRequestContext.h"
+#import "MSIDJWECrypto.h"
+#import "MSIDJsonSerializable.h"
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+typedef NSString *const MSIDJWECryptoKeyExchangeAlgorithm NS_TYPED_ENUM;
+typedef NSString *const MSIDJWECryptoKeyResponseEncryptionAlgorithm NS_TYPED_ENUM;
 
-@class MSIDBrokerOperationTokenResponse;
-@class MSIDBrokerOperationBrowserNativeMessageMATSReport;
+extern MSIDJWECryptoKeyExchangeAlgorithm const _Nonnull MSID_KEY_EXCHANGE_ALGORITHM_ECDH_ES;
+extern MSIDJWECryptoKeyResponseEncryptionAlgorithm const _Nonnull MSID_RESPONSE_ENCRYPTION_ALGORITHM_A256GCM;
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
-
-- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
-
-@property (nonatomic, nullable) NSString *state;
-@property (nonatomic, nullable) NSString *requestAccountUpn;
-@property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
-
-
+@interface MSIDJweResponse (EcdhAesGcm)
+- (BOOL)IsJweResponseAlgorithmSupported:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (nullable NSDictionary *)decryptJweResponseWithPrivateStk:(SecKeyRef)privateStk
+                                                  jweCrypto:(MSIDJWECrypto *)jweCrypto
+                                                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 @end
-
 NS_ASSUME_NONNULL_END

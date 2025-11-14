@@ -300,7 +300,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     NSError *error;
     NSDictionary *jweCrypto;
     
-    [MSIDTestSwizzle instanceMethod:@selector(initWithKey:apvPrefix:context:error:)
+    [MSIDTestSwizzle instanceMethod:@selector(initWithKey:apvPrefix:customClientNonce:context:error:)
                            class:MSIDEcdhApv.class
                            block:^(void)
     {

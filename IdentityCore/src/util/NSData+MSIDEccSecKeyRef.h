@@ -23,22 +23,16 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
-
-@class MSIDBrokerOperationTokenResponse;
-@class MSIDBrokerOperationBrowserNativeMessageMATSReport;
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
+@interface NSData (MSIDEccSecKeyRef)
 
-- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
++ (nullable SecKeyRef)createECCKeyFromEccJsonWebKey:(NSDictionary *)jsonWebKey
+                                              error:(NSError *_Nullable*_Nullable)error;
 
-@property (nonatomic, nullable) NSString *state;
-@property (nonatomic, nullable) NSString *requestAccountUpn;
-@property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
-
+- (nullable SecKeyRef)createECCKeyFromEccJsonWebKey:(NSError *_Nullable*_Nullable)error;
 
 @end
 

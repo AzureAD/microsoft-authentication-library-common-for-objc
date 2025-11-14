@@ -20,26 +20,22 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
-
-#import "MSIDBrokerNativeAppOperationResponse.h"
-
-@class MSIDBrokerOperationTokenResponse;
-@class MSIDBrokerOperationBrowserNativeMessageMATSReport;
-
+#import <Foundation/Foundation.h>
 NS_ASSUME_NONNULL_BEGIN
+@interface MSIDJweResponse : NSObject
 
-@interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
+@property (readonly, nonatomic) NSData *encryptedKey;
+@property (readonly, nonatomic) NSData *iv;
+@property (readonly, nonatomic) NSData *payload;
+@property (readonly, nonatomic) NSData *headerContext;
+@property (readonly, nonatomic) NSString *headerAlgorithm;
+@property (readonly, nonatomic) NSData *tag;
+@property (readonly, nonatomic) NSData *aad;
+@property (readonly, nonatomic) NSDictionary *jweHeader;
 
-- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
-
-@property (nonatomic, nullable) NSString *state;
-@property (nonatomic, nullable) NSString *requestAccountUpn;
-@property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
-
+- (id)initWithRawJWE:(NSString *)rawJWE;
 
 @end
-
 NS_ASSUME_NONNULL_END

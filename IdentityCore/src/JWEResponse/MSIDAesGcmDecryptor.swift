@@ -23,23 +23,15 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+import Foundation
+import CryptoKit
 
-@class MSIDBrokerOperationTokenResponse;
-@class MSIDBrokerOperationBrowserNativeMessageMATSReport;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
-
-- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
-
-@property (nonatomic, nullable) NSString *state;
-@property (nonatomic, nullable) NSString *requestAccountUpn;
-@property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
-
-
-@end
-
-NS_ASSUME_NONNULL_END
+public class MSIDAesGcmDecryptor: NSObject {
+    
+    @objc public func decryptWithAES256GCMHandler(message ciphertext: Data, iv nonce: Data, key keyData: Data, tag: Data, aad: Data) throws -> Data
+    {
+        let sealedBox = try AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: nonce), ciphertext: ciphertext, tag: tag)
+        let key = SymmetricKey(data: keyData)
+        return try AES.GCM.open(sealedBox, using: key, authenticating: aad)
+    }
+}
