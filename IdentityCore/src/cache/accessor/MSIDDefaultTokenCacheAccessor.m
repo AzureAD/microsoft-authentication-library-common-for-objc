@@ -49,6 +49,7 @@
 #import "MSIDFamilyRefreshToken.h"
 #import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDBartFeatureUtil.h"
+#import "MSIDBoundRefreshToken.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -1018,6 +1019,20 @@
 
     if (![NSString msidIsStringNilOrBlank:refreshToken.familyId])
     {
+        // If FRT is a bound refresh token, we can assume it to be sFRT bound app refresh token
+        if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled] &&
+            refreshToken.credentialType == MSIDBoundRefreshTokenType)
+        {
+            MSIDBoundRefreshToken *bart = (MSIDBoundRefreshToken *)refreshToken;
+            if (bart && bart.boundDeviceId)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Saving the sFRT as family bound refresh token %@", MSID_EUII_ONLY_LOG_MASKABLE(refreshToken));
+                return [self saveToken:refreshToken
+                               context:context
+                                 error:error];
+            }
+        }
+        
         NSError *frtError = nil;
         // Check if FRT is enabled, this will update the configuration object, and then use it to decide if
         // we should save the token as FRT or legacy RT (with familyId, if it contains that value).
