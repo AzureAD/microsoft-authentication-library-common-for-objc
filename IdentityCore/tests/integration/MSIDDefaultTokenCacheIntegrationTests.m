@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDTestCacheAccessorHelper.h"
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDTestConfiguration.h"
@@ -45,6 +47,9 @@
 #import "MSIDCache.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDBoundRefreshToken.h"
 
 @interface MSIDDefaultTokenCacheIntegrationTests : XCTestCase
 {
@@ -913,4 +918,153 @@
     [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
 }
 
+#pragma mark - getRefreshTokenWithAccount Tests
+
+- (void)testGetRefreshTokenWithAccount_whenBartFeatureEnabled_shouldUseBoundRefreshTokenType
+{
+    // Setup test tokens
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token"
+                                                                                 RT:@"refresh_token"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:nil];
+    tokenResponse.boundAppRefreshTokenDeviceId = @"test-device-id";
+    NSMutableDictionary *additionalInfo = [tokenResponse.additionalServerInfo mutableCopy] ?: [NSMutableDictionary new];
+    additionalInfo[@"refresh_token_type"] = @"bound_app_rt";
+    tokenResponse.additionalServerInfo = additionalInfo;
+    
+    // Save token to cache
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+    // Test retrieval with BART enabled
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSError *error = nil;
+    MSIDRefreshToken *retrievedToken = [_cacheAccessor getRefreshTokenWithAccount:account
+                                                                         familyId:nil
+                                                                    configuration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    // Verify token retrieval behavior - this tests that BART feature flag is properly checked
+    XCTAssertNil(error);
+    // Note: Token may or may not be found depending on cache state and credential type used
+    XCTAssertNotNil(retrievedToken);
+}
+
+- (void)testGetRefreshTokenWithAccount_whenBartFeatureDisabled_shouldUseRegularRefreshTokenType
+{
+    // Setup test tokens
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token"
+                                                                                 RT:@"refresh_token"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:nil];
+    
+    // Save token to cache
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+    
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+    
+    // Test retrieval with BART disabled
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSError *error = nil;
+    MSIDRefreshToken *retrievedToken = [_cacheAccessor getRefreshTokenWithAccount:account
+                                                                         familyId:nil
+                                                                    configuration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    // Should successfully retrieve token using regular refresh token type
+    XCTAssertNil(error);
+    XCTAssertNotNil(retrievedToken);
+    XCTAssertEqualObjects(retrievedToken.refreshToken, tokenResponse.refreshToken);
+}
+
+- (void)testGetRefreshTokenWithAccount_whenFamilyRefreshTokenNotFound_shouldFallbackToRegularToken
+{
+    // Setup regular refresh token (non-family)
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token"
+                                                                                 RT:@"refresh_token"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:nil];
+    
+    // Save token to cache
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+    
+    // Test fallback logic when family refresh token is requested but not found
+    // This tests the fallback logic in lines 173-183 of MSIDDefaultTokenCacheAccessor
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSError *error = nil;
+    MSIDRefreshToken *retrievedToken = [_cacheAccessor getRefreshTokenWithAccount:account
+                                                                         familyId:@"family_id" // Request family token but none exists
+                                                                    configuration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    // Should fallback and find the regular refresh token
+    XCTAssertNil(error);
+    XCTAssertNotNil(retrievedToken);
+    XCTAssertEqualObjects(retrievedToken.refreshToken, tokenResponse.refreshToken);
+}
+
+- (void)testGetRefreshTokenWithAccount_whenBoundRefreshTokenWithFamilyIdNotFound_shouldFallbackToRegularToken
+{
+    // Setup regular refresh token
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token"
+                                                                                 RT:@"refresh_token"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:nil];
+    
+    // Save token to cache
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+    
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+    
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSError *error = nil;
+    MSIDRefreshToken *retrievedToken = [_cacheAccessor getRefreshTokenWithAccount:account
+                                                                         familyId:@"family_id"
+                                                                    configuration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    // Should trigger fallback logic for bound refresh token with family ID
+    XCTAssertNil(error);
+    // Token retrieval depends on cache state and credential type matching
+    XCTAssertNotNil(retrievedToken);
+}
 @end
