@@ -397,4 +397,53 @@
     XCTAssertEqualObjects(json[MSID_OAUTH2_REQUEST_CONFIRMATION], @"kid");
 }
 
+#pragma mark - boundAppRefreshTokenDeviceId
+
+- (void)testInitWithJSONDictionary_whenBoundAppRefreshTokenDeviceIdPresent_shouldSetProperty
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt",
+                                @"bart_device_id": @"test-device-id-123"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(response.boundAppRefreshTokenDeviceId, @"test-device-id-123");
+}
+
+- (void)testInitWithJSONDictionary_whenBoundAppRefreshTokenDeviceIdMissing_shouldBeNil
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer", 
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertNil(response.boundAppRefreshTokenDeviceId);
+}
+
+- (void)testInitWithJSONDictionary_whenBoundAppRefreshTokenDeviceIdEmpty_shouldSetToEmpty
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600", 
+                                @"refresh_token": @"rt",
+                                @"bart_device_id": @""};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(response.boundAppRefreshTokenDeviceId, @"");
+}
+
 @end

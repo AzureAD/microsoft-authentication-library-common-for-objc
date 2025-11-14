@@ -99,6 +99,7 @@ extern NSString * _Nonnull const MSID_IS_CALLER_MANAGED_KEY;
 extern NSString * _Nonnull const MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY;
 extern NSString * _Nonnull const MSID_BROKER_CLIENT_FLIGHTS_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SDM_WPJ_ATTEMPTED;
+extern NSString * _Nonnull const MSID_BART_DEVICE_ID_KEY;
 extern NSString * _Nonnull const MSID_EXP_RETRY_ON_NETWORK;
 extern NSString * _Nonnull const MSID_EXP_ENABLE_CONNECTION_CLOSE;
 extern NSString * _Nonnull const MSID_HTTP_CONNECTION;
