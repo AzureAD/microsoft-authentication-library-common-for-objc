@@ -68,6 +68,7 @@
         {
             NSDictionary *dict = (NSDictionary *)jsonObject;
             _headerAlgorithm = [dict objectForKey:@"alg"];
+            _headerEncryptionAlgorithm = [dict objectForKey:@"enc"];
             if([dict objectForKey:@"ctx"])
             {
                 _headerContext = [[NSData alloc] initWithBase64EncodedString:[dict objectForKey:@"ctx"] options:0];

@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, nonatomic) NSData *payload;
 @property (readonly, nonatomic) NSData *headerContext;
 @property (readonly, nonatomic) NSString *headerAlgorithm;
+@property (readonly, nonatomic) NSString *headerEncryptionAlgorithm;
 @property (readonly, nonatomic) NSData *tag;
 @property (readonly, nonatomic) NSData *aad;
 @property (readonly, nonatomic) NSDictionary *jweHeader;

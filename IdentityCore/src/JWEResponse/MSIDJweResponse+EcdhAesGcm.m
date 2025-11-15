@@ -44,6 +44,8 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
                                                   jweCrypto:(nonnull MSIDJWECrypto *)jweCrypto
                                                       error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Starting to decrypt JWE response using ECDH-AESGCM using jwe_crypto : %@", jweCrypto.urlEncodedJweCrypto);
+    
     // 1. Check for necessary request parameters
     NSData *apv = [NSData msidDataFromBase64UrlEncodedString:jweCrypto.apv.APV];
     
@@ -65,7 +67,7 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected server response, no epk present in JWE header", nil, nil, nil, nil, nil, NO);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected server response, no epk present in JWE header", nil, nil, nil, nil, nil, YES);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unexpected server response, no epk present in JWE header, epk %@", epk);
         return nil;
@@ -174,7 +176,8 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
                                                              partyUInfo:apu
                                                              partyVInfo:apv
                                                                   error:&concatKDFError];
-
+    // Deallocating sharedSecret as it is no longer needed
+    sharedSecret = nil;
     if (!derivedKey)
     {
         if (error)
@@ -196,7 +199,7 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Symmetric key is nil", nil, nil, nil, nil, nil, NO);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Symmetric key is nil", nil, nil, nil, nil, nil, YES);
         }
         return nil;
     }
@@ -209,12 +212,14 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     // Since only A256GCM is supported, we can decrypt jwe message using AES256GCM.
     MSIDAesGcmDecryptor *decryptor = [MSIDAesGcmDecryptor new];
     NSData *decryptedData = [decryptor decryptWithAES256GCMHandlerWithMessage:self.payload iv:self.iv key:symmetricKey tag:self.tag aad:self.aad error:error];
-    
+    // Deallocate symmetricKey as it is no longer needed
+    symmetricKey = nil;
     if (!decryptedData)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected server response, failed to decrypt JWE", nil, nil, nil, nil, nil, NO);
+            NSError *subError = *error ? *error : nil;
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected server response, failed to decrypt JWE", nil, [subError description], subError, nil, nil, YES);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unexpected server response, failed to decrypt JWE");
         return nil;
@@ -223,6 +228,14 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
     NSDictionary *jsonResult = [serializer deserializeJSON:decryptedData error:error];
+    if (!jsonResult)
+    {
+        if (error)
+        {
+            NSError *subError = *error ? *error : nil;
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize decrypted data to JSON", nil, [subError description], subError, nil, nil, YES);
+        }
+    }
     return jsonResult;
 }
 
@@ -232,16 +245,16 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, [NSString stringWithFormat:@"Unsupported JWE algorithm : %@", self.headerAlgorithm], nil, nil, nil, nil, nil, NO);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, [NSString stringWithFormat:@"Unsupported JWE algorithm : %@", self.headerAlgorithm], nil, nil, nil, nil, nil, YES);
         }
         return NO;
     }
     
-    if (![self.jweHeader[@"enc"] isEqualToString:MSID_RESPONSE_ENCRYPTION_ALGORITHM_A256GCM])
+    if (![self.headerEncryptionAlgorithm isEqualToString:MSID_RESPONSE_ENCRYPTION_ALGORITHM_A256GCM])
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, [NSString stringWithFormat:@"Unsupported JWE encryption algorithm : %@", self.jweHeader[@"enc"]], nil, nil, nil, nil, nil, NO);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, [NSString stringWithFormat:@"Unsupported JWE encryption algorithm : %@", self.jweHeader[@"enc"]], nil, nil, nil, nil, nil, YES);
         }
         return NO;
     }
