@@ -917,7 +917,7 @@
     MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
     [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
 }
-
+#if TARGET_OS_IPHONE
 #pragma mark - getRefreshTokenWithAccount Tests
 
 - (void)testGetRefreshTokenWithAccount_whenBartFeatureEnabled_shouldUseBoundRefreshTokenType
@@ -1082,5 +1082,5 @@
     XCTAssertEqualObjects(((MSIDBoundRefreshToken *)retrievedToken).boundDeviceId, tokenResponse.boundAppRefreshTokenDeviceId);
     XCTAssertEqualObjects(retrievedToken.familyId, @"1");
 }
-
+#endif
 @end
