@@ -29,10 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSData (MSIDEccSecKeyRef)
 
-+ (nullable SecKeyRef)createECCKeyFromEccJsonWebKey:(NSDictionary *)jsonWebKey
++ (nullable SecKeyRef)createKeyFromEccJsonWebKey:(NSDictionary *)jsonWebKey
                                               error:(NSError *_Nullable*_Nullable)error;
 
-- (nullable SecKeyRef)createECCKeyFromEccJsonWebKey:(NSError *_Nullable*_Nullable)error;
+- (nullable SecKeyRef)createKeyFromEccJsonWebKey:(NSError *_Nullable*_Nullable)error;
 
 @end
 

@@ -28,7 +28,7 @@
 
 @implementation NSData (MSIDEccSecKeyRef)
 
-+ (nullable SecKeyRef)createECCKeyFromEccJsonWebKey:(nonnull NSDictionary *)jsonWebKey
++ (nullable SecKeyRef)createKeyFromEccJsonWebKey:(nonnull NSDictionary *)jsonWebKey
                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     if (!jsonWebKey[@"x"] || !jsonWebKey[@"y"])
@@ -46,10 +46,10 @@
     NSMutableData *keyData = [[NSMutableData alloc] initWithBytes:bytes length:sizeof(bytes)];
     [keyData appendData:[NSData msidDataFromBase64UrlEncodedString:jsonWebKey[@"x"]]];
     [keyData appendData:[NSData msidDataFromBase64UrlEncodedString:jsonWebKey[@"y"]]];
-    return [keyData createECCKeyFromEccJsonWebKey:error];
+    return [keyData createKeyFromEccJsonWebKey:error];
 }
 
-- (nullable SecKeyRef)createECCKeyFromEccJsonWebKey:(NSError * _Nullable __autoreleasing * _Nullable)error
+- (nullable SecKeyRef)createKeyFromEccJsonWebKey:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSDictionary *options = @{(id)kSecAttrKeyType: (id)kSecAttrKeyTypeECSECPrimeRandom,
                               (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPublic,

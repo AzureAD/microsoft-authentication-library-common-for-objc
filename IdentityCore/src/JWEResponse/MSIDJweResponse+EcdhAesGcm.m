@@ -93,7 +93,7 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     }
     
     // 3. Create key from server response
-    SecKeyRef serverKeyRef = [NSData createECCKeyFromEccJsonWebKey:epk error:error];
+    SecKeyRef serverKeyRef = [NSData createKeyFromEccJsonWebKey:epk error:error];
     
     if (!serverKeyRef)
     {
