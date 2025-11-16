@@ -27,6 +27,11 @@
 
 #pragma mark - Lab Request
 
+- (NSString *)functionAppCodeKey
+{
+    return self.policyEnabled ? @"enable_policy_api_code" : @"disable_policy_api_code";
+}
+
 - (NSString *)requestOperationPath
 {
     return self.policyEnabled ? @"EnablePolicy" : @"DisablePolicy";
@@ -34,7 +39,7 @@
 
 - (NSString *)httpMethod
 {
-    return @"PUT";
+    return @"POST";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems

@@ -29,6 +29,7 @@
 
 @property (nonatomic) NSString *labAPIPath;
 @property (nonatomic) NSDictionary *configurationParams;
+@property (nonatomic) NSDictionary *functionAppCodes;
 @property (nonatomic) NSString *encodedCertificate;
 @property (nonatomic) NSString *certificatePassword;
 
@@ -42,6 +43,7 @@
              encodedCertificate:(NSString *)encodedCertificate
             certificatePassword:(NSString *)certificatePassword
       operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration
+     functionAppAPIConfiguration:(NSDictionary *)functionAppAPIConfiguration
 {
     self = [super init];
     
@@ -49,11 +51,22 @@
     {
         _labAPIPath = apiPath;
         _configurationParams = operationAPIConfiguration;
+        _functionAppCodes = functionAppAPIConfiguration;
         _encodedCertificate = encodedCertificate;
         _certificatePassword = certificatePassword;
     }
     
     return self;
+}
+
+- (instancetype)initWithAPIPath:(NSString *)apiPath
+      operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration
+{
+    return [self initWithAPIPath:apiPath
+              encodedCertificate:nil
+             certificatePassword:nil
+       operationAPIConfiguration:operationAPIConfiguration
+      functionAppAPIConfiguration:nil];
 }
 
 #pragma mark - Public
@@ -76,16 +89,29 @@
         return;
     }
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self getAccessTokenAndCallLabAPI:apiRequest
-                          responseHandler:responseHandler
-                        completionHandler:^(id result, NSError *error) 
-         {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionHandler(result, error);
-            });
-        }];
-    });
+    // Check if this request uses function app API (with function codes)
+    NSString *functionCodeKey = [apiRequest functionAppCodeKey];
+    if (functionCodeKey && self.functionAppCodes)
+    {
+        // Use function app API path and function code
+        NSString *functionAppAPIPath = self.functionAppCodes[@"operation_api_path"];
+        NSString *functionCode = self.functionAppCodes[functionCodeKey];
+        
+        if (functionAppAPIPath && functionCode)
+        {
+            [self executeFunctionAppAPIRequest:apiRequest
+                                functionAPIPath:functionAppAPIPath
+                                   functionCode:functionCode
+                                responseHandler:responseHandler
+                              completionHandler:completionHandler];
+            return;
+        }
+    }
+    
+    // Fall back to OAuth-based API
+    [self getAccessTokenAndCallLabAPI:apiRequest
+                      responseHandler:responseHandler
+                    completionHandler:completionHandler];
 }
 
 #pragma mark - Get access token
@@ -94,43 +120,64 @@
                     responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
                   completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
-    NSData *base64EncodedCert = [[NSData alloc] initWithBase64EncodedString:self.encodedCertificate options:0];
-    if (!base64EncodedCert || base64EncodedCert.length == 0) {
-        NSLog(@"Couldn't fetch certificate data, make sure certificate path is correct");
-        return;
-    }
-    
-    [MSIDClientCredentialHelper getAccessTokenForAuthority:self.configurationParams[@"operation_api_authority"]
-                                                  resource:self.configurationParams[@"operation_api_resource"]
-                                                  clientId:self.configurationParams[@"operation_api_client_id"]
-                                               certificate:base64EncodedCert 
-                                       certificatePassword:self.certificatePassword
-                                         completionHandler:^(NSString *accessToken, NSError *error)
-     {
+    // Use certificate-based authentication if certificate is provided
+    if (self.encodedCertificate && self.certificatePassword)
+    {
+        NSData *certificateData = [[NSData alloc] initWithBase64EncodedString:self.encodedCertificate options:0];
         
-        if (!accessToken)
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionHandler(nil, error);
-            });
-            return;
-        }
-
-        [self executeAPIRequestImpl:request
-                responseHandler:responseHandler
-                    accessToken:accessToken
-              completionHandler:completionHandler];
-    }];
+        [MSIDClientCredentialHelper getAccessTokenForAuthority:self.configurationParams[@"operation_api_authority"]
+                                                      resource:self.configurationParams[@"operation_api_resource"]
+                                                      clientId:self.configurationParams[@"operation_api_client_id"]
+                                                   certificate:certificateData
+                                           certificatePassword:self.certificatePassword
+                                             completionHandler:^(NSString *accessToken, NSError *error) {
+                                                 
+                                                 if (!accessToken)
+                                                 {
+                                                     dispatch_async(dispatch_get_main_queue(), ^{
+                                                         completionHandler(nil, error);
+                                                     });
+                                                     return;
+                                                 }
+                                                 
+                                                 [self executeAPIRequestImpl:request
+                                                             responseHandler:responseHandler
+                                                                 accessToken:accessToken
+                                                           completionHandler:completionHandler];
+                                             }];
+    }
+    else
+    {
+        // Fall back to client secret authentication
+        [MSIDClientCredentialHelper getAccessTokenForAuthority:self.configurationParams[@"operation_api_authority"]
+                                                      resource:self.configurationParams[@"operation_api_resource"]
+                                                      clientId:self.configurationParams[@"operation_api_client_id"]
+                                              clientCredential:self.configurationParams[@"operation_api_client_secret"]
+                                             completionHandler:^(NSString *accessToken, NSError *error) {
+                                                 
+                                                 if (!accessToken)
+                                                 {
+                                                     dispatch_async(dispatch_get_main_queue(), ^{
+                                                         completionHandler(nil, error);
+                                                     });
+                                                     return;
+                                                 }
+                                                 
+                                                 [self executeAPIRequestImpl:request
+                                                             responseHandler:responseHandler
+                                                                 accessToken:accessToken
+                                                           completionHandler:completionHandler];
+                                             }];
+    }
 }
 
-#pragma mark - Execute request
+#pragma mark - Execute OAuth API request
 
 - (void)executeAPIRequestImpl:(MSIDAutomationBaseApiRequest *)request
               responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
                   accessToken:(NSString *)accessToken
             completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
-    
     NSURL *resultURL = [request requestURLWithAPIPath:self.labAPIPath];
     
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:resultURL];
@@ -162,6 +209,79 @@
           
           dispatch_async(dispatch_get_main_queue(), ^{
                 completionHandler(nil, error);
+          });
+        
+      }] resume];
+}
+
+#pragma mark - Execute Function App request
+
+- (void)executeFunctionAppAPIRequest:(MSIDAutomationBaseApiRequest *)request
+                     functionAPIPath:(NSString *)functionAPIPath
+                        functionCode:(NSString *)functionCode
+                     responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
+                   completionHandler:(void (^)(id result, NSError *error))completionHandler
+{
+    NSURL *resultURL = [request requestURLWithAPIPath:functionAPIPath functionCode:functionCode];
+    
+    // Debug logging
+    NSLog(@"[FUNCTION_APP_DEBUG] Function API Path: %@", functionAPIPath);
+    NSLog(@"[FUNCTION_APP_DEBUG] Function Code Key: %@", [request functionAppCodeKey]);
+    NSLog(@"[FUNCTION_APP_DEBUG] HTTP Method: %@", [request httpMethod]);
+    NSLog(@"[FUNCTION_APP_DEBUG] Full URL: %@", resultURL.absoluteString);
+    
+    if (!resultURL)
+    {
+        NSError *error = [NSError errorWithDomain:@"MSIDAutomationOperationAPIRequestHandler"
+                                             code:-1
+                                         userInfo:@{NSLocalizedDescriptionKey: @"Failed to build function app API URL"}];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionHandler(nil, error);
+        });
+        return;
+    }
+    
+    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:resultURL];
+    [urlRequest setHTTPMethod:request.httpMethod];
+    
+    [[[NSURLSession sharedSession] dataTaskWithRequest:urlRequest
+                                     completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+      {
+          NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+          
+          if (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300)
+          {
+              NSError *responseError = nil;
+              id result = [responseHandler responseFromData:data error:&responseError];
+              
+              if (request.shouldCacheResponse)
+              {
+                  [self.apiCacheHandler cacheResponse:result forRequest:request];
+              }
+              
+              dispatch_async(dispatch_get_main_queue(), ^{
+                  completionHandler(result, responseError);
+              });
+              
+              return;
+          }
+          
+          NSError *apiError = error;
+          if (!apiError && httpResponse)
+          {
+              NSString *errorMessage = [NSString stringWithFormat:@"Function App API request failed with status code: %ld", (long)httpResponse.statusCode];
+              if (data)
+              {
+                  NSString *responseBody = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                  errorMessage = [errorMessage stringByAppendingFormat:@"\nResponse: %@", responseBody];
+              }
+              apiError = [NSError errorWithDomain:@"MSIDAutomationOperationAPIRequestHandler"
+                                             code:httpResponse.statusCode
+                                         userInfo:@{NSLocalizedDescriptionKey: errorMessage}];
+          }
+          
+          dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(nil, apiError);
           });
         
       }] resume];

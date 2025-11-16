@@ -62,6 +62,46 @@
     return resultURL;
 }
 
+- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath functionCode:(NSString *)functionCode
+{
+    NSString *requestOperationPath = [self requestOperationPath];
+    
+    if (!requestOperationPath)
+    {
+        return nil;
+    }
+    
+    NSString *fullAPIPath = [apiPath stringByAppendingPathComponent:requestOperationPath];
+    NSURLComponents *components = [[NSURLComponents alloc] initWithString:fullAPIPath];
+    
+    NSMutableArray *queryItems = [NSMutableArray array];
+    
+    // Add the function code as a query parameter
+    if (functionCode)
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"code" value:functionCode]];
+    }
+    
+    // Add the request-specific query items
+    NSArray *extraQueryItems = [self queryItems];
+    
+    if (!extraQueryItems)
+    {
+        return nil;
+    }
+    
+    [queryItems addObjectsFromArray:extraQueryItems];
+    components.queryItems = queryItems;
+    NSURL *resultURL = [components URL];
+    return resultURL;
+}
+
+- (NSString *)functionAppCodeKey
+{
+    // Default implementation returns nil - override in subclasses that use function apps
+    return nil;
+}
+
 #pragma mark - Abstract
 
 - (NSString *)requestOperationPath
