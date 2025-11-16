@@ -36,6 +36,11 @@
 
 #pragma mark - Lab Request
 
+- (NSString *)functionAppCodeKey
+{
+    return @"create_user_api_code";
+}
+
 - (NSString *)requestOperationPath
 {
     return @"CreateTempUser";
