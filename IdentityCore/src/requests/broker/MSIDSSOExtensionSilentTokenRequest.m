@@ -31,6 +31,8 @@
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
+#import "MSIDGCDStarvationDetector.h"
+#import "MSIDLogger+Internal.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -39,6 +41,8 @@
 @property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic) MSIDGCDStarvationDetector *threadMonitoring;
+@property (nonatomic) NSTimeInterval GCDStarvedDuration;
 
 @end
 
@@ -65,8 +69,14 @@
     {
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
-        _extensionDelegate.completionBlock = [super getCompletionBlock];
+        __weak typeof(self) weakSelf = self;
+        _extensionDelegate.completionBlock = ^(_Nullable id response, NSError  * _Nullable error) {
+            [weakSelf.threadMonitoring stopMonitoring];
+            MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock = [super getCompletionBlock];
+            if (completionBlock) completionBlock(response, error);
+        };
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+        _threadMonitoring = [MSIDGCDStarvationDetector new];
     }
 
     return self;
@@ -94,6 +104,13 @@
     
     self.requestCompletionBlock = completionBlock;
     [self.authorizationController msidPerformRequests];
+    __weak typeof(self) weakSelf = self;
+    [self.threadMonitoring startMonitoringWithInterval:1.0
+                                  timeout:0.01
+                                onStarved:^{
+        weakSelf.GCDStarvedDuration += 1100;
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"GCD may be starved");
+    }];
 }
 
 @end

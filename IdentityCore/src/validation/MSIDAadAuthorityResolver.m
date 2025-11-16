@@ -31,23 +31,9 @@
 #import "MSIDAADAuthorityMetadataResponse.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
-
-static dispatch_queue_t s_aadValidationQueue;
+#import "MSIDGCDStarvationHandler.h"
 
 @implementation MSIDAadAuthorityResolver
-
-+ (void)initialize
-{
-    if (self == [MSIDAadAuthorityResolver self])
-    {
-        // A serial dispatch queue for all authority validation operations. A very common pattern is for
-        // applications to spawn a bunch of threads and call acquireToken on them right at the start. Many
-        // of those acquireToken calls will be to the same authority. To avoid making the exact same
-        // authority validation network call multiple times we throw the requests in this validation
-        // queue.
-        s_aadValidationQueue = dispatch_queue_create("msid.aadvalidation.queue", DISPATCH_QUEUE_SERIAL);
-    }
-}
 
 - (instancetype)init
 {
@@ -76,7 +62,15 @@ static dispatch_queue_t s_aadValidationQueue;
         return;
     }
     
-    dispatch_async(s_aadValidationQueue, ^{
+    dispatch_block_t workBlock = ^{
+        
+        // Double-check cache after entering coordination queue (in case another request completed)
+        MSIDAadAuthorityCacheRecord *inBlockrecord = [self.aadCache objectForKey:authority.environment];
+        if (inBlockrecord)
+        {
+            [self handleRecord:inBlockrecord authority:authority completionBlock:completionBlock];
+            return;
+        }
         
         // If we didn't have anything in the cache then we need to hold onto the queue until we
         // get a response back from the server, or timeout, or fail for any other reason
@@ -103,7 +97,12 @@ static dispatch_queue_t s_aadValidationQueue;
             dispatch_semaphore_wait(dsem, DISPATCH_TIME_FOREVER);
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returned from Authority Validation Queue");
         }
-    });
+    };
+    
+    
+    MSIDGCDStarvationHandler *handler = [MSIDGCDStarvationHandler sharedHandler];
+    // Execute using thread starvation detector (fallback to custom thread if needed)
+    [handler executeBlock:workBlock fallbackToCustomThread:YES];
 }
 
 #pragma mark - Private
