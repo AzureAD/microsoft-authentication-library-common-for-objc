@@ -56,6 +56,7 @@
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
                          fallbackController:nil
+                                  telemetry:nil
                                       error:error];
 
     if (self)
@@ -174,6 +175,7 @@
     MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:self.interactiveRequestParamaters
                                                                                                                  tokenRequestProvider:self.tokenRequestProvider
                                                                                                                     brokerInstallLink:[NSURL URLWithString:response.appInstallLink]
+                                                                                                                            telemetry:nil
                                                                                                                                 error:&brokerError];
 
     if (!brokerController)

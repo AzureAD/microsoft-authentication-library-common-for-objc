@@ -46,6 +46,7 @@
                                                         forceRefresh:(BOOL)forceRefresh
                                                          skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
                                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                           telemetry:(id<MSIDTelemetryProviding>)telemetry
                                                                error:(NSError *__autoreleasing*)error
 {
     if (parameters.xpcMode == MSIDXpcModeDisabled)
@@ -54,6 +55,7 @@
                                                 forceRefresh:forceRefresh
                                                  skipLocalRt:skipLocalRt
                                         tokenRequestProvider:tokenRequestProvider
+                                                   telemetry:telemetry
                                                        error:error];
     }
     else
@@ -62,6 +64,7 @@
                                              forceRefresh:forceRefresh
                                               skipLocalRt:skipLocalRt
                                      tokenRequestProvider:tokenRequestProvider
+                                                telemetry:telemetry
                                                     error:error];
     }
 }
@@ -70,6 +73,7 @@
                                                                   forceRefresh:(BOOL)forceRefresh
                                                                    skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
                                                           tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                                     telemetry:(id<MSIDTelemetryProviding>)telemetry
                                                                          error:(NSError *__autoreleasing*)error
 {
     // Nested auth protocol - Reverse client id & redirect uri
@@ -90,6 +94,7 @@
                 localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                                              forceRefresh:YES
                                                                      tokenRequestProvider:tokenRequestProvider
+                                                                                telemetry:telemetry
                                                                                     error:error];
                 localController.isLocalFallbackMode = YES;
             }
@@ -98,6 +103,7 @@
                                                                                                   forceRefresh:forceRefresh
                                                                                           tokenRequestProvider:tokenRequestProvider
                                                                                  fallbackInteractiveController:localController
+                                                                                                     telemetry:telemetry
                                                                                                          error:error];
         }
     }
@@ -114,6 +120,7 @@
                                                                              forceRefresh:forceRefresh
                                                                      tokenRequestProvider:tokenRequestProvider
                                                             fallbackInteractiveController:brokerController
+                                                                                telemetry:telemetry
                                                                                     error:error];
     if (!localController)
     {
@@ -142,6 +149,7 @@
                                                                forceRefresh:(BOOL)forceRefresh
                                                                 skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
                                                        tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                                  telemetry:(id<MSIDTelemetryProviding>)telemetry
                                                                       error:(NSError *__autoreleasing*)error
 {
     // Nested auth protocol - Reverse client id & redirect uri
@@ -159,6 +167,7 @@
             fallbackController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                                          forceRefresh:YES
                                                                  tokenRequestProvider:tokenRequestProvider
+                                                                               telemetry:telemetry
                                                                                 error:error];
             fallbackController.isLocalFallbackMode = YES;
         }
@@ -171,6 +180,7 @@
                                                                                            forceRefresh:forceRefresh
                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                           fallbackInteractiveController:fallbackController
+                                                                                              telemetry:telemetry
                                                                                                   error:error];
             if (parameters.xpcMode == MSIDXpcModeSSOExtBackup || parameters.xpcMode == MSIDXpcModePrimary)
             {
@@ -189,6 +199,7 @@
                                                                                                     forceRefresh:forceRefresh
                                                                                             tokenRequestProvider:tokenRequestProvider
                                                                                    fallbackInteractiveController:xpcController?:fallbackController
+                                                                                                       telemetry:telemetry
                                                                                                            error:error];
         }
     }
@@ -202,6 +213,7 @@
                                                                                        forceRefresh:forceRefresh
                                                                                tokenRequestProvider:tokenRequestProvider
                                                                       fallbackInteractiveController:fallbackController
+                                                                                           telemetry:telemetry
                                                                                               error:error];
     if (!silentController)
     {
@@ -250,6 +262,7 @@
                                                       forceRefresh:NO
                                               tokenRequestProvider:tokenRequestProvider
                                      fallbackInteractiveController:interactiveController
+                                                         telemetry:nil
                                                              error:error];
 }
 
@@ -296,6 +309,7 @@
         brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                                     tokenRequestProvider:tokenRequestProvider
                                                                                       fallbackController:fallbackController
+                                                                                               telemetry:nil
                                                                                                    error:&brokerControllerError];
         
         if (brokerControllerError)

@@ -50,7 +50,7 @@
 {
     MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] accountMetadataAccessor:[MSIDAccountMetadataCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
-    MSIDSilentTokenRequest *silentRequest = [provider silentTokenRequestWithParameters:[MSIDRequestParameters new] forceRefresh:YES];
+    MSIDSilentTokenRequest *silentRequest = [provider silentTokenRequestWithParameters:[MSIDRequestParameters new] forceRefresh:YES telemetry:nil];
     XCTAssertNotNil(silentRequest);
     XCTAssertTrue([silentRequest isKindOfClass:[MSIDDefaultSilentTokenRequest class]]);
 }

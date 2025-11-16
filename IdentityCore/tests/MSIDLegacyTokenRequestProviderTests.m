@@ -48,7 +48,7 @@
 {
     MSIDLegacyTokenRequestProvider *provider = [[MSIDLegacyTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] legacyAccessor:[MSIDLegacyTokenCacheAccessor new]];
 
-    MSIDSilentTokenRequest *silentRequest = [provider silentTokenRequestWithParameters:[MSIDRequestParameters new] forceRefresh:YES];
+    MSIDSilentTokenRequest *silentRequest = [provider silentTokenRequestWithParameters:[MSIDRequestParameters new] forceRefresh:YES telemetry:nil];
     XCTAssertNotNil(silentRequest);
     XCTAssertTrue([silentRequest isKindOfClass:[MSIDLegacySilentTokenRequest class]]);
 }

@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,25 +20,20 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpRequestProtocol.h"
-#import "MSIDResponseSerialization.h"
-#import "MSIDTelemetryProviding.h"
+// Key
+extern NSString* const MSID_TELE_HANDLING_HTTP_ERROR;
+extern NSString* const MSID_TELE_HTTP_ERROR_CODE;
+extern NSString* const MSID_TELE_HTTP_SHOULD_RETRY;
+extern NSString* const MSID_TELE_HTTP_RETRY_INTERVAL;
+extern NSString* const MSID_TELE_ENROLL_ID_MATCH;
+extern NSString* const MSID_TELE_ACCESS_TOKEN_EXPIRED_INTERVAL;
+extern NSString* const MSID_TELE_FOUND_VALID_ACCESS_TOKEN;
+extern NSString* const MSID_TELE_ACCESS_TOKEN_REFRESHED_NEEDED;
+extern NSString* const MSID_TELE_SKIP_LOCAL_REFRESH_TOKEN;
 
-@class MSIDExternalSSOContext;
 
-@protocol MSIDHttpRequestErrorHandling <NSObject>
-
-- (void)handleError:(NSError * )error
-       httpResponse:(NSHTTPURLResponse *)httpResponse
-               data:(NSData *)data
-        httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
- responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
- externalSSOContext:(MSIDExternalSSOContext *)ssoContext
-            context:(id<MSIDRequestContext>)context
-          telemetry:(id<MSIDTelemetryProviding>)telemetry
-    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
-
-@end
+// Value
+extern NSString* const MSID_TELE_NO_HTTP_RESPONSE;
+extern NSString* const MSID_TELE_5XX_ERROR;

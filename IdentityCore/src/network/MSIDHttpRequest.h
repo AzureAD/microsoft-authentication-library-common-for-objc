@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDHttpRequestProtocol.h"
+#import "MSIDTelemetryProviding.h"
 
 @protocol MSIDRequestSerialization;
 @protocol MSIDResponseSerialization;
@@ -49,6 +50,7 @@
     id<MSIDHttpRequestErrorHandling> _errorHandler;
     id<MSIDRequestContext> _context;
     id<MSIDHttpRequestServerTelemetryHandling> _serverTelemetry;
+    id<MSIDTelemetryProviding> _telemetryProvider;
     BOOL _shouldCacheResponse;
     MSIDURLSessionManager *_sessionManager;
 }
@@ -72,6 +74,8 @@
 #endif
 
 @property (nonatomic, nullable) id<MSIDHttpRequestServerTelemetryHandling> serverTelemetry;
+
+@property (nonatomic, nullable) id<MSIDTelemetryProviding> telemetryProvider;
 
 @property (nonatomic, nullable) id<MSIDHttpRequestErrorHandling> errorHandler;
 

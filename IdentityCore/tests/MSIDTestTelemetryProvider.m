@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,25 +20,47 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpRequestProtocol.h"
-#import "MSIDResponseSerialization.h"
-#import "MSIDTelemetryProviding.h"
 
-@class MSIDExternalSSOContext;
+#import "MSIDTestTelemetryProvider.h"
 
-@protocol MSIDHttpRequestErrorHandling <NSObject>
+@implementation MSIDTestTelemetryProvider
 
-- (void)handleError:(NSError * )error
-       httpResponse:(NSHTTPURLResponse *)httpResponse
-               data:(NSData *)data
-        httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
- responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
- externalSSOContext:(MSIDExternalSSOContext *)ssoContext
-            context:(id<MSIDRequestContext>)context
-          telemetry:(id<MSIDTelemetryProviding>)telemetry
-    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (void)setTelemetryError:(nonnull NSError *)error { 
+    // Leave empty
+}
+
+- (void)setTelemetryFeatureFlag:(nonnull NSString *)featureFlagName { 
+    // Leave empty
+}
+
+- (void)setTelemetryProperty:(nonnull NSString *)key value:(nullable id)value { 
+    // Leave empty
+}
+
+- (void)setTelemetryTimingProperty:(nonnull NSString *)key startTime:(nonnull NSDate *)startTime endTime:(nonnull NSDate *)endTime
+{
+    // Leave empty
+}
+- (void)logTelemetryEvent:(nonnull NSString *)eventName properties:(nullable NSDictionary *)properties
+{
+    // Leave empty
+}
+
+- (void)setPropertyChildFlowPrefix:(NSString *)prefixKey
+{
+    // Leave empty
+}
+
+- (void)appendPropertyChildFlowPrefix:(nullable NSString*)prefixKey
+{
+    // Leave empty
+}
+
+- (void)resetPropertyChildFlowPrefix
+{
+    // Leave empty
+}
 
 @end
