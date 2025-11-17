@@ -26,5 +26,12 @@
 #define MSIDAutomation_Bridging_Header_h
 
 #import "MSIDClientCredentialHelper.h"
+#import "MSIDJsonSerializable.h"
+#import "MSIDCache.h"
+#import "MSIDB2CAuthority.h"
+#import "MSIDAuthority+Internal.h"
+#import "NSDictionary+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
+#import "MSIDError.h"
 
 #endif /* MSIDAutomation_Bridging_Header_h */

@@ -26,12 +26,7 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "NSString+MSIDAutomationUtils.h"
 #import "NSURL+MSIDExtensions.h"
-#import "MSIDAutomationResetAPIRequest.h"
 #import "MSIDClientCredentialHelper.h"
-#import "MSIDTestAutomationAppConfigurationRequest.h"
-#import "MSIDTestAutomationApplication.h"
-#import "MSIDAutomationOperationAPIInMemoryCacheHandler.h"
-#import "MSIDTestAutomationAccountConfigurationRequest.h"
 
 @interface MSIDTestConfigurationProvider()
 
@@ -76,11 +71,11 @@
         
         MSIDAutomationOperationAPIInMemoryCacheHandler *cacheHandler = [[MSIDAutomationOperationAPIInMemoryCacheHandler alloc] initWithDictionary:additionalConfigurations];
         
-        _operationAPIRequestHandler = [[MSIDAutomationOperationAPIRequestHandler alloc] initWithAPIPath:operationAPIConfiguration[@"operation_api_path"]
-                                                                                     encodedCertificate:certificate
-                                                                                    certificatePassword:password
-                                                                              operationAPIConfiguration:operationAPIConfiguration
-                                                                             functionAppAPIConfiguration:functionAppAPIConfiguration];
+        _operationAPIRequestHandler = [[MSIDAutomationOperationAPIRequestHandler alloc] initWithApiPath:operationAPIConfiguration[@"operation_api_path"]
+                                                                                    encodedCertificate:certificate
+                                                                                   certificatePassword:password
+                                                                             operationAPIConfiguration:operationAPIConfiguration
+                                                                            functionAppAPIConfiguration:functionAppAPIConfiguration];
         _operationAPIRequestHandler.apiCacheHandler = cacheHandler;
         
         _passwordRequestHandler = [MSIDAutomationPasswordRequestHandler new];
@@ -122,9 +117,14 @@
         NSDictionary *requestDict = additionalConf[@"request"];
         NSDictionary *configurationDict = additionalConf[@"response"];
 
-        MSIDAutomationBaseApiRequest *request = [MSIDTestAutomationAppConfigurationRequest requestWithDictionary:requestDict];
+        // Create request and set properties manually from dictionary
+        MSIDTestAutomationAppConfigurationRequest *request = [MSIDTestAutomationAppConfigurationRequest new];
+        if (requestDict[@"testAppEnvironment"]) request.testAppEnvironment = requestDict[@"testAppEnvironment"];
+        if (requestDict[@"testAppAudience"]) request.testAppAudience = requestDict[@"testAppAudience"];
+        
         MSIDTestAutomationApplication *appConf = [[MSIDTestAutomationApplication alloc] initWithJSONDictionary:configurationDict error:nil];
-        additionalConfsDictionary[request] = @[appConf];
+        NSString *requestKey = [request description] ?: @"";
+        additionalConfsDictionary[requestKey] = @[appConf];
     }
     
     NSArray *additionalAccountConfs = configurationDictionary[@"additional_account_confs"];
@@ -134,9 +134,17 @@
         NSDictionary *requestDict = additionalConf[@"request"];
         NSDictionary *configurationDict = additionalConf[@"response"];
 
-        MSIDAutomationBaseApiRequest *request = [MSIDTestAutomationAccountConfigurationRequest requestWithDictionary:requestDict];
+        MSIDTestAutomationAccountConfigurationRequest *request = [MSIDTestAutomationAccountConfigurationRequest new];
+        // Set properties from dictionary if available
+        if (requestDict[@"environmentType"]) request.environmentType = requestDict[@"environmentType"];
+        if (requestDict[@"accountType"]) request.accountType = requestDict[@"accountType"];
+        if (requestDict[@"federationProviderType"]) request.federationProviderType = requestDict[@"federationProviderType"];
+        if (requestDict[@"protectionPolicyType"]) request.protectionPolicyType = requestDict[@"protectionPolicyType"];
+        if (requestDict[@"mfaType"]) request.mfaType = requestDict[@"mfaType"];
+        
         MSIDTestAutomationAccount *accountConf = [[MSIDTestAutomationAccount alloc] initWithJSONDictionary:configurationDict error:nil];
-        additionalConfsDictionary[request] = @[accountConf];
+        NSString *requestKey = [request description] ?: @"";
+        additionalConfsDictionary[requestKey] = @[accountConf];
     }
     
     return [self initWithClientCertificateContents:encodedCertificate

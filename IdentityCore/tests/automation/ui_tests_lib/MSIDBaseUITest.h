@@ -25,8 +25,10 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDTestConfigurationProvider.h"
-#import "MSIDTestAutomationApplication.h"
-#import "MSIDTestAutomationAccountConfigurationRequest.h"
+
+@class MSIDTestAutomationApplication;
+@class MSIDTestAutomationAccountConfigurationRequest;
+@class MSIDAutomationBaseApiRequest;
 
 NS_ASSUME_NONNULL_BEGIN
 

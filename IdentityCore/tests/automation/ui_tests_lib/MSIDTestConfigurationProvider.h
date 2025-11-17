@@ -23,12 +23,12 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAutomationTestRequest.h"
-#import "MSIDAutomationOperationAPIRequestHandler.h"
-#import "MSIDAutomationPasswordRequestHandler.h"
-#import "MSIDTestAutomationAppConfigurationRequest.h"
 #import "MSIDTestsConfig.h"
 
 @class MSIDTestAutomationApplication;
+@class MSIDAutomationOperationAPIRequestHandler;
+@class MSIDAutomationPasswordRequestHandler;
+@class MSIDTestAutomationAppConfigurationRequest;
 
 @interface MSIDTestConfigurationProvider : NSObject
 

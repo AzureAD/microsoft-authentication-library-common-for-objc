@@ -24,7 +24,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
 #import "MSIDJsonSerializable.h"
-#import "MSIDTestAutomationAccount.h"
+
+@class MSIDTestAutomationAccount;
 
 typedef NS_ENUM(NSUInteger, MSIDAutomationWPJRegistrationAPIMode)
 {
