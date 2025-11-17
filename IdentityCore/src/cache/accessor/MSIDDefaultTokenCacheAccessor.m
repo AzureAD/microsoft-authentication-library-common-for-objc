@@ -872,16 +872,20 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Error checking FRT enabled status, not using new FRT.");
     }
     
-    MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
+    BOOL result;
     if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
     {
-        credentialType = MSIDBoundRefreshTokenType;
+        result = [self validateAndRemoveRefreshableToken:token
+                                          credentialType:MSIDBoundRefreshTokenType
+                                                 context:context
+                                                   error:error];
     }
     
-    BOOL result = [self validateAndRemoveRefreshableToken:token
-                                           credentialType:credentialType
-                                                  context:context
-                                                    error:error];
+    MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
+    result = [self validateAndRemoveRefreshableToken:token
+                                      credentialType:credentialType
+                                             context:context
+                                               error:error];
     
     // If family refresh token is not enabled, return list of regular refresh tokens
     if (!frtEnabled)
@@ -1369,12 +1373,6 @@
     }
     
     MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
-    
-    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
-    {
-        credentialType = MSIDBoundRefreshTokenType;
-    }
-    
     NSSet<NSString *> *firstSet = [self homeAccountIdsFromRTsWithAuthority:authority
                                                                   clientId:clientId
                                                                   familyId:familyId
@@ -1387,6 +1385,28 @@
     if (!frtEnabled)
     {
         return firstSet;
+    }
+    
+    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
+    {
+        NSSet<NSString *> *bartSet = [self homeAccountIdsFromRTsWithAuthority:authority
+                                                                     clientId:clientId
+                                                                     familyId:familyId
+                                                               credentialType:MSIDBoundRefreshTokenType
+                                                       accountCredentialCache:accountCredentialCache
+                                                                      context:context
+                                                                        error:error];
+        if (bartSet)
+        {
+            [firstSet setByAddingObjectsFromSet:bartSet];
+        }
+        else
+        {
+            if (error)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"(Default accessor) Failed to retrieve homeAccountIds from BARTs: %@", MSID_PII_LOG_MASKABLE(*error));
+            }
+        }
     }
     
     NSSet<NSString *> *secondSet = [self homeAccountIdsFromRTsWithAuthority:authority
