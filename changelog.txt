@@ -1,5 +1,6 @@
 Version 1.17.1
 * Ability to decrypt Bound app refresh token response (#1572)
+* Read Bound app refresh token from server response #1604
 
 Version 1.17.0
 * Add flag to indicate app is requesting broker for Bound app RT #1578
