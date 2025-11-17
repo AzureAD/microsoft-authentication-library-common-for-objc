@@ -134,6 +134,15 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError *__autoreleasing *)error
 {
+    MSIDBoundRefreshToken *boundAppRefreshToken = [self getBoundApplicationRefreshTokenWithAccount:accountIdentifier
+                                                                                          familyId:familyId
+                                                                                     configuration:configuration
+                                                                                           context:context
+                                                                                             error:error];
+    if (boundAppRefreshToken)
+    {
+        return boundAppRefreshToken;
+    }
     NSError *frtError = nil;
     MSIDIsFRTEnabledStatus frtStatus = [_accountCredentialCache checkFRTEnabled:context error:&frtError];
     BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
@@ -153,13 +162,6 @@
 #endif
     
     MSIDCredentialType credentialType = frtEnabled ? MSIDFamilyRefreshTokenType : MSIDRefreshTokenType;
-    
-    MSIDCredentialType defaultRefreshTokenType = MSIDRefreshTokenType;
-    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
-    {
-        defaultRefreshTokenType = MSIDBoundRefreshTokenType;
-        credentialType = defaultRefreshTokenType;
-    }
     MSIDRefreshToken *refreshToken =  [self getRefreshableTokenWithAccount:accountIdentifier
                                                                   familyId:familyId
                                                             credentialType:credentialType
@@ -171,12 +173,11 @@
     
     // If did not find a family refresh token, try to find a regular refresh token.
     // This will happen the first time the app starts using a single family refresh token.
-    if (credentialType == MSIDFamilyRefreshTokenType ||
-       (credentialType == MSIDBoundRefreshTokenType && ![NSString msidIsStringNilOrBlank:refreshToken.familyId]))
+    if (credentialType == MSIDFamilyRefreshTokenType)
     {
         refreshToken =  [self getRefreshableTokenWithAccount:accountIdentifier
                                                     familyId:familyId
-                                              credentialType:defaultRefreshTokenType
+                                              credentialType:MSIDRefreshTokenType
                                                configuration:configuration
                                                      context:context
                                                        error:error];
@@ -199,6 +200,44 @@
         }
     }
 
+    return nil;
+}
+
+/// Get a bound refresh token if available. Returns nil if not found or if feature is disabled.
+- (MSIDBoundRefreshToken *)getBoundApplicationRefreshTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
+                                                             familyId:(NSString *)familyId
+                                                        configuration:(MSIDConfiguration *)configuration
+                                                              context:(id<MSIDRequestContext>)context
+                                                                error:(NSError *__autoreleasing *)error
+{
+    MSIDBoundRefreshToken *boundAppRefreshToken;
+    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
+    {
+        boundAppRefreshToken = (MSIDBoundRefreshToken *)[self getRefreshableTokenWithAccount:accountIdentifier
+                                                                                    familyId:familyId
+                                                                              credentialType:MSIDBoundRefreshTokenType
+                                                                               configuration:configuration
+                                                                                     context:context
+                                                                                       error:error];
+        if (boundAppRefreshToken)
+        {
+            return boundAppRefreshToken;
+        }
+        for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+        {
+            boundAppRefreshToken = (MSIDBoundRefreshToken *)[accessor getRefreshTokenWithAccount:accountIdentifier
+                                                                                        familyId:familyId
+                                                                                   configuration:configuration
+                                                                                         context:context
+                                                                                           error:error];
+            
+            if (boundAppRefreshToken)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) Found Bound app refresh token in a different accessor %@", [accessor class]);
+                return boundAppRefreshToken;
+            }
+        }
+    }
     return nil;
 }
 
