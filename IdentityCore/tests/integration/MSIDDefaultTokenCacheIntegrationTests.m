@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDBartFeatureUtil.h"
 #import "MSIDTestCacheAccessorHelper.h"
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
