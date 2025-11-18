@@ -918,7 +918,7 @@
     if (credentialType != MSIDRefreshTokenType &&
         credentialType != MSIDPrimaryRefreshTokenType &&
         credentialType != MSIDFamilyRefreshTokenType &&
-       (shouldBartBeRemoved && credentialType != MSIDBoundRefreshTokenType))
+        (!shouldBartBeRemoved || credentialType != MSIDBoundRefreshTokenType))
     {
         return NO;
     }
