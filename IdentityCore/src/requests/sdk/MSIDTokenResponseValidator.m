@@ -29,6 +29,7 @@
 #import "MSIDBrokerResponse.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBoundRefreshToken.h"
 #import "MSIDBasicContext.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAccountIdentifier.h"
@@ -262,6 +263,12 @@
         return nil;
     }
     
+    if ([MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT isEqualToString:tokenResponse.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE]] && tokenResponse.boundAppRefreshTokenDeviceId)
+    {
+        tokenResult.refreshToken = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:(MSIDRefreshToken *)tokenResult.refreshToken
+                                                                         boundDeviceId:tokenResponse.boundAppRefreshTokenDeviceId];
+    }
+
     //save metadata
     NSError *authorityError;
     MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&authorityError];

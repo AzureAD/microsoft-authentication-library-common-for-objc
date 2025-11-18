@@ -27,6 +27,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDBaseToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBoundRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
@@ -170,6 +171,10 @@
     BOOL result = [self fillRefreshToken:refreshToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
+    if (refreshToken && [self doesResponseHaveBoundAppRefreshToken:response])
+    {
+        return [[MSIDBoundRefreshToken alloc] initWithRefreshToken:refreshToken boundDeviceId:response.boundAppRefreshTokenDeviceId];
+    }
     return refreshToken;
 }
 
@@ -409,6 +414,13 @@
     metadata.clientId = configuration.clientId;
     metadata.environment = cacheAuthority.environment;
     return YES;
+}
+
+- (BOOL)doesResponseHaveBoundAppRefreshToken:(MSIDTokenResponse *)response
+{
+    return ![NSString msidIsStringNilOrBlank:response.boundAppRefreshTokenDeviceId] &&
+    ([MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT isEqualToString:response.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE]] ||
+                [response.additionalServerInfo[MSID_BART_DEVICE_ID_KEY] length] > 0);
 }
 
 #pragma mark - Webview
