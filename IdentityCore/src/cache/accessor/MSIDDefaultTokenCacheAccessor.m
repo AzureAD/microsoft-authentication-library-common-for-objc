@@ -306,7 +306,7 @@
     if (credentialType != MSIDRefreshTokenType &&
         credentialType != MSIDPrimaryRefreshTokenType &&
         credentialType != MSIDFamilyRefreshTokenType &&
-        (shouldQueryBarts && credentialType != MSIDBoundRefreshTokenType))
+        (!shouldQueryBarts || credentialType != MSIDBoundRefreshTokenType))
     {
         return nil;
     }
