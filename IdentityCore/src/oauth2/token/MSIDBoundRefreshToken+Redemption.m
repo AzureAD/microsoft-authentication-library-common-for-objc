@@ -63,6 +63,7 @@
     SecKeyRef publicTransportKeyRef = SecKeyCopyPublicKey(workplacejoinData.privateTransportKeyRef);
     MSIDEcdhApv *ecdhPartyVInfoData = [[MSIDEcdhApv alloc] initWithKey:publicTransportKeyRef
                                                              apvPrefix:MSID_MSAL_CLIENT_APV_PREFIX
+                                                     customClientNonce:nil
                                                                context:context
                                                                  error:error];
     if (!ecdhPartyVInfoData)
