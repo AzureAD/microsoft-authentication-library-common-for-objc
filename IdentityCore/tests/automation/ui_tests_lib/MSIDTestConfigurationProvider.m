@@ -149,7 +149,7 @@
                                      defaultScopes:configurationDictionary[@"scopes"]
                                   defaultResources:configurationDictionary[@"resources"]
                                   operationAPIConf:configurationDictionary[@"operation_api_conf"]
-                              functionAppAPIConf:configurationDictionary[@"function_app_api_code"]
+                              functionAppAPIConf:configurationDictionary[@"function_app_api_url"]
                                          jitConfig:configurationDictionary[@"jit_intune_ids"]];
 
 }

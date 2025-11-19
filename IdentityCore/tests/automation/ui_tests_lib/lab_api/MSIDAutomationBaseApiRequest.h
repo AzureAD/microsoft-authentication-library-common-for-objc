@@ -28,8 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDAutomationBaseApiRequest : NSObject <NSCopying>
 
 - (NSURL *)requestURLWithAPIPath:(NSString *)apiPath;
-- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath functionCode:(NSString *)functionCode;
-- (NSString * _Nullable)functionAppCodeKey;
 + (MSIDAutomationBaseApiRequest *)requestWithDictionary:(NSDictionary *)dictionary;
 - (NSString *)httpMethod;
 - (BOOL)shouldCacheResponse;
