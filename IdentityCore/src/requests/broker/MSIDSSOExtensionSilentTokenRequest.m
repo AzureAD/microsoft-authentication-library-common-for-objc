@@ -31,6 +31,7 @@
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
+#import "MSIDGCDStarvationDetector.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -39,6 +40,8 @@
 @property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic) MSIDGCDStarvationDetector *gcdStarvationDetector;
+@property (nonatomic) BOOL allowThreadStarvationMonitoring;
 
 @end
 
@@ -63,9 +66,26 @@
                          extendedTokenCache:extendedTokenCache];
     if (self)
     {
+        _gcdStarvationDetector = [MSIDGCDStarvationDetector new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
-        _extensionDelegate.completionBlock = [super getCompletionBlock];
+        _allowThreadStarvationMonitoring = parameters.allowThreadStarvationMonitoring;
+        MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock = [super getCompletionBlock];
+        if (_allowThreadStarvationMonitoring)
+        {
+            __weak typeof(self) weakSelf = self;
+            _extensionDelegate.completionBlock = ^(_Nullable id response, NSError  * _Nullable error) {
+                typeof(self) strongSelf = weakSelf;
+                if (!strongSelf) return;
+                NSTimeInterval gcdStarvedDuration = [strongSelf.gcdStarvationDetector stopMonitoring];
+                NSLog(@"kai: GCD starvation is %f", gcdStarvedDuration);
+                if (completionBlock) completionBlock(response, error);
+            };
+        }
+        else
+        {
+            _extensionDelegate.completionBlock = [super getCompletionBlock];
+        }
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
     }
 
@@ -94,6 +114,10 @@
     
     self.requestCompletionBlock = completionBlock;
     [self.authorizationController msidPerformRequests];
+    if (self.allowThreadStarvationMonitoring)
+    {
+        [self.gcdStarvationDetector startMonitoring];
+    }
 }
 
 @end
