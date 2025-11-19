@@ -27,6 +27,11 @@
 
 #pragma mark - Lab Request
 
+- (NSString *)functionAppCodeKey
+{
+    return @"reset_api_code";
+}
+
 - (NSString *)requestOperationPath
 {
     return @"Reset";
@@ -34,7 +39,7 @@
 
 - (NSString *)httpMethod
 {
-    return @"PUT";
+    return @"POST";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems

@@ -54,6 +54,17 @@
                   clientCredential:(NSString *)clientCredential
                  completionHandler:(void (^)(NSString *, NSError *))completionHandler
 {
+    // Validate required parameters
+    if (!authority || !resource || !clientId || !clientCredential)
+    {
+        if (completionHandler)
+        {
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing required parameters for client credential flow.", nil, nil, nil, nil, nil, YES);
+            completionHandler(nil, error);
+        }
+        return;
+    }
+    
     MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authority]
                                                                                   clientId:clientId
                                                                                   resource:resource
@@ -91,6 +102,17 @@
                certificatePassword:(NSString *)password
                  completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler
 {
+    // Validate required parameters
+    if (!authorityString || !resource || !clientId || !certificateData || !password)
+    {
+        if (completionHandler)
+        {
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing required parameters for certificate-based client credential flow.", nil, nil, nil, nil, nil, YES);
+            completionHandler(nil, error);
+        }
+        return;
+    }
+    
     MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authorityString]
                                                                                   clientId:clientId
                                                                                   resource:resource
@@ -328,4 +350,3 @@
 }
 
 @end
-
