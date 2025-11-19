@@ -535,6 +535,7 @@
 		2A0278912D6E3216005655B4 /* MSIDAADTokenRequestServerTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A0278902D6E3216005655B4 /* MSIDAADTokenRequestServerTelemetryTests.m */; };
 		2A0278922D6E3216005655B4 /* MSIDAADTokenRequestServerTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A0278902D6E3216005655B4 /* MSIDAADTokenRequestServerTelemetryTests.m */; };
 		2A0278A32D6E3787005655B4 /* MSIDLastRequestTelemetry+Tests.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A0278A22D6E3787005655B4 /* MSIDLastRequestTelemetry+Tests.h */; };
+		2A1CBC892ECE5F6E00D2E6BB /* MSIDGCDStarvationDetector.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A886D6C2ECBE3D600675D31 /* MSIDGCDStarvationDetector.h */; };
 		2A24814D2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */; };
 		2A24814E2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A24814B2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h */; };
 		2A24814F2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A24814C2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.m */; };
@@ -559,7 +560,6 @@
 		2A59B4442D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A59B4412D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.h */; };
 		2A59B4452D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B4422D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m */; };
 		2A886D6E2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */; };
-		2A886D6F2ECBE3D600675D31 /* MSIDGCDStarvationDetector.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A886D6C2ECBE3D600675D31 /* MSIDGCDStarvationDetector.h */; };
 		2A886D702ECBE3D600675D31 /* MSIDGCDStarvationDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */; };
 		2AADDAC72DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */; };
 		2AADDAC82DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */; };
@@ -4199,15 +4199,6 @@
 			path = claims;
 			sourceTree = "<group>";
 		};
-		2A886D6B2ECBE32900675D31 /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				2A886D6C2ECBE3D600675D31 /* MSIDGCDStarvationDetector.h */,
-				2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */,
-			);
-			path = ios;
-			sourceTree = "<group>";
-		};
 		2A953DF62DA45A9700A748BA /* mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -5297,7 +5288,8 @@
 		B2C7087F2198DE0000D917B8 /* broker */ = {
 			isa = PBXGroup;
 			children = (
-				2A886D6B2ECBE32900675D31 /* ios */,
+				2A886D6C2ECBE3D600675D31 /* MSIDGCDStarvationDetector.h */,
+				2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */,
 				2A953DF72DA45B3100A748BA /* mac */,
 				B2C708812198DE0000D917B8 /* MSIDBrokerKeyProvider.h */,
 				B2C708822198DE0000D917B8 /* MSIDBrokerKeyProvider.m */,
@@ -6529,7 +6521,7 @@
 				B286B9C52389DE78007833AD /* MSIDAccountMetadata.h in Headers */,
 				B2F671E32467A30400649855 /* MSIDInteractiveAuthorizationCodeRequest.h in Headers */,
 				1E707FE02407336300716148 /* MSIDBrokerBrowserOperationResponse.h in Headers */,
-				2A886D6F2ECBE3D600675D31 /* MSIDGCDStarvationDetector.h in Headers */,
+				2A1CBC892ECE5F6E00D2E6BB /* MSIDGCDStarvationDetector.h in Headers */,
 				B4A5ACCD21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h in Headers */,
 				F7AB29D8B906BEA5B6EB8F8C /* MSIDWPJMetadata.h in Headers */,
 			);
