@@ -27,11 +27,6 @@
 
 #pragma mark - Lab Request
 
-- (NSString *)functionAppCodeKey
-{
-    return @"delete_device_api_code";
-}
-
 - (NSString *)requestOperationPath
 {
     return @"DeleteDevice";

@@ -27,11 +27,6 @@
 
 #pragma mark - Lab Request
 
-- (NSString *)functionAppCodeKey
-{
-    return @"reset_api_code";
-}
-
 - (NSString *)requestOperationPath
 {
     return @"Reset";
