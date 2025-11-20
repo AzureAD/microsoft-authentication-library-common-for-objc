@@ -76,7 +76,7 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
 
 - (void)monitorLoop {
     @autoreleasepool {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCD starvation monitor started on thread: %@", [NSThread currentThread]);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- started on thread: %@", [NSThread currentThread]);
         
         while (YES) {
             if (self.shouldStop || [NSThread currentThread].isCancelled) {
@@ -85,7 +85,7 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
 
             NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:self.monitoringStartTime];
             if (elapsed >= maxMonitoringDuration) {
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"GCD starvation monitor reached maximum duration (%.2fs), stopping", elapsed);
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"GCDStarvationDetector -- reached maximum duration (%.2fs), stopping", elapsed);
                 [self stopMonitoring];
                 break;
             }
@@ -96,14 +96,14 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
                 if (starved) {
                     self.gcdStarvedDuration += (threadingTimeout + threadingPingInterval);
                     self.starvedPingCount += 1;
-                    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"GCD thread pool starvation detected, cumulative duration: %.2fms", self.gcdStarvedDuration * 1000);
+                    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"GCDStarvationDetector -- starvation detected, cumulative duration: %.2fms", self.gcdStarvedDuration * 1000);
                 }
             }
             
             [NSThread sleepForTimeInterval:threadingPingInterval];
         }
         
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCD starvation monitor stopped on thread: %@", [NSThread currentThread]);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- stopped on thread: %@", [NSThread currentThread]);
     }
 }
 
