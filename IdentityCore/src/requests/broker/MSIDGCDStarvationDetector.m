@@ -25,8 +25,8 @@
 #import "MSIDGCDStarvationDetector.h"
 #import "MSIDLogger+Internal.h"
 
-static NSTimeInterval threadingTimeout = 0.01; //10 ms - timeout for detecting if GCD thread pool is starved
-static NSTimeInterval threadingPingInterval = 0.1; //100 ms - interval between starvation checks
+static NSTimeInterval starvationCheckTimeout = 0.01; //10 ms - timeout for detecting if GCD thread pool is starved
+static NSTimeInterval starvationCheckInterval = 0.1; //100 ms - interval between starvation checks
 static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monitoring duration to prevent indefinite running
 
 @interface MSIDGCDStarvationDetector()
@@ -91,16 +91,16 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
             }
 
             @synchronized (self) {
-                BOOL starved = [self isThreadStarvedWithTimeout:threadingTimeout];
+                BOOL starved = [self isThreadStarvedWithTimeout:starvationCheckTimeout];
                 self.totalPingCount += 1;
                 if (starved) {
-                    self.gcdStarvedDuration += (threadingTimeout + threadingPingInterval);
+                    self.gcdStarvedDuration += (starvationCheckTimeout + starvationCheckInterval);
                     self.starvedPingCount += 1;
                     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"GCDStarvationDetector -- starvation detected, cumulative duration: %.2fms", self.gcdStarvedDuration * 1000);
                 }
             }
             
-            [NSThread sleepForTimeInterval:threadingPingInterval];
+            [NSThread sleepForTimeInterval:starvationCheckInterval];
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- stopped on thread: %@", [NSThread currentThread]);
@@ -112,7 +112,7 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
 
     // The "ping" — will only execute if GCD has an available worker in qos
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-        // No need for starved variable - semaphore result is sufficient
+        // Signal the semaphore when a GCD worker thread becomes available
         dispatch_semaphore_signal(sema);
     });
 

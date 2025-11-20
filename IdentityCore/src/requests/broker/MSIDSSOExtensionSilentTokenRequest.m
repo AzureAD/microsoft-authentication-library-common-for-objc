@@ -127,8 +127,8 @@
 
 - (BOOL)isThreadStarvationMonitoringEnabled
 {
-    BOOL allowThreadStarvationMonitoring = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_THREAD_STARVATION];
-    return self.allowThreadStarvationMonitoring && allowThreadStarvationMonitoring;
+    BOOL threadStarvationMonitoringEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_THREAD_STARVATION];
+    return self.allowThreadStarvationMonitoring && threadStarvationMonitoringEnabled;
 }
 
 @end
