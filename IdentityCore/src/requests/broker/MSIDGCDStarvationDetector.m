@@ -28,6 +28,7 @@
 
 static NSTimeInterval threadingTimeout = 0.01; //10 ms
 static NSTimeInterval threadingPingInterval = 0.1; //100 ms
+static NSTimeInterval maxMonitoringDuration = 10.0; //10 seconds
 
 @interface MSIDGCDStarvationDetector()
 
@@ -37,6 +38,7 @@ static NSTimeInterval threadingPingInterval = 0.1; //100 ms
 @property (nonatomic) NSTimeInterval gcdStarvedDuration;
 @property (nonatomic) NSInteger totalPingCount;
 @property (nonatomic) NSInteger starvedPingCount;
+@property (nonatomic) NSDate *monitoringStartTime;
 
 @end
 
@@ -51,6 +53,7 @@ static NSTimeInterval threadingPingInterval = 0.1; //100 ms
         if (self.running) return;
 
         self.shouldStop = NO;
+        self.monitoringStartTime = [NSDate date];
         _monitorThread = [[NSThread alloc] initWithTarget:self
                                                  selector:@selector(monitorLoop)
                                                    object:nil];
@@ -61,21 +64,11 @@ static NSTimeInterval threadingPingInterval = 0.1; //100 ms
 }
 
 - (NSTimeInterval)stopMonitoring {
-    NSThread *threadToWait = nil;
     @synchronized (self) {
         self.shouldStop = YES;
-        threadToWait = self.monitorThread;
-        if (threadToWait) {
-            [threadToWait cancel];
+        if (self.monitorThread) {
+            [self.monitorThread cancel];
         }
-    }
-    // Wait for the thread to finish before cleanup, outside the lock
-    if (threadToWait) {
-        while (!threadToWait.isFinished) {
-            [NSThread sleepForTimeInterval:0.01];
-        }
-    }
-    @synchronized (self) {
         self.monitorThread = nil;
         self.running = NO;
         return self.gcdStarvedDuration;
@@ -90,11 +83,17 @@ static NSTimeInterval threadingPingInterval = 0.1; //100 ms
             if (self.shouldStop || [NSThread currentThread].isCancelled) {
                 break;
             }
+
+            NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:self.monitoringStartTime];
+            if (elapsed >= maxMonitoringDuration) {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"GCD starvation monitor reached maximum duration (%.2fs), stopping", elapsed);
+                [self stopMonitoring];
+                break;
+            }
+
             @synchronized (self) {
                 BOOL starved = [self isThreadStarvedWithTimeout:threadingTimeout];
                 self.totalPingCount += 1;
-           
-                
                 if (starved) {
                     self.gcdStarvedDuration += (threadingTimeout + threadingPingInterval);
                     self.starvedPingCount += 1;
