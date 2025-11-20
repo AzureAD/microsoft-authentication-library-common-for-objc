@@ -28,7 +28,7 @@
 
 static NSTimeInterval threadingTimeout = 0.01; //10 ms
 static NSTimeInterval threadingPingInterval = 0.1; //100 ms
-static NSTimeInterval maxMonitoringDuration = 10.0; //10 seconds
+static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds
 
 @interface MSIDGCDStarvationDetector()
 
