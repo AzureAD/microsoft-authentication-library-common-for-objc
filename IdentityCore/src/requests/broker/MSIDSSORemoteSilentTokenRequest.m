@@ -127,7 +127,7 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
                             }
                         }
                         
-                        [result insertBrokerMetaData:@(self.gcdStarvedDuration) forKey:MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION];
+                        [result insertBrokerMetaData:@(innerStrongSelf.gcdStarvedDuration) forKey:MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION];
                         if (completionBlock) completionBlock(result, localError);
                     }];
                 }
