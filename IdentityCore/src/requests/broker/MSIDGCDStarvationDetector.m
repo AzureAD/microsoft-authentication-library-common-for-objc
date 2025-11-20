@@ -25,10 +25,9 @@
 #import "MSIDGCDStarvationDetector.h"
 #import "MSIDLogger+Internal.h"
 
-
-static NSTimeInterval threadingTimeout = 0.01; //10 ms
-static NSTimeInterval threadingPingInterval = 0.1; //100 ms
-static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds
+static NSTimeInterval threadingTimeout = 0.01; //10 ms - timeout for detecting if GCD thread pool is starved
+static NSTimeInterval threadingPingInterval = 0.1; //100 ms - interval between starvation checks
+static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monitoring duration to prevent indefinite running
 
 @interface MSIDGCDStarvationDetector()
 

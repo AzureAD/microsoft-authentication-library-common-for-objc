@@ -42,12 +42,13 @@
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @property (nonatomic) MSIDGCDStarvationDetector *gcdStarvationDetector;
 @property (nonatomic) BOOL allowThreadStarvationMonitoring;
+@property (nonatomic) NSTimeInterval gcdStarvedDuration;
 
 @end
 
 @implementation MSIDSSOExtensionSilentTokenRequest
 
-@synthesize requestCompletionBlock, operationRequest;
+@synthesize requestCompletionBlock, operationRequest, gcdStarvedDuration;
 
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
                              forceRefresh:(BOOL)forceRefresh
@@ -77,14 +78,13 @@
             _extensionDelegate.completionBlock = ^(_Nullable id response, NSError  * _Nullable error) {
                 typeof(self) strongSelf = weakSelf;
                 if (!strongSelf) return;
-                NSTimeInterval gcdStarvedDuration = [strongSelf.gcdStarvationDetector stopMonitoring];
-                NSLog(@"kai: GCD starvation is %f", gcdStarvedDuration);
+                strongSelf.gcdStarvedDuration = [strongSelf.gcdStarvationDetector stopMonitoring];
                 if (completionBlock) completionBlock(response, error);
             };
         }
         else
         {
-            _extensionDelegate.completionBlock = [super getCompletionBlock];
+            _extensionDelegate.completionBlock = completionBlock;
         }
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
     }
