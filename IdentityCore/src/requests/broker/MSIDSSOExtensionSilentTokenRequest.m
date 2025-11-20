@@ -32,6 +32,7 @@
 #import "NSDictionary+MSIDQueryItems.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
 #import "MSIDGCDStarvationDetector.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -67,18 +68,22 @@
                          extendedTokenCache:extendedTokenCache];
     if (self)
     {
-        _gcdStarvationDetector = [MSIDGCDStarvationDetector new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         _allowThreadStarvationMonitoring = parameters.allowThreadStarvationMonitoring;
         MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock = [super getCompletionBlock];
-        if (_allowThreadStarvationMonitoring)
+        if ([self isThreadStarvationMonitoringEnabled])
         {
+            _gcdStarvationDetector = [MSIDGCDStarvationDetector new];
             __weak typeof(self) weakSelf = self;
             _extensionDelegate.completionBlock = ^(_Nullable id response, NSError  * _Nullable error) {
                 typeof(self) strongSelf = weakSelf;
                 if (!strongSelf) return;
-                strongSelf.gcdStarvedDuration = [strongSelf.gcdStarvationDetector stopMonitoring];
+                if (strongSelf.gcdStarvationDetector)
+                {
+                    strongSelf.gcdStarvedDuration = [strongSelf.gcdStarvationDetector stopMonitoring];
+                }
+                
                 if (completionBlock) completionBlock(response, error);
             };
         }
@@ -114,10 +119,16 @@
     
     self.requestCompletionBlock = completionBlock;
     [self.authorizationController msidPerformRequests];
-    if (self.allowThreadStarvationMonitoring)
+    if ([self isThreadStarvationMonitoringEnabled])
     {
         [self.gcdStarvationDetector startMonitoring];
     }
+}
+
+- (BOOL)isThreadStarvationMonitoringEnabled
+{
+    BOOL allowThreadStarvationMonitoring = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_THREAD_STARVATION];
+    return self.allowThreadStarvationMonitoring && allowThreadStarvationMonitoring;
 }
 
 @end

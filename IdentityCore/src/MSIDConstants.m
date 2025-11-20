@@ -102,5 +102,7 @@ NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_msal_bart_supported";
 
 NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 
+NSString *const MSID_FLIGHT_ENABLE_THREAD_STARVATION = @"enable_thread_starvation";
+
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
