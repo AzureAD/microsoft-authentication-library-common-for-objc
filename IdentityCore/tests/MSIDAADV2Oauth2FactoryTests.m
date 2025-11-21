@@ -550,7 +550,7 @@
 }
 
 #pragma mark - MSIDAADV2Oauth2Factory.boundRefreshTokenRequestWithRequestParameters Tests
-
+#if TARGET_OS_IPHONE
 - (void)testBoundRefreshTokenGrantRequest_whenNilBoundRefreshToken_shouldReturnNil
 {
     MSIDAADV2Oauth2Factory *aadv2TokenFactory = [[MSIDAADV2Oauth2Factory alloc] init];
@@ -754,7 +754,7 @@
         XCTAssertTrue(result == errSecSuccess || result == errSecItemNotFound);
     }
 }
-
+#endif
 
 @end
 
