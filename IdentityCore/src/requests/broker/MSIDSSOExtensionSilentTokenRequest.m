@@ -130,9 +130,8 @@
 #if DEBUG
     return YES;
 #else
-    BOOL threadStarvationMonitoringEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_THREAD_STARVATION];
-    return self.allowThreadStarvationMonitoring && threadStarvationMonitoringEnabled;
-#endif    
+    return self.allowThreadStarvationMonitoring && [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_THREAD_STARVATION];
+#endif
 }
 
 @end
