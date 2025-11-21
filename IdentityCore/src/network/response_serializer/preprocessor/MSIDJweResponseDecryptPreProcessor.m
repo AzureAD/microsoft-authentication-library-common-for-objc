@@ -84,6 +84,7 @@
                                  context:(nullable id<MSIDRequestContext>)context
                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
+    // Use the existing decryption method to process the response data.
     return nil;
 }
 

@@ -496,6 +496,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     if (refreshToken.credentialType == MSIDBoundRefreshTokenType)
     {
         MSIDBoundRefreshToken *boundRT = (MSIDBoundRefreshToken *)refreshToken;
+        // We will always use AADV2 factory to create bound refresh token request
         MSIDAADV2Oauth2Factory *aadv2TokenFactory = [[MSIDAADV2Oauth2Factory alloc] init];
         NSError *boundAppRtRequestError;
         tokenRequest = [aadv2TokenFactory boundRefreshTokenRequestWithRequestParameters:self.requestParameters

@@ -40,8 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
 // Audience (token endpoint URL) for the bound refresh token redemption request
 @property (nonatomic, copy) NSString *audience;
 
+// Additional claims to include in the bound refresh token redemption request payload.
+// This dictionary allows specifying custom key-value pairs to be added to the request.
 @property (nonatomic, copy, nullable) NSDictionary *extraPayloadClaims;
 
+// Workplace Join information containing the key pair and certificate used for device registration.
 @property (nonatomic, readonly, nullable) MSIDWPJKeyPairWithCert *workplaceJoinInfo;
 
 

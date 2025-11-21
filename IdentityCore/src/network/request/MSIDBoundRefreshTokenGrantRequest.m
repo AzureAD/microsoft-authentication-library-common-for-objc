@@ -82,7 +82,7 @@
                                                             authorityEndpoint:endpoint
                                                                        scopes:scopes
                                                                         nonce:@""
-                                                             extraPayloadClaims:extraParameters
+                                                             extraPayloadClaims:nil
                                                              workplaceJoinInfo:workplacejoinData];
 
         MSIDJWECrypto *jweCrypto;
@@ -107,8 +107,14 @@
 
         NSMutableDictionary *requestParameters = [NSMutableDictionary new];
         requestParameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
-        requestParameters[MSID_OAUTH2_CLAIMS] = claims;
-        requestParameters[MSID_ENROLLMENT_ID] = enrollmentId;
+        if (claims)
+        {
+            requestParameters[MSID_OAUTH2_CLAIMS] = claims;
+        }
+        if (enrollmentId)
+        {
+            requestParameters[MSID_ENROLLMENT_ID] = enrollmentId;
+        }
         requestParameters[MSID_OAUTH2_GRANT_TYPE] = @"urn:ietf:params:oauth:grant-type:jwt-bearer";
         requestParameters[@"request"] = jwt;
 

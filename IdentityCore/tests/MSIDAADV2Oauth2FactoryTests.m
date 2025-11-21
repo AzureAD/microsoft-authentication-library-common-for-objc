@@ -715,8 +715,8 @@
     NSString *deviceKeyTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, tenantId, @"-EC"];
     NSString *transportKeyTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantId, @"-EC"];
     
-    MSIDTestSecureEnclaveKeyPairGenerator *stkkeygen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:accessGroup useSecureEnclave:YES applicationTag:deviceKeyTag];
-    MSIDTestSecureEnclaveKeyPairGenerator *dkkeygen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:accessGroup useSecureEnclave:YES applicationTag:transportKeyTag];
+    MSIDTestSecureEnclaveKeyPairGenerator *stkkeygen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:accessGroup useSecureEnclave:YES applicationTag:transportKeyTag];
+    MSIDTestSecureEnclaveKeyPairGenerator *dkkeygen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:accessGroup useSecureEnclave:YES applicationTag:deviceKeyTag];
     self.privateDk = dkkeygen.eccPrivateKey;
     self.privateStk = stkkeygen.eccPrivateKey;
     if (self.privateDk)

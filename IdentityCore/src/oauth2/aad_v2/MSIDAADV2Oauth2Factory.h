@@ -24,12 +24,24 @@
 #import "MSIDAADOauth2Factory.h"
 @class MSIDBoundRefreshToken;
 @class MSIDRequestParameters;
-@class MSIDAADV1RefreshTokenGrantRequest;
+@class MSIDAADRefreshTokenGrantRequest;
 
 @interface MSIDAADV2Oauth2Factory : MSIDAADOauth2Factory
 
-- (MSIDAADV1RefreshTokenGrantRequest *)boundRefreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                                        refreshToken:(MSIDBoundRefreshToken *)refreshToken
-                                                                      requestContext:(id<MSIDRequestContext>)context                                                                                        error:(NSError **)error;
+///
+/// Creates and returns a refresh token grant request using the provided request parameters and bound refresh token.
+///
+/// @param parameters The request parameters containing information such as client ID, scopes, and authority.
+/// @param refreshToken The bound refresh token to be used for the grant request.
+/// @param context The request context for logging and telemetry purposes.
+/// @param error Pointer to an NSError object that will be set if an error occurs during request creation.
+
+/// @return An instance of MSIDAADRefreshTokenGrantRequest if the request is successfully created, or nil if an error occurs.
+
+/// @discussion This method constructs a refresh token grant request for AAD v2 endpoint using a bound refresh token. If the request cannot be created, the error parameter will be set with the appropriate error information.
+- (MSIDAADRefreshTokenGrantRequest *)boundRefreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                      refreshToken:(MSIDBoundRefreshToken *)refreshToken
+                                                                    requestContext:(id<MSIDRequestContext>)context
+                                                                             error:(NSError **)error;
 
 @end

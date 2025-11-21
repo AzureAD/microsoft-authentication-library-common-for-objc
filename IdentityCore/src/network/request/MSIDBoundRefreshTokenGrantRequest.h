@@ -35,6 +35,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) MSIDJWECrypto *jweCrypto;
 @property (nonatomic, readonly) MSIDWPJKeyPairWithCert *wpjInfo;
 
+
+/// Initializer for a BART redemption grant request.
+/// - Parameters:
+///   - endpoint: The endpoint URL to which the request will be sent. Typically /token endpoint
+///   - authScheme: The authScheme
+///   - clientId: Application ID of the client app
+///   - scope: Scopes for which BART should be used to obtain access tokens.
+///   - boundRefreshToken: Bound App Refresh Token
+///   - redirectUri: Redirect URI of the client app
+///   - enrollmentId: Microsoft intune enrollment ID
+///   - claims: claims request for tokens in response
+///   - extraParameters: Extra params added to request's form
+///   - ssoContext: SSO Context
+///   - context: Context for the request
+///   - error: Error out parameter
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
                                  authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                    clientId:(nonnull NSString *)clientId
@@ -48,6 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     context:(nullable id<MSIDRequestContext>)context
                                       error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
+/// Adds the decryption preprocessor to the response serializer using the provided decryption key.
 - (void)configureDecryptionPreProcessorUsingKey;
 @end
 #endif

@@ -25,12 +25,18 @@
 #import "MSIDJWECrypto.h"
 #import "MSIDResponseSerialization.h"
 NS_ASSUME_NONNULL_BEGIN
+/// A Preprocessor that decrypts JWE responses using the provided decryption key and JWE crypto helper.
 @interface MSIDJweResponseDecryptPreProcessor : NSObject <MSIDResponseSerialization>
 
 @property (nonatomic, nonnull) SecKeyRef decryptionKey;
 @property (nonatomic, nonnull) MSIDJWECrypto *jweCrypto;
 @property (nonatomic, nullable) NSDictionary *additionalResponseClaims;
 
+/// JWE decrypt pre processor
+/// - Parameters:
+///   - decryptionKey: Key to decrypt JWE response with
+///   - jweCrypto: JWE crypto containing the required crypto details to decrypt JWE
+///   - additionalResponseClaims: Additional claims to be added to the decrypted response
 - (instancetype _Nonnull )initWithDecryptionKey:(SecKeyRef _Nonnull )decryptionKey
                                       jweCrypto:(MSIDJWECrypto *_Nonnull)jweCrypto
                        additionalResponseClaims:(NSDictionary *)additionalResponseClaims;

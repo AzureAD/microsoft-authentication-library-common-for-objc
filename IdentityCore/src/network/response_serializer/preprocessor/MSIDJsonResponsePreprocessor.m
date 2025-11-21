@@ -51,6 +51,7 @@
                     NSString *errorDescription = @"Failed to decrypt JWE response data.";
                     *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, errorDescription, nil, nil, nil, context.correlationId, nil, NO);
                 }
+                return nil;
             }
         }
         
