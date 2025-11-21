@@ -24,20 +24,21 @@
 
 #import "MSIDBoundRefreshToken.h"
 #import "MSIDBoundRefreshTokenRedemptionParameters.h"
+#import "MSIDJWECrypto.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBoundRefreshToken (Redemption)
 /*!
     @brief For specified tenant ID, get a signed JWT request to redeem this bound refresh token. Tenant ID is used to query registration and match device ID from it to this bound refresh token.
     @param tenantId The tenant ID that will be used to query the device registration.
-    @param jweCrypto Optional dictionary to receive JWE crypto information. It will be also part of the resulting JWT's payload.
+    @param jweCrypto Optional object to receive JWE crypto information. It will be also part of the resulting JWT's payload.
     @param error Pointer to an NSError object that will be set if an error occurs.
     @return A JWT string for token redemption, or nil if an error occurs.
 */
 - (NSString *) getTokenRedemptionJwtForTenantId: (nullable NSString *)tenantId
                       tokenRedemptionParameters: (MSIDBoundRefreshTokenRedemptionParameters *)requestParameters
                                         context:(id<MSIDRequestContext> _Nullable)context
-                                      jweCrypto: (NSDictionary *__nonnull *__nonnull)jweCrypto
+                                      jweCrypto: (MSIDJWECrypto *__nonnull *__nonnull)jweCrypto
                                           error: (NSError *__nonnull __autoreleasing *__nonnull)error;
 @end
 NS_ASSUME_NONNULL_END

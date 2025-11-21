@@ -33,6 +33,27 @@
     id jsonObject;
     if (data)
     {
+        if (self.jweDecryptPreProcessor)
+        {
+            // Decrypt JWE first and assign jsonObject
+            jsonObject = [self.jweDecryptPreProcessor decryptJweResponseData:data
+                                                                   jweCrypto:self.jweDecryptPreProcessor.jweCrypto
+                                                                     context:context
+                                                                       error:error];
+            if (jsonObject)
+            {
+                return jsonObject;
+            }
+            else
+            {
+                if (error)
+                {
+                    NSString *errorDescription = @"Failed to decrypt JWE response data.";
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, errorDescription, nil, nil, nil, context.correlationId, nil, NO);
+                }
+            }
+        }
+        
         jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:error];
     }
     

@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,47 +20,25 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDRegistrationInformationMock.h"
+#import "MSIDJWECrypto.h"
+#import "MSIDResponseSerialization.h"
+NS_ASSUME_NONNULL_BEGIN
+@interface MSIDJweResponseDecryptPreProcessor : NSObject <MSIDResponseSerialization>
 
-@implementation MSIDRegistrationInformationMock
+@property (nonatomic, nonnull) SecKeyRef decryptionKey;
+@property (nonatomic, nonnull) MSIDJWECrypto *jweCrypto;
+@property (nonatomic, nullable) NSDictionary *additionalResponseClaims;
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
-    }
-    return self;
-}
+- (instancetype _Nonnull )initWithDecryptionKey:(SecKeyRef _Nonnull )decryptionKey
+                                      jweCrypto:(MSIDJWECrypto *_Nonnull)jweCrypto
+                       additionalResponseClaims:(NSDictionary *)additionalResponseClaims;
 
-- (void)setPrivateKey:(SecKeyRef)privateKey
-{
-    _privateKeyRef = privateKey;
-}
-
-- (void)setPrivateTransportKey:(SecKeyRef)privateTransportKey
-{
-    _privateTransportKeyRef = privateTransportKey;
-}
-
-- (void)setCertificateSubject:(NSString *)certificateSubject
-{
-    _certificateSubject = certificateSubject;
-}
-
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
-}
-
+- (nullable NSDictionary *)decryptJweResponseData:(NSData *_Nonnull)responseData
+                                        jweCrypto:(MSIDJWECrypto *_Nonnull)jweCrypto
+                                          context:(id <MSIDRequestContext>_Nullable)context
+                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 @end
+NS_ASSUME_NONNULL_END
+

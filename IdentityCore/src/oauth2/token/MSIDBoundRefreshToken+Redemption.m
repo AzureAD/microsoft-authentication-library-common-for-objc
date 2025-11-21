@@ -24,7 +24,6 @@
 
 #import "MSIDBoundRefreshToken.h"
 #import "MSIDBoundRefreshToken+Redemption.h"
-#import "MSIDWorkplaceJoinUtil.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDJweCrypto.h"
 #import "MSIDEcdhApv.h"
@@ -39,7 +38,7 @@
 - (NSString *)getTokenRedemptionJwtForTenantId:(nullable NSString *)tenantId
                      tokenRedemptionParameters:(MSIDBoundRefreshTokenRedemptionParameters *) requestParameters
                                        context:(id<MSIDRequestContext> _Nullable)context
-                                     jweCrypto:(NSDictionary * __autoreleasing *)jweCrypto
+                                     jweCrypto:(MSIDJWECrypto * __autoreleasing *)jweCrypto
                                          error:(NSError * __autoreleasing *)error
 {
     if (![self validateRequestParameters:requestParameters context:context error:error])
@@ -54,7 +53,10 @@
         return nil;
     }
     
-    MSIDWPJKeyPairWithCert *workplacejoinData = [self getWorkplaceJoinDataAndValidateForTenantId:tenantId context:context error:error];
+    MSIDWPJKeyPairWithCert *workplacejoinData = requestParameters.workplaceJoinInfo;
+    
+    // Check workplacejoin data validity and if registration device id matches the Bound RT's deviceId
+    workplacejoinData = [self validateWorkplaceJoinData:workplacejoinData context:context error:error];
     if (!workplacejoinData)
     {
         return nil;
@@ -94,7 +96,7 @@
     }
     
     if (jweCrypto)
-        *jweCrypto = [jweCryptoObj.jweCryptoDictionary copy];
+        *jweCrypto = jweCryptoObj;
     
     NSMutableDictionary *jwtPayload = [requestParameters jsonDictionary];
     [jwtPayload setObject:self.refreshToken forKey:MSID_OAUTH2_REFRESH_TOKEN];
@@ -156,11 +158,10 @@
     return YES;
 }
 
-- (MSIDWPJKeyPairWithCert *)getWorkplaceJoinDataAndValidateForTenantId:(NSString *)tenantId
-                                                               context:(id<MSIDRequestContext>)context
-                                                                 error:(NSError *__autoreleasing * _Nullable)error
+- (MSIDWPJKeyPairWithCert *)validateWorkplaceJoinData:(MSIDWPJKeyPairWithCert *)workplacejoinData
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError *__autoreleasing * _Nullable)error
 {
-    MSIDWPJKeyPairWithCert *workplacejoinData = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
     if (!workplacejoinData)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] Failed to obtain device registration details when trying to formulate bound refresh token redemption JWT.");

@@ -22,6 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import "MSIDWPJKeyPairWithCert.h"
+
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBoundRefreshTokenRedemptionParameters : NSObject
 
@@ -38,10 +40,17 @@ NS_ASSUME_NONNULL_BEGIN
 // Audience (token endpoint URL) for the bound refresh token redemption request
 @property (nonatomic, copy) NSString *audience;
 
+@property (nonatomic, copy, nullable) NSDictionary *extraPayloadClaims;
+
+@property (nonatomic, readonly, nullable) MSIDWPJKeyPairWithCert *workplaceJoinInfo;
+
+
 - (instancetype)initWithClientId:(NSString *)clientId
                authorityEndpoint:(NSURL *)authorityEndpoint
                           scopes:(NSSet <NSString *>*)scopes
-                           nonce:(NSString *)nonce;
+                           nonce:(NSString *)nonce
+              extraPayloadClaims:(nullable NSDictionary *)extraPayloadClaims
+               workplaceJoinInfo:(nullable MSIDWPJKeyPairWithCert *)workplaceJoinInfo;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;

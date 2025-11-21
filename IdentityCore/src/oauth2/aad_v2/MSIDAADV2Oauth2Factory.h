@@ -22,7 +22,14 @@
 // THE SOFTWARE.
 
 #import "MSIDAADOauth2Factory.h"
+@class MSIDBoundRefreshToken;
+@class MSIDRequestParameters;
+@class MSIDAADV1RefreshTokenGrantRequest;
 
 @interface MSIDAADV2Oauth2Factory : MSIDAADOauth2Factory
+
+- (MSIDAADV1RefreshTokenGrantRequest *)boundRefreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                        refreshToken:(MSIDBoundRefreshToken *)refreshToken
+                                                                      requestContext:(id<MSIDRequestContext>)context                                                                                        error:(NSError **)error;
 
 @end

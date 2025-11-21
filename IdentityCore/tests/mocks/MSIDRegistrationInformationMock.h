@@ -30,8 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL isWorkPlaceJoinedFlag;
 
 - (void)setPrivateKey:(SecKeyRef)privateKey;
+- (void)setPrivateTransportKey:(SecKeyRef)privateTransportKey;
 - (void)setCertificateIssuer:(NSString *)certificateIssuer;
-
+- (void)setCertificateSubject:(NSString *)certificateSubject;
 @end
 
 NS_ASSUME_NONNULL_END
