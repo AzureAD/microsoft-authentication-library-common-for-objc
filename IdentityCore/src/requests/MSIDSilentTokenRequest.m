@@ -407,22 +407,20 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         accountCredentialCache = [[MSIDAccountCredentialCache alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
     }
     
-    if (accountCredentialCache)
+    NSError *frtError = nil;
+    MSIDIsFRTEnabledStatus frtStatus = [accountCredentialCache checkFRTEnabled:self.requestParameters error:&frtError];
+    BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
+    if (frtError)
     {
-        NSError *frtError = nil;
-        MSIDIsFRTEnabledStatus frtStatus = [accountCredentialCache checkFRTEnabled:self.requestParameters error:&frtError];
-        BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
-        if (frtError)
-        {
-            // Log error, but continue to use old FRT code
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Error checking FRT enabled status, not using new FRT. Error: %@", frtError);
-        }
-        else if (frtEnabled)
-        {
-            // FRT is enabled, should try to use it first
-            return YES;
-        }
+        // Log error, but continue to use old FRT code
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Error checking FRT enabled status, not using new FRT. Error: %@", frtError);
     }
+    else if (frtEnabled)
+    {
+        // FRT is enabled, should try to use it first
+        return YES;
+    }
+    
     return NO;
 }
 
