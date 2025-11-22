@@ -181,3 +181,4 @@ extern NSString *const MSID_CCS_REQUEST_SEQUENCE_KEY;
 extern NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE;
 extern NSString *const MSID_BOUND_DEVICE_ID_CACHE_KEY;
 extern NSString *const MSID_BOUND_RT_EXCHANGE;
+extern NSString *const MSID_MSAL_CLIENT_APV_PREFIX;

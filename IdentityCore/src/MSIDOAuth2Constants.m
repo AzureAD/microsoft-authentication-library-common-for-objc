@@ -182,3 +182,4 @@ NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE       = @"ccs-request-sequenc
 
 NSString *const MSID_BOUND_DEVICE_ID_CACHE_KEY           = @"bound_device_id";
 NSString *const MSID_BOUND_RT_EXCHANGE                   = @"bound_rt_exchange";
+NSString *const MSID_MSAL_CLIENT_APV_PREFIX              = @"MsalClient";

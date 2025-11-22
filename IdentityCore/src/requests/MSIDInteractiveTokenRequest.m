@@ -129,6 +129,8 @@
                                        validateAccount:self.requestParameters.shouldValidateResultAccount
                                       saveSSOStateOnly:NO
                                       brokerAppVersion:nil
+                     brokerResponseGenerationTimeStamp:nil
+                        brokerRequestReceivedTimeStamp:nil
                                                  error:error
                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
          {
