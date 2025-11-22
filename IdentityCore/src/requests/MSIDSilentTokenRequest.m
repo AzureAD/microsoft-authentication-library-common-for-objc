@@ -42,6 +42,9 @@
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDFlightManager.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAccountCredentialCache.h"
+#import "MSIDKeychainTokenCache.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -277,7 +280,14 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         return;
     }
     
-    [self fetchCachedTokenAndCheckForFRTFirst:NO shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
+    BOOL checkForFRTFirst = [self shouldCheckForFRTFirst];
+    
+    if (checkForFRTFirst)
+    {
+        NSLog(@"MSIDSilentTokenRequest: FRT is enabled, will try to use FRT first.");
+    }
+    
+    [self fetchCachedTokenAndCheckForFRTFirst:checkForFRTFirst shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
         if (!refreshToken)
         {
             NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
@@ -387,6 +397,40 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 
 #pragma mark - Helpers
 
+- (BOOL)shouldCheckForFRTFirst
+{
+    MSIDAccountCredentialCache *accountCredentialCache = nil;
+    
+    if (self.tokenCache != nil && [self.tokenCache isKindOfClass:[MSIDDefaultTokenCacheAccessor class]])
+    {
+        accountCredentialCache = ((MSIDDefaultTokenCacheAccessor *)self.tokenCache).accountCredentialCache;
+    }
+    
+    // Use default keychain if account credential cache is not provided
+    if (accountCredentialCache == nil)
+    {
+        accountCredentialCache = [[MSIDAccountCredentialCache alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    }
+    
+    if (accountCredentialCache)
+    {
+        NSError *frtError = nil;
+        MSIDIsFRTEnabledStatus frtStatus = [accountCredentialCache checkFRTEnabled:self.requestParameters error:&frtError];
+        BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
+        if (frtError)
+        {
+            // Log error, but continue to use old FRT code
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Error checking FRT enabled status, not using new FRT. Error: %@", frtError);
+        }
+        else if (frtEnabled)
+        {
+            // FRT is enabled, should try to use it first
+            return YES;
+        }
+    }
+    return NO;
+}
+
 - (BOOL)handleErrorResponseForAppRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                               completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
@@ -486,7 +530,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                          completionBlock:(MSIDRequestCompletionBlock) __unused completionBlock
 {
 #if !EXCLUDE_FROM_MSALCPP
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via %@ Refresh token...", refreshToken.credentialType == MSIDFamilyRefreshTokenType ? @"Family" : @"App");
     
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
