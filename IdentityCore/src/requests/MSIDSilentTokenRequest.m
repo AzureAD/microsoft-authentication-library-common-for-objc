@@ -282,11 +282,6 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     
     BOOL checkForFRTFirst = [self shouldCheckForFRTFirst];
     
-    if (checkForFRTFirst)
-    {
-        NSLog(@"MSIDSilentTokenRequest: FRT is enabled, will try to use FRT first.");
-    }
-    
     [self fetchCachedTokenAndCheckForFRTFirst:checkForFRTFirst shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
         if (!refreshToken)
         {
