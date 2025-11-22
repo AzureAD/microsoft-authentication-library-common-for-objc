@@ -1,3 +1,6 @@
+Version TBD
+* Silent token request should use FRT first when single FRT is enabled (#1624)
+
 Version 1.17.0
 * Add flag to indicate app is requesting broker for Bound app RT #1578
 * Add category for redeeming a Bound application refresh token #1565
