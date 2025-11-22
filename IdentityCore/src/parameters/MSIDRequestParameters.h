@@ -122,6 +122,11 @@
 
 - (NSURL *)tokenEndpoint;
 
+/**
+ Indicates whether a bound app refresh token is being requested.
+*/
+@property (nonatomic) BOOL isBoundAppRefreshTokenRequested;
+
 #pragma mark Methods
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
 - (NSString *)allTokenRequestScopes;
