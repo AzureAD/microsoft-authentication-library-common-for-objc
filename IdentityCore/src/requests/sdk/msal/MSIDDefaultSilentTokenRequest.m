@@ -58,10 +58,29 @@
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
                              accountMetadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
+    return [self initWithRequestParameters:parameters
+                               forceRefresh:forceRefresh
+                               oauthFactory:oauthFactory
+                    tokenResponseValidator:tokenResponseValidator
+                                tokenCache:tokenCache
+                      accountMetadataCache:accountMetadataCache
+                                  telemetry:nil];
+}
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
+                             accountMetadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                         telemetry:(id<MSIDTelemetryProviding>)telemetry
+
+{
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
                                oauthFactory:oauthFactory
-                     tokenResponseValidator:tokenResponseValidator];
+                     tokenResponseValidator:tokenResponseValidator
+                                  telemetry:telemetry];
 
     if (self)
     {

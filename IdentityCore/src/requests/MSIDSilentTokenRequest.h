@@ -25,6 +25,7 @@
 #import "MSIDCacheAccessor.h"
 #import "MSIDConstants.h"
 #import "MSIDThrottlingService.h"
+#import "MSIDTelemetryProviding.h"
 
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
@@ -43,6 +44,7 @@
 @property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readonly, nullable) id<MSIDTelemetryProviding> telemetry;
 @property (nonatomic, nullable) MSIDThrottlingService *throttlingService;
 @property (nonatomic) BOOL skipLocalRt;
 @property (nonatomic) BOOL forceRefresh;
@@ -58,7 +60,8 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                         telemetry:(nullable id<MSIDTelemetryProviding>)telemetry;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
 

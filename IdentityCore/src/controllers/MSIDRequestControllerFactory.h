@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDRequestControlling.h"
 #import "MSIDTokenRequestProviding.h"
+#import "MSIDTelemetryProviding.h"
 
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDRequestParameters;
@@ -44,6 +45,7 @@ typedef NS_ENUM(NSInteger, MSIDSilentControllerLocalRtUsageType)
                                                         forceRefresh:(BOOL)forceRefresh
                                                          skipLocalRt:(MSIDSilentControllerLocalRtUsageType)skipLocalRt
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                           telemetry:(nullable id<MSIDTelemetryProviding>)telemetry
                                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters

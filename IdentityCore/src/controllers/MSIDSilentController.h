@@ -34,12 +34,14 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         telemetry:(nullable id<MSIDTelemetryProviding>)telemetry
                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                      fallbackInteractiveController:(nullable id<MSIDRequestControlling>)fallbackController
+                                         telemetry:(nullable id<MSIDTelemetryProviding>)telemetry
                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

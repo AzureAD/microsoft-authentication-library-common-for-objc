@@ -60,6 +60,7 @@
 @property (nonatomic) NSData *passedData;
 @property (nonatomic) id<MSIDHttpRequestProtocol> passedHttpRequest;
 @property (nonatomic) id<MSIDRequestContext> passedContext;
+@property (nonatomic) id<MSIDTelemetryProviding> passedTelemetry;
 @property (nonatomic, copy) MSIDHttpRequestDidCompleteBlock passedBlock;
 @property (nonatomic) id<MSIDResponseSerialization> responseSerializer;
 @property (nonatomic) MSIDExternalSSOContext *passedSSOContext;
@@ -75,6 +76,7 @@
  responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
  externalSSOContext:(MSIDExternalSSOContext *)ssoContext
             context:(id<MSIDRequestContext>)context
+          telemetry:(id<MSIDTelemetryProviding>)telemetry
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     self.passedError = error;
@@ -82,6 +84,7 @@
     self.passedData = data;
     self.passedHttpRequest = httpRequest;
     self.passedContext = context;
+    self.passedTelemetry = telemetry;
     self.passedBlock = completionBlock;
     self.responseSerializer = responseSerializer;
     self.handleErrorInvokedCounts++;

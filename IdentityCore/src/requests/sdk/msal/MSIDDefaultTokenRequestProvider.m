@@ -72,13 +72,15 @@
 
 - (MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDRequestParameters *)parameters
                                                 forceRefresh:(BOOL)forceRefresh
+                                                   telemetry:(__unused id<MSIDTelemetryProviding>)telemetry
 {
     __auto_type request = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
                                                                               forceRefresh:forceRefresh
                                                                               oauthFactory:self.oauthFactory
                                                                     tokenResponseValidator:self.tokenResponseValidator
                                                                                 tokenCache:self.tokenCache
-                                                                      accountMetadataCache:self.accountMetadataCache];
+                                                                      accountMetadataCache:self.accountMetadataCache
+                                                                                 telemetry:telemetry];
     
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
     request.externalCacheSeeder = self.externalCacheSeeder;

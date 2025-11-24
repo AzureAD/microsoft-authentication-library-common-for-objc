@@ -117,7 +117,7 @@
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:testResult testError:nil testWebMSAuthResponse:nil];
 
     NSError *error = nil;
-    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:provider error:&error];
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:provider telemetry:nil error:&error];
 
     XCTAssertNotNil(silentController);
     XCTAssertNil(error);
@@ -179,7 +179,7 @@
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
 
     NSError *error = nil;
-    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:provider error:&error];
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:provider telemetry:nil error:&error];
 
     XCTAssertNotNil(silentController);
     XCTAssertNil(error);
@@ -249,7 +249,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(interactiveController);
 
-    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:silentProvider fallbackInteractiveController:interactiveController error:&error];
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:silentProvider fallbackInteractiveController:interactiveController telemetry:nil error:&error];
 
     XCTAssertNotNil(silentController);
     XCTAssertNil(error);
@@ -317,7 +317,7 @@
     XCTAssertNil(error);
     XCTAssertNotNil(interactiveController);
 
-    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:silentProvider fallbackInteractiveController:interactiveController error:&error];
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:silentProvider fallbackInteractiveController:interactiveController telemetry:nil error:&error];
 
     XCTAssertNotNil(silentController);
     XCTAssertNil(error);
@@ -368,11 +368,11 @@
     NSError *ssoUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"unexpected error", @"unexpected error", @"unexpected error", nil, parameters.correlationId, nil, YES);
     MSIDTestTokenRequestProvider *brokerSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:ssoUnexpectedError testWebMSAuthResponse:nil];
 
-    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider error:&error];
+    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider telemetry:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(brokerController);
 
-    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController error:&error];
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController telemetry:nil error:&error];
     XCTAssertNotNil(silentController);
     XCTAssertNil(error);
 
@@ -406,11 +406,11 @@
     NSError *ssoExpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Expected error", @"Expected error", @"Expected error", nil, parameters.correlationId, nil, YES);
     MSIDTestTokenRequestProvider *brokerSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:ssoExpectedError testWebMSAuthResponse:nil];
 
-    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider error:&error];
+    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider telemetry:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(brokerController);
 
-    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController error:&error];
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController telemetry:nil error:&error];
     XCTAssertNotNil(silentController);
     XCTAssertNil(error);
 
@@ -444,15 +444,15 @@
     NSError *ssoUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSSOExtensionUnexpectedError, @"unexpected error", @"unexpected error", @"unexpected error", nil, parameters.correlationId, nil, YES);
     MSIDTestTokenRequestProvider *brokerSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:ssoUnexpectedError testWebMSAuthResponse:nil];
     
-    MSIDSilentController *silentControllerFallback = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider error:&error];
+    MSIDSilentController *silentControllerFallback = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider telemetry:nil error:&error];
     XCTAssertNotNil(silentControllerFallback);
     XCTAssertNil(error);
 
-    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider fallbackInteractiveController:silentControllerFallback error:&error];
+    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider fallbackInteractiveController:silentControllerFallback telemetry:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(brokerController);
 
-    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController error:&error];
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController telemetry:nil error:&error];
     XCTAssertNotNil(silentController);
     XCTAssertNil(error);
 
@@ -486,15 +486,15 @@
     NSError *ssoExpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Expected error", @"Expected error", @"Expected error", nil, parameters.correlationId, nil, YES);
     MSIDTestTokenRequestProvider *brokerSilentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:ssoExpectedError testWebMSAuthResponse:nil];
 
-    MSIDSilentController *silentControllerFallback = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider error:&error];
+    MSIDSilentController *silentControllerFallback = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider telemetry:nil error:&error];
     XCTAssertNotNil(silentControllerFallback);
     XCTAssertNil(error);
     
-    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider fallbackInteractiveController:silentControllerFallback error:&error];
+    MSIDSilentController *brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:brokerSilentProvider fallbackInteractiveController:silentControllerFallback telemetry:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(brokerController);
 
-    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController error:&error];
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:localSilentProvider fallbackInteractiveController:brokerController telemetry:nil error:&error];
     XCTAssertNotNil(silentController);
     XCTAssertNil(error);
 
@@ -536,7 +536,7 @@
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:networkError testWebMSAuthResponse:nil];
 
     NSError *error = nil;
-    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:provider error:&error];
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:provider telemetry:nil error:&error];
 
     XCTAssertNotNil(silentController);
     XCTAssertNil(error);

@@ -87,6 +87,7 @@
 
 - (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull __unused MSIDRequestParameters *)parameters
                                                          forceRefresh:(__unused BOOL)forceRefresh
+                                                            telemetry:(__unused id<MSIDTelemetryProviding>)telemetry
 {
     return [[MSIDTestSilentTokenRequest alloc] initWithTestResponse:self.testTokenResult testError:self.testError];
 }

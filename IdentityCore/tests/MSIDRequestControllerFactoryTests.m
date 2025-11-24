@@ -88,6 +88,7 @@
                                                                                            forceRefresh:YES
                                                                                             skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
@@ -107,6 +108,7 @@
                                                                                            forceRefresh:YES
                                                                                             skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
@@ -141,6 +143,7 @@
                                                                                            forceRefresh:YES
                                                                                             skipLocalRt:MSIDSilentControllerForceUsingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
@@ -160,6 +163,7 @@
                                                                                            forceRefresh:YES
                                                                                             skipLocalRt:MSIDSilentControllerForceUsingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
@@ -194,6 +198,7 @@
                                                                                            forceRefresh:YES
                                                                                             skipLocalRt:MSIDSilentControllerUndefinedLocalRtUsage
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
@@ -549,6 +554,7 @@
                                                                                            forceRefresh:NO
                                                                                             skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
     // 1. Start with local signin controller to read cached tokens
     if (![controller isMemberOfClass:MSIDSilentController.class])
@@ -610,6 +616,7 @@
                                                                                            forceRefresh:NO
                                                                                             skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
     // 1. Start with local signin controller to read cached tokens
     if (![controller isMemberOfClass:MSIDSilentController.class])
@@ -684,6 +691,7 @@
                                                                                            forceRefresh:NO
                                                                                             skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
     // 1. Start with local signin controller to read cached tokens
     if (![controller isMemberOfClass:MSIDSilentController.class])
@@ -746,6 +754,7 @@
                                                                                            forceRefresh:NO
                                                                                             skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
     // 1. Start with local signin controller to read cached tokens
     if (![controller isMemberOfClass:MSIDSilentController.class])
@@ -788,6 +797,7 @@
                                                                                            forceRefresh:YES
                                                                                             skipLocalRt:MSIDSilentControllerForceUsingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);
@@ -833,6 +843,7 @@
                                                                                            forceRefresh:YES
                                                                                             skipLocalRt:MSIDSilentControllerForceSkippingLocalRt
                                                                                    tokenRequestProvider:provider
+                                                                                              telemetry:nil
                                                                                                   error:&error];
 
     XCTAssertTrue([controller isKindOfClass:MSIDSilentController.class]);

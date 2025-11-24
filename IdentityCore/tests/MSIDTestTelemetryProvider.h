@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,25 +20,16 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDHttpRequestProtocol.h"
-#import "MSIDResponseSerialization.h"
 #import "MSIDTelemetryProviding.h"
 
-@class MSIDExternalSSOContext;
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDHttpRequestErrorHandling <NSObject>
-
-- (void)handleError:(NSError * )error
-       httpResponse:(NSHTTPURLResponse *)httpResponse
-               data:(NSData *)data
-        httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
- responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
- externalSSOContext:(MSIDExternalSSOContext *)ssoContext
-            context:(id<MSIDRequestContext>)context
-          telemetry:(id<MSIDTelemetryProviding>)telemetry
-    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+@interface MSIDTestTelemetryProvider : NSObject <MSIDTelemetryProviding>
 
 @end
+
+NS_ASSUME_NONNULL_END

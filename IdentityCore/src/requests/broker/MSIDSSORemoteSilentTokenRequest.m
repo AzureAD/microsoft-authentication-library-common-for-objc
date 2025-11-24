@@ -67,7 +67,8 @@
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
                                oauthFactory:oauthFactory
-                     tokenResponseValidator:tokenResponseValidator];
+                     tokenResponseValidator:tokenResponseValidator
+                                  telemetry:nil];
     
     if (self)
     {

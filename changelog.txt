@@ -4,6 +4,7 @@ Version 1.17.0
 
 Version 1.16.1
 * Allow duna external idp on MacOs #1593
+* Adding telemetry protocol #1599
 
 Version 1.16.0
 * Filter based Flighting capabilities (#1580)
