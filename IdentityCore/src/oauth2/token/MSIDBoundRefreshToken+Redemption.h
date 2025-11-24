@@ -22,24 +22,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
-#import "MSIDBrokerNativeAppOperationResponse.h"
-
-@class MSIDBrokerOperationTokenResponse;
-@class MSIDBrokerOperationBrowserNativeMessageMATSReport;
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDBoundRefreshTokenRedemptionParameters.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
-
-- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
-
-@property (nonatomic, nullable) NSString *state;
-@property (nonatomic, nullable) NSString *requestAccountUpn;
-@property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
-
-
+@interface MSIDBoundRefreshToken (Redemption)
+/*!
+    @brief For specified tenant ID, get a signed JWT request to redeem this bound refresh token. Tenant ID is used to query registration and match device ID from it to this bound refresh token.
+    @param tenantId The tenant ID that will be used to query the device registration.
+    @param jweCrypto Optional dictionary to receive JWE crypto information. It will be also part of the resulting JWT's payload.
+    @param error Pointer to an NSError object that will be set if an error occurs.
+    @return A JWT string for token redemption, or nil if an error occurs.
+*/
+- (NSString *) getTokenRedemptionJwtForTenantId: (nullable NSString *)tenantId
+                      tokenRedemptionParameters: (MSIDBoundRefreshTokenRedemptionParameters *)requestParameters
+                                        context:(id<MSIDRequestContext> _Nullable)context
+                                      jweCrypto: (NSDictionary *__nonnull *__nonnull)jweCrypto
+                                          error: (NSError *__nonnull __autoreleasing *__nonnull)error;
 @end
-
 NS_ASSUME_NONNULL_END

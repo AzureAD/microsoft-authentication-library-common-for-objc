@@ -83,6 +83,9 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY = @"accountId";
 NSString *const MSID_BROWSER_RESPONSE_SWITCH_BROWSER = @"switch_browser";
 NSString *const MSID_BROWSER_RESPONSE_SWITCH_BROWSER_RESUME = @"switch_browser_resume";
 
+// Bound App Refresh token constants
+NSString *const MSID_BOUND_RT_REDEEM = @"bound_rt_redeem";
+
 NSString *const MSID_FLIGHT_USE_V2_WEB_RESPONSE_FACTORY = @"use_v2_web_response_factory";
 NSString *const MSID_FLIGHT_SUPPORT_DUNA_CBA = @"support_duna_cba_v2";
 NSString *const MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH = @"disable_jit_remediation_legacy_auth";
@@ -95,6 +98,9 @@ NSString *const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME = @"ignore_cookies_in_
 NSString *const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS = @"disable_rm_metadata";
 
 NSString *const MSID_FLIGHT_ENABLE_QUERYING_STK = @"enable_querying_stk";
+NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_msal_bart_supported";
+
+NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

@@ -18,28 +18,16 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+@interface MSIDBartFeatureUtil : NSObject
 
-@class MSIDBrokerOperationTokenResponse;
-@class MSIDBrokerOperationBrowserNativeMessageMATSReport;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
-
-- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
-
-@property (nonatomic, nullable) NSString *state;
-@property (nonatomic, nullable) NSString *requestAccountUpn;
-@property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
-
-
++ (instancetype)sharedInstance;
+- (BOOL)isBartFeatureEnabled;
+- (void)setBartSupportInAppCache:(BOOL)isEnabled;
 @end
 
-NS_ASSUME_NONNULL_END
