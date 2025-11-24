@@ -122,6 +122,9 @@
 
 - (NSURL *)tokenEndpoint;
 
+// property that indicates if calling app requested broker for a Bound App Refresh token
+@property (nonatomic) BOOL isBoundAppRefreshTokenRequested;
+
 #pragma mark Methods
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
 - (NSString *)allTokenRequestScopes;

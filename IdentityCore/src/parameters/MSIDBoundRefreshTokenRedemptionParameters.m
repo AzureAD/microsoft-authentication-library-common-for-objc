@@ -70,7 +70,7 @@
 {
     NSMutableDictionary *jsonDict = [NSMutableDictionary new];
     jsonDict[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
-    jsonDict[MSID_BOUND_REFRESH_TOKEN_EXCHANGE] = @1;
+    jsonDict[MSID_BOUND_RT_EXCHANGE] = @1;
     jsonDict[@"aud"] = self.audience;
     jsonDict[@"iss"] = self.clientId; // Issuer is the client ID
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
