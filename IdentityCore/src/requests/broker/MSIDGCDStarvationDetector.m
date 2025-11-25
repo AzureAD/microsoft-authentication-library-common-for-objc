@@ -94,7 +94,7 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
                 BOOL starved = [self isThreadStarvedWithTimeout:starvationCheckTimeout];
                 self.totalPingCount += 1;
                 if (starved) {
-                    self.gcdStarvedDuration += (starvationCheckTimeout + starvationCheckInterval);
+                    self.gcdStarvedDuration += (starvationCheckTimeout + (self.starvedPingCount == 0 ? 0 : starvationCheckInterval));
                     self.starvedPingCount += 1;
                     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"GCDStarvationDetector -- starvation detected, cumulative duration: %.2fms", self.gcdStarvedDuration * 1000);
                 }
