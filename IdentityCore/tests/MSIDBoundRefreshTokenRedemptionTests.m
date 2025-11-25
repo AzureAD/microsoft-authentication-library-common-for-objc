@@ -889,7 +889,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     // Verify all expected keys are present
     NSArray *expectedKeys = @[
         MSID_OAUTH2_GRANT_TYPE,
-        MSID_BOUND_REFRESH_TOKEN_EXCHANGE,
+        MSID_BOUND_RT_EXCHANGE,
         @"iss",
         @"iat",
         @"exp",
@@ -950,7 +950,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     NSMutableDictionary *jsonDict = [params jsonDictionary];
     
     // Verify the bound_refresh_token_exchange is exactly @1 (NSNumber with value 1)
-    id boundExchangeValue = jsonDict[MSID_BOUND_REFRESH_TOKEN_EXCHANGE];
+    id boundExchangeValue = jsonDict[MSID_BOUND_RT_EXCHANGE];
     XCTAssertTrue([boundExchangeValue isKindOfClass:[NSNumber class]]);
     XCTAssertEqualObjects(boundExchangeValue, @1);
     XCTAssertEqual([boundExchangeValue intValue], 1);
@@ -1098,7 +1098,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     XCTAssertFalse([payloadObject[@"scope"] containsString:@"aza"]);
     XCTAssertEqualObjects(payloadObject[@"refresh_token"], refreshToken);
     XCTAssertEqualObjects(payloadObject[@"grant_type"], @"refresh_token");
-    XCTAssertEqualObjects(payloadObject[MSID_BOUND_REFRESH_TOKEN_EXCHANGE], @1);
+    XCTAssertEqualObjects(payloadObject[MSID_BOUND_RT_EXCHANGE], @1);
     XCTAssertNotNil(payloadObject[@"iat"]);
     XCTAssertNotNil(payloadObject[@"nbf"]);
     XCTAssertNotNil(payloadObject[@"exp"]);
