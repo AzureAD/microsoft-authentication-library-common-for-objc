@@ -53,11 +53,11 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
 
         self.shouldStop = NO;
         self.monitoringStartTime = [NSDate date];
-        _monitorThread = [[NSThread alloc] initWithTarget:self
+        self.monitorThread = [[NSThread alloc] initWithTarget:self
                                                  selector:@selector(monitorLoop)
                                                    object:nil];
-        _monitorThread.name = [NSString stringWithFormat:@"%@-%@", @"com.microsoft.msid.MSIDGCDStarvationDetector.thread", [NSUUID UUID].UUIDString];
-        [_monitorThread start];
+        self.monitorThread.name = [NSString stringWithFormat:@"%@-%@", @"com.microsoft.msid.MSIDGCDStarvationDetector.thread", [NSUUID UUID].UUIDString];
+        [self.monitorThread start];
         self.running = YES;
     }
 }
@@ -75,22 +75,22 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
 }
 
 - (void)monitorLoop {
-    @autoreleasepool {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- started on thread: %@", [NSThread currentThread]);
-        
-        while (YES) {
-            if (self.shouldStop || [NSThread currentThread].isCancelled) {
-                break;
-            }
-
-            NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:self.monitoringStartTime];
-            if (elapsed >= maxMonitoringDuration) {
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"GCDStarvationDetector -- reached maximum duration (%.2fs), stopping", elapsed);
-                [self stopMonitoring];
-                break;
-            }
-
-            @synchronized (self) {
+    @synchronized (self) {
+        @autoreleasepool {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- started on thread: %@", [NSThread currentThread]);
+            
+            while (YES) {
+                if (self.shouldStop || [NSThread currentThread].isCancelled) {
+                    break;
+                }
+                
+                NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:self.monitoringStartTime];
+                if (elapsed >= maxMonitoringDuration) {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"GCDStarvationDetector -- reached maximum duration (%.2fs), stopping", elapsed);
+                    [self stopMonitoring];
+                    break;
+                }
+                
                 BOOL starved = [self isThreadStarvedWithTimeout:starvationCheckTimeout];
                 self.totalPingCount += 1;
                 if (starved) {
@@ -98,12 +98,11 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
                     self.starvedPingCount += 1;
                     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"GCDStarvationDetector -- starvation detected, cumulative duration: %.2fms", self.gcdStarvedDuration * 1000);
                 }
+                
+                [NSThread sleepForTimeInterval:starvationCheckInterval];
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- stopped on thread: %@", [NSThread currentThread]);
             }
-            
-            [NSThread sleepForTimeInterval:starvationCheckInterval];
         }
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- stopped on thread: %@", [NSThread currentThread]);
     }
 }
 
