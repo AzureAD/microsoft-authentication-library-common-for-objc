@@ -102,8 +102,8 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
                 
             }
             [NSThread sleepForTimeInterval:starvationCheckInterval];
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- stopped on thread: %@", [NSThread currentThread]);
         }
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- stopped on thread: %@", [NSThread currentThread]);
     }
 }
 
