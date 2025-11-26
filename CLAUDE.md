@@ -8,4 +8,4 @@ Code style guidelines that AI agents MUST follow when working with this reposito
 
 ## Instructions to generate code
 
- Custom instructions files that give Claude additional context on how to understand this project and how to build, test and validate its changes is located here: `.github/copilot-instructions.md`
+ Custom instruction files that give Claude additional context on how to understand this project and how to build, test and validate its changes are located here: `.github/copilot-instructions.md`

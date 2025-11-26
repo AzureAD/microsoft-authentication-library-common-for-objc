@@ -413,7 +413,7 @@ __auto_type block = ^(MSALResult *result, NSError *msidError, id<MSIDRequestCont
 ### When Adding New Features:
 
 1. **Match Existing Patterns**: Analyze similar existing code before implementing
-2. **Follow MSAL Conventions**: Use `MSID` for clases
+2. **Follow MSAL Conventions**: Use `MSID` for classes
 3. **Maintain Consistency**: Match indentation, spacing, and naming in surrounding code
 4. **Property-First**: Use `@property` declarations rather than instance variables
 5. **Error Handling**: Always check return values, never the error variable
@@ -486,7 +486,7 @@ MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context,
 - [ ] Variables descriptively named
 - [ ] Pointers attached to variable names
 - [ ] Uses properties instead of instance variables
-- [ ] Category methods prefixed with `msal` or `msid`
+- [ ] Category methods prefixed with `msid`
 - [ ] Uses `NS_ENUM` for enumerations
 - [ ] Private properties in class extension
 - [ ] Singletons use `dispatch_once`
