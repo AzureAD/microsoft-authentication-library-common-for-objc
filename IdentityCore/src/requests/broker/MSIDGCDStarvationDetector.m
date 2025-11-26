@@ -26,7 +26,7 @@
 #import "MSIDLogger+Internal.h"
 
 static NSTimeInterval starvationCheckTimeout = 0.01; //10 ms - timeout for detecting if GCD thread pool is starved
-static NSTimeInterval starvationCheckInterval = 0.1; //100 ms - interval between starvation checks
+static NSTimeInterval starvationCheckInterval = 1; //1000 ms - interval between starvation checks
 static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monitoring duration to prevent indefinite running
 
 @interface MSIDGCDStarvationDetector()
@@ -75,11 +75,12 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
 }
 
 - (void)monitorLoop {
-    @synchronized (self) {
-        @autoreleasepool {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- started on thread: %@", [NSThread currentThread]);
-            
-            while (YES) {
+    @autoreleasepool {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- started on thread: %@", [NSThread currentThread]);
+        
+        while (YES) {
+            @synchronized (self)
+            {
                 if (self.shouldStop || [NSThread currentThread].isCancelled) {
                     break;
                 }
@@ -99,9 +100,9 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
                     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"GCDStarvationDetector -- starvation detected, cumulative duration: %.2fms", self.gcdStarvedDuration * 1000);
                 }
                 
-                [NSThread sleepForTimeInterval:starvationCheckInterval];
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- stopped on thread: %@", [NSThread currentThread]);
             }
+            [NSThread sleepForTimeInterval:starvationCheckInterval];
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"GCDStarvationDetector -- stopped on thread: %@", [NSThread currentThread]);
         }
     }
 }
