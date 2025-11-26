@@ -53,6 +53,8 @@
 #import "MSIDIdToken.h"
 #import "MSIDLRUCache.h"
 #import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDTestSwizzle.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -123,6 +125,7 @@
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
+    [MSIDTestSwizzle reset];
     [super tearDown];
 }
 
@@ -2132,6 +2135,87 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+- (void)testAcquireTokenSilent_whenSingleFamilyRefreshTokenEnabled_shouldUseItAndSucceed
+{
+    [self setUseSingleFRTFeatureFlagMock:YES];
+    
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    [self saveTokensInCache:tokenCache
+              configuration:silentParameters.msidConfiguration
+                      scope:nil
+                       foci:@"1"
+                accessToken:nil
+               refreshToken:nil
+                    idToken:nil
+                 clientInfo:nil
+                  expiresIn:@"1"
+               extExpiresIn:nil
+                  refreshIn:nil];
+
+    // Update FRT
+    MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:silentParameters.accountIdentifier
+                                                                   familyId:@"1"
+                                                              configuration:silentParameters.msidConfiguration
+                                                                    context:silentParameters
+                                                                      error:nil];
+    XCTAssertNotNil(refreshToken);
+
+    refreshToken.refreshToken = @"family refresh token";
+
+    XCTAssertTrue([[self accountCredentialCache] saveCredential:refreshToken.tokenCacheItem context:nil error:nil]);
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    MSIDTestURLResponse *frtTokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:@"family refresh token"
+                                                                                    requestClaims:nil
+                                                                                    requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                       responseAT:@"new at frt"
+                                                                                       responseRT:@"new rt"
+                                                                                       responseID:nil
+                                                                                    responseScope:@"user.read tasks.read"
+                                                                               responseClientInfo:nil
+                                                                                              url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                     responseCode:200
+                                                                                        expiresIn:nil];
+
+    [MSIDTestURLSession addResponse:frtTokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertEqualObjects(result.accessToken.accessToken, @"new at frt");
+        XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
+        XCTAssertFalse(result.extendedLifeTimeToken);
+        NSURL *tenantURL = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY_GUID];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 
 #pragma mark - Scopes
 
@@ -2490,6 +2574,21 @@
                                                     error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
+}
+
+- (void)setUseSingleFRTFeatureFlagMock:(BOOL)useSingleFRTStatus
+{
+    [MSIDTestSwizzle instanceMethod:@selector(stringForKey:)
+                              class:[MSIDFlightManager class]
+                              block:(id)^(__unused id *obj, NSString *flightKey)
+     {
+        if ([flightKey isEqualToString:MSID_FLIGHT_CLIENT_SFRT_STATUS])
+        {
+            return useSingleFRTStatus ? MSID_FRT_STATUS_ENABLED : MSID_FRT_STATUS_DISABLED;
+        }
+        
+        return @"";
+     }];
 }
 
 @end
