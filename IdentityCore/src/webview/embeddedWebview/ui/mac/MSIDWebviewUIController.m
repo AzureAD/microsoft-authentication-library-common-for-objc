@@ -239,8 +239,8 @@ static WKWebViewConfiguration *s_webConfig;
         windowWidth = window.size.width;
         windowHeight = window.size.height;
     }
-
-    NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(windowWidth / 2 - 16, windowHeight / 2 - 16, MSID_LOADING_INDICATOR_SIZE, MSID_LOADING_INDICATOR_SIZE)];
+    
+    NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(windowWidth / 2 - MSID_LOADING_INDICATOR_SIZE / 2, windowHeight / 2 - MSID_LOADING_INDICATOR_SIZE / 2, MSID_LOADING_INDICATOR_SIZE, MSID_LOADING_INDICATOR_SIZE)];
     [loadingIndicator setStyle:NSProgressIndicatorStyleSpinning];
     // Keep the item centered in the window even if it's resized.
     [loadingIndicator setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
