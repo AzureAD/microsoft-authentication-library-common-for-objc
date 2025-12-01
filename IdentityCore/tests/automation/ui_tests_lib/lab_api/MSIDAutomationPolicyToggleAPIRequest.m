@@ -34,7 +34,7 @@
 
 - (NSString *)httpMethod
 {
-    return @"PUT";
+    return @"POST";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems
