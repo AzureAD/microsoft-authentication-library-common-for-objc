@@ -31,6 +31,8 @@
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
+#import "MSIDGCDStarvationDetector.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -39,12 +41,15 @@
 @property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic) MSIDGCDStarvationDetector *gcdStarvationDetector;
+@property (nonatomic) BOOL allowThreadStarvationMonitoring;
+@property (nonatomic) NSTimeInterval gcdStarvedDuration;
 
 @end
 
 @implementation MSIDSSOExtensionSilentTokenRequest
 
-@synthesize requestCompletionBlock, operationRequest;
+@synthesize requestCompletionBlock, operationRequest, gcdStarvedDuration;
 
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
                              forceRefresh:(BOOL)forceRefresh
@@ -65,7 +70,27 @@
     {
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
-        _extensionDelegate.completionBlock = [super getCompletionBlock];
+        _allowThreadStarvationMonitoring = parameters.allowThreadStarvationMonitoring;
+        MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock = [super getCompletionBlock];
+        if ([self isThreadStarvationMonitoringEnabled])
+        {
+            _gcdStarvationDetector = [MSIDGCDStarvationDetector new];
+            __weak typeof(self) weakSelf = self;
+            _extensionDelegate.completionBlock = ^(_Nullable id response, NSError  * _Nullable error) {
+                typeof(self) strongSelf = weakSelf;
+                if (!strongSelf) return;
+                if (strongSelf.gcdStarvationDetector)
+                {
+                    strongSelf.gcdStarvedDuration = [strongSelf.gcdStarvationDetector stopMonitoring];
+                }
+                
+                if (completionBlock) completionBlock(response, error);
+            };
+        }
+        else
+        {
+            _extensionDelegate.completionBlock = completionBlock;
+        }
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
     }
 
@@ -94,6 +119,19 @@
     
     self.requestCompletionBlock = completionBlock;
     [self.authorizationController msidPerformRequests];
+    if ([self isThreadStarvationMonitoringEnabled])
+    {
+        [self.gcdStarvationDetector startMonitoring];
+    }
+}
+
+- (BOOL)isThreadStarvationMonitoringEnabled
+{
+#if DEBUG
+    return YES;
+#else
+    return self.allowThreadStarvationMonitoring && [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_THREAD_STARVATION];
+#endif
 }
 
 @end

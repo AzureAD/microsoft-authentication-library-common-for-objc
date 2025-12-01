@@ -1,6 +1,12 @@
+Version TBD
+* Silent token request should use FRT first when single FRT is enabled (#1624) 
+
 Version 1.17.0
 * Add flag to indicate app is requesting broker for Bound app RT #1578
 * Add category for redeeming a Bound application refresh token #1565
+
+Version 1.16.2
+* Update with changes from 1.15.3
 
 Version 1.16.1
 * Allow duna external idp on MacOs #1593
@@ -8,6 +14,9 @@ Version 1.16.1
 Version 1.16.0
 * Filter based Flighting capabilities (#1580)
 * Filter based Flighting for DUNA feature (#1580)
+
+Version 1.15.3
+* Fix issue with legacy keychain on macOS.
 
 Version 1.15.2
 * Feature flag gating STK querying and getting rid of category for its setter. (#1586)

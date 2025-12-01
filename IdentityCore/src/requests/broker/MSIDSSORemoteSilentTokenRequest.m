@@ -36,9 +36,12 @@
 #import "MSIDSSOTokenResponseHandler.h"
 #import "MSIDThrottlingService.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDTokenResult.h"
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDLastRequestTelemetry.h"
 #endif
+
+NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_request_starvation_duration";
 
 @interface MSIDSSORemoteSilentTokenRequest ()
 
@@ -51,6 +54,7 @@
 @property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
 @property (nonatomic, readonly) MSIDProviderType providerType;
 @property (nonatomic) NSDate *requestSentDate;
+@property (nonatomic) NSTimeInterval gcdStarvedDuration;
 
 @end
 
@@ -123,6 +127,7 @@
                             }
                         }
                         
+                        [result insertBrokerMetaData:@(innerStrongSelf.gcdStarvedDuration) forKey:MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION];
                         if (completionBlock) completionBlock(result, localError);
                     }];
                 }
