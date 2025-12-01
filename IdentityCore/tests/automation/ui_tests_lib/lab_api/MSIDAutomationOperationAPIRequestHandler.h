@@ -45,7 +45,8 @@
 - (instancetype)initWithAPIPath:(NSString *)apiPath
              encodedCertificate:(NSString *)encodedCertificate
             certificatePassword:(NSString *)certificatePassword
-      operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration;
+      operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration
+     functionAppAPIConfiguration:(NSDictionary *)functionAppAPIConfiguration;
 
 - (void)executeAPIRequest:(MSIDAutomationBaseApiRequest *)apiRequest
           responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
