@@ -59,6 +59,7 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDCacheItemJsonSerializer.h"
+#import "MSIDBartFeatureUtil.h"
 
 @interface MSIDDefaultTokenCacheAccessor (TestUtil)
 
@@ -1016,6 +1017,45 @@
     XCTAssertEqualObjects(account.realm, @"utid");
 }
 
+- (void)testAllAccountsWithEnvironment_whenNoFamilyId_WithBartEnabled_andBoundDeviceId_andTokensInPrimaryCache_shouldReturnAccounts
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid2"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:nil
+ boundAppRefreshTokenDeviceId:@"test-device-id"
+                     accessor:_defaultAccessor];
+
+    NSError *error = nil;
+
+    MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
+
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 1);
+    MSIDAccount *account = accounts[0];
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid2.utid");
+    XCTAssertEqualObjects(account.realm, @"utid");
+    
+    // When feature flag is disabled, should not return account
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+    error = nil;
+    accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 0);
+}
+
 - (void)testAllAccountsWithEnvironment_whenFamilyIdProvided_andTokensInPrimaryCache_shouldReturnAccounts
 {
     [self saveResponseWithUPN:@"upn@test.com"
@@ -1266,6 +1306,72 @@
                   accessToken:@"access token"
                  refreshToken:@"refresh token 2"
                      familyId:@"3"
+                     accessor:_otherAccessor];
+
+    // Test accounts retrieval
+    NSError *error = nil;
+
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil context:nil error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 2);
+    MSIDAccount *firstAccount = accounts[0];
+    XCTAssertEqualObjects(firstAccount.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(firstAccount.realm, @"utid");
+    XCTAssertEqualObjects(firstAccount.username, @"upn@test.com");
+
+    MSIDAccount *secondAccount = accounts[1];
+    XCTAssertEqualObjects(secondAccount.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(secondAccount.realm, @"utid");
+    XCTAssertEqualObjects(secondAccount.username, @"upn@test.com");
+}
+
+- (void)testAllAccountsWithEnvironment_whenBartFeatureIsEnabled_shouldReturnAccount
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+    NSString *deviceId = [[NSUUID UUID] UUIDString];
+    // Save test response
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                appIdentifier:nil
+ boundAppRefreshTokenDeviceId:deviceId
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                appIdentifier:nil
+ boundAppRefreshTokenDeviceId:deviceId
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.microsoftonline.com/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:@"3"
+                appIdentifier:nil
+ boundAppRefreshTokenDeviceId:deviceId
                      accessor:_otherAccessor];
 
     // Test accounts retrieval
@@ -2077,6 +2183,7 @@
                  refreshToken:@"refresh token"
                      familyId:nil
                 appIdentifier:nil
+ boundAppRefreshTokenDeviceId:nil
                      accessor:_defaultAccessor];
     
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id"
@@ -2106,6 +2213,7 @@
                  refreshToken:@"refresh token"
                      familyId:nil
                 appIdentifier:nil
+ boundAppRefreshTokenDeviceId:nil
                      accessor:_defaultAccessor];
     
     [self saveResponseWithUPN:@"legacy.id"
@@ -2120,6 +2228,7 @@
                  refreshToken:@"refresh token"
                      familyId:nil
                 appIdentifier:nil
+ boundAppRefreshTokenDeviceId:nil
                      accessor:_defaultAccessor];
     
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id"
@@ -2150,6 +2259,7 @@
                  refreshToken:@"refresh token"
                      familyId:nil
                 appIdentifier:nil
+ boundAppRefreshTokenDeviceId:nil
                      accessor:_defaultAccessor];
     
     [self saveResponseWithUPN:@"legacy.id"
@@ -2164,6 +2274,7 @@
                  refreshToken:@"refresh token"
                      familyId:nil
                 appIdentifier:nil
+ boundAppRefreshTokenDeviceId:nil
                      accessor:_defaultAccessor];
     
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
@@ -2196,6 +2307,7 @@
                  refreshToken:@"refresh token"
                      familyId:nil
                 appIdentifier:nil
+ boundAppRefreshTokenDeviceId:nil
                      accessor:_defaultAccessor];
     
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
@@ -3121,6 +3233,7 @@
                  refreshToken:refreshToken
                      familyId:familyId
                 appIdentifier:nil
+ boundAppRefreshTokenDeviceId:nil
                      accessor:accessor];
 }
 
@@ -3149,6 +3262,37 @@
                      refreshToken:refreshToken
                          familyId:familyId
                     appIdentifier:appIdentifier
+     boundAppRefreshTokenDeviceId:nil
+                         accessor:accessor];
+}
+
+- (void)saveResponseWithUPN:(NSString *)upn
+                   clientId:(NSString *)clientId
+                  authority:(NSString *)authority
+             responseScopes:(NSString *)responseScopes
+                inputScopes:(NSString *)inputScopes
+                        uid:(NSString *)uid
+                       utid:(NSString *)utid
+                accessToken:(NSString *)accessToken
+               refreshToken:(NSString *)refreshToken
+                   familyId:(NSString *)familyId
+              appIdentifier:(NSString *)appIdentifier
+boundAppRefreshTokenDeviceId:(NSString *)boundAppRefreshTokenDeviceId
+                   accessor:(id<MSIDCacheAccessor>)accessor
+{
+       [self saveResponseWithUPN:upn
+                         clientId:clientId
+                        authority:authority
+                   responseScopes:responseScopes
+                      inputScopes:inputScopes
+                              uid:uid
+                             utid:utid
+                         tenantId:utid
+                      accessToken:accessToken
+                     refreshToken:refreshToken
+                         familyId:familyId
+                    appIdentifier:appIdentifier
+        boundAppRefreshTokenDeviceId:boundAppRefreshTokenDeviceId
                          accessor:accessor];
 }
 
@@ -3164,6 +3308,7 @@
                refreshToken:(NSString *)refreshToken
                    familyId:(NSString *)familyId
               appIdentifier:(NSString *)appIdentifier
+boundAppRefreshTokenDeviceId:(NSString *)boundAppRefreshTokenDeviceId
                    accessor:(id<MSIDCacheAccessor>)accessor
 {
     NSString *idToken = nil;
@@ -3183,6 +3328,13 @@
                                                                            uid:uid
                                                                           utid:utid
                                                                       familyId:familyId];
+    if (boundAppRefreshTokenDeviceId)
+    {
+        response.boundAppRefreshTokenDeviceId = boundAppRefreshTokenDeviceId;
+        NSMutableDictionary* jsonDictionary = [NSMutableDictionary dictionaryWithDictionary:response.jsonDictionary];
+        jsonDictionary[MSID_BART_DEVICE_ID_KEY] = boundAppRefreshTokenDeviceId;
+        response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonDictionary error:nil];
+    }
 
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:authority
                                                                                 clientId:clientId

@@ -1380,13 +1380,6 @@
                                                     accountCredentialCache:accountCredentialCache
                                                                    context:context
                                                                      error:error];
-    
-    // If family refresh token is not enabled, return list of regular refresh tokens
-    if (!frtEnabled)
-    {
-        return firstSet;
-    }
-    
     if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
     {
         NSSet<NSString *> *bartSet = [self homeAccountIdsFromRTsWithAuthority:authority
@@ -1398,7 +1391,7 @@
                                                                         error:error];
         if (bartSet)
         {
-            [firstSet setByAddingObjectsFromSet:bartSet];
+            firstSet = [firstSet setByAddingObjectsFromSet:bartSet];
         }
         else
         {
@@ -1407,6 +1400,12 @@
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"(Default accessor) Failed to retrieve homeAccountIds from BARTs: %@", MSID_PII_LOG_MASKABLE(*error));
             }
         }
+    }
+    
+    // If family refresh token is not enabled, return list of regular refresh tokens
+    if (!frtEnabled)
+    {
+        return firstSet;
     }
     
     NSSet<NSString *> *secondSet = [self homeAccountIdsFromRTsWithAuthority:authority
