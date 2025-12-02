@@ -1016,7 +1016,7 @@
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid2.utid");
     XCTAssertEqualObjects(account.realm, @"utid");
 }
-
+#if TARGET_OS_IPHONE
 - (void)testAllAccountsWithEnvironment_whenNoFamilyId_WithBartEnabled_andBoundDeviceId_andTokensInPrimaryCache_shouldReturnAccounts
 {
     [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
@@ -1055,6 +1055,7 @@
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 0);
 }
+#endif
 
 - (void)testAllAccountsWithEnvironment_whenFamilyIdProvided_andTokensInPrimaryCache_shouldReturnAccounts
 {
@@ -1326,7 +1327,7 @@
     XCTAssertEqualObjects(secondAccount.realm, @"utid");
     XCTAssertEqualObjects(secondAccount.username, @"upn@test.com");
 }
-
+#if TARGET_OS_IPHONE
 - (void)testAllAccountsWithEnvironment_whenBartFeatureIsEnabled_shouldReturnAccount
 {
     [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
@@ -1392,7 +1393,7 @@
     XCTAssertEqualObjects(secondAccount.realm, @"utid");
     XCTAssertEqualObjects(secondAccount.username, @"upn@test.com");
 }
-
+#endif
 - (void)testAllAccountsWithEnvironment_whenTokensInBothCachesWithDifferentAuthorities_andAliasesAvailable_shouldReturnOneAccount
 {
     // Save test response

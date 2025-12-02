@@ -1,5 +1,5 @@
 Version 1.17.2
-* Fix getting cached accounts from RTs when RT was Bound App RT
+* Fix getting cached accounts from RTs when RT was Bound App RT 
 
 Version 1.17.1
 * Ability to decrypt Bound app refresh token response (#1572)
