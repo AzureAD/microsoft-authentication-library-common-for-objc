@@ -42,9 +42,9 @@ jobs:
       VISION_LIB:
         target: "vision_library"
   displayName: Validate Pull Request
+  timeoutInMinutes: 120
   pool:
     vmImage: 'macOS-15'
-    timeOutInMinutes: 30
 
   steps:
   - checkout: azure-activedirectory-tokenbroker-for-objc
