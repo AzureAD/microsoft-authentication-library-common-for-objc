@@ -100,7 +100,11 @@ NSString *const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS = @"disable_rm_meta
 NSString *const MSID_FLIGHT_ENABLE_QUERYING_STK = @"enable_querying_stk";
 NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_msal_bart_supported";
 
+NSString *const MSID_FLIGHT_USE_AUTOLAYOUT_FOR_LOADING_INDICATOR = @"use_autolayout_for_loading_indicator";
+
 NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 
+// This is SsoExt flow only flight
+NSString *const MSID_FLIGHT_ENABLE_THREAD_STARVATION = @"ts_en";
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

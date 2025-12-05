@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,35 +22,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 #import <Foundation/Foundation.h>
-#import "MSIDAutomationBaseApiRequest.h"
 
-@protocol MSIDAutomationOperationAPIResponseHandler <NSObject>
+NS_ASSUME_NONNULL_BEGIN
 
-- (id)responseFromData:(NSData *)response
-                 error:(NSError *__autoreleasing*)error;
+@interface MSIDGCDStarvationDetector : NSObject
 
-@end
+// Start monitoring on a dedicated thread
+- (void)startMonitoring;
 
-@protocol MSIDAutomationOperationAPICacheHandler <NSObject>
-
-- (id)cachedResponseForRequest:(id)request;
-- (void)cacheResponse:(id)response forRequest:(id)request;
+// Stop monitoring
+// Returns the cumulative duration (in seconds) of GCD starvation detected during the monitoring period.
+- (NSTimeInterval)stopMonitoring;
 
 @end
 
-@interface MSIDAutomationOperationAPIRequestHandler : NSObject
-
-@property (nonatomic) id<MSIDAutomationOperationAPICacheHandler> apiCacheHandler;
-
-- (instancetype)initWithAPIPath:(NSString *)apiPath
-             encodedCertificate:(NSString *)encodedCertificate
-            certificatePassword:(NSString *)certificatePassword
-      operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration
-     functionAppAPIConfiguration:(NSDictionary *)functionAppAPIConfiguration;
-
-- (void)executeAPIRequest:(MSIDAutomationBaseApiRequest *)apiRequest
-          responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
-        completionHandler:(void (^)(id result, NSError *error))completionHandler;
-
-@end
+NS_ASSUME_NONNULL_END
