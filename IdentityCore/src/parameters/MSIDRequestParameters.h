@@ -120,11 +120,12 @@
 #pragma mark - Xpc Mode
 @property (nonatomic) MSIDXpcMode xpcMode;
 
+#pragma mark - monitor gcd thread starvation
+@property (nonatomic) BOOL allowThreadStarvationMonitoring;
+
 - (NSURL *)tokenEndpoint;
 
-/**
- Indicates whether a bound app refresh token is being requested.
-*/
+// property that indicates if calling app requested broker for a Bound App Refresh token
 @property (nonatomic) BOOL isBoundAppRefreshTokenRequested;
 
 #pragma mark Methods
