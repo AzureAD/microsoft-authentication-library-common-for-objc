@@ -1,6 +1,7 @@
-Version TBD
-* Silent token request should use FRT first when single FRT is enabled (#1624) 
+Version 1.18.0
+* Silent token request should use FRT first when single FRT is enabled #1624
 * Use autolayout for loading indicator #1628
+* Add thread starvation detector for SsoExt silent token flow guarded by flight #1622
 
 Version 1.17.0
 * Add flag to indicate app is requesting broker for Bound app RT #1578
