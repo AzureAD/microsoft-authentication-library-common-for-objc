@@ -35,6 +35,12 @@
 
 #if !MSID_EXCLUDE_WEBKIT
 
+#import <AuthenticationServices/AuthenticationServices.h>
+
+@interface MSIDAADOAuthEmbeddedWebviewController () <ASWebAuthenticationPresentationContextProviding>
+@property (nonatomic, strong) ASWebAuthenticationSession *authSession;
+@end
+
 @implementation MSIDAADOAuthEmbeddedWebviewController
 
 - (id)initWithStartURL:(NSURL *)startURL
@@ -69,7 +75,11 @@
     // Stop at broker or browser
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+
+    // Lowercased URL string for comparisons (declare early to avoid use-before-declare)
+    NSString *requestURLString = requestURL.absoluteString.lowercaseString ?: @"";
     
+
     if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH])
     {
         // When not running in SSO extension, the CA block page will return with "https" scheme instead of "browser"
@@ -90,6 +100,60 @@
                 return YES;
             }
         }
+    }
+    
+    if (isBrowserUrl)
+    {
+        NSURL *modifiedURL = [[NSURL alloc] initWithString:[requestURLString stringByReplacingOccurrencesOfString:@"browser" withString:@"https"]];
+        NSURLRequest *urlRequest = [[NSURLRequest alloc] initWithURL:modifiedURL];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        [self loadRequest:urlRequest];
+        return YES;
+
+    }
+    
+    if ([requestURL.scheme isEqualToString:@"https"] &&
+            [requestURL.host isEqualToString:@"portal.manage-beta.microsoft.com"] &&
+            [requestURL.path isEqualToString:@"/enrollment/webenrollment/installprofile"])
+    {
+
+        
+        // Extract IntuneId from query parameters
+           NSURLComponents *components = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
+           NSString *intuneIdValue = nil;
+           for (NSURLQueryItem *item in components.queryItems) {
+               if ([item.name isEqualToString:@"IntuneId"]) {
+                   intuneIdValue = item.value;
+                   break;
+               }
+           }
+
+        // Start ASWebAuthenticationSession
+        self.authSession = [[ASWebAuthenticationSession alloc] initWithURL:requestURL
+                                                         callbackURLScheme:nil
+                                                         completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error) {
+            if (callbackURL) {
+                NSLog(@"Success: %@", callbackURL);
+                // Handle success if needed
+            } else if (error) {
+                NSLog(@"Failed: %@", error.localizedDescription);
+            }
+        }];
+        self.authSession.presentationContextProvider = self;
+        self.authSession.prefersEphemeralWebBrowserSession = YES; // Optional: Use ephemeral session if needed
+        
+        // Add custom header if IntuneId exists
+        if (intuneIdValue) {
+            NSMutableDictionary *headers = [NSMutableDictionary dictionary];
+            headers[@"IntuneId"] = intuneIdValue;
+            [self.authSession setValue:headers forKey:@"additionalHeader"];
+        }
+
+        [self.authSession start];
+        
+        // Block navigation in webview
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return YES;
     }
     
     if (isBrokerUrl || isBrowserUrl)
@@ -115,8 +179,6 @@
     }
     
     // check for pkeyauth challenge.
-    NSString *requestURLString = [requestURL.absoluteString lowercaseString];
-    
     if ([requestURLString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
     {
         decisionHandler(WKNavigationActionPolicyCancel);
@@ -149,6 +211,33 @@
 
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
+
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(__unused ASWebAuthenticationSession *)session
+{
+    return [self presentationAnchor];
+}
+
+- (ASPresentationAnchor)presentationAnchor
+{
+    if (![NSThread isMainThread])
+    {
+        __block ASPresentationAnchor anchor;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            anchor = [self presentationAnchor];
+        });
+        
+        return anchor;
+    }
+    
+    __typeof__(self.parentController) parentController = self.parentController;
+    
+#if TARGET_OS_OSX
+    return parentController ? parentController.view.window : [NSApplication sharedApplication].keyWindow;
+#else
+    return parentController.view.window;
+#endif
+}
+
 
 @end
 
