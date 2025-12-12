@@ -30,6 +30,8 @@
                        authorityEndpoint:(nonnull NSURL *)authorityEndpoint
                                   scopes:(nonnull NSSet *)scopes
                                    nonce:(nonnull NSString *)nonce
+                      extraPayloadClaims:(nullable NSDictionary *)extraPayloadClaims
+                       workplaceJoinInfo:(nullable MSIDWPJKeyPairWithCert *)workplaceJoinInfo
 {
     self = [super init];
     if (self)
@@ -62,6 +64,8 @@
         _clientId = clientId;
         _scopes = scopes;
         _nonce = nonce;
+        _extraPayloadClaims = extraPayloadClaims;
+        _workplaceJoinInfo = workplaceJoinInfo;
     }
     return self;
 }
@@ -69,6 +73,10 @@
 - (nonnull NSMutableDictionary *)jsonDictionary
 {
     NSMutableDictionary *jsonDict = [NSMutableDictionary new];
+    for (NSString *key in self.extraPayloadClaims)
+    {
+        jsonDict[key] = self.extraPayloadClaims[key];
+    }
     jsonDict[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
     jsonDict[MSID_BOUND_RT_EXCHANGE] = @1;
     jsonDict[@"aud"] = self.audience;

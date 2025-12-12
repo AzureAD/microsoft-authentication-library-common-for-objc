@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,45 +22,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRegistrationInformationMock.h"
+#import <Foundation/Foundation.h>
+NS_ASSUME_NONNULL_BEGIN
+@interface MSIDJweResponse : NSObject
 
-@implementation MSIDRegistrationInformationMock
+@property (readonly, nonatomic) NSData *encryptedKey;
+@property (readonly, nonatomic) NSData *iv;
+@property (readonly, nonatomic) NSData *payload;
+@property (readonly, nonatomic) NSData *headerContext;
+@property (readonly, nonatomic) NSString *headerAlgorithm;
+@property (readonly, nonatomic) NSString *headerEncryptionAlgorithm;
+@property (readonly, nonatomic) NSData *tag;
+@property (readonly, nonatomic) NSData *aad;
+@property (readonly, nonatomic) NSDictionary *jweHeader;
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
-    }
-    return self;
-}
-
-- (void)setPrivateKey:(SecKeyRef)privateKey
-{
-    _privateKeyRef = privateKey;
-}
-
-- (void)setPrivateTransportKey:(SecKeyRef)privateTransportKey
-{
-    _privateTransportKeyRef = privateTransportKey;
-}
-
-- (void)setCertificateSubject:(NSString *)certificateSubject
-{
-    _certificateSubject = certificateSubject;
-}
-
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
-}
+- (id)initWithRawJWE:(NSString *)rawJWE;
 
 @end
+NS_ASSUME_NONNULL_END

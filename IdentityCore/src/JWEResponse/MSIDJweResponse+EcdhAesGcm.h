@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,47 +20,25 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDRegistrationInformationMock.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJweResponse.h"
+#import "MSIDRequestContext.h"
+#import "MSIDJWECrypto.h"
+#import "MSIDJsonSerializable.h"
 
-@implementation MSIDRegistrationInformationMock
+typedef NSString *const MSIDJWECryptoKeyExchangeAlgorithm NS_TYPED_ENUM;
+typedef NSString *const MSIDJWECryptoKeyResponseEncryptionAlgorithm NS_TYPED_ENUM;
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
-    }
-    return self;
-}
+extern MSIDJWECryptoKeyExchangeAlgorithm const _Nonnull MSID_KEY_EXCHANGE_ALGORITHM_ECDH_ES;
+extern MSIDJWECryptoKeyResponseEncryptionAlgorithm const _Nonnull MSID_RESPONSE_ENCRYPTION_ALGORITHM_A256GCM;
 
-- (void)setPrivateKey:(SecKeyRef)privateKey
-{
-    _privateKeyRef = privateKey;
-}
-
-- (void)setPrivateTransportKey:(SecKeyRef)privateTransportKey
-{
-    _privateTransportKeyRef = privateTransportKey;
-}
-
-- (void)setCertificateSubject:(NSString *)certificateSubject
-{
-    _certificateSubject = certificateSubject;
-}
-
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
-}
-
+NS_ASSUME_NONNULL_BEGIN
+@interface MSIDJweResponse (EcdhAesGcm)
+- (BOOL)IsJweResponseAlgorithmSupported:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (nullable NSDictionary *)decryptJweResponseWithPrivateStk:(SecKeyRef)privateStk
+                                                  jweCrypto:(MSIDJWECrypto *)jweCrypto
+                                                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 @end
+NS_ASSUME_NONNULL_END

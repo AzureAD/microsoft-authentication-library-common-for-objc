@@ -42,6 +42,11 @@
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDFlightManager.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDBoundRefreshToken+Redemption.h"
+#import "MSIDBoundRefreshTokenRedemptionParameters.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDAADV1RefreshTokenGrantRequest.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDKeychainTokenCache.h"
@@ -523,10 +528,30 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                          completionBlock:(MSIDRequestCompletionBlock) __unused completionBlock
 {
 #if !EXCLUDE_FROM_MSALCPP
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via %@ Refresh token...", refreshToken.credentialType == MSIDFamilyRefreshTokenType ? @"Family" : @"App");
-    
-    MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
-                                                                                                refreshToken:refreshToken.refreshToken];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
+    MSIDRefreshTokenGrantRequest *tokenRequest;
+    if (refreshToken.credentialType == MSIDBoundRefreshTokenType)
+    {
+        MSIDBoundRefreshToken *boundRT = (MSIDBoundRefreshToken *)refreshToken;
+        // We will always use AADV2 factory to create bound refresh token request
+        MSIDAADV2Oauth2Factory *aadv2TokenFactory = [[MSIDAADV2Oauth2Factory alloc] init];
+        NSError *boundAppRtRequestError;
+        tokenRequest = [aadv2TokenFactory boundRefreshTokenRequestWithRequestParameters:self.requestParameters
+                                                                           refreshToken:boundRT
+                                                                         requestContext:self.requestParameters
+                                                                                  error:&boundAppRtRequestError];
+        if (!tokenRequest)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to create bound app refresh token request with error %@", MSID_PII_LOG_MASKABLE(boundAppRtRequestError));
+            completionBlock(nil, boundAppRtRequestError);
+            return;
+        }
+    }
+    else
+    {
+        tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
+                                                                          refreshToken:refreshToken.refreshToken];
+    }
     // Currently SilentTokenRequest has 3 child classes: Legacy, Default (local) and SSO. We will init the throttling service in Default and SSO and exclude Legacy. So the nil check of throttling service is needed
     if (!self.throttlingService || ![MSIDThrottlingService isThrottlingEnabled])
     {

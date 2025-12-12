@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,47 +20,20 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDRegistrationInformationMock.h"
 
-@implementation MSIDRegistrationInformationMock
+#import <Foundation/Foundation.h>
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
-    }
-    return self;
-}
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)setPrivateKey:(SecKeyRef)privateKey
-{
-    _privateKeyRef = privateKey;
-}
+@interface NSData (MSIDEccSecKeyRef)
 
-- (void)setPrivateTransportKey:(SecKeyRef)privateTransportKey
-{
-    _privateTransportKeyRef = privateTransportKey;
-}
++ (nullable SecKeyRef)createKeyFromEccJsonWebKey:(NSDictionary *)jsonWebKey
+                                              error:(NSError *_Nullable*_Nullable)error;
 
-- (void)setCertificateSubject:(NSString *)certificateSubject
-{
-    _certificateSubject = certificateSubject;
-}
-
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
-}
+- (nullable SecKeyRef)createKeyFromEccJsonWebKey:(NSError *_Nullable*_Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

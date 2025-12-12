@@ -23,10 +23,13 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDResponseSerialization.h"
+#import "MSIDJweResponseDecryptPreProcessor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDJsonResponsePreprocessor : NSObject <MSIDResponseSerialization>
+
+@property (nonatomic, nullable) MSIDJweResponseDecryptPreProcessor* jweDecryptPreProcessor;
 
 @end
 
