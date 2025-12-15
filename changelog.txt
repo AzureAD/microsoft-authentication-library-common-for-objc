@@ -1,3 +1,6 @@
+Version 1.7.32.1
+* [Minor] Update logic to check Window from parent VC instead of parent VC itself before using backup root window for SsoExtension UI
+
 Version 1.7.32
 * Implement sign out request for browser sso #1328
 
