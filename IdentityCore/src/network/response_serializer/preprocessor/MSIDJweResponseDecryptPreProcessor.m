@@ -79,10 +79,7 @@
         // bart_device_id should be present in response only when refresh_token_type=bound_app_rt is present in token response from server.
         if (![decryptedResponse[MSID_REFRESH_TOKEN_TYPE] isEqualToString:MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT])
         {
-            if ([mutableDecryptedResponse objectForKey:MSID_BART_DEVICE_ID_KEY])
-            {
-                [mutableDecryptedResponse removeObjectForKey:MSID_BART_DEVICE_ID_KEY];
-            }
+            [mutableDecryptedResponse removeObjectForKey:MSID_BART_DEVICE_ID_KEY];
         }
 
         decryptedResponse = [mutableDecryptedResponse copy];
