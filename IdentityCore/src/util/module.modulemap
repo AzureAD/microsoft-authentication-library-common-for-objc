@@ -1,5 +1,5 @@
 framework module IdentityCore {
-  umbrella header "IdentityCore.h"
+  umbrella "."
   export *
   module * { export * }
 }
