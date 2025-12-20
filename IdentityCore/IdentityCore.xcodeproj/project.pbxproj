@@ -2724,10 +2724,6 @@
 		724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshTokenRedemptionTests.m; sourceTree = "<group>"; };
 		724C9E0D2E6F9F030039BAA0 /* NSData+MSIDEccSecKeyRef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MSIDEccSecKeyRef.h"; sourceTree = "<group>"; };
 		724C9E0F2E6F9F410039BAA0 /* NSData+MSIDEccSecKeyRef.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MSIDEccSecKeyRef.m"; sourceTree = "<group>"; };
-		724C9E2D2E6FAB170039BAA0 /* IdentityCore iOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityCore iOS-Bridging-Header.h"; sourceTree = "<group>"; };
-		724C9E2E2E6FAB170039BAA0 /* IdentityCore Mac-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityCore Mac-Bridging-Header.h"; sourceTree = "<group>"; };
-		724C9E2F2E6FAB170039BAA0 /* IdentityTest iOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityTest iOS-Bridging-Header.h"; sourceTree = "<group>"; };
-		724C9E302E6FAB170039BAA0 /* IdentityTest Mac-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityTest Mac-Bridging-Header.h"; sourceTree = "<group>"; };
 		724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDConcatKdfProvider.swift; sourceTree = "<group>"; };
 		724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJweResponseDecryptionTests.m; sourceTree = "<group>"; };
 		728209C126FA9C9A00B5F018 /* MSIDBackgroundTaskData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskData.h; sourceTree = "<group>"; };
@@ -5587,10 +5583,6 @@
 				237777C82853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.h */,
 				237777C92853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.m */,
 				724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */,
-				724C9E2D2E6FAB170039BAA0 /* IdentityCore iOS-Bridging-Header.h */,
-				724C9E2E2E6FAB170039BAA0 /* IdentityCore Mac-Bridging-Header.h */,
-				724C9E2F2E6FAB170039BAA0 /* IdentityTest iOS-Bridging-Header.h */,
-				724C9E302E6FAB170039BAA0 /* IdentityTest Mac-Bridging-Header.h */,
 			);
 			path = util;
 			sourceTree = "<group>";
