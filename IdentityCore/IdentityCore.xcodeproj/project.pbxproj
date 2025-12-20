@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 48;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1933,6 +1933,11 @@
 		B4E6D8612A9F266F00FC7DD9 /* MSIDWebAuthNUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E6D8602A9F266F00FC7DD9 /* MSIDWebAuthNUtil.m */; };
 		B4E6D8622A9F268700FC7DD9 /* MSIDWebAuthNUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = B4E6D85F2A9F253B00FC7DD9 /* MSIDWebAuthNUtil.h */; };
 		B4E6D8632A9F268B00FC7DD9 /* MSIDWebAuthNUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E6D8602A9F266F00FC7DD9 /* MSIDWebAuthNUtil.m */; };
+		B4EC850E2EF65C58005567DA /* MSIDAesGcmDecryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC850A2EF65C58005567DA /* MSIDAesGcmDecryptor.swift */; };
+		B4EC850F2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m in Sources */ = {isa = PBXBuildFile; fileRef = B4EC850C2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m */; };
+		B4EC85102EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.h in Headers */ = {isa = PBXBuildFile; fileRef = B4EC850B2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.h */; };
+		B4EC85112EF65C58005567DA /* MSIDAesGcmDecryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC850A2EF65C58005567DA /* MSIDAesGcmDecryptor.swift */; };
+		B4EC85122EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m in Sources */ = {isa = PBXBuildFile; fileRef = B4EC850C2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m */; };
 		B86FA7D42383757100E5195A /* MSIDMacACLKeychainAccessorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B86FA7C62383748000E5195A /* MSIDMacACLKeychainAccessorTests.m */; };
 		B86FA7D52383757600E5195A /* MSIDMacTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B86FA7C72383748000E5195A /* MSIDMacTokenCacheTests.m */; };
 		B86FA7D62383757A00E5195A /* MSIDMacKeychainTokenCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B86FA7C82383748000E5195A /* MSIDMacKeychainTokenCacheTests.m */; };
@@ -3452,6 +3457,9 @@
 		B4E6D85F2A9F253B00FC7DD9 /* MSIDWebAuthNUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebAuthNUtil.h; sourceTree = "<group>"; };
 		B4E6D8602A9F266F00FC7DD9 /* MSIDWebAuthNUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebAuthNUtil.m; sourceTree = "<group>"; };
 		B4EC84E12EF6394E005567DA /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		B4EC850A2EF65C58005567DA /* MSIDAesGcmDecryptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDAesGcmDecryptor.swift; sourceTree = "<group>"; };
+		B4EC850B2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDJweResponse+EcdhAesGcm.h"; sourceTree = "<group>"; };
+		B4EC850C2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDJweResponse+EcdhAesGcm.m"; sourceTree = "<group>"; };
 		B86FA7C62383748000E5195A /* MSIDMacACLKeychainAccessorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDMacACLKeychainAccessorTests.m; sourceTree = "<group>"; };
 		B86FA7C72383748000E5195A /* MSIDMacTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDMacTokenCacheTests.m; sourceTree = "<group>"; };
 		B86FA7C82383748000E5195A /* MSIDMacKeychainTokenCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDMacKeychainTokenCacheTests.m; sourceTree = "<group>"; };
@@ -3523,10 +3531,6 @@
 		F7AB2563ADFC286EF6D81445 /* MSIDWPJMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDWPJMetadata.h; sourceTree = "<group>"; };
 		F7AB272FEBCF984722F26558 /* MSIDWPJMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDWPJMetadata.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		724C9DFB2E6F90A90039BAA0 /* JWEResponse */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = JWEResponse; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1EE8FF5324F4BB3800CA1445 /* Frameworks */ = {
@@ -5475,6 +5479,16 @@
 			path = Matchers;
 			sourceTree = "<group>";
 		};
+		B4EC850D2EF65C58005567DA /* JWEResponse */ = {
+			isa = PBXGroup;
+			children = (
+				B4EC850A2EF65C58005567DA /* MSIDAesGcmDecryptor.swift */,
+				B4EC850B2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.h */,
+				B4EC850C2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m */,
+			);
+			path = JWEResponse;
+			sourceTree = "<group>";
+		};
 		B86FA7C52383748000E5195A /* mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -5791,7 +5805,7 @@
 				600D19A720964C330004CD43 /* workplacejoin */,
 				D62600091FBD305800EE4487 /* util */,
 				D6D9A4B91FBE6D1C00EFA430 /* IdentityCore.pch */,
-				724C9DFB2E6F90A90039BAA0 /* JWEResponse */,
+				B4EC850D2EF65C58005567DA /* JWEResponse */,
 				B2C7B3B1213C681F009FFCC1 /* MSIDErrorConverter.h */,
 				B2C7B3B2213C681F009FFCC1 /* MSIDErrorConverter.m */,
 				B2C7B3B6213C6838009FFCC1 /* MSIDErrorConverting.h */,
@@ -6454,6 +6468,7 @@
 				A0C7DD7C25D1E98D00F5B5B6 /* NSError+MSIDThrottlingExtension.h in Headers */,
 				B2E2A93D2392F91100BA2EA3 /* MSIDInteractiveTokenRequestParameters.h in Headers */,
 				B2C07486246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.h in Headers */,
+				B4EC85102EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.h in Headers */,
 				23D2048E21D1B499009B5975 /* MSIDAADJsonResponsePreprocessor.h in Headers */,
 				B2C07481246B70F70008D701 /* MSIDAssymetricKeyPair.h in Headers */,
 				B2CDB57C1FE33EC1003A4B5C /* MSIDIdTokenClaims.h in Headers */,
@@ -6770,9 +6785,6 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				724C9DFB2E6F90A90039BAA0 /* JWEResponse */,
-			);
 			name = "IdentityCore Mac";
 			productName = IdentityCoreMac;
 			productReference = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */;
@@ -6842,9 +6854,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				724C9DFB2E6F90A90039BAA0 /* JWEResponse */,
 			);
 			name = "IdentityCore iOS";
 			productName = IdentityCore;
@@ -7562,6 +7571,8 @@
 				230847A82082C5830024CE7C /* MSIDHttpRequest.m in Sources */,
 				B2AF1D42218BD10A0080C1A0 /* MSIDRequestParameters.m in Sources */,
 				04D32CB31FD62141000B123E /* MSIDError.m in Sources */,
+				B4EC85112EF65C58005567DA /* MSIDAesGcmDecryptor.swift in Sources */,
+				B4EC85122EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m in Sources */,
 				05566D112204BB8A002DBA40 /* MSIDMacKeychainTokenCache.m in Sources */,
 				23D2049021D1B499009B5975 /* MSIDAADJsonResponsePreprocessor.m in Sources */,
 				B286B9582385F01A007833AD /* MSIDOIDCSignoutRequest.m in Sources */,
@@ -8252,6 +8263,8 @@
 				B2C7081D2195284900D917B8 /* MSIDDefaultBrokerTokenRequest.m in Sources */,
 				60F94D322210E8BD0035D956 /* MSIDV1IdToken.m in Sources */,
 				B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */,
+				B4EC850E2EF65C58005567DA /* MSIDAesGcmDecryptor.swift in Sources */,
+				B4EC850F2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m in Sources */,
 				58BC2393271E0D94008A77BE /* MSIDSSOExtensionGetSsoCookiesRequest.m in Sources */,
 				239E3BBF23E1004F00F7A50A /* MSIDClientSDKType.m in Sources */,
 				23B39ABD209BD47D000AA905 /* MSIDB2CAuthorityResolver.m in Sources */,
@@ -8683,8 +8696,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				VALIDATE_PRODUCT = YES;
@@ -8738,10 +8750,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = MSIDTestsHostApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -8794,10 +8803,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = MSIDTestsHostApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.MSIDTestsHostApp;
@@ -9328,11 +9334,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests-Bridging-Header.h";
@@ -9354,11 +9356,7 @@
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests-Bridging-Header.h";
@@ -9413,11 +9411,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -9433,11 +9427,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = UBF8T346G9;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
