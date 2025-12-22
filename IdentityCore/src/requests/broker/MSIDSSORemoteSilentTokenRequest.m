@@ -36,9 +36,12 @@
 #import "MSIDSSOTokenResponseHandler.h"
 #import "MSIDThrottlingService.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDTokenResult.h"
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDLastRequestTelemetry.h"
 #endif
+
+NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_request_starvation_duration";
 
 @interface MSIDSSORemoteSilentTokenRequest ()
 
@@ -51,6 +54,7 @@
 @property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
 @property (nonatomic, readonly) MSIDProviderType providerType;
 @property (nonatomic) NSDate *requestSentDate;
+@property (nonatomic) NSTimeInterval gcdStarvedDuration;
 
 @end
 
@@ -87,36 +91,46 @@
 
 - (MSIDSSOExtensionRequestDelegateCompletionBlock)getCompletionBlock
 {
+    __typeof__(self) __weak weakSelf = self;
     return ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
             {
-#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
-                self.ssoTokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
-#endif      
-                [self.ssoTokenResponseHandler handleOperationResponse:operationResponse
-                                                    requestParameters:self.requestParameters
-                                               tokenResponseValidator:self.tokenResponseValidator
-                                                         oauthFactory:self.oauthFactory
-                                                           tokenCache:self.tokenCache
-                                                 accountMetadataCache:self.accountMetadataCache
-                                                      validateAccount:NO
-                                                                error:error
-                                                      completionBlock:^(MSIDTokenResult *result, NSError *localError)
-                 {
-                    MSIDRequestCompletionBlock completionBlock = self.requestCompletionBlock;
-                    self.requestCompletionBlock = nil;
-                    if (localError)
-                    {
-                        /**
-                         * If SSO-EXT/Xpc responses error, we should update throttling db
-                         */
-                        if ([MSIDThrottlingService isThrottlingEnabled])
+                __typeof__(self) strongSelf = weakSelf;
+                if (strongSelf)
+                {
+    #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
+                    strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
+    #endif
+                    __typeof__(strongSelf) __weak weakStrongSelf = strongSelf;
+                    [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
+                                                        requestParameters:strongSelf.requestParameters
+                                                   tokenResponseValidator:strongSelf.tokenResponseValidator
+                                                             oauthFactory:strongSelf.oauthFactory
+                                                               tokenCache:strongSelf.tokenCache
+                                                     accountMetadataCache:strongSelf.accountMetadataCache
+                                                          validateAccount:NO
+                                                                    error:error
+                                                          completionBlock:^(MSIDTokenResult *result, NSError *localError)
+                     {
+                        __strong __typeof__(weakStrongSelf) innerStrongSelf = weakStrongSelf;
+                        if (!innerStrongSelf) return;
+                        
+                        MSIDRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;
+                        innerStrongSelf.requestCompletionBlock = nil;
+                        if (localError)
                         {
-                            [self.throttlingService updateThrottlingService:localError tokenRequest:self.operationRequest];
+                            /**
+                             * If SSO-EXT/Xpc responses error, we should update throttling db
+                             */
+                            if ([MSIDThrottlingService isThrottlingEnabled])
+                            {
+                                [innerStrongSelf.throttlingService updateThrottlingService:localError tokenRequest:innerStrongSelf.operationRequest];
+                            }
                         }
-                    }
-                    
-                    if (completionBlock) completionBlock(result, localError);
-                }];
+                        
+                        [result insertBrokerMetaData:@(innerStrongSelf.gcdStarvedDuration) forKey:MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION];
+                        if (completionBlock) completionBlock(result, localError);
+                    }];
+                }
             };
 }
 

@@ -50,7 +50,7 @@
     return sharedInstance;
 }
 
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+#if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
 
 - (void)setRedirectUriPrefix:(NSString *)prefix
                    forScheme:(NSString *)scheme

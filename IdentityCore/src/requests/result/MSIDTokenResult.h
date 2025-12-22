@@ -31,6 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDAccount;
 @class MSIDAuthority;
 @class MSIDTokenResponse;
+@class MSIDCache;
+
+
+extern NSString *const MSID_TOKEN_RESULT_BROKER_APP_VERSION;
+extern NSString *const MSID_TOKEN_RESULT_BROKER_APP_RESPONSE_LATENCY;
+extern NSString *const MSID_TOKEN_RESULT_BROKER_APP_BROKER_HANDLING_TIME_INTERVAL;
 
 @interface MSIDTokenResult : NSObject
 
@@ -66,7 +72,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
 
 /* Broker app version used for brokered authentication */
-@property (nonatomic, nullable) NSString *brokerAppVersion;
+@property (nonatomic, nullable) NSString *brokerAppVersion DEPRECATED_MSG_ATTRIBUTE("Use `brokerMetaData` instead.");
+
+/* Broker app meta data used for brokered authentication */
+@property (nonatomic, nullable, readonly) MSIDCache *brokerMetaData;
 
 - (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
                                 refreshToken:(nullable id<MSIDRefreshableToken>)refreshToken
@@ -75,6 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
                                    authority:(nonnull MSIDAuthority *)authority
                                correlationId:(nonnull NSUUID *)correlationId
                                tokenResponse:(nullable MSIDTokenResponse *)tokenResponse;
+
+- (void)insertBrokerMetaData:(nonnull id)obj forKey:(nonnull NSString *)key;
 
 @end
 

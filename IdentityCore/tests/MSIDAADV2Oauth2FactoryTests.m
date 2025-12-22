@@ -54,14 +54,56 @@
 #import "MSIDHttpRequest.h"
 #import "MSIDAuthorizationCodeGrantRequest.h"
 #import "MSIDRefreshTokenGrantRequest.h"
+#import "MSIDBoundRefreshTokenGrantRequest.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDTestSwizzle.h"
+#import "MSIDWorkPlaceJoinUtil.h"
+#import "MSIDWPJKeyPairWithCert.h"
+#import "MSIDJWECrypto.h"
+#import "MSIDBoundRefreshToken+Redemption.h"
+#import "MSIDHttpResponseSerializer.h"
+#import "MSIDJsonResponsePreprocessor.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDRegistrationInformationMock.h"
+#import "MSIDTestSecureEnclaveKeyPairGenerator.h"
+#import "MSIDJwtAlgorithm.h"
+#import "MSIDEcdhApv.h"
+#import "MSIDWorkPlaceJoinConstants.h"
+#import "MSIDKeychainUtil.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDCache.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDAADTokenResponseSerializer.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
 
 @interface MSIDAADV2Oauth2FactoryTests : XCTestCase
-
+@property (nonatomic) SecKeyRef privateStk;
+@property (nonatomic) SecKeyRef privateDk;
+@property (nonnull, nonatomic) MSIDRequestParameters *silentRequestParameters;
 @end
 
 @implementation MSIDAADV2Oauth2FactoryTests
 
 #pragma mark - Token response
+
+- (void)setUp
+{
+    MSIDRequestParameters *parameters = [MSIDRequestParameters new];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    MSIDOpenIdProviderMetadata *metadata = [[MSIDOpenIdProviderMetadata alloc] init];
+    metadata.tokenEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"];
+    parameters.authority.metadata = metadata;
+    parameters.clientId = @"my_client_id";
+    parameters.target = @"user.read tasks.read";
+    parameters.oidcScope = @"openid profile offline_access";
+    parameters.redirectUri = @"my_redirect_uri";
+    parameters.correlationId = [NSUUID new];
+    parameters.extendedLifetimeEnabled = YES;
+    parameters.telemetryRequestId = [[NSUUID new] UUIDString];
+    parameters.authScheme = [MSIDAuthenticationScheme new];
+    self.silentRequestParameters = parameters;
+}
 
 - (void)testTokenResponseFromJSON_whenNilJSON_shouldReturnError
 {
@@ -506,6 +548,213 @@
     parameters.nestedAuthBrokerRedirectUri = @"other_redirect_uri";
     return parameters;
 }
+
+#pragma mark - MSIDAADV2Oauth2Factory.boundRefreshTokenRequestWithRequestParameters Tests
+#if TARGET_OS_IPHONE
+- (void)testBoundRefreshTokenGrantRequest_whenNilBoundRefreshToken_shouldReturnNil
+{
+    MSIDAADV2Oauth2Factory *aadv2TokenFactory = [[MSIDAADV2Oauth2Factory alloc] init];
+    NSError *error;
+    MSIDAADRefreshTokenGrantRequest *tokenRequest = [aadv2TokenFactory
+                                                       boundRefreshTokenRequestWithRequestParameters:self.silentRequestParameters
+                                                                                        refreshToken:nil
+                                                                                      requestContext:nil
+                                                                                               error:&error];
+    XCTAssertNil(tokenRequest);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Bound app refresh token is nil");
+}
+
+- (void)testBoundRefreshTokenGrantRequest_whenValidBoundRefreshToken_withoutWPJData_shouldReturnNil
+{
+    // Mock WPJ util to return nil
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id)^(__unused id obj, __unused NSString *tenantId, __unused id context) {
+        return nil;
+    }];
+    NSError *error;
+    MSIDAADV2Oauth2Factory *aadv2TokenFactory = [[MSIDAADV2Oauth2Factory alloc] init];
+    MSIDAADRefreshTokenGrantRequest *tokenRequest = [aadv2TokenFactory
+                                                       boundRefreshTokenRequestWithRequestParameters:self.silentRequestParameters
+                                                                                        refreshToken:[self createBoundRefreshToken]
+                                                                                      requestContext:nil
+                                                                                               error:&error];
+    
+    XCTAssertNil(tokenRequest);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorWorkplaceJoinRequired);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Failed to get registered device metadata information when formulating bound refresh token redemption JWT.");
+    [MSIDTestSwizzle reset];
+}
+
+- (void)testBoundRefreshTokenGrantRequest_whenValidBoundRefreshToken_withValidJWT_shouldReturnRequest
+{
+    MSIDWPJKeyPairWithCert *wpjInfo = [self createMockWPJKeyPair];
+    NSError *jweCryptoError;
+    SecKeyRef pubKey = NULL;
+    if (self.privateStk)
+    {
+         pubKey = SecKeyCopyPublicKey(self.privateStk);
+    }
+    MSIDEcdhApv *apv = [[MSIDEcdhApv alloc] initWithKey:pubKey apvPrefix:@"MsalClient" customClientNonce:@"" context:nil error:nil];
+    MSIDJWECrypto *mockJWECrypto = [[MSIDJWECrypto alloc] initWithKeyExchangeAlg:MSID_JWT_ALG_ECDH
+                                                             encryptionAlgorithm:MSID_JWT_ALG_A256GCM
+                                                                             apv:apv
+                                                                         context:nil
+                                                                           error:&jweCryptoError];
+    
+    // Mock WPJ util to return valid WPJ data
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id)^(__unused id obj, __unused NSString *tenantId, __unused id context) {
+        return wpjInfo;
+    }];
+    
+    // Mock JWT creation to return valid JWT
+    [MSIDTestSwizzle instanceMethod:@selector(getTokenRedemptionJwtForTenantId:tokenRedemptionParameters:context:jweCrypto:error:)
+                              class:[MSIDBoundRefreshToken class]
+                              block:(id)^(__unused id obj,
+                                         __unused NSString *tenantId,
+                                         __unused MSIDBoundRefreshTokenRedemptionParameters *params,
+                                         __unused id context,
+                                         MSIDJWECrypto **jweCrypto,
+                                         __unused NSError **error) {
+        if (jweCrypto) {
+            *jweCrypto = mockJWECrypto;
+        }
+        return @"valid.jwt.token";
+    }];
+    
+    self.silentRequestParameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"id_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}} error:nil];
+    self.silentRequestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"test-user@contoso.com" homeAccountId:@"userid.tenantid"];
+
+    NSDictionary *dict = @{MSID_INTUNE_ENROLLMENT_ID_KEY: @{@"enrollment_ids": @[@{
+                                                                                     @"tid" : @"tenantid",
+                                                                                     @"oid" : @"d3444455-mike-4271-b6ea-e499cc0cab46",
+                                                                                     @"home_account_id" : @"userid.tenantid",
+                                                                                     @"user_id" : @"test-user@contoso.com",
+                                                                                     @"enrollment_id" : @"enrollmentId"
+                                                                                     }
+                                                                                 ]}};
+    
+    MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:dict];
+    MSIDIntuneInMemoryCacheDataSource *memoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:msidCache];
+    MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
+    [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
+    
+    NSString *enrollmentId = [self.silentRequestParameters.authority enrollmentIdForHomeAccountId:self.silentRequestParameters.accountIdentifier.homeAccountId
+                                                                                     legacyUserId:self.silentRequestParameters.accountIdentifier.displayableId
+                                                                                          context:nil
+                                                                                            error:nil];
+    
+    MSIDAADV2Oauth2Factory *aadv2TokenFactory = [[MSIDAADV2Oauth2Factory alloc] init];
+    NSError *error;
+    MSIDAADRefreshTokenGrantRequest *tokenRequest = [aadv2TokenFactory
+                                                       boundRefreshTokenRequestWithRequestParameters:self.silentRequestParameters
+                                                                                        refreshToken:[self createBoundRefreshToken]
+                                                                                      requestContext:nil
+                                                                                               error:&error];
+    MSIDBoundRefreshTokenGrantRequest *request = (MSIDBoundRefreshTokenGrantRequest *)tokenRequest;
+    XCTAssertNotNil(request);
+    XCTAssertNotNil(request.jweCrypto);
+    XCTAssertEqual(request.jweCrypto, mockJWECrypto);
+    XCTAssertNotNil(request.wpjInfo);
+    XCTAssertEqual(request.wpjInfo, wpjInfo);
+    
+    // Verify parameters
+    XCTAssertNotNil(request.parameters);
+    XCTAssertEqualObjects(request.parameters[MSID_OAUTH2_CLIENT_INFO], @YES);
+    XCTAssertEqualObjects(request.parameters[MSID_OAUTH2_CLAIMS], @"{\"id_token\":{\"polids\":{\"essential\":true,\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"]}}}");
+    XCTAssertEqualObjects(request.parameters[MSID_ENROLLMENT_ID], enrollmentId);
+    XCTAssertEqualObjects(request.parameters[MSID_OAUTH2_GRANT_TYPE], @"urn:ietf:params:oauth:grant-type:jwt-bearer");
+    XCTAssertEqualObjects(request.parameters[@"request"], @"valid.jwt.token");
+    
+    MSIDAADTokenResponseSerializer *responseSerializer = (MSIDAADTokenResponseSerializer *)request.responseSerializer;
+    XCTAssertNotNil(responseSerializer);
+    XCTAssertNotNil(responseSerializer.preprocessor);
+    XCTAssertTrue([responseSerializer.preprocessor class] == [MSIDAADJsonResponsePreprocessor class]);
+    MSIDJsonResponsePreprocessor *preprocessor = (MSIDJsonResponsePreprocessor *)responseSerializer.preprocessor;
+    XCTAssertNotNil(preprocessor.jweDecryptPreProcessor);
+    MSIDJweResponseDecryptPreProcessor *jweDecryptor = preprocessor.jweDecryptPreProcessor;
+    XCTAssertTrue(jweDecryptor.decryptionKey != NULL);
+    XCTAssertEqual(jweDecryptor.decryptionKey, self.privateStk);
+    XCTAssertEqual(jweDecryptor.jweCrypto, mockJWECrypto);
+    XCTAssertNotNil(jweDecryptor.additionalResponseClaims);
+    XCTAssertEqual(jweDecryptor.additionalResponseClaims[MSID_BART_DEVICE_ID_KEY], wpjInfo.certificateSubject);
+    [MSIDTestSwizzle reset];
+}
+
+#pragma mark - Helper Methods for Bound Refresh Token Tests
+
+- (MSIDBoundRefreshToken *)createBoundRefreshToken
+{
+    MSIDRefreshToken *refreshToken = [MSIDRefreshToken new];
+    refreshToken.refreshToken = @"test_refresh_token";
+    refreshToken.environment = @"login.microsoftonline.com";
+    refreshToken.clientId = @"test_client_id";
+    
+    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"test@contoso.com"
+                                                                                      homeAccountId:@"uid.utid"];
+    refreshToken.accountIdentifier = accountIdentifier;
+    
+    MSIDBoundRefreshToken *boundToken = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:refreshToken
+                                                                              boundDeviceId:@"test_device_id"];
+    
+    return boundToken;
+}
+
+- (MSIDWPJKeyPairWithCert *)createMockWPJKeyPair
+{
+    MSIDRegistrationInformationMock *regInfo = [MSIDRegistrationInformationMock new];
+    regInfo.isWorkPlaceJoinedFlag = YES;
+    [regInfo setCertificateSubject:@"some-device-id"];
+    NSString *tenantId = @"contoso.com";
+    NSString *accessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", [[MSIDKeychainUtil sharedInstance] teamId]];
+    NSString *deviceKeyTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateKeyIdentifier, tenantId, @"-EC"];
+    NSString *transportKeyTag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantId, @"-EC"];
+    
+    MSIDTestSecureEnclaveKeyPairGenerator *stkkeygen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:accessGroup useSecureEnclave:YES applicationTag:transportKeyTag];
+    MSIDTestSecureEnclaveKeyPairGenerator *dkkeygen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:accessGroup useSecureEnclave:YES applicationTag:deviceKeyTag];
+    self.privateDk = dkkeygen.eccPrivateKey;
+    self.privateStk = stkkeygen.eccPrivateKey;
+    if (self.privateDk)
+        CFRetain(self.privateDk);
+    if (self.privateStk)
+        CFRetain(self.privateStk);
+    [regInfo setPrivateKey:self.privateDk];
+    [regInfo setPrivateTransportKey:self.privateStk];
+    [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    return regInfo;
+}
+
+-(void)tearDown
+{
+    [super tearDown];
+    if (self.privateDk)
+        CFRelease(self.privateDk);
+    if (self.privateStk)
+        CFRelease(self.privateStk);
+    self.privateDk = nil;
+    self.privateStk = nil;
+    [self cleanUpWpjInformation];
+}
+
+- (void)cleanUpWpjInformation
+{
+    NSArray *deleteClasses = @[(__bridge id)(kSecClassKey), (__bridge id)(kSecClassCertificate), (__bridge id)(kSecClassGenericPassword)];
+    NSString *accessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", [[MSIDKeychainUtil sharedInstance] teamId]];
+    for (NSString *deleteClass in deleteClasses)
+    {
+        NSMutableDictionary *deleteQuery = [[NSMutableDictionary alloc] init];
+        [deleteQuery setObject:deleteClass forKey:(__bridge id)kSecClass];
+        [deleteQuery setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+        OSStatus result = SecItemDelete((__bridge CFDictionaryRef)deleteQuery);
+        XCTAssertTrue(result == errSecSuccess || result == errSecItemNotFound);
+    }
+}
+#endif
 
 @end
 

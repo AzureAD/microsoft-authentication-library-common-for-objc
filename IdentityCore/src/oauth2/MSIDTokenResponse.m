@@ -170,6 +170,7 @@
         _stsErrorCodes = [json msidArrayOfIntegersForKey: MSID_OAUTH2_ERROR_CODES];
         _errorDescription = [[json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION] msidURLDecode];
         _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_VERSION_KEY];
+        _boundAppRefreshTokenDeviceId = [json msidStringObjectForKey:MSID_BART_DEVICE_ID_KEY];
         [self setAdditionalServerInfo:json];
     }
     

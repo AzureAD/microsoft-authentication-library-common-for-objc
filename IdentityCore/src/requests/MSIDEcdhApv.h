@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 // Format for APV: <Prefix length> | <Prefix> | <Public key length> | <Public key> | <Nonce length> | <Nonce>
 - (nullable instancetype)initWithKey:(SecKeyRef)publicKey
                            apvPrefix:(NSString *)prefix
+                   customClientNonce:(NSString * _Nullable)customNonce
                              context:(id<MSIDRequestContext> _Nullable)context
                                error:(NSError * _Nullable __autoreleasing *)error;
 

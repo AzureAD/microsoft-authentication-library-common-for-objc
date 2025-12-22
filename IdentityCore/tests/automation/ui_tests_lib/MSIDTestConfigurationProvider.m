@@ -58,6 +58,7 @@
                                     defaultScopes:(NSDictionary *)defaultScopes
                                  defaultResources:(NSDictionary *)defaultResources
                                  operationAPIConf:(NSDictionary *)operationAPIConfiguration
+                           functionAppAPIConf:(NSDictionary *)functionAppAPIConfiguration
                                         jitConfig:(NSDictionary *)jitConfig
 {
     self = [super init];
@@ -76,10 +77,10 @@
         MSIDAutomationOperationAPIInMemoryCacheHandler *cacheHandler = [[MSIDAutomationOperationAPIInMemoryCacheHandler alloc] initWithDictionary:additionalConfigurations];
         
         _operationAPIRequestHandler = [[MSIDAutomationOperationAPIRequestHandler alloc] initWithAPIPath:operationAPIConfiguration[@"operation_api_path"]
-
                                                                                      encodedCertificate:certificate
                                                                                     certificatePassword:password
-                                                                              operationAPIConfiguration:operationAPIConfiguration];
+                                                                              operationAPIConfiguration:operationAPIConfiguration
+                                                                             functionAppAPIConfiguration:functionAppAPIConfiguration];
         _operationAPIRequestHandler.apiCacheHandler = cacheHandler;
         
         _passwordRequestHandler = [MSIDAutomationPasswordRequestHandler new];
@@ -148,6 +149,7 @@
                                      defaultScopes:configurationDictionary[@"scopes"]
                                   defaultResources:configurationDictionary[@"resources"]
                                   operationAPIConf:configurationDictionary[@"operation_api_conf"]
+                              functionAppAPIConf:configurationDictionary[@"function_app_api_url"]
                                          jitConfig:configurationDictionary[@"jit_intune_ids"]];
 
 }

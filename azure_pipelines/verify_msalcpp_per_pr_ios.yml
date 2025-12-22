@@ -19,7 +19,7 @@ resources:
  repositories:
    - repository: OneAuth
      type: git
-     endpoint: 'OfficeADO'
+     endpoint: 'OfficeAzureDevOps'
      name: OneAuth/OneAuth
      ref: dev
 

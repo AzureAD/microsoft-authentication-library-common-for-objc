@@ -42,6 +42,14 @@
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDFlightManager.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDBoundRefreshToken+Redemption.h"
+#import "MSIDBoundRefreshTokenRedemptionParameters.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDAADV1RefreshTokenGrantRequest.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAccountCredentialCache.h"
+#import "MSIDKeychainTokenCache.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -277,7 +285,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         return;
     }
     
-    [self fetchCachedTokenAndCheckForFRTFirst:NO shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
+    BOOL checkForFRTFirst = [self shouldCheckForFRTFirst];
+    
+    [self fetchCachedTokenAndCheckForFRTFirst:checkForFRTFirst shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
         if (!refreshToken)
         {
             NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
@@ -387,6 +397,38 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 
 #pragma mark - Helpers
 
+- (BOOL)shouldCheckForFRTFirst
+{
+    MSIDAccountCredentialCache *accountCredentialCache = nil;
+    
+    if (self.tokenCache != nil && [self.tokenCache isKindOfClass:[MSIDDefaultTokenCacheAccessor class]])
+    {
+        accountCredentialCache = ((MSIDDefaultTokenCacheAccessor *)self.tokenCache).accountCredentialCache;
+    }
+    
+    // Use default keychain if account credential cache is not provided
+    if (accountCredentialCache == nil)
+    {
+        accountCredentialCache = [[MSIDAccountCredentialCache alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    }
+    
+    NSError *frtError = nil;
+    MSIDIsFRTEnabledStatus frtStatus = [accountCredentialCache checkFRTEnabled:self.requestParameters error:&frtError];
+    BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
+    if (frtError)
+    {
+        // Log error, but continue to use old FRT code
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Error checking FRT enabled status, not using new FRT. Error: %@", frtError);
+    }
+    else if (frtEnabled)
+    {
+        // FRT is enabled, should try to use it first
+        return YES;
+    }
+    
+    return NO;
+}
+
 - (BOOL)handleErrorResponseForAppRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                               completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
@@ -487,9 +529,29 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
 #if !EXCLUDE_FROM_MSALCPP
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
-    
-    MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
-                                                                                                refreshToken:refreshToken.refreshToken];
+    MSIDRefreshTokenGrantRequest *tokenRequest;
+    if (refreshToken.credentialType == MSIDBoundRefreshTokenType)
+    {
+        MSIDBoundRefreshToken *boundRT = (MSIDBoundRefreshToken *)refreshToken;
+        // We will always use AADV2 factory to create bound refresh token request
+        MSIDAADV2Oauth2Factory *aadv2TokenFactory = [[MSIDAADV2Oauth2Factory alloc] init];
+        NSError *boundAppRtRequestError;
+        tokenRequest = [aadv2TokenFactory boundRefreshTokenRequestWithRequestParameters:self.requestParameters
+                                                                           refreshToken:boundRT
+                                                                         requestContext:self.requestParameters
+                                                                                  error:&boundAppRtRequestError];
+        if (!tokenRequest)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to create bound app refresh token request with error %@", MSID_PII_LOG_MASKABLE(boundAppRtRequestError));
+            completionBlock(nil, boundAppRtRequestError);
+            return;
+        }
+    }
+    else
+    {
+        tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
+                                                                          refreshToken:refreshToken.refreshToken];
+    }
     // Currently SilentTokenRequest has 3 child classes: Legacy, Default (local) and SSO. We will init the throttling service in Default and SSO and exclude Legacy. So the nil check of throttling service is needed
     if (!self.throttlingService || ![MSIDThrottlingService isThrottlingEnabled])
     {
@@ -594,6 +656,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                        validateAccount:NO
                                       saveSSOStateOnly:NO
                                       brokerAppVersion:nil
+                     brokerResponseGenerationTimeStamp:nil
+                        brokerRequestReceivedTimeStamp:nil
                                                  error:nil
                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
          {

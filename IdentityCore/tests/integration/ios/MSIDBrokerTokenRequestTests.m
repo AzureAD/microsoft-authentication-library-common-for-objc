@@ -36,17 +36,23 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthenticationSchemeSshCert.h"
+#import "MSIDBartFeatureUtil.h"
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
 @end
 
 @implementation MSIDBrokerTokenRequestTests
 
+- (void)setUp
+{
+    [self setBoundAppRefreshTokenFlight];
+}
+
 - (void)tearDown
 {
     [MSIDIntuneEnrollmentIdsCache setSharedCache:[[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:[[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:[MSIDCache new]]]];
     [MSIDIntuneMAMResourcesCache setSharedCache:[[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:[[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:[MSIDCache new]]]];
-
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
     [super tearDown];
 }
 
@@ -191,6 +197,7 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -238,6 +245,7 @@
                                       @"application_token" : @"brokerApplicationToken",
                                       @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
                                       @"token_type" : @"Pop",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
     };
@@ -290,6 +298,7 @@
                                       @"key_id":@"key_id_value",
                                       @"req_cnf" : [NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent],
                                       @"token_type" : @"ssh-cert",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
     };
@@ -339,6 +348,7 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -376,6 +386,7 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -422,6 +433,7 @@
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
                                       @"sdk_broker_capabilities": @"capability1,capability2",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -505,6 +517,7 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
+                                      MSID_BOUND_RT_REDEEM : @"1",
                                       @"client_sku" : [self clientSku],
                                       @"skip_validate_result_account" : @"NO"
                                       };
@@ -592,6 +605,7 @@
             @"application_token" : @"brokerApplicationToken",
             @"brk_client_id" : @"123-456-7890-123",
             @"brk_redirect_uri" : @"msauth.com.app.id://auth",
+            MSID_BOUND_RT_REDEEM : @"1",
             @"client_sku" : [self clientSku],
             @"skip_validate_result_account" : @"NO"
     };
@@ -618,6 +632,44 @@
     };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
+}
+
+- (void)testInitBrokerRequest_whenValidParameters_andBoundRefreshTokenExchangeNotRequestedWhenFlightEnabledButCacheNotEnabled
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+    XCTAssertFalse([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled]);
+    
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:@[@"capability1", @"capability2"] error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"sdk_broker_capabilities": @"capability1,capability2",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
+                                      };
+
+    NSURL *actualURL = request.brokerRequestURL;
+
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+}
+
+- (void)setBoundAppRefreshTokenFlight
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
 }
 
 @end

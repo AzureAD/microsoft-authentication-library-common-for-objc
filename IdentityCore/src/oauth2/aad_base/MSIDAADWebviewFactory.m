@@ -113,7 +113,7 @@
     result[@"haschrome"] = @"1";
     [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
         
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || TARGET_OS_OSX
     NSString *tenantId = parameters.accountIdentifier.utid;
     if ([self isDUNASupportedForTenantId:tenantId])
     {
@@ -231,10 +231,8 @@
                                                                                           context:context
                                                                                             error:nil];
     if (browserResponse) return browserResponse;
-    
-    NSString *tenantId = wpjResponse.clientInfo.utid;
-    
-    if ([self isDUNASupportedForTenantId:tenantId])
+        
+    if ([self isDUNASupportedForTenantId:nil])
     {
         MSIDSwitchBrowserResponse *switchBrowserResponse = [[MSIDSwitchBrowserResponse alloc] initWithURL:url
                                                                                               redirectUri:endRedirectUri

@@ -33,6 +33,7 @@
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDBartFeatureUtil.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -162,6 +163,10 @@
 #if TARGET_OS_IPHONE
     [queryDictionary msidSetNonEmptyString:self.brokerKey forKey:@"broker_key"];
     [queryDictionary msidSetNonEmptyString:self.brokerNonce forKey:@"broker_nonce"];
+    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
+    {
+        [queryDictionary msidSetNonEmptyString:@"1" forKey:MSID_BOUND_RT_REDEEM];
+    }
 #endif
     [queryDictionary msidSetNonEmptyString:[MSIDVersion sdkVersion] forKey:@"client_version"];
     [queryDictionary msidSetNonEmptyString:claimsString forKey:@"claims"];

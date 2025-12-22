@@ -383,18 +383,14 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning EC private device key from default registration.");
 #if TARGET_OS_IPHONE
-        bool isQueryingEnabledViaFlight = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_QUERYING_STK];
-        if (isQueryingEnabledViaFlight)
+        // Query the session transport key only for iOS.
+        // 1P apps use transport key to decrypt ECDH JWE responses when redeeming bound regular refresh tokens
+        id keyType = privateKeyAttributes[(__bridge id)kSecAttrKeyType];
+        if (keyType && [keyType isEqual: (__bridge id)kSecAttrKeyTypeECSECPrimeRandom])
         {
-            // Query the session transport key only for iOS.
-            // 1P apps use transport key to decrypt ECDH JWE responses when redeeming bound regular refresh tokens
-            id keyType = privateKeyAttributes[(__bridge id)kSecAttrKeyType];
-            if (keyType && [keyType isEqual: (__bridge id)kSecAttrKeyTypeECSECPrimeRandom])
-            {
-                [self setSessionTransportKeyRefFromSecureEnclaveForTenantId:tenantId
-                                                            keyPairWithCert:defaultKeys
-                                                                    context:context];
-            }
+            [self setSessionTransportKeyRefFromSecureEnclaveForTenantId:tenantId
+                                                        keyPairWithCert:defaultKeys
+                                                                context:context];
         }
 #endif
         return defaultKeys;

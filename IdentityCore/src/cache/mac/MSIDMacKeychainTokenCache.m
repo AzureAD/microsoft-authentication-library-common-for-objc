@@ -557,14 +557,15 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 - (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(__unused MSIDCacheKey *)key serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
-    [self createUnimplementedError:error context:context];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Skipping jsonObjectsWithKey:serializer:context:error: in MSIDMacKeychainTokenCache.");
     return nil;
 }
 
 
 - (BOOL)saveJsonObject:(__unused MSIDJsonObject *)jsonObject serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer key:(__unused MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
-    [self createUnimplementedError:error context:context];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Skipping saveJsonObject:serializer:key:context:error: in MSIDMacKeychainTokenCache.");
+    
     return NO;
 }
 
