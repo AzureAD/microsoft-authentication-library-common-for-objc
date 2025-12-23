@@ -1,5 +1,5 @@
 framework module IdentityCore {
-  umbrella "."
+  umbrella header "IdentityCore.pch"
   export *
   module * { export * }
 }
