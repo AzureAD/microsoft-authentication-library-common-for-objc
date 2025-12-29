@@ -213,6 +213,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorPSSOPasskeyLAError),
                       @(MSIDErrorPSSOBiometricsNotEnrolled),
                       @(MSIDErrorPSSOBiometricsNotAvailable),
+                      @(MSIDErrorNoUniqueAccountFound),
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
                       @(MSIDErrorServerOauth),
@@ -438,6 +439,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorPSSOBiometricsNotEnrolled";
         case MSIDErrorPSSOBiometricsNotAvailable:
             return @"MSIDErrorPSSOBiometricsNotAvailable";
+        case MSIDErrorNoUniqueAccountFound:
+            return @"MSIDErrorNoUniqueAccountFound";
             // Throttling errors
         case MSIDErrorThrottleCacheNoRecord:
             return @"MSIDErrorThrottleCacheNoRecord";

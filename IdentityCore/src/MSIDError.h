@@ -356,7 +356,10 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // Error is thrown when PSSO user registration attempted with no biometrics available and sekey biometric policy is configured
     MSIDErrorPSSOBiometricsNotAvailable        =   -51845,
-
+    
+    // Error is thrown when a default account cannot be determined because zero or multiple accounts exist.
+    MSIDErrorNoUniqueAccountFound = -51846,
+    
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,
