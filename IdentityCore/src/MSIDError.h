@@ -358,7 +358,7 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorPSSOBiometricsNotAvailable        =   -51845,
     
     // Error is thrown when a default account cannot be determined because zero or multiple accounts exist.
-    MSIDErrorNoUniqueAccountFound = -51846,
+    MSIDErrorNoUniqueAccountFound        = -51846,
     
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
