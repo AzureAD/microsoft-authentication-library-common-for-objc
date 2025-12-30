@@ -113,6 +113,8 @@
 {
     MSIDBrokerOperationGetDefaultAccountRequest *getDefaultAccountRequest = [MSIDBrokerOperationGetDefaultAccountRequest new];
     
+    getDefaultAccountRequest.authority = _requestParameters.authority;
+    
     NSError *error;
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getDefaultAccountRequest
                                                                                           requestParameters:self.requestParameters
