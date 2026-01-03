@@ -1429,7 +1429,7 @@
     XCTAssertEqualObjects(result[2], olderBoundItem);
 }
 
-- (void)testValidateBoundAppRefreshTokens_whenBoundTokenWithoutBoundDeviceId_shouldNotCrash
+- (void)testValidateBoundAppRefreshTokens_whenBoundTokenWithoutBoundDeviceId_shouldFilterOutToken
 {
     NSString *homeAccountId = @"uid.utid";
     
