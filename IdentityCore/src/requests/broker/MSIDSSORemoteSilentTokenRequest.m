@@ -136,14 +136,14 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
 
 - (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
 {
-    if (!self.requestParameters.accountIdentifier)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Account parameter cannot be nil");
-
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        completionBlock(nil, error);
-        return;
-    }
+//    if (!self.requestParameters.accountIdentifier)
+//    {
+//        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Account parameter cannot be nil");
+//
+//        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+//        completionBlock(nil, error);
+//        return;
+//    }
 
     NSString *upn = self.requestParameters.accountIdentifier.displayableId;
 

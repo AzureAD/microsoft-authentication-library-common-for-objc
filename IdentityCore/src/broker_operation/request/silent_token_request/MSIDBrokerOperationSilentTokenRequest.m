@@ -72,12 +72,12 @@ static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
     
     if (self)
     {
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
-        if (!_accountIdentifier)
-        {
-            MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, accountIdentifier is nil.", self.class);
-            return nil;
-        }
+//        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
+//        if (!_accountIdentifier)
+//        {
+//            MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, accountIdentifier is nil.", self.class);
+//            return nil;
+//        }
     }
     
     return self;
@@ -88,10 +88,10 @@ static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     if (!json) return nil;
     
-    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
-    if (!accountIdentifierJson) return nil;
-    
-    [json addEntriesFromDictionary:accountIdentifierJson];
+//    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
+//    if (!accountIdentifierJson) return nil;
+//    
+//    [json addEntriesFromDictionary:accountIdentifierJson];
     
     return json;
 }

@@ -105,14 +105,14 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 
 - (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
 {
-    if (!self.requestParameters.accountIdentifier)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Account parameter cannot be nil");
-        
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil, NO);
-        completionBlock(nil, error);
-        return;
-    }
+//    if (!self.requestParameters.accountIdentifier)
+//    {
+//        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Account parameter cannot be nil");
+//        
+//        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil, NO);
+//        completionBlock(nil, error);
+//        return;
+//    }
     
     NSString *upn = self.requestParameters.accountIdentifier.displayableId;
     
