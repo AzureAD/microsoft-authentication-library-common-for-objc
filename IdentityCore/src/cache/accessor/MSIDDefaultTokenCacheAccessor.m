@@ -50,6 +50,8 @@
 #import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDBartFeatureUtil.h"
 #import "MSIDBoundRefreshToken.h"
+#import "MSIDWorkplaceJoinUtil.h"
+#import "MSIDWPJKeyPairWithCert.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -1248,7 +1250,7 @@
         CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
         return nil;
     }
-
+    cacheItems = [self validateBoundAppRefreshTokens:cacheItems homeAccountId:cacheQuery.homeAccountId];
     NSMutableArray<MSIDBaseToken *> *resultTokens = [NSMutableArray new];
     for (MSIDCredentialCacheItem *cacheItem in cacheItems)
     {
@@ -1343,7 +1345,7 @@
 - (NSArray<MSIDBaseToken *> *)validTokensFromCacheItems:(NSArray<MSIDCredentialCacheItem *> *)cacheItems
 {
     NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
-
+    cacheItems = [self validateBoundAppRefreshTokens:cacheItems homeAccountId:nil];
     for (MSIDCredentialCacheItem *item in cacheItems)
     {
         MSIDBaseToken *token = [item tokenWithType:item.credentialType];
@@ -1561,6 +1563,73 @@
     }
 
     return returnAccounts;
+}
+
+- (NSArray<MSIDCredentialCacheItem *> *)validateBoundAppRefreshTokens:(NSArray<MSIDCredentialCacheItem *> *)cacheItems
+                                                        homeAccountId:(NSString *)homeAccountId
+{
+    NSMutableArray<MSIDCredentialCacheItem *> *validCacheItems = [NSMutableArray new];
+    NSMutableArray<MSIDCredentialCacheItem *> *boundAppRTItems = [NSMutableArray new];
+    NSString *tenantId;
+    if (homeAccountId)
+    {
+        NSArray *components = [homeAccountId componentsSeparatedByString:@"."];
+        if (components.count == 2)
+        {
+            tenantId = components[1];
+        }
+    }
+    MSIDWPJKeyPairWithCert *wpjData;
+    for (MSIDCredentialCacheItem *item in cacheItems)
+    {
+        if (item.credentialType == MSIDBoundRefreshTokenType)
+        {
+            MSIDBoundRefreshToken *bart = (MSIDBoundRefreshToken *)[item tokenWithType:MSIDBoundRefreshTokenType];
+            if (bart && bart.boundDeviceId && bart.accountIdentifier.utid)
+            {
+                if (!wpjData)
+                {
+                    // Obtain the workplacejoin information for the account that token is queried for.
+                    wpjData = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:nil];
+                }
+                if (wpjData)
+                {
+                    if ([bart.boundDeviceId isEqualToString:wpjData.certificateSubject])
+                    {
+                        [boundAppRTItems addObject:item];
+                    }
+                    else
+                    {
+                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Filtering out Bound app RT as bound deviceID for account %@ doesn't match current registration deviceId.", MSID_PII_LOG_TRACKABLE(homeAccountId));
+                    }
+                }
+                else
+                {
+                     // Workplacejoin information for the query's tenantId not found or app doesn't have entitlement for WPJ.
+                    if ([item.homeAccountId isEqualToString:homeAccountId])
+                    {
+                        [boundAppRTItems addObject:item];
+                    }
+                }
+            }
+        }
+        else
+        {
+            [validCacheItems addObject:item];
+        }
+    }
+    
+    if (boundAppRTItems.count > 0)
+    {
+        // Sort items by cachedAt date so that top token is the latest one.
+        [boundAppRTItems sortUsingComparator:^NSComparisonResult(MSIDCredentialCacheItem *obj1, MSIDCredentialCacheItem *obj2)
+        {
+            return [obj2.cachedAt compare:obj1.cachedAt];
+        }];
+        
+        [validCacheItems addObjectsFromArray:boundAppRTItems];
+    }
+    return validCacheItems;
 }
 
 #pragma mark - App metadata
