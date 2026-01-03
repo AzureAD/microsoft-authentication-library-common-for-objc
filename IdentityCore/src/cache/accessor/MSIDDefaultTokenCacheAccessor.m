@@ -50,7 +50,7 @@
 #import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDBartFeatureUtil.h"
 #import "MSIDBoundRefreshToken.h"
-#import "MSIDWorkplaceJoinUtil.h"
+#import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDWPJKeyPairWithCert.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
