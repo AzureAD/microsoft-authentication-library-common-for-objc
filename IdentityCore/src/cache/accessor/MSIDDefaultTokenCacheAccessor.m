@@ -1585,7 +1585,7 @@
         if (item.credentialType == MSIDBoundRefreshTokenType)
         {
             MSIDBoundRefreshToken *bart = (MSIDBoundRefreshToken *)[item tokenWithType:MSIDBoundRefreshTokenType];
-            if (bart && bart.boundDeviceId && bart.accountIdentifier.utid)
+            if (bart && bart.boundDeviceId)
             {
                 if (!wpjData)
                 {
