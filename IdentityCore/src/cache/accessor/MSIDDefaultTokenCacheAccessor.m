@@ -1605,7 +1605,7 @@
                 }
                 else
                 {
-                     // Workplacejoin information for the query's tenantId not found or app doesn't have entitlement for WPJ.
+                    // Workplacejoin information for the query's tenantId not found or app doesn't have entitlement for WPJ.
                     if ([item.homeAccountId isEqualToString:homeAccountId])
                     {
                         [boundAppRTItems addObject:item];
