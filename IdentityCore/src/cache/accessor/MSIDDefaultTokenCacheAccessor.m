@@ -1580,6 +1580,7 @@
         }
     }
     MSIDWPJKeyPairWithCert *wpjData;
+    // cacheItems are assumed to be results of getTokensUsingCacheQuery. Hence they will be tokens for a particular homeAccountIdentifier.
     for (MSIDCredentialCacheItem *item in cacheItems)
     {
         if (item.credentialType == MSIDBoundRefreshTokenType)
@@ -1605,11 +1606,8 @@
                 }
                 else
                 {
-                    // Workplacejoin information for the query's tenantId not found or app doesn't have entitlement for WPJ.
-                    if ([item.homeAccountId isEqualToString:homeAccountId])
-                    {
-                        [boundAppRTItems addObject:item];
-                    }
+                    // Workplacejoin data might not be available if the app does not have entitlement to query it.
+                    [boundAppRTItems addObject:item];
                 }
             }
         }
@@ -1621,7 +1619,7 @@
     
     if (boundAppRTItems.count > 0)
     {
-        // Sort items by cachedAt date so that top token is the latest one.
+        // Sort items by cachedAt date so that top token is the latest one. cachedAt will always be populated
         [boundAppRTItems sortUsingComparator:^NSComparisonResult(MSIDCredentialCacheItem *obj1, MSIDCredentialCacheItem *obj2)
         {
             return [obj2.cachedAt compare:obj1.cachedAt];

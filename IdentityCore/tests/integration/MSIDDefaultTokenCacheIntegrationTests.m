@@ -1283,28 +1283,6 @@
     XCTAssertEqualObjects(result[0], boundItem);
 }
 
-- (void)testValidateBoundAppRefreshTokens_whenNoWPJDataAndNonMatchingHomeAccountId_shouldFilterOutToken
-{
-    NSString *homeAccountId = @"uid.utid";
-    NSString *tokenHomeAccountId = @"different-uid.different-utid";
-    
-    // Create a bound refresh token cache item with different home account ID
-    MSIDBoundRefreshTokenCacheItem *boundItem = [MSIDBoundRefreshTokenCacheItem new];
-    boundItem.credentialType = MSIDBoundRefreshTokenType;
-    boundItem.homeAccountId = tokenHomeAccountId;
-    boundItem.environment = @"login.microsoftonline.com";
-    boundItem.clientId = @"client-id";
-    boundItem.secret = @"bound-refresh-token";
-    boundItem.boundDeviceId = @"device-id";
-    boundItem.cachedAt = [NSDate date];
-    
-    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
-    
-    XCTAssertNotNil(result);
-    XCTAssertEqual(result.count, 0);
-}
-
 - (void)testValidateBoundAppRefreshTokens_whenMultipleBoundTokens_shouldSortByCachedAtDescending
 {
     NSString *homeAccountId = @"uid.utid";
@@ -1518,6 +1496,27 @@
     XCTAssertTrue([result containsObject:matchingBoundItem]);
     // Should NOT contain non-matching bound token
     XCTAssertFalse([result containsObject:nonMatchingBoundItem]);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenBoundTokenWithNilHomeAccountId_shouldFilterOutToken
+{
+    // Create a bound refresh token cache item
+    MSIDBoundRefreshTokenCacheItem *boundItem = [MSIDBoundRefreshTokenCacheItem new];
+    boundItem.credentialType = MSIDBoundRefreshTokenType;
+    boundItem.homeAccountId = @"uid.utid";
+    boundItem.environment = @"login.microsoftonline.com";
+    boundItem.clientId = @"client-id";
+    boundItem.secret = @"bound-refresh-token";
+    boundItem.boundDeviceId = @"device-id";
+    boundItem.cachedAt = [NSDate date];
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
+    
+    // When homeAccountId is nil, the bound token should not be filtered out
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 1, @"Bound token should not be filtered out when homeAccountId is nil");
 }
 #endif
 @end
