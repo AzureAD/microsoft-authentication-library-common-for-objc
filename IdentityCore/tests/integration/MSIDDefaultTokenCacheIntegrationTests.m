@@ -1130,6 +1130,28 @@
     XCTAssertEqualObjects(result[0], item);
 }
 
+- (void)testValidateBoundAppRefreshTokens_whenBoundTokenWithNilHomeAccountId_shouldFilterOutToken
+{
+    // Create a bound refresh token cache item
+    MSIDBoundRefreshTokenCacheItem *boundItem = [MSIDBoundRefreshTokenCacheItem new];
+    boundItem.credentialType = MSIDBoundRefreshTokenType;
+    boundItem.homeAccountId = @"uid.utid";
+    boundItem.environment = @"login.microsoftonline.com";
+    boundItem.clientId = @"client-id";
+    boundItem.secret = @"bound-refresh-token";
+    boundItem.boundDeviceId = @"device-id";
+    boundItem.cachedAt = [NSDate date];
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
+    
+    // When homeAccountId is nil, the bound token should be filtered out
+    // because wpjData will be nil (no registration) and the homeAccountId comparison will fail
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 0, @"Bound token should be filtered out when homeAccountId is nil");
+}
+
 - (void)testValidateBoundAppRefreshTokens_whenOnlyNonBoundTokens_shouldReturnAllTokens
 {
     // Create multiple non-bound refresh tokens
