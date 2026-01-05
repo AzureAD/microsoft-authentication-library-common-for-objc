@@ -25,7 +25,6 @@
 
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDCache.h"
-#import "MSIDExecutionFlowBlob.h"
 #import "MSIDExecutionFlow.h"
 
 @interface MSIDExecutionFlowLogger ()
@@ -59,7 +58,9 @@
     return self;
 }
 
-- (void)insertExecutionBlob:(MSIDExecutionFlowBlob *)blob withCorrelationId:(NSString *)correlationId
+-(void)insertTag:(NSString *)tag
+       extraInfo:(NSDictionary *)info
+withCorrelationId:(NSString *)correlationId
 {
     MSIDExecutionFlow *executionFlow = [self.executionFlowMap objectForKey:correlationId];
     if(!executionFlow)
@@ -68,7 +69,7 @@
         [self.executionFlowMap setObject:executionFlow forKey:correlationId];
     }
     
-    [executionFlow insertExecutionBlob:blob];
+    [executionFlow insertTag:tag extraInfo:info];
 }
 
 - (MSIDExecutionFlow *)retriveExecutionFlowWithCorrelationId:(NSString *)correlationId

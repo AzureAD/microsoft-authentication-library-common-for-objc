@@ -556,6 +556,10 @@
 		2A465DD12F0C5DA0006E7571 /* MSIDExecutionFlowLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DD02F0C5DA0006E7571 /* MSIDExecutionFlowLogger.m */; };
 		2A465DD22F0C5DA0006E7571 /* MSIDExecutionFlowLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A465DCF2F0C5DA0006E7571 /* MSIDExecutionFlowLogger.h */; };
 		2A465DD32F0C5DA0006E7571 /* MSIDExecutionFlowLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DD02F0C5DA0006E7571 /* MSIDExecutionFlowLogger.m */; };
+		2A465DEF2F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DEE2F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m */; };
+		2A465DF02F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DEE2F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m */; };
+		2A465DF22F0C74A6006E7571 /* MSIDExecutionFlowTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DF12F0C74A6006E7571 /* MSIDExecutionFlowTests.m */; };
+		2A465DF32F0C74A6006E7571 /* MSIDExecutionFlowTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DF12F0C74A6006E7571 /* MSIDExecutionFlowTests.m */; };
 		2A59B4202D76618900304FB1 /* MSIDXpcProviderCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */; };
 		2A59B4212D76618900304FB1 /* MSIDXpcProviderCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */; };
 		2A59B42C2D776F3400304FB1 /* MSIDXpcConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B42B2D776F3400304FB1 /* MSIDXpcConfiguration.m */; };
@@ -2541,6 +2545,8 @@
 		2A465DCB2F0C57AC006E7571 /* MSIDExecutionFlow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlow.m; sourceTree = "<group>"; };
 		2A465DCF2F0C5DA0006E7571 /* MSIDExecutionFlowLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDExecutionFlowLogger.h; sourceTree = "<group>"; };
 		2A465DD02F0C5DA0006E7571 /* MSIDExecutionFlowLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowLogger.m; sourceTree = "<group>"; };
+		2A465DEE2F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowBlobTests.m; sourceTree = "<group>"; };
+		2A465DF12F0C74A6006E7571 /* MSIDExecutionFlowTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowTests.m; sourceTree = "<group>"; };
 		2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCache.h; sourceTree = "<group>"; };
 		2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcProviderCache.m; sourceTree = "<group>"; };
 		2A59B42A2D776F3400304FB1 /* MSIDXpcConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcConfiguration.h; sourceTree = "<group>"; };
@@ -6030,6 +6036,7 @@
 				B41163B529BAC20000E64619 /* MSIDAADOAuthEmbeddedWebviewControllerTests.m */,
 				236CB13D2A609A1B005A6F5F /* MSIDBrokerOperationBrowserNativeMessageRequestTests.m */,
 				23CAB38F2A60ACB50066CFA2 /* MSIDBrokerOperationBrowserNativeMessageResponseTests.m */,
+				2A465DEE2F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m */,
 				236AAFC92A61EE6C00AD6C6E /* MSIDBrowserNativeMessageGetCookiesRequestTests.m */,
 				23F7A8622A61F21E002C70CB /* MSIDBrowserNativeMessageGetCookiesResponseTests.m */,
 				23D00DA72ABD0805006D7F16 /* MSIDBrowserNativeMessageGetTokenRequestTests.m */,
@@ -6047,6 +6054,7 @@
 				237034432D56AA7F00D6A70B /* MSIDSwitchBrowserResumeOperationTest.swift */,
 				2A0278902D6E3216005655B4 /* MSIDAADTokenRequestServerTelemetryTests.m */,
 				2376D8DC2D88FDE900ADC271 /* MSIDBrowserNativeMessageGetSupportedContractsResponseTests.m */,
+				2A465DF12F0C74A6006E7571 /* MSIDExecutionFlowTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -7259,6 +7267,7 @@
 				724C9E5A2E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */,
 				B299F74321A0AFA000F49C57 /* MSIDLegacyBrokerResponseHandlerTests.m in Sources */,
 				B2936F8A20AD47810050C585 /* MSIDKeychainTokenCacheIntegrationTests.m in Sources */,
+				2A465DF22F0C74A6006E7571 /* MSIDExecutionFlowTests.m in Sources */,
 				6035CD8C207EA67300369E69 /* MSIDTelemetryIntegrationTests.m in Sources */,
 				B2DD4B3D20A9270B0047A66E /* MSIDDefaultCredentialCacheQueryTests.m in Sources */,
 				23CC944A20465CF100AA0551 /* MSIDTokenCacheDataSourceIntegrationTests.m in Sources */,
@@ -7281,6 +7290,7 @@
 				B2DD5B97204756580084313F /* MSIDAccountTypeTests.m in Sources */,
 				B2936F4D20AA906C0050C585 /* MSIDLegacyTokenCacheItemTests.m in Sources */,
 				237034442D56AA7F00D6A70B /* MSIDSwitchBrowserResumeOperationTest.swift in Sources */,
+				2A465DEF2F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m in Sources */,
 				B216825C23AB069900F4897A /* MSIDSSOExtensionGetAccountsRequestIntegrationTests.m in Sources */,
 				B29A36B820AFAAF200427B63 /* MSIDLegacyAccessorSSOIntegrationTests.m in Sources */,
 				B41163B229BAB45800E64619 /* MSIDJITTroubleshootingResponseTests.m in Sources */,
@@ -7902,8 +7912,10 @@
 				728D9E492824A323001D990F /* MSIDPkeyAuthHelperTests.m in Sources */,
 				589BDB1E2718CD7D00BF3799 /* MSIDBrokerOperationGetSsoCookiesRequestTests.m in Sources */,
 				724C9E592E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */,
+				2A465DF32F0C74A6006E7571 /* MSIDExecutionFlowTests.m in Sources */,
 				B26A0B9A2072BABE006BD95A /* MSIDAADV2Oauth2FactoryTests.m in Sources */,
 				234A0BE42BCDCCB100AFBBAA /* MSIDBrowserNativeMessageSignOutRequestTests.m in Sources */,
+				2A465DF02F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m in Sources */,
 				B287C4CF26A132FA004303F1 /* MSIDSSOExtensionRequestDelegateTests.m in Sources */,
 				60BF06052051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */,
 				23CAB3912A60ACB50066CFA2 /* MSIDBrokerOperationBrowserNativeMessageResponseTests.m in Sources */,

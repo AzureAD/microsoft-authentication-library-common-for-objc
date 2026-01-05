@@ -22,11 +22,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
+#include <pthread.h>
 #import "MSIDExecutionFlow.h"
 #import "MSIDExecutionFlowBlob.h"
 #import "MSIDJsonSerializer.h"
 #import "NSDate+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
+
+#define MAX_EXECUTION_FLOW_SIZE 50
 
 @interface MSIDExecutionFlow ()
 
@@ -51,25 +54,64 @@
     return self;
 }
 
-- (void)insertExecutionBlob:(MSIDExecutionFlowBlob *)blob
+- (void)insertTag:(NSString *)tag extraInfo:(NSDictionary *)info
 {
+    if ([NSString msidIsStringNilOrBlank:tag])
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Tag cannot be nil", nil);
+        return;
+    }
+    
+    NSTimeInterval interval = [[NSDate date] timeIntervalSinceDate:self.startTime];
+    int64_t ts = (int64_t)(interval * 1000.0);
+
+    __uint64_t tid = 0;
+    if (pthread_threadid_np(NULL, &tid) != 0) {
+        tid = (uint64_t)[NSThread currentThread].hash; // Fallback
+    }
+
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:tag timeStep:@(ts) threadId:@(tid)];
+    if (!blob)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to create execution flow blob", nil);
+        return;
+    }
+    
+    if (info && info.allKeys.count > 0)
+    {
+        for (id key in info) {
+            [blob setObject:info[key] forKey:key];
+        }
+    }
+    
     dispatch_barrier_async(self.executionFlowWritingQueue, ^{
+        // This is unlikely but just in case
+        if (self.executionFlow.count >= MAX_EXECUTION_FLOW_SIZE) {
+            [self.executionFlow removeObjectAtIndex:0];
+        }
         [self.executionFlow addObject:blob];
     });
 }
 
-- (NSArray *)executionFlowWithKeys:(NSArray *)blobKeys
+- (NSArray<NSDictionary *> *)executionFlowWithKeys:(NSArray<NSString *> *)blobKeys
 {
-    __weak typeof(self) weakSelf = self;
+    if (!blobKeys || blobKeys.count == 0)
+    {
+        return nil;
+    }
+    
     __block NSMutableArray *executionFlow = [NSMutableArray new];
     dispatch_sync(self.executionFlowWritingQueue, ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        for (MSIDExecutionFlowBlob *blob in strongSelf.executionFlow) {
-            [executionFlow addObject:[blob executionBlobWithKeys:blobKeys]];
+        for (MSIDExecutionFlowBlob *blob in self.executionFlow) {
+            NSDictionary *blobDict = [blob executionBlobWithKeys:blobKeys];
+            if (blobDict) // Only add non-nil results
+            {
+                [executionFlow addObject:blobDict];
+            }
         }
     });
     
-    return executionFlow;
+    return executionFlow.count > 0 ? executionFlow : nil;
 }
 
 @end

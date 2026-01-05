@@ -29,9 +29,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDExecutionFlow : NSObject
-
-- (void)insertExecutionBlob:(MSIDExecutionFlowBlob *)blob;
-- (nullable NSArray *)executionFlowWithKeys:(NSArray *)blobKeys;
+- (void)insertTag:(NSString *)tag extraInfo:(nullable NSDictionary *)info;
+- (nullable NSArray<NSDictionary *> *)executionFlowWithKeys:(nullable NSArray<NSString *> *)blobKeys;
 
 @end
 

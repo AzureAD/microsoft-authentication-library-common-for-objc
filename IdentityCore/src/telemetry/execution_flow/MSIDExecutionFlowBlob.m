@@ -25,6 +25,7 @@
 
 #import "MSIDExecutionFlowBlob.h"
 #import "MSIDCache.h"
+#import "NSString+MSIDExtensions.h"
 
 @interface MSIDExecutionFlowBlob ()
 
@@ -38,6 +39,11 @@
                    timeStep:(NSNumber *)ts
                    threadId:(NSNumber *)tid
 {
+    if ([NSString msidIsStringNilOrBlank:tag] || !ts || !tid)
+    {
+        return nil;
+    }
+    
     self = [super init];
     if (self)
     {
@@ -53,21 +59,34 @@
 
 - (void)setObject:(id)obj forKey:(NSString *)key
 {
+    if (!key)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Key cannot be nil", nil);
+        return;
+    }
+
+    // Protect reserved keys
+    if ([@[@"t", @"ts", @"tid"] containsObject:key])
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Cannot override reserved keys: t, ts, tid", nil);
+        return;
+    }
+
     if ([obj isKindOfClass:NSString.class] || [obj isKindOfClass:NSNumber.class])
     {
         [self.blob setObject:obj forKey:key];
     }
     else
     {
-        NSLog(@"Only string and number type are supported");
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Only string and number type are supported", nil);
     }
 }
 
-- (NSDictionary *)executionBlobWithKeys:(NSArray *)blobKeys
+- (NSDictionary *)executionBlobWithKeys:(NSArray<NSString *> *)blobKeys
 {
     if (!blobKeys || blobKeys.count == 0)
     {
-        return @{};
+        return nil;
     }
     
     return [self extractDictionary:blobKeys];
@@ -76,15 +95,20 @@
 - (NSDictionary *)extractDictionary:(NSArray<NSString *>*)keys
 {
     NSDictionary *telemetryProvider = self.blob.toDictionary;
-    NSMutableDictionary *resultBlob = [NSMutableDictionary new];
+    NSMutableDictionary *resultBlob = nil;
     for (NSString* key in keys) {
         if (telemetryProvider[key])
         {
+            if (!resultBlob)
+            {
+                resultBlob = [NSMutableDictionary new];
+            }
+            
             resultBlob[key] = telemetryProvider[key];
         }
     }
     
-    return [NSDictionary dictionaryWithDictionary:resultBlob];
+    return resultBlob;
 }
 
 @end

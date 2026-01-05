@@ -35,10 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Can set any extra key/value pair(s) apart from tag, ts and tid.
 // !! Please set before add the blob into the execution flow
-- (void)setObject:(NSString *)obj forKey:(id)key;
+- (void)setObject:(id)obj forKey:(NSString *)key;
 
 // Developer can also use the customizedExecutionBlob to get the blob info as the needs
-- (NSDictionary *)executionBlobWithKeys:(NSArray *)blobKeys;
+- (nullable NSDictionary *)executionBlobWithKeys:(NSArray<NSString *> *)blobKeys;
 
 @end
 

@@ -34,6 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nonnull MSIDExecutionFlowLogger *)sharedInstance;
 
+/*!
+    Insert the tag and extra information on current execution point, correlationId is required as the key entrace
+ */
+-(void)insertTag:(NSString *)tag
+       extraInfo:(NSDictionary *)info
+withCorrelationId:(NSString *)correlationId;
+
 @end
 
 NS_ASSUME_NONNULL_END
