@@ -530,7 +530,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
 }
 
 
-- (void)testInitWithRedirectUri_whenREdirectUriNil_shouldReturnNil
+- (void)testInitWithRedirectUri_whenRedirectUriNil_shouldReturnNil
 {
     NSString *redirectUri = nil;
     NSSet *scopes = [NSSet setWithObject:@"scope1"];
@@ -547,6 +547,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             workplaceJoinInfo:nil];
     XCTAssertNil(params);
 }
+
 - (void)testInitWithNotAuthority_shouldReturnNil
 {
     NSString *clientId = @"test-client-id";
@@ -781,6 +782,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     XCTAssertEqualObjects(jsonDict[@"iss"], clientId);
     XCTAssertEqualObjects(jsonDict[MSID_OAUTH2_CLIENT_ID], clientId);
     XCTAssertEqualObjects(jsonDict[@"nonce"], nonce);
+    XCTAssertEqualObjects(jsonDict[MSID_OAUTH2_REDIRECT_URI], @"app-redirect-uri://app");
     
     // Verify scope string contains both scopes
     NSString *scopeString = jsonDict[MSID_OAUTH2_SCOPE];

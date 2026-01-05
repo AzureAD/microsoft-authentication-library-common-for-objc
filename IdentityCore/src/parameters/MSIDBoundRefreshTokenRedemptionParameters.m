@@ -30,7 +30,7 @@
                        authorityEndpoint:(nonnull NSURL *)authorityEndpoint
                                   scopes:(nonnull NSSet *)scopes
                                    nonce:(nonnull NSString *)nonce
-                             redirectUri:(NSString *)redirectUri
+                             redirectUri:(nonnull NSString *)redirectUri
                       extraPayloadClaims:(nullable NSDictionary *)extraPayloadClaims
                        workplaceJoinInfo:(nullable MSIDWPJKeyPairWithCert *)workplaceJoinInfo
 {
