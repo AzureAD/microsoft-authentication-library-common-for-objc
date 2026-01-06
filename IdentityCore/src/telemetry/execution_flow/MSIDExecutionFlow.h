@@ -29,7 +29,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDExecutionFlow : NSObject
-- (void)insertTag:(NSString *)tag extraInfo:(nullable NSDictionary *)info;
+
+- (void)insertTag:(NSString *)tag
+   triggeringTime:(NSDate *)triggeringTime
+         threadId:(NSNumber *)tid
+        extraInfo:(nullable NSDictionary *)info;
+
 - (nullable NSArray<NSDictionary *> *)executionFlowWithKeys:(nullable NSArray<NSString *> *)blobKeys;
 
 @end

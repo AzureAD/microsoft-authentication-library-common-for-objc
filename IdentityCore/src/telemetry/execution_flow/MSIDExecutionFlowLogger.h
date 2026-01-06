@@ -25,6 +25,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class MSIDExecutionFlow;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDExecutionFlowLogger : NSObject
@@ -35,11 +37,21 @@ NS_ASSUME_NONNULL_BEGIN
 + (nonnull MSIDExecutionFlowLogger *)sharedInstance;
 
 /*!
-    Insert the tag and extra information on current execution point, correlationId is required as the key entrace
+    Insert the tag and extra information on current execution point, correlationId is required as the key entrance
  */
 -(void)insertTag:(NSString *)tag
-       extraInfo:(NSDictionary *)info
+       extraInfo:(nullable NSDictionary *)info
 withCorrelationId:(NSString *)correlationId;
+
+/*!
+    Retrieve the full execution flow by using the correlationId
+ */
+- (nullable MSIDExecutionFlow *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSString *)correlationId;
+
+/*!
+    Remove every flow from the execution logger
+ */
+- (void)flush;
 
 @end
 

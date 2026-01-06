@@ -560,6 +560,8 @@
 		2A465DF02F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DEE2F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m */; };
 		2A465DF22F0C74A6006E7571 /* MSIDExecutionFlowTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DF12F0C74A6006E7571 /* MSIDExecutionFlowTests.m */; };
 		2A465DF32F0C74A6006E7571 /* MSIDExecutionFlowTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DF12F0C74A6006E7571 /* MSIDExecutionFlowTests.m */; };
+		2A465DF52F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DF42F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m */; };
+		2A465DF62F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DF42F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m */; };
 		2A59B4202D76618900304FB1 /* MSIDXpcProviderCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */; };
 		2A59B4212D76618900304FB1 /* MSIDXpcProviderCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */; };
 		2A59B42C2D776F3400304FB1 /* MSIDXpcConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A59B42B2D776F3400304FB1 /* MSIDXpcConfiguration.m */; };
@@ -2547,6 +2549,7 @@
 		2A465DD02F0C5DA0006E7571 /* MSIDExecutionFlowLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowLogger.m; sourceTree = "<group>"; };
 		2A465DEE2F0C6A1D006E7571 /* MSIDExecutionFlowBlobTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowBlobTests.m; sourceTree = "<group>"; };
 		2A465DF12F0C74A6006E7571 /* MSIDExecutionFlowTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowTests.m; sourceTree = "<group>"; };
+		2A465DF42F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowLoggerTests.m; sourceTree = "<group>"; };
 		2A59B41D2D76618900304FB1 /* MSIDXpcProviderCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCache.h; sourceTree = "<group>"; };
 		2A59B41E2D76618900304FB1 /* MSIDXpcProviderCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcProviderCache.m; sourceTree = "<group>"; };
 		2A59B42A2D776F3400304FB1 /* MSIDXpcConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcConfiguration.h; sourceTree = "<group>"; };
@@ -6055,6 +6058,7 @@
 				2A0278902D6E3216005655B4 /* MSIDAADTokenRequestServerTelemetryTests.m */,
 				2376D8DC2D88FDE900ADC271 /* MSIDBrowserNativeMessageGetSupportedContractsResponseTests.m */,
 				2A465DF12F0C74A6006E7571 /* MSIDExecutionFlowTests.m */,
+				2A465DF42F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -7283,6 +7287,7 @@
 				589BDB1D2718CD7D00BF3799 /* MSIDBrokerOperationGetSsoCookiesRequestTests.m in Sources */,
 				724C9DD52E6906290039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m in Sources */,
 				B210F42E1FDDE6A5005A8F76 /* MSIDJsonObjectTests.m in Sources */,
+				2A465DF62F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m in Sources */,
 				B2E97FB32914CC4500AFD558 /* MSIDBrokerNativeAppOperationResponseTests.m in Sources */,
 				B29F7805213DFA5600D61FC8 /* MSIDErrorTests.m in Sources */,
 				B48FC0622D7A90FA007B80DB /* MSIDBrokerFlightProviderTests.m in Sources */,
@@ -8013,6 +8018,7 @@
 				B2DD5BB2204789FB0084313F /* MSIDIdTokenTests.m in Sources */,
 				232C657721376755002A41FE /* MSIDDRSDiscoveryResponseSerializerTests.m in Sources */,
 				239FE69A236A594500D846AC /* MSIDJsonSerializableFactoryTests.m in Sources */,
+				2A465DF52F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m in Sources */,
 				4BADFA5E2E85D7FC00E8C26F /* MSIDFlightManagerTests.swift in Sources */,
 				580E254F271A1815003D1795 /* MSIDBrokerOperationGetSsoCookiesResponseTests.m in Sources */,
 				B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */,

@@ -22,7 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#include <pthread.h>
 #import "MSIDExecutionFlow.h"
 #import "MSIDExecutionFlowBlob.h"
 #import "MSIDJsonSerializer.h"
@@ -48,13 +47,15 @@
     {
         _executionFlow = [NSMutableArray new];
         _executionFlowWritingQueue = dispatch_queue_create("com.microsoft.executionFlowWritingQueue", DISPATCH_QUEUE_CONCURRENT);
-        _startTime = [NSDate date];
     }
     
     return self;
 }
 
-- (void)insertTag:(NSString *)tag extraInfo:(NSDictionary *)info
+- (void)insertTag:(NSString *)tag
+   triggeringTime:(NSDate *)triggeringTime
+         threadId:(NSNumber *)tid
+        extraInfo:(NSDictionary *)info
 {
     if ([NSString msidIsStringNilOrBlank:tag])
     {
@@ -62,15 +63,31 @@
         return;
     }
     
-    NSTimeInterval interval = [[NSDate date] timeIntervalSinceDate:self.startTime];
+    if (!tid)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"tid cannot be nil", nil);
+        return;
+    }
+    
+    if (!triggeringTime)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"triggeringTime cannot be nil", nil);
+        return;
+    }
+    
+    NSTimeInterval interval = 0;
+    if (!self.startTime)
+    {
+        self.startTime = triggeringTime;
+    }
+    else
+    {
+        interval = [triggeringTime timeIntervalSinceDate:self.startTime];
+    }
+    
     int64_t ts = (int64_t)(interval * 1000.0);
 
-    __uint64_t tid = 0;
-    if (pthread_threadid_np(NULL, &tid) != 0) {
-        tid = (uint64_t)[NSThread currentThread].hash; // Fallback
-    }
-
-    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:tag timeStep:@(ts) threadId:@(tid)];
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:tag timeStep:@(ts) threadId:tid];
     if (!blob)
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to create execution flow blob", nil);

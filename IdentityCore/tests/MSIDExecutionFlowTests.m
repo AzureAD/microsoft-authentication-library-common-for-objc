@@ -44,13 +44,13 @@
     XCTAssertNil(result, @"Should return nil for empty flow");
 }
 
-#pragma mark - insertTag:extraInfo: Tests
+#pragma mark - insertTag:triggeringTime:threadId:extraInfo: Tests
 
-- (void)testInsertTagWithValidTag_shouldAddToFlow
+- (void)testInsertTagWithValidParameters_shouldAddToFlow
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
-    [flow insertTag:@"TestTag" extraInfo:nil];
+    [flow insertTag:@"TestTag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts", @"tid"]];
     XCTAssertNotNil(result);
@@ -59,18 +59,47 @@
     NSDictionary *blob = result[0];
     XCTAssertEqualObjects(blob[@"t"], @"TestTag");
     XCTAssertNotNil(blob[@"ts"], @"Timestamp should be present");
-    XCTAssertNotNil(blob[@"tid"], @"Thread ID should be present");
+    XCTAssertEqualObjects(blob[@"tid"], @(12345));
 }
 
 - (void)testInsertTagWithNilTag_shouldNotAddToFlow
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     NSString *nilTag = nil;
-    NSDictionary *nilExtraInfo = nil;
-    [flow insertTag:nilTag extraInfo:nilExtraInfo];
+    [flow insertTag:nilTag triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
     XCTAssertNil(result, @"Should not add blob with nil tag");
+}
+
+- (void)testInsertTagWithEmptyTag_shouldNotAddToFlow
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    [flow insertTag:@"" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
+    
+    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    XCTAssertNil(result, @"Should not add blob with empty tag");
+}
+
+- (void)testInsertTagWithNilThreadId_shouldNotAddToFlow
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    NSNumber *nilTid = nil;
+    [flow insertTag:@"TestTag" triggeringTime:[NSDate date] threadId:nilTid extraInfo:nil];
+    
+    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    XCTAssertNil(result, @"Should not add blob with nil threadId");
+}
+
+- (void)testInsertTagWithNilTriggeringTime_shouldNotAddToFlow
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    NSDate *nilTriggeringTime = nil;
+    [flow insertTag:@"TestTag" triggeringTime:nilTriggeringTime threadId:@(12345) extraInfo:nil];
+    
+    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    XCTAssertNil(result, @"Should not add blob with nil triggeringTime");
 }
 
 - (void)testInsertTagWithExtraInfo_shouldAddAllInfoToBlob
@@ -83,7 +112,7 @@
         @"key3": @"value3"
     };
     
-    [flow insertTag:@"TestTag" extraInfo:extraInfo];
+    [flow insertTag:@"TestTag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:extraInfo];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t", @"key1", @"key2", @"key3"]];
     XCTAssertEqual(result.count, 1);
@@ -99,7 +128,7 @@
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
-    [flow insertTag:@"TestTag" extraInfo:@{}];
+    [flow insertTag:@"TestTag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:@{}];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts", @"tid"]];
     XCTAssertEqual(result.count, 1);
@@ -107,16 +136,16 @@
     NSDictionary *blob = result[0];
     XCTAssertEqualObjects(blob[@"t"], @"TestTag");
     XCTAssertNotNil(blob[@"ts"]);
-    XCTAssertNotNil(blob[@"tid"]);
+    XCTAssertEqualObjects(blob[@"tid"], @(12345));
 }
 
 - (void)testInsertTagMultipleTimes_shouldMaintainOrder
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
-    [flow insertTag:@"Tag1" extraInfo:nil];
-    [flow insertTag:@"Tag2" extraInfo:nil];
-    [flow insertTag:@"Tag3" extraInfo:nil];
+    [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:nil];
+    [flow insertTag:@"Tag2" triggeringTime:[NSDate date] threadId:@(222) extraInfo:nil];
+    [flow insertTag:@"Tag3" triggeringTime:[NSDate date] threadId:@(333) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
     XCTAssertEqual(result.count, 3);
@@ -136,7 +165,7 @@
         @"custom": @"value"
     };
     
-    [flow insertTag:@"OriginalTag" extraInfo:extraInfo];
+    [flow insertTag:@"OriginalTag" triggeringTime:[NSDate date] threadId:@(5678) extraInfo:extraInfo];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts", @"tid", @"custom"]];
     XCTAssertEqual(result.count, 1);
@@ -144,19 +173,35 @@
     NSDictionary *blob = result[0];
     XCTAssertEqualObjects(blob[@"t"], @"OriginalTag", @"Tag should not be overridden");
     XCTAssertNotEqualObjects(blob[@"ts"], @(9999), @"Timestamp should not be overridden");
-    XCTAssertNotEqualObjects(blob[@"tid"], @(8888), @"Thread ID should not be overridden");
+    XCTAssertEqualObjects(blob[@"tid"], @(5678), @"Thread ID should match the provided one");
     XCTAssertEqualObjects(blob[@"custom"], @"value", @"Custom key should be added");
 }
 
 #pragma mark - Timestamp Tests
 
-- (void)testInsertTag_shouldHaveIncreasingTimestamps
+- (void)testInsertTag_firstTagShouldHaveZeroTimestamp
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
-    [flow insertTag:@"Tag1" extraInfo:nil];
-    [NSThread sleepForTimeInterval:0.01]; // Sleep 10ms
-    [flow insertTag:@"Tag2" extraInfo:nil];
+    [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:nil];
+    
+    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts"]];
+    XCTAssertEqual(result.count, 1);
+    
+    NSNumber *ts1 = result[0][@"ts"];
+    XCTAssertEqual(ts1.longLongValue, 0, @"First tag should have timestamp 0");
+}
+
+- (void)testInsertTag_subsequentTagsShouldHaveIncreasingTimestamps
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    NSDate *baseTime = [NSDate date];
+    [flow insertTag:@"Tag1" triggeringTime:baseTime threadId:@(111) extraInfo:nil];
+    
+    [NSThread sleepForTimeInterval:0.05]; // Sleep 50ms
+    NSDate *time2 = [NSDate date];
+    [flow insertTag:@"Tag2" triggeringTime:time2 threadId:@(222) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts"]];
     XCTAssertEqual(result.count, 2);
@@ -164,41 +209,81 @@
     NSNumber *ts1 = result[0][@"ts"];
     NSNumber *ts2 = result[1][@"ts"];
     
-    XCTAssertNotNil(ts1);
-    XCTAssertNotNil(ts2);
+    XCTAssertEqual(ts1.longLongValue, 0, @"First tag should have timestamp 0");
     XCTAssertGreaterThan(ts2.longLongValue, ts1.longLongValue, @"Second timestamp should be greater");
+}
+
+- (void)testInsertTagWithSpecificTriggeringTime_shouldUseProvidedTime
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    NSDate *baseTime = [NSDate date];
+    NSDate *specificTime1 = baseTime;
+    NSDate *specificTime2 = [NSDate dateWithTimeInterval:0.1 sinceDate:baseTime]; // 100ms later
+    
+    [flow insertTag:@"Tag1" triggeringTime:specificTime1 threadId:@(111) extraInfo:nil];
+    [flow insertTag:@"Tag2" triggeringTime:specificTime2 threadId:@(222) extraInfo:nil];
+    
+    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts"]];
+    XCTAssertEqual(result.count, 2);
+    
+    NSNumber *ts1 = result[0][@"ts"];
+    NSNumber *ts2 = result[1][@"ts"];
+    
+    XCTAssertEqual(ts1.longLongValue, 0, @"First tag should have timestamp 0");
+    XCTAssertGreaterThanOrEqual(ts2.longLongValue, 90, @"Second tag should be ~100ms later");
+    XCTAssertLessThanOrEqual(ts2.longLongValue, 110, @"Second tag should be ~100ms later with tolerance");
 }
 
 - (void)testInsertTag_timestampShouldBeInMilliseconds
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
-    [NSThread sleepForTimeInterval:0.1]; // Sleep 100ms
-    [flow insertTag:@"Tag" extraInfo:nil];
+    NSDate *baseTime = [NSDate date];
+    [flow insertTag:@"Tag1" triggeringTime:baseTime threadId:@(111) extraInfo:nil];
+    
+    NSDate *laterTime = [NSDate dateWithTimeInterval:0.1 sinceDate:baseTime];
+    [flow insertTag:@"Tag2" triggeringTime:laterTime threadId:@(222) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"ts"]];
-    NSDictionary *blob = result[0];
-    NSNumber *ts = blob[@"ts"];
     
-    // Should be approximately 100ms (with some tolerance)
-    XCTAssertGreaterThanOrEqual(ts.longLongValue, 90);
-    XCTAssertLessThanOrEqual(ts.longLongValue, 200);
+    NSNumber *ts1 = result[0][@"ts"];
+    NSNumber *ts2 = result[1][@"ts"];
+    
+    XCTAssertEqual(ts1.longLongValue, 0);
+    XCTAssertGreaterThanOrEqual(ts2.longLongValue, 90, @"Should be approximately 100ms");
+    XCTAssertLessThanOrEqual(ts2.longLongValue, 110, @"Should be approximately 100ms with tolerance");
 }
 
 #pragma mark - Thread ID Tests
 
-- (void)testInsertTag_shouldHaveValidThreadId
+- (void)testInsertTagWithSpecificThreadId_shouldUseProvidedThreadId
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
-    [flow insertTag:@"Tag" extraInfo:nil];
+    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(99999) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"tid"]];
     NSDictionary *blob = result[0];
     NSNumber *tid = blob[@"tid"];
     
-    XCTAssertNotNil(tid);
-    XCTAssertGreaterThan(tid.unsignedLongLongValue, 0, @"Thread ID should be positive");
+    XCTAssertEqualObjects(tid, @(99999));
+}
+
+- (void)testInsertTagWithDifferentThreadIds_shouldPreserveEachThreadId
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:nil];
+    [flow insertTag:@"Tag2" triggeringTime:[NSDate date] threadId:@(222) extraInfo:nil];
+    [flow insertTag:@"Tag3" triggeringTime:[NSDate date] threadId:@(333) extraInfo:nil];
+    
+    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"tid"]];
+    XCTAssertEqual(result.count, 3);
+    
+    XCTAssertEqualObjects(result[0][@"tid"], @(111));
+    XCTAssertEqualObjects(result[1][@"tid"], @(222));
+    XCTAssertEqualObjects(result[2][@"tid"], @(333));
 }
 
 #pragma mark - executionFlowWithKeys: Tests
@@ -206,7 +291,7 @@
 - (void)testExecutionFlowWithNilKeys_shouldReturnNil
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
-    [flow insertTag:@"Tag" extraInfo:nil];
+    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:nil];
     
@@ -216,7 +301,7 @@
 - (void)testExecutionFlowWithEmptyKeys_shouldReturnNil
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
-    [flow insertTag:@"Tag" extraInfo:nil];
+    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:@[]];
     
@@ -226,7 +311,7 @@
 - (void)testExecutionFlowWithNonExistentKeys_shouldReturnNil
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
-    [flow insertTag:@"Tag" extraInfo:nil];
+    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"nonexistent1", @"nonexistent2"]];
     
@@ -242,7 +327,7 @@
         @"key2": @"value2",
         @"key3": @"value3"
     };
-    [flow insertTag:@"Tag" extraInfo:extraInfo];
+    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:extraInfo];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t", @"key1"]];
     XCTAssertEqual(result.count, 1);
@@ -259,9 +344,9 @@
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
-    [flow insertTag:@"Tag1" extraInfo:@{@"custom": @"value1"}];
-    [flow insertTag:@"Tag2" extraInfo:@{@"custom": @"value2"}];
-    [flow insertTag:@"Tag3" extraInfo:@{@"custom": @"value3"}];
+    [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:@{@"custom": @"value1"}];
+    [flow insertTag:@"Tag2" triggeringTime:[NSDate date] threadId:@(222) extraInfo:@{@"custom": @"value2"}];
+    [flow insertTag:@"Tag3" triggeringTime:[NSDate date] threadId:@(333) extraInfo:@{@"custom": @"value3"}];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t", @"custom"]];
     XCTAssertEqual(result.count, 3);
@@ -282,7 +367,10 @@
     
     // Insert more than MAX_EXECUTION_FLOW_SIZE (50) entries
     for (int i = 0; i < 55; i++) {
-        [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] extraInfo:nil];
+        [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] 
+         triggeringTime:[NSDate date]
+               threadId:@(i) 
+              extraInfo:nil];
     }
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
@@ -303,7 +391,10 @@
     
     // Insert exactly MAX_EXECUTION_FLOW_SIZE (50) entries
     for (int i = 0; i < 50; i++) {
-        [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] extraInfo:nil];
+        [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] 
+         triggeringTime:[NSDate date]
+               threadId:@(i) 
+              extraInfo:nil];
     }
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
@@ -325,7 +416,10 @@
     // Insert from multiple threads
     for (int i = 0; i < 20; i++) {
         dispatch_group_async(group, queue, ^{
-            [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] extraInfo:nil];
+            [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] 
+             triggeringTime:[NSDate date]
+                   threadId:@(i) 
+                  extraInfo:nil];
         });
     }
     
@@ -345,7 +439,10 @@
     // Concurrent inserts
     for (int i = 0; i < 10; i++) {
         dispatch_group_async(group, queue, ^{
-            [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] extraInfo:nil];
+            [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] 
+             triggeringTime:[NSDate date]
+                   threadId:@(i) 
+                  extraInfo:nil];
         });
     }
     
@@ -365,14 +462,14 @@
 
 #pragma mark - Edge Case Tests
 
-- (void)testInsertTagWithEmptyString_shouldAddToFlow
+- (void)testInsertTagWithWhitespaceTag_shouldNotAddToFlow
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
-    [flow insertTag:@"" extraInfo:nil];
+    [flow insertTag:@"   " triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
-    XCTAssertNil(result, @"return nil since empty tag is provided");
+    XCTAssertNil(result, @"Should not add blob with whitespace-only tag");
 }
 
 - (void)testInsertTagWithExtraInfoContainingInvalidTypes_shouldFilterOutInvalidValues
@@ -386,7 +483,7 @@
         @"invalidDict": @{@"key": @"value"}
     };
     
-    [flow insertTag:@"Tag" extraInfo:extraInfo];
+    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:extraInfo];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t", @"validString", @"validNumber", @"invalidArray", @"invalidDict"]];
     XCTAssertEqual(result.count, 1);
@@ -402,7 +499,7 @@
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
-    [flow insertTag:@"Tag" extraInfo:@{@"key1": @"value1"}];
+    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:@{@"key1": @"value1"}];
     
     NSArray *result = [flow executionFlowWithKeys:@[@"t", @"key1", @"nonexistent"]];
     XCTAssertEqual(result.count, 1);
@@ -411,6 +508,17 @@
     XCTAssertEqual(blob.count, 2);
     XCTAssertEqualObjects(blob[@"t"], @"Tag");
     XCTAssertEqualObjects(blob[@"key1"], @"value1");
+}
+
+- (void)testInsertTagWithZeroThreadId_shouldAcceptZero
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(0) extraInfo:nil];
+    
+    NSArray *result = [flow executionFlowWithKeys:@[@"tid"]];
+    XCTAssertNotNil(result);
+    XCTAssertEqualObjects(result[0][@"tid"], @(0), @"Zero thread ID should be valid");
 }
 
 @end
