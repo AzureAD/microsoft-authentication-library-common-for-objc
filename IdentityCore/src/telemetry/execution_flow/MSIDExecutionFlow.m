@@ -102,10 +102,11 @@
     }
     
     dispatch_barrier_async(self.executionFlowWritingQueue, ^{
-        // This is unlikely but just in case
+        // This is unlikely but just in case to keep the execution flow not tracking too many
         if (self.executionFlow.count >= MAX_EXECUTION_FLOW_SIZE) {
             [self.executionFlow removeObjectAtIndex:0];
         }
+        
         [self.executionFlow addObject:blob];
     });
 }

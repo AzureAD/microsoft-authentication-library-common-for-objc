@@ -25,6 +25,15 @@
 
 #import <Foundation/Foundation.h>
 
+/*
+ "t": "abcde",  // Tag name: 5 alphanumeric characters (0-9, a-z)
+ "ts": 0,       // Timestep: milliseconds since execution flow is created time
+ "tid": 1,      // Thread ID
+ "d": 0,        // Optional: diagnostic code (iteration count, http code)
+ "e": 1003,      // Optional: error code
+ "ref": "clas name" // Optional: when logging in parent class, this can be used to tell which subclass is invoking the flow
+ */
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDExecutionFlowBlob : NSObject
