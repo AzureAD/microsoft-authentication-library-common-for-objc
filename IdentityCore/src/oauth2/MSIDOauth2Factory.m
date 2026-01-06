@@ -418,11 +418,8 @@
 
 - (BOOL)doesResponseHaveBoundAppRefreshToken:(MSIDTokenResponse *)response
 {
-    id bartDeviceIdValue = response.additionalServerInfo[MSID_BART_DEVICE_ID_KEY];
-    NSString *bartDeviceId = [bartDeviceIdValue isKindOfClass:NSString.class] ? (NSString *)bartDeviceIdValue : nil;
-
     return ![NSString msidIsStringNilOrBlank:response.boundAppRefreshTokenDeviceId] ||
-           ![NSString msidIsStringNilOrBlank:bartDeviceId];
+           ![NSString msidIsStringNilOrBlank:response.additionalServerInfo[MSID_BART_DEVICE_ID_KEY]];
 }
 
 #pragma mark - Webview
