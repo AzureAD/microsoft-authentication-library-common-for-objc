@@ -37,6 +37,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (nonnull MSIDExecutionFlowLogger *)sharedInstance;
 
 /*!
+    Register new execution flow as the first step at the beginning of the code, otherwise the execution logger does not track
+ */
+- (void)registerExecutionFlowWithCorrelationId:(NSString *)correlationId;
+
+/*!
     Insert the tag and extra information on current execution point, correlationId is required as the key entrance
  */
 -(void)insertTag:(NSString *)tag

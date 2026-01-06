@@ -65,7 +65,34 @@
     return self;
 }
 
--(void)insertTag:(NSString *)tag
+- (void)registerExecutionFlowWithCorrelationId:(NSString *)correlationId
+{
+    if ([NSString msidIsStringNilOrBlank:correlationId])
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationId cannot be nil", nil);
+        return;
+    }
+    
+    dispatch_barrier_sync(self.executionFlowLoggerQueue, ^{
+        if ([self.eliminatedCorrelationIdPool containsObject:correlationId])
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The execution flow for this correlationId %@ has been flushed, this is a developer error, please check", correlationId, nil);
+            return;
+        }
+        
+        MSIDExecutionFlow *executionFlow = [self.executionFlowMap objectForKey:correlationId];
+        if (executionFlow)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The execution flow for this correlationId %@ has been registered, and cannot be re-registered. This is a developer error, please check", correlationId, nil);
+            return;
+        }
+        
+        executionFlow = [MSIDExecutionFlow new];
+        [self.executionFlowMap setObject:executionFlow forKey:correlationId];
+    });
+}
+
+- (void)insertTag:(NSString *)tag
        extraInfo:(NSDictionary *)info
 withCorrelationId:(NSString *)correlationId
 {
@@ -97,8 +124,8 @@ withCorrelationId:(NSString *)correlationId
         MSIDExecutionFlow *executionFlow = [self.executionFlowMap objectForKey:correlationId];
         if(!executionFlow)
         {
-            executionFlow = [MSIDExecutionFlow new];
-            [self.executionFlowMap setObject:executionFlow forKey:correlationId];
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"The execution flow for this correlationId %@ is not registered and tag %@ cannot be added", correlationId, tag, nil);
+            return;
         }
         
         [executionFlow insertTag:tag triggeringTime:triggeringTime threadId:@(tid) extraInfo:info];
