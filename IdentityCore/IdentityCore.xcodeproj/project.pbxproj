@@ -6488,11 +6488,10 @@
 				A0C7DD7C25D1E98D00F5B5B6 /* NSError+MSIDThrottlingExtension.h in Headers */,
 				B2E2A93D2392F91100BA2EA3 /* MSIDInteractiveTokenRequestParameters.h in Headers */,
 				B2C07486246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.h in Headers */,
-<<<<<<< HEAD
+
 				B5AAE1112F03D5220026B21B /* MSIDSSOExtensionGetDefaultAccountRequest.h in Headers */,
-=======
+
 				B4EC85102EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.h in Headers */,
->>>>>>> dev
 				23D2048E21D1B499009B5975 /* MSIDAADJsonResponsePreprocessor.h in Headers */,
 				B2C07481246B70F70008D701 /* MSIDAssymetricKeyPair.h in Headers */,
 				B2CDB57C1FE33EC1003A4B5C /* MSIDIdTokenClaims.h in Headers */,
