@@ -39,19 +39,19 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
     Register new execution flow as the first step at the beginning of the code, otherwise the execution logger does not track
  */
-- (void)registerExecutionFlowWithCorrelationId:(NSString *)correlationId;
+- (void)registerExecutionFlowWithCorrelationId:(NSUUID *)correlationId;
 
 /*!
     Insert the tag and extra information on current execution point, correlationId is required as the key entrance
  */
 -(void)insertTag:(NSString *)tag
        extraInfo:(nullable NSDictionary *)info
-withCorrelationId:(NSString *)correlationId;
+withCorrelationId:(NSUUID *)correlationId;
 
 /*!
     Retrieve the full execution flow by using the correlationId
  */
-- (nullable MSIDExecutionFlow *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSString *)correlationId;
+- (nullable MSIDExecutionFlow *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId;
 
 /*!
     Remove every flow from the execution logger

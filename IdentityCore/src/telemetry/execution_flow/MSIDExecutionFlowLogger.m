@@ -65,16 +65,16 @@
     return self;
 }
 
-- (void)registerExecutionFlowWithCorrelationId:(NSString *)correlationId
+- (void)registerExecutionFlowWithCorrelationId:(NSUUID *)correlationId
 {
-    if ([NSString msidIsStringNilOrBlank:correlationId])
+    if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationId cannot be nil", nil);
         return;
     }
     
     dispatch_barrier_sync(self.executionFlowLoggerQueue, ^{
-        if ([self.eliminatedCorrelationIdPool containsObject:correlationId])
+        if ([self.eliminatedCorrelationIdPool containsObject:correlationId.UUIDString])
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The execution flow for this correlationId %@ has been flushed, this is a developer error, please check", correlationId, nil);
             return;
@@ -94,7 +94,7 @@
 
 - (void)insertTag:(NSString *)tag
        extraInfo:(NSDictionary *)info
-withCorrelationId:(NSString *)correlationId
+withCorrelationId:(NSUUID *)correlationId
 {
     if ([NSString msidIsStringNilOrBlank:tag])
     {
@@ -102,7 +102,7 @@ withCorrelationId:(NSString *)correlationId
         return;
     }
     
-    if ([NSString msidIsStringNilOrBlank:correlationId])
+    if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationId cannot be nil, fail to insert tag: %@", tag, nil);
         return;
@@ -115,7 +115,7 @@ withCorrelationId:(NSString *)correlationId
     
     NSDate *triggeringTime = [NSDate date];
     dispatch_barrier_async(self.executionFlowLoggerQueue, ^{        
-        if ([self.eliminatedCorrelationIdPool containsObject:correlationId])
+        if ([self.eliminatedCorrelationIdPool containsObject:correlationId.UUIDString])
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The execution flow for adding this tag %@ with correlationId: %@ has been flushed, this is a developer error, please check", tag, correlationId, nil);
             return;
@@ -132,9 +132,9 @@ withCorrelationId:(NSString *)correlationId
     });
 }
 
-- (MSIDExecutionFlow *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSString *)correlationId
+- (MSIDExecutionFlow *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
 {
-    if ([NSString msidIsStringNilOrBlank:correlationId])
+    if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationId cannot be nil", nil);
         return nil;
@@ -151,7 +151,7 @@ withCorrelationId:(NSString *)correlationId
             [self.eliminatedCorrelationIdPool removeObjectAtIndex:0];
         }
         
-        [self.eliminatedCorrelationIdPool addObject:correlationId];
+        [self.eliminatedCorrelationIdPool addObject:correlationId.UUIDString];
         [self.executionFlowMap removeObjectForKey:correlationId];
     });
     

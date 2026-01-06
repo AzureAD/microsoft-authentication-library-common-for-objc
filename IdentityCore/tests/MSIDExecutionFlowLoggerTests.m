@@ -65,7 +65,7 @@
 - (void)testRegisterExecutionFlowWithValidCorrelationId_shouldSucceed
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     XCTAssertNoThrow([logger registerExecutionFlowWithCorrelationId:correlationId]);
     
@@ -80,21 +80,22 @@
 - (void)testRegisterExecutionFlowWithNilCorrelationId_shouldNotCrash
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *nilCorrelationId = nil;
+    NSUUID *nilCorrelationId = nil;
     XCTAssertNoThrow([logger registerExecutionFlowWithCorrelationId:nilCorrelationId]);
 }
 
 - (void)testRegisterExecutionFlowWithEmptyCorrelationId_shouldNotCrash
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    
-    XCTAssertNoThrow([logger registerExecutionFlowWithCorrelationId:@""]);
+    NSString *uuidString = @"";
+    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
+    XCTAssertNoThrow([logger registerExecutionFlowWithCorrelationId:uuid]);
 }
 
 - (void)testRegisterExecutionFlowTwice_shouldNotCreateDuplicateFlow
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger registerExecutionFlowWithCorrelationId:correlationId]; // Second registration should be ignored
@@ -109,7 +110,7 @@
 - (void)testRegisterExecutionFlowAfterFlush_shouldFail
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     // Register and flush
     [logger registerExecutionFlowWithCorrelationId:correlationId];
@@ -133,7 +134,7 @@
 - (void)testInsertTagWithValidParameters_shouldCreateAndStoreFlow
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
@@ -153,7 +154,7 @@
 - (void)testInsertTagWithExtraInfo_shouldStoreAllInformation
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     NSDictionary *extraInfo = @{
         @"key1": @"value1",
@@ -177,7 +178,7 @@
 - (void)testInsertTagWithoutRegistration_shouldFailSilently
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     // Insert without registering
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
@@ -190,7 +191,7 @@
 - (void)testInsertTagWithNilTag_shouldNotCreateFlow
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     
@@ -207,7 +208,7 @@
 - (void)testInsertTagWithEmptyTag_shouldNotCreateFlow
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"" extraInfo:nil withCorrelationId:correlationId];
@@ -221,7 +222,7 @@
 - (void)testInsertTagWithWhitespaceTag_shouldNotCreateFlow
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"   " extraInfo:nil withCorrelationId:correlationId];
@@ -237,7 +238,7 @@
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
     
     // Should not crash
-    NSString *nilCorrelationId = nil;
+    NSUUID *nilCorrelationId = nil;
     XCTAssertNoThrow([logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:nilCorrelationId]);
     [NSThread sleepForTimeInterval:0.1];
 }
@@ -245,18 +246,19 @@
 - (void)testInsertTagWithEmptyCorrelationId_shouldNotCreateFlow
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    
-    [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:@""];
+    NSString *uuidString = @"";
+    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
+    [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:uuid];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:@""];
+    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid];
     XCTAssertNil(flow, @"Should not create flow with empty correlationId");
 }
 
 - (void)testInsertMultipleTagsWithSameCorrelationId_shouldAddToSameFlow
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
@@ -278,8 +280,8 @@
 - (void)testInsertTagsWithDifferentCorrelationIds_shouldCreateSeparateFlows
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId1 = [[NSUUID UUID] UUIDString];
-    NSString *correlationId2 = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId1 = [NSUUID UUID];
+    NSUUID *correlationId2 = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId1];
     [logger registerExecutionFlowWithCorrelationId:correlationId2];
@@ -307,7 +309,7 @@
 - (void)testInsertTagWithThreadId_shouldPreserveThreadId
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
@@ -326,7 +328,7 @@
 - (void)testRetrieveAndFlushWithValidCorrelationId_shouldReturnFlow
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
@@ -340,7 +342,7 @@
 - (void)testRetrieveAndFlushWithNonExistentCorrelationId_shouldReturnNil
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
     
@@ -350,7 +352,7 @@
 - (void)testRetrieveAndFlushWithNilCorrelationId_shouldReturnNil
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *nilCorrelationId = nil;
+    NSUUID *nilCorrelationId = nil;
     MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:nilCorrelationId];
     
     XCTAssertNil(flow, @"Should return nil for nil correlationId");
@@ -359,8 +361,9 @@
 - (void)testRetrieveAndFlushWithEmptyCorrelationId_shouldReturnNil
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:@""];
+    NSString *uuidString = @"";
+    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
+    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid];
     
     XCTAssertNil(flow, @"Should return nil for empty correlationId");
 }
@@ -368,7 +371,7 @@
 - (void)testRetrieveAndFlush_shouldRemoveFlowFromCache
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
@@ -388,7 +391,7 @@
 - (void)testRetrieveAndFlushMultipleTimes_shouldOnlyReturnFirstTime
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
@@ -408,7 +411,7 @@
 - (void)testInsertAfterFlush_shouldBeRejected
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
@@ -434,7 +437,7 @@
 - (void)testEliminatedPool_shouldPreventReaddingSameFlow
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     // Insert and flush
     [logger registerExecutionFlowWithCorrelationId:correlationId];
@@ -457,8 +460,8 @@
 - (void)testFlush_shouldRemoveAllFlows
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId1 = [[NSUUID UUID] UUIDString];
-    NSString *correlationId2 = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId1 = [NSUUID UUID];
+    NSUUID *correlationId2 = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId1];
     [logger registerExecutionFlowWithCorrelationId:correlationId2];
@@ -479,7 +482,7 @@
 - (void)testFlush_shouldClearEliminatedPool
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     // Insert, flush, and verify it's in eliminated pool
     [logger registerExecutionFlowWithCorrelationId:correlationId];
@@ -510,7 +513,7 @@
 - (void)testConcurrentInsertsWithSameCorrelationId_shouldHandleThreadSafely
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     
@@ -544,7 +547,7 @@
     
     NSMutableArray *correlationIds = [NSMutableArray new];
     for (int i = 0; i < 10; i++) {
-        NSString *correlationId = [[NSUUID UUID] UUIDString];
+        NSUUID *correlationId = [NSUUID UUID];
         [correlationIds addObject:correlationId];
         [logger registerExecutionFlowWithCorrelationId:correlationId];
     }
@@ -571,7 +574,7 @@
 - (void)testConcurrentInsertAndRetrieve_shouldNotCrash
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     
@@ -606,7 +609,7 @@
     
     NSMutableArray *correlationIds = [NSMutableArray new];
     for (int i = 0; i < 20; i++) {
-        [correlationIds addObject:[[NSUUID UUID] UUIDString]];
+        [correlationIds addObject:[NSUUID UUID]];
     }
     
     // Register from multiple threads
@@ -626,7 +629,7 @@
 - (void)testFullWorkflow_registerInsertRetrieveAndFlush
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSUUID *correlationId = [NSUUID UUID];
     
     // Register first
     [logger registerExecutionFlowWithCorrelationId:correlationId];
