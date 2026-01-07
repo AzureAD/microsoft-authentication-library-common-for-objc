@@ -1614,6 +1614,13 @@
         // Sort items by cachedAt date so that top token is the latest one. cachedAt will always be populated
         [boundAppRTItems sortUsingComparator:^NSComparisonResult(MSIDCredentialCacheItem *obj1, MSIDCredentialCacheItem *obj2)
         {
+            if (!obj2.cachedAt && !obj1.cachedAt)
+                return NSOrderedSame;
+            if (!obj2.cachedAt)
+                return NSOrderedAscending;
+            if (!obj1.cachedAt)
+                return NSOrderedDescending;
+            
             return [obj2.cachedAt compare:obj1.cachedAt];
         }];
         
