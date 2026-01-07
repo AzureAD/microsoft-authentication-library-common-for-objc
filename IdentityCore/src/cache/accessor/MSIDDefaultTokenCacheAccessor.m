@@ -1570,15 +1570,7 @@
 {
     NSMutableArray<MSIDCredentialCacheItem *> *validCacheItems = [NSMutableArray new];
     NSMutableArray<MSIDCredentialCacheItem *> *boundAppRTItems = [NSMutableArray new];
-    NSString *tenantId;
-    if (homeAccountId)
-    {
-        NSArray *components = [homeAccountId componentsSeparatedByString:@"."];
-        if (components.count == 2)
-        {
-            tenantId = components[1];
-        }
-    }
+    NSString *tenantId = [[[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:cacheQuery.homeAccountId] utid];
     MSIDWPJKeyPairWithCert *wpjData;
     // cacheItems are assumed to be results of getTokensUsingCacheQuery. Hence they will be tokens for a particular homeAccountIdentifier.
     for (MSIDCredentialCacheItem *item in cacheItems)
