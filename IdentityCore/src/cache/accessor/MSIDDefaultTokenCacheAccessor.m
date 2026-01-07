@@ -1617,7 +1617,7 @@
         }
     }
     
-    if (boundAppRTItems.count > 0)
+    if (boundAppRTItems.count > 1)
     {
         // Sort items by cachedAt date so that top token is the latest one. cachedAt will always be populated
         [boundAppRTItems sortUsingComparator:^NSComparisonResult(MSIDCredentialCacheItem *obj1, MSIDCredentialCacheItem *obj2)
