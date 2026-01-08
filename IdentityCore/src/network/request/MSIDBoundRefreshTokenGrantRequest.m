@@ -82,8 +82,9 @@
                                                             authorityEndpoint:endpoint
                                                                        scopes:scopes
                                                                         nonce:@""
-                                                             extraPayloadClaims:nil
-                                                             workplaceJoinInfo:workplacejoinData];
+                                                                  redirectUri:redirectUri
+                                                           extraPayloadClaims:parameters
+                                                            workplaceJoinInfo:workplacejoinData];
 
         MSIDJWECrypto *jweCrypto;
         NSString *jwt = [boundRefreshToken getTokenRedemptionJwtForTenantId:boundRefreshToken.accountIdentifier.utid
