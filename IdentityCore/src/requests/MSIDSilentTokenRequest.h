@@ -46,6 +46,7 @@
 @property (nonatomic, nullable) MSIDThrottlingService *throttlingService;
 @property (nonatomic) BOOL skipLocalRt;
 @property (nonatomic) BOOL forceRefresh;
+// Temporary property to skip bound app RT lookup for fallback to regular RTs when BART fails.
 @property (nonatomic) BOOL shouldSkipBoundAppRefreshTokenUsage;
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
