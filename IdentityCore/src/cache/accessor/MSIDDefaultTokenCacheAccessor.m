@@ -134,14 +134,17 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError *__autoreleasing *)error
 {
-    MSIDBoundRefreshToken *boundAppRefreshToken = [self getBoundApplicationRefreshTokenWithAccount:accountIdentifier
-                                                                                          familyId:familyId
-                                                                                     configuration:configuration
-                                                                                           context:context
-                                                                                             error:error];
-    if (boundAppRefreshToken)
+    if (!self.shouldSkipBoundAppRefreshTokenLookup)
     {
-        return boundAppRefreshToken;
+        MSIDBoundRefreshToken *boundAppRefreshToken = [self getBoundApplicationRefreshTokenWithAccount:accountIdentifier
+                                                                                              familyId:familyId
+                                                                                         configuration:configuration
+                                                                                               context:context
+                                                                                                 error:error];
+        if (boundAppRefreshToken)
+        {
+            return boundAppRefreshToken;
+        }
     }
     NSError *frtError = nil;
     MSIDIsFRTEnabledStatus frtStatus = [_accountCredentialCache checkFRTEnabled:context error:&frtError];
@@ -211,7 +214,7 @@
                                                                 error:(NSError *__autoreleasing *)error
 {
     MSIDBoundRefreshToken *boundAppRefreshToken;
-    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
+    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled] && !self.shouldSkipBoundAppRefreshTokenLookup)
     {
         boundAppRefreshToken = (MSIDBoundRefreshToken *)[self getRefreshableTokenWithAccount:accountIdentifier
                                                                                     familyId:familyId
@@ -302,7 +305,7 @@
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError *__autoreleasing *)error
 {
-    BOOL shouldQueryBarts = [[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled];
+    BOOL shouldQueryBarts = [[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled] && !self.shouldSkipBoundAppRefreshTokenLookup;
     if (credentialType != MSIDRefreshTokenType &&
         credentialType != MSIDPrimaryRefreshTokenType &&
         credentialType != MSIDFamilyRefreshTokenType &&
@@ -1380,7 +1383,7 @@
                                                     accountCredentialCache:accountCredentialCache
                                                                    context:context
                                                                      error:error];
-    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
+    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled] && !self.shouldSkipBoundAppRefreshTokenLookup)
     {
         NSSet<NSString *> *bartSet = [self homeAccountIdsFromRTsWithAuthority:authority
                                                                      clientId:clientId

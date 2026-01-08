@@ -121,6 +121,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorRedirectSchemeNotRegistered = -51118,
     
     MSIDErrorInvalidRedirectURI         = -51119,
+    
+    // General catch-all error for bound refresh token redemption failures. Use to retry with regular RT when encountered.
+    MSIDErrorBoundAppRefreshTokenRedemptionError = -51120,
 
     /*!
     =========================================================
