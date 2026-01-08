@@ -118,7 +118,9 @@
     {
         if (!result && error)
         {
-            if (request.shouldSkipBoundAppRefreshTokenUsage && error.code == MSIDErrorBoundAppRefreshTokenRedemptionError)
+            if (request.shouldSkipBoundAppRefreshTokenUsage
+                && [error.domain isEqualToString:MSIDErrorDomain]
+                && error.code == MSIDErrorBoundAppRefreshTokenRedemptionError)
             {
                 [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable retryResult, NSError * _Nullable retryError)
                 {
