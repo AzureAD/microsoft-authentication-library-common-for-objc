@@ -451,7 +451,7 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
         case MSIDErrorBrokerXpcUnexpectedError:
             return @"MSIDErrorBrokerXpcUnexpectedError";
         case MSIDErrorBoundAppRefreshTokenRedemptionError:
-            return @"MSIDErrorBoundAppRefreshTokenRedemption";
+            return @"MSIDErrorBoundAppRefreshTokenRedemptionError";
     }
     
     return [NSString stringWithFormat:@"Unknown: %@", @(errorCode)];
