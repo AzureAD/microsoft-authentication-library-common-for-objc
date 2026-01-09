@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDSSOExtensionGetDataBaseRequest.h"
 #import "MSIDConstants.h"
 
 #if MSID_ENABLE_SSO_EXTENSION
