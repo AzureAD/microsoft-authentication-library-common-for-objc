@@ -31,8 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationGetDefaultAccountRequest : MSIDBrokerOperationRequest
 
-@property (nonatomic) MSIDAuthority *authority;
-
 @end
 
 NS_ASSUME_NONNULL_END

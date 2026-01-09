@@ -23,6 +23,7 @@
 
 #if MSID_ENABLE_SSO_EXTENSION
 
+#import "MSIDSSOExtensionGetDataBaseRequest+Internal.h"
 #import "MSIDSSOExtensionGetDefaultAccountRequest.h"
 #import "MSIDBrokerOperationGetDefaultAccountRequest.h"
 #import "MSIDBrokerOperationGetDefaultAccountResponse.h"
@@ -38,11 +39,7 @@
 
 @interface MSIDSSOExtensionGetDefaultAccountRequest()
 
-@property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic, copy) MSIDGetDefaultAccountRequestCompletionBlock requestCompletionBlock;
-@property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
-@property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
-@property (nonatomic) MSIDRequestParameters *requestParameters;
 @property (nonatomic) NSDate *requestSentDate;
 #if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
@@ -55,7 +52,7 @@
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
-    self = [super init];
+    self = [super initWithRequestParameters:requestParameters error:error];
     
     if (!requestParameters)
     {
@@ -69,14 +66,10 @@
     
     if (self)
     {
-        _requestParameters = requestParameters;
-        
-        _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
-        _extensionDelegate.context = requestParameters;
         __typeof__(self) __weak weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
+        self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
         {
-            MSIDDefaultAccount *resultDefaultAccount = nil;
+            MSIDAccount *defaultAccount = nil;
             
             if (!operationResponse.success)
             {
@@ -89,7 +82,7 @@
             else
             {
                 MSIDBrokerOperationGetDefaultAccountResponse *response = (MSIDBrokerOperationGetDefaultAccountResponse *)operationResponse;
-                resultDefaultAccount = response.defaultAccount;
+                defaultAccount = response.account;
             }
             
             __typeof__(self) strongSelf = weakSelf;
@@ -97,10 +90,9 @@
             MSIDGetDefaultAccountRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
             strongSelf.requestCompletionBlock = nil;
             
-            if (completionBlock) completionBlock(resultDefaultAccount, resultError);
+            if (completionBlock) completionBlock(defaultAccount, resultError);
         };
         
-        _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
 #if !EXCLUDE_FROM_MSALCPP
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
 #endif
@@ -112,39 +104,12 @@
 - (void)executeRequestWithCompletion:(nonnull MSIDGetDefaultAccountRequestCompletionBlock)completionBlock
 {
     MSIDBrokerOperationGetDefaultAccountRequest *getDefaultAccountRequest = [MSIDBrokerOperationGetDefaultAccountRequest new];
-    
-    getDefaultAccountRequest.authority = _requestParameters.authority;
-    
-    NSError *error;
-    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getDefaultAccountRequest
-                                                                                          requestParameters:self.requestParameters
-                                                                                                 requiresUI:NO
-                                                                                                      error:&error];
-    
-    if (!ssoRequest)
-    {
-        completionBlock(nil, error);
-        return;
-    }
-        
-    self.authorizationController = [self controllerWithRequest:ssoRequest];
-    self.authorizationController.delegate = self.extensionDelegate;
     self.requestSentDate = [NSDate date];
-
     self.requestCompletionBlock = completionBlock;
-    [self.authorizationController msidPerformRequests];
-}
-
-#pragma mark - AuthenticationServices
-
-- (ASAuthorizationController *)controllerWithRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
-{
-    return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
-}
-
-+ (BOOL)canPerformRequest
-{
-    return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
+    
+    [self executeBrokerOperationRequest:getDefaultAccountRequest requiresUI:NO errorBlock:^(NSError *error) {
+        if(completionBlock) completionBlock(nil, error);
+    }];
 }
 
 @end

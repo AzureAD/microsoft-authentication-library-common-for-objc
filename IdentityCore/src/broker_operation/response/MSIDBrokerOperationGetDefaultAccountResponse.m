@@ -24,8 +24,8 @@
 
 #if !EXCLUDE_FROM_MSALCPP
 
+#import "MSIDAccount.h"
 #import "MSIDBrokerOperationGetDefaultAccountResponse.h"
-#import "MSIDDefaultAccount.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 
@@ -51,8 +51,8 @@
     {
         if (self.success)
         {
-            _defaultAccount =[[MSIDDefaultAccount alloc] initWithJSONDictionary:json error:error];
-            if (!_defaultAccount)
+            _account = [[MSIDAccount alloc] initWithJSONDictionary:json error:error];
+            if (!_account)
             {
                 if (error)
                 {
@@ -78,13 +78,13 @@
 
     if (self.success)
     {
-        NSDictionary *defaultAccountJson = [self.defaultAccount jsonDictionary];
-        if (!defaultAccountJson)
+        NSDictionary *accountJson = [self.account jsonDictionary];
+        if (!accountJson)
         {
-            MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, defaultAccount json is nil.", self.class);
+            MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, account json is nil.", self.class);
             return nil;
         }
-        [json addEntriesFromDictionary:defaultAccountJson];
+        [json addEntriesFromDictionary:accountJson];
     }
 
     return json;

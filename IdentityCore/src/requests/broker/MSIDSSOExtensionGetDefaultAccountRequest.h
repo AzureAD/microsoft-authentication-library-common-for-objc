@@ -30,16 +30,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSSOExtensionGetDefaultAccountRequest : NSObject
-
-@property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
+@interface MSIDSSOExtensionGetDefaultAccountRequest: MSIDSSOExtensionGetDataBaseRequest
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDGetDefaultAccountRequestCompletionBlock)completionBlock;
-
-+ (BOOL)canPerformRequest;
 
 @end
 

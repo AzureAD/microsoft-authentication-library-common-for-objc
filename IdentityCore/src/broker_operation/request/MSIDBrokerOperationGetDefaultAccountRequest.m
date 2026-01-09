@@ -26,7 +26,6 @@
 #import "MSIDBrokerOperationGetDefaultAccountRequest.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
-#import "MSIDAuthority.h"
 
 @implementation MSIDBrokerOperationGetDefaultAccountRequest
 
@@ -48,22 +47,12 @@
 {
     self = [super initWithJSONDictionary:json error:error];
     
-    if (self)
-    {
-        // We have flat json dictionary, that is why we are passing the whole json to the MSIDAccountIdentifier.
-        _authority = [[MSIDAuthority alloc] initWithJSONDictionary:json error:nil];
-    }
-    
     return self;
 }
 
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
-    if (!json) return nil;
-    
-    NSDictionary *authorityJson = [self.authority jsonDictionary];
-    if (authorityJson) [json addEntriesFromDictionary:authorityJson];
     
     return json;
 }

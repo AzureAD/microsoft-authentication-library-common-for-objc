@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationGetDefaultAccountResponse : MSIDBrokerNativeAppOperationResponse
 
-@property (nonatomic) MSIDDefaultAccount *defaultAccount;
+@property (nonatomic, nullable) MSIDAccount *account;
 
 @end
 
