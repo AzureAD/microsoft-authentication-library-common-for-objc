@@ -237,6 +237,10 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS;
 /// ECS configuration id: /1678824
 extern NSString * _Nonnull const MSID_FLIGHT_IS_BART_SUPPORTED;
 
+/// Flight to enable embedded webview spinner fix
+/// Owner: zeyong
+extern NSString * _Nonnull const MSID_FLIGHT_SPINNER_FIX;
+
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
 extern NSString * _Nonnull const MSID_FLIGHT_USE_AUTOLAYOUT_FOR_LOADING_INDICATOR;
 
