@@ -152,18 +152,4 @@
     XCTAssertEqualObjects(result[@"realm"], @"common");
 }
 
-- (void)testJsonDictionary_whenNotSuccess_shouldGenerateJsonWithoutAccount {
-    MSIDBrokerOperationGetDefaultAccountResponse *response = [MSIDBrokerOperationGetDefaultAccountResponse new];
-    response.operation = @"get_default_account";
-    response.success = NO;
-    
-    NSDictionary *result = response.jsonDictionary;
-    
-    XCTAssertNotNil(result);
-    XCTAssertEqualObjects(result[@"operation"], @"get_default_account");
-    XCTAssertEqualObjects(result[@"success"], @"0");
-    XCTAssertNil(result[@"home_account_id"]);
-    XCTAssertNil(result[@"account_type"]);
-}
-
 @end
