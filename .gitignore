@@ -71,6 +71,3 @@ fastlane/test_output
 
 #VSCode
 .vscode
-
-# CodeQL
-_codeql_detected_source_root
