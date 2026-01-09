@@ -26,6 +26,8 @@
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDTestBrokerKeyProviderHelper.h"
 #import "MSIDConstants.h"
+#import "MSIDTestLogger.h"
+#import "MSIDTestContext.h"
 
 @interface MSIDBrokerKeyProvider()
 
@@ -87,6 +89,14 @@
 
 - (void)testBrokerKeyWithError_whenKeyInKeychain_shouldReturnKey
 {
+    [MSIDTestLogger sharedLogger].logCallback = ^(MSIDLogLevel level, NSString *message, BOOL containsPII)
+    {
+        if (level == MSIDLogLevelInfo && [message containsString:@"Broker key prepared for request"])
+        {
+            XCTAssertTrue([message containsString:@"keyFp=228A254E"]);
+        }
+    };
+
     // Pre-add key to the keychain
     NSData *keyData = [@"my-random-key-data" dataUsingEncoding:NSUTF8StringEncoding];
 

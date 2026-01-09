@@ -28,6 +28,7 @@
 #import "NSData+MSIDExtensions.h"
 #import "MSIDConstants.h"
 #import "MSIDKeychainUtil.h"
+#import "MSIDLogger+Internal.h"
 
 @interface MSIDBrokerKeyProvider()
 
@@ -37,6 +38,13 @@
 @end
 
 @implementation MSIDBrokerKeyProvider
+
++ (NSString *)msidShortFingerprintForKeyData:(NSData *)keyData
+{
+    if (!keyData.length) return @"<empty>";
+    NSString *fingerprint = [[[keyData msidSHA256] msidHexString] uppercaseString];
+    return fingerprint.length > 8 ? [fingerprint substringToIndex:8] : fingerprint;
+}
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup
 {
@@ -76,6 +84,8 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Nil key identifier provided. Cannot generate broker key");
             return nil;
         }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"BrokerKeyProvider initialized (accessGroup=%@, keyIdentifier=%@).", _keychainAccessGroup, _keyIdentifier);
     }
 
     return self;
@@ -107,8 +117,11 @@
     {
         NSData *result = (__bridge NSData*)symmetricKey;
         CFRelease(symmetricKey);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker symmetric key loaded from keychain (path=expectedAccessGroup, keyLen=%lu, keyFp=%@).", (unsigned long)result.length, [MSIDBrokerKeyProvider msidShortFingerprintForKeyData:result]);
         return result;
     }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker symmetric key not found in expected access group (status=%ld, accessGroup=%@). Trying legacy lookup without access group.", (long)err, self.keychainAccessGroup);
 
     // Try to read previous format without keychain access groups
     NSMutableDictionary *query = [symmetricKeyQuery mutableCopy];
@@ -134,8 +147,11 @@
     {
         NSData *result = (__bridge NSData*)symmetricKey;
         CFRelease(symmetricKey);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker symmetric key loaded from keychain (path=legacyNoAccessGroup, keyLen=%lu, keyFp=%@).", (unsigned long)result.length, [MSIDBrokerKeyProvider msidShortFingerprintForKeyData:result]);
         return result;
     }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker symmetric key not found via legacy lookup either (status=%ld). Will create a new broker key.", (long)err);
 
     return [self createBrokerKeyWithError:error];
 }
@@ -153,6 +169,8 @@
         if (error) *error = localError;
         return nil;
     }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Broker key prepared for request (keyLen=%lu, keyFp=%@).", (unsigned long)brokerKey.length, [MSIDBrokerKeyProvider msidShortFingerprintForKeyData:brokerKey]);
     
     NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
     
@@ -193,6 +211,7 @@
 
     NSData *keyData = [[NSData alloc] initWithBytes:symmetricKey length:kChosenCipherKeySize * sizeof(uint8_t)];
     free(symmetricKey);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Generated new broker symmetric key bytes (keyLen=%lu, keyFp=%@).", (unsigned long)keyData.length, [MSIDBrokerKeyProvider msidShortFingerprintForKeyData:keyData]);
 
     NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
@@ -230,6 +249,8 @@
         MSIDFillAndLogError(error, MSIDErrorBrokerKeyFailedToCreate, message, nil);
         return nil;
     }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Stored new broker symmetric key in keychain (accessGroup=%@, keyIdentifier=%@).", self.keychainAccessGroup, self.keyIdentifier);
 
     return keyData;
 }
@@ -329,3 +350,4 @@
 
 
 @end
+

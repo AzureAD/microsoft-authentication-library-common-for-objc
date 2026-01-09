@@ -42,6 +42,7 @@
 @property (atomic, readwrite, retain) NSMutableArray *messages;
 @property (atomic, readwrite) MSIDLogLevel lastLevel;
 @property (atomic, readwrite) XCTestExpectation *expectation;
+@property (nonatomic, copy) MSIDLogCallback logCallback;
 
 + (MSIDTestLogger *)sharedLogger;
 

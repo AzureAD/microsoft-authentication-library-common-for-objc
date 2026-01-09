@@ -27,6 +27,7 @@
 #import <CommonCrypto/CommonCrypto.h>
 #import "NSData+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDLogger+Internal.h"
 
 @interface MSIDBrokerCryptoProvider()
 
@@ -35,6 +36,15 @@
 @end
 
 @implementation MSIDBrokerCryptoProvider
+
++ (NSString *)msidShortFingerprintForData:(NSData *)data
+{
+    if (!data.length) return @"<empty>";
+
+    // Non-secret, non-reversible: SHA256 and truncate.
+    NSString *fingerprint = [[[data msidSHA256] msidHexString] uppercaseString];
+    return fingerprint.length > 8 ? [fingerprint substringToIndex:8] : fingerprint;
+}
 
 - (instancetype)initWithEncryptionKey:(NSData *)encryptionKey
 {
@@ -65,28 +75,37 @@
 
     NSInteger protocolVersion = msgVer ? [msgVer integerValue] : 1;
 
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt starting (correlationId=%@, msg_protocol_ver=%@, parsedProtocolVersion=%ld, encryptedBase64Len=%lu, expectedHashLen=%lu).", correlationId.UUIDString, msgVer, (long)protocolVersion, (unsigned long)encryptedBase64Response.length, (unsigned long)hash.length);
+
     NSData *encryptedResponse = [NSData msidDataFromBase64UrlEncodedString:encryptedBase64Response];
 
     if (!encryptedResponse)
     {
-        MSIDFillAndLogError(error, MSIDErrorBrokerCorruptedResponse, @"Encrypted response missing from broker response", correlationId);
-        return nil;
+         MSIDFillAndLogError(error, MSIDErrorBrokerCorruptedResponse, @"Encrypted response missing from broker response", correlationId);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt failed: base64url decode returned nil (correlationId=%@, encryptedBase64Len=%lu).", correlationId.UUIDString, (unsigned long)encryptedBase64Response.length);
+         return nil;
     }
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response base64url decoded (correlationId=%@, encryptedBytes=%lu, keyLen=%lu, keyFp=%@).", correlationId.UUIDString, (unsigned long)encryptedResponse.length, (unsigned long)self.encryptionKey.length, [MSIDBrokerCryptoProvider msidShortFingerprintForData:self.encryptionKey]);
 
     NSData *decrypted = [self decryptData:encryptedResponse protocolVersion:protocolVersion];
 
     if (!decrypted)
     {
-        MSIDFillAndLogError(error, MSIDErrorBrokerResponseDecryptionFailed, @"Failed to decrypt broker message", correlationId);
-        return nil;
+         MSIDFillAndLogError(error, MSIDErrorBrokerResponseDecryptionFailed, @"Failed to decrypt broker message", correlationId);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt failed: AES decryption returned nil (correlationId=%@, encryptedBytes=%lu, keyLen=%lu, protocolVersion=%ld).", correlationId.UUIDString, (unsigned long)encryptedResponse.length, (unsigned long)self.encryptionKey.length, (long)protocolVersion);
+         return nil;
     }
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypted bytes produced (correlationId=%@, decryptedBytes=%lu, decryptedFp=%@).", correlationId.UUIDString, (unsigned long)decrypted.length, [MSIDBrokerCryptoProvider msidShortFingerprintForData:decrypted]);
 
     NSString *decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
 
     if (!decryptedString)
     {
-        MSIDFillAndLogError(error, MSIDErrorBrokerResponseDecryptionFailed, @"Failed to initialize decrypted string", correlationId);
-        return nil;
+         NSString *asciiString = [[NSString alloc] initWithData:decrypted encoding:NSASCIIStringEncoding];
+         BOOL asciiAlsoFailed = (asciiString == nil);
+         MSIDFillAndLogError(error, MSIDErrorBrokerResponseDecryptionFailed, @"Failed to initialize decrypted string", correlationId);
+         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt failed: decrypted bytes are not valid UTF-8 (correlationId=%@, decryptedBytes=%lu, asciiDecodeAlsoFailed=%@, protocolVersion=%ld, keyFp=%@, decryptedFp=%@).", correlationId.UUIDString, (unsigned long)decrypted.length, asciiAlsoFailed ? @"YES" : @"NO", (long)protocolVersion, [MSIDBrokerCryptoProvider msidShortFingerprintForData:self.encryptionKey], [MSIDBrokerCryptoProvider msidShortFingerprintForData:decrypted]);
+         return nil;
     }
 
     //now compute the hash on the unencrypted data
@@ -94,9 +113,12 @@
 
     if (![hash isEqualToString:actualHash])
     {
-        MSIDFillAndLogError(error, MSIDErrorBrokerResponseHashMismatch, @"Decrypted response does not match the hash", correlationId);
-        return nil;
+         MSIDFillAndLogError(error, MSIDErrorBrokerResponseHashMismatch, @"Decrypted response does not match the hash", correlationId);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt failed: hash mismatch (correlationId=%@, expectedHashPrefix=%@, actualHashPrefix=%@, decryptedBytes=%lu, protocolVersion=%ld, keyFp=%@).", correlationId.UUIDString, hash.length > 8 ? [hash substringToIndex:8] : hash, actualHash.length > 8 ? [actualHash substringToIndex:8] : actualHash, (unsigned long)decrypted.length, (long)protocolVersion, [MSIDBrokerCryptoProvider msidShortFingerprintForData:self.encryptionKey]);
+         return nil;
     }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt succeeded: UTF-8 decode + hash validated (correlationId=%@, decryptedStringLen=%lu).", correlationId.UUIDString, (unsigned long)decryptedString.length);
 
     // create response from the decrypted payload
     NSDictionary *decryptedResponse = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:decryptedString];

@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBrokerCryptoProvider.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDTestLogger.h"
 
 @interface MSIDBrokerCryptoProviderTests : XCTestCase
 
@@ -152,16 +153,35 @@
 
 - (void)testDecryptData_whenV2Key_shouldReturnData
 {
+    __block XCTestExpectation *expectation = [self expectationWithDescription:@"Log expectation"];
+    [MSIDTestLogger sharedLogger].logCallback = ^(MSIDLogLevel level, NSString *message, BOOL containsPII)
+    {
+        if (level == MSIDLogLevelInfo && [message containsString:@"Broker response decrypt succeeded"])
+        {
+            XCTAssertTrue([message containsString:@"decryptedStringLen="], @"Expected decrypted length in log");
+            [expectation fulfill];
+            expectation = nil;
+        }
+    };
+
     NSData *encryptionKey = [NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"];
     MSIDBrokerCryptoProvider *cryptoProvider = [[MSIDBrokerCryptoProvider alloc] initWithEncryptionKey:encryptionKey];
 
     NSString *v2EncryptedPayload = @"OwkUbeZ63OlLI1xsNUXOJKmJgjhApcV6bEzFI6cdtE4UtsboGnJLjUtJRySO8ol97W431BdpwnuFD8tImkjUx++oNAMU483Q1xpuc5mCNVZcpDpnMoW2EC9oM5slGTPvvmDBxu3MHbLVVKWB616eKUdSKGOBnBUWDZp6QJJXpwEzwZuoycmmbQBF2SI1Ur5bluma8d23hANpV1c0qCGtPvEcLXWp7vNp5gkIsd6rGAkuuk31GJ3E8j+gfd8XymUEFc8g9ikx4JG0JnRwmRkzgVVKgszDPlPJrqlGlCZqa0SiF8V0pT3CqM6HURkqmCvK";
 
-    NSData *decrypted = [cryptoProvider decryptData:[[NSData alloc] initWithBase64EncodedString:v2EncryptedPayload options:0] protocolVersion:2];
+    NSDictionary *payloadDict = @{@"msg_protocol_ver":@2,
+                                  @"response": v2EncryptedPayload,
+                                  @"hash": @"69130F051E9DFA85042A00CE65BD9B67A7BF7DC0783C5B17FA8C92393D3DE0B2"
+                                  };
 
+    NSError *error = nil;
+    NSDictionary *decrypted = [cryptoProvider decryptBrokerResponse:payloadDict correlationId:nil error:&error];
+    [self waitForExpectations:@[expectation] timeout:1];
+
+    XCTAssertNil(error);
     XCTAssertNotNil(decrypted);
 
     NSString *payload = @"VGhpcyBpcyB0aGUgc29uZyB0aGF0IGRvZXNuJ3QgZW5kLCB5ZXMgaXQgZ29lcyBvbiBhbmQgb24gbXkgZnJpZW5kLiBTb21lIHBlb3BsZSBzdGFydGVkIHNpbmdpbmcgaXQgbm90IGtub3dpbmcgd2hhdCBpdCB3YXMsIGFuZCB0aGV5J2xsIGNvbnRpbnVlIHNpbmdpbmcgaXQgZm9yZXZlciBqdXN0IGJlY2F1c2UuLi4";
-    XCTAssertEqualObjects(decrypted, [payload dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertEqualObjects(decrypted, @{payload:@""});
 }
 @end
