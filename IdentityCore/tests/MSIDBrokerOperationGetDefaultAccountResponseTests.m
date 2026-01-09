@@ -36,6 +36,8 @@
 
 @implementation MSIDBrokerOperationGetDefaultAccountResponseTests
 
+#if TARGET_OS_OSX
+
 - (void)setUp {
 }
 
@@ -152,5 +154,7 @@
     XCTAssertEqualObjects(result[@"environment"], @"login.microsoftonline.com");
     XCTAssertEqualObjects(result[@"realm"], @"common");
 }
+
+#endif
 
 @end

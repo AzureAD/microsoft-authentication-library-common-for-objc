@@ -41,6 +41,8 @@
 
 @implementation MSIDSSOExtensionGetAccountsRequestIntegrationTests
 
+#if TARGET_OS_IPHONE
+
 - (void)testExecuteRequest_whenCouldntCreateRequestJSON_shouldReturnNilAndFillError
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
@@ -352,6 +354,8 @@
     [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
 }
+
+#endif
 
 @end
 

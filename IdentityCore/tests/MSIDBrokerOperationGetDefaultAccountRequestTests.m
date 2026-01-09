@@ -32,6 +32,8 @@
 
 @implementation MSIDBrokerOperationGetDefaultAccountRequestTests
 
+#if TARGET_OS_OSX
+
 - (void)setUp {
 }
 
@@ -82,5 +84,7 @@
     XCTAssertEqualObjects(json[MSID_BROKER_CLIENT_APP_NAME_KEY], @"Outlook");
     XCTAssertEqualObjects(json[MSID_BROKER_CORRELATION_ID_KEY], @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043");
 }
+
+#endif
 
 @end
