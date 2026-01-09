@@ -105,6 +105,7 @@ typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, N
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
 typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error);
+typedef void (^MSIDGetDefaultAccountRequestCompletionBlock)(MSIDAccount * _Nullable account, NSError * _Nullable error);
 typedef void (^MSIDGetSsoCookiesRequestCompletionBlock)(NSArray<MSIDPrtHeader *> * _Nullable prtHeaders, NSArray<MSIDDeviceHeader *> * _Nullable deviceHeaders, NSError * _Nullable error);
 typedef void (^MSIDSsoExtensionWrapperErrorBlock)(NSError * _Nullable error);
 typedef void (^MSIDPasskeyAssertionRequestCompletionBlock)(MSIDPasskeyAssertion * _Nullable passkeyAssertion, NSError * _Nullable error);
