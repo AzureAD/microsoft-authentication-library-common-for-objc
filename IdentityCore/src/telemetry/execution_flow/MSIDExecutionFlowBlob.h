@@ -31,7 +31,7 @@
  "tid": 1,      // Thread ID
  "d": 0,        // Optional: diagnostic code (iteration count, http code)
  "e": 1003,      // Optional: error code
- "ref": "clas name" // Optional: when logging in parent class, this can be used to tell which subclass is invoking the flow
+ "ref": "class name" // Optional: when logging in parent class, this can be used to tell which subclass is invoking the flow
  */
 
 NS_ASSUME_NONNULL_BEGIN

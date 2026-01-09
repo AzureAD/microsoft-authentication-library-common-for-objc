@@ -46,7 +46,7 @@
     if (self)
     {
         _executionFlow = [NSMutableArray new];
-        _executionFlowWritingQueue = dispatch_queue_create("com.microsoft.executionFlowWritingQueue", DISPATCH_QUEUE_CONCURRENT);
+        _executionFlowWritingQueue = dispatch_queue_create("com.microsoft.executionFlowWritingQueue", DISPATCH_QUEUE_SERIAL);
     }
     
     return self;
@@ -101,7 +101,7 @@
         }
     }
     
-    dispatch_barrier_async(self.executionFlowWritingQueue, ^{
+    dispatch_async(self.executionFlowWritingQueue, ^{
         // This is unlikely but just in case to keep the execution flow not tracking too many
         if (self.executionFlow.count >= MAX_EXECUTION_FLOW_SIZE) {
             [self.executionFlow removeObjectAtIndex:0];
