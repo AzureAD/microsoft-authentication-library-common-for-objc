@@ -35,6 +35,7 @@
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDBartFeatureUtil.h"
 
+#import "NSData+MSIDExtensions.h"
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
 #endif
@@ -51,6 +52,14 @@
 @end
 
 @implementation MSIDBrokerTokenRequest
+
++ (NSString *)msidShortFingerprintForBrokerKey:(NSString *)base64Key
+{
+    NSData *keyData = [NSData msidDataFromBase64UrlEncodedString:base64Key];
+    if (!keyData.length) return @"<empty>";
+    NSString *fingerprint = [[[keyData msidSHA256] msidHexString] uppercaseString];
+    return fingerprint.length > 8 ? [fingerprint substringToIndex:8] : fingerprint;
+}
 
 #pragma mark - Init
 
@@ -119,6 +128,7 @@
     }
 
     _brokerRequestURL = brokerRequestURL;
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Broker request prepared (correlationId=%@, authority=%@, brokerKeyFp=%@, brokerNonce=%@).", self.requestParameters.correlationId.UUIDString, self.requestParameters.authority.url.host, [MSIDBrokerTokenRequest msidShortFingerprintForBrokerKey:self.brokerKey], self.brokerNonce);
     return YES;
 }
 
