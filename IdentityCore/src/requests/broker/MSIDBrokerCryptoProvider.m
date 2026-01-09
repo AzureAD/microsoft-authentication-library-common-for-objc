@@ -85,6 +85,7 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt failed: base64url decode returned nil (correlationId=%@, encryptedBase64Len=%lu).", correlationId.UUIDString, (unsigned long)encryptedBase64Response.length);
          return nil;
     }
+
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response base64url decoded (correlationId=%@, encryptedBytes=%lu, keyLen=%lu, keyFp=%@).", correlationId.UUIDString, (unsigned long)encryptedResponse.length, (unsigned long)self.encryptionKey.length, [MSIDBrokerCryptoProvider msidShortFingerprintForData:self.encryptionKey]);
 
     NSData *decrypted = [self decryptData:encryptedResponse protocolVersion:protocolVersion];
@@ -95,6 +96,7 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt failed: AES decryption returned nil (correlationId=%@, encryptedBytes=%lu, keyLen=%lu, protocolVersion=%ld).", correlationId.UUIDString, (unsigned long)encryptedResponse.length, (unsigned long)self.encryptionKey.length, (long)protocolVersion);
          return nil;
     }
+
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypted bytes produced (correlationId=%@, decryptedBytes=%lu, decryptedFp=%@).", correlationId.UUIDString, (unsigned long)decrypted.length, [MSIDBrokerCryptoProvider msidShortFingerprintForData:decrypted]);
 
     NSString *decryptedString = [[NSString alloc] initWithData:decrypted encoding:NSUTF8StringEncoding];
@@ -118,7 +120,7 @@
          return nil;
     }
 
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt succeeded: UTF-8 decode + hash validated (correlationId=%@, decryptedStringLen=%lu).", correlationId.UUIDString, (unsigned long)decryptedString.length);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker response decrypt succeeded: UTF-8 decode + hash validated (correlationId=%@, decryptedStringLen=%lu, keyFp=%@).", correlationId.UUIDString, (unsigned long)decryptedString.length, [MSIDBrokerCryptoProvider msidShortFingerprintForData:self.encryptionKey]);
 
     // create response from the decrypted payload
     NSDictionary *decryptedResponse = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:decryptedString];
