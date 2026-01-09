@@ -25,7 +25,6 @@
 
 @class MSIDTokenResult;
 @class MSIDAccount;
-@class MSIDDefaultAccount;
 @class MSIDDeviceInfo;
 @class MSIDPrtHeader;
 @class MSIDDeviceHeader;
