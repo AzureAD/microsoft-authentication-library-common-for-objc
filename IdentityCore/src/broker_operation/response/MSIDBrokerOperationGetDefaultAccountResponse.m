@@ -51,18 +51,12 @@
     {
         if (self.success)
         {
-            _account = [[MSIDAccount alloc] initWithJSONDictionary:json error:error];
-            if (!_account)
+            NSError *accountDeserializationError = nil;
+            _account = [[MSIDAccount alloc] initWithJSONDictionary:json error:&accountDeserializationError];
+            if (!_account && accountDeserializationError)
             {
-                if (error)
-                {
-                    MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to deserialize default account with error: %@", *error);
-                }
-                else
-                {
-                    MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to deserialize default account.");
-                }
-                
+                MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to deserialize default account with error: %@", accountDeserializationError);
+                if (error) *error = accountDeserializationError;
                 return nil;
             }
         }
@@ -76,7 +70,7 @@
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     if (!json) return nil;
 
-    if (self.success)
+    if (self.success && self.account)
     {
         NSDictionary *accountJson = [self.account jsonDictionary];
         if (!accountJson)
