@@ -51,19 +51,19 @@
     {
         if (self.success)
         {
-            NSError *accountError = nil;
-            _account = [[MSIDAccount alloc] initWithJSONDictionary:json error:&accountError];
+            NSError *accountDeserializationError = nil;
+            _account = [[MSIDAccount alloc] initWithJSONDictionary:json error:&accountDeserializationError];
             
             // If account is nil but there was an actual deserialization error, fail the response
-            if (!_account && accountError)
+            if (!_account && accountDeserializationError)
             {
-                MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to deserialize default account with error: %@", accountError);
-                if (error) *error = accountError;
+                MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to deserialize default account with error: %@", accountDeserializationError);
+                if (error) *error = accountDeserializationError;
                 return nil;
             }
             
             // If account is nil but no error was set, it means there was no account data in the JSON,
-            // which is a valid scenario (e.g., no default account exists)
+            // which is a valid scenario (e.g., no default account exists). The response succeeds with nil account.
         }
     }
 
