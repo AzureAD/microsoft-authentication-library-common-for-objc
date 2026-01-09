@@ -33,17 +33,11 @@
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
 #import "MSIDConstants.h"
-#if !EXCLUDE_FROM_MSALCPP
-#import "MSIDLastRequestTelemetry.h"
-#endif
 
 @interface MSIDSSOExtensionGetDefaultAccountRequest()
 
 @property (nonatomic, copy) MSIDGetDefaultAccountRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) NSDate *requestSentDate;
-#if !EXCLUDE_FROM_MSALCPP
-@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
-#endif
 
 @end
 
@@ -92,10 +86,6 @@
             
             if (completionBlock) completionBlock(defaultAccount, resultError);
         };
-        
-#if !EXCLUDE_FROM_MSALCPP
-        _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
-#endif
     }
     
     return self;

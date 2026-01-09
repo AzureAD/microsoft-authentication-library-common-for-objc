@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !EXCLUDE_FROM_MSALCPP
-
 #import "MSIDBrokerOperationGetDefaultAccountRequest.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
@@ -58,5 +56,3 @@
 }
 
 @end
-
-#endif
