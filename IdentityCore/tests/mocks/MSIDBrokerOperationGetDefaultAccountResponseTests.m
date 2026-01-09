@@ -28,7 +28,6 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDClientInfo.h"
 #import "MSIDBrokerConstants.h"
-#import "MSIDJsonSerializableTypes.h"
 
 @interface MSIDBrokerOperationGetDefaultAccountResponseTests : XCTestCase
 
@@ -135,7 +134,7 @@
     account.clientInfo = clientInfo;
     account.alternativeAccountId = @"AltID";
     
-    MSIDBrokerOperationGetDefaultAccountResponse *response = [[MSIDBrokerOperationGetDefaultAccountResponse alloc] initWithDeviceInfo:nil];
+    MSIDBrokerOperationGetDefaultAccountResponse *response = [MSIDBrokerOperationGetDefaultAccountResponse new];
     response.account = account;
     response.operation = @"get_default_account";
     response.success = YES;

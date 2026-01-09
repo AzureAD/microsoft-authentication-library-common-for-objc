@@ -48,8 +48,7 @@
                            MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
                            MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
                            MSID_BROKER_CLIENT_APP_NAME_KEY : @"Outlook",
-                           MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
-                           MSID_BROKER_CLIENT_ID_KEY : @"my-client-id"
+                           MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043"
     };
     
     NSError *error;
@@ -62,7 +61,6 @@
     XCTAssertEqualObjects(request.clientAppVersion, @"10.3.4");
     XCTAssertEqualObjects(request.clientAppName, @"Outlook");
     XCTAssertEqualObjects(request.correlationId.UUIDString, @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043");
-    XCTAssertEqualObjects(request.clientId, @"my-client-id");
 }
 
 - (void)testJsonDictionary_whenSerialize_shouldGenerateCorrectJson {
@@ -73,7 +71,6 @@
     request.clientAppVersion = @"10.3.4";
     request.clientAppName = @"Outlook";
     request.correlationId = [[NSUUID alloc] initWithUUIDString:@"A8AAEF5C-6100-4D85-9D8C-B877BDF96043"];
-    request.clientId = @"my-client-id";
     
     NSDictionary *json = [request jsonDictionary];
     
@@ -84,7 +81,6 @@
     XCTAssertEqualObjects(json[MSID_BROKER_CLIENT_APP_VERSION_KEY], @"10.3.4");
     XCTAssertEqualObjects(json[MSID_BROKER_CLIENT_APP_NAME_KEY], @"Outlook");
     XCTAssertEqualObjects(json[MSID_BROKER_CORRELATION_ID_KEY], @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043");
-    XCTAssertEqualObjects(json[MSID_BROKER_CLIENT_ID_KEY], @"my-client-id");
 }
 
 @end

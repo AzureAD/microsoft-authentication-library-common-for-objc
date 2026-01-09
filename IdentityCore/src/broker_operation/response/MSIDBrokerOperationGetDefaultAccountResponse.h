@@ -26,6 +26,8 @@
 
 #import "MSIDBrokerNativeAppOperationResponse.h"
 
+@class MSIDAccount;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationGetDefaultAccountResponse : MSIDBrokerNativeAppOperationResponse
