@@ -99,15 +99,15 @@ brokerRequestReceivedTimeStamp:(nullable NSDate *)brokerRequestReceivedTimeStamp
         [tokenResult insertBrokerMetaData:brokerAppVersion forKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
     }
     // Calculate time intervals before storing
-    NSTimeInterval responseLatency = 0;
-    NSTimeInterval brokerHandlingTime = 0;
+    double responseLatency = 0;
+    double brokerHandlingTime = 0;
 
     if (responseGenerationTimeStamp) {
-        responseLatency = [[NSDate date] timeIntervalSinceDate:responseGenerationTimeStamp];
+        responseLatency = [[NSDate date] timeIntervalSinceDate:responseGenerationTimeStamp] * 1000; // Convert to milliseconds
     }
 
     if (brokerRequestReceivedTimeStamp && responseGenerationTimeStamp) {
-        brokerHandlingTime = [responseGenerationTimeStamp timeIntervalSinceDate:brokerRequestReceivedTimeStamp];
+        brokerHandlingTime = [responseGenerationTimeStamp timeIntervalSinceDate:brokerRequestReceivedTimeStamp] * 1000; // Convert to milliseconds
     }
 
     [tokenResult insertBrokerMetaData:@(responseLatency) forKey:MSID_TOKEN_RESULT_BROKER_APP_RESPONSE_LATENCY];
