@@ -103,11 +103,11 @@ brokerRequestReceivedTimeStamp:(nullable NSDate *)brokerRequestReceivedTimeStamp
     NSTimeInterval brokerHandlingTime = 0;
 
     if (responseGenerationTimeStamp) {
-        responseLatency = [[NSDate date] timeIntervalSinceDate:responseGenerationTimeStamp];
+        responseLatency = [[NSDate date] timeIntervalSinceDate:responseGenerationTimeStamp] * 1000; // Convert to milliseconds
     }
 
     if (brokerRequestReceivedTimeStamp && responseGenerationTimeStamp) {
-        brokerHandlingTime = [responseGenerationTimeStamp timeIntervalSinceDate:brokerRequestReceivedTimeStamp];
+        brokerHandlingTime = [responseGenerationTimeStamp timeIntervalSinceDate:brokerRequestReceivedTimeStamp] * 1000; // Convert to milliseconds
     }
 
     [tokenResult insertBrokerMetaData:@(responseLatency) forKey:MSID_TOKEN_RESULT_BROKER_APP_RESPONSE_LATENCY];

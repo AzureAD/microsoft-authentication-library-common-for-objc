@@ -70,7 +70,7 @@ static NSTimeInterval maxMonitoringDuration = 15.0; //15 seconds - maximum monit
         }
         self.monitorThread = nil;
         self.running = NO;
-        return self.gcdStarvedDuration;
+        return self.gcdStarvedDuration * 1000; // Convert to milliseconds
     }
 }
 
