@@ -49,6 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
 // Developer can also use the customizedExecutionBlob to get the blob info as the needs
 - (nullable NSDictionary *)executionBlobWithKeys:(NSArray<NSString *> *)blobKeys;
 
+// Converts the blob to a JSON string representation, if query keys are not provided, return all fields
+- (NSString *)blobToStringWithKeys:(nullable NSSet<NSString *>*)queryKeys;
+
 @end
 
 NS_ASSUME_NONNULL_END

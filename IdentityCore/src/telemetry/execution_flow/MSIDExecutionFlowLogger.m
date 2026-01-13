@@ -132,7 +132,8 @@ withCorrelationId:(NSUUID *)correlationId
     });
 }
 
-- (MSIDExecutionFlow *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
+- (NSString *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
+                                                   querykeys:(NSSet<NSString *> *)queryKeys
 {
     if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
@@ -155,7 +156,7 @@ withCorrelationId:(NSUUID *)correlationId
         [self.executionFlowMap removeObjectForKey:correlationId];
     });
     
-    return flow;
+    return [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
 }
 
 - (void)flush

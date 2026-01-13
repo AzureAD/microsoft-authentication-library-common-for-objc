@@ -40,7 +40,8 @@
     
     XCTAssertNotNil(flow);
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *result = [flow exportExecutionFlowToJSONsWithKeys:keys];
     XCTAssertNil(result, @"Should return nil for empty flow");
 }
 
@@ -52,8 +53,12 @@
     
     [flow insertTag:@"TestTag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts", @"tid"]];
-    XCTAssertNotNil(result);
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"ts", @"tid"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    XCTAssertNotNil(jsonString);
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 1);
     
     NSDictionary *blob = result[0];
@@ -68,7 +73,8 @@
     NSString *nilTag = nil;
     [flow insertTag:nilTag triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *result = [flow exportExecutionFlowToJSONsWithKeys:keys];
     XCTAssertNil(result, @"Should not add blob with nil tag");
 }
 
@@ -78,7 +84,8 @@
     
     [flow insertTag:@"" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *result = [flow exportExecutionFlowToJSONsWithKeys:keys];
     XCTAssertNil(result, @"Should not add blob with empty tag");
 }
 
@@ -88,7 +95,8 @@
     NSNumber *nilTid = nil;
     [flow insertTag:@"TestTag" triggeringTime:[NSDate date] threadId:nilTid extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *result = [flow exportExecutionFlowToJSONsWithKeys:keys];
     XCTAssertNil(result, @"Should not add blob with nil threadId");
 }
 
@@ -98,7 +106,8 @@
     NSDate *nilTriggeringTime = nil;
     [flow insertTag:@"TestTag" triggeringTime:nilTriggeringTime threadId:@(12345) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *result = [flow exportExecutionFlowToJSONsWithKeys:keys];
     XCTAssertNil(result, @"Should not add blob with nil triggeringTime");
 }
 
@@ -114,7 +123,10 @@
     
     [flow insertTag:@"TestTag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:extraInfo];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"key1", @"key2", @"key3"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"key1", @"key2", @"key3"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 1);
     
     NSDictionary *blob = result[0];
@@ -130,7 +142,10 @@
     
     [flow insertTag:@"TestTag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:@{}];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts", @"tid"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"ts", @"tid"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 1);
     
     NSDictionary *blob = result[0];
@@ -147,7 +162,10 @@
     [flow insertTag:@"Tag2" triggeringTime:[NSDate date] threadId:@(222) extraInfo:nil];
     [flow insertTag:@"Tag3" triggeringTime:[NSDate date] threadId:@(333) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 3);
     XCTAssertEqualObjects(result[0][@"t"], @"Tag1");
     XCTAssertEqualObjects(result[1][@"t"], @"Tag2");
@@ -167,7 +185,10 @@
     
     [flow insertTag:@"OriginalTag" triggeringTime:[NSDate date] threadId:@(5678) extraInfo:extraInfo];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts", @"tid", @"custom"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"ts", @"tid", @"custom"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 1);
     
     NSDictionary *blob = result[0];
@@ -185,7 +206,10 @@
     
     [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"ts"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 1);
     
     NSNumber *ts1 = result[0][@"ts"];
@@ -203,7 +227,10 @@
     NSDate *time2 = [NSDate date];
     [flow insertTag:@"Tag2" triggeringTime:time2 threadId:@(222) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"ts"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 2);
     
     NSNumber *ts1 = result[0][@"ts"];
@@ -224,7 +251,10 @@
     [flow insertTag:@"Tag1" triggeringTime:specificTime1 threadId:@(111) extraInfo:nil];
     [flow insertTag:@"Tag2" triggeringTime:specificTime2 threadId:@(222) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"ts"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"ts"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 2);
     
     NSNumber *ts1 = result[0][@"ts"];
@@ -245,7 +275,10 @@
     NSDate *laterTime = [NSDate dateWithTimeInterval:0.1 sinceDate:baseTime];
     [flow insertTag:@"Tag2" triggeringTime:laterTime threadId:@(222) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"ts"]];
+    NSSet *keys = [NSSet setWithArray:@[@"ts"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
     NSNumber *ts1 = result[0][@"ts"];
     NSNumber *ts2 = result[1][@"ts"];
@@ -263,7 +296,10 @@
     
     [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(99999) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"tid"]];
+    NSSet *keys = [NSSet setWithArray:@[@"tid"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     NSDictionary *blob = result[0];
     NSNumber *tid = blob[@"tid"];
     
@@ -278,85 +314,15 @@
     [flow insertTag:@"Tag2" triggeringTime:[NSDate date] threadId:@(222) extraInfo:nil];
     [flow insertTag:@"Tag3" triggeringTime:[NSDate date] threadId:@(333) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"tid"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"tid"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 3);
     
     XCTAssertEqualObjects(result[0][@"tid"], @(111));
     XCTAssertEqualObjects(result[1][@"tid"], @(222));
     XCTAssertEqualObjects(result[2][@"tid"], @(333));
-}
-
-#pragma mark - executionFlowWithKeys: Tests
-
-- (void)testExecutionFlowWithNilKeys_shouldReturnNil
-{
-    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
-    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
-    
-    NSArray *result = [flow executionFlowWithKeys:nil];
-    
-    XCTAssertNil(result);
-}
-
-- (void)testExecutionFlowWithEmptyKeys_shouldReturnNil
-{
-    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
-    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
-    
-    NSArray *result = [flow executionFlowWithKeys:@[]];
-    
-    XCTAssertNil(result);
-}
-
-- (void)testExecutionFlowWithNonExistentKeys_shouldReturnNil
-{
-    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
-    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
-    
-    NSArray *result = [flow executionFlowWithKeys:@[@"nonexistent1", @"nonexistent2"]];
-    
-    XCTAssertNil(result, @"Should return nil when no keys match any blob");
-}
-
-- (void)testExecutionFlowWithValidKeys_shouldReturnOnlyRequestedKeys
-{
-    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
-    
-    NSDictionary *extraInfo = @{
-        @"key1": @"value1",
-        @"key2": @"value2",
-        @"key3": @"value3"
-    };
-    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:extraInfo];
-    
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"key1"]];
-    XCTAssertEqual(result.count, 1);
-    
-    NSDictionary *blob = result[0];
-    XCTAssertEqual(blob.count, 2);
-    XCTAssertEqualObjects(blob[@"t"], @"Tag");
-    XCTAssertEqualObjects(blob[@"key1"], @"value1");
-    XCTAssertNil(blob[@"key2"], @"key2 should not be included");
-    XCTAssertNil(blob[@"key3"], @"key3 should not be included");
-}
-
-- (void)testExecutionFlowWithMultipleBlobs_shouldReturnAllMatchingBlobs
-{
-    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
-    
-    [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:@{@"custom": @"value1"}];
-    [flow insertTag:@"Tag2" triggeringTime:[NSDate date] threadId:@(222) extraInfo:@{@"custom": @"value2"}];
-    [flow insertTag:@"Tag3" triggeringTime:[NSDate date] threadId:@(333) extraInfo:@{@"custom": @"value3"}];
-    
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"custom"]];
-    XCTAssertEqual(result.count, 3);
-    
-    XCTAssertEqualObjects(result[0][@"t"], @"Tag1");
-    XCTAssertEqualObjects(result[0][@"custom"], @"value1");
-    XCTAssertEqualObjects(result[1][@"t"], @"Tag2");
-    XCTAssertEqualObjects(result[1][@"custom"], @"value2");
-    XCTAssertEqualObjects(result[2][@"t"], @"Tag3");
-    XCTAssertEqualObjects(result[2][@"custom"], @"value3");
 }
 
 #pragma mark - Max Capacity Tests
@@ -373,7 +339,10 @@
               extraInfo:nil];
     }
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
     // Should only have 50 entries
     XCTAssertEqual(result.count, 50);
@@ -397,7 +366,10 @@
               extraInfo:nil];
     }
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
     XCTAssertEqual(result.count, 50);
     XCTAssertEqualObjects(result[0][@"t"], @"Tag0");
@@ -425,7 +397,10 @@
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 20, @"All inserts should succeed");
 }
 
@@ -435,6 +410,8 @@
     
     dispatch_group_t group = dispatch_group_create();
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"ts", @"tid"]];
     
     // Concurrent inserts
     for (int i = 0; i < 10; i++) {
@@ -449,14 +426,14 @@
     // Concurrent reads
     for (int i = 0; i < 10; i++) {
         dispatch_group_async(group, queue, ^{
-            [flow executionFlowWithKeys:@[@"t", @"ts", @"tid"]];
+            [flow exportExecutionFlowToJSONsWithKeys:keys];
         });
     }
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     
     // Should not crash
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSString *result = [flow exportExecutionFlowToJSONsWithKeys:keys];
     XCTAssertNotNil(result);
 }
 
@@ -468,7 +445,8 @@
     
     [flow insertTag:@"   " triggeringTime:[NSDate date] threadId:@(12345) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *result = [flow exportExecutionFlowToJSONsWithKeys:keys];
     XCTAssertNil(result, @"Should not add blob with whitespace-only tag");
 }
 
@@ -485,7 +463,10 @@
     
     [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:extraInfo];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"validString", @"validNumber", @"invalidArray", @"invalidDict"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"validString", @"validNumber", @"invalidArray", @"invalidDict"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqual(result.count, 1);
     
     NSDictionary *blob = result[0];
@@ -495,30 +476,215 @@
     XCTAssertNil(blob[@"invalidDict"], @"Dictionary should be filtered out");
 }
 
-- (void)testExecutionFlowWithMixedExistingAndNonExistentKeys_shouldReturnOnlyExisting
-{
-    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
-    
-    [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(12345) extraInfo:@{@"key1": @"value1"}];
-    
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"key1", @"nonexistent"]];
-    XCTAssertEqual(result.count, 1);
-    
-    NSDictionary *blob = result[0];
-    XCTAssertEqual(blob.count, 2);
-    XCTAssertEqualObjects(blob[@"t"], @"Tag");
-    XCTAssertEqualObjects(blob[@"key1"], @"value1");
-}
-
 - (void)testInsertTagWithZeroThreadId_shouldAcceptZero
 {
     MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
     
     [flow insertTag:@"Tag" triggeringTime:[NSDate date] threadId:@(0) extraInfo:nil];
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"tid"]];
+    NSSet *keys = [NSSet setWithArray:@[@"tid"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:keys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result[0][@"tid"], @(0), @"Zero thread ID should be valid");
+}
+
+#pragma mark - exportExecutionFlowToJSONsWithKeys: Tests
+
+- (void)testExportExecutionFlowToJSONs_withValidKeys_shouldReturnJSONArray
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:@{@"e": @(404)}];
+    [flow insertTag:@"Tag2" triggeringTime:[NSDate date] threadId:@(222) extraInfo:@{@"e": @(500)}];
+    
+    NSSet *queryKeys = [NSSet setWithArray:@[@"e"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
+    
+    XCTAssertNotNil(jsonString);
+    XCTAssertTrue([jsonString hasPrefix:@"["]);
+    XCTAssertTrue([jsonString hasSuffix:@"]"]);
+    XCTAssertTrue([jsonString containsString:@"\"t\":\"Tag1\""]);
+    XCTAssertTrue([jsonString containsString:@"\"t\":\"Tag2\""]);
+    XCTAssertTrue([jsonString containsString:@"\"e\":404"]);
+    XCTAssertTrue([jsonString containsString:@"\"e\":500"]);
+}
+
+- (void)testExportExecutionFlowToJSONs_withNilKeys_shouldReturnDefault
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:nil];
+    
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:nil];
+    
+    XCTAssertNotNil(jsonString);
+}
+
+- (void)testExportExecutionFlowToJSONs_withEmptySet_shouldReturnDefault
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:nil];
+    
+    NSSet *emptySet = [NSSet set];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:emptySet];
+    
+    XCTAssertNotNil(jsonString);
+}
+
+- (void)testExportExecutionFlowToJSONs_withEmptyFlow_shouldReturnNil
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    NSSet *queryKeys = [NSSet setWithArray:@[@"t", @"ts", @"tid"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
+    
+    XCTAssertNil(jsonString, @"Should return nil for empty flow");
+}
+
+- (void)testExportExecutionFlowToJSONs_shouldReturnValidJSON
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    NSDate *baseTime = [NSDate date];
+    [flow insertTag:@"Tag1" triggeringTime:baseTime threadId:@(111) extraInfo:@{@"e": @(404)}];
+    [flow insertTag:@"Tag2" triggeringTime:[NSDate dateWithTimeInterval:0.1 sinceDate:baseTime] threadId:@(222) extraInfo:@{@"s": @(200)}];
+    
+    NSSet *queryKeys = [NSSet setWithArray:@[@"e", @"s"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
+    
+    XCTAssertNotNil(jsonString);
+    
+    // Verify it's valid JSON by parsing it
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error = nil;
+    NSArray *parsedJSON = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                          options:0
+                                                            error:&error];
+    
+    XCTAssertNil(error, @"Should be valid JSON");
+    XCTAssertNotNil(parsedJSON, @"Should successfully parse JSON");
+    XCTAssertEqual(parsedJSON.count, 2, @"Should have 2 blob entries");
+    
+    // Verify first blob
+    NSDictionary *blob1 = parsedJSON[0];
+    XCTAssertEqualObjects(blob1[@"t"], @"Tag1");
+    XCTAssertEqualObjects(blob1[@"tid"], @(111));
+    XCTAssertEqualObjects(blob1[@"e"], @(404));
+    
+    // Verify second blob
+    NSDictionary *blob2 = parsedJSON[1];
+    XCTAssertEqualObjects(blob2[@"t"], @"Tag2");
+    XCTAssertEqualObjects(blob2[@"tid"], @(222));
+    XCTAssertEqualObjects(blob2[@"s"], @(200));
+}
+
+- (void)testExportExecutionFlowToJSONs_withMultipleBlobs_shouldMaintainOrder
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    for (int i = 0; i < 5; i++) {
+        [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] 
+         triggeringTime:[NSDate date]
+               threadId:@(i * 100) 
+              extraInfo:@{@"index": @(i)}];
+    }
+    
+    NSSet *queryKeys = [NSSet setWithArray:@[@"index"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
+    
+    XCTAssertNotNil(jsonString);
+    
+    // Parse and verify order
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *parsedJSON = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    
+    XCTAssertEqual(parsedJSON.count, 5);
+    for (int i = 0; i < 5; i++) {
+        NSDictionary *blob = parsedJSON[i];
+        NSString *expectedResult = [NSString stringWithFormat:@"Tag%d", i];
+        XCTAssertEqualObjects(blob[@"t"], expectedResult);
+        XCTAssertEqualObjects(blob[@"index"], @(i));
+    }
+}
+
+- (void)testExportExecutionFlowToJSONs_withSpecificKeys_shouldFilterFields
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    NSDictionary *extraInfo = @{
+        @"e": @(404),
+        @"s": @(200),
+        @"l": @(3),
+        @"msg": @"error"
+    };
+    [flow insertTag:@"Tag1" triggeringTime:[NSDate date] threadId:@(111) extraInfo:extraInfo];
+    
+    // Only request specific keys
+    NSSet *queryKeys = [NSSet setWithArray:@[@"e", @"msg", @"s"]];
+    NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
+    
+    XCTAssertNotNil(jsonString);
+    
+    // Parse and verify only requested keys are included (plus required fields)
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *parsedJSON = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    
+    NSDictionary *blob = parsedJSON[0];
+    // Should have required fields always
+    XCTAssertNotNil(blob[@"t"]);
+    XCTAssertNotNil(blob[@"tid"]);
+    XCTAssertNotNil(blob[@"ts"]);
+    // Should have requested fields
+    XCTAssertEqualObjects(blob[@"e"], @(404));
+    XCTAssertEqualObjects(blob[@"msg"], @"error");
+    XCTAssertEqualObjects(blob[@"s"], @(200));
+    // Should not have non-requested fields
+    XCTAssertNil(blob[@"l"]);
+}
+
+- (void)testExportExecutionFlowToJSONs_concurrentAccess_shouldNotCrash
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    
+    // Add some initial data
+    for (int i = 0; i < 10; i++) {
+        [flow insertTag:[NSString stringWithFormat:@"Tag%d", i] 
+         triggeringTime:[NSDate date]
+               threadId:@(i) 
+              extraInfo:nil];
+    }
+    
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    NSSet *queryKeys = [NSSet setWithArray:@[@"t"]];
+    
+    // Concurrent reads
+    for (int i = 0; i < 10; i++) {
+        dispatch_group_async(group, queue, ^{
+            NSString *jsonString = [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
+            XCTAssertNotNil(jsonString);
+        });
+    }
+    
+    // Concurrent inserts
+    for (int i = 0; i < 10; i++) {
+        dispatch_group_async(group, queue, ^{
+            [flow insertTag:[NSString stringWithFormat:@"NewTag%d", i] 
+             triggeringTime:[NSDate date]
+                   threadId:@(i + 100) 
+                  extraInfo:nil];
+        });
+    }
+    
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    
+    // Should not crash and should return valid result
+    NSString *finalResult = [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
+    XCTAssertNotNil(finalResult);
 }
 
 @end

@@ -41,8 +41,8 @@
     NSNumber *threadId = @(5678);
     
     MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:tag
-                                                                     timeStep:timeStep
-                                                                     threadId:threadId];
+                                                                    timeStep:timeStep
+                                                                    threadId:threadId];
     
     XCTAssertNotNil(blob);
     
@@ -241,7 +241,7 @@
     
     NSDictionary *result = [blob executionBlobWithKeys:@[@"nonexistent1", @"nonexistent2"]];
     
-    XCTAssertNotNil(result);
+    XCTAssertNil(result);
     XCTAssertEqual(result.count, 0, @"Should return empty dictionary when no keys match");
 }
 
@@ -360,6 +360,197 @@
                                                                      threadId:@(5678)];
     
     XCTAssertNil(blob, @"Empty string is not valid, and should fail");
+}
+
+#pragma mark - blobToString Tests
+
+- (void)testBlobToString_shouldReturnExpectedJSONFormat
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
+                                                                     timeStep:@(1234)
+                                                                     threadId:@(5678)];
+
+    NSString *jsonString = [blob blobToStringWithKeys:nil];
+    
+    // Verify exact output format
+    NSString *expectedJSON = @"{\"t\":\"TestTag\",\"tid\":5678,\"ts\":1234}";
+    XCTAssertEqualObjects(jsonString, expectedJSON, @"JSON string should match expected format exactly");
+    
+    
+    // Verify it's valid JSON by parsing it
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error = nil;
+    NSDictionary *parsedJSON = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                               options:0
+                                                                 error:&error];
+    
+    XCTAssertNil(error, @"Should be valid JSON");
+    XCTAssertNotNil(parsedJSON, @"Should successfully parse JSON");
+    XCTAssertEqual(parsedJSON.count, 3, @"Should have exactly 3 fields");
+    XCTAssertEqualObjects(parsedJSON[@"t"], @"TestTag");
+    XCTAssertEqualObjects(parsedJSON[@"tid"], @(5678));
+    XCTAssertEqualObjects(parsedJSON[@"ts"], @(1234));
+}
+
+- (void)testBlobToString_withRequiredFieldsOnly_shouldReturnValidJSON
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
+                                                                     timeStep:@(1234)
+                                                                     threadId:@(5678)];
+    
+    NSString *jsonString = [blob blobToStringWithKeys:nil];
+    
+    XCTAssertNotNil(jsonString);
+    XCTAssertTrue([jsonString containsString:@"\"t\":\"TestTag\""]);
+    XCTAssertTrue([jsonString containsString:@"\"tid\":5678"]);
+    XCTAssertTrue([jsonString containsString:@"\"ts\":1234"]);
+    XCTAssertTrue([jsonString hasPrefix:@"{"]);
+    XCTAssertTrue([jsonString hasSuffix:@"}"]);
+}
+
+- (void)testBlobToString_withAdditionalStringField_shouldIncludeInJSON
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
+                                                                     timeStep:@(1234)
+                                                                     threadId:@(5678)];
+    
+    [blob setObject:@"ErrorMessage" forKey:@"msg"];
+    NSString *jsonString = [blob blobToStringWithKeys:nil];
+    
+    XCTAssertNotNil(jsonString);
+    XCTAssertTrue([jsonString containsString:@"\"msg\":\"ErrorMessage\""]);
+}
+
+- (void)testBlobToString_withAdditionalNumberField_shouldIncludeInJSON
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
+                                                                     timeStep:@(1234)
+                                                                     threadId:@(5678)];
+    
+    [blob setObject:@(404) forKey:@"e"];
+    NSString *jsonString = [blob blobToStringWithKeys:nil];
+    
+    XCTAssertNotNil(jsonString);
+    XCTAssertTrue([jsonString containsString:@"\"e\":404"]);
+}
+
+- (void)testBlobToString_withMultipleAdditionalFields_shouldIncludeAllInJSON
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"AuthFlow"
+                                                                     timeStep:@(2500)
+                                                                     threadId:@(9999)];
+    
+    [blob setObject:@(500) forKey:@"e"];
+    [blob setObject:@(200) forKey:@"s"];
+    [blob setObject:@(3) forKey:@"l"];
+    [blob setObject:@"ClassName" forKey:@"ref"];
+    
+    NSString *jsonString = [blob blobToStringWithKeys:nil];
+    
+    XCTAssertNotNil(jsonString);
+    XCTAssertTrue([jsonString containsString:@"\"t\":\"AuthFlow\""]);
+    XCTAssertTrue([jsonString containsString:@"\"tid\":9999"]);
+    XCTAssertTrue([jsonString containsString:@"\"ts\":2500"]);
+    XCTAssertTrue([jsonString containsString:@"\"e\":500"]);
+    XCTAssertTrue([jsonString containsString:@"\"s\":200"]);
+    XCTAssertTrue([jsonString containsString:@"\"l\":3"]);
+    XCTAssertTrue([jsonString containsString:@"\"ref\":\"ClassName\""]);
+}
+
+- (void)testBlobToString_withZeroValues_shouldIncludeZeros
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"Start"
+                                                                     timeStep:@(0)
+                                                                     threadId:@(0)];
+    
+    [blob setObject:@(0) forKey:@"e"];
+    NSString *jsonString = [blob blobToStringWithKeys:nil];
+    
+    XCTAssertNotNil(jsonString);
+    XCTAssertTrue([jsonString containsString:@"\"ts\":0"]);
+    XCTAssertTrue([jsonString containsString:@"\"tid\":0"]);
+    XCTAssertTrue([jsonString containsString:@"\"e\":0"]);
+}
+
+- (void)testBlobToString_requiredFieldsFirst_shouldBeInCorrectOrder
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"MyTag"
+                                                                     timeStep:@(100)
+                                                                     threadId:@(200)];
+    
+    [blob setObject:@(999) forKey:@"custom"];
+    NSString *jsonString = [blob blobToStringWithKeys:nil];
+    
+    // Check that required fields appear first
+    NSRange tRange = [jsonString rangeOfString:@"\"t\":"];
+    NSRange tidRange = [jsonString rangeOfString:@"\"tid\":"];
+    NSRange tsRange = [jsonString rangeOfString:@"\"ts\":"];
+    NSRange customRange = [jsonString rangeOfString:@"\"custom\":"];
+    
+    XCTAssertTrue(tRange.location < customRange.location, @"Tag should appear before custom fields");
+    XCTAssertTrue(tidRange.location < customRange.location, @"Thread ID should appear before custom fields");
+    XCTAssertTrue(tsRange.location < customRange.location, @"Timestamp should appear before custom fields");
+}
+
+- (void)testBlobToStringWithKeys_withSpecificKeys_shouldOnlyIncludeRequestedFields
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
+                                                                     timeStep:@(1234)
+                                                                     threadId:@(5678)];
+    
+    [blob setObject:@(404) forKey:@"e"];
+    [blob setObject:@(200) forKey:@"s"];
+    [blob setObject:@"Extra" forKey:@"msg"];
+    
+    NSSet *queryKeys = [NSSet setWithArray:@[@"e", @"msg"]];
+    NSString *jsonString = [blob blobToStringWithKeys:queryKeys];
+    
+    XCTAssertNotNil(jsonString);
+    // Should always include required fields
+    XCTAssertTrue([jsonString containsString:@"\"t\":\"TestTag\""]);
+    XCTAssertTrue([jsonString containsString:@"\"tid\":5678"]);
+    XCTAssertTrue([jsonString containsString:@"\"ts\":1234"]);
+    // Should include requested fields
+    XCTAssertTrue([jsonString containsString:@"\"e\":404"]);
+    XCTAssertTrue([jsonString containsString:@"\"msg\":\"Extra\""]);
+    // Should not include field that was requested
+    XCTAssertFalse([jsonString containsString:@"\"s\":200"]);
+}
+
+- (void)testBlobToStringWithKeys_withEmptySet_shouldReturnOnlyRequiredFields
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
+                                                                     timeStep:@(1234)
+                                                                     threadId:@(5678)];
+    
+    [blob setObject:@(404) forKey:@"e"];
+    [blob setObject:@"Extra" forKey:@"msg"];
+    
+    NSSet *queryKeys = [NSSet set];
+    NSString *jsonString = [blob blobToStringWithKeys:queryKeys];
+    
+    // Should include all fields when empty set is provided
+    XCTAssertTrue([jsonString containsString:@"\"e\":404"]);
+    XCTAssertTrue([jsonString containsString:@"\"msg\":\"Extra\""]);
+}
+
+- (void)testBlobToStringWithKeys_withNonExistentKeys_shouldStillIncludeRequiredFields
+{
+    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
+                                                                     timeStep:@(1234)
+                                                                     threadId:@(5678)];
+    
+    NSSet *queryKeys = [NSSet setWithArray:@[@"nonexistent1", @"nonexistent2"]];
+    NSString *jsonString = [blob blobToStringWithKeys:queryKeys];
+    
+    XCTAssertNotNil(jsonString);
+    // Should always include required fields
+    XCTAssertTrue([jsonString containsString:@"\"t\":\"TestTag\""]);
+    XCTAssertTrue([jsonString containsString:@"\"tid\":5678"]);
+    XCTAssertTrue([jsonString containsString:@"\"ts\":1234"]);
+    // Should not crash or produce invalid JSON
+    XCTAssertTrue([jsonString hasPrefix:@"{"]);
+    XCTAssertTrue([jsonString hasSuffix:@"}"]);
 }
 
 @end

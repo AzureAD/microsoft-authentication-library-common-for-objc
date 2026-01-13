@@ -111,4 +111,37 @@
     return resultBlob;
 }
 
+- (NSString *)blobToStringWithKeys:(NSSet<NSString *>*)queryKeys
+{
+    NSDictionary *dict = self.blob.toDictionary;
+    NSMutableString *result = [NSMutableString stringWithString:@"{"];
+    
+    // Always include required fields in specific order: t, tid, ts
+    [result appendFormat:@"\"t\":\"%@\",\"tid\":%@,\"ts\":%@", dict[@"t"], dict[@"tid"], dict[@"ts"]];
+    
+    // Add all other fields
+    NSSet *reservedKeys = [NSSet setWithArray:@[@"t", @"tid", @"ts"]];
+    for (NSString *key in dict)
+    {
+        if ([reservedKeys containsObject:key] || (![queryKeys containsObject:key] && queryKeys.count != 0))
+        {
+            continue;
+        }
+        
+        id value = dict[key];
+        if ([value isKindOfClass:NSString.class])
+        {
+            [result appendFormat:@",\"%@\":\"%@\"", key, value];
+        }
+        else if ([value isKindOfClass:NSNumber.class])
+        {
+            [result appendFormat:@",\"%@\":%@", key, value];
+        }
+    }
+    
+    [result appendString:@"}"];
+    
+    return result;
+}
+
 @end

@@ -73,7 +73,7 @@
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNotNil(flow, @"Flow should be created after registration");
 }
 
@@ -103,7 +103,7 @@
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNotNil(flow, @"Should still have one flow");
 }
 
@@ -116,7 +116,7 @@
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     [NSThread sleepForTimeInterval:0.1];
     
     // Try to register again after flush
@@ -125,7 +125,7 @@
     [NSThread sleepForTimeInterval:0.1];
     
     // Should not create new flow
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNil(flow, @"Should not allow re-registration after flush");
 }
 
@@ -142,10 +142,12 @@
     // Give async operation time to complete
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    XCTAssertNotNil(flow, @"Flow should be created and stored");
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+    XCTAssertNotNil(jsonString);
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 1);
     XCTAssertEqualObjects(result[0][@"t"], @"TestTag");
@@ -165,8 +167,13 @@
     [logger insertTag:@"TestTag" extraInfo:extraInfo withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"key1", @"key2"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"key1", @"key2"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+
+    XCTAssertNotNil(jsonString);
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 1);
@@ -184,7 +191,7 @@
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNil(flow, @"Should not create flow without registration");
 }
 
@@ -198,11 +205,9 @@
     NSString *nilTag = nil;
     [logger insertTag:nilTag extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
-    
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    // Flow exists but should be empty
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
-    XCTAssertNil(result, @"Should not add tag with nil tag");
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+    XCTAssertNil(jsonString, @"Should not add tag with nil tag");
 }
 
 - (void)testInsertTagWithEmptyTag_shouldNotCreateFlow
@@ -213,10 +218,10 @@
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
-    
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
-    XCTAssertNil(result, @"Should not add empty tag");
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+
+    XCTAssertNil(jsonString, @"Should not add empty tag");
 }
 
 - (void)testInsertTagWithWhitespaceTag_shouldNotCreateFlow
@@ -227,10 +232,10 @@
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"   " extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
-    
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
-    XCTAssertNil(result, @"Should not add whitespace-only tag");
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+
+    XCTAssertNil(jsonString, @"Should not add whitespace-only tag");
 }
 
 - (void)testInsertTagWithNilCorrelationId_shouldNotCreateFlow
@@ -251,8 +256,9 @@
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:uuid];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid];
-    XCTAssertNil(flow, @"Should not create flow with empty correlationId");
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid querykeys:nil];
+
+    XCTAssertNil(jsonString, @"Should not create flow with empty correlationId");
 }
 
 - (void)testInsertMultipleTagsWithSameCorrelationId_shouldAddToSameFlow
@@ -267,8 +273,12 @@
     
     [NSThread sleepForTimeInterval:0.2];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+    XCTAssertNotNil(jsonString);
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 3, @"Should have 3 tags in the same flow");
@@ -290,15 +300,14 @@
     
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow1 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId1];
-    MSIDExecutionFlow *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId2];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString1 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId1 querykeys:keys];
+    NSString *jsonString2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId2 querykeys:nil];
     
-    XCTAssertNotNil(flow1);
-    XCTAssertNotNil(flow2);
-    XCTAssertNotEqual(flow1, flow2, @"Should create separate flows for different correlationIds");
-    
-    NSArray *result1 = [flow1 executionFlowWithKeys:@[@"t"]];
-    NSArray *result2 = [flow2 executionFlowWithKeys:@[@"t"]];
+    NSData *jsonData1 = [jsonString1 dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *jsonData2 = [jsonString2 dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result1 = [NSJSONSerialization JSONObjectWithData:jsonData1 options:0 error:nil];
+    NSArray *result2 = [NSJSONSerialization JSONObjectWithData:jsonData2 options:0 error:nil];
     
     XCTAssertEqual(result1.count, 1);
     XCTAssertEqual(result2.count, 1);
@@ -315,8 +324,12 @@
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    NSArray *result = [flow executionFlowWithKeys:@[@"tid"]];
+    NSSet *keys = [NSSet setWithArray:@[@"tid"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+    XCTAssertNotNil(jsonString);
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
     XCTAssertNotNil(result);
     XCTAssertNotNil(result[0][@"tid"], @"Thread ID should be present");
@@ -334,7 +347,7 @@
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     
     XCTAssertNotNil(flow);
 }
@@ -344,7 +357,7 @@
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     
     XCTAssertNil(flow, @"Should return nil for non-existent correlationId");
 }
@@ -353,7 +366,7 @@
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
     NSUUID *nilCorrelationId = nil;
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:nilCorrelationId];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:nilCorrelationId querykeys:nil];
     
     XCTAssertNil(flow, @"Should return nil for nil correlationId");
 }
@@ -363,7 +376,7 @@
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
     NSString *uuidString = @"";
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid querykeys:nil];
     
     XCTAssertNil(flow, @"Should return nil for empty correlationId");
 }
@@ -377,14 +390,14 @@
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow1 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow1 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNotNil(flow1);
     
     // Give flush time to complete
     [NSThread sleepForTimeInterval:0.1];
     
     // Try to retrieve again - should be nil since it was flushed
-    MSIDExecutionFlow *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNil(flow2, @"Flow should be removed after first retrieve and flush");
 }
 
@@ -397,11 +410,11 @@
     [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow1 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow1 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    MSIDExecutionFlow *flow3 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
+    NSString *flow3 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     
     XCTAssertNotNil(flow1);
     XCTAssertNil(flow2);
@@ -417,7 +430,7 @@
     [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNotNil(flow);
     
     // Give flush time to add correlationId to eliminated pool
@@ -428,7 +441,7 @@
     [NSThread sleepForTimeInterval:0.1];
     
     // Should not create new flow
-    MSIDExecutionFlow *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNil(flow2, @"Should reject inserts after flush");
 }
 
@@ -443,7 +456,7 @@
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     [NSThread sleepForTimeInterval:0.1];
     
     // Try to insert again with same correlationId
@@ -451,7 +464,7 @@
     [NSThread sleepForTimeInterval:0.1];
     
     // Should not create new flow
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNil(flow);
 }
 
@@ -472,8 +485,8 @@
     [logger flush];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow1 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId1];
-    MSIDExecutionFlow *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId2];
+    NSString *flow1 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId1 querykeys:nil];
+    NSString *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId2 querykeys:nil];
     
     XCTAssertNil(flow1);
     XCTAssertNil(flow2);
@@ -488,7 +501,7 @@
     [logger registerExecutionFlowWithCorrelationId:correlationId];
     [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     [NSThread sleepForTimeInterval:0.1];
     
     // Call flush
@@ -500,10 +513,13 @@
     [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId];
     [NSThread sleepForTimeInterval:0.1];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    XCTAssertNotNil(flow, @"Should be able to create new flow after flush clears eliminated pool");
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+    XCTAssertNotNil(jsonString);
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    
     XCTAssertEqual(result.count, 1);
     XCTAssertEqualObjects(result[0][@"t"], @"Tag2");
 }
@@ -532,8 +548,12 @@
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     [NSThread sleepForTimeInterval:0.2];
     
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    NSArray *result = [flow executionFlowWithKeys:@[@"t"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+    XCTAssertNotNil(jsonString);
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
     XCTAssertEqual(result.count, 20, @"All concurrent inserts should succeed");
 }
@@ -566,7 +586,7 @@
     
     // Verify all flows were created
     for (int i = 0; i < 10; i++) {
-        MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationIds[i]];
+        NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationIds[i]querykeys:nil];
         XCTAssertNotNil(flow, @"Flow should exist for correlationId %d", i);
     }
 }
@@ -592,7 +612,7 @@
     
     // Concurrent retrieve (may or may not get data depending on timing)
     dispatch_group_async(group, queue, ^{
-        [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+        [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     });
     
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
@@ -642,10 +662,14 @@
     [NSThread sleepForTimeInterval:0.2];
     
     // Retrieve and verify
-    MSIDExecutionFlow *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
-    XCTAssertNotNil(flow);
     
-    NSArray *result = [flow executionFlowWithKeys:@[@"t", @"step", @"ts", @"tid"]];
+    NSSet *keys = [NSSet setWithArray:@[@"t", @"step", @"ts", @"tid"]];
+    NSString *jsonString = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:keys];
+    XCTAssertNotNil(jsonString);
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    
     XCTAssertEqual(result.count, 3);
     
     // Verify order and content
@@ -667,7 +691,7 @@
     [NSThread sleepForTimeInterval:0.1];
     
     // Verify flow is flushed
-    MSIDExecutionFlow *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId];
+    NSString *flow2 = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
     XCTAssertNil(flow2);
 }
 

@@ -44,14 +44,16 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
     Insert the tag and extra information on current execution point, correlationId is required as the key entrance
  */
--(void)insertTag:(NSString *)tag
-       extraInfo:(nullable NSDictionary *)info
+- (void)insertTag:(NSString *)tag
+        extraInfo:(nullable NSDictionary *)info
 withCorrelationId:(NSUUID *)correlationId;
 
 /*!
-    Retrieve the full execution flow by using the correlationId
+    Retrieve the full execution flow in json string format by using the correlationId and queryKeys
  */
-- (nullable MSIDExecutionFlow *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId;
+- (nullable NSString *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
+                                                            querykeys:(nullable NSSet<NSString *> *)queryKeys;
+
 
 /*!
     Remove every flow from the execution logger

@@ -132,4 +132,36 @@
     return executionFlow.count > 0 ? executionFlow : nil;
 }
 
+- (NSString *)exportExecutionFlowToJSONsWithKeys:(NSSet<NSString *> *)queryKeys
+{
+    
+    __block NSMutableString *jsonArray = [NSMutableString stringWithString:@"["];
+    
+    dispatch_sync(self.executionFlowWritingQueue, ^{
+        for (NSUInteger i = 0; i < self.executionFlow.count; i++) {
+            MSIDExecutionFlowBlob *blob = self.executionFlow[i];
+            NSString *blobJSON = [blob blobToStringWithKeys:queryKeys];
+            
+            if (blobJSON) {
+                [jsonArray appendString:blobJSON];
+                
+                // Add comma separator if not the last element
+                if (i < self.executionFlow.count - 1) {
+                    [jsonArray appendString:@","];
+                }
+            }
+        }
+    });
+    
+    [jsonArray appendString:@"]"];
+    
+    // Return nil if array is empty
+    if ([jsonArray isEqualToString:@"[]"])
+    {
+        return nil;
+    }
+    
+    return jsonArray;
+}
+
 @end

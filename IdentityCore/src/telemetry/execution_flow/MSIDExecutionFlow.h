@@ -35,7 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
          threadId:(NSNumber *)tid
         extraInfo:(nullable NSDictionary *)info;
 
-- (nullable NSArray<NSDictionary *> *)executionFlowWithKeys:(nullable NSArray<NSString *> *)blobKeys;
+// Exports the execution flow as a JSON array string
+- (nullable NSString *)exportExecutionFlowToJSONsWithKeys:(nullable NSSet<NSString *> *)queryKeys;
 
 @end
 
