@@ -367,6 +367,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // Broker Xpc internal error
     MSIDErrorBrokerXpcUnexpectedError = -52001,
+    
+    // MSIDServerInvalidRequest suberror to bubble up to OneAuth and map to InteractionRequired
+    MSIDErrorServerInvalidRequestWithSuberror = -50142
 
 };
 
