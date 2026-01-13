@@ -82,35 +82,6 @@
     }
 }
 
-- (NSDictionary *)executionBlobWithKeys:(NSArray<NSString *> *)blobKeys
-{
-    if (!blobKeys || blobKeys.count == 0)
-    {
-        return nil;
-    }
-    
-    return [self extractDictionary:blobKeys];
-}
-
-- (NSDictionary *)extractDictionary:(NSArray<NSString *>*)keys
-{
-    NSDictionary *telemetryProvider = self.blob.toDictionary;
-    NSMutableDictionary *resultBlob = nil;
-    for (NSString* key in keys) {
-        if (telemetryProvider[key])
-        {
-            if (!resultBlob)
-            {
-                resultBlob = [NSMutableDictionary new];
-            }
-            
-            resultBlob[key] = telemetryProvider[key];
-        }
-    }
-    
-    return resultBlob;
-}
-
 - (NSString *)blobToStringWithKeys:(NSSet<NSString *>*)queryKeys
 {
     NSDictionary *dict = self.blob.toDictionary;

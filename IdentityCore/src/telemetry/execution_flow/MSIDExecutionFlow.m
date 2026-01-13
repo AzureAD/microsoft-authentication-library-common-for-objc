@@ -111,27 +111,6 @@
     });
 }
 
-- (NSArray<NSDictionary *> *)executionFlowWithKeys:(NSArray<NSString *> *)blobKeys
-{
-    if (!blobKeys || blobKeys.count == 0)
-    {
-        return nil;
-    }
-    
-    __block NSMutableArray *executionFlow = [NSMutableArray new];
-    dispatch_sync(self.executionFlowWritingQueue, ^{
-        for (MSIDExecutionFlowBlob *blob in self.executionFlow) {
-            NSDictionary *blobDict = [blob executionBlobWithKeys:blobKeys];
-            if (blobDict) // Only add non-nil results
-            {
-                [executionFlow addObject:blobDict];
-            }
-        }
-    });
-    
-    return executionFlow.count > 0 ? executionFlow : nil;
-}
-
 - (NSString *)exportExecutionFlowToJSONsWithKeys:(NSSet<NSString *> *)queryKeys
 {
     

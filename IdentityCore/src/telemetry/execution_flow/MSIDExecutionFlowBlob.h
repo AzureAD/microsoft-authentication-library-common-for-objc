@@ -26,8 +26,8 @@
 #import <Foundation/Foundation.h>
 
 /*
- "t": "abcde",  // Tag name: 5 alphanumeric characters (0-9, a-z)
- "ts": 0,       // Timestep: milliseconds since execution flow is created time
+ "t": "abcde",  // Tag name: 5 alphanumeric characters  (0-9, a-z) or a tag that meaningful, no duplication in the code base
+ "ts": 12,       // Timestep: milliseconds since execution flow is created time
  "tid": 1,      // Thread ID
  "d": 0,        // Optional: diagnostic code (iteration count, http code)
  "e": 1003,      // Optional: error code
@@ -42,12 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
                             timeStep:(NSNumber *)ts
                             threadId:(NSNumber *)tid;
 
-// Can set any extra key/value pair(s) apart from tag, ts and tid.
-// !! Please set before add the blob into the execution flow
+// Developer can set any extra key/value pair(s) apart from tag, ts and tid.
 - (void)setObject:(id)obj forKey:(NSString *)key;
-
-// Developer can also use the customizedExecutionBlob to get the blob info as the needs
-- (nullable NSDictionary *)executionBlobWithKeys:(NSArray<NSString *> *)blobKeys;
 
 // Converts the blob to a JSON string representation, if query keys are not provided, return all fields
 - (NSString *)blobToStringWithKeys:(nullable NSSet<NSString *>*)queryKeys;
