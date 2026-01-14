@@ -29,6 +29,7 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDExecutionFlowLogger.h"
 
 @implementation MSIDAADRequestErrorHandler
 
@@ -72,6 +73,9 @@
     
     if (shouldRetry)
     {
+        [[MSIDExecutionFlowLogger sharedInstance] insertTag:@"nw_retry"
+                                                  extraInfo:nil
+                                          withCorrelationId:context.correlationId];
         httpRequest.retryCounter--;
         
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
