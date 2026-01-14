@@ -75,7 +75,7 @@
         NSSet<NSUUID *> *allFlowKeys = [NSSet setWithArray:self.executionFlowMap.toDictionary.allKeys];
         if (allFlowKeys.count >= MAX_EXECUTION_FLOW_ELIMINATION_POOL_SIZE)
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The number of execution flows are reaching maximum, cannot add new flows. Please check if ended flows are flushed correctly", nil);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The number of execution flows is reaching the maximum, cannot add new flows. Please check if ended flows are flushed correctly", nil);
             return;
         }
         
