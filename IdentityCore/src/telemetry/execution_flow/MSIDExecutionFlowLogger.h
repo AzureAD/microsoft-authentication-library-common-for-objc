@@ -52,7 +52,7 @@ withCorrelationId:(NSUUID *)correlationId;
     Retrieve the full execution flow in json string format by using the correlationId and queryKeys
  */
 - (nullable NSString *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
-                                                            querykeys:(nullable NSSet<NSString *> *)queryKeys;
+                                                            queryKeys:(nullable NSSet<NSString *> *)queryKeys;
 
 
 /*!

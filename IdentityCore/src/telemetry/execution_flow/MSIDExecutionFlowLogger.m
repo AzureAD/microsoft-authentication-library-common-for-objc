@@ -131,7 +131,7 @@ withCorrelationId:(NSUUID *)correlationId
 }
 
 - (NSString *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
-                                                   querykeys:(NSSet<NSString *> *)queryKeys
+                                                   queryKeys:(NSSet<NSString *> *)queryKeys
 {
     if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
