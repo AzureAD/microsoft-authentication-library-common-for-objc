@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)registerExecutionFlowWithCorrelationId:(NSUUID *)correlationId;
 
 /*!
-    Insert the tag and extra information on current execution point, correlationId is required as the key entrance
+    Insert the tag and extra information at the current execution point, correlationId is required as the key entrance
  */
 - (void)insertTag:(NSString *)tag
         extraInfo:(nullable NSDictionary *)info
