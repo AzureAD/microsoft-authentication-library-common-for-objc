@@ -607,7 +607,7 @@
     
     // Verify all flows were created
     for (int i = 0; i < 10; i++) {
-        NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationIds[i]querykeys:nil];
+        NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationIds[i] querykeys:nil];
         XCTAssertNotNil(flow, @"Flow should exist for correlationId %d", i);
     }
 }
