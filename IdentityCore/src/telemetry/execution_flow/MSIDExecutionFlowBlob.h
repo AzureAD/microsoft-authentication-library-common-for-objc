@@ -27,7 +27,7 @@
 
 /*
  "t": "abcde",  // Tag name: 5 alphanumeric characters  (0-9, a-z) or a tag that meaningful, no duplication in the code base
- "ts": 12,       // Timestep: milliseconds since execution flow is created time
+ "ts": 12,       // Timestep: milliseconds since the time the execution flow was created
  "tid": 1,      // Thread ID
  "d": 0,        // Optional: diagnostic code (iteration count, http code)
  "e": 1003,      // Optional: error code
