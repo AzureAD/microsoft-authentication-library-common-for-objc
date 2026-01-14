@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nonnull MSIDExecutionFlowLogger *)sharedInstance;
 
 /*!
-    Register new execution flow as the first step at the beginning of the code, otherwise the execution logger does not track
+    Register new execution flow as the first step at the beginning of the code; otherwise the execution logger does not track events for this correlation ID.
  */
 - (void)registerExecutionFlowWithCorrelationId:(NSUUID *)correlationId;
 
