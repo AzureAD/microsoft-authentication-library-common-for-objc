@@ -107,7 +107,7 @@
     XCTAssertNotNil(flow, @"Should still have one flow");
 }
 
-- (void)testRegisterExecutionFlowAfterFlush_shouldFail
+- (void)testRegisterExecutionFlowAfterFlush_reRegister_shouldSucceeded
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
     NSUUID *correlationId = [NSUUID UUID];
@@ -126,7 +126,28 @@
     
     // Should not create new flow
     NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
-    XCTAssertNil(flow, @"Should not allow re-registration after flush");
+    XCTAssertNotNil(flow, @"Should allow re-registration after flush");
+}
+
+- (void)testAddNewExecutionFlowBlobAfterFlush_shouldFail
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+    
+    // Register and flush
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
+    [NSThread sleepForTimeInterval:0.1];
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
+    [NSThread sleepForTimeInterval:0.1];
+    
+    // Try to register again after flush
+    [logger insertTag:@"TestTag2" extraInfo:nil withCorrelationId:correlationId];
+    [NSThread sleepForTimeInterval:0.1];
+    
+    // Should not create new flow
+    NSString *flow = [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId querykeys:nil];
+    XCTAssertNil(flow, @"Should not add new event blob after flush");
 }
 
 #pragma mark - insertTag:extraInfo:withCorrelationId: Tests
