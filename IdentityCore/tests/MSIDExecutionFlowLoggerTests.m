@@ -107,7 +107,7 @@
     XCTAssertNotNil(flow, @"Should still have one flow");
 }
 
-- (void)testRegisterExecutionFlowAfterFlush_reRegister_shouldSucceeded
+- (void)testRegisterExecutionFlowAfterFlush_reRegister_shouldSucceed
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
     NSUUID *correlationId = [NSUUID UUID];
