@@ -3,6 +3,7 @@ TBD
 * Filter Bound app RTs when reg deviceId doesn't match
 * Mandate redirect_uri in Bound app refresh token redemption
 * Default account API (#1642)
+* Add request execution flow logger (#1655)
 
 Version 1.18.0
 * Silent token request should use FRT first when single FRT is enabled #1624
