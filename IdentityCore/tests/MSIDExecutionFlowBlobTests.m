@@ -46,7 +46,11 @@
     
     XCTAssertNotNil(blob);
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"t", @"ts", @"tid"]];
+    NSSet<NSString *> *blobKeys = [NSSet setWithArray:@[@"t", @"ts", @"tid"]];
+    NSString *jsonString = [blob blobToStringWithKeys:blobKeys];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    XCTAssertNotNil(result);
     XCTAssertEqualObjects(result[@"t"], tag);
     XCTAssertEqualObjects(result[@"ts"], timeStep);
     XCTAssertEqualObjects(result[@"tid"], threadId);
@@ -104,8 +108,10 @@
                                                                      threadId:@(5678)];
     
     [blob setObject:@"customValue" forKey:@"customKey"];
-    
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"customKey"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"customKey"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+
     XCTAssertEqualObjects(result[@"customKey"], @"customValue");
 }
 
@@ -117,7 +123,9 @@
     
     [blob setObject:@(9999) forKey:@"customNumber"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"customNumber"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"customNumber"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqualObjects(result[@"customNumber"], @(9999));
 }
 
@@ -131,7 +139,9 @@
     [blob setObject:@(123) forKey:@"key2"];
     [blob setObject:@"value3" forKey:@"key3"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"key1", @"key2", @"key3"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"key1", @"key2", @"key3"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqualObjects(result[@"key1"], @"value1");
     XCTAssertEqualObjects(result[@"key2"], @(123));
     XCTAssertEqualObjects(result[@"key3"], @"value3");
@@ -146,7 +156,9 @@
     // Try to set an array (invalid type)
     [blob setObject:@[@"array", @"value"] forKey:@"arrayKey"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"arrayKey"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"arrayKey"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertNil(result[@"arrayKey"]);
 }
 
@@ -158,8 +170,10 @@
     
     // Try to set a dictionary (invalid type)
     [blob setObject:@{@"key": @"value"} forKey:@"dictKey"];
-    
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"dictKey"]];
+
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"dictKey"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertNil(result[@"dictKey"]);
 }
 
@@ -184,7 +198,9 @@
     // Try to override reserved key
     [blob setObject:@"NewTag" forKey:@"t"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"t"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"t"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqualObjects(result[@"t"], @"OriginalTag", @"Reserved key 't' should not be overridden");
 }
 
@@ -197,7 +213,9 @@
     // Try to override reserved key
     [blob setObject:@(9999) forKey:@"ts"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"ts"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"ts"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqualObjects(result[@"ts"], @(1234), @"Reserved key 'ts' should not be overridden");
 }
 
@@ -210,7 +228,9 @@
     // Try to override reserved key
     [blob setObject:@(9999) forKey:@"tid"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"tid"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"tid"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqualObjects(result[@"tid"], @(5678), @"Reserved key 'tid' should not be overridden");
 }
 
@@ -225,24 +245,27 @@
     [blob setObject:@"custom1" forKey:@"key1"];
     [blob setObject:@"custom2" forKey:@"key2"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"t", @"key1"]];
-    
-    XCTAssertEqual(result.count, 2);
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"t", @"key1"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    XCTAssertEqual(result.count, 4);
     XCTAssertEqualObjects(result[@"t"], @"TestTag");
     XCTAssertEqualObjects(result[@"key1"], @"custom1");
     XCTAssertNil(result[@"key2"], @"key2 was not requested, should not be in result");
 }
 
-- (void)testExecutionBlobWithNonExistentKeys_shouldReturnEmptyDictionary
+- (void)testExecutionBlobWithNonExistentKeys_shouldReturnDictionaryWithRequiredFieldOnly
 {
     MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
                                                                      timeStep:@(1234)
                                                                      threadId:@(5678)];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"nonexistent1", @"nonexistent2"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"nonexistent1", @"nonexistent2"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
-    XCTAssertNil(result);
-    XCTAssertEqual(result.count, 0, @"Should return empty dictionary when no keys match");
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.allKeys.count, 3, @"Should return empty dictionary when no keys match");
 }
 
 - (void)testExecutionBlobWithMixedExistingAndNonExistentKeys_shouldReturnOnlyExistingValues
@@ -253,34 +276,41 @@
     
     [blob setObject:@"value1" forKey:@"key1"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"key1", @"nonexistent", @"t"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"key1", @"nonexistent", @"t"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
-    XCTAssertEqual(result.count, 2);
+    XCTAssertEqual(result.allKeys.count, 4);
     XCTAssertEqualObjects(result[@"key1"], @"value1");
     XCTAssertEqualObjects(result[@"t"], @"TestTag");
     XCTAssertNil(result[@"nonexistent"]);
 }
 
-- (void)testExecutionBlobWithNilKeys_shouldReturnNil
+- (void)testExecutionBlobWithNilKeys_shouldReturnEverything
 {
     MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
                                                                      timeStep:@(1234)
                                                                      threadId:@(5678)];
+    [blob setObject:@1003 forKey:@"e"];
     NSArray *nilKeys = nil;
-    NSDictionary *result = [blob executionBlobWithKeys:nilKeys];
-    
-    XCTAssertNil(result);
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:nilKeys]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.allKeys.count, 4);
 }
 
-- (void)testExecutionBlobWithEmptyArray_shouldReturnNil
+- (void)testExecutionBlobWithEmptyArray_shouldReturnEverything
 {
     MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:@"TestTag"
                                                                      timeStep:@(1234)
                                                                      threadId:@(5678)];
-    
-    NSDictionary *result = [blob executionBlobWithKeys:@[]];
-    
-    XCTAssertNil(result);
+    [blob setObject:@1003 forKey:@"e"];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.allKeys.count, 4);
 }
 
 - (void)testExecutionBlobWithAllKeys_shouldReturnAllValues
@@ -292,7 +322,9 @@
     [blob setObject:@"extra1" forKey:@"extra1"];
     [blob setObject:@(999) forKey:@"extra2"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"t", @"ts", @"tid", @"extra1", @"extra2"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"t", @"ts", @"tid", @"extra1", @"extra2"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     
     XCTAssertEqual(result.count, 5);
     XCTAssertEqualObjects(result[@"t"], @"TestTag");
@@ -311,8 +343,10 @@
                                                                      threadId:@(5678)];
     
     [blob setObject:@"value" forKey:@""];
-    
-    NSDictionary *result = [blob executionBlobWithKeys:@[@""]];
+
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@""]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqualObjects(result[@""], @"value");
 }
 
@@ -323,8 +357,9 @@
                                                                      threadId:@(5678)];
     
     [blob setObject:@"" forKey:@"emptyValue"];
-    
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"emptyValue"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"emptyValue"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqualObjects(result[@"emptyValue"], @"");
 }
 
@@ -336,7 +371,9 @@
     
     [blob setObject:@(0) forKey:@"zeroValue"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"zeroValue"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"zeroValue"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqualObjects(result[@"zeroValue"], @(0));
 }
 
@@ -349,7 +386,9 @@
     [blob setObject:@"originalValue" forKey:@"key"];
     [blob setObject:@"updatedValue" forKey:@"key"];
     
-    NSDictionary *result = [blob executionBlobWithKeys:@[@"key"]];
+    NSString *jsonString = [blob blobToStringWithKeys:[NSSet setWithArray:@[@"key"]]];
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
     XCTAssertEqualObjects(result[@"key"], @"updatedValue", @"Should allow updating custom keys");
 }
 
