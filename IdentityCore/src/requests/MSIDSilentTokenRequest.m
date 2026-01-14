@@ -187,8 +187,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             accessTokenExpired = [accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer];
             if (accessToken.cachedAt)
             {
-                NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:accessToken.cachedAt];
-                [[MSIDExecutionFlowLogger sharedInstance] insertTag:@"1cd7n" extraInfo:@{@"d":@(elapsed * 1000)} withCorrelationId:self.requestParameters.correlationId];
+                NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:accessToken.expiresOn];
+                [[MSIDExecutionFlowLogger sharedInstance] insertTag:@"1cd7n" extraInfo:@{@"d":@((int)elapsed)} withCorrelationId:self.requestParameters.correlationId];
             }
         }
         
