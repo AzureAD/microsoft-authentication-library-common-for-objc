@@ -85,7 +85,7 @@
             return;
         }
         
-        MSIDExecutionFlow *executionFlow = [MSIDExecutionFlow new];;
+        MSIDExecutionFlow *executionFlow = [MSIDExecutionFlow new];
         [self.executionFlowMap setObject:executionFlow forKey:correlationId];
     });
 }
