@@ -194,5 +194,12 @@
     NSError *errorWithInvalidGrantWithOutTransferTokenExpired = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"invalid_grant", @"test_sub_error", nil, nil, nil, NO);
     XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithInvalidGrantWithOutTransferTokenExpired.userInfo[MSIDOAuthErrorKey], MSIDErrorUserCancel,errorWithInvalidGrantWithOutTransferTokenExpired.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorServerInvalidGrant);
 }
+- (void)testMSIDErrorWithInvalidRequestAndSubErrorShouldReturnMSIDServerInvalidRequestResetPasswordRequired
+{
+    NSError *errorInvalidRequestWithResetPasswordRequired = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"invalid_request", @"50142", nil, nil, nil, NO);
+    XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorInvalidRequestWithResetPasswordRequired.userInfo[MSIDOAuthErrorKey],
+                                                              MSIDErrorServerInvalidRequestResetPasswordRequired,
+                                                              errorInvalidRequestWithResetPasswordRequired.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorServerInvalidRequestResetPasswordRequired);
+}
 
 @end

@@ -124,7 +124,7 @@ MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString *oauthError, M
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"]  == NSOrderedSame && [subError caseInsensitiveCompare:@"50142"] == NSOrderedSame)
     {
-        return MSIDErrorServerInvalidRequestWithSuberror;
+        return MSIDErrorServerInvalidRequestResetPasswordRequired;
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_grant"] == NSOrderedSame && [subError caseInsensitiveCompare:@"transfer_token_expired"] == NSOrderedSame)
     {   // When account Transfter Token is expired.
@@ -454,8 +454,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             // Broker Xpc internal error
         case MSIDErrorBrokerXpcUnexpectedError:
             return @"MSIDErrorBrokerXpcUnexpectedError";
-        case MSIDErrorServerInvalidRequestWithSuberror:
-            return @"MSIDErrorServerInvalidRequestWithSuberror";
+        case MSIDErrorServerInvalidRequestResetPasswordRequired:
+            return @"MSIDErrorServerInvalidRequestResetPasswordRequired";
     }
     
     return [NSString stringWithFormat:@"Unknown: %@", @(errorCode)];
