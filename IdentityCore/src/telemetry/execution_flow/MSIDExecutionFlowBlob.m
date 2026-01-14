@@ -82,13 +82,64 @@
     }
 }
 
+// Escapes special characters in a string for safe JSON inclusion
+- (NSString *)escapeJSONString:(NSString *)string
+{
+    if (!string)
+    {
+        return @"";
+    }
+    
+    NSMutableString *escaped = [NSMutableString stringWithCapacity:string.length];
+    for (NSUInteger i = 0; i < string.length; i++)
+    {
+        unichar c = [string characterAtIndex:i];
+        switch (c)
+        {
+            case '\\':
+                [escaped appendString:@"\\\\"];
+                break;
+            case '"':
+                [escaped appendString:@"\\\""];
+                break;
+            case '\n':
+                [escaped appendString:@"\\n"];
+                break;
+            case '\r':
+                [escaped appendString:@"\\r"];
+                break;
+            case '\t':
+                [escaped appendString:@"\\t"];
+                break;
+            case '\b':
+                [escaped appendString:@"\\b"];
+                break;
+            case '\f':
+                [escaped appendString:@"\\f"];
+                break;
+            default:
+                if (c < 0x20)
+                {
+                    // Escape other control characters as \u00XX
+                    [escaped appendFormat:@"\\u%04x", c];
+                }
+                else
+                {
+                    [escaped appendFormat:@"%C", c];
+                }
+                break;
+        }
+    }
+    return escaped;
+}
+
 - (NSString *)blobToStringWithKeys:(NSSet<NSString *>*)queryKeys
 {
     NSDictionary *dict = self.blob.toDictionary;
     NSMutableString *result = [NSMutableString stringWithString:@"{"];
     
     // Always include required fields in specific order: t, tid, ts
-    [result appendFormat:@"\"t\":\"%@\",\"tid\":%@,\"ts\":%@", dict[@"t"], dict[@"tid"], dict[@"ts"]];
+    [result appendFormat:@"\"t\":\"%@\",\"tid\":%@,\"ts\":%@", [self escapeJSONString:dict[@"t"]], dict[@"tid"], dict[@"ts"]];
     
     // Add all other fields
     NSSet *reservedKeys = [NSSet setWithArray:@[@"t", @"tid", @"ts"]];
@@ -102,11 +153,11 @@
         id value = dict[key];
         if ([value isKindOfClass:NSString.class])
         {
-            [result appendFormat:@",\"%@\":\"%@\"", key, value];
+            [result appendFormat:@",\"%@\":\"%@\"", [self escapeJSONString:key], [self escapeJSONString:value]];
         }
         else if ([value isKindOfClass:NSNumber.class])
         {
-            [result appendFormat:@",\"%@\":%@", key, value];
+            [result appendFormat:@",\"%@\":%@", [self escapeJSONString:key], value];
         }
     }
     

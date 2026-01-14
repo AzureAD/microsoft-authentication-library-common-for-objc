@@ -75,33 +75,32 @@
         return;
     }
     
-    NSTimeInterval interval = 0;
-    if (!self.startTime)
-    {
-        self.startTime = triggeringTime;
-    }
-    else
-    {
-        interval = [triggeringTime timeIntervalSinceDate:self.startTime];
-    }
-    
-    int64_t ts = (int64_t)(interval * 1000.0);
-
-    MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:tag timeStep:@(ts) threadId:tid];
-    if (!blob)
-    {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to create execution flow blob", nil);
-        return;
-    }
-    
-    if (info && info.allKeys.count > 0)
-    {
-        for (id key in info) {
-            [blob setObject:info[key] forKey:key];
-        }
-    }
-    
     dispatch_async(self.executionFlowWritingQueue, ^{
+        NSTimeInterval interval = 0;
+        if (!self.startTime)
+        {
+            self.startTime = triggeringTime;
+        }
+        else
+        {
+            interval = [triggeringTime timeIntervalSinceDate:self.startTime];
+        }
+        
+        int64_t ts = (int64_t)(interval * 1000.0);
+
+        MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:tag timeStep:@(ts) threadId:tid];
+        if (!blob)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to create execution flow blob", nil);
+            return;
+        }
+        
+        if (info && info.allKeys.count > 0)
+        {
+            for (id key in info) {
+                [blob setObject:info[key] forKey:key];
+            }
+        }
         // This is unlikely but just in case to keep the execution flow not tracking too many
         if (self.executionFlow.count >= MAX_EXECUTION_FLOW_SIZE) {
             [self.executionFlow removeObjectAtIndex:0];
