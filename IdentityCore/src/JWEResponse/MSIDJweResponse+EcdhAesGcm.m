@@ -229,7 +229,22 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     MSIDAesGcmDecryptor *decryptor = [MSIDAesGcmDecryptor new];
     NSData *decryptedData = [decryptor decryptWithAES256GCMHandlerWithMessage:self.payload iv:self.iv key:symmetricKey tag:self.tag aad:self.aad error:error];
 #else
-    NSData *decryptedData = nil;
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain,
+                                  MSIDErrorInternal,
+                                  @"Swift AES-GCM decryption is unavailable on this platform",
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  YES);
+    }
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Swift AES-GCM decryption is unavailable on this platform");
+    // Deallocate symmetricKey as it is no longer needed
+    symmetricKey = nil;
+    return nil;
 #endif
     // Deallocate symmetricKey as it is no longer needed
     symmetricKey = nil;
