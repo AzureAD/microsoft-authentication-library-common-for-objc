@@ -224,10 +224,11 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     {
         return nil;
     }
+    NSData *decryptedData;
 #if MSID_IDENTITYCORE_SWIFT_AVAILABLE
     // Since only A256GCM is supported, we can decrypt jwe message using AES256GCM.
     MSIDAesGcmDecryptor *decryptor = [MSIDAesGcmDecryptor new];
-    NSData *decryptedData = [decryptor decryptWithAES256GCMHandlerWithMessage:self.payload iv:self.iv key:symmetricKey tag:self.tag aad:self.aad error:error];
+    decryptedData = [decryptor decryptWithAES256GCMHandlerWithMessage:self.payload iv:self.iv key:symmetricKey tag:self.tag aad:self.aad error:error];
 #else
     if (error)
     {
@@ -242,9 +243,6 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
                                   YES);
     }
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Swift AES-GCM decryption is unavailable on this platform");
-    // Deallocate symmetricKey as it is no longer needed
-    symmetricKey = nil;
-    return nil;
 #endif
     // Deallocate symmetricKey as it is no longer needed
     symmetricKey = nil;
