@@ -195,6 +195,15 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     
     return derivedKey;
 #else
+    if (error)
+    {
+        NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Swift cryptographic operations not available" };
+        *error = [NSError errorWithDomain:@"MSIDIdentityCoreErrorDomain"
+                                     code:-1
+                                 userInfo:userInfo];
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Swift cryptographic operations not available. MSID_IDENTITYCORE_SWIFT_AVAILABLE is disabled, cannot calculate derived key.");
     return nil;
 #endif
 }
