@@ -159,6 +159,26 @@
                                                           customHeaders:configuration.customHeaders
                                                          platfromParams:platformParams
                                                                 context:context];
+    
+    // Set responseHeaderHandler to capture HTTP headers for special URLs (e.g., msauth://installProfile)
+    __weak typeof(embeddedWebviewController) weakController = embeddedWebviewController;
+    embeddedWebviewController.responseHeaderHandler = ^(NSURLResponse *response) {
+        typeof(embeddedWebviewController) strongController = weakController;
+        if (!strongController) return;
+        
+        NSURL *url = response.URL;
+        // Only capture headers for msauth://installProfile
+        if ([url.scheme.lowercaseString isEqualToString:@"msauth"] &&
+            [url.host.lowercaseString isEqualToString:@"installprofile"])
+        {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            if ([httpResponse isKindOfClass:[NSHTTPURLResponse class]])
+            {
+                strongController.pendingInstallProfileHeaders = httpResponse.allHeaderFields;
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Captured HTTP headers for msauth://installProfile");
+            }
+        }
+    };
                                                                 
 #if MSAL_JS_AUTOMATION
     embeddedWebviewController.clientAutomationScript = configuration.clientAutomationScript;

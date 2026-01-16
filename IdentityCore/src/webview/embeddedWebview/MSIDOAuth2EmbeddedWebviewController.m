@@ -45,6 +45,8 @@
 @interface MSIDOAuth2EmbeddedWebviewController()
 
 @property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
+/*! Temporarily stores HTTP headers from msauth://installProfile response for state machine access */
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *pendingInstallProfileHeaders;
 
 @end
 
@@ -362,6 +364,12 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         {
             self.navigationResponseBlock(response);
         }
+    }
+    
+    // Call responseHeaderHandler for capturing HTTP headers
+    if (self.responseHeaderHandler && navigationResponse.response)
+    {
+        self.responseHeaderHandler(navigationResponse.response);
     }
     
     decisionHandler(WKNavigationResponsePolicyAllow);
