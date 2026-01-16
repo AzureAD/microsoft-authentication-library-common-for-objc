@@ -21,7 +21,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
+#if !EXCLUDE_FROM_MSALCPP
 #import "MSIDBoundRefreshTokenGrantRequest.h"
 #import "MSIDBoundRefreshToken.h"
 #import "MSIDBoundRefreshToken+Redemption.h"
@@ -147,3 +147,4 @@
     }
 }
 @end
+#endif
