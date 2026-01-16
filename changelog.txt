@@ -1,5 +1,8 @@
 TBD
 * Add logic to save bound app RT only when token response has refresh_token_type=bound_app_rt
+* Filter Bound app RTs when reg deviceId doesn't match
+* Mandate redirect_uri in Bound app refresh token redemption
+* Default account API (#1642)
 
 Version 1.18.0
 * Silent token request should use FRT first when single FRT is enabled #1624
