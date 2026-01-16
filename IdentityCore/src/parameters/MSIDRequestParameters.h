@@ -123,8 +123,8 @@
 #pragma mark - monitor gcd thread starvation
 @property (nonatomic) BOOL allowThreadStarvationMonitoring;
 
-#pragma mark - skip cache broker response in CommonCore code flow. Default is No - not skip
-@property (nonatomic) BOOL skipTokenCacheFromBrokerResponse;
+#pragma mark - skip cache SsoExtension response in CommonCore code logic. Default is No - not skip
+@property (nonatomic) BOOL skipTokenCacheFromSsoExtensionResponse;
 
 - (NSURL *)tokenEndpoint;
 

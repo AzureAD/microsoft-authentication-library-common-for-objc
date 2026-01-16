@@ -288,7 +288,7 @@
     
     // Note, if there's an error saving result, we log it, but we don't fail validation
     // This is by design because even if we fail to cache, we still should return tokens back to the app
-    if (!parameters.skipTokenCacheFromBrokerResponse)
+    if (!parameters.skipTokenCacheFromSsoExtensionResponse)
     {
         [self saveTokenResponseToCache:tokenResponse
                          configuration:parameters.msidConfiguration

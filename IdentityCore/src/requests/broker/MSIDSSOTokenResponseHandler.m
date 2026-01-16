@@ -51,10 +51,10 @@
         MSIDRequestParameters *parameters = [requestParameters copy];
         parameters.target = operationResponse.additionalTokenResponse.scope;
         
-        if (parameters.skipTokenCacheFromBrokerResponse)
+        if (parameters.skipTokenCacheFromSsoExtensionResponse)
         {
-            // For additional token response, we will always save it as OA cannot handle the additional token caching
-            parameters.skipTokenCacheFromBrokerResponse = NO;
+            // For additional token response, we still save it through CommonCore as OA cannot handle the additional token caching
+            parameters.skipTokenCacheFromSsoExtensionResponse = NO;
         }
         
         [tokenResponseValidator validateAndSaveTokenResponse:operationResponse.additionalTokenResponse
