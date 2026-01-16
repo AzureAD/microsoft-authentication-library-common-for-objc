@@ -34,6 +34,7 @@
                          url:(NSURL *)url
                      purpose:(MSIDSystemWebviewPurpose)purpose
                        error:(NSError *)error
+           additionalHeaders:(NSDictionary<NSString *, NSString *> *)additionalHeaders
 {
     self = [super init];
     if (self)
@@ -43,6 +44,7 @@
         _url = url;
         _purpose = purpose;
         _error = error;
+        _additionalHeaders = additionalHeaders;
     }
     return self;
 }
@@ -55,7 +57,8 @@
                               request:nil
                                   url:nil
                               purpose:MSIDSystemWebviewPurposeUnknown
-                                error:nil];
+                                error:nil
+                    additionalHeaders:nil];
 }
 
 + (instancetype)loadRequestAction:(NSURLRequest *)request
@@ -64,16 +67,25 @@
                               request:request
                                   url:nil
                               purpose:MSIDSystemWebviewPurposeUnknown
-                                error:nil];
+                                error:nil
+                    additionalHeaders:nil];
 }
 
 + (instancetype)openASWebAuthSessionAction:(NSURL *)url purpose:(MSIDSystemWebviewPurpose)purpose
+{
+    return [self openASWebAuthSessionAction:url purpose:purpose additionalHeaders:nil];
+}
+
++ (instancetype)openASWebAuthSessionAction:(NSURL *)url 
+                                   purpose:(MSIDSystemWebviewPurpose)purpose
+                         additionalHeaders:(NSDictionary<NSString *, NSString *> *)headers
 {
     return [[self alloc] initWithType:MSIDWebviewActionTypeOpenASWebAuthenticationSession
                               request:nil
                                   url:url
                               purpose:purpose
-                                error:nil];
+                                error:nil
+                    additionalHeaders:headers];
 }
 
 + (instancetype)openExternalBrowserAction:(NSURL *)url
@@ -82,7 +94,8 @@
                               request:nil
                                   url:url
                               purpose:MSIDSystemWebviewPurposeUnknown
-                                error:nil];
+                                error:nil
+                    additionalHeaders:nil];
 }
 
 + (instancetype)completeWithURLAction:(NSURL *)url
@@ -91,7 +104,8 @@
                               request:nil
                                   url:url
                               purpose:MSIDSystemWebviewPurposeUnknown
-                                error:nil];
+                                error:nil
+                    additionalHeaders:nil];
 }
 
 + (instancetype)failWithErrorAction:(NSError *)error
@@ -100,7 +114,8 @@
                               request:nil
                                   url:nil
                               purpose:MSIDSystemWebviewPurposeUnknown
-                                error:error];
+                                error:error
+                    additionalHeaders:nil];
 }
 
 @end

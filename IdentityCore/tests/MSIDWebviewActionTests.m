@@ -100,6 +100,40 @@
     XCTAssertEqual(action.purpose, MSIDSystemWebviewPurposeUnknown);
 }
 
+- (void)testOpenASWebAuthSessionAction_withAdditionalHeaders_shouldReturnCorrectProperties
+{
+    NSURL *url = [NSURL URLWithString:@"https://contoso.com/profile"];
+    NSDictionary *headers = @{
+        @"X-Intune-AuthToken": @"test-auth-token-12345",
+        @"X-MS-Telemetry": @"telemetry-data"
+    };
+    
+    MSIDWebviewAction *action = [MSIDWebviewAction openASWebAuthSessionAction:url
+                                                                      purpose:MSIDSystemWebviewPurposeInstallProfile
+                                                            additionalHeaders:headers];
+    
+    XCTAssertNotNil(action);
+    XCTAssertEqual(action.type, MSIDWebviewActionTypeOpenASWebAuthenticationSession);
+    XCTAssertEqualObjects(action.url, url);
+    XCTAssertEqual(action.purpose, MSIDSystemWebviewPurposeInstallProfile);
+    XCTAssertNotNil(action.additionalHeaders);
+    XCTAssertEqualObjects(action.additionalHeaders[@"X-Intune-AuthToken"], @"test-auth-token-12345");
+    XCTAssertEqualObjects(action.additionalHeaders[@"X-MS-Telemetry"], @"telemetry-data");
+}
+
+- (void)testOpenASWebAuthSessionAction_withNilHeaders_shouldReturnNilHeaders
+{
+    NSURL *url = [NSURL URLWithString:@"https://contoso.com/profile"];
+    
+    MSIDWebviewAction *action = [MSIDWebviewAction openASWebAuthSessionAction:url
+                                                                      purpose:MSIDSystemWebviewPurposeInstallProfile
+                                                            additionalHeaders:nil];
+    
+    XCTAssertNotNil(action);
+    XCTAssertEqual(action.type, MSIDWebviewActionTypeOpenASWebAuthenticationSession);
+    XCTAssertNil(action.additionalHeaders);
+}
+
 #pragma mark - OpenExternalBrowser Action Tests
 
 - (void)testOpenExternalBrowserAction_shouldReturnCorrectTypeAndURL

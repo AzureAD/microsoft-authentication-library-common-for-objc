@@ -118,6 +118,45 @@
     XCTAssertNil(action);
 }
 
+- (void)testResolveActionForURL_withInstallProfileURLAndHeaders_shouldIncludeHeadersInAction
+{
+    // Simulate Intune response: msauth://installProfile with X-Intune-AuthToken header
+    NSURL *url = [NSURL URLWithString:@"msauth://installProfile?url=https://contoso.com/profile&requireASWebAuthenticationSession=true"];
+    
+    MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
+    // Simulate headers captured from HTTP response
+    state.installProfileHeaders = @{
+        @"X-Intune-AuthToken": @"test-auth-token-12345",
+        @"X-MS-Telemetry": @"telemetry-data"
+    };
+    
+    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver resolveActionForURL:url state:state];
+    
+    XCTAssertNotNil(action);
+    XCTAssertEqual(action.type, MSIDWebviewActionTypeOpenASWebAuthenticationSession);
+    XCTAssertEqualObjects(action.url.absoluteString, @"https://contoso.com/profile");
+    XCTAssertEqual(action.purpose, MSIDSystemWebviewPurposeInstallProfile);
+    
+    // Verify headers are passed through to the action
+    XCTAssertNotNil(action.additionalHeaders);
+    XCTAssertEqualObjects(action.additionalHeaders[@"X-Intune-AuthToken"], @"test-auth-token-12345");
+    XCTAssertEqualObjects(action.additionalHeaders[@"X-MS-Telemetry"], @"telemetry-data");
+}
+
+- (void)testResolveActionForURL_withInstallProfileURLWithoutHeaders_shouldHaveNilHeaders
+{
+    NSURL *url = [NSURL URLWithString:@"msauth://installProfile?url=https://contoso.com/profile&requireASWebAuthenticationSession=true"];
+    
+    MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
+    // No headers set in state
+    
+    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver resolveActionForURL:url state:state];
+    
+    XCTAssertNotNil(action);
+    XCTAssertEqual(action.type, MSIDWebviewActionTypeOpenASWebAuthenticationSession);
+    XCTAssertNil(action.additionalHeaders);
+}
+
 #pragma mark - Profile Complete URL Tests
 
 - (void)testResolveActionForURL_withProfileCompleteURL_shouldReturnCompleteWithURLAction

@@ -61,7 +61,7 @@
         // msauth://installProfile?url=...&requireASWebAuthenticationSession=true
         if ([host isEqualToString:@"installprofile"])
         {
-            return [self resolveInstallProfileAction:queryParams];
+            return [self resolveInstallProfileAction:queryParams state:state];
         }
         
         // msauth://profileComplete

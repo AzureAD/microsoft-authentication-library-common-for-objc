@@ -89,6 +89,18 @@ typedef NS_ENUM(NSInteger, MSIDInteractiveWebviewBRTFailurePolicy)
 /*! Whether the flow has been transferred to broker for completion */
 @property (nonatomic, assign) BOOL transferredToBroker;
 
+#pragma mark - Response Headers
+
+/*!
+ HTTP response headers captured from msauth://installProfile navigation response.
+ These headers (e.g., X-Intune-AuthToken) are needed for subsequent profile installation
+ flow in ASWebAuthenticationSession.
+ 
+ Note: This property is specifically for installProfile flow. Headers are stored here
+ temporarily during navigation response processing and then passed to the view action.
+ */
+@property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *installProfileHeaders;
+
 @end
 
 NS_ASSUME_NONNULL_END

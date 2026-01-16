@@ -99,6 +99,19 @@ typedef NS_ENUM(NSInteger, MSIDSystemWebviewPurpose)
 /*! The error to fail with (for FailWithError type) */
 @property (nonatomic, readonly, nullable) NSError *error;
 
+/*!
+ Additional HTTP headers to include when executing the action.
+ 
+ For OpenASWebAuthenticationSession actions, these headers (e.g., X-Intune-AuthToken)
+ should be made available to the system webview handler for inclusion in subsequent
+ requests or for other processing needs.
+ 
+ Note: ASWebAuthenticationSession does not support custom HTTP headers directly.
+ These headers may need to be encoded in the URL, stored for later use, or handled
+ by the system webview completion handler depending on the integration requirements.
+ */
+@property (nonatomic, readonly, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
+
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
@@ -122,6 +135,17 @@ typedef NS_ENUM(NSInteger, MSIDSystemWebviewPurpose)
  @return An action that will open the URL in ASWebAuthenticationSession with appropriate settings.
  */
 + (instancetype)openASWebAuthSessionAction:(NSURL *)url purpose:(MSIDSystemWebviewPurpose)purpose;
+
+/*!
+ Creates an action to open a URL in ASWebAuthenticationSession with additional headers.
+ @param url The URL to open
+ @param purpose The purpose for opening the session (determines ephemeral behavior)
+ @param headers Additional HTTP headers (e.g., X-Intune-AuthToken) to pass to the handler
+ @return An action that will open the URL in ASWebAuthenticationSession with appropriate settings.
+ */
++ (instancetype)openASWebAuthSessionAction:(NSURL *)url 
+                                   purpose:(MSIDSystemWebviewPurpose)purpose
+                         additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)headers;
 
 /*!
  Creates an action to open a URL in an external browser.
