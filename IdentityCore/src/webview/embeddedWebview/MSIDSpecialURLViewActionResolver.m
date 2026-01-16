@@ -128,18 +128,34 @@
 }
 
 + (MSIDWebviewAction *)resolveInstallProfileAction:(NSDictionary *)queryParams
+                                              state:(MSIDInteractiveWebviewState *)state
 {
-    // Extract url parameter
-    NSString *urlString = queryParams[@"url"];
-    if (!urlString)
+    // Extract headers from state (captured from HTTP response)
+    NSDictionary<NSString *, NSString *> *headers = state.installProfileHeaders;
+    
+    // Priority 1: Use X-Install-Url from headers if present
+    NSString *installURLString = headers[@"X-Install-Url"];
+    NSURL *profileURL = nil;
+    
+    if (installURLString)
     {
-        return nil;
+        profileURL = [NSURL URLWithString:installURLString];
     }
     
-    NSURL *profileURL = [NSURL URLWithString:urlString];
+    // Priority 2: Fall back to url query parameter if header not present or invalid
     if (!profileURL)
     {
-        return nil;
+        NSString *urlString = queryParams[@"url"];
+        if (!urlString)
+        {
+            return nil;
+        }
+        
+        profileURL = [NSURL URLWithString:urlString];
+        if (!profileURL)
+        {
+            return nil;
+        }
     }
     
     // Check if ASWebAuthenticationSession is required
@@ -148,11 +164,23 @@
     
     if (requireASWebAuth)
     {
+        // Extract X-Intune-AuthToken for passing to ASWebAuthenticationSession
+        // Note: X-Install-Url is used for the URL, not passed in additionalHeaders
+        NSDictionary<NSString *, NSString *> *authHeaders = nil;
+        NSString *intuneAuthToken = headers[@"X-Intune-AuthToken"];
+        if (intuneAuthToken)
+        {
+            authHeaders = @{@"X-Intune-AuthToken": intuneAuthToken};
+        }
+        
         // Open in ASWebAuthenticationSession with InstallProfile purpose
+        // URL: from X-Install-Url header (or fallback to query param)
+        // Headers: X-Intune-AuthToken only
         // Note: Ephemeral session behavior is implied by purpose and will be
         // enforced by the system webview handoff handler
         return [MSIDWebviewAction openASWebAuthSessionAction:profileURL
-                                                     purpose:MSIDSystemWebviewPurposeInstallProfile];
+                                                      purpose:MSIDSystemWebviewPurposeInstallProfile
+                                            additionalHeaders:authHeaders];
     }
     else
     {

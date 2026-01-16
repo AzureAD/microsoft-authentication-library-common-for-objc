@@ -118,7 +118,7 @@
     XCTAssertNil(action);
 }
 
-- (void)testResolveActionForURL_withInstallProfileURLAndHeaders_shouldIncludeHeadersInAction
+- (void)testResolveActionForURL_withInstallProfileURLAndHeaders_shouldIncludeAuthTokenHeaderOnly
 {
     // Simulate Intune response: msauth://installProfile with X-Intune-AuthToken header
     NSURL *url = [NSURL URLWithString:@"msauth://installProfile?url=https://contoso.com/profile&requireASWebAuthenticationSession=true"];
@@ -127,6 +127,7 @@
     // Simulate headers captured from HTTP response
     state.installProfileHeaders = @{
         @"X-Intune-AuthToken": @"test-auth-token-12345",
+        @"X-Install-Url": @"https://install.contoso.com/actual-profile",
         @"X-MS-Telemetry": @"telemetry-data"
     };
     
@@ -134,13 +135,72 @@
     
     XCTAssertNotNil(action);
     XCTAssertEqual(action.type, MSIDWebviewActionTypeOpenASWebAuthenticationSession);
-    XCTAssertEqualObjects(action.url.absoluteString, @"https://contoso.com/profile");
+    // URL should come from X-Install-Url header, not query param
+    XCTAssertEqualObjects(action.url.absoluteString, @"https://install.contoso.com/actual-profile");
     XCTAssertEqual(action.purpose, MSIDSystemWebviewPurposeInstallProfile);
     
-    // Verify headers are passed through to the action
+    // Verify only X-Intune-AuthToken is passed in additionalHeaders
     XCTAssertNotNil(action.additionalHeaders);
     XCTAssertEqualObjects(action.additionalHeaders[@"X-Intune-AuthToken"], @"test-auth-token-12345");
-    XCTAssertEqualObjects(action.additionalHeaders[@"X-MS-Telemetry"], @"telemetry-data");
+    XCTAssertNil(action.additionalHeaders[@"X-MS-Telemetry"]); // Not included
+    XCTAssertNil(action.additionalHeaders[@"X-Install-Url"]); // Not included (used for URL)
+}
+
+- (void)testResolveActionForURL_withInstallProfileURLAndXInstallUrlHeader_shouldUseHeaderURL
+{
+    // X-Install-Url header should take priority over url query parameter
+    NSURL *url = [NSURL URLWithString:@"msauth://installProfile?url=https://query.param.url&requireASWebAuthenticationSession=true"];
+    
+    MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
+    state.installProfileHeaders = @{
+        @"X-Install-Url": @"https://header.install.url",
+        @"X-Intune-AuthToken": @"auth-token-xyz"
+    };
+    
+    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver resolveActionForURL:url state:state];
+    
+    XCTAssertNotNil(action);
+    XCTAssertEqual(action.type, MSIDWebviewActionTypeOpenASWebAuthenticationSession);
+    // Should use X-Install-Url from header, not query param
+    XCTAssertEqualObjects(action.url.absoluteString, @"https://header.install.url");
+    XCTAssertEqualObjects(action.additionalHeaders[@"X-Intune-AuthToken"], @"auth-token-xyz");
+}
+
+- (void)testResolveActionForURL_withInstallProfileURLWithoutXInstallUrlHeader_shouldFallbackToQueryParam
+{
+    // Without X-Install-Url header, should use url query parameter
+    NSURL *url = [NSURL URLWithString:@"msauth://installProfile?url=https://query.param.url&requireASWebAuthenticationSession=true"];
+    
+    MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
+    state.installProfileHeaders = @{
+        @"X-Intune-AuthToken": @"auth-token-xyz"
+    };
+    
+    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver resolveActionForURL:url state:state];
+    
+    XCTAssertNotNil(action);
+    XCTAssertEqual(action.type, MSIDWebviewActionTypeOpenASWebAuthenticationSession);
+    // Should fall back to query param URL
+    XCTAssertEqualObjects(action.url.absoluteString, @"https://query.param.url");
+    XCTAssertEqualObjects(action.additionalHeaders[@"X-Intune-AuthToken"], @"auth-token-xyz");
+}
+
+- (void)testResolveActionForURL_withInstallProfileURLAndOnlyXInstallUrlHeader_shouldWorkWithoutAuthToken
+{
+    // Should work with X-Install-Url but no X-Intune-AuthToken
+    NSURL *url = [NSURL URLWithString:@"msauth://installProfile?url=https://fallback.url&requireASWebAuthenticationSession=true"];
+    
+    MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
+    state.installProfileHeaders = @{
+        @"X-Install-Url": @"https://header.only.url"
+    };
+    
+    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver resolveActionForURL:url state:state];
+    
+    XCTAssertNotNil(action);
+    XCTAssertEqual(action.type, MSIDWebviewActionTypeOpenASWebAuthenticationSession);
+    XCTAssertEqualObjects(action.url.absoluteString, @"https://header.only.url");
+    XCTAssertNil(action.additionalHeaders); // No auth token to pass
 }
 
 - (void)testResolveActionForURL_withInstallProfileURLWithoutHeaders_shouldHaveNilHeaders
