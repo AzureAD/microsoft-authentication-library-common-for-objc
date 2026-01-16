@@ -27,7 +27,7 @@
 #import "MSIDJweResponse.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSData+MSIDExtensions.h"
-#import "IdentityCore-Swift.h"
+
 
 #define JWE_MIN_COMPONENT_COUNT 5
 
