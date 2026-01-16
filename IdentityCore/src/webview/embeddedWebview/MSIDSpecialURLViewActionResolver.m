@@ -130,8 +130,8 @@
 + (MSIDWebviewAction *)resolveInstallProfileAction:(NSDictionary *)queryParams
                                               state:(MSIDInteractiveWebviewState *)state
 {
-    // Extract headers from state (captured from HTTP response)
-    NSDictionary<NSString *, NSString *> *headers = state.installProfileHeaders;
+    // Extract headers from state (captured from HTTP response for all navigation responses)
+    NSDictionary<NSString *, NSString *> *headers = state.responseHeaders;
     
     // Priority 1: Use X-Install-Url from headers if present
     NSString *installURLString = headers[@"X-Install-Url"];

@@ -160,23 +160,19 @@
                                                          platfromParams:platformParams
                                                                 context:context];
     
-    // Set responseHeaderHandler to capture HTTP headers for special URLs (e.g., msauth://installProfile)
+    // Set responseHeaderHandler to capture HTTP headers from all navigation responses
+    // This supports multiple use cases: installProfile flow, telemetry, and future special URL handling
     __weak typeof(embeddedWebviewController) weakController = embeddedWebviewController;
     embeddedWebviewController.responseHeaderHandler = ^(NSURLResponse *response) {
         typeof(embeddedWebviewController) strongController = weakController;
         if (!strongController) return;
         
-        NSURL *url = response.URL;
-        // Only capture headers for msauth://installProfile
-        if ([url.scheme.lowercaseString isEqualToString:@"msauth"] &&
-            [url.host.lowercaseString isEqualToString:@"installprofile"])
+        // Capture headers from all HTTP responses
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        if ([httpResponse isKindOfClass:[NSHTTPURLResponse class]])
         {
-            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-            if ([httpResponse isKindOfClass:[NSHTTPURLResponse class]])
-            {
-                strongController.pendingInstallProfileHeaders = httpResponse.allHeaderFields;
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Captured HTTP headers for msauth://installProfile");
-            }
+            strongController.lastResponseHeaders = httpResponse.allHeaderFields;
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Captured HTTP response headers for URL: %@", response.URL);
         }
     };
                                                                 

@@ -125,7 +125,7 @@
     
     MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
     // Simulate headers captured from HTTP response
-    state.installProfileHeaders = @{
+    state.responseHeaders = @{
         @"X-Intune-AuthToken": @"test-auth-token-12345",
         @"X-Install-Url": @"https://install.contoso.com/actual-profile",
         @"X-MS-Telemetry": @"telemetry-data"
@@ -152,7 +152,7 @@
     NSURL *url = [NSURL URLWithString:@"msauth://installProfile?url=https://query.param.url&requireASWebAuthenticationSession=true"];
     
     MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
-    state.installProfileHeaders = @{
+    state.responseHeaders = @{
         @"X-Install-Url": @"https://header.install.url",
         @"X-Intune-AuthToken": @"auth-token-xyz"
     };
@@ -172,7 +172,7 @@
     NSURL *url = [NSURL URLWithString:@"msauth://installProfile?url=https://query.param.url&requireASWebAuthenticationSession=true"];
     
     MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
-    state.installProfileHeaders = @{
+    state.responseHeaders = @{
         @"X-Intune-AuthToken": @"auth-token-xyz"
     };
     
@@ -191,7 +191,7 @@
     NSURL *url = [NSURL URLWithString:@"msauth://installProfile?url=https://fallback.url&requireASWebAuthenticationSession=true"];
     
     MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
-    state.installProfileHeaders = @{
+    state.responseHeaders = @{
         @"X-Install-Url": @"https://header.only.url"
     };
     

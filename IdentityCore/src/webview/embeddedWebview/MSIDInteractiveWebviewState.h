@@ -92,14 +92,16 @@ typedef NS_ENUM(NSInteger, MSIDInteractiveWebviewBRTFailurePolicy)
 #pragma mark - Response Headers
 
 /*!
- HTTP response headers captured from msauth://installProfile navigation response.
- These headers (e.g., X-Intune-AuthToken) are needed for subsequent profile installation
- flow in ASWebAuthenticationSession.
+ HTTP response headers captured from the most recent navigation response.
+ These headers may be needed for various flows:
+ - msauth://installProfile: X-Intune-AuthToken, X-Install-Url
+ - Telemetry: X-MS-Telemetry and other diagnostic headers
+ - Future special URL flows that require header access
  
- Note: This property is specifically for installProfile flow. Headers are stored here
- temporarily during navigation response processing and then passed to the view action.
+ Headers are stored temporarily during navigation response processing and can be
+ accessed by resolvers and handlers for decision-making.
  */
-@property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *installProfileHeaders;
+@property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *responseHeaders;
 
 @end
 

@@ -45,8 +45,8 @@
 @interface MSIDOAuth2EmbeddedWebviewController()
 
 @property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
-/*! Temporarily stores HTTP headers from msauth://installProfile response for state machine access */
-@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *pendingInstallProfileHeaders;
+/*! Stores HTTP headers from the most recent navigation response for state machine/telemetry access */
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *lastResponseHeaders;
 
 @end
 
