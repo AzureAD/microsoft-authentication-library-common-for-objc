@@ -31,7 +31,7 @@
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDJwtAlgorithm.h"
 #import "MSIDHttpResponseSerializer.h"
-#import "MSIDWorkplaceJoinUtil.h"
+#import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDBrokerConstants.h"
