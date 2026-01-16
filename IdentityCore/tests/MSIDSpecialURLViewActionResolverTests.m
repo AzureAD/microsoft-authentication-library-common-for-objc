@@ -231,6 +231,19 @@
     XCTAssertEqualObjects(action.url, url);
 }
 
+- (void)testResolveActionForURL_withProfileInstalledURL_shouldReturnCompleteWithURLAction
+{
+    // Test msauth://profileInstalled URL (alternative completion signal from Intune)
+    NSURL *url = [NSURL URLWithString:@"msauth://profileInstalled"];
+    MSIDInteractiveWebviewState *state = [[MSIDInteractiveWebviewState alloc] init];
+    
+    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver resolveActionForURL:url state:state];
+    
+    XCTAssertNotNil(action);
+    XCTAssertEqual(action.type, MSIDWebviewActionTypeCompleteWithURL);
+    XCTAssertEqualObjects(action.url, url);
+}
+
 #pragma mark - Browser URL Tests
 
 - (void)testResolveActionForURL_withBrowserURL_shouldReturnCompleteWithURLAction

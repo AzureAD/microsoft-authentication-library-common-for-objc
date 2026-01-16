@@ -64,8 +64,10 @@
             return [self resolveInstallProfileAction:queryParams state:state];
         }
         
-        // msauth://profileComplete
-        if ([host isEqualToString:@"profilecomplete"])
+        // msauth://profileComplete or msauth://profileInstalled
+        // Both indicate successful profile installation completion
+        if ([host isEqualToString:@"profilecomplete"] || 
+            [host isEqualToString:@"profileinstalled"])
         {
             return [MSIDWebviewAction completeWithURLAction:url];
         }
