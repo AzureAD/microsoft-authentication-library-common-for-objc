@@ -1,0 +1,58 @@
+//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
+
+#import "MSIDAcquireBRTOnceControllerAction.h"
+#import "MSIDInteractiveWebviewState.h"
+#import "MSIDInteractiveWebviewHandler.h"
+
+@implementation MSIDAcquireBRTOnceControllerAction
+
+- (void)executeWithState:(MSIDInteractiveWebviewState *)state
+                 handler:(id<MSIDInteractiveWebviewHandler>)handler
+              completion:(void (^)(BOOL success, NSError * _Nullable error))completion
+{
+    // Check if BRT has already been attempted to prevent retry loops
+    if (state.brtAttempted)
+    {
+        completion(NO, nil);
+        return;
+    }
+    
+    // Mark that we've attempted BRT acquisition
+    state.brtAttempted = YES;
+    
+    // Attempt to acquire BRT token via handler
+    [handler acquireBRTTokenWithCompletion:^(BOOL success, NSError * _Nullable error) {
+        if (success)
+        {
+            state.brtAcquired = YES;
+        }
+        completion(success, error);
+    }];
+}
+
+@end
