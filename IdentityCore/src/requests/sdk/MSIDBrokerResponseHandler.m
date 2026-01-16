@@ -53,6 +53,7 @@
 @property (nonatomic, readwrite) NSString *brokerNonce;
 @property (nonatomic, readwrite) NSURL *providedAuthority;
 @property (nonatomic, readwrite) BOOL instanceAware;
+@property (nonatomic, readwrite) BOOL skipCacheBrokerResponse;
 
 @end
 
@@ -96,6 +97,7 @@
     self.instanceAware = [resumeState msidBoolObjectForKey:@"instance_aware"];
     self.brokerNonce = resumeState[@"broker_nonce"];
     self.sourceApplicationAvailable = sourceApplication != nil;
+    self.skipCacheBrokerResponse = [resumeState msidBoolObjectForKey:@"skip_cache_broker_response"];
 
     // Initialize broker key and cache datasource
     MSIDBrokerKeyProvider *brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:keychainGroup];
@@ -178,6 +180,7 @@
                                                         correlationID:correlationId
                                                      saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
                                                            authScheme:authScheme
+                                              skipCacheBrokerResponse:self.skipCacheBrokerResponse
                                                                 error:error];
 }
 

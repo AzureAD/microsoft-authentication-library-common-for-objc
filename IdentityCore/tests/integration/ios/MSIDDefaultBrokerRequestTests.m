@@ -89,7 +89,8 @@
                                                @"instance_aware" : @"NO",
                                                @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @NO
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -188,7 +189,8 @@
                                                @"instance_aware" : @"NO",
                                                @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @NO
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -246,7 +248,8 @@
                                                @"broker_nonce": brokerNonce,
                                                @"instance_aware" : @"NO",
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @NO
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -304,7 +307,8 @@
                                                @"broker_nonce": brokerNonce,
                                                @"instance_aware" : @"NO",
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @NO
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);

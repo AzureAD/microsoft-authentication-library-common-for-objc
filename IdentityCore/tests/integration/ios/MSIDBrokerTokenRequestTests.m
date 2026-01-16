@@ -65,6 +65,7 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
+    parameters.skipTokenCacheFromBrokerResponse = YES;
     
 #if TARGET_OS_OSX
     parameters.clientSku = MSID_CLIENT_SKU_MSAL_OSX;
@@ -218,7 +219,8 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"broker_nonce": brokerNonce,
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @(YES)
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -268,7 +270,8 @@
                                                @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
                                                @"token_type" : @"Pop",
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @(YES)
     };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -322,7 +325,8 @@
                                                @"req_cnf" : [NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent],
                                                @"token_type" : @"ssh-cert",
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @(YES)
     };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -407,7 +411,8 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"broker_nonce": brokerNonce,
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @(YES)
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -454,7 +459,8 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"broker_nonce": brokerNonce,
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @(YES)
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -538,7 +544,8 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"broker_nonce": brokerNonce,
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO"
+                                               @"skip_validate_result_account" : @"NO",
+                                               @"skip_cache_broker_response" : @(YES)
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -628,7 +635,8 @@
             @"brk_client_id" : @"123-456-7890-123",
             @"brk_redirect_uri" : @"msauth.com.app.id://auth",
             @"client_sku" : [self clientSku],
-            @"skip_validate_result_account" : @"NO"
+            @"skip_validate_result_account" : @"NO",
+            @"skip_cache_broker_response" : @(YES)
     };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);

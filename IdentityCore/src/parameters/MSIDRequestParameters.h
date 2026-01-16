@@ -123,6 +123,9 @@
 #pragma mark - monitor gcd thread starvation
 @property (nonatomic) BOOL allowThreadStarvationMonitoring;
 
+#pragma mark - skip cache broker response in CommonCore code flow. Default is No - not skip
+@property (nonatomic) BOOL skipTokenCacheFromBrokerResponse;
+
 - (NSURL *)tokenEndpoint;
 
 // property that indicates if calling app requested broker for a Bound App Refresh token

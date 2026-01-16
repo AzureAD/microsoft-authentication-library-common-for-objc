@@ -151,6 +151,7 @@
                                      correlationID:(NSUUID *)correlationID
                                   saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                         authScheme:(MSIDAuthenticationScheme *)authScheme
+                           skipCacheBrokerResponse:(BOOL)skipCacheBrokerResponse
                                              error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating broker response.");
@@ -198,13 +199,16 @@
     }
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Broker response is valid.");
     
-    [self saveTokenResponseToCache:tokenResponse
-                     configuration:configuration
-                      oauthFactory:factory
-                        tokenCache:tokenCache
-                  saveSSOStateOnly:saveSSOStateOnly
-                           context:nil
-                             error:nil];
+    if (!skipCacheBrokerResponse)
+    {
+        [self saveTokenResponseToCache:tokenResponse
+                         configuration:configuration
+                          oauthFactory:factory
+                            tokenCache:tokenCache
+                      saveSSOStateOnly:saveSSOStateOnly
+                               context:nil
+                                 error:nil];
+    }
     
     //save metadata
     NSError *authorityError;
@@ -288,13 +292,16 @@
     
     // Note, if there's an error saving result, we log it, but we don't fail validation
     // This is by design because even if we fail to cache, we still should return tokens back to the app
-    [self saveTokenResponseToCache:tokenResponse
-                     configuration:parameters.msidConfiguration
-                      oauthFactory:factory
-                        tokenCache:tokenCache
-                  saveSSOStateOnly:saveSSOStateOnly
-                           context:parameters
-                             error:nil];
+    if (!parameters.skipTokenCacheFromBrokerResponse)
+    {
+        [self saveTokenResponseToCache:tokenResponse
+                         configuration:parameters.msidConfiguration
+                          oauthFactory:factory
+                            tokenCache:tokenCache
+                      saveSSOStateOnly:saveSSOStateOnly
+                               context:parameters
+                                 error:nil];
+    }
 
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration

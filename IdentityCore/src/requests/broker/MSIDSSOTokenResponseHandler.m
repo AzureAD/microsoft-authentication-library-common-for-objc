@@ -51,6 +51,12 @@
         MSIDRequestParameters *parameters = [requestParameters copy];
         parameters.target = operationResponse.additionalTokenResponse.scope;
         
+        if (parameters.skipTokenCacheFromBrokerResponse)
+        {
+            // For additional token response, we will always save it as OA cannot handle the additional token caching
+            parameters.skipTokenCacheFromBrokerResponse = NO;
+        }
+        
         [tokenResponseValidator validateAndSaveTokenResponse:operationResponse.additionalTokenResponse
                                                 oauthFactory:oauthFactory
                                                   tokenCache:tokenCache
