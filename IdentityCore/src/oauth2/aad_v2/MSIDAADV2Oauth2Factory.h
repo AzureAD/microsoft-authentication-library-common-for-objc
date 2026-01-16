@@ -27,7 +27,7 @@
 @class MSIDAADRefreshTokenGrantRequest;
 
 @interface MSIDAADV2Oauth2Factory : MSIDAADOauth2Factory
-
+#if !EXCLUDE_FROM_MSALCPP
 ///
 /// Creates and returns a refresh token grant request using the provided request parameters and bound refresh token.
 ///
@@ -43,5 +43,5 @@
                                                                       refreshToken:(MSIDBoundRefreshToken *)refreshToken
                                                                     requestContext:(id<MSIDRequestContext>)context
                                                                              error:(NSError **)error;
-
+#endif
 @end

@@ -31,7 +31,10 @@
 #import "NSData+MSIDEccSecKeyRef.h"
 #import "MSIDEcdhApv.h"
 #import "MSIDJsonSerializer.h"
+#import "IdentityCore_Internal.h"
+#if MSID_IDENTITYCORE_SWIFT_AVAILABLE
 #import "IdentityCore-Swift.h"
+#endif
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
 
@@ -168,6 +171,7 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
                                          apv:(NSData *)apv
                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
+#if MSID_IDENTITYCORE_SWIFT_AVAILABLE
     NSError *concatKDFError = nil;
     MSIDConcatKdfProvider *concatKDFProvider = [MSIDConcatKdfProvider new];
     NSData *derivedKey = [concatKDFProvider concatKDFWithSHA256WithSharedSecret:sharedSecret
@@ -190,6 +194,18 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     }
     
     return derivedKey;
+#else
+    if (error)
+    {
+        NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : @"Swift cryptographic operations not available" };
+        *error = [NSError errorWithDomain:@"MSIDIdentityCoreErrorDomain"
+                                     code:-1
+                                 userInfo:userInfo];
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Swift cryptographic operations not available. MSID_IDENTITYCORE_SWIFT_AVAILABLE is disabled, cannot calculate derived key.");
+    return nil;
+#endif
 }
 
 - (NSDictionary *)decryptJweResponseUsingSymmetricKey:(NSData *)symmetricKey
@@ -208,10 +224,26 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     {
         return nil;
     }
-    
+    NSData *decryptedData;
+#if MSID_IDENTITYCORE_SWIFT_AVAILABLE
     // Since only A256GCM is supported, we can decrypt jwe message using AES256GCM.
     MSIDAesGcmDecryptor *decryptor = [MSIDAesGcmDecryptor new];
-    NSData *decryptedData = [decryptor decryptWithAES256GCMHandlerWithMessage:self.payload iv:self.iv key:symmetricKey tag:self.tag aad:self.aad error:error];
+    decryptedData = [decryptor decryptWithAES256GCMHandlerWithMessage:self.payload iv:self.iv key:symmetricKey tag:self.tag aad:self.aad error:error];
+#else
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain,
+                                  MSIDErrorInternal,
+                                  @"Swift AES-GCM decryption is unavailable on this platform",
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  nil,
+                                  YES);
+    }
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Swift AES-GCM decryption is unavailable on this platform");
+#endif
     // Deallocate symmetricKey as it is no longer needed
     symmetricKey = nil;
     if (!decryptedData)
