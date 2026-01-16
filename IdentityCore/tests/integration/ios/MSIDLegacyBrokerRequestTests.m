@@ -86,8 +86,7 @@
                                                @"sdk_name" : @"adal-objc",
                                                @"broker_nonce": brokerNonce,
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO",
-                                               @"skip_cache_broker_response" : @YES
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -143,8 +142,7 @@
                                                @"sdk_name" : @"adal-objc",
                                                @"broker_nonce": brokerNonce,
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO",
-                                               @"skip_cache_broker_response" : @YES
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -199,8 +197,7 @@
                                                @"sdk_name" : @"adal-objc",
                                                @"broker_nonce": brokerNonce,
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO",
-                                               @"skip_cache_broker_response" : @YES,
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -253,8 +250,7 @@
                                                @"sdk_name" : @"adal-objc",
                                                @"broker_nonce": brokerNonce,
                                                @"client_sku" : [self clientSku],
-                                               @"skip_validate_result_account" : @"NO",
-                                               @"skip_cache_broker_response" : @YES
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -277,7 +273,6 @@
     parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
     parameters.clientSku = [self clientSku];
     parameters.skipValidateResultAccount = NO;
-    parameters.skipTokenCacheFromBrokerResponse = YES;
     return parameters;
 }
 

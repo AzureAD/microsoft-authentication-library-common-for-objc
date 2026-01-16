@@ -137,7 +137,6 @@
                                                                                      correlationID:correlationID
                                                                                   saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
                                                                                         authScheme:authScheme
-                                                                           skipCacheBrokerResponse:NO
                                                                                              error:&intuneError];
 
         if (!intuneResult)

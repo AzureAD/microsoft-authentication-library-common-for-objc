@@ -51,7 +51,6 @@
                                               correlationID:(nullable NSUUID *)correlationID
                                            saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                                  authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
-                                    skipCacheBrokerResponse:(BOOL)skipCacheBrokerResponse
                                                       error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (nullable MSIDTokenResult *)validateTokenResponse:(nonnull MSIDTokenResponse *)tokenResponse

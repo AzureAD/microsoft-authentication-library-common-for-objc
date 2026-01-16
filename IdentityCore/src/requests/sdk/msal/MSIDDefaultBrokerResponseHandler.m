@@ -121,7 +121,7 @@
                                                                     accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
                                                                         saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
-                                                                              authScheme:authScheme skipCacheBrokerResponse:NO
+                                                                              authScheme:authScheme
                                                                                    error:&additionalTokensError];
             }
         }

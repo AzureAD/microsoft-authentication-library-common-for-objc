@@ -151,7 +151,6 @@
                                      correlationID:(NSUUID *)correlationID
                                   saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                         authScheme:(MSIDAuthenticationScheme *)authScheme
-                           skipCacheBrokerResponse:(BOOL)skipCacheBrokerResponse
                                              error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating broker response.");
@@ -199,16 +198,13 @@
     }
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Broker response is valid.");
     
-    if (!skipCacheBrokerResponse)
-    {
-        [self saveTokenResponseToCache:tokenResponse
-                         configuration:configuration
-                          oauthFactory:factory
-                            tokenCache:tokenCache
-                      saveSSOStateOnly:saveSSOStateOnly
-                               context:nil
-                                 error:nil];
-    }
+    [self saveTokenResponseToCache:tokenResponse
+                     configuration:configuration
+                      oauthFactory:factory
+                        tokenCache:tokenCache
+                  saveSSOStateOnly:saveSSOStateOnly
+                           context:nil
+                             error:nil];
     
     //save metadata
     NSError *authorityError;
