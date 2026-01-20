@@ -37,9 +37,9 @@ stages:
   jobs:
   - job: Validate_Pull_Request_IOS
     displayName: Validate Pull Request (iOS)
+    timeoutInMinutes: 60
     pool:
       vmImage: 'macOS-15'
-      timeOutInMinutes: 30
     variables:
       target: "ios_library"
     steps:
@@ -51,9 +51,9 @@ stages:
   jobs:
   - job: Validate_Pull_Request_MAC
     displayName: Validate Pull Request (Mac)
+    timeoutInMinutes: 60
     pool:
       vmImage: 'macOS-15'
-      timeOutInMinutes: 30
     variables:
       target: "mac_library"
     steps:
@@ -65,9 +65,9 @@ stages:
   jobs:
   - job: Validate_Pull_Request_VISION
     displayName: Validate Pull Request (Vision)
+    timeoutInMinutes: 60
     pool:
       vmImage: 'macOS-15'
-      timeOutInMinutes: 30
     variables:
       target: "vision_library"
     steps:
