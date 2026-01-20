@@ -1,0 +1,26 @@
+name: PR Title Lint
+
+# This workflow uses a centralized, reusable workflow from the AzureAD/azure-activedirectory-tokenbroker-for-objc repository.
+# 
+# Why we use 'uses:' with a centralized workflow:
+# - Single source of truth: All PR title validation logic is maintained in one place
+# - Consistency: Ensures all repositories in the organization follow the same PR title conventions
+# - Maintainability: Updates to validation rules only need to be made in the centralized workflow
+# - Reduced duplication: Avoids copying the same workflow logic across multiple repositories
+#
+# Why we use '@dev':
+# - '@dev' references the default branch of the centralized workflow repository
+# - This ensures we always use the latest approved validation rules
+# - Changes to the validation logic are automatically picked up when merged to the default branch
+#
+# IMPORTANT: Do not modify PR title validation logic in this file
+# All modifications to PR title validation rules should be made in:
+# AzureAD/azure-activedirectory-tokenbroker-for-objc/.github/workflows/pr-title-lint.yml (default branch)
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  pr-title-lint:
+    uses: AzureAD/azure-activedirectory-tokenbroker-for-objc/.github/workflows/pr-title-lint.yml@dev
