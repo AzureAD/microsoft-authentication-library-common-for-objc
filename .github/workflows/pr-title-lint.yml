@@ -21,6 +21,10 @@ on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
 
+# Minimal permissions for security - the called workflow may request additional permissions
+permissions:
+  pull-requests: read
+
 jobs:
   pr-title-lint:
     uses: AzureAD/azure-activedirectory-tokenbroker-for-objc/.github/workflows/pr-title-lint.yml@dev
