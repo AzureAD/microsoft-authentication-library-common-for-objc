@@ -1,7 +1,21 @@
+Version 1.19.0
+* Add logic to save bound app RT only when token response has refresh_token_type=bound_app_rt
+* Filter Bound app RTs when reg deviceId doesn't match
+* Mandate redirect_uri in Bound app refresh token redemption
+* Default account API (#1642)
+
 Version 1.18.0
 * Silent token request should use FRT first when single FRT is enabled #1624
 * Use autolayout for loading indicator #1628
 * Add thread starvation detector for SsoExt silent token flow guarded by flight #1622
+
+Version 1.17.2
+* Fix getting cached accounts from RTs when RT was Bound App RT 
+
+Version 1.17.1
+* Ability to decrypt Bound app refresh token response (#1572)
+* Read Bound app refresh token from server response #1604
+* Add BART token request classes. Add BART token response decryption classes #1620
 
 Version 1.17.0
 * Add flag to indicate app is requesting broker for Bound app RT #1578

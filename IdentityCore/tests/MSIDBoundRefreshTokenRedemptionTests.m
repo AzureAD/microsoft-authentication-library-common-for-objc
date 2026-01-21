@@ -39,6 +39,7 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
+#import "MSIDRegistrationInformationMock.h"
 
 @interface MSIDBoundRefreshTokenRedemptionTests : XCTestCase
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *deviceKeyGenerator;
@@ -86,7 +87,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
 {
     MSIDBoundRefreshToken *token = [self createToken];
     NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     MSIDBoundRefreshTokenRedemptionParameters *params = nil;
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:@"tenant123"
                                  tokenRedemptionParameters:params
@@ -105,40 +106,19 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     MSIDBoundRefreshToken *token = [self createToken];
     NSString *nilDeviceId = nil;
     token.boundDeviceId = nilDeviceId;
-    
+    [self insertWorkPlaceJoinInformation];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     MSIDBoundRefreshTokenRedemptionParameters *params = [[MSIDBoundRefreshTokenRedemptionParameters alloc]
                                                          initWithClientId:@"client123"
                                                         authorityEndpoint:[NSURL URLWithString:(NSString*)kAuthorityUrl]
                                                                    scopes:[NSSet setWithObject:@"scope1"]
-                                                                    nonce:@"nonce123"];
+                                                                    nonce:@"nonce123"
+                                                              redirectUri:@"app-redirect-uri://app"
+                                                         extraPayloadClaims:nil
+                                                         workplaceJoinInfo:wpjInfo];
+    XCTAssertNotNil(params);
     NSError *error;
-    NSDictionary *jweCrypto;
-    
-    NSString *jwt = [token getTokenRedemptionJwtForTenantId:@"tenant123"
-                                 tokenRedemptionParameters:params
-                                                   context:nil
-                                                 jweCrypto:&jweCrypto
-                                                     error:&error];
-    
-    XCTAssertNil(jwt);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
-    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"Bound device ID for bound refresh token is nil or blank"]);
-}
-
-- (void)testGetTokenRedemptionJwt_whenBoundDeviceIdEmpty_shouldReturnNilAndSetError
-{
-    MSIDBoundRefreshToken *token = [self createToken];
-    token.boundDeviceId = @"";
-
-    MSIDBoundRefreshTokenRedemptionParameters *params =
-        [[MSIDBoundRefreshTokenRedemptionParameters alloc]
-             initWithClientId:@"client123"
-            authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
-                       scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
-    NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:@"tenant123"
                                  tokenRedemptionParameters:params
@@ -157,14 +137,19 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     MSIDBoundRefreshToken *token = [self createToken];
     token.boundDeviceId = @"   ";
 
+    [self insertWorkPlaceJoinInformation];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
+                        nonce:@"nonce123"
+                  redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:wpjInfo];
     NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:@"tenant123"
                                  tokenRedemptionParameters:params
@@ -177,45 +162,38 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
-- (void)testGetTokenRedemptionJwt_whenWorkplaceJoinDataNil_shouldReturnNilAndSetError
+- (void)testGetTokenRedemptionJwt_whenWorkplaceJoinDataNil_shouldNotReturnNil
 {
-    MSIDBoundRefreshToken *token = [self createToken];
-
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
-    NSError *error;
-    NSDictionary *jweCrypto;
-    
-    NSString *jwt = [token getTokenRedemptionJwtForTenantId:self.tenantId
-                                 tokenRedemptionParameters:params
-                                                   context:nil
-                                                 jweCrypto:&jweCrypto
-                                                     error:&error];
-    
-    XCTAssertNil(jwt);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorWorkplaceJoinRequired);
-    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"Failed to get registered device metadata information when formulating bound refresh token redemption JWT"]);
+                        nonce:@"nonce123"
+                  redirectUri:@"app-redirect-uri://app"
+           extraPayloadClaims:nil
+            workplaceJoinInfo:nil];
+    XCTAssertNotNil(params);
 }
 
 - (void)testGetTokenRedemptionJwt_whenBoundDeviceIdMismatch_shouldReturnNilAndSetError
 {
     MSIDBoundRefreshToken *token = [self createToken];
     token.boundDeviceId = @"device_id_from_token";
-
+    [self insertWorkPlaceJoinInformation];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
-    [self insertWorkPlaceJoinInformation];
+                        nonce:@"nonce123"
+                  redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:wpjInfo];
+    
     NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:self.tenantId
                                  tokenRedemptionParameters:params
@@ -232,47 +210,21 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
 - (void)testGetTokenRedemptionJwt_whenPrivateKeyRefNil_shouldReturnNilAndSetError
 {
     MSIDBoundRefreshToken *token = [self createToken];
-    MSIDBoundRefreshTokenRedemptionParameters *params =
-        [[MSIDBoundRefreshTokenRedemptionParameters alloc]
-             initWithClientId:@"client123"
-            authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
-                       scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
-
-    [self insertWorkPlaceJoinInformation];
-    [self cleanUpPrivateKey];
-    
-    NSError *error;
-    NSDictionary *jweCrypto;
-    
-    NSString *jwt = [token getTokenRedemptionJwtForTenantId:self.tenantId
-                                 tokenRedemptionParameters:params
-                                                   context:nil
-                                                 jweCrypto:&jweCrypto
-                                                     error:&error];
-    
-    XCTAssertNil(jwt);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorWorkplaceJoinRequired);
-    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"Failed to get registered device metadata information when formulating bound refresh token redemption JWT."]);
-}
-
-- (void)testGetTokenRedemptionJwt_whenPrivateTransportKeyRefNil_shouldReturnNilAndSetError
-{
-    MSIDBoundRefreshToken *token = [self createToken];
-
-    MSIDBoundRefreshTokenRedemptionParameters *params =
-        [[MSIDBoundRefreshTokenRedemptionParameters alloc]
-             initWithClientId:@"client123"
-            authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
-                       scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
-
     [self insertWorkPlaceJoinInformation];
     [self cleanUpTransportKey];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
+    MSIDBoundRefreshTokenRedemptionParameters *params =
+        [[MSIDBoundRefreshTokenRedemptionParameters alloc]
+             initWithClientId:@"client123"
+            authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
+                       scopes:[NSSet setWithObject:@"scope1"]
+                        nonce:@"nonce123"
+                  redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:wpjInfo];
     
     NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:self.tenantId
                                  tokenRedemptionParameters:params
@@ -283,24 +235,28 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     XCTAssertNil(jwt);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorWorkplaceJoinRequired);
-    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"Failed to obtain private transport key for bound RT redemption JWT"]);
+    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"Failed to obtain private transport key for bound RT redemption JWT."]);
 }
 
 - (void)testGetTokenRedemptionJwt_whenEcdhApvCreationFails_shouldReturnNilAndSetError
 {
     MSIDBoundRefreshToken *token = [self createToken];
-
+    [self insertWorkPlaceJoinInformation];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
-    [self insertWorkPlaceJoinInformation];
+                        nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:wpjInfo];
+
     NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     
-    [MSIDTestSwizzle instanceMethod:@selector(initWithKey:apvPrefix:context:error:)
+    [MSIDTestSwizzle instanceMethod:@selector(initWithKey:apvPrefix:customClientNonce:context:error:)
                            class:MSIDEcdhApv.class
                            block:^(void)
     {
@@ -314,22 +270,29 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
                                                      error:&error];
     
     XCTAssertNil(jwt);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"Failed to create ECDH APV data for bound RT redemption JWT."]);
 }
 
 - (void)testGetTokenRedemptionJwt_whenJWTSigningFails_shouldReturnNilAndSetError
 {
     MSIDBoundRefreshToken *token = [self createToken];
-
+    [self insertWorkPlaceJoinInformation];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
+                        nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:wpjInfo];
 
-    [self insertWorkPlaceJoinInformation];
+
     NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     [MSIDTestSwizzle classMethod:@selector(createSignedJWTforHeader:payload:signingKey:)
                            class:MSIDJWTHelper.class
                            block:^(void)
@@ -352,16 +315,20 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
 - (void)testGetTokenRedemptionJwt_withValidParameters_shouldSucceed
 {
     MSIDBoundRefreshToken *token = [self createToken];
-
+    [self insertWorkPlaceJoinInformation];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObjects:@"scope1", @"scope2", nil]
-                        nonce:@"nonce123"];
-    [self insertWorkPlaceJoinInformation];
+                        nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:wpjInfo];
+    
     NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:self.tenantId
                                   tokenRedemptionParameters:params
@@ -378,15 +345,25 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
 - (void)testGetTokenRedemptionJwt_withNonSecureEnclaveBackedRegistration_shouldFail
 {
     MSIDBoundRefreshToken *token = [self createToken];
+    MSIDRegistrationInformationMock *regInfo = [MSIDRegistrationInformationMock new];
+    regInfo.isWorkPlaceJoinedFlag = YES;
+    [regInfo setCertificateSubject:self.deviceId];
+    MSIDTestSecureEnclaveKeyPairGenerator *dkGen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:self.accessGroup useSecureEnclave:NO applicationTag:self.deviceKeyTag];
+    MSIDTestSecureEnclaveKeyPairGenerator *stkGen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:self.accessGroup useSecureEnclave:NO applicationTag:self.transportKeyTag];
+    [regInfo setPrivateKey:dkGen.eccPrivateKey];
+    [regInfo setPrivateTransportKey:stkGen.eccPrivateKey];
+    [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
 
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObjects:@"scope1", @"scope2", nil]
-                        nonce:@"nonce123"];
-    MSIDTestSecureEnclaveKeyPairGenerator *dkGen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:self.accessGroup useSecureEnclave:NO applicationTag:self.deviceKeyTag];
-    MSIDTestSecureEnclaveKeyPairGenerator *stkGen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:self.accessGroup useSecureEnclave:NO applicationTag:self.transportKeyTag];
+                        nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:regInfo];
+    
     XCTAssertFalse(dkGen.eccPrivateKey == NULL);
     XCTAssertFalse(stkGen.eccPrivateKey == NULL);
     
@@ -402,7 +379,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     }];
     
     NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:self.tenantId
                                   tokenRedemptionParameters:params
@@ -418,14 +395,19 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
 - (void)testGetTokenRedemptionJwt_errorPassedAsNil_shouldNotCrash
 {
     MSIDBoundRefreshToken *token = [self createToken];
+    [self insertWorkPlaceJoinInformation];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
-    [self insertWorkPlaceJoinInformation];
-    NSDictionary *jweCrypto;
+                        nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:wpjInfo];
+
+    MSIDJWECrypto *jweCrypto;
     NSError *error;
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:self.tenantId
                                  tokenRedemptionParameters:params
@@ -441,14 +423,18 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
 {
     MSIDBoundRefreshToken *token = [self createToken];
     [self insertWorkPlaceJoinInformation];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
+                        nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:wpjInfo];
     NSError *error;
-    NSDictionary *jweCrypto = NULL;
+    MSIDJWECrypto *jweCrypto = NULL;
     NSString *jwt = [token getTokenRedemptionJwtForTenantId:self.tenantId
                                  tokenRedemptionParameters:params
                                                    context:nil
@@ -458,21 +444,25 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     XCTAssertNotNil(jwt);
     XCTAssertNil(error);
     XCTAssertNotNil(jweCrypto);
-    XCTAssertTrue([jweCrypto isKindOfClass:[NSDictionary class]]);
+    XCTAssertTrue([jweCrypto isKindOfClass:[MSIDJWECrypto class]]);
 }
 
 - (void)testGetTokenRedemptionJwt_jweCryptoCouldNotBeConstructed_shouldReturnError
 {
     MSIDBoundRefreshToken *token = [self createToken];
     [self insertWorkPlaceJoinInformation];
+    MSIDWPJKeyPairWithCert *wpjInfo = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:self.tenantId context:nil];
     MSIDBoundRefreshTokenRedemptionParameters *params =
         [[MSIDBoundRefreshTokenRedemptionParameters alloc]
              initWithClientId:@"client123"
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
-                        nonce:@"nonce123"];
+                        nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:wpjInfo];
     NSError *error;
-    NSDictionary *jweCrypto;
+    MSIDJWECrypto *jweCrypto;
     
     [MSIDTestSwizzle instanceMethod:@selector(initWithKeyExchangeAlg:encryptionAlgorithm:apv:context:error:)
                            class:MSIDJWECrypto.class
@@ -508,7 +498,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+    extraPayloadClaims:nil
+    workplaceJoinInfo:nil];
 
     XCTAssertNotNil(params);
     XCTAssertEqualObjects(params.clientId, clientId);
@@ -527,8 +520,31 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
+
+    XCTAssertNil(params);
+}
+
+
+- (void)testInitWithRedirectUri_whenRedirectUriNil_shouldReturnNil
+{
+    NSString *redirectUri = nil;
+    NSSet *scopes = [NSSet setWithObject:@"scope1"];
+    NSString *nonce = @"test-nonce";
+
+    MSIDBoundRefreshTokenRedemptionParameters *params =
+        [[MSIDBoundRefreshTokenRedemptionParameters alloc]
+             initWithClientId:@"client-id"
+            authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
+                       scopes:scopes
+                        nonce:nonce
+                  redirectUri:redirectUri
+           extraPayloadClaims:nil
+            workplaceJoinInfo:nil];
     XCTAssertNil(params);
 }
 
@@ -543,7 +559,11 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:nilAuthority
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+           extraPayloadClaims:nil
+            workplaceJoinInfo:nil];
+
 
     XCTAssertNil(params);
 }
@@ -559,7 +579,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+           extraPayloadClaims:nil
+            workplaceJoinInfo:nil];
 
     XCTAssertNil(params);
 }
@@ -575,7 +598,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+           extraPayloadClaims:nil
+            workplaceJoinInfo:nil];
 
     XCTAssertNil(params);
 }
@@ -591,7 +617,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     XCTAssertNil(params);
 }
@@ -607,7 +636,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     XCTAssertNil(params);
 }
@@ -623,7 +655,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     XCTAssertNotNil(params);
 }
@@ -639,7 +674,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     XCTAssertNotNil(params);
 }
@@ -655,7 +693,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     XCTAssertNil(params);
 }
@@ -671,7 +712,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     XCTAssertNil(params);
 }
@@ -687,7 +731,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     XCTAssertNotNil(params);
 }
@@ -703,7 +750,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     XCTAssertNil(params);
 }
@@ -719,7 +769,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     NSMutableDictionary *jsonDict = [params jsonDictionary];
     
@@ -729,6 +782,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     XCTAssertEqualObjects(jsonDict[@"iss"], clientId);
     XCTAssertEqualObjects(jsonDict[MSID_OAUTH2_CLIENT_ID], clientId);
     XCTAssertEqualObjects(jsonDict[@"nonce"], nonce);
+    XCTAssertEqualObjects(jsonDict[MSID_OAUTH2_REDIRECT_URI], @"app-redirect-uri://app");
     
     // Verify scope string contains both scopes
     NSString *scopeString = jsonDict[MSID_OAUTH2_SCOPE];
@@ -752,7 +806,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     NSMutableDictionary *jsonDict = [params jsonDictionary];
     
@@ -772,7 +829,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     NSDate *afterCreation = [[NSDate date] dateByAddingTimeInterval:1]; // 1 second buffer
     NSMutableDictionary *jsonDict = [params jsonDictionary];
@@ -804,7 +864,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     NSMutableDictionary *jsonDict = [params jsonDictionary];
     NSString *scopeString = jsonDict[MSID_OAUTH2_SCOPE];
@@ -828,7 +891,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     NSMutableDictionary *jsonDict1 = [params jsonDictionary];
     NSMutableDictionary *jsonDict2 = [params jsonDictionary];
@@ -852,7 +918,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
     XCTAssertNil(params);
 }
 
@@ -867,7 +936,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
     XCTAssertNil(params);
 }
 
@@ -882,7 +954,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     NSMutableDictionary *jsonDict = [params jsonDictionary];
     
@@ -921,7 +996,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     NSMutableDictionary *jsonDict = [params jsonDictionary];
     NSString *scopeString = jsonDict[MSID_OAUTH2_SCOPE];
@@ -945,7 +1023,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     NSMutableDictionary *jsonDict = [params jsonDictionary];
     
@@ -967,7 +1048,10 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
              initWithClientId:clientId
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
-                        nonce:nonce];
+                        nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
+         extraPayloadClaims:nil
+         workplaceJoinInfo:nil];
 
     NSMutableDictionary *jsonDict = [params jsonDictionary];
     

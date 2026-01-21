@@ -22,6 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import "MSIDWPJKeyPairWithCert.h"
+
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBoundRefreshTokenRedemptionParameters : NSObject
 
@@ -32,16 +34,30 @@ NS_ASSUME_NONNULL_BEGIN
 // Set of scopes to request in bound refresh token redemption request payload
 @property (nonatomic, copy) NSSet <NSString *>*scopes;
 
+// redirect_uri claim in request payload
+@property (nonatomic, copy) NSString *redirectUri;
+
 // Client nonce GUID to be used in bound refresh token redemption request payload.
 @property (nonatomic, copy) NSString *nonce;
 
 // Audience (token endpoint URL) for the bound refresh token redemption request
 @property (nonatomic, copy) NSString *audience;
 
+// Additional claims to include in the bound refresh token redemption request payload.
+// This dictionary allows specifying custom key-value pairs to be added to the request.
+@property (nonatomic, copy, nullable) NSDictionary *extraPayloadClaims;
+
+// Workplace Join information containing the key pair and certificate used for device registration.
+@property (nonatomic, readonly, nullable) MSIDWPJKeyPairWithCert *workplaceJoinInfo;
+
+
 - (instancetype)initWithClientId:(NSString *)clientId
                authorityEndpoint:(NSURL *)authorityEndpoint
                           scopes:(NSSet <NSString *>*)scopes
-                           nonce:(NSString *)nonce;
+                           nonce:(NSString *)nonce
+                     redirectUri:(NSString *)redirectUri
+              extraPayloadClaims:(nullable NSDictionary *)extraPayloadClaims
+               workplaceJoinInfo:(nullable MSIDWPJKeyPairWithCert *)workplaceJoinInfo;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;

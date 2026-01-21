@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "MSIDTestCacheAccessorHelper.h"
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDTestConfiguration.h"
@@ -45,6 +46,24 @@
 #import "MSIDCache.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDAADV1Oauth2Factory.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDBoundRefreshTokenCacheItem.h"
+#import "MSIDWorkPlaceJoinUtil.h"
+#import "MSIDWPJKeyPairWithCert.h"
+#import "MSIDTestSwizzle.h"
+
+// Category to expose private method for testing
+@interface MSIDDefaultTokenCacheAccessor (Testing)
+- (NSArray<MSIDCredentialCacheItem *> *)validateBoundAppRefreshTokens:(NSArray<MSIDCredentialCacheItem *> *)cacheItems
+                                                        homeAccountId:(NSString *)homeAccountId;
+@end
+
+// Category to allow setting readonly properties for testing
+@interface MSIDWPJKeyPairWithCert (Testing)
+@property (nonatomic, readwrite) NSString *certificateSubject;
+@end
 
 @interface MSIDDefaultTokenCacheIntegrationTests : XCTestCase
 {
@@ -78,6 +97,7 @@
 
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [_dataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
+    [MSIDTestSwizzle reset];
 }
 
 #pragma mark - Saving
@@ -912,5 +932,591 @@
     MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
     [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
 }
+#if TARGET_OS_IPHONE
+#pragma mark - getRefreshTokenWithAccount Tests
 
+- (void)testGetRefreshTokenWithAccount_whenBartFeatureEnabled_shouldUseBoundRefreshTokenType
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+    // Setup test tokens
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token"
+                                                                                 RT:@"refresh_token"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:nil];
+    tokenResponse.boundAppRefreshTokenDeviceId = @"test-device-id";
+    NSMutableDictionary *additionalInfo = [tokenResponse.additionalServerInfo mutableCopy] ?: [NSMutableDictionary new];
+    additionalInfo[@"refresh_token_type"] = @"bound_app_rt";
+    tokenResponse.additionalServerInfo = additionalInfo;
+    
+    // Save token to cache
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+    // Test retrieval with BART enabled
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSError *error = nil;
+    MSIDRefreshToken *retrievedToken = [_cacheAccessor getRefreshTokenWithAccount:account
+                                                                         familyId:nil
+                                                                    configuration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    // Verify token retrieval behavior - this tests that BART feature flag is properly checked
+    XCTAssertNil(error);
+    // Note: Token may or may not be found depending on cache state and credential type used
+    XCTAssertNotNil(retrievedToken);
+    XCTAssertEqual(retrievedToken.credentialType, MSIDBoundRefreshTokenType);
+    XCTAssertEqual(retrievedToken.class, MSIDBoundRefreshToken.class);
+    XCTAssertEqualObjects(((MSIDBoundRefreshToken *)retrievedToken).boundDeviceId, tokenResponse.boundAppRefreshTokenDeviceId);
+}
+
+- (void)testGetRefreshTokenWithAccount_whenBartFeatureDisabled_shouldUseRegularRefreshTokenType
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+    // Setup test tokens
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token"
+                                                                                 RT:@"refresh_token"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:nil];
+    
+    // Save token to cache
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+    
+    
+    // Test retrieval with BART disabled
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSError *error = nil;
+    MSIDRefreshToken *retrievedToken = [_cacheAccessor getRefreshTokenWithAccount:account
+                                                                         familyId:nil
+                                                                    configuration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    // Should successfully retrieve token using regular refresh token type
+    XCTAssertNil(error);
+    XCTAssertNotNil(retrievedToken);
+    XCTAssertEqualObjects(retrievedToken.refreshToken, tokenResponse.refreshToken);
+    XCTAssertNotEqual(retrievedToken.credentialType, MSIDBoundRefreshTokenType);
+}
+
+- (void)testGetRefreshTokenWithAccount_whenBartFeatureEnabledWhenSavingResponse_BartDisabledWhenRetrieving_shouldNotUseBoundRefreshTokenType
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+    // Setup test tokens
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token"
+                                                                                 RT:@"refresh_token"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:nil];
+    tokenResponse.boundAppRefreshTokenDeviceId = @"test-device-id";
+    NSMutableDictionary *additionalInfo = [tokenResponse.additionalServerInfo mutableCopy] ?: [NSMutableDictionary new];
+    additionalInfo[@"refresh_token_type"] = @"bound_app_rt";
+    tokenResponse.additionalServerInfo = additionalInfo;
+    
+    // Save token to cache
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+    // Test retrieval with BART disabled
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSError *error = nil;
+    MSIDRefreshToken *retrievedToken = [_cacheAccessor getRefreshTokenWithAccount:account
+                                                                         familyId:nil
+                                                                    configuration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    // Verify token retrieval behavior - this tests that BART feature flag is properly checked
+    XCTAssertNil(error);
+    // Note: Token may or may not be found depending on cache state and credential type used
+    XCTAssertNil(retrievedToken);
+}
+
+- (void)testGetRefreshTokenWithAccount_whenBartFeatureEnabled_shouldUseBoundRefreshTokenType_WithFamilyIdSet
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+    // Setup test tokens
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token"
+                                                                                 RT:@"refresh_token"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:@"1"];
+    tokenResponse.boundAppRefreshTokenDeviceId = @"test-device-id";
+    NSMutableDictionary *additionalInfo = [tokenResponse.additionalServerInfo mutableCopy] ?: [NSMutableDictionary new];
+    additionalInfo[@"refresh_token_type"] = @"bound_app_rt";
+    tokenResponse.additionalServerInfo = additionalInfo;
+    
+    // Save token to cache
+    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                       response:tokenResponse
+                                        factory:[MSIDAADV2Oauth2Factory new]
+                                        context:nil
+                                          error:nil];
+    // Test retrieval with BART enabled
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSError *error = nil;
+    MSIDRefreshToken *retrievedToken = [_cacheAccessor getRefreshTokenWithAccount:account
+                                                                         familyId:@"1"
+                                                                    configuration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                                          context:nil
+                                                                            error:&error];
+    
+    // Verify token retrieval behavior - this tests that BART feature flag is properly checked
+    XCTAssertNil(error);
+    // Note: Token may or may not be found depending on cache state and credential type used
+    XCTAssertNotNil(retrievedToken);
+    XCTAssertEqual(retrievedToken.credentialType, MSIDBoundRefreshTokenType);
+    XCTAssertEqual(retrievedToken.class, MSIDBoundRefreshToken.class);
+    XCTAssertEqualObjects(((MSIDBoundRefreshToken *)retrievedToken).boundDeviceId, tokenResponse.boundAppRefreshTokenDeviceId);
+    XCTAssertEqualObjects(retrievedToken.familyId, @"1");
+}
+
+#pragma mark - validateBoundAppRefreshTokens Tests
+
+- (void)testValidateBoundAppRefreshTokens_whenEmptyArray_shouldReturnEmptyArray
+{
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[];
+    NSString *homeAccountId = @"uid.utid";
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 0);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenNilHomeAccountId_shouldHandleGracefully
+{
+    // Create a non-bound refresh token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDRefreshTokenType;
+    item.homeAccountId = @"uid.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.clientId = @"client-id";
+    item.secret = @"refresh-token";
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[item];
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 1);
+    XCTAssertEqualObjects(result[0], item);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenOnlyNonBoundTokens_shouldReturnAllTokens
+{
+    // Create multiple non-bound refresh tokens
+    MSIDCredentialCacheItem *item1 = [MSIDCredentialCacheItem new];
+    item1.credentialType = MSIDRefreshTokenType;
+    item1.homeAccountId = @"uid.utid";
+    item1.environment = @"login.microsoftonline.com";
+    item1.clientId = @"client-id";
+    item1.secret = @"refresh-token-1";
+    
+    MSIDCredentialCacheItem *item2 = [MSIDCredentialCacheItem new];
+    item2.credentialType = MSIDRefreshTokenType;
+    item2.homeAccountId = @"uid.utid";
+    item2.environment = @"login.microsoftonline.com";
+    item2.clientId = @"client-id-2";
+    item2.secret = @"refresh-token-2";
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[item1, item2];
+    NSString *homeAccountId = @"uid.utid";
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 2);
+    XCTAssertTrue([result containsObject:item1]);
+    XCTAssertTrue([result containsObject:item2]);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenMixedTokenTypes_shouldSeparateCorrectly
+{
+    // Create a regular refresh token
+    MSIDCredentialCacheItem *regularItem = [MSIDCredentialCacheItem new];
+    regularItem.credentialType = MSIDRefreshTokenType;
+    regularItem.homeAccountId = @"uid.utid";
+    regularItem.environment = @"login.microsoftonline.com";
+    regularItem.clientId = @"client-id";
+    regularItem.secret = @"refresh-token";
+    
+    // Create an access token
+    MSIDCredentialCacheItem *accessItem = [MSIDCredentialCacheItem new];
+    accessItem.credentialType = MSIDAccessTokenType;
+    accessItem.homeAccountId = @"uid.utid";
+    accessItem.environment = @"login.microsoftonline.com";
+    accessItem.clientId = @"client-id";
+    accessItem.secret = @"access-token";
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[regularItem, accessItem];
+    NSString *homeAccountId = @"uid.utid";
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 2);
+    XCTAssertTrue([result containsObject:regularItem]);
+    XCTAssertTrue([result containsObject:accessItem]);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenBoundTokenWithMatchingDeviceId_shouldIncludeToken
+{
+    NSString *homeAccountId = @"uid.utid";
+    NSString *deviceId = @"test-device-id";
+    
+    // Create a bound refresh token cache item
+    MSIDBoundRefreshTokenCacheItem *boundItem = [MSIDBoundRefreshTokenCacheItem new];
+    boundItem.credentialType = MSIDBoundRefreshTokenType;
+    boundItem.homeAccountId = homeAccountId;
+    boundItem.environment = @"login.microsoftonline.com";
+    boundItem.clientId = @"client-id";
+    boundItem.secret = @"bound-refresh-token";
+    boundItem.boundDeviceId = deviceId;
+    boundItem.cachedAt = [NSDate date];
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
+    
+    // Mock WPJ to return matching device ID
+    MSIDWPJKeyPairWithCert *wpjData = [MSIDWPJKeyPairWithCert new];
+    wpjData.certificateSubject = deviceId;
+    
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
+    {
+        return wpjData;
+    }];
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    [MSIDTestSwizzle reset];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 1);
+    XCTAssertEqualObjects(result[0], boundItem);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenBoundTokenWithNonMatchingDeviceId_shouldFilterOutToken
+{
+    NSString *homeAccountId = @"uid.utid";
+    NSString *tokenDeviceId = @"token-device-id";
+    NSString *wpjDeviceId = @"different-device-id";
+    
+    // Create a bound refresh token cache item
+    MSIDBoundRefreshTokenCacheItem *boundItem = [MSIDBoundRefreshTokenCacheItem new];
+    boundItem.credentialType = MSIDBoundRefreshTokenType;
+    boundItem.homeAccountId = homeAccountId;
+    boundItem.environment = @"login.microsoftonline.com";
+    boundItem.clientId = @"client-id";
+    boundItem.secret = @"bound-refresh-token";
+    boundItem.boundDeviceId = tokenDeviceId;
+    boundItem.cachedAt = [NSDate date];
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
+    
+    // Mock WPJ to return different device ID
+    MSIDWPJKeyPairWithCert *wpjData = [MSIDWPJKeyPairWithCert new];
+    wpjData.certificateSubject = wpjDeviceId;
+    
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
+    {
+        return wpjData;
+    }];
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    [MSIDTestSwizzle reset];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 0);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenNoWPJDataAndMatchingHomeAccountId_shouldIncludeToken
+{
+    NSString *homeAccountId = @"uid.utid";
+    
+    // Create a bound refresh token cache item
+    MSIDBoundRefreshTokenCacheItem *boundItem = [MSIDBoundRefreshTokenCacheItem new];
+    boundItem.credentialType = MSIDBoundRefreshTokenType;
+    boundItem.homeAccountId = homeAccountId;
+    boundItem.environment = @"login.microsoftonline.com";
+    boundItem.clientId = @"client-id";
+    boundItem.secret = @"bound-refresh-token";
+    boundItem.boundDeviceId = @"device-id";
+    boundItem.cachedAt = [NSDate date];
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 1);
+    XCTAssertEqualObjects(result[0], boundItem);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenMultipleBoundTokens_shouldSortByCachedAtDescending
+{
+    NSString *homeAccountId = @"uid.utid";
+    NSString *deviceId = @"test-device-id";
+    
+    NSDate *oldestDate = [NSDate dateWithTimeIntervalSince1970:1000000];
+    NSDate *middleDate = [NSDate dateWithTimeIntervalSince1970:2000000];
+    NSDate *newestDate = [NSDate dateWithTimeIntervalSince1970:3000000];
+    
+    // Create multiple bound refresh token cache items with different cached dates
+    MSIDBoundRefreshTokenCacheItem *oldItem = [MSIDBoundRefreshTokenCacheItem new];
+    oldItem.credentialType = MSIDBoundRefreshTokenType;
+    oldItem.homeAccountId = homeAccountId;
+    oldItem.environment = @"login.microsoftonline.com";
+    oldItem.clientId = @"client-id";
+    oldItem.secret = @"old-token";
+    oldItem.boundDeviceId = deviceId;
+    oldItem.cachedAt = oldestDate;
+    
+    MSIDBoundRefreshTokenCacheItem *middleItem = [MSIDBoundRefreshTokenCacheItem new];
+    middleItem.credentialType = MSIDBoundRefreshTokenType;
+    middleItem.homeAccountId = homeAccountId;
+    middleItem.environment = @"login.microsoftonline.com";
+    middleItem.clientId = @"client-id";
+    middleItem.secret = @"middle-token";
+    middleItem.boundDeviceId = deviceId;
+    middleItem.cachedAt = middleDate;
+    
+    MSIDBoundRefreshTokenCacheItem *newItem = [MSIDBoundRefreshTokenCacheItem new];
+    newItem.credentialType = MSIDBoundRefreshTokenType;
+    newItem.homeAccountId = homeAccountId;
+    newItem.environment = @"login.microsoftonline.com";
+    newItem.clientId = @"client-id";
+    newItem.secret = @"new-token";
+    newItem.boundDeviceId = deviceId;
+    newItem.cachedAt = newestDate;
+    
+    // Add in non-sorted order
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[middleItem, oldItem, newItem];
+    
+    // Mock WPJ to return matching device ID
+    MSIDWPJKeyPairWithCert *wpjData = [MSIDWPJKeyPairWithCert new];
+    wpjData.certificateSubject = deviceId;
+    
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
+    {
+        return wpjData;
+    }];
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    [MSIDTestSwizzle reset];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 3);
+    // Should be sorted by cachedAt descending (newest first)
+    XCTAssertEqualObjects(result[0], newItem);
+    XCTAssertEqualObjects(result[1], middleItem);
+    XCTAssertEqualObjects(result[2], oldItem);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenMixedBoundAndNonBound_shouldReturnNonBoundFirstThenSortedBound
+{
+    NSString *homeAccountId = @"uid.utid";
+    NSString *deviceId = @"test-device-id";
+    
+    // Create a regular refresh token
+    MSIDCredentialCacheItem *regularItem = [MSIDCredentialCacheItem new];
+    regularItem.credentialType = MSIDRefreshTokenType;
+    regularItem.homeAccountId = homeAccountId;
+    regularItem.environment = @"login.microsoftonline.com";
+    regularItem.clientId = @"client-id";
+    regularItem.secret = @"regular-token";
+    
+    NSDate *olderDate = [NSDate dateWithTimeIntervalSince1970:1000000];
+    NSDate *newerDate = [NSDate dateWithTimeIntervalSince1970:2000000];
+    
+    // Create bound refresh tokens
+    MSIDBoundRefreshTokenCacheItem *olderBoundItem = [MSIDBoundRefreshTokenCacheItem new];
+    olderBoundItem.credentialType = MSIDBoundRefreshTokenType;
+    olderBoundItem.homeAccountId = homeAccountId;
+    olderBoundItem.environment = @"login.microsoftonline.com";
+    olderBoundItem.clientId = @"client-id";
+    olderBoundItem.secret = @"older-bound-token";
+    olderBoundItem.boundDeviceId = deviceId;
+    olderBoundItem.cachedAt = olderDate;
+    
+    MSIDBoundRefreshTokenCacheItem *newerBoundItem = [MSIDBoundRefreshTokenCacheItem new];
+    newerBoundItem.credentialType = MSIDBoundRefreshTokenType;
+    newerBoundItem.homeAccountId = homeAccountId;
+    newerBoundItem.environment = @"login.microsoftonline.com";
+    newerBoundItem.clientId = @"client-id";
+    newerBoundItem.secret = @"newer-bound-token";
+    newerBoundItem.boundDeviceId = deviceId;
+    newerBoundItem.cachedAt = newerDate;
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[olderBoundItem, regularItem, newerBoundItem];
+    
+    // Mock WPJ to return matching device ID
+    MSIDWPJKeyPairWithCert *wpjData = [MSIDWPJKeyPairWithCert new];
+    wpjData.certificateSubject = deviceId;
+    
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
+    {
+        return wpjData;
+    }];
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    [MSIDTestSwizzle reset];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 3);
+    // Non-bound tokens first
+    XCTAssertEqualObjects(result[0], regularItem);
+    // Then bound tokens sorted by cachedAt descending
+    XCTAssertEqualObjects(result[1], newerBoundItem);
+    XCTAssertEqualObjects(result[2], olderBoundItem);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenBoundTokenWithoutBoundDeviceId_shouldFilterOutToken
+{
+    NSString *homeAccountId = @"uid.utid";
+    
+    // Create a bound refresh token cache item without boundDeviceId
+    MSIDBoundRefreshTokenCacheItem *boundItem = [MSIDBoundRefreshTokenCacheItem new];
+    boundItem.credentialType = MSIDBoundRefreshTokenType;
+    boundItem.homeAccountId = homeAccountId;
+    boundItem.environment = @"login.microsoftonline.com";
+    boundItem.clientId = @"client-id";
+    boundItem.secret = @"bound-refresh-token";
+    boundItem.boundDeviceId = nil; // No device ID
+    boundItem.cachedAt = [NSDate date];
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    XCTAssertNotNil(result);
+    // Token should be filtered out because it's a bound token but doesn't meet criteria
+    XCTAssertEqual(result.count, 0);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenComplexScenario_shouldHandleAllCasesCorrectly
+{
+    NSString *homeAccountId = @"uid.utid";
+    NSString *deviceId = @"test-device-id";
+    
+    // Regular refresh token
+    MSIDCredentialCacheItem *regularItem = [MSIDCredentialCacheItem new];
+    regularItem.credentialType = MSIDRefreshTokenType;
+    regularItem.homeAccountId = homeAccountId;
+    regularItem.environment = @"login.microsoftonline.com";
+    regularItem.clientId = @"client-id";
+    regularItem.secret = @"regular-token";
+    
+    // Access token (non-refresh)
+    MSIDCredentialCacheItem *accessItem = [MSIDCredentialCacheItem new];
+    accessItem.credentialType = MSIDAccessTokenType;
+    accessItem.homeAccountId = homeAccountId;
+    accessItem.environment = @"login.microsoftonline.com";
+    accessItem.clientId = @"client-id";
+    accessItem.secret = @"access-token";
+    
+    // Bound token with matching device ID
+    MSIDBoundRefreshTokenCacheItem *matchingBoundItem = [MSIDBoundRefreshTokenCacheItem new];
+    matchingBoundItem.credentialType = MSIDBoundRefreshTokenType;
+    matchingBoundItem.homeAccountId = homeAccountId;
+    matchingBoundItem.environment = @"login.microsoftonline.com";
+    matchingBoundItem.clientId = @"client-id";
+    matchingBoundItem.secret = @"matching-bound-token";
+    matchingBoundItem.boundDeviceId = deviceId;
+    matchingBoundItem.cachedAt = [NSDate dateWithTimeIntervalSince1970:2000000];
+    
+    // Bound token with non-matching device ID
+    MSIDBoundRefreshTokenCacheItem *nonMatchingBoundItem = [MSIDBoundRefreshTokenCacheItem new];
+    nonMatchingBoundItem.credentialType = MSIDBoundRefreshTokenType;
+    nonMatchingBoundItem.homeAccountId = homeAccountId;
+    nonMatchingBoundItem.environment = @"login.microsoftonline.com";
+    nonMatchingBoundItem.clientId = @"client-id";
+    nonMatchingBoundItem.secret = @"non-matching-bound-token";
+    nonMatchingBoundItem.boundDeviceId = @"different-device-id";
+    nonMatchingBoundItem.cachedAt = [NSDate dateWithTimeIntervalSince1970:1000000];
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[regularItem, accessItem, matchingBoundItem, nonMatchingBoundItem];
+    
+    // Mock WPJ to return matching device ID
+    MSIDWPJKeyPairWithCert *wpjData = [MSIDWPJKeyPairWithCert new];
+    wpjData.certificateSubject = deviceId;
+    
+    [MSIDTestSwizzle classMethod:@selector(getWPJKeysWithTenantId:context:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *tenantId, __unused id <MSIDRequestContext> context)
+    {
+        return wpjData;
+    }];
+    
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    
+    [MSIDTestSwizzle reset];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 3);
+    // Should contain regular token, access token, and matching bound token
+    XCTAssertTrue([result containsObject:regularItem]);
+    XCTAssertTrue([result containsObject:accessItem]);
+    XCTAssertTrue([result containsObject:matchingBoundItem]);
+    // Should NOT contain non-matching bound token
+    XCTAssertFalse([result containsObject:nonMatchingBoundItem]);
+}
+
+- (void)testValidateBoundAppRefreshTokens_whenBoundTokenWithNilHomeAccountId_shouldFilterOutToken
+{
+    // Create a bound refresh token cache item
+    MSIDBoundRefreshTokenCacheItem *boundItem = [MSIDBoundRefreshTokenCacheItem new];
+    boundItem.credentialType = MSIDBoundRefreshTokenType;
+    boundItem.homeAccountId = @"uid.utid";
+    boundItem.environment = @"login.microsoftonline.com";
+    boundItem.clientId = @"client-id";
+    boundItem.secret = @"bound-refresh-token";
+    boundItem.boundDeviceId = @"device-id";
+    boundItem.cachedAt = [NSDate date];
+    
+    NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
+    
+    // When homeAccountId is nil, the bound token should not be filtered out
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:nil];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 1, @"Bound token should not be filtered out when homeAccountId is nil");
+}
+#endif
 @end

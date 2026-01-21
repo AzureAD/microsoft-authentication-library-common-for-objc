@@ -105,6 +105,7 @@ typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, N
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
 typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error);
+typedef void (^MSIDGetDefaultAccountRequestCompletionBlock)(MSIDAccount * _Nullable account, NSError * _Nullable error);
 typedef void (^MSIDGetSsoCookiesRequestCompletionBlock)(NSArray<MSIDPrtHeader *> * _Nullable prtHeaders, NSArray<MSIDDeviceHeader *> * _Nullable deviceHeaders, NSError * _Nullable error);
 typedef void (^MSIDSsoExtensionWrapperErrorBlock)(NSError * _Nullable error);
 typedef void (^MSIDPasskeyAssertionRequestCompletionBlock)(MSIDPasskeyAssertion * _Nullable passkeyAssertion, NSError * _Nullable error);
@@ -232,9 +233,16 @@ extern NSString * _Nonnull const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME;
  */
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS;
 
-extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
+/// Flight to enable support for bound app RT
+/// Owner: amepatil
+/// ECS configuration id: /1678824
 extern NSString * _Nonnull const MSID_FLIGHT_IS_BART_SUPPORTED;
 
+/// Flight to enable embedded webview spinner fix
+/// Owner: zeyong
+extern NSString * _Nonnull const MSID_FLIGHT_SPINNER_FIX;
+
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
 extern NSString * _Nonnull const MSID_FLIGHT_USE_AUTOLAYOUT_FOR_LOADING_INDICATOR;
 
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;

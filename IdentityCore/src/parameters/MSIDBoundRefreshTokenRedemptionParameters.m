@@ -30,6 +30,9 @@
                        authorityEndpoint:(nonnull NSURL *)authorityEndpoint
                                   scopes:(nonnull NSSet *)scopes
                                    nonce:(nonnull NSString *)nonce
+                             redirectUri:(nonnull NSString *)redirectUri
+                      extraPayloadClaims:(nullable NSDictionary *)extraPayloadClaims
+                       workplaceJoinInfo:(nullable MSIDWPJKeyPairWithCert *)workplaceJoinInfo
 {
     self = [super init];
     if (self)
@@ -37,6 +40,12 @@
         if ([NSString msidIsStringNilOrBlank:clientId])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token redemption parameters: clientId is nil or blank.");
+            return nil;
+        }
+        
+        if ([NSString msidIsStringNilOrBlank:redirectUri])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create bound refresh token redemption parameters: redirectURI is nil or blank.");
             return nil;
         }
         
@@ -60,8 +69,11 @@
         
         _audience = authorityEndpoint.absoluteString;
         _clientId = clientId;
+        _redirectUri = redirectUri;
         _scopes = scopes;
         _nonce = nonce;
+        _extraPayloadClaims = extraPayloadClaims;
+        _workplaceJoinInfo = workplaceJoinInfo;
     }
     return self;
 }
@@ -69,10 +81,15 @@
 - (nonnull NSMutableDictionary *)jsonDictionary
 {
     NSMutableDictionary *jsonDict = [NSMutableDictionary new];
+    for (NSString *key in self.extraPayloadClaims)
+    {
+        jsonDict[key] = self.extraPayloadClaims[key];
+    }
     jsonDict[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
     jsonDict[MSID_BOUND_RT_EXCHANGE] = @1;
     jsonDict[@"aud"] = self.audience;
     jsonDict[@"iss"] = self.clientId; // Issuer is the client ID
+    jsonDict[MSID_OAUTH2_REDIRECT_URI] = self.redirectUri;
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     jsonDict[@"iat"] = @((long)now); // Issued at time
     jsonDict[@"exp"] = @((long)now + 300); // 5 minutes
