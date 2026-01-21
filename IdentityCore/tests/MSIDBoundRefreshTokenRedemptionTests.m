@@ -113,6 +113,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
                                                         authorityEndpoint:[NSURL URLWithString:(NSString*)kAuthorityUrl]
                                                                    scopes:[NSSet setWithObject:@"scope1"]
                                                                     nonce:@"nonce123"
+                                                              redirectUri:@"app-redirect-uri://app"
                                                          extraPayloadClaims:nil
                                                          workplaceJoinInfo:wpjInfo];
     XCTAssertNotNil(params);
@@ -144,6 +145,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
                         nonce:@"nonce123"
+                  redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:wpjInfo];
     NSError *error;
@@ -168,8 +170,9 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
                         nonce:@"nonce123"
-         extraPayloadClaims:nil
-         workplaceJoinInfo:nil];
+                  redirectUri:@"app-redirect-uri://app"
+           extraPayloadClaims:nil
+            workplaceJoinInfo:nil];
     XCTAssertNotNil(params);
 }
 
@@ -185,6 +188,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
                         nonce:@"nonce123"
+                  redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:wpjInfo];
     
@@ -215,6 +219,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
                         nonce:@"nonce123"
+                  redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:wpjInfo];
     
@@ -244,6 +249,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
                         nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:wpjInfo];
 
@@ -280,6 +286,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
                         nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:wpjInfo];
 
@@ -316,6 +323,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObjects:@"scope1", @"scope2", nil]
                         nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:wpjInfo];
     
@@ -352,6 +360,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObjects:@"scope1", @"scope2", nil]
                         nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:regInfo];
     
@@ -394,6 +403,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
                         nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:wpjInfo];
 
@@ -420,6 +430,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
                         nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:wpjInfo];
     NSError *error;
@@ -447,6 +458,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:[NSSet setWithObject:@"scope1"]
                         nonce:@"nonce123"
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:wpjInfo];
     NSError *error;
@@ -487,6 +499,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
     extraPayloadClaims:nil
     workplaceJoinInfo:nil];
 
@@ -508,10 +521,30 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
 
+    XCTAssertNil(params);
+}
+
+
+- (void)testInitWithRedirectUri_whenRedirectUriNil_shouldReturnNil
+{
+    NSString *redirectUri = nil;
+    NSSet *scopes = [NSSet setWithObject:@"scope1"];
+    NSString *nonce = @"test-nonce";
+
+    MSIDBoundRefreshTokenRedemptionParameters *params =
+        [[MSIDBoundRefreshTokenRedemptionParameters alloc]
+             initWithClientId:@"client-id"
+            authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
+                       scopes:scopes
+                        nonce:nonce
+                  redirectUri:redirectUri
+           extraPayloadClaims:nil
+            workplaceJoinInfo:nil];
     XCTAssertNil(params);
 }
 
@@ -527,6 +560,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:nilAuthority
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
            extraPayloadClaims:nil
             workplaceJoinInfo:nil];
 
@@ -546,6 +580,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
            extraPayloadClaims:nil
             workplaceJoinInfo:nil];
 
@@ -564,6 +599,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
            extraPayloadClaims:nil
             workplaceJoinInfo:nil];
 
@@ -582,6 +618,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -600,6 +637,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -618,6 +656,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -636,6 +675,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -654,6 +694,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -672,6 +713,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -690,6 +732,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -708,6 +751,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -726,6 +770,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -737,6 +782,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
     XCTAssertEqualObjects(jsonDict[@"iss"], clientId);
     XCTAssertEqualObjects(jsonDict[MSID_OAUTH2_CLIENT_ID], clientId);
     XCTAssertEqualObjects(jsonDict[@"nonce"], nonce);
+    XCTAssertEqualObjects(jsonDict[MSID_OAUTH2_REDIRECT_URI], @"app-redirect-uri://app");
     
     // Verify scope string contains both scopes
     NSString *scopeString = jsonDict[MSID_OAUTH2_SCOPE];
@@ -761,6 +807,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -783,6 +830,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -817,6 +865,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -843,6 +892,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -869,6 +919,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
     XCTAssertNil(params);
@@ -886,6 +937,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
     XCTAssertNil(params);
@@ -903,6 +955,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -944,6 +997,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -970,6 +1024,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
@@ -994,6 +1049,7 @@ static const NSString *kAuthorityUrl = @"https://login.microsoftonline.com/commo
             authorityEndpoint:[NSURL URLWithString:(NSString *)kAuthorityUrl]
                        scopes:scopes
                         nonce:nonce
+         redirectUri:@"app-redirect-uri://app"
          extraPayloadClaims:nil
          workplaceJoinInfo:nil];
 
