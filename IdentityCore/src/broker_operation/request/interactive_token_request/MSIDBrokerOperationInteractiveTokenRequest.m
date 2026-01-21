@@ -55,7 +55,7 @@
     request.promptType = parameters.promptType;
     request.extraQueryParameters = [parameters allAuthorizeRequestExtraParametersWithMetadata:NO];
     request.extraScopesToConsent = parameters.extraScopesToConsent;
-    request.userFederatetedIdentityToken = parameters.userFederatetedIdentityToken;
+    request.userFederatedIdentityToken = parameters.userFederatedIdentityToken;
     
     return request;
 }
@@ -98,7 +98,10 @@
     json[MSID_BROKER_PROMPT_KEY] = promptString;
     json[MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY] = self.extraScopesToConsent;
     
-    json[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY] = self.userFederatetedIdentityToken;
+    if (self.userFederatedIdentityToken)
+    {
+        json[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY] = self.userFederatedIdentityToken;
+    }
     
     return json;
 }

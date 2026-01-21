@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic) MSIDPromptType promptType;
 @property (nonatomic, nullable) NSString *extraScopesToConsent;
-@property (nonatomic, nullable) NSString *userFederatetedIdentityToken;
+@property (nonatomic, nullable) NSString *userFederatedIdentityToken;
 
 + (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                               providerType:(MSIDProviderType)providerType
