@@ -62,6 +62,10 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
 @property (nonatomic) id<MSIDCustomHeaderProviding> customHeaderProvider;
+// Captured from HTTP 302 response headers:
+@property (nonatomic, copy) NSString *msidIntuneAuthToken;
+@property (nonatomic, strong) NSURL *msidInstallUrl;
+
 #if MSAL_JS_AUTOMATION
 @property (nonatomic) NSString *clientAutomationScript;
 #endif

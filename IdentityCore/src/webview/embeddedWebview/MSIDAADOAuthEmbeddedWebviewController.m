@@ -112,49 +112,103 @@
 
     }
     
-    if ([requestURL.scheme isEqualToString:@"https"] &&
-            [requestURL.host isEqualToString:@"portal.manage-beta.microsoft.com"] &&
-            [requestURL.path isEqualToString:@"/enrollment/webenrollment/installprofile"])
+    // NEW: handle msauth://profileInstall
+    if (isBrokerUrl && [@"profileinstall" caseInsensitiveCompare:requestURL.host] == NSOrderedSame)
     {
+        // We expect to have captured the install URL + auth token from a previous HTTP 302 response.
+        NSURL *installUrl = self.msidInstallUrl;
+        NSString *authToken = self.msidIntuneAuthToken;
 
-        
-        // Extract IntuneId from query parameters
-           NSURLComponents *components = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
-           NSString *intuneIdValue = nil;
-           for (NSURLQueryItem *item in components.queryItems) {
-               if ([item.name isEqualToString:@"IntuneId"]) {
-                   intuneIdValue = item.value;
-                   break;
-               }
-           }
+        // If headers are missing, fallback to normal broker completion behavior.
+        if (!installUrl || !authToken.length)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                              @"Received msauth://profileInstall but missing X-Install-Url and/or X-Intune-AuthToken; falling back to completeWebAuthWithURL.");
 
-        // Start ASWebAuthenticationSession
-        self.authSession = [[ASWebAuthenticationSession alloc] initWithURL:requestURL
-                                                         callbackURLScheme:nil
-                                                         completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error) {
-            if (callbackURL) {
-                NSLog(@"Success: %@", callbackURL);
-                // Handle success if needed
-            } else if (error) {
-                NSLog(@"Failed: %@", error.localizedDescription);
-            }
-        }];
-        self.authSession.presentationContextProvider = self;
-        self.authSession.prefersEphemeralWebBrowserSession = YES; // Optional: Use ephemeral session if needed
-        
-        // Add custom header if IntuneId exists
-        if (intuneIdValue) {
-            NSMutableDictionary *headers = [NSMutableDictionary dictionary];
-            headers[@"IntuneId"] = intuneIdValue;
-            [self.authSession setValue:headers forKey:@"additionalHeader"];
+            [self completeWebAuthWithURL:requestURL];
+            decisionHandler(WKNavigationActionPolicyCancel);
+            return YES;
         }
 
+        // Start ASWebAuthenticationSession with X-Install-Url
+        __weak typeof(self) weakSelf = self;
+        self.authSession = [[ASWebAuthenticationSession alloc] initWithURL:installUrl
+                                                         callbackURLScheme:nil
+                                                         completionHandler:^(__unused NSURL * _Nullable callbackURL,
+                                                                             NSError * _Nullable error) {
+            __strong typeof(self) strongSelf = weakSelf;
+            if (!strongSelf) return;
+
+            if (error)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context,
+                                  @"ASWebAuthenticationSession failed for profile install: %@", error);
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.context,
+                                  @"ASWebAuthenticationSession completed for profile install.");
+            }
+        }];
+
+        self.authSession.presentationContextProvider = self;
+        self.authSession.prefersEphemeralWebBrowserSession = YES;
+
+        // Set additional header: X-Intune-AuthToken: <token>
+        NSMutableDictionary *additionalHeaders = [NSMutableDictionary dictionary];
+        additionalHeaders[@"X-Intune-AuthToken"] = authToken;
+        [self.authSession setValue:additionalHeaders forKey:@"additionalHeader"];
+
         [self.authSession start];
-        
-        // Block navigation in webview
+
+        // Block navigation in webview; continue in ASWebAuthenticationSession
         decisionHandler(WKNavigationActionPolicyCancel);
         return YES;
     }
+    
+//    if ([requestURL.scheme isEqualToString:@"https"] &&
+//            [requestURL.host isEqualToString:@"portal.manage-beta.microsoft.com"] &&
+//            [requestURL.path isEqualToString:@"/enrollment/webenrollment/installprofile"])
+//    {
+//
+//        
+//        // Extract IntuneId from query parameters
+//           NSURLComponents *components = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
+//           NSString *intuneIdValue = nil;
+//           for (NSURLQueryItem *item in components.queryItems) {
+//               if ([item.name isEqualToString:@"IntuneId"]) {
+//                   intuneIdValue = item.value;
+//                   break;
+//               }
+//           }
+//
+//        // Start ASWebAuthenticationSession
+//        self.authSession = [[ASWebAuthenticationSession alloc] initWithURL:requestURL
+//                                                         callbackURLScheme:nil
+//                                                         completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error) {
+//            if (callbackURL) {
+//                NSLog(@"Success: %@", callbackURL);
+//                // Handle success if needed
+//            } else if (error) {
+//                NSLog(@"Failed: %@", error.localizedDescription);
+//            }
+//        }];
+//        self.authSession.presentationContextProvider = self;
+//        self.authSession.prefersEphemeralWebBrowserSession = YES; // Optional: Use ephemeral session if needed
+//        
+//        // Add custom header if IntuneId exists
+//        if (intuneIdValue) {
+//            NSMutableDictionary *headers = [NSMutableDictionary dictionary];
+//            headers[@"IntuneId"] = intuneIdValue;
+//            [self.authSession setValue:headers forKey:@"additionalHeader"];
+//        }
+//
+//        [self.authSession start];
+//        
+//        // Block navigation in webview
+//        decisionHandler(WKNavigationActionPolicyCancel);
+//        return YES;
+//    }
     
     if (isBrokerUrl || isBrowserUrl)
     {

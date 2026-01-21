@@ -347,6 +347,33 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)navigationResponse.response;
+    if ([httpResponse isKindOfClass:[NSHTTPURLResponse class]])
+    {
+        NSDictionary *allHeaders = httpResponse.allHeaderFields;
+
+        NSString *authToken = allHeaders[@"X-Intune-AuthToken"];
+        NSString *installUrlString = allHeaders[@"X-Install-Url"];
+
+        if (authToken.length && installUrlString.length)
+        {
+            NSURL *installUrl = [NSURL URLWithString:installUrlString];
+            if (installUrl)
+            {
+                // Store for use when we later see msauth://profileInstall
+                self.msidIntuneAuthToken = authToken;
+                self.msidInstallUrl = installUrl;
+
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                                  @"Captured X-Intune-AuthToken and X-Install-Url from HTTP 302 response.");
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                                  @"X-Install-Url header was present but not a valid URL: %@", installUrlString);
+            }
+        }
+    }
     if (self.navigationResponseBlock && navigationResponse && navigationResponse.response)
     {
         NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
