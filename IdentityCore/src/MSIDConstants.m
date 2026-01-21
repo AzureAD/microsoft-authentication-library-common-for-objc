@@ -35,6 +35,7 @@ NSString *const MSID_APP_VER_KEY                   = @"x-app-ver";
 NSString *const MSID_CCS_HINT_KEY                  = @"X-AnchorMailbox";
 NSString *const MSID_WEBAUTH_IGNORE_SSO_KEY        = @"x-ms-sso-Ignore-SSO";
 NSString *const MSID_WEBAUTH_REFRESH_TOKEN_KEY     = @"x-ms-sso-RefreshToken";
+NSString *const MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY     = @"x-ms-UserFederatedIdentityCredential";
 
 NSString *const MSID_DEFAULT_FAMILY_ID             = @"1";
 NSString *const MSID_ADAL_SDK_NAME                 = @"adal-objc";

@@ -216,6 +216,10 @@
         returnErrorBlock(localError);
         return;
     }
+    
+    NSMutableDictionary *customHeaders = [_webViewConfiguration.customHeaders mutableCopy] ?: [NSMutableDictionary new];
+    customHeaders[@"x-ms-UserFederatedIdentityCredential"] = self.requestParameters.userFederatetedIdentityToken;
+    self.webViewConfiguration.customHeaders = customHeaders;
 
     __typeof__(self) __weak weakSelf = self;
     [operation invokeWithRequestParameters:self.requestParameters
