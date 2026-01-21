@@ -109,5 +109,6 @@ NSString *const MSID_FLIGHT_ENABLE_THREAD_STARVATION = @"ts_en";
 
 NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 
+NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
