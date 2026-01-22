@@ -185,7 +185,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     NSString *tokenType = requestJson[MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
     tokenType = tokenType.capitalizedString;
     
-    _authScheme = [MSIDAuthenticationScheme new]; // Bearer by default.
+    
     if (MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
     {
         NSMutableDictionary *schemeParams = [NSMutableDictionary new];
@@ -193,6 +193,11 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
         schemeParams[MSID_OAUTH2_REQUEST_CONFIRMATION] = reqCnf;
         
         _authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
+    }
+    
+    if (!_authScheme)
+    {
+        _authScheme = [MSIDAuthenticationScheme new]; // Bearer by default.
     }
     
     if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY required:NO error:error]) return nil;
