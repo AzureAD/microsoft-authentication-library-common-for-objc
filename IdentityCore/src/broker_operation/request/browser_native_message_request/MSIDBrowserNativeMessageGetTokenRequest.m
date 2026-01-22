@@ -29,6 +29,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDConstants.h"
 #import "MSIDPromptType_Internal.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthScheme.h"
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY = @"clientId";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY = @"authority";
@@ -44,6 +46,8 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY = @"extraParame
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY = @"x-client-xtra-sku";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY = @"reqCnf";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY = @"tokenType";
 
 @implementation MSIDBrowserNativeMessageGetTokenRequest
 
@@ -171,6 +175,24 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
     id canShowUIValue = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY];
     // It is optional param, if nil -- set it to 'true' by default.
     _canShowUI = canShowUIValue ? [requestJson msidBoolObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY] : YES;
+    
+    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY required:NO error:error]) return nil;
+    NSString *reqCnf = requestJson[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY];
+    
+    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY required:NO error:error]) return nil;
+    NSString *tokenType = requestJson[MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
+    tokenType = tokenType.capitalizedString;
+    
+    _authScheme = [MSIDAuthenticationScheme new]; // Bearer by default.
+    if (MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
+    {
+        NSMutableDictionary *schemeParams = [NSMutableDictionary new];
+        schemeParams[MSID_OAUTH2_TOKEN_TYPE] = tokenType;
+        schemeParams[MSID_OAUTH2_REQUEST_CONFIRMATION] = reqCnf;
+        
+        _authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
+    }
+    
     
     return self;
 }
