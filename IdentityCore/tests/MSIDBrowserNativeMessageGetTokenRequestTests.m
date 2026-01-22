@@ -328,6 +328,58 @@
     XCTAssertFalse(request.claimsRequest.hasClaims);
 }
 
+- (void)testInitWithJSONDictionary_whenJsonValidAndClaimsProivedInEQP_shouldInit
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2",
+        @"claims": @"{\"id_token\":{\"deviceid\":{\"essential\":true}}}"
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(@"https://login.microsoft.com", request.sender.absoluteString);
+    XCTAssertEqualObjects(@"uid", request.accountId.uid);
+    XCTAssertEqualObjects(@"utid", request.accountId.utid);
+    XCTAssertEqualObjects(@"29a788ca-7bcf-4732-b23c-c8d294347e5b", request.clientId);
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.authority.url.absoluteString);
+    XCTAssertEqualObjects(@"user.read openid profile offline_access", request.scopes);
+    XCTAssertEqualObjects(@"https://login.microsoft.com", request.redirectUri);
+    XCTAssertEqualObjects(@"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D", request.correlationId.UUIDString);
+    XCTAssertEqual(MSIDPromptTypeLogin, request.prompt);
+    XCTAssertTrue(request.isSts);
+    XCTAssertFalse(request.canShowUI);
+    XCTAssertEqualObjects(@"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47", request.nonce);
+    XCTAssertEqualObjects(@"state1", request.state);
+    XCTAssertEqualObjects(@"user@microsoft.com", request.loginHint);
+    XCTAssertTrue(request.instanceAware);
+    XCTAssertEqualObjects(extraParameters, request.extraParameters);
+    XCTAssertNotNil(request.claimsRequest);
+    XCTAssertTrue(request.claimsRequest.hasClaims);
+}
+
 #pragma mark - authScheme
 
 - (void)testInitWithJSONDictionary_whenJsonValidAndNoTokenType_shouldInit

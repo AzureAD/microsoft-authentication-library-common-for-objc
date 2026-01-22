@@ -201,7 +201,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     }
     
     if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY required:NO error:error]) return nil;
-    NSString *claims = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY];
+    NSString *claims = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY];
     
     if (claims)
     {
