@@ -31,6 +31,7 @@
 #import "MSIDPromptType_Internal.h"
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthScheme.h"
+#import "MSIDClaimsRequest.h"
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY = @"clientId";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY = @"authority";
@@ -48,6 +49,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY = @"x-client-x
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY = @"reqCnf";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY = @"tokenType";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
 
 @implementation MSIDBrowserNativeMessageGetTokenRequest
 
@@ -193,6 +195,20 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY = @"tokenType";
         _authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
     }
     
+    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY required:NO error:error]) return nil;
+    NSString *claims = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY];
+    
+    if (claims)
+    {
+        NSDictionary *claimsJson = [claims msidJson];
+        
+        NSError *claimsError;
+        _claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJson error:&claimsError];
+        if (claimsError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to create claims request. Claims: %@", MSID_PII_LOG_MASKABLE(claimsJson));
+        }
+    }
     
     return self;
 }

@@ -29,6 +29,7 @@
 @class MSIDAADAuthority;
 @class MSIDAccountIdentifier;
 @class MSIDAuthenticationScheme;
+@class MSIDClaimsRequest;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -77,6 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL canShowUI;
 
 @property (nonatomic) MSIDAuthenticationScheme *authScheme;
+
+@property (nonatomic) MSIDClaimsRequest *claimsRequest;
 
 @end
 
