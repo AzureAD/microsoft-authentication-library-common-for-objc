@@ -1202,62 +1202,154 @@ msauth://installProfile (3rd)
 
 ---
 
+### BRT Retry Behavior
+
+**Requirement:** If BRT acquired successfully → don't attempt again, but if BRT attempted but not successful → try acquiring again once more for next msauth or browser redirect within the same session.
+
+**Implementation:** Count-based retry with maximum 2 attempts.
+
+#### Session State Properties for BRT
+
+```objc
+@property (nonatomic, assign) NSInteger brtAttemptCount;  // 0, 1, or 2
+@property (nonatomic, assign) BOOL brtAttempted;          // YES when count > 0 (compatibility)
+@property (nonatomic, assign) BOOL brtAcquired;           // YES on successful acquisition
+```
+
+#### Check Logic with Retry
+
+```objc
+// Two conditions for attempting BRT:
+if ([self shouldAcquireBRT] && 
+    !self.sessionState.brtAcquired &&      // Condition 1: Not yet acquired
+    self.sessionState.brtAttemptCount < 2) // Condition 2: Haven't tried twice
+{
+    // Increment count BEFORE async call (prevent race)
+    self.sessionState.brtAttemptCount++;
+    self.sessionState.brtAttempted = YES;  // Compatibility flag
+    
+    [self acquireBRTWithCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            self.sessionState.brtAcquired = YES;  // Mark as acquired
+        }
+        // On failure, count allows retry if still < 2
+        [self continueInstallProfile:url params:params];
+    }];
+    return;
+}
+
+// Skip: Either acquired OR max attempts reached
+[self continueInstallProfile:url params:params];
+```
+
+#### Three Scenarios
+
+**Scenario 1: Success on First Attempt** ✅
+```
+1st msauth: count=0, acquired=NO
+           → Check (NO && 0<2) → Try BRT → Success
+           → count=1, acquired=YES
+2nd msauth: Check (YES) → Skip (already acquired)
+```
+
+**Scenario 2: Fail First, Success Second** ✅
+```
+1st msauth: count=0, acquired=NO
+           → Check (NO && 0<2) → Try BRT → Fail
+           → count=1, acquired=NO
+2nd msauth: count=1, acquired=NO
+           → Check (NO && 1<2) → Try BRT → Success
+           → count=2, acquired=YES
+3rd msauth: Check (YES) → Skip (already acquired)
+```
+
+**Scenario 3: Both Attempts Fail** ✅
+```
+1st msauth: count=0, acquired=NO
+           → Check (NO && 0<2) → Try BRT → Fail
+           → count=1, acquired=NO
+2nd msauth: count=1, acquired=NO
+           → Check (NO && 1<2) → Try BRT → Fail
+           → count=2, acquired=NO
+3rd msauth: count=2, acquired=NO
+           → Check (NO && 2>=2) → Skip (max attempts)
+```
+
+#### Stop Conditions
+
+**Stop immediately if:**
+1. ✅ `brtAcquired = YES` (successfully acquired)
+2. ✅ `brtAttemptCount >= 2` (max attempts reached)
+
+**Continue trying if:**
+- ✅ `brtAcquired = NO` AND `brtAttemptCount < 2` (not acquired, attempts remain)
+
+---
+
 ### Complete Flow with Session State
 
-**Scenario: Multiple msauth:// Calls in One Session**
+**Scenario: Multiple msauth:// Calls with Retry Logic**
 
 ```
 SESSION START
     ↓
 Initialize: sessionState = new MSIDInteractiveWebviewState()
+    - brtAttemptCount = 0
     - brtAttempted = NO
     - brtAcquired = NO
     - transferredToBroker = NO
     ↓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1st msauth://installProfile
+1st msauth://installProfile (attempt BRT, fails)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     ↓
 handleInstallProfileURL called
     ↓
-Check: shouldAcquireBRT && !sessionState.brtAttempted
-    → YES (flag is NO)
+Check: shouldAcquireBRT && !brtAcquired && brtAttemptCount < 2
+    → YES (acquired=NO, count=0)
     ↓
-Set sessionState.brtAttempted = YES  ← IMMEDIATE
+Set brtAttemptCount = 1  ← IMMEDIATE
+Set brtAttempted = YES
     ↓
 Call acquireBRTWithCompletion (async)
     ↓
-BRT acquisition succeeds
+BRT acquisition FAILS (transient error)
     ↓
-Set sessionState.brtAcquired = YES
+brtAcquired remains NO
     ↓
 Continue with install profile...
     ↓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2nd msauth://installProfile (retry or different URL)
+2nd msauth://installProfile (retry BRT, succeeds)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     ↓
 handleInstallProfileURL called AGAIN
     ↓
-Check: shouldAcquireBRT && !sessionState.brtAttempted
-    → NO (flag is already YES!)
+Check: shouldAcquireBRT && !brtAcquired && brtAttemptCount < 2
+    → YES (acquired=NO, count=1 < 2) ✅ RETRY ALLOWED
     ↓
-Skip BRT acquisition ✅
+Set brtAttemptCount = 2  ← IMMEDIATE
+    ↓
+Call acquireBRTWithCompletion (async)
+    ↓
+BRT acquisition SUCCEEDS
+    ↓
+Set brtAcquired = YES
+    ↓
+Continue with install profile
+    ↓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3rd msauth://installProfile (skip BRT, already acquired)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ↓
+handleInstallProfileURL called AGAIN
+    ↓
+Check: shouldAcquireBRT && !brtAcquired && brtAttemptCount < 2
+    → NO (acquired=YES) ✅ SKIP
+    ↓
+Skip BRT acquisition
     ↓
 Proceed directly to install profile
-    ↓
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-3rd msauth://installProfile (another call)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    ↓
-handleInstallProfileURL called AGAIN
-    ↓
-Check: shouldAcquireBRT && !sessionState.brtAttempted
-    → NO (flag is still YES!)
-    ↓
-Skip BRT acquisition ✅
-    ↓
-Proceed directly
     ↓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 msauth://profileComplete
@@ -1297,18 +1389,22 @@ SESSION END
 
 ### Critical Implementation Points
 
-#### 1. Set Flags BEFORE Async Calls
+#### 1. Set Count and Flags BEFORE Async Calls
 
 ```objc
 // ✅ CORRECT
-self.sessionState.brtAttempted = YES;  // Set FIRST
+self.sessionState.brtAttemptCount++;  // Increment FIRST
+self.sessionState.brtAttempted = YES;  // Set flag
 [self acquireBRT:^{
+    if (success) {
+        self.sessionState.brtAcquired = YES;
+    }
     // Async callback
 }];
 
 // ❌ WRONG - Race condition!
 [self acquireBRT:^{
-    self.sessionState.brtAttempted = YES;  // Set in callback - TOO LATE!
+    self.sessionState.brtAttemptCount++;  // Increment in callback - TOO LATE!
     // If another msauth:// call comes in before callback, will re-acquire!
 }];
 ```
@@ -1316,7 +1412,7 @@ self.sessionState.brtAttempted = YES;  // Set FIRST
 **Why set immediately?**
 - Prevents re-entry if another msauth:// call arrives during async operation
 - Protects against race conditions
-- Same pattern used by state machine
+- Allows proper retry logic (count tracks attempts, not completions)
 
 #### 2. Reset on Session Completion
 
@@ -1363,16 +1459,19 @@ self.sessionState.brtAttempted = YES;  // Set FIRST
 **Implementation Checklist:**
 - [x] Add `MSIDInteractiveWebviewState *sessionState` property
 - [x] Initialize `sessionState` in `init` method
-- [x] Check `!sessionState.brtAttempted` before BRT acquisition
-- [x] Set `sessionState.brtAttempted = YES` BEFORE async call
+- [x] Check `!sessionState.brtAcquired && sessionState.brtAttemptCount < 2` before BRT acquisition
+- [x] Increment `sessionState.brtAttemptCount++` BEFORE async call
+- [x] Set `sessionState.brtAttempted = YES` for compatibility
+- [x] Set `sessionState.brtAcquired = YES` on success
 - [x] Check `!sessionState.transferredToBroker` before broker retry
 - [x] Set `sessionState.transferredToBroker = YES` BEFORE async call
 - [x] Reset `sessionState` in `completeWebAuthWithURL`
 - [x] Reset `sessionState` on errors/cancellation
 
-**Code Added:** ~20 lines
+**Code Added:** ~25 lines (including retry logic)
 **Complexity:** Low-Medium
 **Reliability:** Same as state machine ✅
+**Retry capability:** One retry if first BRT attempt fails ✅
 
 ---
 
@@ -1380,7 +1479,8 @@ self.sessionState.brtAttempted = YES;  // Set FIRST
 
 | Requirement | With State Machine | With Session State | Without Any Tracking |
 |-------------|-------------------|-------------------|---------------------|
-| **BRT once per session** | ✅ Automatic | ✅ Manual (~20 lines) | ❌ Broken |
+| **BRT retry on failure** | ✅ Automatic (count-based) | ✅ Manual (~25 lines) | ❌ Broken |
+| **BRT max attempts** | ✅ 2 attempts | ✅ 2 attempts | ❌ Unlimited (broken) |
 | **Broker retry once per session** | ✅ Automatic | ✅ Manual (~20 lines) | ❌ Broken |
 | **Flag lifecycle** | ✅ Managed by SM | ⚠️ Manual set/reset | ❌ None |
 | **Race condition safe** | ✅ Yes | ✅ Yes (if done right) | ❌ No |
@@ -1391,22 +1491,27 @@ self.sessionState.brtAttempted = YES;  // Set FIRST
 
 ### Conclusion
 
-**Question:** "Will we acquire BRT multiple times in the same session?"
+**Question:** "Will we acquire BRT multiple times in the same session? What if it fails?"
 
 **Answer:**
-- **With State Machine:** ✅ NO - automatic prevention via flags
+- **With State Machine:** ✅ NO - automatic prevention via count, allows retry on failure
 - **Without SM (no tracking):** ❌ YES - would acquire multiple times (BROKEN)
-- **Without SM (with session state):** ✅ NO - manual prevention via flags (WORKS)
+- **Without SM (with session state):** ✅ NO - manual prevention via count, allows retry on failure (WORKS)
 
-**The simplified approach CAN work correctly, but MUST include session state tracking!**
+**Retry Logic:**
+- ✅ If BRT acquired successfully → Don't attempt again
+- ✅ If BRT attempted but failed → Try once more (max 2 attempts)
+- ✅ After 2 attempts → Stop regardless of outcome
+
+**The simplified approach CAN work correctly, but MUST include session state tracking with count-based retry logic!**
 
 **Minimum requirements:**
-1. ✅ Session state object with flags
-2. ✅ Check flags before operations
-3. ✅ Set flags immediately (before async)
-4. ✅ Reset flags on session end
+1. ✅ Session state object with `brtAttemptCount` and flags
+2. ✅ Check `!brtAcquired && brtAttemptCount < 2` before operations
+3. ✅ Increment count immediately (before async)
+4. ✅ Reset all flags and count on session end
 
-**With these ~20 lines of code, the simplified approach delivers the same once-per-session guarantees as the state machine.** ✅
+**With these ~25 lines of code, the simplified approach delivers the same retry-on-failure guarantees as the state machine.** ✅
 
 ---
 
@@ -1474,7 +1579,9 @@ This high-level overview shows the major phases of the Intune MDM enrollment flo
 - **Reset:** Clear state at session end
 
 **Once-Per-Session Guarantees:**
-- BRT acquired exactly once (via `brtAttempted` flag)
+- BRT acquired at most twice (allows one retry if first fails)
+- Stops immediately if acquired successfully
+- Stops after 2 attempts regardless of outcome
 - Broker retry attempted exactly once (via `transferredToBroker` flag)
 
 **Header Management:**
@@ -1502,6 +1609,7 @@ This detailed diagram shows the complete flow using the simplified approach (no 
             │ - init                                 │
             │ - Create session state:                │
             │   sessionState = new()                 │
+            │   • brtAttemptCount = 0                │
             │   • brtAttempted = NO                  │
             │   • brtAcquired = NO                   │
             │   • transferredToBroker = NO           │
