@@ -247,13 +247,12 @@ runUntilStable
     ↓
 Check: handler.shouldRetryInBrokerForSpecialURL(url, state)
     ↓ isRunningInBrokerContext? NO
-    ↓ !state.transferredToBroker? YES
     ↓
 Create RetryInBrokerControllerAction
     ↓
 Execute controller action:
     handler.retryInteractiveRequestInBrokerContextForURL(completion)
-    ↓ On success: state.transferredToBroker = YES
+    ↓ On success: dismiss webview
     ↓ handler.dismissEmbeddedWebviewIfPresent()
     ↓
 Loop again (no more actions)
@@ -683,7 +682,7 @@ MSIDAcquireBRTOnceControllerAction *action = ...;
 MSIDRetryInBrokerControllerAction *action = ...;
 [action executeWithHandler:handler completion:^(NSError *error) {
     if (!error) {
-        state.transferredToBroker = YES;
+        // No transferredToBroker flag needed
         [handler dismissEmbeddedWebviewIfPresent];
     }
     // State machine loops again
@@ -1026,7 +1025,7 @@ The state machine has built-in protection via session flags:
 @property (nonatomic, assign) BOOL brtGateEncountered;
 @property (nonatomic, assign) NSInteger brtAttemptCount;  // ← Prevents re-acquisition
 @property (nonatomic, assign) BOOL brtAcquired;
-@property (nonatomic, assign) BOOL transferredToBroker; // ← Prevents re-retry
+// No transferredToBroker flag needed - just check context when profileComplete arrives
 ```
 
 **State Machine Check:**
@@ -1169,10 +1168,8 @@ msauth://installProfile (3rd)
 
 - (void)handleProfileCompleteURL:(NSURL *)url
 {
-    // Check if broker retry needed AND NOT YET TRANSFERRED
-    if ([self shouldRetryInBroker] && !self.sessionState.transferredToBroker) {
-        // Set flag IMMEDIATELY to prevent re-entry
-        self.sessionState.transferredToBroker = YES;
+    // Check if broker retry needed (no flag needed - profileComplete comes once)
+    if ([self shouldRetryInBroker]) {
         
         [self retryInBrokerContextWithCompletion:^(BOOL success) {
             if (success) {
@@ -1296,7 +1293,7 @@ SESSION START
 Initialize: sessionState = new MSIDInteractiveWebviewState()
     - brtAttemptCount = 0
     - brtAcquired = NO
-    - transferredToBroker = NO
+
     ↓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1st msauth://installProfile (attempt BRT, fails)
@@ -1459,8 +1456,7 @@ self.sessionState.brtAttemptCount++;  // Increment FIRST
 - [x] Check `!sessionState.brtAcquired && sessionState.brtAttemptCount < 2` before BRT acquisition
 - [x] Increment `sessionState.brtAttemptCount++` BEFORE async call
 - [x] Set `sessionState.brtAcquired = YES` on success
-- [x] Check `!sessionState.transferredToBroker` before broker retry
-- [x] Set `sessionState.transferredToBroker = YES` BEFORE async call
+- [x] Check broker context on profileComplete (no flag needed)
 - [x] Reset `sessionState` in `completeWebAuthWithURL`
 - [x] Reset `sessionState` on errors/cancellation
 
@@ -1521,7 +1517,7 @@ This high-level overview shows the major phases of the Intune MDM enrollment flo
 ┌─────────────────────────────────────────────────────────────────┐
 │                      SESSION INITIALIZATION                      │
 │  • Create session state object                                  │
-│  • Initialize: brtAttemptCount=0, brtAcquired=NO, transferredToBroker=NO │
+│  • Initialize: brtAttemptCount=0, brtAcquired=NO                        │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -1579,7 +1575,7 @@ This high-level overview shows the major phases of the Intune MDM enrollment flo
 - BRT acquired at most twice (allows one retry if first fails)
 - Stops immediately if acquired successfully
 - Stops after 2 attempts regardless of outcome
-- Broker retry attempted exactly once (via `transferredToBroker` flag)
+- Broker retry: check context on profileComplete, retry if needed (no flag)
 
 **Header Management:**
 - Captured in decidePolicyForNavigationResponse
@@ -1608,7 +1604,7 @@ This detailed diagram shows the complete flow using the simplified approach (no 
             │   sessionState = new()                 │
             │   • brtAttemptCount = 0                │
             │   • brtAcquired = NO                   │
-            │   • transferredToBroker = NO           │
+            │   • brtAcquired = NO                      │
             │   • responseHeaders = nil              │
             └────────────────────────────────────────┘
                                      ↓
@@ -1778,7 +1774,7 @@ This detailed diagram shows the complete flow using the simplified approach (no 
                                               ↓
                                     ┌──────────────────────┐
                                     │ Check Session Flag   │
-                                    │ !transferredToBroker?│
+                                    │ Check context       │
                                     └──────────────────────┘
                                        ↓YES        ↓NO
                             ┌─────────────┐   Skip (already transferred)
@@ -1787,10 +1783,8 @@ This detailed diagram shows the complete flow using the simplified approach (no 
                             └─────────────┘
                                    ↓
                         ┌──────────────────────────────────┐
-                        │ Set Flag IMMEDIATELY:            │
-                        │ sessionState.transferredToBroker │
-                        │              = YES               │
-                        │ (Prevents re-transfer)           │
+                        │ No flag needed - check context   │
+                        │ once when profileComplete arrives│
                         └──────────────────────────────────┘
                                    ↓
                         ┌──────────────────────────────────┐
@@ -1819,7 +1813,6 @@ This detailed diagram shows the complete flow using the simplified approach (no 
         │ sessionState = new()                           │
         │ • brtAttemptCount = 0  (ready for next)        │
         │ • brtAcquired = NO                             │
-        │ • transferredToBroker = NO                     │
         │ • responseHeaders = nil                        │
         │ ✅ Clean state for next session                │
         └────────────────────────────────────────────────┘
@@ -1851,9 +1844,9 @@ This detailed diagram shows the complete flow using the simplified approach (no 
   - Result: Acquired at most twice per session (allows retry on failure) ✅
 
 - **Broker Retry:**
-  - Check: `shouldRetryInBroker && !sessionState.transferredToBroker`
-  - Set: `transferredToBroker = YES` (before async)
-  - Result: Retried exactly once per session ✅
+  - Check: `shouldRetryInBroker` (check context once on profileComplete)
+  - No flag needed - profileComplete comes once per session
+  - Result: Simple, clean logic ✅
 
 #### 🔴 Critical Implementation Points
 1. **Set flags BEFORE async calls** - Prevents race conditions if URL comes again quickly
