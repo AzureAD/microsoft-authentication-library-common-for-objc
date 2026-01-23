@@ -224,7 +224,7 @@
 
 #pragma mark - Claims
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndClaimsProived_shouldInit
+- (void)testInitWithJSONDictionary_whenJsonValidAndClaimsProvided_shouldInit
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
