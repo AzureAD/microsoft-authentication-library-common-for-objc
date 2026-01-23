@@ -1410,11 +1410,87 @@ self.sessionState.brtAttempted = YES;  // Set FIRST
 
 ---
 
-## 10. Complete Flow Diagram (Simplified Approach + Session State)
+## 10. Visual Overview: End-to-End Intune MDM Enrollment Flow
 
-### Visual Overview: End-to-End Intune MDM Enrollment Flow
+### Simplified High-Level Flow
 
-This diagram shows the complete flow using the simplified approach (no state machine) WITH session state management for once-per-session guarantees.
+This high-level overview shows the major phases of the Intune MDM enrollment flow without implementation details. For the complete detailed flow with flags and decision logic, see Section 11.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      SESSION INITIALIZATION                      │
+│  • Create session state object                                  │
+│  • Initialize flags: brtAttempted=NO, transferredToBroker=NO    │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 1: Authentication & Conditional Access Policy Check       │
+│  • User signs in via WKWebView                                  │
+│  • Server detects CA policy requires device MDM enrollment      │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 2: Enrollment Trigger                                     │
+│  • Server sends: msauth://enroll?cpurl=<IntuneLinkurl>         │
+│  • Client extracts cpurl and loads in WKWebView                 │
+│  • User navigates to Intune enrollment page                     │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 3: Profile Installation Setup                             │
+│  • Intune sends: msauth://installProfile                        │
+│  • HTTP Headers: X-Install-Url, X-Intune-AuthToken             │
+│  • Client captures headers from response                        │
+│  • Check BRT flag → Acquire BRT if needed (once per session)   │
+│  • Open ASWebAuthenticationSession with URL and token           │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 4: User Completes Enrollment                              │
+│  • User completes profile installation in ASWebAuth             │
+│  • Intune sends: msauth://profileComplete                       │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 5: Broker Retry (if needed)                               │
+│  • Check if running in broker context                           │
+│  • If not: Retry in broker (once per session via flag)         │
+│  • If yes: Continue normal flow                                 │
+│  • Complete authentication                                       │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                      SESSION COMPLETION                          │
+│  • Reset session state for next session                         │
+│  • Return authentication result                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Points
+
+**Session State Lifecycle:**
+- **Init:** Create state with flags at session start
+- **Use:** Check and set flags throughout flow
+- **Reset:** Clear state at session end
+
+**Once-Per-Session Guarantees:**
+- BRT acquired exactly once (via `brtAttempted` flag)
+- Broker retry attempted exactly once (via `transferredToBroker` flag)
+
+**Header Management:**
+- Captured in decidePolicyForNavigationResponse
+- Stored in session state
+- Extracted when needed (X-Install-Url, X-Intune-AuthToken)
+
+**For detailed implementation with all decision points and code examples, see Section 11 below.**
+
+---
+
+## 11. Complete Flow Diagram (Simplified Approach + Session State)
+
+### Detailed Implementation Flow
+
+This detailed diagram shows the complete flow using the simplified approach (no state machine) WITH session state management for once-per-session guarantees.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
