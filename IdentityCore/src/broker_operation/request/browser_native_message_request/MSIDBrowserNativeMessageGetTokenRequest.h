@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) MSIDAuthenticationScheme *authScheme;
 
-@property (nonatomic) MSIDClaimsRequest *claimsRequest;
+@property (nonatomic, nullable) MSIDClaimsRequest *claimsRequest;
 
 @end
 
