@@ -344,7 +344,7 @@
     XCTAssertNotNil(error);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndInvalidClaimsProived_shouldInit
+- (void)testInitWithJSONDictionary_whenJsonValidAndInvalidClaimsProvided_shouldInit
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
