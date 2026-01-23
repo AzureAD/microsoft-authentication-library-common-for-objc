@@ -276,6 +276,74 @@
     XCTAssertTrue(request.claimsRequest.hasClaims);
 }
 
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberClaims_shouldFail
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2"
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters,
+            @"claims": @1
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+}
+
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberClaimsAsEQP_shouldFail
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2",
+        @"claims": @1
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+}
+
 - (void)testInitWithJSONDictionary_whenJsonValidAndInvalidClaimsProived_shouldInit
 {
     __auto_type extraParameters = @{
@@ -486,6 +554,59 @@
     XCTAssertEqual(MSIDAuthSchemePop, request.authScheme.authScheme);
 }
 
+- (void)testInitWithJSONDictionary_whenJsonValidAndPopTokenTypeInEQP_shouldInit
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2",
+        @"tokenType": @"pop",
+        @"reqCnf": @"eyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0"
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters,
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(@"https://login.microsoft.com", request.sender.absoluteString);
+    XCTAssertEqualObjects(@"uid", request.accountId.uid);
+    XCTAssertEqualObjects(@"utid", request.accountId.utid);
+    XCTAssertEqualObjects(@"29a788ca-7bcf-4732-b23c-c8d294347e5b", request.clientId);
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.authority.url.absoluteString);
+    XCTAssertEqualObjects(@"user.read openid profile offline_access", request.scopes);
+    XCTAssertEqualObjects(@"https://login.microsoft.com", request.redirectUri);
+    XCTAssertEqualObjects(@"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D", request.correlationId.UUIDString);
+    XCTAssertEqual(MSIDPromptTypeLogin, request.prompt);
+    XCTAssertTrue(request.isSts);
+    XCTAssertFalse(request.canShowUI);
+    XCTAssertEqualObjects(@"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47", request.nonce);
+    XCTAssertEqualObjects(@"state1", request.state);
+    XCTAssertEqualObjects(@"user@microsoft.com", request.loginHint);
+    XCTAssertTrue(request.instanceAware);
+    XCTAssertEqualObjects(extraParameters, request.extraParameters);
+    XCTAssertNotNil(request.authScheme);
+    XCTAssertEqual(MSIDAuthSchemePop, request.authScheme.authScheme);
+}
+
 - (void)testInitWithJSONDictionary_whenJsonValidAndInvalidPopTokenReqCnf_shouldInit
 {
     __auto_type extraParameters = @{
@@ -537,6 +658,146 @@
     XCTAssertEqualObjects(extraParameters, request.extraParameters);
     XCTAssertNotNil(request.authScheme);
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnf_shouldFail
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2"
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters,
+            @"tokenType": @"pop",
+            @"reqCnf": @1
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+}
+
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenType_shouldFail
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2"
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters,
+            @"tokenType": @1,
+            @"reqCnf": @"eyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0"
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+}
+
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnfAsEQP_shouldFail
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2",
+        @"tokenType": @"pop",
+        @"reqCnf": @1
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters,
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+}
+
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenTypeAsEQP_shouldFail
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2",
+        @"tokenType": @1,
+        @"reqCnf": @"eyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0"
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters,
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
 }
 
 @end

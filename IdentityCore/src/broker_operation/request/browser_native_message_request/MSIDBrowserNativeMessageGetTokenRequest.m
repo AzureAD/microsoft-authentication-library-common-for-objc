@@ -179,9 +179,11 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     _canShowUI = canShowUIValue ? [requestJson msidBoolObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY] : YES;
     
     if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY required:NO error:error]) return nil;
+    if (_extraParameters && ![_extraParameters msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY required:NO error:error]) return nil;
     NSString *reqCnf = requestJson[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY];
     
     if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY required:NO error:error]) return nil;
+    if (_extraParameters && ![_extraParameters msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY required:NO error:error]) return nil;
     NSString *tokenType = requestJson[MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
     tokenType = tokenType.capitalizedString;
     
@@ -201,6 +203,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     }
     
     if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY required:NO error:error]) return nil;
+    if (_extraParameters && ![_extraParameters msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY required:NO error:error]) return nil;
     NSString *claims = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY];
     
     if (claims)
