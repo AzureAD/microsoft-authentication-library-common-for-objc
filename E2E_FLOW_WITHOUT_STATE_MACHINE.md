@@ -993,3 +993,417 @@ Update implementation to access headers directly instead of via state.
 - Available testing infrastructure
 
 Both approaches work and deliver the same end-user functionality. The choice depends on your team's preferences and long-term maintenance strategy.
+
+---
+
+## 9. Session State Management: Preventing Multiple BRT Acquisitions
+
+### The Problem: Multiple msauth:// Calls in Same Session
+
+**User Scenario:**
+```
+Session starts
+    ↓
+msauth://installProfile (1st call)
+    ↓ Should acquire BRT
+    ↓
+User completes enrollment...
+    ↓
+msauth://installProfile (2nd call - retry or different URL)
+    ↓ Should NOT acquire BRT again!
+```
+
+**Requirement:** BRT must be acquired **exactly once per session**, regardless of how many msauth:// URLs are processed.
+
+---
+
+### How State Machine Handles This ✅
+
+The state machine has built-in protection via session flags:
+
+```objc
+// MSIDInteractiveWebviewState.h
+@property (nonatomic, assign) BOOL brtGateEncountered;
+@property (nonatomic, assign) BOOL brtAttempted;      // ← Prevents re-acquisition
+@property (nonatomic, assign) BOOL brtAcquired;
+@property (nonatomic, assign) BOOL transferredToBroker; // ← Prevents re-retry
+```
+
+**State Machine Check:**
+```objc
+// MSIDInteractiveWebviewStateMachine.m
+- (id<MSIDWebviewControllerAction>)nextControllerActionForState:
+{
+    // Only create BRT action if NOT YET ATTEMPTED
+    if ([handler shouldAcquireBRT:url state:state] && 
+        !state.brtAttempted)  // ← Check prevents multiple acquisitions
+    {
+        return [[MSIDAcquireBRTOnceControllerAction alloc] init...];
+    }
+}
+```
+
+**Action Execution:**
+```objc
+// MSIDAcquireBRTOnceControllerAction.m
+- (void)executeWithHandler:completion:
+{
+    [handler acquireBRTTokenWithCompletion:^(BOOL success) {
+        // Set flag to prevent re-acquisition
+        self.state.brtAttempted = YES;
+        self.state.brtAcquired = success;
+        completion(success, nil);
+    }];
+}
+```
+
+**Result:** ✅ BRT acquired **exactly once** per session automatically
+
+---
+
+### Problem in Simplified Approach Without Session Tracking ❌
+
+**Original simplified code (from previous sections):**
+```objc
+- (void)handleInstallProfileURL:(NSURL *)url params:(NSDictionary *)params
+{
+    // Check if BRT needed
+    if ([self shouldAcquireBRT]) {
+        // ❌ This gets called EVERY TIME installProfile is encountered!
+        [self acquireBRTWithCompletion:^(BOOL success) {
+            // Continue...
+        }];
+        return;
+    }
+}
+```
+
+**Problem:**
+```
+msauth://installProfile (1st)
+    → shouldAcquireBRT → YES
+    → Acquires BRT ✅
+    ↓
+msauth://installProfile (2nd)
+    → shouldAcquireBRT → YES (no state tracking!)
+    → Acquires BRT AGAIN! ❌
+    ↓
+msauth://installProfile (3rd)
+    → Acquires BRT AGAIN! ❌
+```
+
+**Without session state tracking, BRT acquired multiple times!** ❌
+
+---
+
+### Solution: Add Session State Tracking ✅
+
+#### Option 1: Reuse MSIDInteractiveWebviewState (Recommended)
+
+**Why reuse the existing class?**
+- ✅ Class already exists with all needed flags
+- ✅ No new code needed
+- ✅ Same flags as state machine approach
+- ✅ Just don't use the state machine itself
+
+**Implementation:**
+
+```objc
+// MSIDOAuth2EmbeddedWebviewController.m
+@interface MSIDOAuth2EmbeddedWebviewController()
+
+@property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *lastResponseHeaders;
+
+// Session state tracks flags across multiple msauth:// calls
+@property (nonatomic, strong) MSIDInteractiveWebviewState *sessionState;
+
+@end
+
+@implementation MSIDOAuth2EmbeddedWebviewController
+
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                    webviewParams:(MSIDWebviewConfiguration *)webviewParams
+                         context:(id<MSIDRequestContext>)context
+{
+    if (self = [super init]) {
+        // ... existing initialization ...
+        
+        // Initialize session state (no state machine needed)
+        _sessionState = [[MSIDInteractiveWebviewState alloc] init];
+    }
+    return self;
+}
+
+- (void)handleInstallProfileURL:(NSURL *)url params:(NSDictionary *)params
+{
+    // Store headers in session state for resolver access
+    self.sessionState.responseHeaders = self.lastResponseHeaders;
+    
+    // Check if BRT needed AND NOT YET ATTEMPTED IN THIS SESSION
+    if ([self shouldAcquireBRT] && !self.sessionState.brtAttempted) {
+        // Set flag IMMEDIATELY to prevent re-entry during async operation
+        self.sessionState.brtAttempted = YES;
+        
+        [self acquireBRTWithCompletion:^(BOOL success, NSError *error) {
+            // Store result
+            self.sessionState.brtAcquired = success;
+            
+            if (!success) {
+                // Handle failure per policy
+                NSLog(@"BRT acquisition failed: %@", error);
+                // Policy may allow continuing anyway
+            }
+            
+            // Continue with install profile
+            [self continueInstallProfile:url params:params];
+        }];
+        return;
+    }
+    
+    // BRT already attempted or not needed, proceed directly
+    [self continueInstallProfile:url params:params];
+}
+
+- (void)handleProfileCompleteURL:(NSURL *)url
+{
+    // Check if broker retry needed AND NOT YET TRANSFERRED
+    if ([self shouldRetryInBroker] && !self.sessionState.transferredToBroker) {
+        // Set flag IMMEDIATELY to prevent re-entry
+        self.sessionState.transferredToBroker = YES;
+        
+        [self retryInBrokerContextWithCompletion:^(BOOL success) {
+            if (success) {
+                // Successfully transferred to broker
+                [self dismissWebview];
+            } else {
+                // Failed to transfer, complete anyway
+                [self completeWebAuthWithURL:url];
+            }
+        }];
+        return;
+    }
+    
+    // Already in broker or retry not needed
+    [self completeWebAuthWithURL:url];
+}
+
+- (void)completeWebAuthWithURL:(NSURL *)url
+{
+    // Reset session state for next session
+    self.sessionState = [[MSIDInteractiveWebviewState alloc] init];
+    
+    // Complete normally
+    [self endWebAuthWithURL:url error:nil];
+}
+
+@end
+```
+
+---
+
+### Complete Flow with Session State
+
+**Scenario: Multiple msauth:// Calls in One Session**
+
+```
+SESSION START
+    ↓
+Initialize: sessionState = new MSIDInteractiveWebviewState()
+    - brtAttempted = NO
+    - brtAcquired = NO
+    - transferredToBroker = NO
+    ↓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1st msauth://installProfile
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ↓
+handleInstallProfileURL called
+    ↓
+Check: shouldAcquireBRT && !sessionState.brtAttempted
+    → YES (flag is NO)
+    ↓
+Set sessionState.brtAttempted = YES  ← IMMEDIATE
+    ↓
+Call acquireBRTWithCompletion (async)
+    ↓
+BRT acquisition succeeds
+    ↓
+Set sessionState.brtAcquired = YES
+    ↓
+Continue with install profile...
+    ↓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2nd msauth://installProfile (retry or different URL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ↓
+handleInstallProfileURL called AGAIN
+    ↓
+Check: shouldAcquireBRT && !sessionState.brtAttempted
+    → NO (flag is already YES!)
+    ↓
+Skip BRT acquisition ✅
+    ↓
+Proceed directly to install profile
+    ↓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3rd msauth://installProfile (another call)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ↓
+handleInstallProfileURL called AGAIN
+    ↓
+Check: shouldAcquireBRT && !sessionState.brtAttempted
+    → NO (flag is still YES!)
+    ↓
+Skip BRT acquisition ✅
+    ↓
+Proceed directly
+    ↓
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+msauth://profileComplete
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ↓
+handleProfileCompleteURL called
+    ↓
+Check broker retry (similar pattern)
+    ↓
+Complete session
+    ↓
+completeWebAuthWithURL
+    ↓
+sessionState = new MSIDInteractiveWebviewState()  ← RESET
+    - All flags back to NO
+    ↓
+SESSION END
+```
+
+**Result:** ✅ BRT acquired **exactly once** per session
+
+---
+
+### Comparison: Session State Management
+
+| Aspect | With State Machine | Without SM (No tracking) | Without SM (With session state) |
+|--------|-------------------|-------------------------|--------------------------------|
+| **Multiple BRT calls** | ✅ Prevented automatically | ❌ NOT prevented | ✅ Prevented with flags |
+| **Session tracking** | ✅ Built-in | ❌ None | ✅ Manual via sessionState |
+| **Code to add** | 0 (built-in) | 0 (broken) | ~20 lines |
+| **Flag management** | ✅ Automatic | ❌ None | ⚠️ Manual (set/reset) |
+| **Complexity** | High (SM overhead) | Low (but broken) | Low-Medium (fixed) |
+| **Reliability** | ✅ High | ❌ Low (broken) | ✅ High |
+| **Testing** | ✅ Isolated unit tests | ❌ Would fail | ✅ Integration tests |
+
+---
+
+### Critical Implementation Points
+
+#### 1. Set Flags BEFORE Async Calls
+
+```objc
+// ✅ CORRECT
+self.sessionState.brtAttempted = YES;  // Set FIRST
+[self acquireBRT:^{
+    // Async callback
+}];
+
+// ❌ WRONG - Race condition!
+[self acquireBRT:^{
+    self.sessionState.brtAttempted = YES;  // Set in callback - TOO LATE!
+    // If another msauth:// call comes in before callback, will re-acquire!
+}];
+```
+
+**Why set immediately?**
+- Prevents re-entry if another msauth:// call arrives during async operation
+- Protects against race conditions
+- Same pattern used by state machine
+
+#### 2. Reset on Session Completion
+
+```objc
+- (void)completeWebAuthWithURL:(NSURL *)url
+{
+    // Create NEW state object (resets all flags to NO)
+    self.sessionState = [[MSIDInteractiveWebviewState alloc] init];
+    
+    // Complete normally
+    [self endWebAuthWithURL:url error:nil];
+}
+```
+
+**When to reset:**
+- ✅ On successful completion (`completeWebAuthWithURL`)
+- ✅ On error/cancellation (`failWebAuthWithError`)
+- ✅ On timeout
+- ✅ On user cancellation
+
+**Important:** Don't reset during the session, only at the end!
+
+#### 3. Initialize on Controller Creation
+
+```objc
+- (instancetype)initWithStartURL:(NSURL *)startURL
+{
+    if (self = [super init]) {
+        // Initialize fresh session state
+        _sessionState = [[MSIDInteractiveWebviewState alloc] init];
+    }
+    return self;
+}
+```
+
+---
+
+### Updated Recommendation
+
+**For Simplified Approach: Session State Tracking is REQUIRED** ✅
+
+**Without session state tracking, the simplified approach is BROKEN for once-per-session requirements!** ❌
+
+**Implementation Checklist:**
+- [x] Add `MSIDInteractiveWebviewState *sessionState` property
+- [x] Initialize `sessionState` in `init` method
+- [x] Check `!sessionState.brtAttempted` before BRT acquisition
+- [x] Set `sessionState.brtAttempted = YES` BEFORE async call
+- [x] Check `!sessionState.transferredToBroker` before broker retry
+- [x] Set `sessionState.transferredToBroker = YES` BEFORE async call
+- [x] Reset `sessionState` in `completeWebAuthWithURL`
+- [x] Reset `sessionState` on errors/cancellation
+
+**Code Added:** ~20 lines
+**Complexity:** Low-Medium
+**Reliability:** Same as state machine ✅
+
+---
+
+### Final Comparison: Both Approaches Handle Multiple Calls Correctly
+
+| Requirement | With State Machine | With Session State | Without Any Tracking |
+|-------------|-------------------|-------------------|---------------------|
+| **BRT once per session** | ✅ Automatic | ✅ Manual (~20 lines) | ❌ Broken |
+| **Broker retry once per session** | ✅ Automatic | ✅ Manual (~20 lines) | ❌ Broken |
+| **Flag lifecycle** | ✅ Managed by SM | ⚠️ Manual set/reset | ❌ None |
+| **Race condition safe** | ✅ Yes | ✅ Yes (if done right) | ❌ No |
+| **Code complexity** | High (SM) | Low-Medium | Low (broken) |
+| **Production ready** | ✅ Yes | ✅ Yes (with flags) | ❌ No |
+
+---
+
+### Conclusion
+
+**Question:** "Will we acquire BRT multiple times in the same session?"
+
+**Answer:**
+- **With State Machine:** ✅ NO - automatic prevention via flags
+- **Without SM (no tracking):** ❌ YES - would acquire multiple times (BROKEN)
+- **Without SM (with session state):** ✅ NO - manual prevention via flags (WORKS)
+
+**The simplified approach CAN work correctly, but MUST include session state tracking!**
+
+**Minimum requirements:**
+1. ✅ Session state object with flags
+2. ✅ Check flags before operations
+3. ✅ Set flags immediately (before async)
+4. ✅ Reset flags on session end
+
+**With these ~20 lines of code, the simplified approach delivers the same once-per-session guarantees as the state machine.** ✅
