@@ -1407,3 +1407,309 @@ self.sessionState.brtAttempted = YES;  // Set FIRST
 4. ✅ Reset flags on session end
 
 **With these ~20 lines of code, the simplified approach delivers the same once-per-session guarantees as the state machine.** ✅
+
+---
+
+## 10. Complete Flow Diagram (Simplified Approach + Session State)
+
+### Visual Overview: End-to-End Intune MDM Enrollment Flow
+
+This diagram shows the complete flow using the simplified approach (no state machine) WITH session state management for once-per-session guarantees.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         SESSION INITIALIZATION                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+            ┌────────────────────────────────────────┐
+            │ MSIDOAuth2EmbeddedWebviewController    │
+            │ - init                                 │
+            │ - Create session state:                │
+            │   sessionState = new()                 │
+            │   • brtAttempted = NO                  │
+            │   • brtAcquired = NO                   │
+            │   • transferredToBroker = NO           │
+            │   • responseHeaders = nil              │
+            └────────────────────────────────────────┘
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    STEP 1-2: USER AUTHENTICATION                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+                    User signs in via WKWebView
+                    Server detects CA policy requires MDM
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│               STEP 3: msauth://enroll?cpurl=... RESPONSE                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ decidePolicyForNavigationAction                │
+        │ URL: msauth://enroll?cpurl=https://...         │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ handleMsauthURL(url, host="enroll")           │
+        │ - Extract cpurl from query params              │
+        │ - Create NSURLRequest with cpurl               │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ [webView loadRequest:enrollRequest]            │
+        │ ✅ Navigate to Intune enrollment page          │
+        └────────────────────────────────────────────────┘
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│            STEP 4-5: USER NAVIGATES TO INTUNE ENROLLMENT                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+                    Standard WKWebView navigation
+                    User sees Intune enrollment page
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│         STEP 6: INTUNE RESPONDS WITH msauth://installProfile                │
+│                       + HTTP HEADERS                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ decidePolicyForNavigationResponse              │
+        │ URL: msauth://installProfile                   │
+        │ Headers:                                       │
+        │   X-Install-Url: https://portal.manage...      │
+        │   X-Intune-AuthToken: <token>                  │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ responseHeaderHandler(response)                │
+        │ - Extract allHeaderFields                      │
+        │ - Store in: lastResponseHeaders                │
+        │ ✅ Headers captured for later use              │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ Decision: WKNavigationResponsePolicyAllow      │
+        │ ✅ Let navigation proceed                      │
+        └────────────────────────────────────────────────┘
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│         STEP 7: PROCESS msauth://installProfile URL                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ decidePolicyForNavigationAction                │
+        │ URL: msauth://installProfile                   │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ handleMsauthURL(url, host="installprofile")   │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ handleInstallProfileURL(url, params)           │
+        │ - Transfer: lastResponseHeaders →              │
+        │             sessionState.responseHeaders       │
+        └────────────────────────────────────────────────┘
+                                     ↓
+                    ┌───────────────────────────┐
+                    │ Check BRT Gate            │
+                    │ shouldAcquireBRT?         │
+                    └───────────────────────────┘
+                       ↓YES              ↓NO
+        ┌──────────────────────┐    Skip BRT
+        │ Check Session Flag   │    Continue →
+        │ !brtAttempted?       │
+        └──────────────────────┘
+           ↓YES         ↓NO
+    ┌─────────────┐    │
+    │ Acquire BRT │    │ Skip (already attempted)
+    │             │    │ Continue →
+    └─────────────┘    │
+           ↓           │
+    ┌─────────────────────────────────────┐
+    │ Set Flag IMMEDIATELY:               │
+    │ sessionState.brtAttempted = YES     │
+    │ (Prevents re-acquisition)           │
+    └─────────────────────────────────────┘
+           ↓
+    ┌─────────────────────────────────────┐
+    │ acquireBRTWithCompletion:^{         │
+    │   sessionState.brtAcquired = success│
+    │   // Continue...                    │
+    │ }                                   │
+    └─────────────────────────────────────┘
+           ↓
+           └──────────────→ Continue →
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ Extract Headers from sessionState              │
+        │ - X-Install-Url → profileURL                   │
+        │ - X-Intune-AuthToken → authToken               │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ openASWebAuthSessionWithURL:profileURL         │
+        │                    authToken:authToken         │
+        │                     purpose:InstallProfile     │
+        │ ✅ ASWebAuthenticationSession opens            │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ Decision: WKNavigationActionPolicyCancel       │
+        │ ✅ Don't navigate to msauth:// URL             │
+        └────────────────────────────────────────────────┘
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│     STEP 8-9: USER COMPLETES ENROLLMENT IN ASWebAuthenticationSession      │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+            User goes through Intune profile installation
+            ASWebAuthenticationSession handles interaction
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│         STEP 10: INTUNE RESPONDS WITH msauth://profileComplete              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ ASWebAuth callback with URL                    │
+        │ URL: msauth://profileComplete                  │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ handleMsauthURL(url, host="profilecomplete")  │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ handleProfileCompleteURL(url)                  │
+        └────────────────────────────────────────────────┘
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              STEP 11-12: BROKER CONTEXT CHECK & RETRY                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+                    ┌───────────────────────────┐
+                    │ Check Broker Context      │
+                    │ isRunningInBrokerContext? │
+                    └───────────────────────────┘
+                       ↓YES              ↓NO
+        ┌──────────────────────┐    ┌──────────────────────┐
+        │ In Broker Context    │    │ NOT in Broker Context│
+        │ Complete normally →  │    │ Need to retry        │
+        └──────────────────────┘    └──────────────────────┘
+                                              ↓
+                                    ┌──────────────────────┐
+                                    │ Check Session Flag   │
+                                    │ !transferredToBroker?│
+                                    └──────────────────────┘
+                                       ↓YES        ↓NO
+                            ┌─────────────┐   Skip (already transferred)
+                            │ Retry       │   Complete →
+                            │ in Broker   │
+                            └─────────────┘
+                                   ↓
+                        ┌──────────────────────────────────┐
+                        │ Set Flag IMMEDIATELY:            │
+                        │ sessionState.transferredToBroker │
+                        │              = YES               │
+                        │ (Prevents re-transfer)           │
+                        └──────────────────────────────────┘
+                                   ↓
+                        ┌──────────────────────────────────┐
+                        │ retryInBrokerContextWithCompletion│
+                        │   ^(BOOL success) {              │
+                        │     if (success) {               │
+                        │       dismissWebview()           │
+                        │     }                            │
+                        │   }                              │
+                        └──────────────────────────────────┘
+                                   ↓
+                                   └────→ EXIT (broker handles)
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                STEP 13: COMPLETE WEBAUTH & RESET SESSION                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ completeWebAuthWithURL(url)                    │
+        │ - Process completion                           │
+        │ - Return result to caller                      │
+        └────────────────────────────────────────────────┘
+                                     ↓
+        ┌────────────────────────────────────────────────┐
+        │ RESET SESSION STATE:                           │
+        │ sessionState = new()                           │
+        │ • brtAttempted = NO    (ready for next)        │
+        │ • brtAcquired = NO                             │
+        │ • transferredToBroker = NO                     │
+        │ • responseHeaders = nil                        │
+        │ ✅ Clean state for next session                │
+        └────────────────────────────────────────────────┘
+                                     ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            SESSION END                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+```
+
+### Flow Key Points
+
+#### 🔵 Session State Management
+- **Initialization:** Session state created with all flags set to NO/nil
+- **Flag Checks:** Before async operations, check if already attempted
+- **Flag Setting:** Set flags IMMEDIATELY before async calls (prevent race conditions)
+- **Reset:** Clean reset on session completion (ready for next session)
+
+#### 🟢 Header Capture & Usage
+- **Capture:** `decidePolicyForNavigationResponse` → `responseHeaderHandler` → `lastResponseHeaders`
+- **Transfer:** `lastResponseHeaders` → `sessionState.responseHeaders`
+- **Extract:** Read `X-Install-Url` and `X-Intune-AuthToken` from session state
+- **Use:** Pass to ASWebAuthenticationSession
+
+#### 🟡 Once-Per-Session Guarantees
+- **BRT Acquisition:** 
+  - Check: `shouldAcquireBRT && !sessionState.brtAttempted`
+  - Set: `brtAttempted = YES` (before async)
+  - Result: Acquired exactly once per session ✅
+
+- **Broker Retry:**
+  - Check: `shouldRetryInBroker && !sessionState.transferredToBroker`
+  - Set: `transferredToBroker = YES` (before async)
+  - Result: Retried exactly once per session ✅
+
+#### 🔴 Critical Implementation Points
+1. **Set flags BEFORE async calls** - Prevents race conditions if URL comes again quickly
+2. **Check flags every time** - Don't assume (multiple msauth:// calls possible)
+3. **Reset on completion** - Essential for next session to work correctly
+4. **Initialize in init** - Start with clean state
+
+### Multiple msauth:// Calls Example
+
+**Scenario:** Same session receives multiple installProfile URLs
+
+```
+Session Start: brtAttempted = NO
+    ↓
+1st msauth://installProfile
+    ↓ Check: !brtAttempted → YES
+    ↓ Set: brtAttempted = YES
+    ↓ Acquire BRT ✅
+    ↓ Continue...
+    ↓
+2nd msauth://installProfile (retry or different flow)
+    ↓ Check: !brtAttempted → NO (already YES)
+    ↓ Skip BRT ✅
+    ↓ Continue...
+    ↓
+3rd msauth://installProfile
+    ↓ Check: !brtAttempted → NO
+    ↓ Skip BRT ✅
+    ↓ Continue...
+    ↓
+msauth://profileComplete
+    ↓ Complete & Reset
+    ↓
+Session End: brtAttempted = NO (fresh for next session)
+```
+
+**Result:** BRT acquired exactly once despite 3 installProfile calls ✅
+
+---
