@@ -37,7 +37,6 @@
         _brtGateEncountered = NO;
         _brtAttempted = NO;
         _brtAcquired = NO;
-        _brtAttemptCount = 0;
         _brtFailurePolicy = MSIDInteractiveWebviewBRTFailurePolicyContinue;
         _isGateScheme = NO;
         _isRunningInBrokerContext = NO;

@@ -67,15 +67,6 @@ typedef NS_ENUM(NSInteger, MSIDInteractiveWebviewBRTFailurePolicy)
 /*! Whether BRT was successfully acquired */
 @property (nonatomic, assign) BOOL brtAcquired;
 
-/*!
- Number of BRT acquisition attempts made in this session (0, 1, or 2).
- Allows one retry if the first attempt fails:
- - If brtAcquired = YES, no more attempts
- - If brtAcquired = NO and brtAttemptCount < 2, retry is allowed
- - Maximum 2 attempts per session to prevent infinite loops
- */
-@property (nonatomic, assign) NSInteger brtAttemptCount;
-
 /*! Policy to apply if BRT acquisition fails */
 @property (nonatomic, assign) MSIDInteractiveWebviewBRTFailurePolicy brtFailurePolicy;
 

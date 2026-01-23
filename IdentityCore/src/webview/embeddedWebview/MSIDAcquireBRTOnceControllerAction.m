@@ -35,10 +35,14 @@
                  handler:(id<MSIDInteractiveWebviewHandler>)handler
               completion:(void (^)(BOOL success, NSError * _Nullable error))completion
 {
-    // Increment attempt count (allows tracking for retry logic: max 2 attempts)
-    state.brtAttemptCount++;
+    // Check if BRT has already been attempted to prevent retry loops
+    if (state.brtAttempted)
+    {
+        completion(NO, nil);
+        return;
+    }
     
-    // Mark that BRT acquisition has been attempted (for compatibility)
+    // Mark that we've attempted BRT acquisition
     state.brtAttempted = YES;
     
     // Attempt to acquire BRT token via handler
@@ -47,7 +51,6 @@
         {
             state.brtAcquired = YES;
         }
-        // On failure, state machine will allow one retry if brtAttemptCount < 2
         completion(success, error);
     }];
 }

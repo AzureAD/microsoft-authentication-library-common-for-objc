@@ -147,12 +147,9 @@
 - (id<MSIDWebviewControllerAction> _Nullable)nextControllerActionForState:(MSIDInteractiveWebviewState *)state
 {
     // Check if we should acquire BRT
-    // Check if BRT needs to be acquired
-    // Allow retry if: not yet acquired AND haven't tried twice yet (max 2 attempts)
     if (state.isGateScheme &&
         [self.handler shouldAcquireBRTForSpecialURL:state.pendingURL state:state] &&
-        !state.brtAcquired &&
-        state.brtAttemptCount < 2)
+        !state.brtAttempted)
     {
         // Set the failure policy
         state.brtFailurePolicy = [self.handler brtFailurePolicyForSpecialURL:state.pendingURL state:state];
