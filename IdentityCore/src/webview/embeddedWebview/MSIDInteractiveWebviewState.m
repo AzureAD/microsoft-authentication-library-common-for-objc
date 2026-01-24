@@ -34,13 +34,12 @@
     self = [super init];
     if (self)
     {
-        _brtGateEncountered = NO;
-        _brtAttempted = NO;
+        // Initialize BRT tracking
+        _brtAttemptCount = 0;
         _brtAcquired = NO;
-        _brtFailurePolicy = MSIDInteractiveWebviewBRTFailurePolicyContinue;
-        _isGateScheme = NO;
-        _isRunningInBrokerContext = NO;
-        _transferredToBroker = NO;
+        
+        // Response headers initially nil (captured during navigation)
+        _responseHeaders = nil;
     }
     return self;
 }

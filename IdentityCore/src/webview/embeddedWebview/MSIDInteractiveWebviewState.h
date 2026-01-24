@@ -30,64 +30,35 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /*!
- Policy to apply when BRT acquisition fails during special URL handling.
- */
-typedef NS_ENUM(NSInteger, MSIDInteractiveWebviewBRTFailurePolicy)
-{
-    /*! Continue the webview flow despite BRT failure */
-    MSIDInteractiveWebviewBRTFailurePolicyContinue = 0,
-    
-    /*! Fail the entire webview flow when BRT acquisition fails */
-    MSIDInteractiveWebviewBRTFailurePolicyFail
-};
-
-/*!
  MSIDInteractiveWebviewState maintains session state for the interactive webview controller
  during special URL processing (msauth:// and browser:// schemes).
  
- This state tracks:
- - BRT (Broker Refresh Token) acquisition status and policies
- - Current URL being processed and its parameters
- - Whether the flow has been transferred to broker context
- - Contextual flags for policy decisions
+ This lightweight state object tracks:
+ - BRT (Broker Refresh Token) acquisition attempts and success
+ - HTTP response headers for special URL processing
  
- The state is updated by controller actions and used to determine the next action
- in the state machine.
+ This state is used with the simplified special URL handling approach (no state machine).
+ It provides session-level tracking to ensure BRT is acquired at most twice per session
+ and makes headers available for URL resolution.
  */
 @interface MSIDInteractiveWebviewState : NSObject
 
-#pragma mark - BRT Session Flags
+#pragma mark - BRT Tracking
 
-/*! Whether a special URL requiring BRT has been encountered */
-@property (nonatomic, assign) BOOL brtGateEncountered;
+/*!
+ Number of BRT acquisition attempts in this session (0, 1, or 2).
+ 
+ BRT acquisition logic:
+ - Acquired on FIRST msauth:// or browser:// redirect if needed
+ - If first attempt fails, retry ONCE on next special URL
+ - After 2 attempts (or if acquired), no more attempts
+ 
+ Check before acquisition: !brtAcquired && brtAttemptCount < 2
+ */
+@property (nonatomic, assign) NSInteger brtAttemptCount;
 
-/*! Whether BRT acquisition has been attempted (prevents retry loops) */
-@property (nonatomic, assign) BOOL brtAttempted;
-
-/*! Whether BRT was successfully acquired */
+/*! Whether BRT was successfully acquired in this session */
 @property (nonatomic, assign) BOOL brtAcquired;
-
-/*! Policy to apply if BRT acquisition fails */
-@property (nonatomic, assign) MSIDInteractiveWebviewBRTFailurePolicy brtFailurePolicy;
-
-#pragma mark - Current Intercept Context
-
-/*! The special URL currently being processed */
-@property (nonatomic, strong, nullable) NSURL *pendingURL;
-
-/*! Query parameters extracted from the pending URL */
-@property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *queryParams;
-
-/*! Whether the pending URL uses a special scheme (msauth:// or browser://) */
-@property (nonatomic, assign) BOOL isGateScheme;
-
-/*! Whether the current flow is running in broker context */
-@property (nonatomic, assign) BOOL isRunningInBrokerContext;
-
-#pragma mark - Flow Transition
-
-/*! Whether the flow has been transferred to broker for completion */
-@property (nonatomic, assign) BOOL transferredToBroker;
 
 #pragma mark - Response Headers
 
