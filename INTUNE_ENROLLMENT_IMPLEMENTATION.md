@@ -1,14 +1,15 @@
-# Intune Enrollment Flow Implementation Summary
+# Generic Webview Extensions Implementation Summary
 
-This document summarizes the changes made to support Intune enrollment flow requirements in embedded/system webviews.
+This document summarizes the changes made to support generic enrollment and registration flow requirements in embedded/system webviews.
 
 ## Overview
 
-The implementation adds support for:
+The implementation adds generic, extensible support for:
 1. Best-effort BRT (Broker Refresh Token) acquisition with controlled retry logic (max 2 attempts per session)
-2. Response header capture from HTTP 302 redirects for enrollment metadata
-3. Special URL handling for Intune enrollment actions (msauth://enroll, msauth://installProfile, msauth://profileInstalled)
-4. System webview header injection for profile installation flows
+2. Configurable response header capture from HTTP 302 redirects
+3. Extensible custom URL handling with pluggable action handlers
+4. System webview header injection for profile installation and similar flows
+5. Support for enrollment scenarios (device registration, MDM enrollment, etc.) without being tied to specific providers
 
 ## Files Added
 
@@ -33,10 +34,12 @@ The implementation adds support for:
    - Simple key-value store with clear operation
 
 ### Reference Implementation
-5. **IdentityCore/src/controllers/MSIDLocalInteractiveController+IntuneEnrollment.h/m**
-   - Category demonstrating how to wire Intune enrollment callbacks
-   - Implements handlers for msauth://enroll, msauth://installProfile, msauth://profileInstalled
-   - Shows integration pattern for production use
+5. **IdentityCore/src/controllers/MSIDLocalInteractiveController+WebviewExtensions.h/m**
+   - Generic category demonstrating how to wire webview extension callbacks
+   - Configurable header capture (not hardcoded to specific headers)
+   - Pluggable custom URL action handlers via blocks
+   - Default handlers for common enrollment patterns (enroll, installProfile, profileInstalled)
+   - Shows integration pattern for any enrollment/registration scenario
 
 ### Documentation
 6. **docs/intune-enrollment-webview-flow.md**
@@ -90,57 +93,90 @@ The implementation adds support for:
 
 ### For Library Consumers
 
-#### Step 1: Create Trackers and Stores
+The generic webview extensions provide a flexible framework for enrollment and registration flows. You can either use the built-in defaults or customize the behavior.
+
+#### Option 1: Use Built-in Defaults (Simple)
+
 ```objc
-// In your InteractiveController or token request flow
-MSIDBRTAttemptTracker *brtTracker = [[MSIDBRTAttemptTracker alloc] init];
-MSIDResponseHeaderStore *headerStore = [[MSIDResponseHeaderStore alloc] init];
+// After webview controller is created, configure with default behavior
+[interactiveController configureWebviewWithResponseHandling:webviewController];
+
+// Optional: Configure which headers to capture (defaults to common headers)
+interactiveController.capturedHeaderKeys = [NSSet setWithArray:@[
+    @"x-custom-token",
+    @"x-install-url",
+    @"x-ms-clitelem"
+]];
 ```
 
-#### Step 2: Configure Webview Callbacks
+#### Option 2: Custom Action Handler (Advanced)
+
 ```objc
-// After webview controller is created
+// Set a custom URL action handler
+interactiveController.customURLActionHandler = ^(NSURL *url, void(^completion)(MSIDWebviewAction *action)) {
+    NSString *host = [url.host lowercaseString];
+    
+    if ([host isEqualToString:@"custom-enroll"]) {
+        // Custom enrollment logic
+        [self handleCustomEnrollment:url completion:completion];
+    }
+    else {
+        // Fall back to default handler
+        [interactiveController handleCustomURLAction:url completion:completion];
+    }
+};
+
+// Then configure the webview
+[interactiveController configureWebviewWithResponseHandling:webviewController];
+```
+
+#### Option 3: Manual Configuration (Full Control)
+
+```objc
 __weak typeof(self) weakSelf = self;
 
-// Capture headers from HTTP responses
+// Manually set response event block
 webviewController.webviewResponseEventBlock = ^(MSIDWebviewResponseEvent *event) {
     __strong typeof(self) strongSelf = weakSelf;
     if (!strongSelf) return;
     
-    // Store relevant headers (case-insensitive)
-    for (NSString *key in event.httpHeaders) {
-        if ([[key lowercaseString] isEqualToString:@"x-intune-authtoken"]) {
-            [strongSelf.headerStore setHeader:event.httpHeaders[key] forKey:@"X-Intune-AuthToken"];
-        }
-        // ... store other headers
+    // Custom header capture logic
+    NSString *customToken = event.httpHeaders[@"X-Custom-Token"];
+    if (customToken) {
+        [strongSelf.headerStore setHeader:customToken forKey:@"X-Custom-Token"];
     }
 };
 
-// Handle msauth:// and browser:// actions
+// Manually set action decision block
 webviewController.webviewActionDecisionBlock = ^(NSURL *url, void(^completion)(MSIDWebviewAction *action)) {
-    __strong typeof(self) strongSelf = weakSelf;
-    if (!strongSelf) {
-        completion([MSIDWebviewAction continueAction]);
-        return;
-    }
-    
-    if ([url.host isEqualToString:@"enroll"]) {
-        [strongSelf handleEnrollAction:url completion:completion];
-    }
-    else if ([url.host isEqualToString:@"installprofile"]) {
-        [strongSelf handleInstallProfileAction:url completion:completion];
-    }
-    else {
-        completion([MSIDWebviewAction completeAction:url]);
-    }
+    // Custom URL handling logic
+    [self handleCustomURL:url completion:completion];
 };
 ```
 
-#### Step 3: Implement Action Handlers
-See `MSIDLocalInteractiveController+IntuneEnrollment.m` for reference implementations of:
-- `handleEnrollAction:completion:` - BRT acquisition and cpurl loading
-- `handleInstallProfileAction:completion:` - ASWebAuthenticationSession with headers
-- `handleProfileInstalledAction:completion:` - Broker context continuation
+#### Built-in Action Handlers
+
+The `handleCustomURLAction:completion:` method provides default handling for common patterns:
+- **enroll**: Extracts cpurl parameter, attempts BRT acquisition, loads continuation URL
+- **installProfile**: Opens system webview with stored headers
+- **profileInstalled**: Continues flow in broker context
+
+You can call this from your custom handler for standard actions, or implement entirely custom logic.
+
+#### Step 3: Using Stored Headers
+```objc
+// Retrieve headers captured during the flow
+NSString *authToken = [interactiveController.responseHeaderStore headerForKey:@"x-custom-token"];
+NSString *installURL = [interactiveController.responseHeaderStore headerForKey:@"x-install-url"];
+
+// Use headers in subsequent requests or actions
+```
+
+#### Legacy Integration (Backwards Compatible)
+See `MSIDLocalInteractiveController+WebviewExtensions.m` for reference implementations of:
+- `handleEnrollURLAction:completion:` - BRT acquisition and cpurl loading
+- `handleInstallProfileURLAction:completion:` - ASWebAuthenticationSession with headers
+- `handleProfileInstalledURLAction:completion:` - Broker context continuation
 
 ### For ASWebAuthenticationSession with Headers
 ```objc

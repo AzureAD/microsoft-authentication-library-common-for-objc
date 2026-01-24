@@ -1,13 +1,16 @@
-# Intune Enrollment Webview Flow Design
+# Generic Webview Extensions for Enrollment and Registration Flows
 
 ## Overview
 
-This document describes the architecture and implementation of the Intune enrollment flow support in the Microsoft Authentication Library Common for Objective-C. The implementation enables enhanced webview flows that support:
+This document describes the architecture and implementation of generic webview extensions in the Microsoft Authentication Library Common for Objective-C. The implementation enables enhanced webview flows that support device enrollment, registration, and other scenarios requiring:
 
 1. **Best-effort BRT (Broker Refresh Token) acquisition** with controlled retry logic
-2. **Response header capture** from HTTP 302 redirects for enrollment metadata
-3. **Special URL handling** for Intune enrollment actions (msauth://enroll, msauth://installProfile, msauth://profileInstalled)
-4. **System webview header injection** for profile installation flows
+2. **Response header capture** from HTTP 302 redirects for enrollment/registration metadata
+3. **Extensible custom URL handling** for enrollment actions (msauth://enroll, msauth://installProfile, msauth://profileInstalled, and custom schemes)
+4. **System webview header injection** for profile installation and similar flows
+5. **Pluggable action handlers** for custom enrollment scenarios
+
+The implementation is generic and not tied to any specific enrollment provider (e.g., Intune). It provides a flexible framework that can be configured for various enrollment/registration scenarios.
 
 ## High-Level Architecture
 
@@ -17,9 +20,10 @@ This document describes the architecture and implementation of the Intune enroll
 │  (MSIDLocalInteractiveController / MSIDBrokerInteractive)   │
 │                                                               │
 │  • Owns BRT attempt tracking (max 2 per session)            │
-│  • Stores captured headers (X-Intune-AuthToken, etc.)       │
-│  • Implements msauth:// action handlers                      │
+│  • Stores captured headers (configurable keys)              │
+│  • Implements custom URL action handlers (extensible)       │
 │  • Coordinates webview → token request transitions           │
+│  • Supports pluggable action handlers via blocks            │
 └───────────────────────┬─────────────────────────────────────┘
                         │
                         │ Sets callbacks:
@@ -44,7 +48,7 @@ This document describes the architecture and implementation of the Intune enroll
 │                                                               │
 │  • Accepts additionalHeaders in initializer                 │
 │  • Applies headers to session (iOS 17.4+, macOS 14.4+)      │
-│  • Used for msauth://installProfile handoff                 │
+│  • Used for profile installation and similar handoffs       │
 └─────────────────────────────────────────────────────────────┘
 ```
 

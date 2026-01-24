@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDLocalInteractiveController+IntuneEnrollment.h"
+#import "MSIDLocalInteractiveController+WebviewExtensions.h"
 #import "MSIDBRTAttemptTracker.h"
 #import "MSIDResponseHeaderStore.h"
 #import "MSIDWebviewAction.h"
@@ -35,12 +35,14 @@
 #import "NSURL+MSIDExtensions.h"
 #import <objc/runtime.h>
 
-@implementation MSIDLocalInteractiveController (IntuneEnrollment)
+@implementation MSIDLocalInteractiveController (WebviewExtensions)
 
 #pragma mark - Associated Objects
 
 static const void *kBRTAttemptTrackerKey = &kBRTAttemptTrackerKey;
 static const void *kResponseHeaderStoreKey = &kResponseHeaderStoreKey;
+static const void *kCapturedHeaderKeysKey = &kCapturedHeaderKeysKey;
+static const void *kCustomURLActionHandlerKey = &kCustomURLActionHandlerKey;
 
 - (MSIDBRTAttemptTracker *)brtAttemptTracker
 {
@@ -64,9 +66,29 @@ static const void *kResponseHeaderStoreKey = &kResponseHeaderStoreKey;
     return store;
 }
 
+- (NSSet<NSString *> *)capturedHeaderKeys
+{
+    return objc_getAssociatedObject(self, kCapturedHeaderKeysKey);
+}
+
+- (void)setCapturedHeaderKeys:(NSSet<NSString *> *)capturedHeaderKeys
+{
+    objc_setAssociatedObject(self, kCapturedHeaderKeysKey, capturedHeaderKeys, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (MSIDCustomURLActionHandler)customURLActionHandler
+{
+    return objc_getAssociatedObject(self, kCustomURLActionHandlerKey);
+}
+
+- (void)setCustomURLActionHandler:(MSIDCustomURLActionHandler)customURLActionHandler
+{
+    objc_setAssociatedObject(self, kCustomURLActionHandlerKey, customURLActionHandler, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
 #pragma mark - Configuration
 
-- (void)configureWebviewForIntuneEnrollment:(id)webviewController
+- (void)configureWebviewWithResponseHandling:(id)webviewController
 {
     if (![webviewController isKindOfClass:[MSIDOAuth2EmbeddedWebviewController class]])
     {
@@ -82,29 +104,10 @@ static const void *kResponseHeaderStoreKey = &kResponseHeaderStoreKey;
         __strong typeof(self) strongSelf = weakSelf;
         if (!strongSelf) return;
         
-        // Capture Intune-related headers (case-insensitive)
-        NSDictionary *headers = event.httpHeaders;
-        for (NSString *key in headers)
-        {
-            NSString *lowerKey = [key lowercaseString];
-            if ([lowerKey isEqualToString:@"x-intune-authtoken"])
-            {
-                [strongSelf.responseHeaderStore setHeader:headers[key] forKey:@"X-Intune-AuthToken"];
-            }
-            else if ([lowerKey isEqualToString:@"x-install-url"])
-            {
-                [strongSelf.responseHeaderStore setHeader:headers[key] forKey:@"X-Install-Url"];
-            }
-            else if ([lowerKey isEqualToString:@"x-ms-clitelem"])
-            {
-                [strongSelf.responseHeaderStore setHeader:headers[key] forKey:@"x-ms-clitelem"];
-            }
-        }
-        
-        // TODO: Update telemetry with captured headers
+        [strongSelf captureHeadersFromResponseEvent:event];
     };
     
-    // Set action decision block for msauth:// and browser:// URLs
+    // Set action decision block for custom URL handling
     controller.webviewActionDecisionBlock = ^(NSURL *url, void(^completionHandler)(MSIDWebviewAction *action)) {
         __strong typeof(self) strongSelf = weakSelf;
         if (!strongSelf)
@@ -113,42 +116,98 @@ static const void *kResponseHeaderStoreKey = &kResponseHeaderStoreKey;
             return;
         }
         
-        NSString *host = [url.host lowercaseString];
-        
-        if ([host isEqualToString:@"enroll"])
+        // Use custom handler if provided, otherwise use default
+        if (strongSelf.customURLActionHandler)
         {
-            [strongSelf handleEnrollAction:url completion:completionHandler];
-        }
-        else if ([host isEqualToString:@"installprofile"])
-        {
-            [strongSelf handleInstallProfileAction:url completion:completionHandler];
-        }
-        else if ([host isEqualToString:@"profileinstalled"])
-        {
-            [strongSelf handleProfileInstalledAction:url completion:completionHandler];
+            strongSelf.customURLActionHandler(url, completionHandler);
         }
         else
         {
-            // Default behavior: complete with the URL
-            completionHandler([MSIDWebviewAction completeAction:url]);
+            [strongSelf handleCustomURLAction:url completion:completionHandler];
         }
     };
 }
 
-#pragma mark - Action Handlers
+#pragma mark - Header Capture
 
-- (void)handleEnrollAction:(NSURL *)url
-                completion:(void(^)(MSIDWebviewAction *action))completionHandler
+- (void)captureHeadersFromResponseEvent:(MSIDWebviewResponseEvent *)event
 {
-    // Extract cpurl parameter
-    NSDictionary *params = [url msidQueryParameters];
-    NSString *cpurl = params[@"cpurl"];
+    NSDictionary *headers = event.httpHeaders;
+    if (!headers || headers.count == 0) return;
     
-    if (!cpurl)
+    // Determine which headers to capture
+    NSSet<NSString *> *headerKeys = self.capturedHeaderKeys;
+    
+    // If not configured, use default common headers
+    if (headerKeys == nil)
     {
-        // No cpurl, cannot proceed
+        headerKeys = [NSSet setWithArray:@[@"x-intune-authtoken", @"x-install-url", @"x-ms-clitelem"]];
+    }
+    
+    // Empty set means no capture
+    if (headerKeys.count == 0) return;
+    
+    // Capture headers (case-insensitive matching)
+    for (NSString *key in headers)
+    {
+        NSString *lowerKey = [key lowercaseString];
+        for (NSString *captureKey in headerKeys)
+        {
+            if ([lowerKey isEqualToString:[captureKey lowercaseString]])
+            {
+                [self.responseHeaderStore setHeader:headers[key] forKey:captureKey];
+                break;
+            }
+        }
+    }
+}
+
+#pragma mark - Custom URL Action Handling
+
+- (void)handleCustomURLAction:(NSURL *)url
+                   completion:(void(^)(MSIDWebviewAction *action))completionHandler
+{
+    if (!url || !completionHandler)
+    {
+        if (completionHandler) completionHandler([MSIDWebviewAction cancelAction]);
+        return;
+    }
+    
+    NSString *host = [url.host lowercaseString];
+    
+    // Handle common enrollment/registration patterns
+    if ([host isEqualToString:@"enroll"])
+    {
+        [self handleEnrollURLAction:url completion:completionHandler];
+    }
+    else if ([host isEqualToString:@"installprofile"])
+    {
+        [self handleInstallProfileURLAction:url completion:completionHandler];
+    }
+    else if ([host isEqualToString:@"profileinstalled"])
+    {
+        [self handleProfileInstalledURLAction:url completion:completionHandler];
+    }
+    else
+    {
+        // Default: complete with the URL
+        completionHandler([MSIDWebviewAction completeAction:url]);
+    }
+}
+
+#pragma mark - Specific URL Handlers
+
+- (void)handleEnrollURLAction:(NSURL *)url
+                    completion:(void(^)(MSIDWebviewAction *action))completionHandler
+{
+    // Extract continuation URL parameter (typically "cpurl")
+    NSDictionary *params = [url msidQueryParameters];
+    NSString *continuationURL = params[@"cpurl"];
+    
+    if (!continuationURL)
+    {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
-                         @"msauth://enroll missing cpurl parameter");
+                         @"Enroll URL missing continuation parameter (cpurl)");
         completionHandler([MSIDWebviewAction cancelAction]);
         return;
     }
@@ -170,12 +229,12 @@ static const void *kResponseHeaderStoreKey = &kResponseHeaderStoreKey;
         // 4. Continue regardless of success/failure
     }
     
-    // Create request to load cpurl
-    NSURL *cpurlURL = [NSURL URLWithString:cpurl];
+    // Create request to load continuation URL
+    NSURL *cpurlURL = [NSURL URLWithString:continuationURL];
     if (!cpurlURL)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
-                         @"Invalid cpurl: %@", cpurl);
+                         @"Invalid continuation URL: %@", continuationURL);
         completionHandler([MSIDWebviewAction cancelAction]);
         return;
     }
@@ -184,55 +243,52 @@ static const void *kResponseHeaderStoreKey = &kResponseHeaderStoreKey;
     completionHandler([MSIDWebviewAction loadRequestAction:request]);
 }
 
-- (void)handleInstallProfileAction:(NSURL *)url
-                        completion:(void(^)(MSIDWebviewAction *action))completionHandler
+- (void)handleInstallProfileURLAction:(NSURL *)url
+                           completion:(void(^)(MSIDWebviewAction *action))completionHandler
 {
-    // Retrieve stored headers
-    NSString *installUrl = [self.responseHeaderStore headerForKey:@"X-Install-Url"];
-    NSString *intuneAuthToken = [self.responseHeaderStore headerForKey:@"X-Intune-AuthToken"];
+    // Retrieve stored headers (using generic header store)
+    NSString *installURL = [self.responseHeaderStore headerForKey:@"x-install-url"];
+    NSString *authToken = [self.responseHeaderStore headerForKey:@"x-intune-authtoken"];
     
-    if (!installUrl)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
-                         @"msauth://installProfile called but X-Install-Url not found in header store");
-        completionHandler([MSIDWebviewAction cancelAction]);
-        return;
-    }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
-                     @"Opening ASWebAuthenticationSession for profile installation");
-    
-    NSURL *installURL = [NSURL URLWithString:installUrl];
     if (!installURL)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
-                         @"Invalid X-Install-Url: %@", installUrl);
+                         @"Install profile action called but install URL not found in header store");
         completionHandler([MSIDWebviewAction cancelAction]);
         return;
     }
     
-    // Create additional headers if token is available
-    NSDictionary<NSString *, NSString *> *additionalHeaders = nil;
-    if (intuneAuthToken)
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                     @"Opening system webview for profile installation");
+    
+    NSURL *profileInstallURL = [NSURL URLWithString:installURL];
+    if (!profileInstallURL)
     {
-        additionalHeaders = @{@"X-Intune-AuthToken": intuneAuthToken};
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
+                         @"Invalid install URL: %@", installURL);
+        completionHandler([MSIDWebviewAction cancelAction]);
+        return;
     }
     
-    // Create ASWebAuthenticationSession with headers
-    // In production, this would be handled by creating a new system webview controller
-    // TODO: Implement actual ASWebAuthenticationSession creation
-    // For reference implementation, we log and cancel the embedded webview
+    // Create additional headers if auth token is available
+    NSDictionary<NSString *, NSString *> *additionalHeaders = nil;
+    if (authToken)
+    {
+        additionalHeaders = @{@"X-Intune-AuthToken": authToken};
+    }
     
+    // In production, this would create and start an ASWebAuthenticationSession
+    // For reference implementation, we log and cancel the embedded webview
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
-                     @"Would open ASWebAuthenticationSession with URL: %@ and headers: %@",
-                     installURL, additionalHeaders);
+                     @"Would open system webview with URL: %@ and headers: %@",
+                     profileInstallURL, additionalHeaders);
     
     // Return cancel action since embedded webview flow is done
     completionHandler([MSIDWebviewAction cancelAction]);
 }
 
-- (void)handleProfileInstalledAction:(NSURL *)url
-                          completion:(void(^)(MSIDWebviewAction *action))completionHandler
+- (void)handleProfileInstalledURLAction:(NSURL *)url
+                             completion:(void(^)(MSIDWebviewAction *action))completionHandler
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
                      @"Profile installation completed, determining next action");
@@ -243,7 +299,7 @@ static const void *kResponseHeaderStoreKey = &kResponseHeaderStoreKey;
     
     if (hasBrokerContext)
     {
-        // Continue broker flow with profileInstalled indication
+        // Continue broker flow with profile installed indication
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
                          @"Continuing broker flow after profile installation");
         completionHandler([MSIDWebviewAction completeAction:url]);
