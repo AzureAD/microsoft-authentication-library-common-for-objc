@@ -687,7 +687,8 @@ initiatedByFrame:(WKFrameInfo *)frame
                         initWithParentController:self.parentController
                                         startURL:action.url
                                   callbackScheme:callbackScheme
-                              useEmpheralSession:YES]; // Use ephemeral for privacy
+                              useEmpheralSession:YES
+                              additionalHeaders:action.additionalHeaders]; // Pass additional headers (e.g., X-Intune-AuthToken)
                 
                 self.currentASWebAuthSession = asWebAuthHandler;
                 
