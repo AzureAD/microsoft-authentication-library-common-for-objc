@@ -26,55 +26,84 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDLocalInteractiveController.h"
-#import "MSIDWebviewSessionManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDBRTAttemptTracker;
 @class MSIDResponseHeaderStore;
 @class MSIDWebviewAction;
+@protocol MSIDRequestContext;
 
 /**
- This category provides backwards-compatible access to webview session management
- functionality for MSIDLocalInteractiveController. 
+ Handler block for custom URL actions. Invoked when a custom-scheme URL is encountered.
+ The handler should determine the appropriate action and invoke the completion handler.
  
- Internally, it uses MSIDWebviewSessionManager for the actual implementation,
- which can also be used directly by other controllers (e.g., broker controllers).
- 
- @deprecated Use MSIDWebviewSessionManager directly for new implementations.
-             This category is provided for backwards compatibility only.
+ @param url The custom-scheme URL that was encountered
+ @param completionHandler Completion handler to invoke with the determined action
  */
-@interface MSIDLocalInteractiveController (WebviewExtensions) <MSIDWebviewSessionControlling>
+typedef void (^MSIDCustomURLActionHandler)(NSURL *url, void(^completionHandler)(MSIDWebviewAction *action));
 
 /**
- Webview session manager for this controller. Manages response handling,
- header capture, and custom URL actions.
+ Protocol that defines the minimum requirements for a controller to use MSIDWebviewSessionManager.
+ This allows the manager to access necessary context from any controller (local or broker).
  */
-@property (nonatomic, readonly) MSIDWebviewSessionManager *webviewSessionManager;
+@protocol MSIDWebviewSessionControlling <NSObject>
+
+@required
+/**
+ Request context for logging and correlation.
+ */
+@property (nonatomic, readonly, nullable) id<MSIDRequestContext> requestParameters;
+
+@end
+
+/**
+ MSIDWebviewSessionManager manages webview session state and provides generic response
+ handling and custom URL action support for interactive authentication flows.
+ 
+ This manager can be used by any controller (MSIDLocalInteractiveController,
+ MSIDBrokerInteractiveController, etc.) via composition, enabling code reuse across
+ broker and non-broker contexts.
+ 
+ Key responsibilities:
+ - Response header capture from HTTP redirects
+ - Custom URL scheme handling with pluggable action handlers
+ - BRT (Broker Refresh Token) attempt tracking
+ - Session-level state management
+ */
+@interface MSIDWebviewSessionManager : NSObject
+
+/**
+ The controller that owns this manager. Used for logging context.
+ */
+@property (nonatomic, weak, nullable) id<MSIDWebviewSessionControlling> controller;
 
 /**
  BRT attempt tracker for this session. Tracks BRT acquisition attempts
  to enforce attempt limits per session.
- 
- @note This is a convenience accessor to webviewSessionManager.brtAttemptTracker
  */
-@property (nonatomic, readonly, nullable) MSIDBRTAttemptTracker *brtAttemptTracker;
+@property (nonatomic, readonly) MSIDBRTAttemptTracker *brtAttemptTracker;
 
 /**
  Response header store for this session. Captures headers from HTTP responses
  for use in subsequent requests or actions.
- 
- @note This is a convenience accessor to webviewSessionManager.responseHeaderStore
  */
-@property (nonatomic, readonly, nullable) MSIDResponseHeaderStore *responseHeaderStore;
+@property (nonatomic, readonly) MSIDResponseHeaderStore *responseHeaderStore;
 
 /**
  Set of header keys to capture from HTTP responses. If nil, common headers
  (x-ms-clitelem, x-install-url, authorization) are captured by default.
  Set to an empty set to disable header capture.
  
- @note This is a convenience accessor to webviewSessionManager.capturedHeaderKeys
+ Configure this property to capture custom headers specific to your enrollment
+ or registration flow. For example:
+ ```objc
+ manager.capturedHeaderKeys = [NSSet setWithArray:@[
+     @"x-custom-auth-token",
+     @"x-enrollment-url",
+     @"x-device-id"
+ ]];
+ ```
  */
 @property (nonatomic, copy, nullable) NSSet<NSString *> *capturedHeaderKeys;
 
@@ -82,29 +111,37 @@ NS_ASSUME_NONNULL_BEGIN
  Custom URL action handler. If set, this block is invoked for custom-scheme URLs
  (e.g., msauth://, browser://) to determine the appropriate action.
  If nil, default behavior is used (complete with the URL).
- 
- @note This is a convenience accessor to webviewSessionManager.customURLActionHandler
  */
 @property (nonatomic, copy, nullable) MSIDCustomURLActionHandler customURLActionHandler;
+
+/**
+ Initialize a new webview session manager.
+ 
+ @param controller The controller that will use this manager (for logging context)
+ @return A new manager instance
+ */
+- (instancetype)initWithController:(nullable id<MSIDWebviewSessionControlling>)controller;
 
 /**
  Configure webview with response event and action decision callbacks.
  This should be called after the webview controller is created but before it is started.
  
  @param webviewController The webview controller to configure
- 
- @note This method delegates to webviewSessionManager.configureWebview:
  */
-- (void)configureWebviewWithResponseHandling:(id)webviewController;
+- (void)configureWebview:(id)webviewController;
 
 /**
  Generic handler for custom URL actions. This is a helper method that can be used
  as the customURLActionHandler or called from a custom handler implementation.
  
+ It handles common patterns:
+ - URLs with "enroll" host: Extracts cpurl parameter, attempts BRT if allowed
+ - URLs with "installProfile" host: Opens system webview with stored headers
+ - URLs with "profileInstalled" host: Continues flow in broker context
+ - Other URLs: Completes with the URL
+ 
  @param url The custom URL to handle
  @param completionHandler Completion handler to invoke with the determined action
- 
- @note This method delegates to webviewSessionManager.handleCustomURLAction:completion:
  */
 - (void)handleCustomURLAction:(NSURL *)url
                    completion:(void(^)(MSIDWebviewAction *action))completionHandler;
