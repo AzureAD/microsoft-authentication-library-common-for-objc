@@ -133,6 +133,25 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)handleWebviewResponseForTelemetry:(MSIDWebviewResponse *)response;
 
+#pragma mark - System Webview Management
+
+/*!
+ Opens a system webview (ASWebAuthenticationSession) for operations requiring
+ system-level authentication, such as device enrollment.
+ 
+ This method delegates system webview creation to the InteractiveController,
+ keeping EmbeddedWebViewController focused only on embedded webview management.
+ 
+ @param url The URL to open in the system webview
+ @param headers Additional HTTP headers to include in the request (e.g., X-Intune-AuthToken)
+ @param purpose The purpose of the system webview operation
+ @param completion Called when system webview completes or fails with callback URL or error
+ */
+- (void)openSystemWebviewWithURL:(NSURL *)url
+                         headers:(nullable NSDictionary<NSString *, NSString *> *)headers
+                         purpose:(MSIDSystemWebviewPurpose)purpose
+                      completion:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

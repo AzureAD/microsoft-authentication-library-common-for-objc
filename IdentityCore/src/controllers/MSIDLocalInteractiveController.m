@@ -36,6 +36,7 @@
 #import "MSIDWebviewAction.h"
 #import "MSIDWebviewResponse.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDASWebAuthenticationSessionHandler.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBrokerInteractiveController.h"
 #endif
@@ -472,6 +473,53 @@
     
     // TODO: Record telemetry for special URL responses
     // This can track special URL types, timing, success/failure, etc.
+}
+
+#pragma mark - System Webview Management
+
+- (void)openSystemWebviewWithURL:(NSURL *)url
+                         headers:(NSDictionary<NSString *, NSString *> *)headers
+                         purpose:(MSIDSystemWebviewPurpose)purpose
+                      completion:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completion
+{
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, 
+                         @"Opening system webview for purpose: %d with URL: %@", 
+                         (int)purpose, MSID_PII_LOG_MASKABLE(url));
+    
+    // Create ASWebAuthenticationSession in CONTROLLER layer (correct architectural layer)
+    // This keeps EmbeddedWebViewController focused only on embedded webview management
+    MSIDASWebAuthenticationSessionHandler *asWebAuthHandler = 
+        [[MSIDASWebAuthenticationSessionHandler alloc] 
+            initWithParentController:self.parentController
+                            startURL:url
+                      callbackScheme:@"msauth"
+                  useEmpheralSession:YES
+                  additionalHeaders:headers];
+    
+    self.currentSystemWebview = asWebAuthHandler;
+    
+    // Start ASWebAuth session
+    __weak typeof(self) weakSelf = self;
+    [asWebAuthHandler startWithCompletionHandler:^(NSURL *callbackURL, NSError *error) {
+        __strong typeof(self) strongSelf = weakSelf;
+        
+        if (error) {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.requestParameters, 
+                             @"System webview failed: %@", error);
+        } else if (callbackURL) {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, strongSelf.requestParameters, 
+                                 @"System webview completed with callback: %@", 
+                                 MSID_PII_LOG_MASKABLE(callbackURL));
+        }
+        
+        // Clear reference
+        strongSelf.currentSystemWebview = nil;
+        
+        // Call completion
+        if (completion) {
+            completion(callbackURL, error);
+        }
+    }];
 }
 
 @end

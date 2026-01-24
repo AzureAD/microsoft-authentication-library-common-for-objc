@@ -48,6 +48,12 @@
 @property (nonatomic, assign) BOOL specialURLHandlingEnabled;
 
 /*!
+ Tracks the current system webview (ASWebAuthenticationSession) if one is active.
+ Used when opening system webview for operations like device enrollment.
+ */
+@property (nonatomic, strong, nullable) id currentSystemWebview;
+
+/*!
  Configures webview controller with special URL handling support.
  Call this after creating the webview controller to wire the handler, state machine, and session state.
  
