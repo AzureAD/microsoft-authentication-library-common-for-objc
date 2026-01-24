@@ -33,6 +33,7 @@
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDLogger+Internal.h"
 #import <objc/runtime.h>
 
 @implementation MSIDLocalInteractiveController (WebviewExtensions)
@@ -138,10 +139,11 @@ static const void *kCustomURLActionHandlerKey = &kCustomURLActionHandlerKey;
     // Determine which headers to capture
     NSSet<NSString *> *headerKeys = self.capturedHeaderKeys;
     
-    // If not configured, use default common headers
+    // If not configured, use default common headers for backwards compatibility
+    // These represent typical headers used in enrollment/registration flows
     if (headerKeys == nil)
     {
-        headerKeys = [NSSet setWithArray:@[@"x-intune-authtoken", @"x-install-url", @"x-ms-clitelem"]];
+        headerKeys = [NSSet setWithArray:@[@"x-ms-clitelem", @"x-install-url", @"authorization"]];
     }
     
     // Empty set means no capture
@@ -247,8 +249,23 @@ static const void *kCustomURLActionHandlerKey = &kCustomURLActionHandlerKey;
                            completion:(void(^)(MSIDWebviewAction *action))completionHandler
 {
     // Retrieve stored headers (using generic header store)
+    // Common header names: x-install-url for the installation URL
+    // authorization or similar header for authentication
     NSString *installURL = [self.responseHeaderStore headerForKey:@"x-install-url"];
-    NSString *authToken = [self.responseHeaderStore headerForKey:@"x-intune-authtoken"];
+    
+    // Try common auth header names (authorization is standard, but could be custom)
+    NSString *authToken = [self.responseHeaderStore headerForKey:@"authorization"];
+    if (!authToken) {
+        // Fall back to checking all stored headers for any auth-related header
+        NSDictionary *allHeaders = [self.responseHeaderStore allHeaders];
+        for (NSString *key in allHeaders) {
+            if ([[key lowercaseString] containsString:@"auth"] || 
+                [[key lowercaseString] containsString:@"token"]) {
+                authToken = allHeaders[key];
+                break;
+            }
+        }
+    }
     
     if (!installURL)
     {
@@ -274,7 +291,8 @@ static const void *kCustomURLActionHandlerKey = &kCustomURLActionHandlerKey;
     NSDictionary<NSString *, NSString *> *additionalHeaders = nil;
     if (authToken)
     {
-        additionalHeaders = @{@"X-Intune-AuthToken": authToken};
+        // Use Authorization header (standard) or the original key if found
+        additionalHeaders = @{@"Authorization": authToken};
     }
     
     // In production, this would create and start an ASWebAuthenticationSession

@@ -71,8 +71,18 @@ typedef void (^MSIDCustomURLActionHandler)(NSURL *url, void(^completionHandler)(
 
 /**
  Set of header keys to capture from HTTP responses. If nil, common headers
- (X-Intune-AuthToken, X-Install-Url, x-ms-clitelem) are captured by default.
+ (x-ms-clitelem, x-install-url, authorization) are captured by default.
  Set to an empty set to disable header capture.
+ 
+ Configure this property to capture custom headers specific to your enrollment
+ or registration flow. For example:
+ ```objc
+ controller.capturedHeaderKeys = [NSSet setWithArray:@[
+     @"x-custom-auth-token",
+     @"x-enrollment-url",
+     @"x-device-id"
+ ]];
+ ```
  */
 @property (nonatomic, copy, nullable) NSSet<NSString *> *capturedHeaderKeys;
 
