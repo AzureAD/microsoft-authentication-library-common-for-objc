@@ -485,13 +485,35 @@ if (!sessionState.brtAcquired &&        // Not yet acquired
 1. If `brtAcquired = YES` → Stop (success)
 2. If `brtAttemptCount >= 2` → Stop (max attempts)
 
-### Three Scenarios
+### BRT Acquisition Scenarios
 
-#### Scenario 1: Success on First Attempt ✅
+**Note:** All scenarios below assume token acquisition is NOT in broker context. If already in broker context, BRT is skipped entirely (see Scenario 0).
+
+#### Scenario 0: Token Acquisition IN Broker Context ✅
 ```
+Token request running IN broker (e.g., via SSO extension)
+    ↓
+1st msauth://enroll
+  shouldAcquireBRT() → isRunningInBrokerContext() → YES
+  Return NO (BRT not needed in broker)
+  Skip BRT ✅
+    ↓
+2nd msauth://installProfile
+  shouldAcquireBRT() → isRunningInBrokerContext() → YES
+  Return NO (BRT not needed in broker)
+  Skip BRT ✅
+    ↓
+Session: BRT never acquired (not needed when already in broker)
+```
+
+#### Scenario 1: NOT in Broker - Success on First Attempt ✅
+```
+Token request NOT in broker (e.g., embedded webview)
+    ↓
 Session start: count=0, acquired=NO
     ↓
 1st msauth://enroll
+  shouldAcquireBRT() → isRunningInBrokerContext() → NO → return YES
   Check: !NO && 0<2 → YES
   count++ (now 1)
   Acquire BRT → Success
@@ -502,7 +524,7 @@ Session start: count=0, acquired=NO
   Skip BRT ✅
 ```
 
-#### Scenario 2: Fail First, Success Second ✅
+#### Scenario 2: NOT in Broker - Fail First, Success Second ✅
 ```
 Session start: count=0, acquired=NO
     ↓
@@ -523,7 +545,7 @@ Session start: count=0, acquired=NO
   Skip BRT ✅
 ```
 
-#### Scenario 3: Both Attempts Fail ✅
+#### Scenario 3: NOT in Broker - Both Attempts Fail ✅
 ```
 Session start: count=0, acquired=NO
     ↓
@@ -584,6 +606,29 @@ if (sessionState.brtAttemptCount < 2)  // Might acquire after already successful
 
 ## BRT Acquisition Logic
 
+### ⚠️ CRITICAL PRE-CONDITION: Only If NOT in Broker Context
+
+**BRT should ONLY be acquired if token acquisition is NOT happening in broker context.**
+
+**Rationale:**
+- If already in broker context → BRT not needed (already has broker capabilities)
+- If NOT in broker context → BRT needed (enables broker retry later)
+
+**Implementation:**
+```objc
+- (BOOL)shouldAcquireBRT
+{
+    // CRITICAL: Only acquire BRT if NOT in broker context
+    if ([self isRunningInBrokerContext])
+    {
+        return NO;  // Skip BRT when already in broker
+    }
+    
+    // Additional policy checks here (if needed)
+    return YES;  // Acquire BRT when NOT in broker
+}
+```
+
 ### When to Acquire
 
 **Timing:** On the FIRST msauth:// or browser:// redirect
@@ -591,9 +636,11 @@ if (sessionState.brtAttemptCount < 2)  // Might acquire after already successful
 - NOT delayed until `msauth://installProfile`
 - Ready for any subsequent operation
 
-**Check Logic:**
+**Pre-Condition:** Token acquisition NOT in broker context
+
+**Check Logic (3 conditions):**
 ```objc
-if ([self shouldAcquireBRT] &&          // Policy: is BRT needed?
+if ([self shouldAcquireBRT] &&          // Policy: NOT in broker + BRT needed
     !self.sessionState.brtAcquired &&   // Not yet successful
     self.sessionState.brtAttemptCount < 2) // Max 2 attempts
 {
@@ -669,14 +716,19 @@ if ([self shouldAcquireBRT] &&          // Policy: is BRT needed?
 
 - (BOOL)shouldAcquireBRT
 {
-    // TODO: Implement policy decision
-    // Check if BRT is required based on:
-    // - Current configuration
+    // CRITICAL: Only acquire BRT if NOT in broker context
+    // If already in broker, BRT is not needed
+    if ([self isRunningInBrokerContext])
+    {
+        return NO;  // Skip BRT when in broker
+    }
+    
+    // TODO: Implement additional policy checks if needed:
     // - Broker availability
     // - User consent
     // - Enterprise policy
     
-    return NO;  // Placeholder - return YES when BRT needed
+    return YES;  // Acquire BRT when NOT in broker context
 }
 
 - (void)acquireBRTTokenWithCompletion:(void (^)(BOOL success, NSError *error))completion
@@ -1018,8 +1070,15 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 
 - (BOOL)shouldAcquireBRT
 {
-    // TODO: Implement policy - when is BRT needed?
-    return NO;  // Placeholder
+    // CRITICAL: Only acquire BRT if NOT in broker context
+    // If already in broker, BRT is not needed
+    if ([self isRunningInBrokerContext])
+    {
+        return NO;  // Skip BRT when in broker
+    }
+    
+    // TODO: Implement additional policy checks if needed
+    return YES;  // Acquire BRT when NOT in broker context
 }
 
 - (void)acquireBRTTokenWithCompletion:(void (^)(BOOL success, NSError *error))completion
