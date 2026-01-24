@@ -49,7 +49,7 @@ This architecture allows:
 - ✅ Code sharing between local and broker contexts
 - ✅ No duplication across repositories
 - ✅ Independent testing of manager logic
-- ✅ Backwards compatibility via category
+- ✅ Consistent usage pattern across all controllers
 
 ## High-Level Architecture
 

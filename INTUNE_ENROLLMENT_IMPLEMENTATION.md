@@ -33,13 +33,12 @@ The implementation adds generic, extensible support for:
    - Stores x-ms-clitelem, X-Intune-AuthToken, X-Install-Url headers
    - Simple key-value store with clear operation
 
-### Reference Implementation
-5. **IdentityCore/src/controllers/MSIDLocalInteractiveController+WebviewExtensions.h/m**
-   - Generic category demonstrating how to wire webview extension callbacks
-   - Configurable header capture (not hardcoded to specific headers)
-   - Pluggable custom URL action handlers via blocks
-   - Default handlers for common enrollment patterns (enroll, installProfile, profileInstalled)
-   - Shows integration pattern for any enrollment/registration scenario
+### Manager Class
+5. **IdentityCore/src/webview/MSIDWebviewSessionManager.h/m**
+   - Standalone manager class for webview session management
+   - Contains all logic for header capture, BRT tracking, and URL action handling
+   - Can be used by any controller (local or broker) via direct composition
+   - Defines MSIDWebviewSessionControlling protocol for controller requirements
 
 ### Documentation
 6. **docs/intune-enrollment-webview-flow.md**
@@ -93,90 +92,73 @@ The implementation adds generic, extensible support for:
 
 ### For Library Consumers
 
-The generic webview extensions provide a flexible framework for enrollment and registration flows. You can either use the built-in defaults or customize the behavior.
+Use `MSIDWebviewSessionManager` directly in any controller (local or broker).
 
-#### Option 1: Use Built-in Defaults (Simple)
+#### Step 1: Import Manager
 
 ```objc
-// After webview controller is created, configure with default behavior
-[interactiveController configureWebviewWithResponseHandling:webviewController];
+#import "MSIDWebviewSessionManager.h"
+```
 
-// Optional: Configure which headers to capture (defaults to common headers)
-interactiveController.capturedHeaderKeys = [NSSet setWithArray:@[
+#### Step 2: Create Manager Instance
+
+```objc
+// In your controller's init or setup method
+@property (nonatomic, strong) MSIDWebviewSessionManager *webviewSessionManager;
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _webviewSessionManager = [[MSIDWebviewSessionManager alloc] initWithController:self];
+    }
+    return self;
+}
+```
+
+#### Step 3: Configure Webview
+
+```objc
+// When creating webview, configure with manager
+[self.webviewSessionManager configureWebview:webviewController];
+
+// Optional: Customize captured headers
+self.webviewSessionManager.capturedHeaderKeys = [NSSet setWithArray:@[
     @"x-custom-token",
     @"x-install-url",
     @"x-ms-clitelem"
 ]];
-```
 
-#### Option 2: Custom Action Handler (Advanced)
-
-```objc
-// Set a custom URL action handler
-interactiveController.customURLActionHandler = ^(NSURL *url, void(^completion)(MSIDWebviewAction *action)) {
-    NSString *host = [url.host lowercaseString];
-    
-    if ([host isEqualToString:@"custom-enroll"]) {
-        // Custom enrollment logic
-        [self handleCustomEnrollment:url completion:completion];
+// Optional: Set custom URL handler
+self.webviewSessionManager.customURLActionHandler = ^(NSURL *url, void(^completion)(MSIDWebviewAction *action)) {
+    if ([url.host isEqualToString:@"custom-action"]) {
+        [self handleCustomAction:url completion:completion];
     }
     else {
         // Fall back to default handler
-        [interactiveController handleCustomURLAction:url completion:completion];
+        [self.webviewSessionManager handleCustomURLAction:url completion:completion];
     }
 };
-
-// Then configure the webview
-[interactiveController configureWebviewWithResponseHandling:webviewController];
 ```
 
-#### Option 3: Manual Configuration (Full Control)
+#### Step 4: Access Captured Headers
 
 ```objc
-__weak typeof(self) weakSelf = self;
+// Retrieve headers captured during the flow
+NSString *authToken = [self.webviewSessionManager.responseHeaderStore headerForKey:@"x-custom-token"];
+NSString *installURL = [self.webviewSessionManager.responseHeaderStore headerForKey:@"x-install-url"];
 
-// Manually set response event block
-webviewController.webviewResponseEventBlock = ^(MSIDWebviewResponseEvent *event) {
-    __strong typeof(self) strongSelf = weakSelf;
-    if (!strongSelf) return;
-    
-    // Custom header capture logic
-    NSString *customToken = event.httpHeaders[@"X-Custom-Token"];
-    if (customToken) {
-        [strongSelf.headerStore setHeader:customToken forKey:@"X-Custom-Token"];
-    }
-};
-
-// Manually set action decision block
-webviewController.webviewActionDecisionBlock = ^(NSURL *url, void(^completion)(MSIDWebviewAction *action)) {
-    // Custom URL handling logic
-    [self handleCustomURL:url completion:completion];
-};
+// Use headers in subsequent requests or actions
 ```
 
 #### Built-in Action Handlers
 
-The `handleCustomURLAction:completion:` method provides default handling for common patterns:
+The manager's `handleCustomURLAction:completion:` method provides default handling for common patterns:
 - **enroll**: Extracts cpurl parameter, attempts BRT acquisition, loads continuation URL
 - **installProfile**: Opens system webview with stored headers
 - **profileInstalled**: Continues flow in broker context
 
 You can call this from your custom handler for standard actions, or implement entirely custom logic.
-
-#### Step 3: Using Stored Headers
-```objc
-// Retrieve headers captured during the flow
-NSString *authToken = [interactiveController.responseHeaderStore headerForKey:@"x-custom-token"];
-NSString *installURL = [interactiveController.responseHeaderStore headerForKey:@"x-install-url"];
-
-// Use headers in subsequent requests or actions
-```
-
-#### Legacy Integration (Backwards Compatible)
-See `MSIDLocalInteractiveController+WebviewExtensions.m` for reference implementations of:
-- `handleEnrollURLAction:completion:` - BRT acquisition and cpurl loading
-- `handleInstallProfileURLAction:completion:` - ASWebAuthenticationSession with headers
-- `handleProfileInstalledURLAction:completion:` - Broker context continuation
 
 ### For ASWebAuthenticationSession with Headers
 ```objc
