@@ -2,15 +2,54 @@
 
 ## Overview
 
-This document describes the architecture and implementation of generic webview extensions in the Microsoft Authentication Library Common for Objective-C. The implementation enables enhanced webview flows that support device enrollment, registration, and other scenarios requiring:
+This document describes the architecture and implementation of generic webview extensions in the Microsoft Authentication Library Common for Objective-C. The implementation uses a **manager-based composition pattern** that enables code sharing across different controller types (local and broker contexts).
+
+The implementation enables enhanced webview flows that support device enrollment, registration, and other scenarios requiring:
 
 1. **Best-effort BRT (Broker Refresh Token) acquisition** with controlled retry logic
 2. **Response header capture** from HTTP 302 redirects for enrollment/registration metadata
 3. **Extensible custom URL handling** for enrollment actions (msauth://enroll, msauth://installProfile, msauth://profileInstalled, and custom schemes)
 4. **System webview header injection** for profile installation and similar flows
 5. **Pluggable action handlers** for custom enrollment scenarios
+6. **Code reuse across controllers** - same logic can be used by MSIDLocalInteractiveController and MSIDBrokerInteractiveController
 
 The implementation is generic and not tied to any specific enrollment provider (e.g., Intune). It provides a flexible framework that can be configured for various enrollment/registration scenarios.
+
+## Architecture Overview
+
+### Manager-Based Composition
+
+The functionality is implemented in `MSIDWebviewSessionManager`, a standalone class that can be used by **any controller** via composition:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│         MSIDWebviewSessionManager (Core Logic)          │
+│                                                           │
+│  • Header capture and storage                           │
+│  • BRT attempt tracking                                 │
+│  • Custom URL action handling                           │
+│  • Webview configuration                                │
+│  • Pluggable action handlers                            │
+└───────────────────┬─────────────────────────────────────┘
+                    │
+                    │ Used by (composition)
+                    │
+        ┌───────────┴────────────┐
+        │                        │
+        ▼                        ▼
+┌──────────────────┐    ┌──────────────────┐
+│ Local Controller │    │ Broker Controller│
+│                  │    │                  │
+│ MSIDLocal...     │    │ MSIDBroker...    │
+│ (Identity Core)  │    │ (Broker Repo)    │
+└──────────────────┘    └──────────────────┘
+```
+
+This architecture allows:
+- ✅ Code sharing between local and broker contexts
+- ✅ No duplication across repositories
+- ✅ Independent testing of manager logic
+- ✅ Backwards compatibility via category
 
 ## High-Level Architecture
 
@@ -53,6 +92,43 @@ The implementation is generic and not tied to any specific enrollment provider (
 ```
 
 ## Component Overview
+
+### Core Manager
+
+#### MSIDWebviewSessionManager
+The central component that manages all webview session state and logic. This manager can be used by any controller (local or broker) via composition.
+
+```objc
+@interface MSIDWebviewSessionManager : NSObject
+
+@property (nonatomic, weak, nullable) id<MSIDWebviewSessionControlling> controller;
+@property (nonatomic, readonly) MSIDBRTAttemptTracker *brtAttemptTracker;
+@property (nonatomic, readonly) MSIDResponseHeaderStore *responseHeaderStore;
+@property (nonatomic, copy, nullable) NSSet<NSString *> *capturedHeaderKeys;
+@property (nonatomic, copy, nullable) MSIDCustomURLActionHandler customURLActionHandler;
+
+- (instancetype)initWithController:(nullable id<MSIDWebviewSessionControlling>)controller;
+- (void)configureWebview:(id)webviewController;
+- (void)handleCustomURLAction:(NSURL *)url 
+                   completion:(void(^)(MSIDWebviewAction *action))completionHandler;
+
+@end
+```
+
+**Usage Examples:**
+
+In MSIDLocalInteractiveController (via category for backwards compatibility):
+```objc
+[controller configureWebviewWithResponseHandling:webviewController];
+```
+
+In MSIDBrokerInteractiveController (direct usage):
+```objc
+self.webviewSessionManager = [[MSIDWebviewSessionManager alloc] initWithController:self];
+[self.webviewSessionManager configureWebview:webviewController];
+```
+
+See [MANAGER_USAGE_GUIDE.md](../MANAGER_USAGE_GUIDE.md) for complete integration examples.
 
 ### Helper Types
 
