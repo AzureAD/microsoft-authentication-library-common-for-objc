@@ -25,13 +25,27 @@
 #import "MSIDBaseRequestController.h"
 #import "MSIDTokenRequestProviding.h"
 #import "MSIDRequestControlling.h"
+#import "MSIDInteractiveWebviewHandler.h"
 
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDWebWPJResponse;
+@class MSIDInteractiveWebviewState;
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
+@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDInteractiveWebviewHandler>
 
 @property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
+
+/*!
+ Session state for tracking special URL handling flow.
+ Created at start of interactive request, used throughout webview navigation.
+ */
+@property (nonatomic, strong, nullable) MSIDInteractiveWebviewState *sessionState;
+
+/*!
+ Feature flag to enable special URL handling flow.
+ Default is NO. Set to YES to enable Intune MDM enrollment and special URL processing.
+ */
+@property (nonatomic, assign) BOOL specialURLHandlingEnabled;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider

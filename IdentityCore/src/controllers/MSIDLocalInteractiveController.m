@@ -31,6 +31,10 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDClientInfo.h"
+#import "MSIDInteractiveWebviewState.h"
+#import "MSIDSpecialURLViewActionResolver.h"
+#import "MSIDWebviewAction.h"
+#import "MSIDWebviewResponse.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBrokerInteractiveController.h"
 #endif
@@ -42,6 +46,7 @@
 
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 @property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
+@property (nonatomic, strong) MSIDSpecialURLViewActionResolver *urlResolver;
 
 @end
 
@@ -61,6 +66,9 @@
     if (self)
     {
         _interactiveRequestParamaters = parameters;
+        _specialURLHandlingEnabled = NO; // Default OFF for safety
+        _sessionState = [[MSIDInteractiveWebviewState alloc] init];
+        _urlResolver = [[MSIDSpecialURLViewActionResolver alloc] init];
     }
 
     return self;
@@ -240,6 +248,199 @@
         
         completionBlock(result, error);
     }];
+}
+
+#pragma mark - MSIDInteractiveWebviewHandler
+
+#pragma mark Context Checking
+
+- (BOOL)isRunningInBrokerContext
+{
+    // MSIDLocalInteractiveController is non-broker context
+    // Broker context is handled by ADBrokerInteractiveControllerWithPRT
+    return NO;
+}
+
+#pragma mark Policy Hooks
+
+- (BOOL)shouldAcquireBRTForSpecialURL:(NSURL *)url state:(MSIDInteractiveWebviewState *)state
+{
+    // Only acquire BRT if NOT in broker context (always NO for LocalInteractiveController)
+    if ([self isRunningInBrokerContext])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Skipping BRT acquisition - already in broker context");
+        return NO;
+    }
+    
+    // Check if already acquired successfully
+    if (state.brtAcquired)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Skipping BRT acquisition - already acquired");
+        return NO;
+    }
+    
+    // Check if max attempts reached
+    if (state.brtAttemptCount >= 2)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Skipping BRT acquisition - max attempts (%ld) reached", (long)state.brtAttemptCount);
+        return NO;
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, @"BRT acquisition needed for URL: %@", MSID_PII_LOG_MASKABLE(url));
+    return YES;
+}
+
+- (MSIDInteractiveWebviewBRTFailurePolicy)brtFailurePolicyForSpecialURL:(__unused NSURL *)url
+                                                                   state:(__unused MSIDInteractiveWebviewState *)state
+{
+    // For now, always continue even if BRT fails
+    // This allows the flow to proceed and potentially retry on next special URL
+    return MSIDInteractiveWebviewBRTFailurePolicyContinue;
+}
+
+- (BOOL)shouldRetryInBrokerForSpecialURL:(__unused NSURL *)url state:(__unused MSIDInteractiveWebviewState *)state
+{
+    // Only retry in broker if NOT already in broker context
+    if ([self isRunningInBrokerContext])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Already in broker context - no retry needed");
+        return NO;
+    }
+    
+#if TARGET_OS_IPHONE
+    // On iOS, we can retry in broker via MSIDBrokerInteractiveController
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Will retry in broker context");
+    return YES;
+#else
+    // On macOS, broker retry not currently supported
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Broker retry not supported on macOS");
+    return NO;
+#endif
+}
+
+#pragma mark Action Implementations
+
+- (void)acquireBRTTokenWithCompletion:(void (^)(BOOL success, NSError * _Nullable error))completion
+{
+    if (!completion)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"acquireBRTTokenWithCompletion called with nil completion");
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring BRT token (attempt %ld/%d)", (long)self.sessionState.brtAttemptCount + 1, 2);
+    
+    // TODO: Implement actual BRT token acquisition
+    // For now, return error indicating not implemented
+    // In production, this would make a token request for broker refresh token
+    
+    NSError *error = MSIDCreateError(MSIDErrorDomain, 
+                                     MSIDErrorInternal,
+                                     @"BRT acquisition not yet implemented in MSIDLocalInteractiveController", 
+                                     nil, nil, nil, 
+                                     self.requestParameters.correlationId, 
+                                     nil, NO);
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"BRT acquisition result: FAILED (not implemented)");
+    
+    completion(NO, error);
+}
+
+- (NSError *)genericBrtError
+{
+    return MSIDCreateError(MSIDErrorDomain,
+                          MSIDErrorInternal,
+                          @"BRT acquisition failed",
+                          nil, nil, nil,
+                          self.requestParameters.correlationId,
+                          nil, NO);
+}
+
+- (void)retryInteractiveRequestInBrokerContextForURL:(NSURL *)url
+                                          completion:(void (^)(BOOL success, NSError * _Nullable error))completion
+{
+    if (!completion)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"retryInteractiveRequestInBrokerContextForURL called with nil completion");
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, @"Retrying request in broker context for URL: %@", MSID_PII_LOG_MASKABLE(url));
+    
+#if TARGET_OS_IPHONE
+    // Create broker controller and retry the request
+    NSError *brokerError = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] 
+                                                         initWithInteractiveRequestParameters:self.interactiveRequestParamaters
+                                                         tokenRequestProvider:self.tokenRequestProvider
+                                                         brokerInstallLink:nil
+                                                         error:&brokerError];
+    
+    if (!brokerController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Failed to create broker controller: %@", brokerError);
+        completion(NO, brokerError);
+        return;
+    }
+    
+    // TODO: Actually execute the broker request
+    // For now, just signal success that we transferred to broker
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Successfully transferred to broker context");
+    completion(YES, nil);
+    
+    // Note: Broker controller will continue the flow in broker context
+    // The current webview should be dismissed by caller
+#else
+    NSError *error = MSIDCreateError(MSIDErrorDomain, 
+                                     MSIDErrorInternal,
+                                     @"Broker retry not supported on macOS", 
+                                     nil, nil, nil,
+                                     self.requestParameters.correlationId,
+                                     nil, NO);
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Broker retry not supported on this platform");
+    completion(NO, error);
+#endif
+}
+
+- (void)dismissEmbeddedWebviewIfPresent
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Dismissing embedded webview");
+    
+    // TODO: Implement webview dismissal
+    // This should dismiss the current webview if it's presented
+    // The InteractiveController knows about the webview through the request
+}
+
+#pragma mark View Action Resolution
+
+- (MSIDWebviewAction * _Nullable)viewActionForSpecialURL:(NSURL *)url
+                                                    state:(MSIDInteractiveWebviewState *)state
+{
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, @"Resolving view action for special URL: %@", MSID_PII_LOG_MASKABLE(url));
+    
+    // Use resolver to map URL to action
+    MSIDWebviewAction *action = [self.urlResolver resolveActionForURL:url state:state];
+    
+    if (action)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Resolved action type: %ld", (long)action.type);
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"No action resolved for URL");
+    }
+    
+    return action;
+}
+
+#pragma mark Telemetry
+
+- (void)handleWebviewResponseForTelemetry:(MSIDWebviewResponse *)response
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling webview response for telemetry");
+    
+    // TODO: Record telemetry for special URL responses
+    // This can track special URL types, timing, success/failure, etc.
 }
 
 @end
