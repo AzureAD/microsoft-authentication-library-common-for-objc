@@ -40,6 +40,12 @@ NS_ASSUME_NONNULL_BEGIN
                           callbackScheme:(NSString *)callbackURLScheme
                       useEmpheralSession:(BOOL)useEmpheralSession;
 
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                      useEmpheralSession:(BOOL)useEmpheralSession
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
+
 @end
 
 NS_ASSUME_NONNULL_END

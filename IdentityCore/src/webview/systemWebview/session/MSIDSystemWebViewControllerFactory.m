@@ -49,10 +49,26 @@
                                            useEmpheralSession:(__unused BOOL)useEmpheralSession
                                                       context:(__unused id<MSIDRequestContext>)context
 {
+    return [self authSessionWithParentController:parentController
+                                        startURL:startURL
+                                  callbackScheme:callbackURLScheme
+                              useEmpheralSession:useEmpheralSession
+                               additionalHeaders:nil
+                                         context:context];
+}
+
++ (id<MSIDWebviewInteracting>)authSessionWithParentController:(__unused MSIDViewController *)parentController
+                                                     startURL:(__unused NSURL *)startURL
+                                               callbackScheme:(__unused NSString *)callbackURLScheme
+                                           useEmpheralSession:(__unused BOOL)useEmpheralSession
+                                            additionalHeaders:(__unused NSDictionary<NSString *, NSString *> *)additionalHeaders
+                                                      context:(__unused id<MSIDRequestContext>)context
+{
     return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
                                                                               startURL:startURL
                                                                         callbackScheme:callbackURLScheme
-                                                                    useEmpheralSession:useEmpheralSession];
+                                                                    useEmpheralSession:useEmpheralSession
+                                                                     additionalHeaders:additionalHeaders];
 }
 
 #if TARGET_OS_IPHONE
