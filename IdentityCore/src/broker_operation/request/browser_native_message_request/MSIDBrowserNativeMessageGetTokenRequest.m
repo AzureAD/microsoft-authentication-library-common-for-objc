@@ -178,13 +178,8 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     // It is optional param, if nil -- set it to 'true' by default.
     _canShowUI = canShowUIValue ? [requestJson msidBoolObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY] : YES;
     
-    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY required:NO error:error]) return nil;
-    if (_extraParameters && ![_extraParameters msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY required:NO error:error]) return nil;
-    NSString *reqCnf = requestJson[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY];
-    
-    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY required:NO error:error]) return nil;
-    if (_extraParameters && ![_extraParameters msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY required:NO error:error]) return nil;
-    NSString *tokenType = requestJson[MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
+    NSString *reqCnf = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY];
+    NSString *tokenType = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
     tokenType = tokenType.capitalizedString;
     
     
@@ -201,10 +196,8 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     {
         _authScheme = [MSIDAuthenticationScheme new]; // Bearer by default.
     }
-    
-    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY required:NO error:error]) return nil;
-    if (_extraParameters && ![_extraParameters msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY required:NO error:error]) return nil;
-    NSString *claims = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY] ?: _extraParameters[MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY];
+
+    NSString *claims = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY];
     
     if (claims)
     {

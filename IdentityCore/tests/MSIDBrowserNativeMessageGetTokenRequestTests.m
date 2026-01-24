@@ -276,7 +276,7 @@
     XCTAssertTrue(request.claimsRequest.hasClaims);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberClaims_shouldFail
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberClaims_shouldNotFail
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -306,11 +306,12 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNil(request);
-    XCTAssertNotNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertNil(request.claimsRequest);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberClaimsAsEQP_shouldFail
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberClaimsAsEQP_shouldNotFail
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -340,8 +341,9 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNil(request);
-    XCTAssertNotNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertNil(request.claimsRequest);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValidAndInvalidClaimsProvided_shouldInit
@@ -660,7 +662,7 @@
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnf_shouldFail
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnf_shouldNotFail
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -691,11 +693,12 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNil(request);
-    XCTAssertNotNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenType_shouldFail
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenType_shouldNotFail
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -726,11 +729,12 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNil(request);
-    XCTAssertNotNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnfAsEQP_shouldFail
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnfAsEQP_shouldNotFail
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -761,11 +765,12 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNil(request);
-    XCTAssertNotNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenTypeAsEQP_shouldFail
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenTypeAsEQP_shouldNotFail
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -796,8 +801,9 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNil(request);
-    XCTAssertNotNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
 @end
