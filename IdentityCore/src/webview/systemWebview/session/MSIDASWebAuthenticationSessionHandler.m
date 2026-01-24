@@ -116,9 +116,15 @@
     {
         if (@available(iOS 17.4, macOS 14.4, *))
         {
-            if ([self.webAuthSession respondsToSelector:@selector(setAdditionalHeaderFields:)])
+            // Use objc_msgSend for type-safe invocation
+            // ASWebAuthenticationSession.additionalHeaderFields property
+            SEL selector = NSSelectorFromString(@"setAdditionalHeaderFields:");
+            if ([self.webAuthSession respondsToSelector:selector])
             {
-                [self.webAuthSession performSelector:@selector(setAdditionalHeaderFields:) withObject:self.additionalHeaders];
+                #pragma clang diagnostic push
+                #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                [self.webAuthSession performSelector:selector withObject:self.additionalHeaders];
+                #pragma clang diagnostic pop
             }
         }
     }
