@@ -47,6 +47,14 @@
  */
 @property (nonatomic, assign) BOOL specialURLHandlingEnabled;
 
+/*!
+ Configures webview controller with special URL handling support.
+ Call this after creating the webview controller to wire the handler, state machine, and session state.
+ 
+ @param webviewController The webview controller to configure
+ */
+- (void)configureWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController;
+
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                         error:(NSError * _Nullable __autoreleasing * _Nullable)error;

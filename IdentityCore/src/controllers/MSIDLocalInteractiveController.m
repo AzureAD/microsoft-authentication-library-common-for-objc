@@ -35,6 +35,8 @@
 #import "MSIDSpecialURLViewActionResolver.h"
 #import "MSIDWebviewAction.h"
 #import "MSIDWebviewResponse.h"
+#import "MSIDInteractiveWebviewStateMachine.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBrokerInteractiveController.h"
 #endif
@@ -248,6 +250,38 @@
         
         completionBlock(result, error);
     }];
+}
+
+#pragma mark - Webview Configuration
+
+- (void)configureWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
+{
+    if (!self.specialURLHandlingEnabled)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Special URL handling disabled - skipping webview configuration");
+        return;
+    }
+    
+    if (![webviewController isKindOfClass:[MSIDOAuth2EmbeddedWebviewController class]])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Webview controller is not embedded webview - skipping special URL configuration");
+        return;
+    }
+    
+    MSIDOAuth2EmbeddedWebviewController *embeddedController = (MSIDOAuth2EmbeddedWebviewController *)webviewController;
+    
+    // Wire handler (self implements MSIDInteractiveWebviewHandler)
+    embeddedController.handler = self;
+    
+    // Pass session state
+    embeddedController.sessionState = self.sessionState;
+    
+    // Create and wire state machine
+    embeddedController.stateMachine = [[MSIDInteractiveWebviewStateMachine alloc] 
+                                       initWithHandler:self
+                                       resolver:self.urlResolver];
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Webview controller configured with special URL handling");
 }
 
 #pragma mark - MSIDInteractiveWebviewHandler
