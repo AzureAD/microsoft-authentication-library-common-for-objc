@@ -299,16 +299,29 @@ Tracks BRT acquisition attempts per token acquisition session.
 typedef void (^MSIDWebviewResponseEventBlock)(MSIDWebviewResponseEvent *event);
 ```
 
-**Usage in InteractiveController:**
+**Usage in InteractiveController (Option 1: Simple - Use Built-in):**
+```objc
+// Configure with defaults - automatically captures common headers
+[interactiveController configureWebviewWithResponseHandling:webviewController];
+
+// Optional: Customize which headers to capture
+interactiveController.capturedHeaderKeys = [NSSet setWithArray:@[
+    @"x-custom-auth-token",
+    @"x-install-url",
+    @"x-ms-clitelem"
+]];
+```
+
+**Usage in InteractiveController (Option 2: Manual - Full Control):**
 ```objc
 webviewController.webviewResponseEventBlock = ^(MSIDWebviewResponseEvent *event) {
-    // Extract relevant headers
-    NSString *intuneToken = event.httpHeaders[@"X-Intune-AuthToken"];
+    // Extract relevant headers (example for enrollment scenario)
+    NSString *authToken = event.httpHeaders[@"X-Custom-Auth-Token"];
     NSString *installUrl = event.httpHeaders[@"X-Install-Url"];
     NSString *clitelem = event.httpHeaders[@"x-ms-clitelem"];
     
     // Store in session header store
-    if (intuneToken) [self.headerStore setHeader:intuneToken forKey:@"X-Intune-AuthToken"];
+    if (authToken) [self.headerStore setHeader:authToken forKey:@"X-Custom-Auth-Token"];
     if (installUrl) [self.headerStore setHeader:installUrl forKey:@"X-Install-Url"];
     if (clitelem) [self.headerStore setHeader:clitelem forKey:@"x-ms-clitelem"];
     
@@ -323,9 +336,35 @@ webviewController.webviewResponseEventBlock = ^(MSIDWebviewResponseEvent *event)
 typedef void (^MSIDWebviewActionDecisionBlock)(NSURL *url, void(^completionHandler)(MSIDWebviewAction *action));
 ```
 
-**Usage in InteractiveController:**
+**Usage in InteractiveController (Option 1: Simple - Use Built-in):**
+```objc
+// Use default handler - handles common patterns (enroll, installProfile, profileInstalled)
+[interactiveController configureWebviewWithResponseHandling:webviewController];
+// Now custom URLs are automatically handled by built-in logic
+```
+
+**Usage in InteractiveController (Option 2: Custom Handler):**
+```objc
+// Set custom handler before configuring
+interactiveController.customURLActionHandler = ^(NSURL *url, void(^completionHandler)(MSIDWebviewAction *action)) {
+    NSString *host = [url.host lowercaseString];
+    
+    if ([host isEqualToString:@"custom-action"]) {
+        [self handleCustomAction:url completion:completionHandler];
+    }
+    else {
+        // Fall back to built-in handler for standard patterns
+        [interactiveController handleCustomURLAction:url completion:completionHandler];
+    }
+};
+
+[interactiveController configureWebviewWithResponseHandling:webviewController];
+```
+
+**Usage in InteractiveController (Option 3: Manual - Full Control):**
 ```objc
 webviewController.webviewActionDecisionBlock = ^(NSURL *url, void(^completionHandler)(MSIDWebviewAction *action)) {
+    // Completely custom URL handling logic
     if ([url.host isEqualToString:@"enroll"]) {
         [self handleEnrollAction:url completion:completionHandler];
     }
@@ -344,10 +383,12 @@ webviewController.webviewActionDecisionBlock = ^(NSURL *url, void(^completionHan
 
 ## State Ownership
 
-### MSIDLocalInteractiveController
+### MSIDLocalInteractiveController (WebviewExtensions)
 - **MSIDBRTAttemptTracker**: Instance per token acquisition session; reset at start of new session
 - **MSIDResponseHeaderStore**: Instance per token acquisition session; cleared between sessions
-- **Webview callbacks**: Set when creating webview controller; cleared when session ends
+- **capturedHeaderKeys**: Configurable set of headers to capture; nil defaults to common headers
+- **customURLActionHandler**: Optional custom URL action handler; nil uses built-in handler
+- **Webview callbacks**: Set when calling configureWebviewWithResponseHandling; cleared when session ends
 
 ### Webview Controllers
 - **Navigation state**: Managed internally; transitions reported via callbacks
@@ -364,24 +405,47 @@ webviewController.webviewActionDecisionBlock = ^(NSURL *url, void(^completionHan
 
 ## Header Capture Strategy
 
-### Targeted Headers (case-insensitive)
+### Configurable Header Capture
+
+**Default Headers (captured if capturedHeaderKeys is nil):**
 - `x-ms-clitelem`: Microsoft client telemetry
-- `X-Intune-AuthToken`: Intune authentication token for profile installation
-- `X-Install-Url`: Profile installation endpoint URL
+- `x-intune-authtoken`: Authentication token for profile installation (example)
+- `x-install-url`: Installation endpoint URL (example)
+
+**Custom Configuration:**
+```objc
+// Capture specific headers
+interactiveController.capturedHeaderKeys = [NSSet setWithArray:@[
+    @"x-custom-token",
+    @"x-enrollment-url",
+    @"x-device-id"
+]];
+
+// Disable header capture
+interactiveController.capturedHeaderKeys = [NSSet set];
+```
 
 ### Capture Points
 - **All HTTP responses** via `WKNavigationDelegate.decidePolicyForNavigationResponse`
-- Particularly important for **302 redirects** where Intune metadata is present
+- Particularly important for **302 redirects** where enrollment/registration metadata is present
 - Headers stored in session-level store, overwriting previous values
+- **Case-insensitive matching**: Headers are matched without regard to case
 
 ### Header Usage
-- **X-Install-Url + X-Intune-AuthToken**: Used together when opening ASWebAuthenticationSession for `msauth://installProfile`
-- **x-ms-clitelem**: Forwarded to telemetry system
-- **Correlation**: Headers associated with session, used when custom-scheme redirects occur
+- Headers can be retrieved via `responseHeaderStore.headerForKey:` for use in subsequent requests
+- Typically used when custom-scheme redirects occur (e.g., msauth://installProfile)
+- **Example**: Installation URL + Auth Token used together when opening system webview
+- **Telemetry headers**: Can be forwarded to telemetry system
 
-## Special URL Semantics
+## Custom URL Action Handling
 
-### msauth://enroll?cpurl=...
+The framework provides flexible URL action handling through three approaches:
+
+### Built-in Handler (Default)
+
+If no custom handler is set, the built-in `handleCustomURLAction:completion:` method handles common patterns:
+
+**msauth://enroll?cpurl=...**
 **Purpose**: Trigger enrollment flow with continuation URL
 
 **Handler Logic**:
