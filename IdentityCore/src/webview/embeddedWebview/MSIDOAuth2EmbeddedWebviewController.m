@@ -36,6 +36,7 @@
 #import "MSIDInteractiveWebviewState.h"
 #import "MSIDInteractiveWebviewStateMachine.h"
 #import "MSIDWebviewAction.h"
+#import "MSIDASWebAuthenticationSessionHandler.h"
 
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
@@ -60,6 +61,9 @@
 
 /*! State machine for processing special URLs with asynchronous operations */
 @property (nonatomic, strong) MSIDInteractiveWebviewStateMachine *stateMachine;
+
+/*! Current ASWebAuthenticationSession handler for profile installation flow */
+@property (nonatomic, strong) MSIDASWebAuthenticationSessionHandler *currentASWebAuthSession;
 
 @end
 
@@ -682,10 +686,39 @@ initiatedByFrame:(WKFrameInfo *)frame
             if (action.url)
             {
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening ASWebAuthenticationSession with URL: %@", MSID_PII_LOG_MASKABLE(action.url));
-                // TODO: Implement ASWebAuthenticationSession opening
-                // This requires creating and managing ASWebAuthenticationSession
-                // For now, just log the action
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"ASWebAuthenticationSession opening not yet implemented");
+                
+                // Get callback scheme from action or default to "msauth"
+                NSString *callbackScheme = action.callbackScheme ?: @"msauth";
+                
+                // Create ASWebAuth handler using existing production-tested infrastructure
+                MSIDASWebAuthenticationSessionHandler *asWebAuthHandler = 
+                    [[MSIDASWebAuthenticationSessionHandler alloc] 
+                        initWithParentController:self.parentController
+                                        startURL:action.url
+                                  callbackScheme:callbackScheme
+                              useEmpheralSession:YES]; // Use ephemeral for privacy
+                
+                self.currentASWebAuthSession = asWebAuthHandler;
+                
+                // Start ASWebAuth session
+                __weak __typeof(self) weakSelf = self;
+                [asWebAuthHandler startWithCompletionHandler:^(NSURL *callbackURL, NSError *error) {
+                    __strong __typeof(self) strongSelf = weakSelf;
+                    
+                    if (error)
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context, @"ASWebAuth session failed: %@", error);
+                        [strongSelf endWebAuthWithURL:nil error:error];
+                    }
+                    else if (callbackURL)
+                    {
+                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, strongSelf.context, @"ASWebAuth completed with callback URL: %@", MSID_PII_LOG_MASKABLE(callbackURL));
+                        // Callback URL (e.g., msauth://profileInstalled) will be processed
+                        // Either by the completion handler or as next navigation if webview still active
+                    }
+                    
+                    strongSelf.currentASWebAuthSession = nil;
+                }];
             }
             else
             {
@@ -710,10 +743,16 @@ initiatedByFrame:(WKFrameInfo *)frame
             
         case MSIDWebviewActionTypeDismissWebview:
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissing webview");
-            // TODO: Implement webview dismissal
-            // For now, just log
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Webview dismissal not yet implemented");
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissing webview/ASWebAuth session");
+            
+            // Dismiss active ASWebAuthenticationSession if present
+            if (self.currentASWebAuthSession)
+            {
+                [self.currentASWebAuthSession dismiss];
+                self.currentASWebAuthSession = nil;
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"ASWebAuth session dismissed");
+            }
+            
             break;
         }
             
