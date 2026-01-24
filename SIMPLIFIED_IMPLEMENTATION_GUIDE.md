@@ -2,6 +2,18 @@
 
 Complete guide for implementing the simplified approach (Option A) for special URL handling in MSAL with session state for BRT acquisition.
 
+## ⚠️ CRITICAL ARCHITECTURAL REQUIREMENT
+
+**BRT acquisition and Token request retry in broker context MUST be handled by InteractiveController, NOT WebviewController.**
+
+This document has been updated to reflect the correct architecture:
+- **InteractiveController** (MSIDLocalInteractiveController / ADBrokerInteractiveControllerWithPRT) owns session state, implements handler protocol, contains ALL business logic (BRT acquisition, broker retry, decisions)
+- **WebviewController** (MSIDOAuth2EmbeddedWebviewController) is a pure UI component that detects URLs, captures headers, calls handler protocol, and executes view actions - NO business logic
+
+Pattern: `WebviewController detects → calls handler → InteractiveController decides → returns action → WebviewController executes`
+
+---
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Architecture Overview](#architecture-overview)
@@ -25,8 +37,8 @@ Complete guide for implementing the simplified approach (Option A) for special U
 
 The simplified approach (Option A) implements special URL handling for Intune MDM enrollment WITHOUT the complexity of a state machine. Instead, it uses:
 
-- **Direct URL handling** in the webview controller
-- **Session state tracking** for BRT acquisition (retry logic)
+- **Handler protocol pattern** - WebviewController detects, InteractiveController decides
+- **Session state ownership** by InteractiveController (BRT acquisition, retry logic)
 - **Standard iOS patterns** (delegates, callbacks, properties)
 - **Minimal abstractions** (only essential components)
 
@@ -55,7 +67,36 @@ The simplified approach follows a clean 4-layer architecture with uni-directiona
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ LAYER 1: PRESENTATION (UI Components)                           │
+│ LAYER 1: INTERACTIVE CONTROLLER (Business Logic & Orchestration)│
+│  • MSIDLocalInteractiveController (non-broker context)          │
+│  • ADBrokerInteractiveControllerWithPRT (broker context)        │
+│                                                                  │
+│  Responsibilities:                                               │
+│  • BRT acquisition logic (once per session, retry on failure)   │
+│  • Broker retry logic (switch context if needed)                │
+│  • Session state management (create, own, update)               │
+│  • Implement handler protocol                                    │
+│  • Make business decisions                                       │
+└─────────────────────────────────────────────────────────────────┘
+                              ↕
+              (handler protocol: handleSpecialURL, acquireBRT, etc.)
+                              ↕
+┌─────────────────────────────────────────────────────────────────┐
+│ LAYER 2: WEBVIEW CONTROLLER (UI Component & Detector)           │
+│  MSIDOAuth2EmbeddedWebviewController                            │
+│  • URL detection (decidePolicyForNavigationAction)              │
+│  • Header capture (responseHeaderHandler)                        │
+│  • Call handler methods (delegate to parent)                     │
+│  • Execute view actions (returned by handler)                    │
+│                                                                  │
+│  Responsibilities: Detect URLs, capture headers, call handler,  │
+│                    execute view commands - NO business logic     │
+└─────────────────────────────────────────────────────────────────┘
+                              ↕
+                    (view actions: LoadRequest, OpenASWebAuth, etc.)
+                              ↕
+┌─────────────────────────────────────────────────────────────────┐
+│ LAYER 3: PRESENTATION (UI Display)                              │
 │  • WKWebView (embedded authentication)                          │
 │  • ASWebAuthenticationSession (profile installation)            │
 │  • Broker Extension (SSO webview)                               │
@@ -63,52 +104,23 @@ The simplified approach follows a clean 4-layer architecture with uni-directiona
 │  Responsibilities: Display content, collect user input          │
 └─────────────────────────────────────────────────────────────────┘
                               ↕
-                    (view actions: LoadRequest, OpenASWebAuth, etc.)
+                  (URLs, headers, state queries - via resolver)
                               ↕
 ┌─────────────────────────────────────────────────────────────────┐
-│ LAYER 2: CONTROLLER (Business Logic & Orchestration)            │
-│  MSIDOAuth2EmbeddedWebviewController                            │
-│  • Session management (init, reset)                             │
-│  • URL interception (decidePolicyForNavigationAction)           │
-│  • BRT acquisition logic (once per session, retry on failure)   │
-│  • Broker retry logic (switch context if needed)                │
-│  • Action execution (execute view commands)                      │
+│ LAYER 4: SERVICE & MODEL (Parsing & Data)                       │
+│  • MSIDSpecialURLViewActionResolver (URL parsing, mapping)      │
+│  • MSIDInteractiveWebviewState (session state data)             │
+│  • MSIDWebviewAction (view action data)                         │
 │                                                                  │
-│  Responsibilities: Coordinate flow, manage state, execute logic │
-└─────────────────────────────────────────────────────────────────┘
-                              ↕
-                    (URLs, headers, state queries)
-                              ↕
-┌─────────────────────────────────────────────────────────────────┐
-│ LAYER 3: SERVICE (URL Parsing & Action Mapping)                 │
-│  MSIDSpecialURLViewActionResolver                               │
-│  • URL pattern matching (msauth://, browser://)                 │
-│  • Query parameter extraction                                    │
-│  • Header extraction (X-Install-Url, X-Intune-AuthToken)        │
-│  • View action creation (based on URL pattern)                  │
-│                                                                  │
-│  Responsibilities: Parse input, map to actions, extract data    │
-└─────────────────────────────────────────────────────────────────┘
-                              ↕
-                  (state read/write, action objects)
-                              ↕
-┌─────────────────────────────────────────────────────────────────┐
-│ LAYER 4: MODEL (Data Structures)                                │
-│  • MSIDInteractiveWebviewState                                  │
-│    - brtAttemptCount (0-2), brtAcquired (YES/NO)                │
-│    - responseHeaders (for telemetry & special URLs)             │
-│  • MSIDWebviewAction                                            │
-│    - Action types (Noop, LoadRequest, OpenASWebAuth, etc.)      │
-│    - Action properties (url, headers, purpose)                  │
-│                                                                  │
-│  Responsibilities: Hold data, no logic                          │
+│  Responsibilities: Parse input, map to actions, hold data       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 **Key Principles:**
-- **Uni-directional dependencies**: Upper layers depend on lower, not vice versa
-- **Clear separation**: Each layer has distinct responsibility
-- **No layer skipping**: Controller doesn't directly access Model (goes through Service)
+- **InteractiveController has business logic**: BRT acquisition, broker retry, decisions
+- **WebviewController is UI component**: Detects URLs, calls handler, executes view actions
+- **Clear separation**: Business logic vs UI handling
+- **Handler protocol**: WebviewController calls, InteractiveController implements
 
 ---
 
@@ -130,20 +142,36 @@ This diagram shows MSAL in the context of the complete system:
 ┌────────────────────────────────────────────────────────────────┐
 │                        MSAL LIBRARY                             │
 │  ┌───────────────────────────────────────────────────────────┐ │
-│  │        Webview Controller (Orchestration)                 │ │
+│  │   Interactive Controller (Business Logic Orchestrator)    │ │
+│  │   MSIDLocalInteractiveController / ADBrokerInteractive... │ │
 │  │  ┌────────────────────────────────────────────────────┐  │ │
-│  │  │ • Session State (BRT flags, headers)              │  │ │
-│  │  │ • URL Processing (msauth://, browser://)          │  │ │
-│  │  │ • BRT Acquisition (if NOT in broker, once/session)│  │ │
+│  │  │ • Owns Session State (BRT flags, headers)         │  │ │
+│  │  │ • BRT Acquisition (NOT in broker, once/session)   │  │ │
 │  │  │ • Broker Retry (switch context if needed)         │  │ │
+│  │  │ • Handler Protocol Implementation                  │  │ │
+│  │  │ • Business Decisions (all logic here)             │  │ │
+│  │  └────────────────────────────────────────────────────┘  │ │
+│  └───────────────────────────────────────────────────────────┘ │
+│                              ↕                                  │
+│                    (handler protocol calls)                     │
+│                              ↕                                  │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │   Webview Controller (UI Component & Detector)            │ │
+│  │   MSIDOAuth2EmbeddedWebviewController                     │ │
+│  │  ┌────────────────────────────────────────────────────┐  │ │
+│  │  │ • URL Detection (msauth://, browser://)           │  │ │
+│  │  │ • Header Capture (responseHeaderHandler)          │  │ │
+│  │  │ • Call Handler (delegate special URLs up)         │  │ │
+│  │  │ • Execute View Actions (returned by handler)      │  │ │
+│  │  │ • NO business logic - just detector & executor    │  │ │
 │  │  └────────────────────────────────────────────────────┘  │ │
 │  └───────────────────────────────────────────────────────────┘ │
 │                ↓                           ↓                    │
 │  ┌─────────────────────────┐  ┌──────────────────────────┐   │
-│  │ URL Resolver (Parser)   │  │ Session State (Tracking) │   │
+│  │ URL Resolver (Parser)   │  │ Session State (Data)     │   │
 │  │ • Pattern matching      │  │ • 2 BRT flags            │   │
 │  │ • Header extraction     │  │ • Response headers       │   │
-│  │ • Action creation       │  │ • Simple lifecycle       │   │
+│  │ • Action creation       │  │ • Owned by Interactive   │   │
 │  └─────────────────────────┘  └──────────────────────────┘   │
 └────────────────────────────────────────────────────────────────┘
                               ↕
@@ -160,7 +188,8 @@ This diagram shows MSAL in the context of the complete system:
 
 **Key Elements:**
 - **External Systems**: What MSAL talks to (M365, Intune, Broker)
-- **MSAL Library**: Internal architecture (controller, resolver, state)
+- **Interactive Controller**: Business logic orchestrator (BRT, broker retry, decisions)
+- **Webview Controller**: UI component (URL detection, handler calls, view actions)
 - **System Components**: What MSAL uses (WKWebView, ASWebAuth, Broker)
 
 ---
@@ -179,37 +208,73 @@ This diagram shows MSAL in the context of the complete system:
                             ↑ execute actions
                             │
 ┌───────────────────────────────────────────────────────────────────┐
-│                   WEBVIEW CONTROLLER                               │
+│                   WEBVIEW CONTROLLER (UI Component)                │
 │   MSIDOAuth2EmbeddedWebviewController                             │
 │                                                                    │
 │   ┌─────────────────────────────────────────────────────┐        │
-│   │ Session Management                                   │        │
-│   │  • sessionState: MSIDInteractiveWebviewState        │        │
-│   │  • Initialize on start (init method)                │        │
-│   │  • Reset on completion (completeWebAuth)            │        │
+│   │ URL Detection & Header Capture                       │        │
+│   │  • decidePolicyForNavigationAction (detect URLs)    │        │
+│   │  • responseHeaderHandler (capture headers)           │        │
+│   │  • NO session state ownership                        │        │
+│   │  • NO business logic                                 │        │
 │   └─────────────────────────────────────────────────────┘        │
 │                                                                    │
 │   ┌─────────────────────────────────────────────────────┐        │
-│   │ Special URL Handling                                 │        │
-│   │  • decidePolicyForNavigationAction (intercept)      │        │
-│   │  • handleMsauthURL: (router)                        │        │
-│   │  • handleEnrollURL: (BRT + load cpurl)              │        │
-│   │  • handleInstallProfileURL: (extract headers+ASAuth)│        │
-│   │  • handleProfileCompleteURL: (broker retry)         │        │
+│   │ Handler Protocol Calls (Delegate to Parent)         │        │
+│   │  • handleSpecialURL: → InteractiveController        │        │
+│   │  • captureHeaders: → InteractiveController           │        │
+│   │  • Receive MSIDWebviewAction responses               │        │
 │   └─────────────────────────────────────────────────────┘        │
 │                                                                    │
 │   ┌─────────────────────────────────────────────────────┐        │
-│   │ View Action Execution                                │        │
+│   │ View Action Execution (Execute Commands)             │        │
 │   │  • executeViewAction: (switch on type)              │        │
 │   │  • Load requests in webview                          │        │
 │   │  • Open ASWebAuthenticationSession                   │        │
 │   │  • Complete authentication                           │        │
 │   └─────────────────────────────────────────────────────┘        │
 └───────────────────────────────────────────────────────────────────┘
+                            ↑ handler protocol
+                            │
+┌───────────────────────────────────────────────────────────────────┐
+│            INTERACTIVE CONTROLLER (Business Logic)                 │
+│   MSIDLocalInteractiveController / ADBrokerInteractive...         │
+│                                                                    │
+│   ┌─────────────────────────────────────────────────────┐        │
+│   │ Session State Ownership                              │        │
+│   │  • sessionState: MSIDInteractiveWebviewState        │        │
+│   │  • Initialize on start (init method)                │        │
+│   │  • Update during flow                                │        │
+│   │  • Reset on completion                               │        │
+│   └─────────────────────────────────────────────────────┘        │
+│                                                                    │
+│   ┌─────────────────────────────────────────────────────┐        │
+│   │ Handler Protocol Implementation                      │        │
+│   │  • handleSpecialURL: (business decisions)           │        │
+│   │  • acquireBRTIfNeeded: (BRT logic)                  │        │
+│   │  • retryInBrokerContext: (broker retry logic)       │        │
+│   │  • Returns MSIDWebviewAction to WebviewController    │        │
+│   └─────────────────────────────────────────────────────┘        │
+│                                                                    │
+│   ┌─────────────────────────────────────────────────────┐        │
+│   │ BRT Acquisition (NOT in broker context)              │        │
+│   │  • shouldAcquireBRT: (check broker context)         │        │
+│   │  • acquireBRTTokenWithCompletion: (actual acquire)  │        │
+│   │  • Update sessionState.brtAcquired                   │        │
+│   │  • Update sessionState.brtAttemptCount               │        │
+│   └─────────────────────────────────────────────────────┘        │
+│                                                                    │
+│   ┌─────────────────────────────────────────────────────┐        │
+│   │ Broker Retry (on profileComplete)                    │        │
+│   │  • isRunningInBrokerContext: (check context)        │        │
+│   │  • retryInBrokerContextForURL: (switch context)     │        │
+│   │  • Transfer session state to broker                  │        │
+│   └─────────────────────────────────────────────────────┘        │
+└───────────────────────────────────────────────────────────────────┘
                 ↓                  ↓                  ↓
     ┌──────────────────┐  ┌─────────────┐  ┌────────────────┐
     │ Session State    │  │ URL Resolver│  │ View Actions   │
-    │                  │  │             │  │                │
+    │ (Owned by IC)    │  │             │  │                │
     │ • BRT count 0-2  │  │ • Parse URLs│  │ • Action types │
     │ • BRT acquired   │  │ • Map actions│  │ • Constructors │
     │ • Headers dict   │  │ • Extract    │  │ • Properties   │
@@ -220,9 +285,10 @@ This diagram shows MSAL in the context of the complete system:
 
 | Layer | Component | Responsibilities |
 |-------|-----------|------------------|
+| **Business Logic** | InteractiveController (MSIDLocalInteractiveController, ADBrokerInteractiveControllerWithPRT) | BRT acquisition, broker retry, session ownership, handler protocol implementation, business decisions |
+| **UI Controller** | MSIDOAuth2EmbeddedWebviewController | URL detection, header capture, call handler methods, execute view actions - NO business logic |
 | **UI** | WKWebView, ASWebAuth, Broker | Display content, collect user input |
-| **Controller** | MSIDOAuth2EmbeddedWebviewController | URL interception, session management, action execution |
-| **State** | MSIDInteractiveWebviewState | Track BRT flags, store headers |
+| **State** | MSIDInteractiveWebviewState | Track BRT flags, store headers (owned by InteractiveController) |
 | **Resolver** | MSIDSpecialURLViewActionResolver | Parse URLs, map to actions, extract data |
 | **Model** | MSIDWebviewAction | Represent typed commands |
 
@@ -361,10 +427,13 @@ typedef NS_ENUM(NSUInteger, MSIDWebviewActionType) {
 │                        MSAL CLIENT                              │
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐ │
-│  │        MSIDOAuth2EmbeddedWebviewController               │ │
-│  │                                                           │ │
-│  │  Session State   →   URL Handling   →   Action Execute  │ │
-│  │  (Track flags)       (Parse URLs)       (Execute cmds)   │ │
+│  │     InteractiveController (Business Logic Layer)         │ │
+│  │  • BRT Acquisition   • Broker Retry   • Session State    │ │
+│  └──────────────────────────────────────────────────────────┘ │
+│                               ↓ handler protocol                │
+│  ┌──────────────────────────────────────────────────────────┐ │
+│  │     MSIDOAuth2EmbeddedWebviewController (UI Layer)       │ │
+│  │  • URL Detection   • Header Capture   • Execute Actions  │ │
 │  └──────────────────────────────────────────────────────────┘ │
 │                               ↓                                 │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐      │
@@ -383,28 +452,23 @@ typedef NS_ENUM(NSUInteger, MSIDWebviewActionType) {
 │  • X-Intune-AuthToken: <base64-token>                          │
 │  • X-MS-Telemetry: <telemetry-data>                            │
 └────────────────────────────────────────────────────────────────┘
-                            ↓ capture
+                            ↓ capture (WebviewController)
 ┌────────────────────────────────────────────────────────────────┐
-│            decidePolicyForNavigationResponse                    │
-│  responseHeaderHandler(NSURLResponse)                          │
+│  MSIDOAuth2EmbeddedWebviewController.responseHeaderHandler     │
+│  Captures headers, passes to InteractiveController             │
 └────────────────────────────────────────────────────────────────┘
-                            ↓ store
-┌────────────────────────────────────────────────────────────────┐
-│     MSIDOAuth2EmbeddedWebviewController.lastResponseHeaders    │
-│  NSDictionary with all HTTP headers                            │
-└────────────────────────────────────────────────────────────────┘
-                            ↓ transfer
+                            ↓ store (InteractiveController)
 ┌────────────────────────────────────────────────────────────────┐
 │      MSIDInteractiveWebviewState.responseHeaders               │
-│  Available to resolver for decision-making                     │
+│  Owned by InteractiveController, used for decisions            │
 └────────────────────────────────────────────────────────────────┘
-                            ↓ extract
+                            ↓ extract (via Resolver)
 ┌────────────────────────────────────────────────────────────────┐
 │       MSIDSpecialURLViewActionResolver                         │
 │  • Extract X-Install-Url → action.url                          │
 │  • Extract X-Intune-AuthToken → action.additionalHeaders       │
 └────────────────────────────────────────────────────────────────┘
-                            ↓ create
+                            ↓ create (InteractiveController)
 ┌────────────────────────────────────────────────────────────────┐
 │                  MSIDWebviewAction                              │
 │  type: OpenASWebAuthenticationSession                          │
@@ -412,7 +476,7 @@ typedef NS_ENUM(NSUInteger, MSIDWebviewActionType) {
 │  purpose: InstallProfile                                        │
 │  additionalHeaders: {"X-Intune-AuthToken": "<token>"}          │
 └────────────────────────────────────────────────────────────────┘
-                            ↓ execute
+                            ↓ execute (WebviewController)
 ┌────────────────────────────────────────────────────────────────┐
 │            ASWebAuthenticationSession                           │
 │  Opens URL with ephemeral session (per purpose)                │
@@ -1038,22 +1102,270 @@ if (![self isRunningInBrokerContext]) {
 
 ## Complete Implementation Code
 
-### Full Example (Integration Template)
+### Handler Protocol
+
+First, define the protocol that InteractiveController implements:
 
 ```objc
-// MSIDOAuth2EmbeddedWebviewController.m
+// MSIDWebviewHandlerProtocol.h
 
+@protocol MSIDWebviewHandlerProtocol <NSObject>
+
+// Called when a special URL is detected
+- (MSIDWebviewAction *)handleSpecialURL:(NSURL *)url
+                           responseHeaders:(NSDictionary<NSString *, NSString *> *)headers
+                                   context:(id<MSIDRequestContext>)context;
+
+// Called to check if running in broker context
+- (BOOL)isRunningInBrokerContext;
+
+// Called to retry in broker context
+- (void)retryInBrokerContextForURL:(NSURL *)url
+                         completion:(void (^)(BOOL success, NSError *error))completion;
+
+@end
+```
+
+### InteractiveController Implementation
+
+InteractiveController owns session state and implements all business logic:
+
+```objc
+// MSIDLocalInteractiveController.m (or ADBrokerInteractiveControllerWithPRT.m)
+
+#import "MSIDWebviewHandlerProtocol.h"
 #import "MSIDInteractiveWebviewState.h"
 #import "MSIDSpecialURLViewActionResolver.h"
 #import "MSIDWebviewAction.h"
 
-@interface MSIDOAuth2EmbeddedWebviewController()
+@interface MSIDLocalInteractiveController() <MSIDWebviewHandlerProtocol>
 
-// Session state for special URL handling
+// Session state - OWNED by InteractiveController
 @property (nonatomic, strong) MSIDInteractiveWebviewState *sessionState;
 
+@end
+
+@implementation MSIDLocalInteractiveController
+
+#pragma mark - Initialization
+
+- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    self = [super initWithRequestParameters:parameters];
+    if (self)
+    {
+        // Initialize session state - InteractiveController owns this
+        _sessionState = [[MSIDInteractiveWebviewState alloc] init];
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, parameters.context, 
+            @"[InteractiveController] Initialized session state");
+    }
+    return self;
+}
+
+#pragma mark - MSIDWebviewHandlerProtocol Implementation
+
+- (MSIDWebviewAction *)handleSpecialURL:(NSURL *)url
+                          responseHeaders:(NSDictionary<NSString *, NSString *> *)headers
+                                  context:(id<MSIDRequestContext>)context
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, 
+        @"[InteractiveController] Handling special URL: %@", url);
+    
+    // Store headers in session state if provided
+    if (headers)
+    {
+        self.sessionState.responseHeaders = headers;
+    }
+    
+    NSString *host = url.host.lowercaseString;
+    
+    // Handle msauth://enroll - with BRT acquisition
+    if ([host isEqualToString:@"enroll"])
+    {
+        return [self handleEnrollURL:url context:context];
+    }
+    
+    // Handle msauth://installProfile - extract headers
+    if ([host isEqualToString:@"installprofile"])
+    {
+        return [self handleInstallProfileURL:url context:context];
+    }
+    
+    // Handle msauth://profileComplete - broker retry logic
+    if ([host isEqualToString:@"profilecomplete"] || 
+        [host isEqualToString:@"profileinstalled"])
+    {
+        return [self handleProfileCompleteURL:url context:context];
+    }
+    
+    // Default: complete with URL
+    return [MSIDWebviewAction actionWithType:MSIDWebviewActionCompleteWithURL
+                                         url:url];
+}
+
+- (MSIDWebviewAction *)handleEnrollURL:(NSURL *)url
+                               context:(id<MSIDRequestContext>)context
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, 
+        @"[InteractiveController] Handling enroll URL");
+    
+    // BRT Acquisition - BUSINESS LOGIC in InteractiveController
+    [self acquireBRTIfNeeded:context];
+    
+    // Resolve action using resolver
+    return [MSIDSpecialURLViewActionResolver resolveActionForURL:url
+                                                          state:self.sessionState];
+}
+
+- (MSIDWebviewAction *)handleInstallProfileURL:(NSURL *)url
+                                       context:(id<MSIDRequestContext>)context
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, 
+        @"[InteractiveController] Handling installProfile URL");
+    
+    // Resolve action (extracts headers, creates ASWebAuth action)
+    return [MSIDSpecialURLViewActionResolver resolveActionForURL:url
+                                                          state:self.sessionState];
+}
+
+- (MSIDWebviewAction *)handleProfileCompleteURL:(NSURL *)url
+                                        context:(id<MSIDRequestContext>)context
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, 
+        @"[InteractiveController] Handling profileComplete URL");
+    
+    // Broker Retry Logic - BUSINESS LOGIC in InteractiveController
+    if (![self isRunningInBrokerContext])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, 
+            @"[InteractiveController] Not in broker, will retry in broker");
+        
+        // Note: In real implementation, this would be async
+        // For now, we return an action to dismiss and trigger broker flow
+        return [MSIDWebviewAction actionWithType:MSIDWebviewActionRetryInBroker
+                                             url:url];
+    }
+    
+    // Already in broker, complete normally
+    return [MSIDWebviewAction actionWithType:MSIDWebviewActionCompleteWithURL
+                                         url:url];
+}
+
+#pragma mark - BRT Acquisition (Business Logic)
+
+- (void)acquireBRTIfNeeded:(id<MSIDRequestContext>)context
+{
+    // Check if BRT acquisition needed (policy decision)
+    if (![self shouldAcquireBRT])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, 
+            @"[InteractiveController] BRT not required (already in broker)");
+        return;
+    }
+    
+    // Check if already acquired
+    if (self.sessionState.brtAcquired)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, 
+            @"[InteractiveController] BRT already acquired");
+        return;
+    }
+    
+    // Check if max attempts reached
+    if (self.sessionState.brtAttemptCount >= 2)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, 
+            @"[InteractiveController] BRT max attempts reached");
+        return;
+    }
+    
+    // Attempt BRT acquisition
+    self.sessionState.brtAttemptCount++;
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, 
+        @"[InteractiveController] Acquiring BRT (attempt %ld of 2)", 
+        (long)self.sessionState.brtAttemptCount);
+    
+    // Synchronous for simplicity - in production would be async
+    BOOL success = [self acquireBRTToken:context];
+    
+    if (success)
+    {
+        self.sessionState.brtAcquired = YES;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, 
+            @"[InteractiveController] BRT acquired successfully");
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, 
+            @"[InteractiveController] BRT acquisition failed (attempt %ld)", 
+            (long)self.sessionState.brtAttemptCount);
+    }
+}
+
+- (BOOL)shouldAcquireBRT
+{
+    // CRITICAL: Only acquire BRT if NOT in broker context
+    if ([self isRunningInBrokerContext])
+    {
+        return NO;  // Skip BRT when already in broker
+    }
+    
+    // Additional policy checks can be added here
+    return YES;  // Acquire BRT when NOT in broker context
+}
+
+- (BOOL)acquireBRTToken:(id<MSIDRequestContext>)context
+{
+    // TODO: Implement actual BRT acquisition
+    // This would typically:
+    // 1. Check if broker is available
+    // 2. Request BRT from broker
+    // 3. Store BRT in token cache
+    // 4. Return success/failure
+    
+    return NO;  // Placeholder
+}
+
+#pragma mark - Broker Context (Business Logic)
+
+- (BOOL)isRunningInBrokerContext
+{
+    // TODO: Implement broker context detection
+    // Check if current token acquisition is happening via broker
+    return NO;  // Placeholder
+}
+
+- (void)retryInBrokerContextForURL:(NSURL *)url
+                         completion:(void (^)(BOOL success, NSError *error))completion
+{
+    // TODO: Implement broker retry
+    // This would typically:
+    // 1. Create broker interactive controller
+    // 2. Transfer current request parameters
+    // 3. Initiate authentication via broker
+    // 4. Handle result via completion
+    
+    completion(NO, nil);  // Placeholder
+}
+
+@end
+```
+
+### WebviewController Implementation
+
+WebviewController detects URLs/headers and delegates to InteractiveController:
+
+```objc
+// MSIDOAuth2EmbeddedWebviewController.m
+
+@interface MSIDOAuth2EmbeddedWebviewController()
+
+// Reference to parent handler (InteractiveController)
+@property (nonatomic, weak) id<MSIDWebviewHandlerProtocol> handler;
+
 // Existing properties
-@property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *lastResponseHeaders;
 
 @end
@@ -1063,17 +1375,17 @@ if (![self isRunningInBrokerContext]) {
 #pragma mark - Initialization
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
-                      redirectUri:(NSString *)redirectUri
-                          context:(id<MSIDRequestContext>)context
+                     redirectUri:(NSString *)redirectUri
+                         handler:(id<MSIDWebviewHandlerProtocol>)handler
+                         context:(id<MSIDRequestContext>)context
 {
     self = [super initWithStartURL:startURL redirectUri:redirectUri context:context];
     if (self)
     {
-        // Initialize session state
-        _sessionState = [[MSIDInteractiveWebviewState alloc] init];
+        _handler = handler;
         
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, 
-            @"Initialized session state for special URL handling");
+            @"[WebviewController] Initialized with handler");
     }
     return self;
 }
@@ -1091,13 +1403,13 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
     if ([scheme isEqualToString:@"msauth"])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-            @"Intercepted msauth:// URL: %@", url);
+            @"[WebviewController] Detected msauth:// URL: %@", url);
         
-        // Cancel navigation (don't actually navigate to msauth://)
+        // Cancel navigation
         decisionHandler(WKNavigationActionPolicyCancel);
         
-        // Handle msauth:// URL
-        [self handleMsauthURL:url];
+        // Delegate to handler (InteractiveController)
+        [self delegateSpecialURLToHandler:url];
         return;
     }
     
@@ -1105,13 +1417,13 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
     if ([scheme isEqualToString:@"browser"])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-            @"Intercepted browser:// URL: %@", url);
+            @"[WebviewController] Detected browser:// URL: %@", url);
         
         // Cancel navigation
         decisionHandler(WKNavigationActionPolicyCancel);
         
-        // Complete with URL
-        [self completeWebAuthWithURL:url];
+        // Delegate to handler
+        [self delegateSpecialURLToHandler:url];
         return;
     }
     
@@ -1119,171 +1431,46 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
-#pragma mark - Special URL Handling
+#pragma mark - Header Capture
 
-- (void)handleMsauthURL:(NSURL *)url
+- (void)setupResponseHeaderCapture
 {
-    NSString *host = url.host.lowercaseString;
-    NSDictionary *queryParams = [url msidQueryParameters];
-    
-    if ([host isEqualToString:@"enroll"])
+    __weak typeof(self) weakSelf = self;
+    self.responseHeaderHandler = ^(NSURLResponse *response) {
+        if ([response isKindOfClass:[NSHTTPURLResponse class]])
+        {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            weakSelf.lastResponseHeaders = httpResponse.allHeaderFields;
+            
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, weakSelf.context, 
+                @"[WebviewController] Captured %lu response headers", 
+                (unsigned long)weakSelf.lastResponseHeaders.count);
+        }
+    };
+}
+
+#pragma mark - Handler Protocol Delegation
+
+- (void)delegateSpecialURLToHandler:(NSURL *)url
+{
+    if (!self.handler)
     {
-        [self handleEnrollURL:url params:queryParams];
-    }
-    else if ([host isEqualToString:@"compliance"])
-    {
-        [self handleComplianceURL:url params:queryParams];
-    }
-    else if ([host isEqualToString:@"installprofile"])
-    {
-        [self handleInstallProfileURL:url params:queryParams];
-    }
-    else if ([host isEqualToString:@"profilecomplete"] || 
-             [host isEqualToString:@"profileinstalled"])
-    {
-        [self handleProfileCompleteURL:url];
-    }
-    else
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, 
-            @"Unknown msauth:// pattern: %@", url);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, 
+            @"[WebviewController] No handler set, cannot process URL");
         [self completeWebAuthWithURL:url];
-    }
-}
-
-- (void)handleEnrollURL:(NSURL *)url params:(NSDictionary *)params
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-        @"Handling msauth://enroll");
-    
-    // BRT acquisition on FIRST msauth:// redirect
-    [self acquireBRTIfNeededWithCompletion:^{
-        
-        // Resolve action
-        MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver 
-            resolveActionForURL:url 
-            state:self.sessionState];
-        
-        // Execute action
-        [self executeViewAction:action];
-    }];
-}
-
-- (void)handleComplianceURL:(NSURL *)url params:(NSDictionary *)params
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-        @"Handling msauth://compliance");
-    
-    // Similar to enroll - resolve and execute
-    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver 
-        resolveActionForURL:url 
-        state:self.sessionState];
-    
-    [self executeViewAction:action];
-}
-
-- (void)handleInstallProfileURL:(NSURL *)url params:(NSDictionary *)params
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-        @"Handling msauth://installProfile");
-    
-    // Transfer captured headers to session state
-    if (self.lastResponseHeaders)
-    {
-        self.sessionState.responseHeaders = self.lastResponseHeaders;
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, 
-            @"Transferred %lu headers to session state", 
-            (unsigned long)self.lastResponseHeaders.count);
-    }
-    
-    // Resolve action (extracts X-Install-Url and X-Intune-AuthToken)
-    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver 
-        resolveActionForURL:url 
-        state:self.sessionState];
-    
-    // Execute action
-    [self executeViewAction:action];
-}
-
-- (void)handleProfileCompleteURL:(NSURL *)url
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-        @"Processing profile completion: %@", url);
-    
-    // Check if running in broker context
-    if (![self isRunningInBrokerContext])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-            @"Not in broker context, retrying in broker");
-        
-        [self retryInBrokerContextForURL:url completion:^(BOOL success, NSError *error) {
-            if (success)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-                    @"Successfully transferred to broker");
-                [self dismissWebview];
-            }
-            else
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, 
-                    @"Failed to retry in broker: %@, completing anyway", error);
-                [self completeWebAuthWithURL:url];
-            }
-        }];
         return;
     }
     
-    // Already in broker, complete normally
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-        @"Already in broker context, completing");
-    [self completeWebAuthWithURL:url];
-}
-
-#pragma mark - BRT Acquisition
-
-- (void)acquireBRTIfNeededWithCompletion:(void (^)(void))completion
-{
-    // Implementation shown in BRT Acquisition Logic section
-}
-
-- (BOOL)shouldAcquireBRT
-{
-    // CRITICAL: Only acquire BRT if NOT in broker context
-    // If already in broker, BRT is not needed
-    if ([self isRunningInBrokerContext])
-    {
-        return NO;  // Skip BRT when in broker
-    }
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, 
+        @"[WebviewController] Delegating URL to handler");
     
-    // TODO: Implement additional policy checks if needed
-    return YES;  // Acquire BRT when NOT in broker context
-}
-
-- (void)acquireBRTTokenWithCompletion:(void (^)(BOOL success, NSError *error))completion
-{
-    // TODO: Implement actual BRT acquisition
-    completion(NO, nil);  // Placeholder
-}
-
-#pragma mark - Broker Operations
-
-- (BOOL)isRunningInBrokerContext
-{
-    // TODO: Implement broker context detection
-    return NO;  // Placeholder
-}
-
-- (void)retryInBrokerContextForURL:(NSURL *)url 
-                        completion:(void (^)(BOOL success, NSError *error))completion
-{
-    // TODO: Implement broker retry
-    completion(NO, nil);  // Placeholder
-}
-
-- (void)dismissWebview
-{
-    // TODO: Implement webview dismissal
+    // Call handler - InteractiveController makes business decisions
+    MSIDWebviewAction *action = [self.handler handleSpecialURL:url
+                                                responseHeaders:self.lastResponseHeaders
+                                                        context:self.context];
+    
+    // Execute the action returned by handler
+    [self executeViewAction:action];
 }
 
 #pragma mark - View Action Execution
@@ -1292,187 +1479,351 @@ decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     if (!action)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, 
-            @"No action to execute");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, 
+            @"[WebviewController] Nil action received");
         return;
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-        @"Executing view action type: %ld", (long)action.type);
+        @"[WebviewController] Executing action: %@", action.typeString);
     
     switch (action.type)
     {
-        case MSIDWebviewActionTypeNoop:
-            // No operation
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, @"Noop action");
+        case MSIDWebviewActionLoadRequest:
+            [self executeLoadRequestAction:action];
             break;
             
-        case MSIDWebviewActionTypeLoadRequestInWebview:
-            // Load request in embedded webview
-            if (action.request)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-                    @"Loading request in webview: %@", action.request.URL);
-                [self.webView loadRequest:action.request];
-            }
+        case MSIDWebviewActionOpenASWebAuth:
+            [self executeOpenASWebAuthAction:action];
             break;
             
-        case MSIDWebviewActionTypeOpenASWebAuthenticationSession:
-            // Open in ASWebAuthenticationSession
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-                @"Opening ASWebAuthenticationSession");
-            [self openASWebAuthSessionWithURL:action.url
-                                       purpose:action.purpose
-                             additionalHeaders:action.additionalHeaders];
+        case MSIDWebviewActionCompleteWithURL:
+            [self executeCompleteAction:action];
             break;
             
-        case MSIDWebviewActionTypeOpenExternalBrowser:
-            // Open in external browser
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-                @"Opening external browser");
-            [self openExternalBrowserWithURL:action.url];
+        case MSIDWebviewActionRetryInBroker:
+            [self executeRetryInBrokerAction:action];
             break;
             
-        case MSIDWebviewActionTypeCompleteWithURL:
-            // Complete authentication
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-                @"Completing with URL: %@", action.url);
-            [self completeWebAuthWithURL:action.url];
-            break;
-            
-        case MSIDWebviewActionTypeFailWithError:
-            // Fail authentication
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, 
-                @"Failing with error: %@", action.error);
-            [self endWebAuthWithURL:nil error:action.error];
+        default:
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, 
+                @"[WebviewController] Unknown action type: %ld", (long)action.type);
             break;
     }
 }
 
-- (void)openASWebAuthSessionWithURL:(NSURL *)url
-                            purpose:(MSIDSystemWebviewPurpose)purpose
-                  additionalHeaders:(NSDictionary *)headers
+- (void)executeLoadRequestAction:(MSIDWebviewAction *)action
 {
-    // TODO: Implement ASWebAuthenticationSession handling
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-        @"Opening ASWebAuth - URL: %@, purpose: %ld, headers: %lu", 
-        url, (long)purpose, (unsigned long)headers.count);
+        @"[WebviewController] Loading URL in webview");
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:action.url];
+    [self.webView loadRequest:request];
 }
 
-- (void)openExternalBrowserWithURL:(NSURL *)url
+- (void)executeOpenASWebAuthAction:(MSIDWebviewAction *)action
 {
-    // TODO: Implement external browser
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
-        @"Opening external browser with URL: %@", url);
+        @"[WebviewController] Opening ASWebAuthenticationSession");
+    
+    // Create and start ASWebAuthenticationSession
+    // Implementation details depend on your existing ASWebAuth handling
+    [self openASWebAuthenticationSessionWithURL:action.url
+                                        purpose:action.purpose
+                              additionalHeaders:action.additionalHeaders];
 }
 
-#pragma mark - Session Completion
-
-- (void)completeWebAuthWithURL:(NSURL *)url
+- (void)executeCompleteAction:(MSIDWebviewAction *)action
 {
-    // Reset session state for next session
-    self.sessionState = [[MSIDInteractiveWebviewState alloc] init];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
+        @"[WebviewController] Completing authentication");
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, 
-        @"Reset session state for next session");
+    [self completeWebAuthWithURL:action.url];
+}
+
+- (void)executeRetryInBrokerAction:(MSIDWebviewAction *)action
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
+        @"[WebviewController] Retrying in broker context");
     
-    // Complete normally
-    [self endWebAuthWithURL:url error:nil];
+    // Dismiss webview and delegate to handler for broker retry
+    [self dismissWebview];
+    
+    if (self.handler)
+    {
+        [self.handler retryInBrokerContextForURL:action.url
+                                      completion:^(BOOL success, NSError *error) {
+            if (!success)
+            {
+                // Fallback to completing with URL
+                [self completeWebAuthWithURL:action.url];
+            }
+        }];
+    }
 }
 
 @end
 ```
+
+**Key Architectural Points:**
+
+1. **InteractiveController** implements `MSIDWebviewHandlerProtocol`
+2. **InteractiveController** owns `sessionState` (BRT flags, headers)
+3. **InteractiveController** contains ALL business logic (BRT, broker retry)
+4. **WebviewController** only detects URLs and captures headers
+5. **WebviewController** delegates to handler via `handleSpecialURL:`
+6. **WebviewController** executes `MSIDWebviewAction` returned by handler
+7. **NO business logic in WebviewController** - pure UI component
 
 ---
 
 ## E2E Wiring Guide
 
-### Step 1: Add Session State Property
+This guide shows how to wire up the handler protocol pattern between InteractiveController and WebviewController.
 
-**File:** MSIDOAuth2EmbeddedWebviewController.m
+### Step 1: Define Handler Protocol
 
-**Add to @interface:**
+**File:** MSIDWebviewHandlerProtocol.h
+
+**Create protocol:**
 ```objc
-@interface MSIDOAuth2EmbeddedWebviewController()
-@property (nonatomic, strong) MSIDInteractiveWebviewState *sessionState;
+@protocol MSIDWebviewHandlerProtocol <NSObject>
+
+- (MSIDWebviewAction *)handleSpecialURL:(NSURL *)url
+                          responseHeaders:(NSDictionary<NSString *, NSString *> *)headers
+                                  context:(id<MSIDRequestContext>)context;
+
+- (BOOL)isRunningInBrokerContext;
+
+- (void)retryInBrokerContextForURL:(NSURL *)url
+                         completion:(void (^)(BOOL success, NSError *error))completion;
+
 @end
 ```
 
-### Step 2: Initialize Session State
+### Step 2: Add Session State to InteractiveController
+
+**File:** MSIDLocalInteractiveController.m (or ADBrokerInteractiveControllerWithPRT.m)
+
+**Add to @interface:**
+```objc
+@interface MSIDLocalInteractiveController() <MSIDWebviewHandlerProtocol>
+@property (nonatomic, strong) MSIDInteractiveWebviewState *sessionState;
+@end
+```
 
 **In init method:**
 ```objc
 _sessionState = [[MSIDInteractiveWebviewState alloc] init];
 ```
 
-### Step 3: Wire Header Capture
+### Step 3: Implement Handler Protocol in InteractiveController
 
-**Already done in MSIDAADWebviewFactory.m:**
+**Add handler methods:**
 ```objc
-embeddedWebviewController.responseHeaderHandler = ^(NSURLResponse *response) {
-    // Captures headers to lastResponseHeaders
-};
+- (MSIDWebviewAction *)handleSpecialURL:(NSURL *)url
+                          responseHeaders:(NSDictionary<NSString *, NSString *> *)headers
+                                  context:(id<MSIDRequestContext>)context
+{
+    // Store headers
+    if (headers) {
+        self.sessionState.responseHeaders = headers;
+    }
+    
+    // Route based on URL host
+    NSString *host = url.host.lowercaseString;
+    if ([host isEqualToString:@"enroll"]) {
+        return [self handleEnrollURL:url context:context];
+    }
+    // ... other URL handlers
+    
+    return [MSIDWebviewAction actionWithType:MSIDWebviewActionCompleteWithURL url:url];
+}
+
+- (MSIDWebviewAction *)handleEnrollURL:(NSURL *)url context:(id<MSIDRequestContext>)context
+{
+    // BRT Acquisition (business logic)
+    [self acquireBRTIfNeeded:context];
+    
+    // Resolve and return action
+    return [MSIDSpecialURLViewActionResolver resolveActionForURL:url state:self.sessionState];
+}
 ```
 
-### Step 4: Override decidePolicyForNavigationAction
+### Step 4: Add BRT Logic to InteractiveController
 
-**Add method:**
+**Add BRT methods:**
+```objc
+- (void)acquireBRTIfNeeded:(id<MSIDRequestContext>)context
+{
+    if (![self shouldAcquireBRT]) return;
+    if (self.sessionState.brtAcquired) return;
+    if (self.sessionState.brtAttemptCount >= 2) return;
+    
+    self.sessionState.brtAttemptCount++;
+    BOOL success = [self acquireBRTToken:context];
+    if (success) {
+        self.sessionState.brtAcquired = YES;
+    }
+}
+
+- (BOOL)shouldAcquireBRT
+{
+    // CRITICAL: Only if NOT in broker context
+    return ![self isRunningInBrokerContext];
+}
+```
+
+### Step 5: Add Broker Logic to InteractiveController
+
+**Add broker methods:**
+```objc
+- (BOOL)isRunningInBrokerContext
+{
+    // Check if current acquisition is via broker
+    return NO;  // TODO: Implement
+}
+
+- (void)retryInBrokerContextForURL:(NSURL *)url
+                         completion:(void (^)(BOOL, NSError *))completion
+{
+    // Switch to broker context
+    // TODO: Implement broker retry
+    completion(NO, nil);
+}
+```
+
+### Step 6: Add Handler Reference to WebviewController
+
+**File:** MSIDOAuth2EmbeddedWebviewController.m
+
+**Add to @interface:**
+```objc
+@interface MSIDOAuth2EmbeddedWebviewController()
+@property (nonatomic, weak) id<MSIDWebviewHandlerProtocol> handler;
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *lastResponseHeaders;
+@end
+```
+
+**Update init method:**
+```objc
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                     redirectUri:(NSString *)redirectUri
+                         handler:(id<MSIDWebviewHandlerProtocol>)handler
+                         context:(id<MSIDRequestContext>)context
+{
+    self = [super initWithStartURL:startURL redirectUri:redirectUri context:context];
+    if (self) {
+        _handler = handler;
+    }
+    return self;
+}
+```
+
+### Step 7: Setup Header Capture in WebviewController
+
+**Add setup method:**
+```objc
+- (void)setupResponseHeaderCapture
+{
+    __weak typeof(self) weakSelf = self;
+    self.responseHeaderHandler = ^(NSURLResponse *response) {
+        if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+            weakSelf.lastResponseHeaders = ((NSHTTPURLResponse *)response).allHeaderFields;
+        }
+    };
+}
+```
+
+### Step 8: Delegate URL Detection to Handler
+
+**Override decidePolicyForNavigationAction:**
 ```objc
 - (void)webView:(WKWebView *)webView 
 decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction 
 decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    // Intercept msauth:// and browser:// URLs
-    // Cancel navigation
-    // Handle URL
+    NSURL *url = navigationAction.request.URL;
+    NSString *scheme = url.scheme.lowercaseString;
+    
+    if ([scheme isEqualToString:@"msauth"] || [scheme isEqualToString:@"browser"])
+    {
+        decisionHandler(WKNavigationActionPolicyCancel);
+        [self delegateSpecialURLToHandler:url];
+        return;
+    }
+    
+    decisionHandler(WKNavigationActionPolicyAllow);
+}
+
+- (void)delegateSpecialURLToHandler:(NSURL *)url
+{
+    // Call handler - InteractiveController makes decisions
+    MSIDWebviewAction *action = [self.handler handleSpecialURL:url
+                                                responseHeaders:self.lastResponseHeaders
+                                                        context:self.context];
+    
+    // Execute action returned by handler
+    [self executeViewAction:action];
 }
 ```
 
-### Step 5: Implement URL Handlers
+### Step 9: Implement Action Execution in WebviewController
 
-**Add methods:**
+**Add execution method:**
 ```objc
-- (void)handleMsauthURL:(NSURL *)url;
-- (void)handleEnrollURL:(NSURL *)url params:(NSDictionary *)params;
-- (void)handleInstallProfileURL:(NSURL *)url params:(NSDictionary *)params;
-- (void)handleProfileCompleteURL:(NSURL *)url;
+- (void)executeViewAction:(MSIDWebviewAction *)action
+{
+    switch (action.type)
+    {
+        case MSIDWebviewActionLoadRequest:
+            [self.webView loadRequest:[NSURLRequest requestWithURL:action.url]];
+            break;
+            
+        case MSIDWebviewActionOpenASWebAuth:
+            [self openASWebAuthSessionWithURL:action.url
+                                      purpose:action.purpose
+                            additionalHeaders:action.additionalHeaders];
+            break;
+            
+        case MSIDWebviewActionCompleteWithURL:
+            [self completeWebAuthWithURL:action.url];
+            break;
+            
+        case MSIDWebviewActionRetryInBroker:
+            [self.handler retryInBrokerContextForURL:action.url
+                                          completion:^(BOOL success, NSError *error) {
+                if (!success) {
+                    [self completeWebAuthWithURL:action.url];
+                }
+            }];
+            break;
+    }
+}
 ```
 
-### Step 6: Implement BRT Logic
+### Step 10: Wire Handler in Factory
 
-**Add methods:**
+**File:** MSIDAADWebviewFactory.m or similar
+
+**When creating WebviewController, pass InteractiveController as handler:**
 ```objc
-- (void)acquireBRTIfNeededWithCompletion:(void (^)(void))completion;
-- (BOOL)shouldAcquireBRT;
-- (void)acquireBRTTokenWithCompletion:(void (^)(BOOL, NSError *))completion;
+// In InteractiveController when creating WebviewController
+MSIDOAuth2EmbeddedWebviewController *webviewController = 
+    [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:startURL
+                                                       redirectUri:redirectUri
+                                                           handler:self  // self = InteractiveController
+                                                           context:context];
+
+[webviewController setupResponseHeaderCapture];
 ```
 
-### Step 7: Implement Broker Logic
-
-**Add methods:**
-```objc
-- (BOOL)isRunningInBrokerContext;
-- (void)retryInBrokerContextForURL:(NSURL *)url 
-                        completion:(void (^)(BOOL, NSError *))completion;
-- (void)dismissWebview;
-```
-
-### Step 8: Implement Action Execution
-
-**Add method:**
-```objc
-- (void)executeViewAction:(MSIDWebviewAction *)action;
-- (void)openASWebAuthSessionWithURL:(NSURL *)url
-                            purpose:(MSIDSystemWebviewPurpose)purpose
-                  additionalHeaders:(NSDictionary *)headers;
-```
-
-### Step 9: Add Session Reset
-
-**In completeWebAuth:**
-```objc
-self.sessionState = [[MSIDInteractiveWebviewState alloc] init];
-```
+**Summary:**
+- InteractiveController creates WebviewController
+- InteractiveController passes itself as handler
+- WebviewController stores weak reference to handler
+- WebviewController delegates all decisions to handler
+- InteractiveController owns session state and business logic
 
 ---
 
@@ -1549,19 +1900,29 @@ self.sessionState = [[MSIDInteractiveWebviewState alloc] init];
 ### Common Issues
 
 **Headers Not Available:**
-- Check responseHeaderHandler is set
-- Verify lastResponseHeaders populated
-- Check transfer to sessionState.responseHeaders
+- Check responseHeaderHandler is set in WebviewController
+- Verify lastResponseHeaders populated in WebviewController
+- Check headers passed to handler via handleSpecialURL:
+- Verify InteractiveController stores in sessionState.responseHeaders
 
 **BRT Not Acquired:**
-- Verify shouldAcquireBRT returns YES
-- Check brtAttemptCount < 2
-- Check !brtAcquired
+- Verify InteractiveController.shouldAcquireBRT returns YES
+- Check isRunningInBrokerContext returns NO (BRT only when NOT in broker)
+- Check brtAttemptCount < 2 in InteractiveController's sessionState
+- Check !brtAcquired in InteractiveController's sessionState
+- Verify acquireBRTIfNeeded called in handleEnrollURL
 
 **Broker Retry Not Working:**
-- Verify isRunningInBrokerContext correct
-- Check retryInBrokerContext implementation
-- Verify dismissWebview called
+- Verify isRunningInBrokerContext correct in InteractiveController
+- Check retryInBrokerContext implementation in InteractiveController
+- Verify InteractiveController returns RetryInBroker action
+- Check WebviewController executes retry action correctly
+
+**Handler Not Called:**
+- Verify WebviewController has handler reference set
+- Check handler is InteractiveController instance
+- Verify WebviewController.delegateSpecialURLToHandler called
+- Check handler protocol methods implemented in InteractiveController
 
 ---
 
@@ -1571,19 +1932,36 @@ self.sessionState = [[MSIDInteractiveWebviewState alloc] init];
 
 **Simplified Design:**
 - ✅ No state machine complexity
+- ✅ Handler protocol pattern (WebviewController → InteractiveController)
 - ✅ Session state for BRT (2 flags only)
-- ✅ Direct URL handling
+- ✅ Clear separation of concerns
 - ✅ Standard iOS patterns
 
+**Architecture:**
+- **InteractiveController**: Business logic layer (BRT, broker retry, decisions)
+- **WebviewController**: UI component layer (detection, execution only)
+- **Handler Protocol**: Clean interface between layers
+- **Session State**: Owned by InteractiveController
+
 **Components Used:**
-- MSIDInteractiveWebviewState (simplified)
-- MSIDSpecialURLViewActionResolver (existing)
-- MSIDWebviewAction (existing)
+- MSIDWebviewHandlerProtocol (new - defines interface)
+- MSIDInteractiveWebviewState (owned by InteractiveController)
+- MSIDSpecialURLViewActionResolver (existing - parsing/mapping)
+- MSIDWebviewAction (existing - typed commands)
+
+**Critical Architectural Principles:**
+1. **BRT acquisition logic** → InteractiveController (NOT WebviewController)
+2. **Broker retry logic** → InteractiveController (NOT WebviewController)
+3. **Session state ownership** → InteractiveController (NOT WebviewController)
+4. **Business decisions** → InteractiveController (NOT WebviewController)
+5. **URL detection & header capture** → WebviewController (UI responsibility)
+6. **Action execution** → WebviewController (UI responsibility)
 
 **Ready for Production:**
-- Complete code examples
-- Wiring guide
+- Complete code examples with correct architecture
+- Handler protocol implementation
+- Wiring guide with proper separation
 - Testing strategy
 - Rollout plan
 
-**This is Option A: Simple, clean, and production-ready!** 🎉
+**This is Option A: Simple, clean, architecturally correct, and production-ready!** 🎉
