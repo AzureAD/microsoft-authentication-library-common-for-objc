@@ -14,7 +14,7 @@ nothing to commit, working tree clean
 
 ```
 IdentityCore/src/webview/
-├── MSIDWebviewSessionManager.h        ✅ COMMITTED (304 lines)
+├── MSIDWebviewSessionManager.h        ✅ COMMITTED (151 lines)
 │   └── Standalone manager class
 │       ├── All webview session logic
 │       ├── Can be used by ANY controller
@@ -32,7 +32,7 @@ IdentityCore/src/webview/
 
 ```
 IdentityCore/src/controllers/
-├── MSIDLocalInteractiveController+WebviewExtensions.h    ✅ COMMITTED (97 lines)
+├── MSIDLocalInteractiveController+WebviewExtensions.h    ✅ COMMITTED (114 lines)
 │   └── Category interface for backwards compatibility
 │       └── Provides same API as before
 │
