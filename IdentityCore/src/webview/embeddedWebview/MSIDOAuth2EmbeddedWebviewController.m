@@ -34,7 +34,6 @@
 #import "MSIDNotifications.h"
 #import "MSIDInteractiveWebviewHandler.h"
 #import "MSIDInteractiveWebviewState.h"
-#import "MSIDInteractiveWebviewStateMachine.h"
 #import "MSIDWebviewAction.h"
 #import "MSIDASWebAuthenticationSessionHandler.h"
 
@@ -58,9 +57,6 @@
 
 /*! Session state for tracking special URL handling flow (owned by handler) */
 @property (nonatomic, strong) MSIDInteractiveWebviewState *sessionState;
-
-/*! State machine for processing special URLs with asynchronous operations */
-@property (nonatomic, strong) MSIDInteractiveWebviewStateMachine *stateMachine;
 
 /*! Current ASWebAuthenticationSession handler for profile installation flow */
 @property (nonatomic, strong) MSIDASWebAuthenticationSessionHandler *currentASWebAuthSession;
@@ -465,9 +461,9 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         }
     }
     
-    // Check for special URL schemes (msauth://, browser://) - NEW SPECIAL URL HANDLING
+    // Check for special URL schemes (msauth://, browser://) - SIMPLIFIED DIRECT HANDLER APPROACH
     NSString *scheme = requestURL.scheme.lowercaseString ?: @"";
-    if (self.handler && self.stateMachine && self.sessionState &&
+    if (self.handler && self.sessionState &&
         ([scheme isEqualToString:@"msauth"] || [scheme isEqualToString:@"browser"]))
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Special URL detected: %@", MSID_PII_LOG_MASKABLE(requestURL));
@@ -479,26 +475,21 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
             MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, @"Transferred %lu headers to session state", (unsigned long)self.lastResponseHeaders.count);
         }
         
-        // Use state machine to process special URL asynchronously
-        [self.stateMachine processSpecialURL:requestURL 
-                                  completion:^(MSIDWebviewAction * _Nullable action, NSError * _Nullable error) {
-            if (error)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Error processing special URL: %@", error);
-                [self endWebAuthWithURL:nil error:error];
-                return;
-            }
-            
-            if (action)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing view action type: %ld", (long)action.type);
-                [self executeViewAction:action];
-            }
-            else
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"No action returned for special URL");
-            }
-        }];
+        // Direct synchronous handler call (no state machine!)
+        MSIDWebviewAction *action = [self.handler viewActionForSpecialURL:requestURL 
+                                                                    state:self.sessionState];
+        
+        if (action)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing view action type: %ld", (long)action.type);
+            [self executeViewAction:action];
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"No action returned for special URL");
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No view action returned for special URL", nil, nil, nil, self.context.correlationId, nil, NO);
+            [self endWebAuthWithURL:nil error:error];
+        }
         
         decisionHandler(WKNavigationActionPolicyCancel);
         return;

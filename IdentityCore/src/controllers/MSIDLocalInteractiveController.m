@@ -35,7 +35,6 @@
 #import "MSIDSpecialURLViewActionResolver.h"
 #import "MSIDWebviewAction.h"
 #import "MSIDWebviewResponse.h"
-#import "MSIDInteractiveWebviewStateMachine.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBrokerInteractiveController.h"
@@ -273,15 +272,13 @@
     // Wire handler (self implements MSIDInteractiveWebviewHandler)
     embeddedController.handler = self;
     
-    // Pass session state
+    // Pass session state (owned by this controller)
     embeddedController.sessionState = self.sessionState;
     
-    // Create and wire state machine
-    embeddedController.stateMachine = [[MSIDInteractiveWebviewStateMachine alloc] 
-                                       initWithHandler:self
-                                       resolver:self.urlResolver];
+    // Simplified approach: No state machine needed!
+    // Handler is called directly for synchronous action resolution
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Webview controller configured with special URL handling");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Webview controller configured with simplified special URL handling (direct handler pattern)");
 }
 
 #pragma mark - MSIDInteractiveWebviewHandler
