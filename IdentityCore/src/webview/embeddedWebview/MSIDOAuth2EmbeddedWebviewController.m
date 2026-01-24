@@ -32,6 +32,10 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDNotifications.h"
+#import "MSIDInteractiveWebviewHandler.h"
+#import "MSIDInteractiveWebviewState.h"
+#import "MSIDInteractiveWebviewStateMachine.h"
+#import "MSIDWebviewAction.h"
 
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
@@ -47,6 +51,15 @@
 @property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
 /*! Stores HTTP headers from the most recent navigation response for state machine/telemetry access */
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *lastResponseHeaders;
+
+/*! Handler (typically InteractiveController) that implements business logic for special URLs */
+@property (nonatomic, weak) id<MSIDInteractiveWebviewHandler> handler;
+
+/*! Session state for tracking special URL handling flow (owned by handler) */
+@property (nonatomic, strong) MSIDInteractiveWebviewState *sessionState;
+
+/*! State machine for processing special URLs with asynchronous operations */
+@property (nonatomic, strong) MSIDInteractiveWebviewStateMachine *stateMachine;
 
 @end
 
@@ -448,6 +461,45 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         }
     }
     
+    // Check for special URL schemes (msauth://, browser://) - NEW SPECIAL URL HANDLING
+    NSString *scheme = requestURL.scheme.lowercaseString ?: @"";
+    if (self.handler && self.stateMachine && self.sessionState &&
+        ([scheme isEqualToString:@"msauth"] || [scheme isEqualToString:@"browser"]))
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Special URL detected: %@", MSID_PII_LOG_MASKABLE(requestURL));
+        
+        // Transfer captured headers to session state
+        if (self.lastResponseHeaders)
+        {
+            self.sessionState.responseHeaders = self.lastResponseHeaders;
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, @"Transferred %lu headers to session state", (unsigned long)self.lastResponseHeaders.count);
+        }
+        
+        // Use state machine to process special URL asynchronously
+        [self.stateMachine processSpecialURL:requestURL 
+                                  completion:^(MSIDWebviewAction * _Nullable action, NSError * _Nullable error) {
+            if (error)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Error processing special URL: %@", error);
+                [self endWebAuthWithURL:nil error:error];
+                return;
+            }
+            
+            if (action)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing view action type: %ld", (long)action.type);
+                [self executeViewAction:action];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"No action returned for special URL");
+            }
+        }];
+        
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    
     // redirecting to non-https url is not allowed
     if (![requestURL.scheme.lowercaseString isEqualToString:@"https"])
     {
@@ -595,6 +647,82 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Special URL View Action Execution
+
+- (void)executeViewAction:(MSIDWebviewAction *)action
+{
+    if (!action)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"executeViewAction called with nil action");
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing view action type: %ld", (long)action.type);
+    
+    switch (action.type)
+    {
+        case MSIDWebviewActionTypeLoadRequest:
+        {
+            if (action.request)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Loading request: %@", MSID_PII_LOG_MASKABLE(action.request.URL));
+                [self loadRequest:action.request];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"LoadRequest action has nil request");
+            }
+            break;
+        }
+            
+        case MSIDWebviewActionTypeOpenASWebAuthSession:
+        {
+            if (action.url)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening ASWebAuthenticationSession with URL: %@", MSID_PII_LOG_MASKABLE(action.url));
+                // TODO: Implement ASWebAuthenticationSession opening
+                // This requires creating and managing ASWebAuthenticationSession
+                // For now, just log the action
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"ASWebAuthenticationSession opening not yet implemented");
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"OpenASWebAuthSession action has nil URL");
+            }
+            break;
+        }
+            
+        case MSIDWebviewActionTypeCompleteWithURL:
+        {
+            if (action.url)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Completing webauth with URL: %@", MSID_PII_LOG_MASKABLE(action.url));
+                [self completeWebAuthWithURL:action.url];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"CompleteWithURL action has nil URL");
+            }
+            break;
+        }
+            
+        case MSIDWebviewActionTypeDismissWebview:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissing webview");
+            // TODO: Implement webview dismissal
+            // For now, just log
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Webview dismissal not yet implemented");
+            break;
+        }
+            
+        default:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Unknown view action type: %ld", (long)action.type);
+            break;
+        }
+    }
 }
 
 @end
