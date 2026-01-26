@@ -443,6 +443,19 @@
     // The InteractiveController knows about the webview through the request
 }
 
+#pragma mark Header Capture
+
+- (void)didReceiveHTTPResponseHeaders:(NSDictionary<NSString *, NSString *> *)headers
+{
+    // Controller owns sessionState, so controller sets responseHeaders
+    // This ensures proper ownership - no external mutation of controller's state
+    self.sessionState.responseHeaders = headers;
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, 
+                     @"Captured %lu HTTP response header(s) for special URL processing", 
+                     (unsigned long)headers.count);
+}
+
 #pragma mark View Action Resolution
 
 - (MSIDWebviewAction * _Nullable)viewActionForSpecialURL:(NSURL *)url

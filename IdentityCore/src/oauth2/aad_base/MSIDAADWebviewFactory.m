@@ -173,6 +173,13 @@
         {
             strongController.lastResponseHeaders = httpResponse.allHeaderFields;
             MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Captured HTTP response headers for URL: %@", response.URL);
+            
+            // Notify handler (InteractiveController) immediately via callback
+            // This ensures controller owns its own state mutation
+            if (strongController.handler && httpResponse.allHeaderFields)
+            {
+                [strongController.handler didReceiveHTTPResponseHeaders:httpResponse.allHeaderFields];
+            }
         }
     };
                                                                 

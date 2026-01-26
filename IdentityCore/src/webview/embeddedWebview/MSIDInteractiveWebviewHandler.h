@@ -133,6 +133,22 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)handleWebviewResponseForTelemetry:(MSIDWebviewResponse *)response;
 
+#pragma mark - Header Capture
+
+/*!
+ Called when HTTP response headers are received during webview navigation.
+ 
+ This callback allows the handler (InteractiveController) to capture and store headers
+ immediately as they arrive. This ensures proper ownership - the controller sets its own
+ sessionState.responseHeaders rather than having the webview mutate the controller's state.
+ 
+ Headers are received before navigation policy decisions, allowing the controller to have
+ access to headers (like X-Install-Url, X-Intune-AuthToken) for special URL processing.
+ 
+ @param headers The HTTP response headers dictionary from the navigation response
+ */
+- (void)didReceiveHTTPResponseHeaders:(NSDictionary<NSString *, NSString *> *)headers;
+
 #pragma mark - System Webview Management
 
 /*!

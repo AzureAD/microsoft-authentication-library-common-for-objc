@@ -464,12 +464,8 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Special URL detected: %@", MSID_PII_LOG_MASKABLE(requestURL));
         
-        // Transfer captured headers to session state
-        if (self.lastResponseHeaders)
-        {
-            self.sessionState.responseHeaders = self.lastResponseHeaders;
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, @"Transferred %lu headers to session state", (unsigned long)self.lastResponseHeaders.count);
-        }
+        // Headers already captured and set in session state via didReceiveHTTPResponseHeaders callback
+        // No need to transfer here - controller owns state mutation
         
         // Direct synchronous handler call (no state machine!)
         MSIDWebviewAction *action = [self.handler viewActionForSpecialURL:requestURL 
