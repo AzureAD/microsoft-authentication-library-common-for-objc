@@ -21,7 +21,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
+#if !EXCLUDE_FROM_MSALCPP
 #import "MSIDBoundRefreshTokenGrantRequest.h"
 #import "MSIDBoundRefreshToken.h"
 #import "MSIDBoundRefreshToken+Redemption.h"
@@ -31,7 +31,7 @@
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDJwtAlgorithm.h"
 #import "MSIDHttpResponseSerializer.h"
-#import "MSIDWorkplaceJoinUtil.h"
+#import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDBrokerConstants.h"
@@ -82,8 +82,9 @@
                                                             authorityEndpoint:endpoint
                                                                        scopes:scopes
                                                                         nonce:@""
-                                                             extraPayloadClaims:nil
-                                                             workplaceJoinInfo:workplacejoinData];
+                                                                  redirectUri:redirectUri
+                                                           extraPayloadClaims:parameters
+                                                            workplaceJoinInfo:workplacejoinData];
 
         MSIDJWECrypto *jweCrypto;
         NSString *jwt = [boundRefreshToken getTokenRedemptionJwtForTenantId:boundRefreshToken.accountIdentifier.utid
@@ -146,3 +147,4 @@
     }
 }
 @end
+#endif

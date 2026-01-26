@@ -25,7 +25,7 @@
 #import "MSIDBoundRefreshToken.h"
 #import "MSIDBoundRefreshToken+Redemption.h"
 #import "MSIDWPJKeyPairWithCert.h"
-#import "MSIDJweCrypto.h"
+#import "MSIDJWECrypto.h"
 #import "MSIDEcdhApv.h"
 #import "MSIDJwtAlgorithm.h"
 #import "MSIDJWTHelper.h"
