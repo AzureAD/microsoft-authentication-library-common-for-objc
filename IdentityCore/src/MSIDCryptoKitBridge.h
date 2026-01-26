@@ -22,6 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef MSIDCryptoKitBridge_h
+#define MSIDCryptoKitBridge_h
 
 #if __has_include(<swift/objc-prologue.h>)
 # include <swift/objc-prologue.h>
@@ -328,3 +330,5 @@ SWIFT_CLASS_NAMED("MSIDConcatKdfProvider")
 #if defined(__cplusplus)
 #endif
 #pragma clang diagnostic pop
+
+#endif
