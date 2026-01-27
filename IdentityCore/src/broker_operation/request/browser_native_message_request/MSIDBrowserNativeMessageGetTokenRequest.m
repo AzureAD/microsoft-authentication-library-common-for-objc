@@ -32,6 +32,7 @@
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthScheme.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDFlightManager.h"
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY = @"clientId";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY = @"authority";
@@ -178,36 +179,45 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     // It is optional param, if nil -- set it to 'true' by default.
     _canShowUI = canShowUIValue ? [requestJson msidBoolObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY] : YES;
     
-    NSString *reqCnf = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY];
-    NSString *tokenType = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
-    tokenType = tokenType.capitalizedString;
+    BOOL disablePop = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_BROWSER_CORE_DISABLE_POP];
     
-    
-    if (MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
+    if (!disablePop)
     {
-        NSMutableDictionary *schemeParams = [NSMutableDictionary new];
-        schemeParams[MSID_OAUTH2_TOKEN_TYPE] = tokenType;
-        schemeParams[MSID_OAUTH2_REQUEST_CONFIRMATION] = reqCnf;
+        NSString *reqCnf = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY];
+        NSString *tokenType = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
+        tokenType = tokenType.capitalizedString;
         
-        _authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
+        if (MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
+        {
+            NSMutableDictionary *schemeParams = [NSMutableDictionary new];
+            schemeParams[MSID_OAUTH2_TOKEN_TYPE] = tokenType;
+            schemeParams[MSID_OAUTH2_REQUEST_CONFIRMATION] = reqCnf;
+            
+            _authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
+        }
     }
     
     if (!_authScheme)
     {
         _authScheme = [MSIDAuthenticationScheme new]; // Bearer by default.
     }
-
-    NSString *claims = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY];
     
-    if (claims)
+    BOOL disableClaims = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS];
+    
+    if (!disableClaims)
     {
-        NSDictionary *claimsJson = [claims msidJson];
+        NSString *claims = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY];
         
-        NSError *claimsError;
-        _claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJson error:&claimsError];
-        if (claimsError)
+        if (claims)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to create claims request. Claims: %@", MSID_PII_LOG_MASKABLE(claimsJson));
+            NSDictionary *claimsJson = [claims msidJson];
+            
+            NSError *claimsError;
+            _claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJson error:&claimsError];
+            if (claimsError)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to create claims request. Claims: %@", MSID_PII_LOG_MASKABLE(claimsJson));
+            }
         }
     }
     

@@ -243,7 +243,15 @@ extern NSString * _Nonnull const MSID_FLIGHT_IS_BART_SUPPORTED;
 extern NSString * _Nonnull const MSID_FLIGHT_SPINNER_FIX;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
+
+/// Owner: sedemche
 extern NSString * _Nonnull const MSID_FLIGHT_USE_AUTOLAYOUT_FOR_LOADING_INDICATOR;
+
+/// Owner: sedemche
+extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_POP;
+
+/// Owner: sedemche
+extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS;
 
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 
