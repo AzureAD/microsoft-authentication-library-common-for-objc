@@ -106,6 +106,9 @@ NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 // This is SsoExt flow only flight
 NSString *const MSID_FLIGHT_ENABLE_THREAD_STARVATION = @"ts_en";
 
+// This is SsoExt flow only flight
+NSString *const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE = @"skip_brk_cache";
+
 NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 
 NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
