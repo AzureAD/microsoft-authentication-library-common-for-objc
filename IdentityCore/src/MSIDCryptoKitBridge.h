@@ -309,7 +309,6 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #endif
 
 #if defined(__OBJC__)
-
 @class NSData;
 SWIFT_CLASS_NAMED("MSIDAesGcmDecryptor")
 @interface MSIDAesGcmDecryptor : NSObject
@@ -322,7 +321,6 @@ SWIFT_CLASS_NAMED("MSIDConcatKdfProvider")
 - (NSData * _Nullable)concatKDFWithSHA256WithSharedSecret:(NSData * _Nonnull)sharedSecret outputKeyLen:(NSInteger)outputKeyLen algorithmId:(NSData * _Nonnull)algorithmId partyUInfo:(NSData * _Nonnull)partyUInfo partyVInfo:(NSData * _Nonnull)partyVInfo error:(NSError * _Nullable * _Nullable)error SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
-
 #endif
 #if __has_attribute(external_source_symbol)
 # pragma clang attribute pop

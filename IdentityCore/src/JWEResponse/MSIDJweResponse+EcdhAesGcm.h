@@ -27,7 +27,7 @@
 #import "MSIDRequestContext.h"
 #import "MSIDJWECrypto.h"
 #import "MSIDJsonSerializable.h"
-#if __has_include("MSIDCryptoKitBridge.h")
+#if !defined(SWIFT_TYPEDEFS)
 #import "MSIDCryptoKitBridge.h"
 #endif
 
