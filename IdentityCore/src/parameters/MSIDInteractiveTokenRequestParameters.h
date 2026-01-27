@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) id<MSIDCustomHeaderProviding> crossDomainHeaderProvider;
 // Additional request parameter that will be utilized by OneAuth during internal automation testing. When available will be passed to web view to be consumed by ESTS as a form of MFA.
 @property (nonatomic, nullable) NSString *userFederatedIdentityToken;
+@property (nullable, nonatomic) id<MSIDCustomHeaderProviding> prtHeaderProvider;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 - (NSDictionary *)allAuthorizeRequestExtraParameters DEPRECATED_MSG_ATTRIBUTE("Use -allAuthorizeRequestExtraParametersWithMetadata: instead");

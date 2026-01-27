@@ -249,4 +249,6 @@ extern NSString * _Nonnull const MSID_FLIGHT_USE_AUTOLAYOUT_FOR_LOADING_INDICATO
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
+
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
