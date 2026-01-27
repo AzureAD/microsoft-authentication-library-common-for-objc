@@ -77,7 +77,6 @@
         
         completionBlock(result, error);
     };
-    
 
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
