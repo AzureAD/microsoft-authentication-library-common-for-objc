@@ -33,7 +33,7 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
-#if !defined(SWIFT_TYPEDEFS)
+#ifndef MSAL_SWIFT_H
 #import "MSIDCryptoKitBridge.h"
 #endif
 
