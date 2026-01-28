@@ -27,9 +27,6 @@
 #import "MSIDRequestContext.h"
 #import "MSIDJWECrypto.h"
 #import "MSIDJsonSerializable.h"
-#if !defined(SWIFT_TYPEDEFS)
-#import "MSIDCryptoKitBridge.h"
-#endif
 
 typedef NSString *const MSIDJWECryptoKeyExchangeAlgorithm NS_TYPED_ENUM;
 typedef NSString *const MSIDJWECryptoKeyResponseEncryptionAlgorithm NS_TYPED_ENUM;
