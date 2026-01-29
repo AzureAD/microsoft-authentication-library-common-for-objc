@@ -766,8 +766,6 @@
 		724C9E112E6F9F430039BAA0 /* NSData+MSIDEccSecKeyRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E0F2E6F9F410039BAA0 /* NSData+MSIDEccSecKeyRef.m */; };
 		724C9E322E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
 		724C9E332E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
-		724C9E342E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
-		724C9E352E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
 		724C9E592E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */; };
 		724C9E5A2E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */; };
 		7252BB782F2AE56E00B2287F /* MSIDSwiftBridgingHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 7252BB772F2AE53700B2287F /* MSIDSwiftBridgingHeader.h */; };
@@ -8058,7 +8056,6 @@
 				B2E4A06A24DDE54B007CE642 /* MSIDRegistrationInformationMock.m in Sources */,
 				B24DE9FD21A60F0E003A651D /* MSIDTestBrokerTokenRequest.m in Sources */,
 				B2968CA822F67B4C005AFC33 /* MSIDTestLocalInteractiveController.m in Sources */,
-				724C9E342E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */,
 				B2E4A07A24DDE5D5007CE642 /* NSUUID+MSIDTestUtil.m in Sources */,
 				964E669720AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m in Sources */,
 				B2E4A06D24DDE559007CE642 /* MSIDTestContext.m in Sources */,
@@ -8145,7 +8142,6 @@
 				B2E4A07924DDE5D4007CE642 /* NSUUID+MSIDTestUtil.m in Sources */,
 				B253154723DD763E00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.m in Sources */,
 				B217861923A57EDB00839CE8 /* MSIDAuthorizationControllerMock.m in Sources */,
-				724C9E352E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */,
 				B2E4A07624DDE5CD007CE642 /* NSDate+MSIDTestUtil.m in Sources */,
 				B24DE9FC21A60F0D003A651D /* MSIDTestBrokerTokenRequest.m in Sources */,
 				5898426D2525448A0075DFED /* MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams.m in Sources */,
