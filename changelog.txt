@@ -1,3 +1,6 @@
+TBD
+* Import the right bridging header when common-core is consumed as submodule 
+
 Version 1.19.0
 * Add logic to save bound app RT only when token response has refresh_token_type=bound_app_rt
 * Filter Bound app RTs when reg deviceId doesn't match
