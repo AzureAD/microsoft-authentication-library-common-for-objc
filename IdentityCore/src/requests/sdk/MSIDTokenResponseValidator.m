@@ -288,13 +288,16 @@
     
     // Note, if there's an error saving result, we log it, but we don't fail validation
     // This is by design because even if we fail to cache, we still should return tokens back to the app
-    [self saveTokenResponseToCache:tokenResponse
-                     configuration:parameters.msidConfiguration
-                      oauthFactory:factory
-                        tokenCache:tokenCache
-                  saveSSOStateOnly:saveSSOStateOnly
-                           context:parameters
-                             error:nil];
+    if (!parameters.skipTokenCacheFromSsoExtensionResponse)
+    {
+        [self saveTokenResponseToCache:tokenResponse
+                         configuration:parameters.msidConfiguration
+                          oauthFactory:factory
+                            tokenCache:tokenCache
+                      saveSSOStateOnly:saveSSOStateOnly
+                               context:parameters
+                                 error:nil];
+    }
 
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration
