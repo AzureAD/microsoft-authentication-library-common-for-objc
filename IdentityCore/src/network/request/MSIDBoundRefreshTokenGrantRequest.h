@@ -66,5 +66,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Adds the decryption preprocessor to the response serializer using the provided decryption key.
 - (void)configureDecryptionPreProcessorUsingKey;
 @end
-#endif
+
 NS_ASSUME_NONNULL_END
+#endif
