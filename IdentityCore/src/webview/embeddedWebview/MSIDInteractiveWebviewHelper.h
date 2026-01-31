@@ -29,7 +29,6 @@
 
 @class MSIDWebviewAction;
 @class MSIDWebviewResponse;
-@class MSIDLocalInteractiveController;
 @class MSIDSpecialURLViewActionResolver;
 @protocol MSIDRequestContext;
 
@@ -90,8 +89,9 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  Weak reference to parent controller (InteractiveController).
  Helper delegates BRT acquisition and broker retry back to controller.
+ Generic type supports both MSIDLocalInteractiveController and ADBrokerInteractiveControllerWithPRT.
  */
-@property (nonatomic, weak, nullable) MSIDLocalInteractiveController *parentController;
+@property (nonatomic, weak, nullable) id parentController;
 
 /*!
  Weak reference to parent view controller for presenting UI.
