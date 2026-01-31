@@ -83,6 +83,29 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)shouldRetryInBrokerForSpecialURL:(NSURL *)url state:(MSIDInteractiveWebviewState *)state;
 
+#pragma mark - Special URL Processing
+
+/*!
+ Processes special URL with full orchestration including async BRT acquisition if needed.
+ 
+ This method handles the complete special URL processing flow:
+ 1. Checks if BRT acquisition is needed (non-broker only)
+ 2. Acquires BRT asynchronously if needed (network call)
+ 3. Resolves URL to appropriate action after BRT completes
+ 4. Returns action via completion block
+ 
+ All business logic (BRT checks, async acquisition, retry decisions) is in the handler.
+ Webview calls this method and simply executes the returned action.
+ This ensures proper separation: webview is UI layer, handler is business logic layer.
+ 
+ @param url The special URL to process (msauth:// or browser:// scheme)
+ @param state Current session state containing BRT status and response headers
+ @param completion Called with action to execute (async if BRT needed) or error
+ */
+- (void)processSpecialURL:(NSURL *)url
+                    state:(MSIDInteractiveWebviewState *)state
+               completion:(void (^)(MSIDWebviewAction * _Nullable action, NSError * _Nullable error))completion;
+
 #pragma mark - Action Implementations
 
 /*!

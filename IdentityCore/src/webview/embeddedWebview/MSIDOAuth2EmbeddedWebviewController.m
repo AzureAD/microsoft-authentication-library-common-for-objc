@@ -462,26 +462,44 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     if (self.handler && self.sessionState &&
         ([scheme isEqualToString:@"msauth"] || [scheme isEqualToString:@"browser"]))
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Special URL detected: %@", MSID_PII_LOG_MASKABLE(requestURL));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                             @"Special URL detected, delegating to handler for async processing: %@",
+                             MSID_PII_LOG_MASKABLE(requestURL));
         
-        // Headers already captured and set in session state via didReceiveHTTPResponseHeaders callback
-        // No need to transfer here - controller owns state mutation
-        
-        // Direct synchronous handler call (no state machine!)
-        MSIDWebviewAction *action = [self.handler viewActionForSpecialURL:requestURL 
-                                                                    state:self.sessionState];
-        
-        if (action)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing view action type: %ld", (long)action.type);
-            [self executeViewAction:action];
-        }
-        else
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"No action returned for special URL");
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No view action returned for special URL", nil, nil, nil, self.context.correlationId, nil, NO);
-            [self endWebAuthWithURL:nil error:error];
-        }
+        // Delegate to handler for full processing (may include async BRT acquisition)
+        // Handler contains all business logic (BRT checks, acquisition, retry decisions)
+        // Webview is just UI layer - calls handler and executes returned action
+        __weak typeof(self) weakSelf = self;
+        [self.handler processSpecialURL:requestURL
+                                  state:self.sessionState
+                             completion:^(MSIDWebviewAction * _Nullable action, NSError * _Nullable error) {
+            __strong typeof(self) strongSelf = weakSelf;
+            if (!strongSelf) return;
+            
+            if (error) {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context,
+                                 @"Handler returned error processing special URL: %@", error);
+                NSError *webviewError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                                       @"Failed to process special URL",
+                                                       error, nil, nil,
+                                                       strongSelf.context.correlationId, nil, NO);
+                [strongSelf endWebAuthWithURL:nil error:webviewError];
+                return;
+            }
+            
+            if (action) {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.context,
+                                 @"Executing special URL action type: %ld (returned from handler)",
+                                 (long)action.type);
+                
+                // Execute action returned by handler
+                [strongSelf executeViewAction:action];
+            }
+            else {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context,
+                                 @"No action returned from handler for special URL");
+            }
+        }];
         
         decisionHandler(WKNavigationActionPolicyCancel);
         return;

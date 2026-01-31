@@ -459,6 +459,60 @@
                      (unsigned long)headers.count);
 }
 
+#pragma mark - Special URL Processing
+
+- (void)processSpecialURL:(NSURL *)url
+                    state:(MSIDInteractiveWebviewState *)state
+               completion:(void (^)(MSIDWebviewAction * _Nullable, NSError * _Nullable))completion
+{
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters,
+                         @"Processing special URL: %@", MSID_PII_LOG_MASKABLE(url));
+    
+    // Check if BRT acquisition is needed (non-broker only, first msauth/browser redirect)
+    if ([self shouldAcquireBRTForSpecialURL:url state:state])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                         @"BRT acquisition needed, starting async operation (attempt %ld of 2)",
+                         (long)(state.brtAttemptCount + 1));
+        
+        // Increment attempt count
+        state.brtAttemptCount++;
+        
+        // Acquire BRT asynchronously
+        [self acquireBRTTokenWithCompletion:^(BOOL success, NSError *error) {
+            
+            if (success) {
+                state.brtAcquired = YES;
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                                 @"BRT acquired successfully");
+            } else {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
+                                 @"BRT acquisition failed: %@", error);
+                // Continue even if BRT fails (server will handle auth without BRT)
+            }
+            
+            // After BRT acquisition (success or failure), resolve action
+            MSIDWebviewAction *action = [self viewActionForSpecialURL:url state:state];
+            
+            if (completion) {
+                completion(action, nil);
+            }
+        }];
+        
+        return; // Async - completion will be called after BRT completes
+    }
+    
+    // No BRT needed, get action immediately (synchronous path)
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                     @"No BRT acquisition needed (already acquired or not applicable), processing synchronously");
+    
+    MSIDWebviewAction *action = [self viewActionForSpecialURL:url state:state];
+    
+    if (completion) {
+        completion(action, nil);
+    }
+}
+
 #pragma mark View Action Resolution
 
 - (MSIDWebviewAction * _Nullable)viewActionForSpecialURL:(NSURL *)url
