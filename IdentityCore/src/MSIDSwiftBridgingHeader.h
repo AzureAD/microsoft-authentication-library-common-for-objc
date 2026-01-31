@@ -39,9 +39,9 @@
  */
 
 #if defined(MSAL_COCOAPOD)
-#import <MSAL/MSAL-Swift.h>
+#import "MSAL/MSAL-Swift.h"
 #elif defined(ONEAUTH_COCOAPOD)
-#import <OneAuth/OneAuth-Swift.h>
+#import "OneAuth-Swift.h"
 #else
 #import "IdentityCore-Swift.h"
 #endif
