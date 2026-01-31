@@ -32,6 +32,9 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDNotifications.h"
+#import "MSIDInteractiveWebviewHandler.h"
+#import "MSIDInteractiveWebviewState.h"
+#import "MSIDWebviewAction.h"
 
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
@@ -47,6 +50,12 @@
 @property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
 /*! Stores HTTP headers from the most recent navigation response for state machine/telemetry access */
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *lastResponseHeaders;
+
+/*! Handler (typically InteractiveController) that implements business logic for special URLs */
+@property (nonatomic, weak) id<MSIDInteractiveWebviewHandler> handler;
+
+/*! Session state for tracking special URL handling flow (owned by handler) */
+@property (nonatomic, strong) MSIDInteractiveWebviewState *sessionState;
 
 @end
 
@@ -448,30 +457,34 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         }
     }
     
-    // Check for msauth:// URLs and let external policy handler decide
-    // This reuses the existing externalDecidePolicyForBrowserAction mechanism
+    // Check for special URL schemes (msauth://, browser://) - SIMPLIFIED DIRECT HANDLER APPROACH
     NSString *scheme = requestURL.scheme.lowercaseString ?: @"";
-    BOOL isMsauthUrl = [scheme isEqualToString:@"msauth"];
-    
-    if (isMsauthUrl && self.externalDecidePolicyForBrowserAction)
+    if (self.handler && self.sessionState &&
+        ([scheme isEqualToString:@"msauth"] || [scheme isEqualToString:@"browser"]))
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"msauth:// URL detected, calling external policy handler: %@", MSID_PII_LOG_MASKABLE(requestURL));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Special URL detected: %@", MSID_PII_LOG_MASKABLE(requestURL));
         
-        NSURLRequest *handlerResponse = self.externalDecidePolicyForBrowserAction(self, requestURL);
+        // Headers already captured and set in session state via didReceiveHTTPResponseHeaders callback
+        // No need to transfer here - controller owns state mutation
         
-        if (handlerResponse)
+        // Direct synchronous handler call (no state machine!)
+        MSIDWebviewAction *action = [self.handler viewActionForSpecialURL:requestURL 
+                                                                    state:self.sessionState];
+        
+        if (action)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"External policy handler returned request for msauth:// URL");
-            decisionHandler(WKNavigationActionPolicyCancel);
-            [self loadRequest:handlerResponse];
-            return YES;
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing view action type: %ld", (long)action.type);
+            [self executeViewAction:action];
         }
         else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"External policy handler returned nil for msauth:// URL (handled asynchronously or completed)");
-            decisionHandler(WKNavigationActionPolicyCancel);
-            return YES;
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"No action returned for special URL");
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No view action returned for special URL", nil, nil, nil, self.context.correlationId, nil, NO);
+            [self endWebAuthWithURL:nil error:error];
         }
+        
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     }
     
     // redirecting to non-https url is not allowed
@@ -621,6 +634,108 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Special URL View Action Execution
+
+- (void)executeViewAction:(MSIDWebviewAction *)action
+{
+    if (!action)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"executeViewAction called with nil action");
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing view action type: %ld", (long)action.type);
+    
+    switch (action.type)
+    {
+        case MSIDWebviewActionTypeLoadRequest:
+        {
+            if (action.request)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Loading request: %@", MSID_PII_LOG_MASKABLE(action.request.URL));
+                [self loadRequest:action.request];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"LoadRequest action has nil request");
+            }
+            break;
+        }
+            
+        case MSIDWebviewActionTypeOpenASWebAuthSession:
+        {
+            if (action.url)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, 
+                                     @"Delegating to handler to open system webview with URL: %@", 
+                                     MSID_PII_LOG_MASKABLE(action.url));
+                
+                // Delegate to handler (InteractiveController) to create and manage system webview
+                // This keeps EmbeddedWebViewController focused only on embedded webview management
+                __weak __typeof(self) weakSelf = self;
+                [self.handler openSystemWebviewWithURL:action.url
+                                               headers:action.additionalHeaders
+                                               purpose:action.purpose
+                                            completion:^(NSURL *callbackURL, NSError *error) {
+                    __strong __typeof(self) strongSelf = weakSelf;
+                    
+                    if (error)
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context, 
+                                         @"System webview failed: %@", error);
+                        [strongSelf endWebAuthWithURL:nil error:error];
+                    }
+                    else if (callbackURL)
+                    {
+                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, strongSelf.context, 
+                                             @"System webview completed with callback URL: %@", 
+                                             MSID_PII_LOG_MASKABLE(callbackURL));
+                        // Callback URL (e.g., msauth://profileInstalled) will be processed
+                        // by InteractiveController or as next navigation
+                    }
+                }];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"OpenASWebAuthSession action has nil URL");
+            }
+            break;
+        }
+            
+        case MSIDWebviewActionTypeCompleteWithURL:
+        {
+            if (action.url)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Completing webauth with URL: %@", MSID_PII_LOG_MASKABLE(action.url));
+                [self completeWebAuthWithURL:action.url];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"CompleteWithURL action has nil URL");
+            }
+            break;
+        }
+            
+        case MSIDWebviewActionTypeDismissWebview:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing DismissWebview action");
+            
+            // Note: System webview (ASWebAuth) is now managed by InteractiveController
+            // via the handler.openSystemWebviewWithURL method.
+            // DismissWebview action is for dismissing the embedded webview if needed.
+            // The handler (InteractiveController) manages system webview lifecycle.
+            
+            break;
+        }
+            
+        default:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Unknown view action type: %ld", (long)action.type);
+            break;
+        }
+    }
 }
 
 @end

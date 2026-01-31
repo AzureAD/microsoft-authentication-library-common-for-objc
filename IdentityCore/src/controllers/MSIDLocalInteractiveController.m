@@ -84,58 +84,6 @@
     
     MSIDInteractiveTokenRequest *request = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
 
-    // Set block for special URL handling if enabled (reusing existing externalDecidePolicyForBrowserAction mechanism)
-    if (self.specialURLHandlingEnabled) {
-        __weak typeof(self) weakSelf = self;
-        
-        request.externalDecidePolicyForBrowserAction = ^NSURLRequest *(MSIDOAuth2EmbeddedWebviewController *webView, NSURL *url) {
-            __strong typeof(self) strongSelf = weakSelf;
-            if (!strongSelf) return nil;
-            
-            NSString *scheme = [url.scheme lowercaseString];
-            
-            // Handle msauth:// URLs with our special URL logic
-            if ([scheme isEqualToString:@"msauth"]) {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.requestParameters, 
-                                 @"Handling msauth:// URL via externalDecidePolicyForBrowserAction: %@", url);
-                
-                // Get action using our handler logic
-                MSIDWebviewAction *action = [strongSelf viewActionForSpecialURL:url state:strongSelf.sessionState];
-                
-                if (!action) return nil;
-                
-                // Execute action based on type
-                if (action.type == MSIDWebviewActionTypeLoadRequest) {
-                    // Return request to load in embedded webview
-                    return [NSURLRequest requestWithURL:action.url];
-                }
-                else if (action.type == MSIDWebviewActionTypeOpenASWebAuthSession) {
-                    // Open ASWebAuth (async operation)
-                    [strongSelf openSystemWebviewWithURL:action.url 
-                                                 headers:action.additionalHeaders 
-                                                 purpose:action.purpose 
-                                              completion:^(NSURL *callbackURL, NSError *error) {
-                        if (error) {
-                            MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.requestParameters, 
-                                             @"System webview failed: %@", error);
-                        }
-                    }];
-                    return nil; // Don't load anything in embedded webview
-                }
-                else if (action.type == MSIDWebviewActionTypeCompleteWithURL) {
-                    // Complete auth flow (completion will be handled by existing logic)
-                    return nil;
-                }
-                else if (action.type == MSIDWebviewActionTypeDismissWebview) {
-                    [strongSelf dismissEmbeddedWebviewIfPresent];
-                    return nil;
-                }
-            }
-            
-            return nil; // Default handling for other URLs
-        };
-    }
-
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
         NSString *ssoNonce = [error.userInfo valueForKey:MSID_SSO_NONCE_QUERY_PARAM_KEY];
@@ -302,6 +250,36 @@
         
         completionBlock(result, error);
     }];
+}
+
+#pragma mark - Webview Configuration
+
+- (void)configureWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
+{
+    if (!self.specialURLHandlingEnabled)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Special URL handling disabled - skipping webview configuration");
+        return;
+    }
+    
+    if (![webviewController isKindOfClass:[MSIDOAuth2EmbeddedWebviewController class]])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Webview controller is not embedded webview - skipping special URL configuration");
+        return;
+    }
+    
+    MSIDOAuth2EmbeddedWebviewController *embeddedController = (MSIDOAuth2EmbeddedWebviewController *)webviewController;
+    
+    // Wire handler (self implements MSIDInteractiveWebviewHandler)
+    embeddedController.handler = self;
+    
+    // Pass session state (owned by this controller)
+    embeddedController.sessionState = self.sessionState;
+    
+    // Simplified approach: No state machine needed!
+    // Handler is called directly for synchronous action resolution
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Webview controller configured with simplified special URL handling (direct handler pattern)");
 }
 
 #pragma mark - MSIDInteractiveWebviewHandler
