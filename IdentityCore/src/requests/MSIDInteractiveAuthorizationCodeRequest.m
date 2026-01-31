@@ -147,6 +147,9 @@
     {
         MSIDOAuth2EmbeddedWebviewController *embeddedWebView = (MSIDOAuth2EmbeddedWebviewController *)webView;
         embeddedWebView.webviewHelper = self.webviewHelper;
+        
+        // Set back-reference for dismissal
+        self.webviewHelper.embeddedWebviewController = embeddedWebView;
     }
     
     [MSIDWebviewAuthorization startSessionWithWebView:webView

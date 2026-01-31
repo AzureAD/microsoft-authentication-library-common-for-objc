@@ -32,6 +32,12 @@
 #import "MSIDWebviewResponse.h"
 #import "MSIDRequestContext.h"
 #import "MSIDASWebAuthenticationSessionHandler.h"
+#import "MSIDError.h"
+#import "MSIDLogging.h"
+
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
 
 @implementation MSIDInteractiveWebviewHelper
 
@@ -229,14 +235,29 @@
 
 - (void)dismissEmbeddedWebviewIfPresent
 {
-    if (!self.parentController)
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissing embedded webview");
+    
+    if (!self.embeddedWebviewController)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"No parent controller - cannot dismiss webview");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"No embedded webview controller - nothing to dismiss");
         return;
     }
     
-    // Delegate to parent controller for webview dismissal
-    [self.parentController dismissEmbeddedWebviewIfPresent];
+    // Dismiss webview directly (shared implementation)
+    if ([self.embeddedWebviewController isKindOfClass:[UIViewController class]])
+    {
+        UIViewController *viewController = (UIViewController *)self.embeddedWebviewController;
+        
+        if (viewController.presentingViewController)
+        {
+            [viewController dismissViewControllerAnimated:YES completion:nil];
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Embedded webview dismissed");
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Embedded webview not currently presented");
+        }
+    }
 }
 
 #pragma mark - View Action Resolution
@@ -280,21 +301,53 @@
                          purpose:(MSIDSystemWebviewPurpose)purpose
                       completion:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completion
 {
-    if (!self.parentController)
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, 
+                         @"Opening system webview for purpose: %d with URL: %@", 
+                         (int)purpose, MSID_PII_LOG_MASKABLE(url));
+    
+    if (!self.parentViewController)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"No parent controller - cannot open system webview");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"No parent view controller - cannot open system webview");
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                        @"No parent controller configured for system webview",
+                                        @"No parent view controller configured for system webview",
                                         nil, nil, nil, self.context.correlationId, nil, NO);
         if (completion) completion(nil, error);
         return;
     }
     
-    // Delegate to parent controller for system webview management
-    [self.parentController openSystemWebviewWithURL:url
-                                            headers:headers
-                                            purpose:purpose
-                                         completion:completion];
+    // Create ASWebAuthenticationSession directly in helper (shared implementation)
+    MSIDASWebAuthenticationSessionHandler *asWebAuthHandler = 
+        [[MSIDASWebAuthenticationSessionHandler alloc] 
+            initWithParentController:self.parentViewController
+                            startURL:url
+                      callbackScheme:@"msauth"
+                  useEmpheralSession:YES
+                  additionalHeaders:headers];
+    
+    self.currentSystemWebview = asWebAuthHandler;
+    
+    // Start ASWebAuth session
+    __weak typeof(self) weakSelf = self;
+    [asWebAuthHandler startWithCompletionHandler:^(NSURL *callbackURL, NSError *error) {
+        __strong typeof(self) strongSelf = weakSelf;
+        
+        if (error) {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context, 
+                             @"System webview failed: %@", error);
+        } else if (callbackURL) {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, strongSelf.context, 
+                                 @"System webview completed with callback: %@", 
+                                 MSID_PII_LOG_MASKABLE(callbackURL));
+        }
+        
+        // Clear reference
+        strongSelf.currentSystemWebview = nil;
+        
+        // Call completion
+        if (completion) {
+            completion(callbackURL, error);
+        }
+    }];
 }
 
 #pragma mark - Telemetry

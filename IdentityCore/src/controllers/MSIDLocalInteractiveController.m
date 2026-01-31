@@ -88,6 +88,8 @@
         self.webviewHelper = [[MSIDInteractiveWebviewHelper alloc] initWithBrokerContext:NO];
         self.webviewHelper.parentController = self;
         self.webviewHelper.context = self.requestParameters;
+        self.webviewHelper.parentViewController = self.parentController;
+        self.webviewHelper.embeddedWebviewController = nil; // Will be set when webview created
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Created webview helper for special URL handling");
     }
     
@@ -338,11 +340,8 @@
 
 - (void)dismissEmbeddedWebviewIfPresent
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Dismissing embedded webview");
-    
-    // TODO: Implement webview dismissal
-    // This should dismiss the current webview if it's presented
-    // The InteractiveController knows about the webview through the request
+    // Delegate to helper (shared implementation)
+    [self.webviewHelper dismissEmbeddedWebviewIfPresent];
 }
 
 - (void)openSystemWebviewWithURL:(NSURL *)url
@@ -350,44 +349,14 @@
                          purpose:(MSIDSystemWebviewPurpose)purpose
                       completion:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completion
 {
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, 
-                         @"Opening system webview for purpose: %d with URL: %@", 
-                         (int)purpose, MSID_PII_LOG_MASKABLE(url));
+    // Delegate to helper (shared implementation)
+    [self.webviewHelper openSystemWebviewWithURL:url
+                                         headers:headers
+                                         purpose:purpose
+                                      completion:completion];
     
-    // Create ASWebAuthenticationSession in CONTROLLER layer (correct architectural layer)
-    // This keeps EmbeddedWebViewController focused only on embedded webview management
-    MSIDASWebAuthenticationSessionHandler *asWebAuthHandler = 
-        [[MSIDASWebAuthenticationSessionHandler alloc] 
-            initWithParentController:self.parentController
-                            startURL:url
-                      callbackScheme:@"msauth"
-                  useEmpheralSession:YES
-                  additionalHeaders:headers];
-    
-    self.currentSystemWebview = asWebAuthHandler;
-    
-    // Start ASWebAuth session
-    __weak typeof(self) weakSelf = self;
-    [asWebAuthHandler startWithCompletionHandler:^(NSURL *callbackURL, NSError *error) {
-        __strong typeof(self) strongSelf = weakSelf;
-        
-        if (error) {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.requestParameters, 
-                             @"System webview failed: %@", error);
-        } else if (callbackURL) {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, strongSelf.requestParameters, 
-                                 @"System webview completed with callback: %@", 
-                                 MSID_PII_LOG_MASKABLE(callbackURL));
-        }
-        
-        // Clear reference
-        strongSelf.currentSystemWebview = nil;
-        
-        // Call completion
-        if (completion) {
-            completion(callbackURL, error);
-        }
-    }];
+    // Track currentSystemWebview for backwards compatibility
+    self.currentSystemWebview = self.webviewHelper.currentSystemWebview;
 }
 
 @end

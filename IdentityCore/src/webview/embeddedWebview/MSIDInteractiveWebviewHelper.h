@@ -94,6 +94,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, nullable) MSIDLocalInteractiveController *parentController;
 
 /*!
+ Weak reference to parent view controller for presenting UI.
+ Used for openSystemWebviewWithURL to present ASWebAuthenticationSession.
+ */
+@property (nonatomic, weak, nullable) UIViewController *parentViewController;
+
+/*!
+ Weak reference to embedded webview controller for dismissal.
+ Used for dismissEmbeddedWebviewIfPresent.
+ */
+@property (nonatomic, weak, nullable) id embeddedWebviewController;
+
+/*!
  Weak reference to request context for logging.
  */
 @property (nonatomic, weak, nullable) id<MSIDRequestContext> context;
