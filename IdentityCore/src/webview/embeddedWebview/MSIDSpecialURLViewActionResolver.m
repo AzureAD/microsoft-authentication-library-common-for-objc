@@ -27,12 +27,12 @@
 
 #import "MSIDSpecialURLViewActionResolver.h"
 #import "MSIDWebviewAction.h"
-#import "MSIDInteractiveWebviewState.h"
 #import "NSURL+MSIDExtensions.h"
 
 @implementation MSIDSpecialURLViewActionResolver
 
-+ (MSIDWebviewAction *)resolveActionForURL:(NSURL *)url state:(MSIDInteractiveWebviewState *)state
++ (MSIDWebviewAction *)resolveActionForURL:(NSURL *)url
+                            responseHeaders:(NSDictionary<NSString *, NSString *> *)responseHeaders
 {
     if (!url)
     {
@@ -61,7 +61,7 @@
         // msauth://installProfile?url=...&requireASWebAuthenticationSession=true
         if ([host isEqualToString:@"installprofile"])
         {
-            return [self resolveInstallProfileAction:queryParams state:state];
+            return [self resolveInstallProfileAction:queryParams responseHeaders:responseHeaders];
         }
         
         // msauth://profileComplete or msauth://profileInstalled
@@ -130,10 +130,10 @@
 }
 
 + (MSIDWebviewAction *)resolveInstallProfileAction:(NSDictionary *)queryParams
-                                              state:(MSIDInteractiveWebviewState *)state
+                                     responseHeaders:(NSDictionary<NSString *, NSString *> *)responseHeaders
 {
-    // Extract headers from state (captured from HTTP response for all navigation responses)
-    NSDictionary<NSString *, NSString *> *headers = state.responseHeaders;
+    // Extract headers (captured from HTTP response for all navigation responses)
+    NSDictionary<NSString *, NSString *> *headers = responseHeaders;
     
     // Priority 1: Use X-Install-Url from headers if present
     NSString *installURLString = headers[@"X-Install-Url"];

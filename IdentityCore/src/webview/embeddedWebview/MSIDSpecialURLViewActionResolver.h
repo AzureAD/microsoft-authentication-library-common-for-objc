@@ -28,7 +28,6 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDWebviewAction;
-@class MSIDInteractiveWebviewState;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -52,14 +51,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDSpecialURLViewActionResolver : NSObject
 
 /*!
- Resolves a special URL to a webview action based on the URL pattern and state.
+ Resolves a special URL to a webview action based on the URL pattern.
  
  @param url The special URL to resolve (msauth:// or browser://)
- @param state Current webview state (may influence resolution decisions)
+ @param responseHeaders Optional HTTP response headers (may contain X-Install-Url, X-Intune-AuthToken)
  @return The resolved webview action, or nil if the URL pattern is not recognized.
  */
 + (MSIDWebviewAction * _Nullable)resolveActionForURL:(NSURL *)url
-                                                state:(MSIDInteractiveWebviewState * _Nullable)state;
+                                      responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders;
 
 @end
 

@@ -245,8 +245,9 @@
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Resolving view action for special URL: %@", MSID_PII_LOG_MASKABLE(url));
     
-    // Use resolver to map URL to action
-    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver resolveActionForURL:url state:nil];
+    // Use resolver to map URL to action, passing captured response headers
+    MSIDWebviewAction *action = [MSIDSpecialURLViewActionResolver resolveActionForURL:url
+                                                                       responseHeaders:self.capturedResponseHeaders];
     
     if (action)
     {

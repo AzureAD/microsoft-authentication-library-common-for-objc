@@ -69,8 +69,6 @@
     {
         _interactiveRequestParamaters = parameters;
         _specialURLHandlingEnabled = NO; // Default OFF for safety
-        _sessionState = [[MSIDInteractiveWebviewState alloc] init];
-        _urlResolver = [[MSIDSpecialURLViewActionResolver alloc] init];
     }
 
     return self;
