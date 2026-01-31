@@ -28,8 +28,7 @@
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDOauth2Factory;
 @class MSIDWebWPJResponse;
-
-@protocol MSIDInteractiveWebviewHandler;
+@class MSIDInteractiveWebviewHelper;
 
 typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
 
@@ -42,23 +41,23 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
 
 /*!
- Optional handler for special URL processing and webview configuration.
+ Optional helper for special URL processing and webview configuration.
  
- When set, this handler will be used to configure webviews created during
+ When set, this helper will be used to configure webviews created during
  the authorization code flow, enabling special URL handling (msauth://, browser://)
  and session state management for features like Intune MDM enrollment.
  
- The handler provides:
+ The helper provides:
  - Header capture callbacks
  - View action resolution for special URLs
- - BRT acquisition (non-broker controllers only)
- - Broker retry logic (non-broker controllers only)
+ - BRT acquisition orchestration (non-broker controllers only)
+ - Broker retry logic orchestration (non-broker controllers only)
  - System webview management (ASWebAuth)
  
  @note This is a WEAK reference to prevent retain cycles with the controller
        that creates this request.
  */
-@property (nonatomic, weak, nullable) id<MSIDInteractiveWebviewHandler> webviewHandler;
+@property (nonatomic, weak, nullable) MSIDInteractiveWebviewHelper *webviewHelper;
 
 - (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory;

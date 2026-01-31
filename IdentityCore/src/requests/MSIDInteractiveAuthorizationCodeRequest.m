@@ -141,10 +141,10 @@
         return;
     }
     
-    // Configure webview with special URL handler if available
-    if (self.webviewHandler && [self.webviewHandler respondsToSelector:@selector(configureWebviewController:)])
+    // Configure webview with special URL helper if available
+    if (self.webviewHelper && [webView respondsToSelector:@selector(setWebviewHelper:)])
     {
-        [self.webviewHandler configureWebviewController:webView];
+        [webView setValue:self.webviewHelper forKey:@"webviewHelper"];
     }
     
     [MSIDWebviewAuthorization startSessionWithWebView:webView

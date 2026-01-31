@@ -32,8 +32,7 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDNotifications.h"
-#import "MSIDInteractiveWebviewHandler.h"
-#import "MSIDInteractiveWebviewState.h"
+#import "MSIDInteractiveWebviewHelper.h"
 #import "MSIDWebviewAction.h"
 
 #import "MSIDTelemetry+Internal.h"
@@ -48,14 +47,11 @@
 @interface MSIDOAuth2EmbeddedWebviewController()
 
 @property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
-/*! Stores HTTP headers from the most recent navigation response for state machine/telemetry access */
+/*! Stores HTTP headers from the most recent navigation response for telemetry access */
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *lastResponseHeaders;
 
-/*! Handler (typically InteractiveController) that implements business logic for special URLs */
-@property (nonatomic, weak) id<MSIDInteractiveWebviewHandler> handler;
-
-/*! Session state for tracking special URL handling flow (owned by handler) */
-@property (nonatomic, strong) MSIDInteractiveWebviewState *sessionState;
+/*! Helper for special URL handling (orchestrates BRT, retry, system webview) */
+@property (nonatomic, weak) MSIDInteractiveWebviewHelper *webviewHelper;
 
 @end
 
@@ -457,28 +453,27 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         }
     }
     
-    // Check for special URL schemes (msauth://, browser://) - SIMPLIFIED DIRECT HANDLER APPROACH
+    // Check for special URL schemes (msauth://, browser://) - HELPER PATTERN
     NSString *scheme = requestURL.scheme.lowercaseString ?: @"";
-    if (self.handler && self.sessionState &&
+    if (self.webviewHelper &&
         ([scheme isEqualToString:@"msauth"] || [scheme isEqualToString:@"browser"]))
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
-                             @"Special URL detected, delegating to handler for async processing: %@",
+                             @"Special URL detected, delegating to helper for async processing: %@",
                              MSID_PII_LOG_MASKABLE(requestURL));
         
-        // Delegate to handler for full processing (may include async BRT acquisition)
-        // Handler contains all business logic (BRT checks, acquisition, retry decisions)
-        // Webview is just UI layer - calls handler and executes returned action
+        // Delegate to helper for full processing (may include async BRT acquisition)
+        // Helper contains all business logic (BRT checks, acquisition, retry decisions)
+        // Webview is just UI layer - calls helper and executes returned action
         __weak typeof(self) weakSelf = self;
-        [self.handler processSpecialURL:requestURL
-                                  state:self.sessionState
-                             completion:^(MSIDWebviewAction * _Nullable action, NSError * _Nullable error) {
+        [self.webviewHelper processSpecialURL:requestURL
+                                   completion:^(MSIDWebviewAction * _Nullable action, NSError * _Nullable error) {
             __strong typeof(self) strongSelf = weakSelf;
             if (!strongSelf) return;
             
             if (error) {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context,
-                                 @"Handler returned error processing special URL: %@", error);
+                                 @"Helper returned error processing special URL: %@", error);
                 NSError *webviewError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
                                                        @"Failed to process special URL",
                                                        error, nil, nil,
@@ -489,15 +484,15 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
             
             if (action) {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.context,
-                                 @"Executing special URL action type: %ld (returned from handler)",
+                                 @"Executing special URL action type: %ld (returned from helper)",
                                  (long)action.type);
                 
-                // Execute action returned by handler
+                // Execute action returned by helper
                 [strongSelf executeViewAction:action];
             }
             else {
                 MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context,
-                                 @"No action returned from handler for special URL");
+                                 @"No action returned from helper for special URL");
             }
         }];
         
@@ -687,16 +682,16 @@ initiatedByFrame:(WKFrameInfo *)frame
             if (action.url)
             {
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, 
-                                     @"Delegating to handler to open system webview with URL: %@", 
+                                     @"Delegating to helper to open system webview with URL: %@", 
                                      MSID_PII_LOG_MASKABLE(action.url));
                 
-                // Delegate to handler (InteractiveController) to create and manage system webview
+                // Delegate to helper to manage system webview
                 // This keeps EmbeddedWebViewController focused only on embedded webview management
                 __weak __typeof(self) weakSelf = self;
-                [self.handler openSystemWebviewWithURL:action.url
-                                               headers:action.additionalHeaders
-                                               purpose:action.purpose
-                                            completion:^(NSURL *callbackURL, NSError *error) {
+                [self.webviewHelper openSystemWebviewWithURL:action.url
+                                                      headers:action.additionalHeaders
+                                                      purpose:action.purpose
+                                                   completion:^(NSURL *callbackURL, NSError *error) {
                     __strong __typeof(self) strongSelf = weakSelf;
                     
                     if (error)
@@ -740,10 +735,10 @@ initiatedByFrame:(WKFrameInfo *)frame
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing DismissWebview action");
             
-            // Note: System webview (ASWebAuth) is now managed by InteractiveController
-            // via the handler.openSystemWebviewWithURL method.
+            // Note: System webview (ASWebAuth) is now managed by Helper
+            // which delegates to InteractiveController for actual system webview management.
             // DismissWebview action is for dismissing the embedded webview if needed.
-            // The handler (InteractiveController) manages system webview lifecycle.
+            // The helper manages system webview lifecycle.
             
             break;
         }

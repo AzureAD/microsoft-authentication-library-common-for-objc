@@ -575,6 +575,9 @@
 		4BF51DD52E96DACD00434A36 /* MSIDSwitchBrowserOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2AFE2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.m */; };
 		4BF51DD62E96E0AC00434A36 /* MSIDCertAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F19F2D2866F700E44F6E /* MSIDCertAuthManager.m */; };
 		4D80BCF1DCB991148A9DCE04 /* MSIDSpecialURLViewActionResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEA7D332F04781FC44FD0B6 /* MSIDSpecialURLViewActionResolver.m */; };
+GGGG7777HHHH8888IIII9999 /* MSIDInteractiveWebviewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */; };
+AAAA1111BBBB2222CCCC3333 /* MSIDInteractiveWebviewHelper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDInteractiveWebviewHelper.h; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.h; sourceTree = "<group>"; };
+DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDInteractiveWebviewHelper.m; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.m; sourceTree = "<group>"; };
 		4ED9999F3D9D4070F3025E2D /* MSIDRetryInBrokerControllerAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 0C01586AA59140E449182090 /* MSIDRetryInBrokerControllerAction.m */; };
 		580E25402719FD10003D1795 /* MSIDPrtHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 580E253E2719FD10003D1795 /* MSIDPrtHeader.h */; };
 		580E25412719FD10003D1795 /* MSIDPrtHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 580E253F2719FD10003D1795 /* MSIDPrtHeader.m */; };
@@ -951,9 +954,7 @@
 		96F94A3520817C1A0034676C /* MSIDNTLMHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A3220817C1A0034676C /* MSIDNTLMHandler.m */; };
 		96F94A39208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */; };
 		96F94A3A208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
-		96F94A3B208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
-		99F54D6D964FAF21B5C6C174 /* MSIDInteractiveWebviewState.m in Sources */ = {isa = PBXBuildFile; fileRef = 2FFEAC99F70B96067159319D /* MSIDInteractiveWebviewState.m */; };
-		A0410E0825E81C5D004D80FD /* MSIDThrottlingModel429Test.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E0725E81C5D004D80FD /* MSIDThrottlingModel429Test.m */; };
+		96F94A3B208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };		A0410E0825E81C5D004D80FD /* MSIDThrottlingModel429Test.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E0725E81C5D004D80FD /* MSIDThrottlingModel429Test.m */; };
 		A0410E0925E81C5D004D80FD /* MSIDThrottlingModel429Test.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E0725E81C5D004D80FD /* MSIDThrottlingModel429Test.m */; };
 		A0410E1A25E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E1925E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m */; };
 		A0410E1B25E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E1925E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m */; };
@@ -992,6 +993,9 @@
 		A707EE91E419AE64258BF716 /* MSIDInteractiveWebviewStateMachine.m in Sources */ = {isa = PBXBuildFile; fileRef = BCC9E9755219D97E251E3A64 /* MSIDInteractiveWebviewStateMachine.m */; };
 		A907D8B186545E5FCADE473A /* MSIDInteractiveWebviewStateMachine.m in Sources */ = {isa = PBXBuildFile; fileRef = BCC9E9755219D97E251E3A64 /* MSIDInteractiveWebviewStateMachine.m */; };
 		AA6252422B2B64D056C7E29A /* MSIDSpecialURLViewActionResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEA7D332F04781FC44FD0B6 /* MSIDSpecialURLViewActionResolver.m */; };
+JJJJ0000KKKK1111LLLL2222 /* MSIDInteractiveWebviewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */; };
+AAAA1111BBBB2222CCCC3333 /* MSIDInteractiveWebviewHelper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDInteractiveWebviewHelper.h; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.h; sourceTree = "<group>"; };
+DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDInteractiveWebviewHelper.m; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.m; sourceTree = "<group>"; };
 		B2000C8D20EC62D70092790A /* MSIDAADV1IdTokenClaims.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.m */; };
 		B2000C8E20EC62DF0092790A /* MSIDAADV1IdTokenClaims.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.m */; };
 		B2000C8F20EC63210092790A /* MSIDDefaultCredentialCacheKey.m in Sources */ = {isa = PBXBuildFile; fileRef = B251CC1F2040F6C6005E0179 /* MSIDDefaultCredentialCacheKey.m */; };
@@ -1972,9 +1976,7 @@
 		B8DBEF642395CA4800A16651 /* MSIDKeychainTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DBEF622395CA4700A16651 /* MSIDKeychainTokenCache.m */; };
 		B8DBEF652395CA6100A16651 /* MSIDKeychainTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DBEF622395CA4700A16651 /* MSIDKeychainTokenCache.m */; };
 		B8F16E90245B548D0047457F /* MSIDWebViewPlatformParams.h in Headers */ = {isa = PBXBuildFile; fileRef = B8F16E8F245B548D0047457F /* MSIDWebViewPlatformParams.h */; };
-		B8F16E92245B572C0047457F /* MSIDWebViewPlatformParams.m in Sources */ = {isa = PBXBuildFile; fileRef = B8F16E91245B572C0047457F /* MSIDWebViewPlatformParams.m */; };
-		D4B03FFC8D9135ADB18C00FA /* MSIDInteractiveWebviewState.m in Sources */ = {isa = PBXBuildFile; fileRef = 2FFEAC99F70B96067159319D /* MSIDInteractiveWebviewState.m */; };
-		D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
+		B8F16E92245B572C0047457F /* MSIDWebViewPlatformParams.m in Sources */ = {isa = PBXBuildFile; fileRef = B8F16E91245B572C0047457F /* MSIDWebViewPlatformParams.m */; };		D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */; };
 		D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */; };
@@ -2139,10 +2141,7 @@
 		0570FE7D219B8C8C00958ECF /* MSIDCredentialCacheItem+MSIDBaseToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDCredentialCacheItem+MSIDBaseToken.h"; sourceTree = "<group>"; };
 		05B3E0C422E625A50095833E /* MSIDLogger+Trace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDLogger+Trace.h"; sourceTree = "<group>"; };
 		096CDFECBA7E947187E5AE0C /* MSIDAcquireBRTOnceControllerAction.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDAcquireBRTOnceControllerAction.m; path = src/webview/embeddedWebview/MSIDAcquireBRTOnceControllerAction.m; sourceTree = "<group>"; };
-		0C01586AA59140E449182090 /* MSIDRetryInBrokerControllerAction.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDRetryInBrokerControllerAction.m; path = src/webview/embeddedWebview/MSIDRetryInBrokerControllerAction.m; sourceTree = "<group>"; };
-		0D89CCBE2DBDB6DF7B34E10C /* MSIDInteractiveWebviewState.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDInteractiveWebviewState.h; path = src/webview/embeddedWebview/MSIDInteractiveWebviewState.h; sourceTree = "<group>"; };
-		10CB869D7B14F86D572CC024 /* MSIDInteractiveWebviewHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDInteractiveWebviewHandler.h; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHandler.h; sourceTree = "<group>"; };
-		15A0C2EAD78CA257B0746C05 /* MSIDWebviewAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDWebviewAction.h; path = src/webview/embeddedWebview/MSIDWebviewAction.h; sourceTree = "<group>"; };
+		0C01586AA59140E449182090 /* MSIDRetryInBrokerControllerAction.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDRetryInBrokerControllerAction.m; path = src/webview/embeddedWebview/MSIDRetryInBrokerControllerAction.m; sourceTree = "<group>"; };		15A0C2EAD78CA257B0746C05 /* MSIDWebviewAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDWebviewAction.h; path = src/webview/embeddedWebview/MSIDWebviewAction.h; sourceTree = "<group>"; };
 		1E00D27F248F27ED006E4BAE /* MSIDAuthScheme.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthScheme.h; sourceTree = "<group>"; };
 		1E00D280248F27ED006E4BAE /* MSIDAuthScheme.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthScheme.m; sourceTree = "<group>"; };
 		1E0B144E24CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDAssymetricKeyPair+Test.h"; sourceTree = "<group>"; };
@@ -2580,14 +2579,14 @@
 		2A886D6C2ECBE3D600675D31 /* MSIDGCDStarvationDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDGCDStarvationDetector.h; sourceTree = "<group>"; };
 		2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDGCDStarvationDetector.m; sourceTree = "<group>"; };
 		2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOXpcSilentTokenRequest.h; sourceTree = "<group>"; };
-		2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOXpcSilentTokenRequest.m; sourceTree = "<group>"; };
-		2FFEAC99F70B96067159319D /* MSIDInteractiveWebviewState.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDInteractiveWebviewState.m; path = src/webview/embeddedWebview/MSIDInteractiveWebviewState.m; sourceTree = "<group>"; };
-		38E90D930884CC8A8C68B4A1 /* MSIDWebviewControllerAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDWebviewControllerAction.h; path = src/webview/embeddedWebview/MSIDWebviewControllerAction.h; sourceTree = "<group>"; };
+		2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOXpcSilentTokenRequest.m; sourceTree = "<group>"; };		38E90D930884CC8A8C68B4A1 /* MSIDWebviewControllerAction.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDWebviewControllerAction.h; path = src/webview/embeddedWebview/MSIDWebviewControllerAction.h; sourceTree = "<group>"; };
 		4B6D22252E831AEA00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyDelegate.h; sourceTree = "<group>"; };
 		4B6D222A2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyType.h; sourceTree = "<group>"; };
 		4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFlightManagerQueryKeyType.m; sourceTree = "<group>"; };
 		4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDFlightManagerTests.swift; sourceTree = "<group>"; };
 		4FEA7D332F04781FC44FD0B6 /* MSIDSpecialURLViewActionResolver.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDSpecialURLViewActionResolver.m; path = src/webview/embeddedWebview/MSIDSpecialURLViewActionResolver.m; sourceTree = "<group>"; };
+AAAA1111BBBB2222CCCC3333 /* MSIDInteractiveWebviewHelper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDInteractiveWebviewHelper.h; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.h; sourceTree = "<group>"; };
+DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDInteractiveWebviewHelper.m; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.m; sourceTree = "<group>"; };
 		51E364572863C0F300A97F82 /* MSIDTelemetryConditionalCompile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryConditionalCompile.h; sourceTree = "<group>"; };
 		580E253E2719FD10003D1795 /* MSIDPrtHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrtHeader.h; sourceTree = "<group>"; };
 		580E253F2719FD10003D1795 /* MSIDPrtHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPrtHeader.m; sourceTree = "<group>"; };
@@ -4702,12 +4701,7 @@
 				96235FA0207D786A007EAB36 /* challangeHandlers */,
 				607E6A872CAF03C400948365 /* customHeaderProviding */,
 				15A0C2EAD78CA257B0746C05 /* MSIDWebviewAction.h */,
-				CA822D70F3457D6B36E0EDAE /* MSIDWebviewAction.m */,
-				0D89CCBE2DBDB6DF7B34E10C /* MSIDInteractiveWebviewState.h */,
-				2FFEAC99F70B96067159319D /* MSIDInteractiveWebviewState.m */,
-				10CB869D7B14F86D572CC024 /* MSIDInteractiveWebviewHandler.h */,
-				38E90D930884CC8A8C68B4A1 /* MSIDWebviewControllerAction.h */,
-				666C9BF339C79171014617F8 /* MSIDAcquireBRTOnceControllerAction.h */,
+				CA822D70F3457D6B36E0EDAE /* MSIDWebviewAction.m */,				666C9BF339C79171014617F8 /* MSIDAcquireBRTOnceControllerAction.h */,
 				096CDFECBA7E947187E5AE0C /* MSIDAcquireBRTOnceControllerAction.m */,
 				B84C6B371E219D9768E9F24D /* MSIDRetryInBrokerControllerAction.h */,
 				0C01586AA59140E449182090 /* MSIDRetryInBrokerControllerAction.m */,
@@ -4715,6 +4709,10 @@
 				BCC9E9755219D97E251E3A64 /* MSIDInteractiveWebviewStateMachine.m */,
 				BDA327F240FA9EF4D5C90C5F /* MSIDSpecialURLViewActionResolver.h */,
 				4FEA7D332F04781FC44FD0B6 /* MSIDSpecialURLViewActionResolver.m */,
+AAAA1111BBBB2222CCCC3333 /* MSIDInteractiveWebviewHelper.h */,
+DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */,
+AAAA1111BBBB2222CCCC3333 /* MSIDInteractiveWebviewHelper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDInteractiveWebviewHelper.h; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.h; sourceTree = "<group>"; };
+DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDInteractiveWebviewHelper.m; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.m; sourceTree = "<group>"; };
 			);
 			path = embeddedWebview;
 			sourceTree = "<group>";
@@ -7877,12 +7875,12 @@
 				23642EE42A8AF3500078FF1A /* MSIDBrowserNativeMessageGetTokenRequest.m in Sources */,
 				23FB5C472255A13A002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.m in Sources */,
 				F7AB2212E4C82BF809D126F6 /* MSIDWPJMetadata.m in Sources */,
-				A097BF258CD2BBB1E7AACA38 /* MSIDWebviewAction.m in Sources */,
-				D4B03FFC8D9135ADB18C00FA /* MSIDInteractiveWebviewState.m in Sources */,
-				85FA60BCE2DB805B5CFCAE8B /* MSIDAcquireBRTOnceControllerAction.m in Sources */,
+				A097BF258CD2BBB1E7AACA38 /* MSIDWebviewAction.m in Sources */,				85FA60BCE2DB805B5CFCAE8B /* MSIDAcquireBRTOnceControllerAction.m in Sources */,
 				4ED9999F3D9D4070F3025E2D /* MSIDRetryInBrokerControllerAction.m in Sources */,
 				A907D8B186545E5FCADE473A /* MSIDInteractiveWebviewStateMachine.m in Sources */,
 				4D80BCF1DCB991148A9DCE04 /* MSIDSpecialURLViewActionResolver.m in Sources */,
+GGGG7777HHHH8888IIII9999 /* MSIDInteractiveWebviewHelper.m in Sources */,
+GGGG7777HHHH8888IIII9999 /* MSIDInteractiveWebviewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */; };
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8617,12 +8615,12 @@
 				B297E1E720A12BDE00F370EC /* MSIDDefaultAccountCacheKey.m in Sources */,
 				F7AB25B36873F2E237D26F68 /* MSIDWPJMetadata.m in Sources */,
 				2318D7862E11763C00A5A46E /* MSIDBrokerOperationBrowserNativeMessageMATSReport.m in Sources */,
-				1DB440169594EC4F429247F6 /* MSIDWebviewAction.m in Sources */,
-				99F54D6D964FAF21B5C6C174 /* MSIDInteractiveWebviewState.m in Sources */,
-				5A094B697490B45ED22ECCE8 /* MSIDAcquireBRTOnceControllerAction.m in Sources */,
+				1DB440169594EC4F429247F6 /* MSIDWebviewAction.m in Sources */,				5A094B697490B45ED22ECCE8 /* MSIDAcquireBRTOnceControllerAction.m in Sources */,
 				0D7F5F2F8DA11C264C3F0DAB /* MSIDRetryInBrokerControllerAction.m in Sources */,
 				A707EE91E419AE64258BF716 /* MSIDInteractiveWebviewStateMachine.m in Sources */,
 				AA6252422B2B64D056C7E29A /* MSIDSpecialURLViewActionResolver.m in Sources */,
+JJJJ0000KKKK1111LLLL2222 /* MSIDInteractiveWebviewHelper.m in Sources */,
+JJJJ0000KKKK1111LLLL2222 /* MSIDInteractiveWebviewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */; };
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

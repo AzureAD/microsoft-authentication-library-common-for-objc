@@ -27,8 +27,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDLocalInteractiveController.h"
-#import "MSIDInteractiveWebviewHandler.h"
-#import "MSIDInteractiveWebviewState.h"
+#import "MSIDInteractiveWebviewHelper.h"
 #import "MSIDSpecialURLViewActionResolver.h"
 #import "MSIDWebviewAction.h"
 
