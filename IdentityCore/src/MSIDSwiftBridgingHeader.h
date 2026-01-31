@@ -39,7 +39,7 @@
  */
 
 #if defined(MSAL_COCOAPOD)
-#import "MSAL/MSAL-Swift.h"
+#import "MSAL-Swift.h"
 #elif defined(ONEAUTH_COCOAPOD)
 #import "OneAuth-Swift.h"
 #else
