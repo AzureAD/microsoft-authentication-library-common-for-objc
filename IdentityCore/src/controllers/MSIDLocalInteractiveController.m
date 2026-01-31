@@ -314,10 +314,10 @@
         return NO;
     }
     
-    // Check if max attempts reached
-    if (state.brtAttemptCount >= 2)
+    // Simplified: Check if already attempted (only attempt once)
+    if (state.brtAttemptAttempted)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Skipping BRT acquisition - max attempts (%ld) reached", (long)state.brtAttemptCount);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Skipping BRT acquisition - already attempted once");
         return NO;
     }
     
@@ -472,11 +472,10 @@
     if ([self shouldAcquireBRTForSpecialURL:url state:state])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
-                         @"BRT acquisition needed, starting async operation (attempt %ld of 2)",
-                         (long)(state.brtAttemptCount + 1));
+                         @"BRT acquisition needed, starting async operation (single attempt)");
         
-        // Increment attempt count
-        state.brtAttemptCount++;
+        // Mark as attempted (simplified: only one attempt)
+        state.brtAttemptAttempted = YES;
         
         // Acquire BRT asynchronously
         [self acquireBRTTokenWithCompletion:^(BOOL success, NSError *error) {

@@ -34,11 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
  during special URL processing (msauth:// and browser:// schemes).
  
  This lightweight state object tracks:
- - BRT (Broker Refresh Token) acquisition attempts and success
+ - BRT (Broker Refresh Token) acquisition attempt and success
  - HTTP response headers for special URL processing
  
  This state is used with the simplified special URL handling approach (no state machine).
- It provides session-level tracking to ensure BRT is acquired at most twice per session
+ It provides session-level tracking to ensure BRT is acquired at most once per session
  and makes headers available for URL resolution.
  */
 @interface MSIDInteractiveWebviewState : NSObject
@@ -46,16 +46,15 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - BRT Tracking
 
 /*!
- Number of BRT acquisition attempts in this session (0, 1, or 2).
+ Whether BRT acquisition has been attempted in this session.
  
- BRT acquisition logic:
+ BRT acquisition logic (simplified):
  - Acquired on FIRST msauth:// or browser:// redirect if needed
- - If first attempt fails, retry ONCE on next special URL
- - After 2 attempts (or if acquired), no more attempts
+ - Only ONE attempt per session (no retry)
  
- Check before acquisition: !brtAcquired && brtAttemptCount < 2
+ Check before acquisition: !brtAcquired && !brtAttemptAttempted
  */
-@property (nonatomic, assign) NSInteger brtAttemptCount;
+@property (nonatomic, assign) BOOL brtAttemptAttempted;
 
 /*! Whether BRT was successfully acquired in this session */
 @property (nonatomic, assign) BOOL brtAcquired;
