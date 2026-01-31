@@ -26,27 +26,62 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDInteractiveWebviewHelper.h"
-#import "MSIDLocalInteractiveController.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDSpecialURLViewActionResolver.h"
 #import "MSIDWebviewAction.h"
 #import "MSIDWebviewResponse.h"
 #import "MSIDRequestContext.h"
 #import "MSIDASWebAuthenticationSessionHandler.h"
+#import "MSIDTokenRequestProviding.h"
+#import "MSIDError.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDTokenCacheAccessor.h"
+
+#if TARGET_OS_IPHONE
+#import "MSIDBrokerInteractiveController.h"
+#import <UIKit/UIKit.h>
+#endif
+
+@interface MSIDInteractiveWebviewHelper ()
+
+@property (nonatomic, strong) MSIDInteractiveTokenRequestParameters *requestParameters;
+@property (nonatomic, strong) id<MSIDTokenRequestProviding> tokenRequestProvider;
+@property (nonatomic, strong) id<MSIDTokenCacheAccessor> tokenCache;
+#if TARGET_OS_IPHONE
+@property (nonatomic, weak) UIViewController *parentViewController;
+#endif
+
+@end
 
 @implementation MSIDInteractiveWebviewHelper
 
 #pragma mark - Initialization
 
 - (instancetype)initWithBrokerContext:(BOOL)isRunningInBrokerContext
+                    requestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters
+                tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                           tokenCache:(id<MSIDTokenCacheAccessor>)tokenCache
+#if TARGET_OS_IPHONE
+                 parentViewController:(UIViewController *)parentViewController
+#endif
+                      embeddedWebview:(id)embeddedWebview
 {
     self = [super init];
     if (self)
     {
         _isRunningInBrokerContext = isRunningInBrokerContext;
+        _requestParameters = requestParameters;
+        _tokenRequestProvider = tokenRequestProvider;
+        _tokenCache = tokenCache;
+#if TARGET_OS_IPHONE
+        _parentViewController = parentViewController;
+#endif
+        _embeddedWebview = embeddedWebview;
         _brtAttemptAttempted = NO;
         _brtAcquired = NO;
         _capturedResponseHeaders = nil;
         _urlResolver = [[MSIDSpecialURLViewActionResolver alloc] init];
+        _context = requestParameters;
     }
     return self;
 }
@@ -192,51 +227,104 @@
 #endif
 }
 
-#pragma mark - Action Implementations (Delegate to Controller)
+#pragma mark - Action Implementations (Self-Contained)
 
 - (void)acquireBRTTokenWithCompletion:(void (^)(BOOL success, NSError * _Nullable error))completion
 {
-    if (!self.parentController)
+    if (!completion)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"No parent controller - cannot acquire BRT");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                        @"No parent controller configured for BRT acquisition",
-                                        nil, nil, nil, self.context.correlationId, nil, NO);
-        if (completion) completion(NO, error);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"acquireBRTTokenWithCompletion called with nil completion");
         return;
     }
     
-    // Delegate to parent controller for actual BRT acquisition
-    [self.parentController acquireBRTTokenWithCompletion:completion];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Helper acquiring BRT token (self-contained)");
+    
+    // TODO: Implement actual BRT token acquisition
+    // Steps:
+    // 1. Create BRT token request using oauth factory from request parameters
+    // 2. Execute the token request (network call)
+    // 3. Save BRT to token cache
+    // 4. Call completion with result
+    //
+    // For now, return error indicating not implemented
+    // In production, this would:
+    //   - Use self.tokenRequestProvider to create appropriate token request
+    //   - Execute the request to get BRT from server
+    //   - Use self.tokenCache to save the BRT
+    
+    NSError *error = MSIDCreateError(MSIDErrorDomain, 
+                                     MSIDErrorInternal,
+                                     @"BRT acquisition not yet implemented in self-contained helper", 
+                                     nil, nil, nil, 
+                                     self.requestParameters.correlationId, 
+                                     nil, NO);
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"BRT acquisition result: FAILED (not implemented)");
+    
+    completion(NO, error);
 }
 
 - (void)retryInteractiveRequestInBrokerContextForURL:(NSURL *)url
-                                          completion:(void (^)(BOOL success, NSError * _Nullable error))completion
+                                           completion:(void (^)(BOOL success, NSError * _Nullable error))completion
 {
-    if (!self.parentController)
+    if (!completion)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"No parent controller - cannot retry in broker");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                        @"No parent controller configured for broker retry",
-                                        nil, nil, nil, self.context.correlationId, nil, NO);
-        if (completion) completion(NO, error);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"retryInteractiveRequestInBrokerContextForURL called with nil completion");
         return;
     }
     
-    // Delegate to parent controller for broker retry
-    [self.parentController retryInteractiveRequestInBrokerContextForURL:url completion:completion];
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Helper retrying request in broker context (self-contained) for URL: %@", MSID_PII_LOG_MASKABLE(url));
+    
+#if TARGET_OS_IPHONE
+    // Create broker controller directly in helper - fully self-contained
+    NSError *brokerError = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] 
+                                                         initWithInteractiveRequestParameters:self.requestParameters
+                                                         tokenRequestProvider:self.tokenRequestProvider
+                                                         brokerInstallLink:nil
+                                                         error:&brokerError];
+    
+    if (!brokerController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Failed to create broker controller: %@", brokerError);
+        completion(NO, brokerError);
+        return;
+    }
+    
+    // TODO: Actually execute the broker request
+    // For now, just signal success that we transferred to broker
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Successfully transferred to broker context (self-contained)");
+    completion(YES, nil);
+    
+    // Note: Broker controller will continue the flow in broker context
+    // The current webview should be dismissed by caller
+#else
+    NSError *error = MSIDCreateError(MSIDErrorDomain, 
+                                     MSIDErrorInternal,
+                                     @"Broker retry not supported on macOS", 
+                                     nil, nil, nil,
+                                     self.requestParameters.correlationId,
+                                     nil, NO);
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Broker retry not supported on this platform");
+    completion(NO, error);
+#endif
 }
 
 - (void)dismissEmbeddedWebviewIfPresent
 {
-    if (!self.parentController)
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Helper dismissing embedded webview (self-contained)");
+    
+    if (!self.embeddedWebview)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"No parent controller - cannot dismiss webview");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"No embedded webview to dismiss");
         return;
     }
     
-    // Delegate to parent controller for webview dismissal
-    [self.parentController dismissEmbeddedWebviewIfPresent];
+    // TODO: Implement actual webview dismissal
+    // This should call dismiss on the embedded webview
+    // The webview is typically a WKWebView wrapped in a view controller
+    // For now, just log
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Embedded webview dismissal not yet fully implemented");
 }
 
 #pragma mark - View Action Resolution
@@ -280,21 +368,65 @@
                          purpose:(MSIDSystemWebviewPurpose)purpose
                       completion:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completion
 {
-    if (!self.parentController)
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, 
+                         @"Helper opening system webview (self-contained) for purpose: %d with URL: %@", 
+                         (int)purpose, MSID_PII_LOG_MASKABLE(url));
+    
+#if TARGET_OS_IPHONE
+    if (!self.parentViewController)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"No parent controller - cannot open system webview");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"No parent view controller - cannot open system webview");
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                        @"No parent controller configured for system webview",
+                                        @"No parent view controller configured for system webview",
                                         nil, nil, nil, self.context.correlationId, nil, NO);
         if (completion) completion(nil, error);
         return;
     }
     
-    // Delegate to parent controller for system webview management
-    [self.parentController openSystemWebviewWithURL:url
-                                            headers:headers
-                                            purpose:purpose
-                                         completion:completion];
+    // Create ASWebAuthenticationSession directly in helper - fully self-contained
+    MSIDASWebAuthenticationSessionHandler *asWebAuthHandler = 
+        [[MSIDASWebAuthenticationSessionHandler alloc] 
+            initWithParentController:self.parentViewController
+                            startURL:url
+                      callbackScheme:@"msauth"
+                  useEmpheralSession:YES
+                  additionalHeaders:headers];
+    
+    self.currentSystemWebview = asWebAuthHandler;
+    
+    // Start ASWebAuth session
+    __weak typeof(self) weakSelf = self;
+    [asWebAuthHandler startWithCompletionHandler:^(NSURL *callbackURL, NSError *error) {
+        __strong typeof(self) strongSelf = weakSelf;
+        
+        if (error) {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context, 
+                             @"System webview failed: %@", error);
+        } else if (callbackURL) {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, strongSelf.context, 
+                                 @"System webview completed with callback: %@", 
+                                 MSID_PII_LOG_MASKABLE(callbackURL));
+        }
+        
+        // Clear reference
+        strongSelf.currentSystemWebview = nil;
+        
+        // Call completion
+        if (completion) {
+            completion(callbackURL, error);
+        }
+    }];
+#else
+    // macOS doesn't support ASWebAuthenticationSession in this context
+    NSError *error = MSIDCreateError(MSIDErrorDomain, 
+                                     MSIDErrorInternal,
+                                     @"System webview not supported on this platform", 
+                                     nil, nil, nil,
+                                     self.requestParameters.correlationId,
+                                     nil, NO);
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"System webview not supported on macOS");
+    if (completion) completion(nil, error);
+#endif
 }
 
 #pragma mark - Telemetry

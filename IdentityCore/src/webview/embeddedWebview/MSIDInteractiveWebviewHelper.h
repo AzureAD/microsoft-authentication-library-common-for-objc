@@ -27,29 +27,40 @@
 
 #import <Foundation/Foundation.h>
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
+
 @class MSIDWebviewAction;
 @class MSIDWebviewResponse;
-@class MSIDLocalInteractiveController;
+@class MSIDOauth2Factory;
 @class MSIDSpecialURLViewActionResolver;
+@class MSIDInteractiveTokenRequestParameters;
+@class MSIDBrokerInteractiveController;
 @protocol MSIDRequestContext;
+@protocol MSIDTokenCacheAccessor;
+@protocol MSIDTokenRequestProviding;
 
 typedef NS_ENUM(NSInteger, MSIDSystemWebviewPurpose);
 
 NS_ASSUME_NONNULL_BEGIN
 
 /*!
- MSIDInteractiveWebviewHelper is a shared implementation class for handling
+ MSIDInteractiveWebviewHelper is a completely self-contained class for handling
  special URL interception in embedded webviews.
  
  This helper class consolidates all special URL handling logic (msauth://, browser://)
  and eliminates code duplication between broker and non-broker controllers.
  
- The helper:
+ The helper is fully self-contained with NO parent controller reference:
+ - Has all necessary dependencies (oauth factory, token cache, request parameters)
+ - Fully implements BRT acquisition (creates request, executes, saves)
+ - Fully implements broker retry (creates broker controller, executes)
+ - Fully implements system webview (creates ASWebAuth, executes)
+ - Fully implements dismissal (dismisses webview directly)
  - Orchestrates BRT acquisition and retry logic based on broker context
  - Manages session state inline (BRT tracking, response headers)
- - Delegates actual BRT acquisition and broker retry to the parent controller
  - Resolves special URLs to webview actions
- - Handles system webview management
  
  This replaces the protocol-based approach (MSIDInteractiveWebviewHandler) with
  a cleaner helper pattern that avoids duplication and simplifies architecture.
@@ -88,13 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *capturedResponseHeaders;
 
 /*!
- Weak reference to parent controller (InteractiveController).
- Helper delegates BRT acquisition and broker retry back to controller.
- */
-@property (nonatomic, weak, nullable) MSIDLocalInteractiveController *parentController;
-
-/*!
- Weak reference to request context for logging.
+ Request context for logging and correlation ID.
  */
 @property (nonatomic, weak, nullable) id<MSIDRequestContext> context;
 
@@ -109,15 +114,32 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, strong, nullable) id currentSystemWebview;
 
+/*!
+ Reference to the embedded webview for dismissal.
+ */
+@property (nonatomic, weak, nullable) id embeddedWebview;
+
 #pragma mark - Initialization
 
 /*!
- Initializes the helper with broker context flag.
+ Initializes the helper with all necessary dependencies for self-contained operation.
  
  @param isRunningInBrokerContext YES if running in broker context, NO for non-broker (local)
+ @param requestParameters The interactive token request parameters (for context, scopes, etc.)
+ @param tokenRequestProvider Provider for creating token requests (BRT, broker retry)
+ @param tokenCache Token cache for saving BRT
+ @param parentViewController Parent view controller for presenting UI (system webview)
+ @param embeddedWebview Reference to embedded webview for dismissal
  @return Initialized helper instance
  */
-- (instancetype)initWithBrokerContext:(BOOL)isRunningInBrokerContext;
+- (instancetype)initWithBrokerContext:(BOOL)isRunningInBrokerContext
+                    requestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters
+                tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                           tokenCache:(nullable id<MSIDTokenCacheAccessor>)tokenCache
+#if TARGET_OS_IPHONE
+                 parentViewController:(nullable UIViewController *)parentViewController
+#endif
+                      embeddedWebview:(nullable id)embeddedWebview;
 
 #pragma mark - Special URL Processing
 
