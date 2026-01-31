@@ -141,6 +141,12 @@
         return;
     }
     
+    // Configure webview with special URL handler if available
+    if (self.webviewHandler && [self.webviewHandler respondsToSelector:@selector(configureWebviewController:)])
+    {
+        [self.webviewHandler configureWebviewController:webView];
+    }
+    
     [MSIDWebviewAuthorization startSessionWithWebView:webView
                                         oauth2Factory:self.oauthFactory
                                         configuration:self.webViewConfiguration
