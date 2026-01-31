@@ -39,9 +39,17 @@
  */
 
 #if defined(MSAL_COCOAPOD)
+#if __has_include(<MSAL/MSAL-Swift.h>)
 #import <MSAL/MSAL-Swift.h>
+#else
+#import "MSAL-Swift.h"
+#endif
 #elif defined(ONEAUTH_COCOAPOD)
+#if __has_include(<OneAuth/OneAuth-Swift.h>)
+#import <OneAuth/OneAuth-Swift.h>
+#else
 #import "OneAuth-Swift.h"
+#endif
 #else
 #import "IdentityCore-Swift.h"
 #endif
