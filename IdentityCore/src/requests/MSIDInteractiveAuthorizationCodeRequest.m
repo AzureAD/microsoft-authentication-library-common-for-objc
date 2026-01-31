@@ -41,6 +41,7 @@
 #import "MSIDPkce.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBaseOperation.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -142,9 +143,10 @@
     }
     
     // Configure webview with special URL helper if available
-    if (self.webviewHelper && [webView respondsToSelector:@selector(setWebviewHelper:)])
+    if (self.webviewHelper && [webView isKindOfClass:[MSIDOAuth2EmbeddedWebviewController class]])
     {
-        [webView setValue:self.webviewHelper forKey:@"webviewHelper"];
+        MSIDOAuth2EmbeddedWebviewController *embeddedWebView = (MSIDOAuth2EmbeddedWebviewController *)webView;
+        embeddedWebView.webviewHelper = self.webviewHelper;
     }
     
     [MSIDWebviewAuthorization startSessionWithWebView:webView

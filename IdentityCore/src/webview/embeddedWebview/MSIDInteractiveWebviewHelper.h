@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, nullable) MSIDLocalInteractiveController *parentController;
 
 /*!
- Request context for logging.
+ Weak reference to request context for logging.
  */
 @property (nonatomic, weak, nullable) id<MSIDRequestContext> context;
 
