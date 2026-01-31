@@ -994,8 +994,6 @@ DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileRe
 		A907D8B186545E5FCADE473A /* MSIDInteractiveWebviewStateMachine.m in Sources */ = {isa = PBXBuildFile; fileRef = BCC9E9755219D97E251E3A64 /* MSIDInteractiveWebviewStateMachine.m */; };
 		AA6252422B2B64D056C7E29A /* MSIDSpecialURLViewActionResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEA7D332F04781FC44FD0B6 /* MSIDSpecialURLViewActionResolver.m */; };
 JJJJ0000KKKK1111LLLL2222 /* MSIDInteractiveWebviewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */; };
-AAAA1111BBBB2222CCCC3333 /* MSIDInteractiveWebviewHelper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDInteractiveWebviewHelper.h; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.h; sourceTree = "<group>"; };
-DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDInteractiveWebviewHelper.m; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.m; sourceTree = "<group>"; };
 		B2000C8D20EC62D70092790A /* MSIDAADV1IdTokenClaims.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.m */; };
 		B2000C8E20EC62DF0092790A /* MSIDAADV1IdTokenClaims.m in Sources */ = {isa = PBXBuildFile; fileRef = B2CDB5841FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.m */; };
 		B2000C8F20EC63210092790A /* MSIDDefaultCredentialCacheKey.m in Sources */ = {isa = PBXBuildFile; fileRef = B251CC1F2040F6C6005E0179 /* MSIDDefaultCredentialCacheKey.m */; };
@@ -2585,8 +2583,6 @@ DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileRe
 		4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFlightManagerQueryKeyType.m; sourceTree = "<group>"; };
 		4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDFlightManagerTests.swift; sourceTree = "<group>"; };
 		4FEA7D332F04781FC44FD0B6 /* MSIDSpecialURLViewActionResolver.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDSpecialURLViewActionResolver.m; path = src/webview/embeddedWebview/MSIDSpecialURLViewActionResolver.m; sourceTree = "<group>"; };
-AAAA1111BBBB2222CCCC3333 /* MSIDInteractiveWebviewHelper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDInteractiveWebviewHelper.h; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.h; sourceTree = "<group>"; };
-DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDInteractiveWebviewHelper.m; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.m; sourceTree = "<group>"; };
 		51E364572863C0F300A97F82 /* MSIDTelemetryConditionalCompile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryConditionalCompile.h; sourceTree = "<group>"; };
 		580E253E2719FD10003D1795 /* MSIDPrtHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrtHeader.h; sourceTree = "<group>"; };
 		580E253F2719FD10003D1795 /* MSIDPrtHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPrtHeader.m; sourceTree = "<group>"; };
@@ -4711,8 +4707,6 @@ DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileRe
 				4FEA7D332F04781FC44FD0B6 /* MSIDSpecialURLViewActionResolver.m */,
 AAAA1111BBBB2222CCCC3333 /* MSIDInteractiveWebviewHelper.h */,
 DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */,
-AAAA1111BBBB2222CCCC3333 /* MSIDInteractiveWebviewHelper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = MSIDInteractiveWebviewHelper.h; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.h; sourceTree = "<group>"; };
-DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MSIDInteractiveWebviewHelper.m; path = src/webview/embeddedWebview/MSIDInteractiveWebviewHelper.m; sourceTree = "<group>"; };
 			);
 			path = embeddedWebview;
 			sourceTree = "<group>";
@@ -7880,7 +7874,6 @@ DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileRe
 				A907D8B186545E5FCADE473A /* MSIDInteractiveWebviewStateMachine.m in Sources */,
 				4D80BCF1DCB991148A9DCE04 /* MSIDSpecialURLViewActionResolver.m in Sources */,
 GGGG7777HHHH8888IIII9999 /* MSIDInteractiveWebviewHelper.m in Sources */,
-GGGG7777HHHH8888IIII9999 /* MSIDInteractiveWebviewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */; };
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8620,7 +8613,6 @@ GGGG7777HHHH8888IIII9999 /* MSIDInteractiveWebviewHelper.m in Sources */ = {isa 
 				A707EE91E419AE64258BF716 /* MSIDInteractiveWebviewStateMachine.m in Sources */,
 				AA6252422B2B64D056C7E29A /* MSIDSpecialURLViewActionResolver.m in Sources */,
 JJJJ0000KKKK1111LLLL2222 /* MSIDInteractiveWebviewHelper.m in Sources */,
-JJJJ0000KKKK1111LLLL2222 /* MSIDInteractiveWebviewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */; };
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
