@@ -508,6 +508,46 @@
     
     MSIDWebviewAction *action = [self viewActionForSpecialURL:url state:state];
     
+    // Check for broker retry logic for profileInstalled/profileComplete
+    if (action && action.type == MSIDWebviewActionTypeCompleteWithURL)
+    {
+        NSString *host = [url.host lowercaseString];
+        
+        if ([host isEqualToString:@"profileinstalled"] || [host isEqualToString:@"profilecomplete"])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                             @"profileInstalled/profileComplete detected, checking if should retry in broker context");
+            
+            // Check if should retry in broker (non-broker controller on iOS)
+            if ([self shouldRetryInBrokerForSpecialURL:url state:state])
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                                 @"Retrying interactive request in broker context");
+                
+                // Dismiss embedded webview before retrying in broker
+                [self dismissEmbeddedWebviewIfPresent];
+                
+                // Retry in broker context (async)
+                [self retryInteractiveRequestInBrokerContextForURL:url completion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                                     @"Broker context retry completed - result: %@, error: %@", result ? @"success" : @"nil", error);
+                    // Retry handles completion - no action needed from webview
+                }];
+                
+                // Return nil - retry in broker handles completion, not webview
+                if (completion) {
+                    completion(nil, nil);
+                }
+                
+                return;
+            }
+            
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                             @"No broker retry needed - completing auth in current context");
+        }
+    }
+    
+    // No retry needed, return action for webview to execute
     if (completion) {
         completion(action, nil);
     }
