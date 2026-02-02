@@ -13,13 +13,13 @@ NSString *MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowNetworkTag state)
         case MSIDExecutionFlowCacheResponseSucceededObjectTag:
             return @"n3416";
         case MSIDExecutionFlowReceiveNetworkResponseTag:
-            return @"UNTAGGED";
+            return @"xfx8w";
         case MSIDExecutionFlowRetryOnNetworkFailureTag:
             return @"rz95n";
         case MSIDExecutionFlowParseNetworkResponseTag:
             return @"fxjo7";
         case MSIDExecutionFlowOtherHttpNetworkStatusCodeTag:
-            return @"rz95n";
+            return @"5kbvm";
     }
 
     // Fallback for any future enum values
