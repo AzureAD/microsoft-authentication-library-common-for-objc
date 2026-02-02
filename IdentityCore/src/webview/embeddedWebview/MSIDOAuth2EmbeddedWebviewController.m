@@ -735,10 +735,26 @@ initiatedByFrame:(WKFrameInfo *)frame
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing DismissWebview action");
             
-            // Note: System webview (ASWebAuth) is now managed by Helper
-            // which delegates to InteractiveController for actual system webview management.
-            // DismissWebview action is for dismissing the embedded webview if needed.
-            // The helper manages system webview lifecycle.
+            // Dismiss embedded webview with animation
+            if ([self presentingViewController])
+            {
+                [self dismissViewControllerAnimated:YES completion:^{
+                    // Call dismissal completion after dismiss completes (e.g., for retry in broker)
+                    if (action.dismissalCompletion)
+                    {
+                        action.dismissalCompletion();
+                    }
+                }];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Webview not presented, calling completion directly");
+                // Not presented, just call completion if exists
+                if (action.dismissalCompletion)
+                {
+                    action.dismissalCompletion();
+                }
+            }
             
             break;
         }

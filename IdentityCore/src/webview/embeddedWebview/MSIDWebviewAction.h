@@ -51,7 +51,10 @@ typedef NS_ENUM(NSInteger, MSIDWebviewActionType)
     MSIDWebviewActionTypeCompleteWithURL,
     
     /*! Fail the webview flow with the given error */
-    MSIDWebviewActionTypeFailWithError
+    MSIDWebviewActionTypeFailWithError,
+    
+    /*! Dismiss the embedded webview */
+    MSIDWebviewActionTypeDismissWebview
 };
 
 /*!
@@ -112,6 +115,12 @@ typedef NS_ENUM(NSInteger, MSIDSystemWebviewPurpose)
  */
 @property (nonatomic, readonly, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
 
+/*!
+ Completion block to be called after dismissing the embedded webview.
+ Used for operations that need to happen after webview dismissal (e.g., retry in broker).
+ */
+@property (nonatomic, copy, nullable) void (^dismissalCompletion)(void);
+
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
@@ -167,6 +176,13 @@ typedef NS_ENUM(NSInteger, MSIDSystemWebviewPurpose)
  @return An action that will fail the webview authentication flow.
  */
 + (instancetype)failWithErrorAction:(NSError *)error;
+
+/*!
+ Creates an action to dismiss the embedded webview.
+ @param completion Optional completion block called after dismissal (for post-dismiss operations)
+ @return An action that will dismiss the embedded webview.
+ */
++ (instancetype)dismissWebviewActionWithCompletion:(nullable void (^)(void))completion;
 
 @end
 

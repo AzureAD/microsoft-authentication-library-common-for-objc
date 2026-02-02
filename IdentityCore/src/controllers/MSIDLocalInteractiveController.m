@@ -338,12 +338,6 @@
 #endif
 }
 
-- (void)dismissEmbeddedWebviewIfPresent
-{
-    // Delegate to helper (shared implementation)
-    [self.webviewHelper dismissEmbeddedWebviewIfPresent];
-}
-
 - (void)openSystemWebviewWithURL:(NSURL *)url
                          headers:(NSDictionary<NSString *, NSString *> *)headers
                          purpose:(MSIDSystemWebviewPurpose)purpose
@@ -354,9 +348,6 @@
                                          headers:headers
                                          purpose:purpose
                                       completion:completion];
-    
-    // Track currentSystemWebview for backwards compatibility
-    self.currentSystemWebview = self.webviewHelper.currentSystemWebview;
 }
 
 @end

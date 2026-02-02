@@ -46,11 +46,7 @@
  */
 @property (nonatomic, assign) BOOL specialURLHandlingEnabled;
 
-/*!
- Tracks the current system webview (ASWebAuthenticationSession) if one is active.
- Used when opening system webview for operations like device enrollment.
- */
-@property (nonatomic, strong, nullable) id currentSystemWebview;
+
 
 /*!
  Acquires a Broker Refresh Token (BRT).

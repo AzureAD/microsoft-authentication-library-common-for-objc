@@ -120,19 +120,18 @@
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                                  @"Retrying interactive request in broker context");
                 
-                // Dismiss embedded webview before retrying in broker
-                [self dismissEmbeddedWebviewIfPresent];
-                
-                // Retry in broker context (async) - delegate to parent controller
-                [self retryInteractiveRequestInBrokerContextForURL:url completion:^(BOOL success, NSError * _Nullable error) {
-                    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
-                                     @"Broker context retry completed - result: %@, error: %@", success ? @"success" : @"failure", error);
-                    // Retry handles completion - no action needed from webview
+                // Return DismissWebview action with retry in completion
+                MSIDWebviewAction *dismissAction = [MSIDWebviewAction dismissWebviewActionWithCompletion:^{
+                    // Retry in broker context after webview is dismissed
+                    [self retryInteractiveRequestInBrokerContextForURL:url completion:^(BOOL success, NSError * _Nullable error) {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                                         @"Broker context retry completed - result: %@, error: %@", success ? @"success" : @"failure", error);
+                        // Retry handles completion - no action needed from webview
+                    }];
                 }];
                 
-                // Return nil - retry in broker handles completion, not webview
                 if (completion) {
-                    completion(nil, nil);
+                    completion(dismissAction, nil);
                 }
                 
                 return;
@@ -231,33 +230,6 @@
     
     // Delegate to parent controller for broker retry
     [self.parentController retryInteractiveRequestInBrokerContextForURL:url completion:completion];
-}
-
-- (void)dismissEmbeddedWebviewIfPresent
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissing embedded webview");
-    
-    if (!self.embeddedWebviewController)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"No embedded webview controller - nothing to dismiss");
-        return;
-    }
-    
-    // Dismiss webview directly (shared implementation)
-    if ([self.embeddedWebviewController isKindOfClass:[UIViewController class]])
-    {
-        UIViewController *viewController = (UIViewController *)self.embeddedWebviewController;
-        
-        if (viewController.presentingViewController)
-        {
-            [viewController dismissViewControllerAnimated:YES completion:nil];
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Embedded webview dismissed");
-        }
-        else
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Embedded webview not currently presented");
-        }
-    }
 }
 
 #pragma mark - View Action Resolution

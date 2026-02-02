@@ -118,4 +118,16 @@
                     additionalHeaders:nil];
 }
 
++ (instancetype)dismissWebviewActionWithCompletion:(nullable void (^)(void))completion
+{
+    MSIDWebviewAction *action = [[self alloc] initWithType:MSIDWebviewActionTypeDismissWebview
+                                                    request:nil
+                                                        url:nil
+                                                    purpose:MSIDSystemWebviewPurposeUnknown
+                                                      error:nil
+                                          additionalHeaders:nil];
+    action.dismissalCompletion = completion;
+    return action;
+}
+
 @end

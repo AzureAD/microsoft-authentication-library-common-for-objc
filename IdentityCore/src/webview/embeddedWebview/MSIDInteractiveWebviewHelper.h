@@ -100,12 +100,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, nullable) UIViewController *parentViewController;
 
 /*!
- Weak reference to embedded webview controller for dismissal.
- Used for dismissEmbeddedWebviewIfPresent.
- */
-@property (nonatomic, weak, nullable) id embeddedWebviewController;
-
-/*!
  Weak reference to request context for logging.
  */
 @property (nonatomic, weak, nullable) id<MSIDRequestContext> context;
@@ -179,12 +173,6 @@ NS_ASSUME_NONNULL_BEGIN
                          headers:(nullable NSDictionary<NSString *, NSString *> *)headers
                          purpose:(MSIDSystemWebviewPurpose)purpose
                       completion:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completion;
-
-/*!
- Dismisses the embedded webview if it is currently presented.
- This is typically called after transferring the flow to broker context.
- */
-- (void)dismissEmbeddedWebviewIfPresent;
 
 #pragma mark - Telemetry
 
