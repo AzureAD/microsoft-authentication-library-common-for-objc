@@ -92,7 +92,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        python validate_tags.py
+        python ./scripts/validate_tags.py
       failOnStderr: true
   - task: Bash@3
     displayName: Run Build script & check for Errors
