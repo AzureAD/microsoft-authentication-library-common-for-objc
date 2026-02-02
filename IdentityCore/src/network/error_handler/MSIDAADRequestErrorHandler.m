@@ -30,6 +30,7 @@
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDMainThreadUtil.h"
 #import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowTag.h"
 
 @implementation MSIDAADRequestErrorHandler
 
@@ -73,7 +74,7 @@
     
     if (shouldRetry)
     {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:@"nw_retry"
+        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowRetryOnNetworkFailureTag)
                                                   extraInfo:nil
                                           withCorrelationId:context.correlationId];
         httpRequest.retryCounter--;
