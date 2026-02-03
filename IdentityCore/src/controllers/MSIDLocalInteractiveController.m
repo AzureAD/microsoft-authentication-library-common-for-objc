@@ -42,6 +42,7 @@
 #endif
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDEnrollmentCompletionResponse.h"
 #import "MSIDThrottlingService.h"
 
 @interface MSIDLocalInteractiveController()
@@ -128,6 +129,36 @@
 - (void)handleWebMSAuthResponse:(MSIDWebWPJResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling msauth response.");
+    
+    // Check for enrollment completion response (profileInstalled/profileComplete from ASWebAuth)
+    if ([response isKindOfClass:[MSIDEnrollmentCompletionResponse class]])
+    {
+        MSIDEnrollmentCompletionResponse *enrollmentResponse = (MSIDEnrollmentCompletionResponse *)response;
+        
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters,
+                             @"Enrollment completed with URL: %@, shouldRetryInBroker: %d",
+                             MSID_PII_LOG_MASKABLE(enrollmentResponse.profileCompletedURL),
+                             enrollmentResponse.shouldRetryInBroker);
+        
+        if (enrollmentResponse.shouldRetryInBroker)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                             @"Retrying interactive request in broker context after enrollment");
+            
+            [self retryInteractiveRequestInBrokerContextForURL:enrollmentResponse.profileCompletedURL
+                                                     completion:completionBlock];
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                             @"Completing auth in current context (no broker retry)");
+            
+            // Complete without retry (broker context or macOS)
+            // Flow continues normally
+        }
+        
+        return;
+    }
     
     if (![NSString msidIsStringNilOrBlank:response.appInstallLink])
     {

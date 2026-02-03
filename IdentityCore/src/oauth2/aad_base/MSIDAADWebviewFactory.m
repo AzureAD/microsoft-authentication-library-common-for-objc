@@ -42,6 +42,7 @@
 #import "MSIDSwitchBrowserResumeResponse.h"
 #import "MSIDFlightManager.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDEnrollmentCompletionResponse.h"
 
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDJITTroubleshootingResponse.h"
@@ -160,6 +161,9 @@
                                                          platfromParams:platformParams
                                                                 context:context];
     
+    // Set response factory for processing ASWebAuth callbacks (profileInstalled flow)
+    embeddedWebviewController.responseFactory = self;
+    
     // Set responseHeaderHandler to capture HTTP headers from all navigation responses
     // This supports multiple use cases: installProfile flow, telemetry, and future special URL handling
     __weak typeof(embeddedWebviewController) weakController = embeddedWebviewController;
@@ -248,6 +252,22 @@
     // Try to create a WPJ response
     MSIDWebWPJResponse *wpjResponse = [[MSIDWebWPJResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;
+    
+    // Try to create enrollment completion response (profileInstalled/profileComplete)
+    NSString *host = [url.host lowercaseString];
+    if ([host isEqualToString:@"profileinstalled"] || [host isEqualToString:@"profilecomplete"])
+    {
+#if TARGET_OS_IPHONE
+        BOOL shouldRetryInBroker = YES; // iOS: retry in broker after enrollment
+#else
+        BOOL shouldRetryInBroker = NO;  // macOS: no broker retry
+#endif
+        MSIDEnrollmentCompletionResponse *enrollmentResponse = [[MSIDEnrollmentCompletionResponse alloc] initWithURL:url
+                                                                                                              context:context
+                                                                                                  shouldRetryInBroker:shouldRetryInBroker
+                                                                                                                error:nil];
+        if (enrollmentResponse) return enrollmentResponse;
+    }
     
     // Try to create a browser response
     MSIDWebOpenBrowserResponse *browserResponse = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url

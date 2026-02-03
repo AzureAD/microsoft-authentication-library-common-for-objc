@@ -34,6 +34,8 @@
 #import "MSIDNotifications.h"
 #import "MSIDInteractiveWebviewHelper.h"
 #import "MSIDWebviewAction.h"
+#import "MSIDWebviewFactory.h"
+#import "MSIDEnrollmentCompletionResponse.h"
 
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
@@ -52,6 +54,9 @@
 
 /*! Helper for special URL handling (orchestrates BRT, retry, system webview) */
 @property (nonatomic, weak) MSIDInteractiveWebviewHelper *webviewHelper;
+
+/*! Factory for creating webview responses from URLs (needed for ASWebAuth callback processing) */
+@property (nonatomic, strong) MSIDWebviewFactory *responseFactory;
 
 @end
 
@@ -705,8 +710,40 @@ initiatedByFrame:(WKFrameInfo *)frame
                         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, strongSelf.context, 
                                              @"System webview completed with callback URL: %@", 
                                              MSID_PII_LOG_MASKABLE(callbackURL));
-                        // Callback URL (e.g., msauth://profileInstalled) will be processed
-                        // by InteractiveController or as next navigation
+                        
+                        // Process callback URL via factory to create response
+                        // This allows enrollment completion (profileInstalled) to flow through
+                        // response chain without cancelling token request
+                        if (strongSelf.responseFactory)
+                        {
+                            NSError *responseError = nil;
+                            MSIDWebviewResponse *response = [strongSelf.responseFactory oAuthResponseWithURL:callbackURL
+                                                                                                requestState:nil
+                                                                                          ignoreInvalidState:YES
+                                                                                              endRedirectUri:nil
+                                                                                                     context:strongSelf.context
+                                                                                                       error:&responseError];
+                            
+                            if (response)
+                            {
+                                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.context,
+                                                 @"Created response from ASWebAuth callback, passing to completion handler");
+                                
+                                // Call webview's completion handler with response (flow continues!)
+                                [strongSelf dispatchCompletionBlock:callbackURL error:nil];
+                            }
+                            else
+                            {
+                                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context,
+                                                 @"Could not create response from callback URL: %@", responseError);
+                                [strongSelf endWebAuthWithURL:callbackURL error:responseError];
+                            }
+                        }
+                        else
+                        {
+                            // No factory - complete with callback URL
+                            [strongSelf endWebAuthWithURL:callbackURL error:nil];
+                        }
                     }
                 }];
             }
