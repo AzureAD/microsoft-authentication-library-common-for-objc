@@ -4,13 +4,14 @@ name: Auto-retag UNTAGGED entries
 # Trigger manually via workflow_dispatch or on push to specific branches
 
 on:
-  pull_request:
-    branches:
-      - '*'
+  workflow_dispatch:  # Manual trigger
   push:
     branches:
       - dev
       - main
+
+permissions:
+  contents: write
 
 jobs:
   auto-retag:
