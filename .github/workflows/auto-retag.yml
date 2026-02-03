@@ -29,25 +29,10 @@ jobs:
       with:
         python-version: '3.x'
     
-    - name: Check for UNTAGGED entries
-      id: check
-      run: |
-        if grep -q '"UNTAGGED"' IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m; then
-          echo "has_untagged=true" >> $GITHUB_OUTPUT
-          echo "Found UNTAGGED entries"
-        else
-          echo "has_untagged=false" >> $GITHUB_OUTPUT
-          echo "No UNTAGGED entries found"
-        fi
-    
     - name: Run retag script
-      id: retag
-      if: steps.check.outputs.has_untagged == 'true'
-      continue-on-error: true
       run: python scripts/retag_untagged.py
     
     - name: Commit and push changes
-      if: steps.check.outputs.has_untagged == 'true' && steps.retag.outcome == 'success'
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
