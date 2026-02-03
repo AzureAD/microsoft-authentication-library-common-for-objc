@@ -30,9 +30,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Response class for detecting msauth://profileInstall trigger
+ * Response class for detecting msauth://installProfile trigger
  * This is different from MSIDWebInstallProfileResponse (profileInstalled)
- * This one triggers the profile installation flow
+ * This one triggers the profile installation flow by transitioning to ASWebAuthenticationSession
  */
 @interface MSIDWebProfileInstallTriggerResponse : MSIDWebviewResponse
 

@@ -37,7 +37,7 @@
 - (void)testInit_whenWrongScheme_shouldReturnNilWithError
 {
     NSError *error = nil;
-    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"https://profileInstall"]
+    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"https://installProfile"]
                                                                                                     httpResponse:nil
                                                                                                          context:nil
                                                                                                            error:&error];
@@ -63,7 +63,7 @@
 - (void)testInit_whenCorrectURL_shouldReturnResponse
 {
     NSError *error = nil;
-    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://profileInstall"]
+    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://installProfile"]
                                                                                                     httpResponse:nil
                                                                                                          context:nil
                                                                                                            error:&error];
@@ -82,7 +82,7 @@
                                                                 headerFields:headers];
     
     NSError *error = nil;
-    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://profileInstall"]
+    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://installProfile"]
                                                                                                     httpResponse:httpResponse
                                                                                                          context:nil
                                                                                                            error:&error];
@@ -95,7 +95,7 @@
 - (void)testInit_whenCaseInsensitiveHost_shouldReturnResponse
 {
     NSError *error = nil;
-    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://ProfileInstall"]
+    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://InstallProfile"]
                                                                                                     httpResponse:nil
                                                                                                          context:nil
                                                                                                            error:&error];
@@ -107,8 +107,8 @@
 - (void)testInit_whenSystemWebviewFormat_shouldReturnResponse
 {
     NSError *error = nil;
-    // System webview format: myscheme://auth/msauth/profileInstall
-    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"myscheme://auth/msauth/profileInstall"]
+    // System webview format: myscheme://auth/msauth/installProfile
+    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"myscheme://auth/msauth/installProfile"]
                                                                                                     httpResponse:nil
                                                                                                          context:nil
                                                                                                            error:&error];
@@ -127,7 +127,7 @@
                                                                 headerFields:headers];
     
     NSError *error = nil;
-    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://profileInstall"]
+    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://installProfile"]
                                                                                                     httpResponse:httpResponse
                                                                                                          context:nil
                                                                                                            error:&error];

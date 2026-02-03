@@ -92,7 +92,7 @@
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
     
-    // Check for profile install trigger (msauth://profileInstall)
+    // Check for profile install trigger (msauth://installProfile)
     NSError *triggerError = nil;
     MSIDWebProfileInstallTriggerResponse *triggerResponse = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:requestURL
                                                                                                           httpResponse:self.lastHTTPResponse
@@ -101,7 +101,7 @@
     
     if (triggerResponse)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Profile install trigger detected");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Profile install trigger detected (msauth://installProfile)");
         
         // Cancel this navigation
         decisionHandler(WKNavigationActionPolicyCancel);

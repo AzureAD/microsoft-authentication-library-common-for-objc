@@ -31,7 +31,7 @@
 @implementation MSIDWebProfileInstallTriggerResponse
 
 static NSString *const SCHEME_MSAUTH = @"msauth";
-static NSString *const PROFILE_INSTALL = @"profileinstall";
+static NSString *const INSTALL_PROFILE = @"installprofile";
 static NSString *const PROFILE_INSTALL_URL_HEADER = @"X-Profile-Install-URL";
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -48,7 +48,7 @@ static NSString *const PROFILE_INSTALL_URL_HEADER = @"X-Profile-Install-URL";
                                      MSIDErrorServerInvalidResponse,
                                      [NSString stringWithFormat:
                                       @"Profile install trigger response should have %@ as a scheme and %@ as a host",
-                                        SCHEME_MSAUTH, PROFILE_INSTALL],
+                                        SCHEME_MSAUTH, INSTALL_PROFILE],
                                      nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
@@ -101,9 +101,9 @@ static NSString *const PROFILE_INSTALL_URL_HEADER = @"X-Profile-Install-URL";
     NSString *scheme = url.scheme;
     NSString *host = url.host;
     
-    // For embedded webview, if link starts with msauth scheme and contains profileInstall host
-    // e.g. msauth://profileInstall
-    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host caseInsensitiveCompare:PROFILE_INSTALL] == NSOrderedSame)
+    // For embedded webview, if link starts with msauth scheme and contains installProfile host
+    // e.g. msauth://installProfile
+    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host caseInsensitiveCompare:INSTALL_PROFILE] == NSOrderedSame)
     {
         return YES;
     }
@@ -115,11 +115,11 @@ static NSString *const PROFILE_INSTALL_URL_HEADER = @"X-Profile-Install-URL";
         return NO;
     }
     
-    // For system webview, this link will start with the redirect uri and will have msauth and profileInstall as path parameters
-    // e.g. myscheme://auth/msauth/profileInstall
+    // For system webview, this link will start with the redirect uri and will have msauth and installProfile as path parameters
+    // e.g. myscheme://auth/msauth/installProfile
     NSUInteger pathComponentCount = pathComponents.count;
     
-    if ([pathComponents[pathComponentCount - 1] caseInsensitiveCompare:PROFILE_INSTALL] == NSOrderedSame
+    if ([pathComponents[pathComponentCount - 1] caseInsensitiveCompare:INSTALL_PROFILE] == NSOrderedSame
         && [pathComponents[pathComponentCount - 2] isEqualToString:SCHEME_MSAUTH])
     {
         return YES;
