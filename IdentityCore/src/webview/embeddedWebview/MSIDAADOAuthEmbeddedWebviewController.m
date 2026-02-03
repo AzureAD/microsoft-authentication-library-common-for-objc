@@ -33,6 +33,8 @@
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
 #import "MSIDWebProfileInstallTriggerResponse.h"
+#import "MSIDWebviewAuthorization.h"
+#import "MSIDWebviewSession.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -75,6 +77,13 @@
             if (strongSelf)
             {
                 strongSelf.lastHTTPResponse = response;
+                
+                // Also store in the current webview session so it's available to the factory
+                MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
+                if (currentSession)
+                {
+                    currentSession.lastHTTPResponse = response;
+                }
             }
         };
     }

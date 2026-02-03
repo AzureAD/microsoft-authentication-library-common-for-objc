@@ -37,6 +37,7 @@
 @property (nonatomic) NSObject<MSIDWebviewInteracting> *webviewController;
 @property (nonatomic) MSIDWebviewFactory *factory;
 @property (nonatomic) MSIDBaseWebRequestConfiguration *webViewConfiguration;
+@property (nonatomic, nullable) NSHTTPURLResponse *lastHTTPResponse;
 
 - (instancetype)init NS_UNAVAILABLE;
 
