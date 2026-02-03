@@ -864,8 +864,6 @@ DDDD4444EEEE5555FFFF6666 /* MSIDInteractiveWebviewHelper.m */ = {isa = PBXFileRe
 		961ACDFE22A1F60800B9266C /* NSData+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C5C220A540A00768729 /* NSData+MSIDTestUtil.m */; };
 		961ACE0522A1FA8200B9266C /* MSIDApplicationTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BE923F21A1087700F5AB8C /* MSIDApplicationTestUtil.m */; };
 		96235F96207D7286007EAB36 /* MSIDWebOAuth2AuthCodeResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 96235F95207D7286007EAB36 /* MSIDWebOAuth2AuthCodeResponse.m */; };
-		9256C8BC780F419DA5CF0588 /* MSIDEnrollmentCompletionResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDEnrollmentCompletionResponse.h; sourceTree = "<group>"; };
-		C6988B81745146A6A255CE1F /* MSIDEnrollmentCompletionResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDEnrollmentCompletionResponse.m; sourceTree = "<group>"; };
 		5ABFDC8A5B8144E095E2CD09 /* MSIDEnrollmentCompletionResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 9256C8BC780F419DA5CF0588 /* MSIDEnrollmentCompletionResponse.h */; };
 		E99BD53D6C1A4C6E89879BAF /* MSIDEnrollmentCompletionResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = C6988B81745146A6A255CE1F /* MSIDEnrollmentCompletionResponse.m */; };
 		0BE56FAF55E64FBA9DC8BB71 /* MSIDEnrollmentCompletionResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = C6988B81745146A6A255CE1F /* MSIDEnrollmentCompletionResponse.m */; };
@@ -2831,6 +2829,8 @@ JJJJ0000KKKK1111LLLL2222 /* MSIDInteractiveWebviewHelper.m in Sources */ = {isa 
 		9621605322FF4FCD00DF5D9A /* MSIDURLResponseHandling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDURLResponseHandling.h; sourceTree = "<group>"; };
 		96235F94207D7286007EAB36 /* MSIDWebOAuth2AuthCodeResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebOAuth2AuthCodeResponse.h; sourceTree = "<group>"; };
 		96235F95207D7286007EAB36 /* MSIDWebOAuth2AuthCodeResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebOAuth2AuthCodeResponse.m; sourceTree = "<group>"; };
+		9256C8BC780F419DA5CF0588 /* MSIDEnrollmentCompletionResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDEnrollmentCompletionResponse.h; sourceTree = "<group>"; };
+		C6988B81745146A6A255CE1F /* MSIDEnrollmentCompletionResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDEnrollmentCompletionResponse.m; sourceTree = "<group>"; };
 		96235F97207D72A6007EAB36 /* MSIDWebAADAuthCodeResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebAADAuthCodeResponse.h; sourceTree = "<group>"; };
 		96235F98207D72A6007EAB36 /* MSIDWebAADAuthCodeResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebAADAuthCodeResponse.m; sourceTree = "<group>"; };
 		96235F9A207D72CE007EAB36 /* MSIDWebWPJResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebWPJResponse.h; sourceTree = "<group>"; };
