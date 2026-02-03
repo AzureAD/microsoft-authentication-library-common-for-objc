@@ -32,7 +32,8 @@
 
 static NSString *const SCHEME_MSAUTH = @"msauth";
 static NSString *const INSTALL_PROFILE = @"installprofile";
-static NSString *const PROFILE_INSTALL_URL_HEADER = @"X-Profile-Install-URL";
+static NSString *const INTUNE_URL_HEADER = @"x-intune-url";
+static NSString *const INTUNE_TOKEN_HEADER = @"x-intune-token";
 
 - (instancetype)initWithURL:(NSURL *)url
                httpResponse:(NSHTTPURLResponse *)httpResponse
@@ -57,40 +58,64 @@ static NSString *const PROFILE_INSTALL_URL_HEADER = @"X-Profile-Install-URL";
     self = [super initWithURL:url context:context error:error];
     if (self)
     {
-        // Extract profile installation URL from HTTP headers
+        // Extract Intune URL and token from HTTP headers
         if (httpResponse && httpResponse.allHeaderFields)
         {
-            _profileInstallURL = httpResponse.allHeaderFields[PROFILE_INSTALL_URL_HEADER];
+            _intuneURL = [self extractHeaderValue:INTUNE_URL_HEADER fromResponse:httpResponse];
+            _intuneToken = [self extractHeaderValue:INTUNE_TOKEN_HEADER fromResponse:httpResponse];
             
-            if (!_profileInstallURL)
-            {
-                // Try case-insensitive search
-                for (NSString *headerKey in httpResponse.allHeaderFields.allKeys)
-                {
-                    if ([headerKey caseInsensitiveCompare:PROFILE_INSTALL_URL_HEADER] == NSOrderedSame)
-                    {
-                        _profileInstallURL = httpResponse.allHeaderFields[headerKey];
-                        break;
-                    }
-                }
-            }
-            
-            if (_profileInstallURL)
+            if (_intuneURL)
             {
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, 
-                                     @"Extracted profile install URL from header: %@", 
-                                     MSID_PII_LOG_MASKABLE(_profileInstallURL));
+                                     @"Extracted Intune URL from header: %@", 
+                                     MSID_PII_LOG_MASKABLE(_intuneURL));
             }
             else
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, 
                                  @"Profile install trigger detected but no %@ header found", 
-                                 PROFILE_INSTALL_URL_HEADER);
+                                 INTUNE_URL_HEADER);
+            }
+            
+            if (_intuneToken)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, 
+                                 @"Extracted Intune token from header");
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, 
+                                 @"No %@ header found in response", 
+                                 INTUNE_TOKEN_HEADER);
             }
         }
     }
     
     return self;
+}
+
+/**
+ * Helper method to extract header value with case-insensitive matching
+ */
+- (nullable NSString *)extractHeaderValue:(NSString *)headerName fromResponse:(NSHTTPURLResponse *)httpResponse
+{
+    // Try exact match first
+    NSString *value = httpResponse.allHeaderFields[headerName];
+    
+    if (!value)
+    {
+        // Try case-insensitive search
+        for (NSString *headerKey in httpResponse.allHeaderFields.allKeys)
+        {
+            if ([headerKey caseInsensitiveCompare:headerName] == NSOrderedSame)
+            {
+                value = httpResponse.allHeaderFields[headerKey];
+                break;
+            }
+        }
+    }
+    
+    return value;
 }
 
 /**

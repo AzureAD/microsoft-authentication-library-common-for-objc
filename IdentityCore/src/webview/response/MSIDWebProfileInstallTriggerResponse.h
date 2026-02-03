@@ -36,8 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface MSIDWebProfileInstallTriggerResponse : MSIDWebviewResponse
 
-/// The profile installation URL extracted from HTTP headers
-@property (atomic, readonly, nullable) NSString *profileInstallURL;
+/// The Intune profile installation URL extracted from x-intune-url HTTP header
+@property (atomic, readonly, nullable) NSString *intuneURL;
+
+/// The Intune authentication token extracted from x-intune-token HTTP header
+@property (atomic, readonly, nullable) NSString *intuneToken;
 
 /**
  * Initialize with URL and HTTP response headers

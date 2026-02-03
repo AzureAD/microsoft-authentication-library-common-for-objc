@@ -61,11 +61,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @param profileURL The URL to open for profile installation
  * @param parentController The parent view controller
  * @param callbackScheme The callback URL scheme (e.g., "msauth")
+ * @param additionalHeaders Optional HTTP headers to include in the request (iOS 18+)
  * @param completionHandler Called when ASWebAuthenticationSession completes
  */
 - (void)launchProfileInstallationSession:(NSURL *)profileURL
                         parentController:(MSIDViewController *)parentController
                           callbackScheme:(NSString *)callbackScheme
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
                        completionHandler:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completionHandler;
 
 /**

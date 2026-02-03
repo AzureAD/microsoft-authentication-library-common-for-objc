@@ -65,6 +65,7 @@
 - (void)launchProfileInstallationSession:(NSURL *)profileURL
                         parentController:(MSIDViewController *)parentController
                           callbackScheme:(NSString *)callbackScheme
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
                        completionHandler:(void (^)(NSURL * _Nullable, NSError * _Nullable))completionHandler
 {
     if (!profileURL)
@@ -80,11 +81,33 @@
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Launching profile installation session with URL: %@", MSID_PII_LOG_MASKABLE(profileURL));
     
-    // Create ASWebAuthenticationSession handler
-    self.profileSessionHandler = [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
-                                                                                                 startURL:profileURL
-                                                                                           callbackScheme:callbackScheme
-                                                                                       useEmpheralSession:NO];
+    if (additionalHeaders && additionalHeaders.count > 0)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Additional headers provided: %lu", (unsigned long)additionalHeaders.count);
+    }
+    
+    // Create ASWebAuthenticationSession handler with additional headers support
+    if (@available(iOS 18.0, macOS 15.0, *))
+    {
+        self.profileSessionHandler = [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+                                                                                                     startURL:profileURL
+                                                                                               callbackScheme:callbackScheme
+                                                                                           useEmpheralSession:NO
+                                                                                            additionalHeaders:additionalHeaders];
+    }
+    else
+    {
+        // Fallback for older OS versions (shouldn't happen since minimum is iOS 18)
+        self.profileSessionHandler = [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+                                                                                                     startURL:profileURL
+                                                                                               callbackScheme:callbackScheme
+                                                                                           useEmpheralSession:NO];
+        
+        if (additionalHeaders && additionalHeaders.count > 0)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[MSIDWebviewTransitionCoordinator] Additional headers ignored - iOS 18+ required");
+        }
+    }
     
     if (!self.profileSessionHandler)
     {

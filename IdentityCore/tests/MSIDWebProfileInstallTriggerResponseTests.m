@@ -72,10 +72,10 @@
     XCTAssertNil(error);
 }
 
-- (void)testInit_whenCorrectURLWithHeaders_shouldExtractProfileURL
+- (void)testInit_whenCorrectURLWithHeaders_shouldExtractIntuneURL
 {
     // Create mock HTTP response with headers
-    NSDictionary *headers = @{@"X-Profile-Install-URL": @"https://profile.install.url/install"};
+    NSDictionary *headers = @{@"x-intune-url": @"https://intune.install.url/install"};
     NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://test.com"]
                                                                   statusCode:302
                                                                  HTTPVersion:@"HTTP/1.1"
@@ -89,7 +89,32 @@
 
     XCTAssertNotNil(response);
     XCTAssertNil(error);
-    XCTAssertEqualObjects(response.profileInstallURL, @"https://profile.install.url/install");
+    XCTAssertEqualObjects(response.intuneURL, @"https://intune.install.url/install");
+    XCTAssertNil(response.intuneToken);
+}
+
+- (void)testInit_whenCorrectURLWithBothHeaders_shouldExtractBoth
+{
+    // Create mock HTTP response with both headers
+    NSDictionary *headers = @{
+        @"x-intune-url": @"https://intune.install.url/install",
+        @"x-intune-token": @"Bearer abc123token456"
+    };
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://test.com"]
+                                                                  statusCode:302
+                                                                 HTTPVersion:@"HTTP/1.1"
+                                                                headerFields:headers];
+    
+    NSError *error = nil;
+    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://installProfile"]
+                                                                                                    httpResponse:httpResponse
+                                                                                                         context:nil
+                                                                                                           error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(response.intuneURL, @"https://intune.install.url/install");
+    XCTAssertEqualObjects(response.intuneToken, @"Bearer abc123token456");
 }
 
 - (void)testInit_whenCaseInsensitiveHost_shouldReturnResponse
@@ -117,10 +142,10 @@
     XCTAssertNil(error);
 }
 
-- (void)testInit_whenHeaderCaseInsensitive_shouldExtractProfileURL
+- (void)testInit_whenHeaderCaseInsensitive_shouldExtractIntuneURL
 {
-    // Create mock HTTP response with lowercase header
-    NSDictionary *headers = @{@"x-profile-install-url": @"https://profile.install.url/install"};
+    // Create mock HTTP response with uppercase headers
+    NSDictionary *headers = @{@"X-Intune-Url": @"https://intune.install.url/install"};
     NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://test.com"]
                                                                   statusCode:302
                                                                  HTTPVersion:@"HTTP/1.1"
@@ -134,7 +159,31 @@
 
     XCTAssertNotNil(response);
     XCTAssertNil(error);
-    XCTAssertEqualObjects(response.profileInstallURL, @"https://profile.install.url/install");
+    XCTAssertEqualObjects(response.intuneURL, @"https://intune.install.url/install");
+}
+
+- (void)testInit_whenTokenHeaderCaseInsensitive_shouldExtractIntuneToken
+{
+    // Create mock HTTP response with mixed case headers
+    NSDictionary *headers = @{
+        @"X-INTUNE-URL": @"https://intune.install.url/install",
+        @"X-Intune-Token": @"Bearer token123"
+    };
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://test.com"]
+                                                                  statusCode:302
+                                                                 HTTPVersion:@"HTTP/1.1"
+                                                                headerFields:headers];
+    
+    NSError *error = nil;
+    MSIDWebProfileInstallTriggerResponse *response = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://installProfile"]
+                                                                                                    httpResponse:httpResponse
+                                                                                                         context:nil
+                                                                                                           error:&error];
+
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(response.intuneURL, @"https://intune.install.url/install");
+    XCTAssertEqualObjects(response.intuneToken, @"Bearer token123");
 }
 
 - (void)testOperation_shouldReturnTriggerOperation

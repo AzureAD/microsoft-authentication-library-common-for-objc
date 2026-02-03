@@ -248,23 +248,23 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling profile install trigger (msauth://installProfile)");
     
-    if (!triggerResponse.profileInstallURL)
+    if (!triggerResponse.intuneURL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Profile install trigger detected but no installation URL provided in headers");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Profile install trigger detected but no x-intune-url header provided");
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
-                                        @"Profile installation URL not found in response headers", 
+                                        @"Intune profile installation URL not found in x-intune-url header", 
                                         nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
         completionBlock(nil, error);
         return;
     }
     
-    NSURL *profileURL = [NSURL URLWithString:triggerResponse.profileInstallURL];
+    NSURL *profileURL = [NSURL URLWithString:triggerResponse.intuneURL];
     if (!profileURL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Invalid profile installation URL");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Invalid Intune profile installation URL");
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
-                                        @"Invalid profile installation URL", 
+                                        @"Invalid Intune profile installation URL", 
                                         nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
         completionBlock(nil, error);
@@ -272,7 +272,7 @@
     }
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, 
-                         @"Starting profile installation with URL: %@", MSID_PII_LOG_MASKABLE(profileURL));
+                         @"Starting Intune profile installation with URL: %@", MSID_PII_LOG_MASKABLE(profileURL));
     
     // Get the current embedded webview to suspend
     MSIDOAuth2EmbeddedWebviewController *embeddedWebview = (MSIDOAuth2EmbeddedWebviewController *)self.currentRequest.currentWebview;
@@ -288,6 +288,18 @@
         return;
     }
     
+    // Prepare additional headers for ASWebAuthenticationSession
+    NSDictionary<NSString *, NSString *> *additionalHeaders = nil;
+    if (triggerResponse.intuneToken)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Including x-intune-token in ASWebAuthenticationSession headers");
+        additionalHeaders = @{@"x-intune-token": triggerResponse.intuneToken};
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"No x-intune-token header found - proceeding without it");
+    }
+    
     // Suspend the embedded webview (hide but keep alive)
     [self.transitionCoordinator suspendEmbeddedWebview:embeddedWebview];
     
@@ -295,6 +307,7 @@
     [self.transitionCoordinator launchProfileInstallationSession:profileURL
                                                 parentController:self.interactiveRequestParamaters.parentViewController
                                                   callbackScheme:@"msauth"
+                                               additionalHeaders:additionalHeaders
                                                completionHandler:^(NSURL *callbackURL, NSError *sessionError) {
         [self handleProfileInstallationCompletion:callbackURL 
                                             error:sessionError 
