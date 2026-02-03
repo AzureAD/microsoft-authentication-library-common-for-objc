@@ -36,7 +36,7 @@ NSString *MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowNetworkTag state)
     switch (state)
     {
         case MSIDExecutionFlowPrepareNetworkRequestTag:
-            return @"iq24n";
+            return @"UNTAGGED";
         case MSIDExecutionFlowCacheResponseFailedObjectTag:
             return @"twoty";
         case MSIDExecutionFlowCacheResponseSucceededObjectTag:
@@ -60,7 +60,7 @@ NSString *MSIDTokenRequestTagToString(MSIDTokenRequestTag state)
     switch (state)
     {
         case MSIDTokenRequestAtExpirationElapsedTag:
-            return @"riwx7";
+            return @"5kbvm";
     }
 
     // Fallback for any future enum values
