@@ -7,8 +7,7 @@ on:
   workflow_dispatch:  # Manual trigger
   push:
     branches:
-      - dev
-      - main
+      - '**'  # All branches
 
 permissions:
   contents: write
