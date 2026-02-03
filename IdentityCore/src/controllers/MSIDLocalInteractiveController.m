@@ -304,11 +304,11 @@
     [self.transitionCoordinator suspendEmbeddedWebview:embeddedWebview];
     
     // Launch ASWebAuthenticationSession for profile installation
-    [self.transitionCoordinator launchProfileInstallationSession:profileURL
-                                                parentController:self.interactiveRequestParamaters.parentViewController
-                                                  callbackScheme:@"msauth"
-                                               additionalHeaders:additionalHeaders
-                                               completionHandler:^(NSURL *callbackURL, NSError *sessionError) {
+    [self.transitionCoordinator launchExternalSession:profileURL
+                                      parentController:self.interactiveRequestParamaters.parentViewController
+                                        callbackScheme:@"msauth"
+                                     additionalHeaders:additionalHeaders
+                                     completionHandler:^(NSURL *callbackURL, NSError *sessionError) {
         [self handleProfileInstallationCompletion:callbackURL 
                                             error:sessionError 
                                        completion:completionBlock];
@@ -342,7 +342,7 @@
                          @"Profile installation completed successfully (msauth://profileInstalled)");
         
         // Dismiss the ASWebAuthenticationSession
-        [self.transitionCoordinator dismissProfileInstallationSession];
+        [self.transitionCoordinator dismissExternalSession];
         
         // Resume the suspended embedded webview
         [self.transitionCoordinator resumeSuspendedEmbeddedWebview];

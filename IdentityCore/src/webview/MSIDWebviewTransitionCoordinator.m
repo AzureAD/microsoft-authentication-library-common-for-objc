@@ -36,7 +36,7 @@
 
 - (BOOL)isTransitioning
 {
-    return self.suspendedEmbeddedWebview != nil || self.profileSessionHandler != nil;
+    return self.suspendedEmbeddedWebview != nil || self.externalSessionHandler != nil;
 }
 
 - (void)suspendEmbeddedWebview:(MSIDOAuth2EmbeddedWebviewController *)webview
@@ -62,24 +62,24 @@
     }];
 }
 
-- (void)launchProfileInstallationSession:(NSURL *)profileURL
-                        parentController:(MSIDViewController *)parentController
-                          callbackScheme:(NSString *)callbackScheme
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
-                       completionHandler:(void (^)(NSURL * _Nullable, NSError * _Nullable))completionHandler
+- (void)launchExternalSession:(NSURL *)url
+             parentController:(MSIDViewController *)parentController
+               callbackScheme:(NSString *)callbackScheme
+            additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+            completionHandler:(void (^)(NSURL * _Nullable, NSError * _Nullable))completionHandler
 {
-    if (!profileURL)
+    if (!url)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[MSIDWebviewTransitionCoordinator] Cannot launch session with nil URL");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[MSIDWebviewTransitionCoordinator] Cannot launch external session with nil URL");
         if (completionHandler)
         {
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Profile installation URL is nil", nil, nil, nil, nil, nil, YES);
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"External session URL is nil", nil, nil, nil, nil, nil, YES);
             completionHandler(nil, error);
         }
         return;
     }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Launching profile installation session with URL: %@", MSID_PII_LOG_MASKABLE(profileURL));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Launching external session with URL: %@", MSID_PII_LOG_MASKABLE(url));
     
     if (additionalHeaders && additionalHeaders.count > 0)
     {
@@ -89,8 +89,8 @@
     // Create ASWebAuthenticationSession handler with additional headers support
     if (@available(iOS 18.0, macOS 15.0, *))
     {
-        self.profileSessionHandler = [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
-                                                                                                     startURL:profileURL
+        self.externalSessionHandler = [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+                                                                                                     startURL:url
                                                                                                callbackScheme:callbackScheme
                                                                                            useEmpheralSession:NO
                                                                                             additionalHeaders:additionalHeaders];
@@ -98,8 +98,8 @@
     else
     {
         // Fallback for older OS versions (shouldn't happen since minimum is iOS 18)
-        self.profileSessionHandler = [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
-                                                                                                     startURL:profileURL
+        self.externalSessionHandler = [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+                                                                                                     startURL:url
                                                                                                callbackScheme:callbackScheme
                                                                                            useEmpheralSession:NO];
         
@@ -109,20 +109,20 @@
         }
     }
     
-    if (!self.profileSessionHandler)
+    if (!self.externalSessionHandler)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[MSIDWebviewTransitionCoordinator] Failed to create ASWebAuthenticationSession handler");
         if (completionHandler)
         {
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to create profile installation session", nil, nil, nil, nil, nil, YES);
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to create external session", nil, nil, nil, nil, nil, YES);
             completionHandler(nil, error);
         }
         return;
     }
     
     // Start the session
-    [self.profileSessionHandler startWithCompletionHandler:^(NSURL *callbackURL, NSError *error) {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Profile installation session completed with callback: %@, error: %@", 
+    [self.externalSessionHandler startWithCompletionHandler:^(NSURL *callbackURL, NSError *error) {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] External session completed with callback: %@, error: %@", 
                              MSID_PII_LOG_MASKABLE(callbackURL), error);
         
         if (completionHandler)
@@ -155,15 +155,15 @@
     // We don't need to manually trigger anything as it's been kept alive
 }
 
-- (void)dismissProfileInstallationSession
+- (void)dismissExternalSession
 {
-    if (self.profileSessionHandler)
+    if (self.externalSessionHandler)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Dismissing profile installation session");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Dismissing external session");
         
         // Dismiss the ASWebAuthenticationSession
-        [self.profileSessionHandler dismiss];
-        self.profileSessionHandler = nil;
+        [self.externalSessionHandler dismiss];
+        self.externalSessionHandler = nil;
     }
 }
 
@@ -173,10 +173,10 @@
     
     self.suspendedEmbeddedWebview = nil;
     
-    if (self.profileSessionHandler)
+    if (self.externalSessionHandler)
     {
-        [self.profileSessionHandler dismiss];
-        self.profileSessionHandler = nil;
+        [self.externalSessionHandler dismiss];
+        self.externalSessionHandler = nil;
     }
 }
 

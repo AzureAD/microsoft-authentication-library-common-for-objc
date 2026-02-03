@@ -37,15 +37,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Coordinates seamless transitions between embedded webview and ASWebAuthenticationSession
- * for profile installation flows without canceling the authentication request.
+ * for flows that require external authentication without canceling the authentication request.
+ * This coordinator is generic and can be used for any flow requiring ASWebAuthenticationSession transition.
  */
 @interface MSIDWebviewTransitionCoordinator : NSObject
 
 /// The currently suspended embedded webview (kept alive during transition)
 @property (nonatomic, nullable) MSIDOAuth2EmbeddedWebviewController *suspendedEmbeddedWebview;
 
-/// The ASWebAuthenticationSession handler for profile installation
-@property (nonatomic, nullable) MSIDASWebAuthenticationSessionHandler *profileSessionHandler;
+/// The ASWebAuthenticationSession handler for external authentication flow
+@property (nonatomic, nullable) MSIDASWebAuthenticationSessionHandler *externalSessionHandler;
 
 /// Whether a transition is currently in progress
 @property (nonatomic, readonly) BOOL isTransitioning;
@@ -57,18 +58,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)suspendEmbeddedWebview:(MSIDOAuth2EmbeddedWebviewController *)webview;
 
 /**
- * Launches ASWebAuthenticationSession with the profile installation URL
- * @param profileURL The URL to open for profile installation
+ * Launches ASWebAuthenticationSession for external authentication flow
+ * @param url The URL to open in ASWebAuthenticationSession
  * @param parentController The parent view controller
  * @param callbackScheme The callback URL scheme (e.g., "msauth")
  * @param additionalHeaders Optional HTTP headers to include in the request (iOS 18+)
  * @param completionHandler Called when ASWebAuthenticationSession completes
  */
-- (void)launchProfileInstallationSession:(NSURL *)profileURL
-                        parentController:(MSIDViewController *)parentController
-                          callbackScheme:(NSString *)callbackScheme
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
-                       completionHandler:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completionHandler;
+- (void)launchExternalSession:(NSURL *)url
+             parentController:(MSIDViewController *)parentController
+               callbackScheme:(NSString *)callbackScheme
+            additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+            completionHandler:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completionHandler;
 
 /**
  * Resumes the suspended embedded webview (shows UI and continues flow)
@@ -78,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Dismisses the ASWebAuthenticationSession if active
  */
-- (void)dismissProfileInstallationSession;
+- (void)dismissExternalSession;
 
 /**
  * Cleans up all state (call when authentication completes or fails)
