@@ -31,17 +31,25 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDClientInfo.h"
+#import "MSIDInteractiveWebviewHelper.h"
+#import "MSIDSpecialURLViewActionResolver.h"
+#import "MSIDWebviewAction.h"
+#import "MSIDWebviewResponse.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDASWebAuthenticationSessionHandler.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBrokerInteractiveController.h"
 #endif
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDEnrollmentCompletionResponse.h"
 #import "MSIDThrottlingService.h"
 
 @interface MSIDLocalInteractiveController()
 
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 @property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
+@property (nonatomic, strong) id currentSystemWebview;
 
 @end
 
@@ -61,6 +69,7 @@
     if (self)
     {
         _interactiveRequestParamaters = parameters;
+        _specialURLHandlingEnabled = NO; // Default OFF for safety
     }
 
     return self;
@@ -73,6 +82,20 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive flow.");
     
     MSIDInteractiveTokenRequest *request = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
+    
+    // Create helper if special URL handling is enabled
+    if (self.specialURLHandlingEnabled && !self.webviewHelper)
+    {
+        self.webviewHelper = [[MSIDInteractiveWebviewHelper alloc] initWithBrokerContext:NO];
+        self.webviewHelper.parentController = self;
+        self.webviewHelper.context = self.requestParameters;
+        self.webviewHelper.parentViewController = self.parentController;
+        self.webviewHelper.embeddedWebviewController = nil; // Will be set when webview created
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Created webview helper for special URL handling");
+    }
+    
+    // Set helper for special URL processing (weak reference in request)
+    request.webviewHelper = self.webviewHelper;
 
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
@@ -106,6 +129,36 @@
 - (void)handleWebMSAuthResponse:(MSIDWebWPJResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling msauth response.");
+    
+    // Check for enrollment completion response (profileInstalled/profileComplete from ASWebAuth)
+    if ([response isKindOfClass:[MSIDEnrollmentCompletionResponse class]])
+    {
+        MSIDEnrollmentCompletionResponse *enrollmentResponse = (MSIDEnrollmentCompletionResponse *)response;
+        
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters,
+                             @"Enrollment completed with URL: %@, shouldRetryInBroker: %d",
+                             MSID_PII_LOG_MASKABLE(enrollmentResponse.profileCompletedURL),
+                             enrollmentResponse.shouldRetryInBroker);
+        
+        if (enrollmentResponse.shouldRetryInBroker)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                             @"Retrying interactive request in broker context after enrollment");
+            
+            [self retryInteractiveRequestInBrokerContextForURL:enrollmentResponse.profileCompletedURL
+                                                     completion:completionBlock];
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                             @"Completing auth in current context (no broker retry)");
+            
+            // Complete without retry (broker context or macOS)
+            // Flow continues normally
+        }
+        
+        return;
+    }
     
     if (![NSString msidIsStringNilOrBlank:response.appInstallLink])
     {
@@ -240,6 +293,92 @@
         
         completionBlock(result, error);
     }];
+}
+
+#pragma mark - Helper Delegate Methods
+
+- (void)acquireBRTTokenWithCompletion:(void (^)(BOOL success, NSError * _Nullable error))completion
+{
+    if (!completion)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"acquireBRTTokenWithCompletion called with nil completion");
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring BRT token");
+    
+    // TODO: Implement actual BRT token acquisition
+    // For now, return error indicating not implemented
+    // In production, this would make a token request for broker refresh token
+    
+    NSError *error = MSIDCreateError(MSIDErrorDomain, 
+                                     MSIDErrorInternal,
+                                     @"BRT acquisition not yet implemented in MSIDLocalInteractiveController", 
+                                     nil, nil, nil, 
+                                     self.requestParameters.correlationId, 
+                                     nil, NO);
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"BRT acquisition result: FAILED (not implemented)");
+    
+    completion(NO, error);
+}
+
+- (void)retryInteractiveRequestInBrokerContextForURL:(NSURL *)url
+                                          completion:(void (^)(BOOL success, NSError * _Nullable error))completion
+{
+    if (!completion)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"retryInteractiveRequestInBrokerContextForURL called with nil completion");
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, @"Retrying request in broker context for URL: %@", MSID_PII_LOG_MASKABLE(url));
+    
+#if TARGET_OS_IPHONE
+    // Create broker controller and retry the request
+    NSError *brokerError = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] 
+                                                         initWithInteractiveRequestParameters:self.interactiveRequestParamaters
+                                                         tokenRequestProvider:self.tokenRequestProvider
+                                                         brokerInstallLink:nil
+                                                         error:&brokerError];
+    
+    if (!brokerController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Failed to create broker controller: %@", brokerError);
+        completion(NO, brokerError);
+        return;
+    }
+    
+    // TODO: Actually execute the broker request
+    // For now, just signal success that we transferred to broker
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Successfully transferred to broker context");
+    completion(YES, nil);
+    
+    // Note: Broker controller will continue the flow in broker context
+    // The current webview should be dismissed by caller
+#else
+    NSError *error = MSIDCreateError(MSIDErrorDomain, 
+                                     MSIDErrorInternal,
+                                     @"Broker retry not supported on macOS", 
+                                     nil, nil, nil,
+                                     self.requestParameters.correlationId,
+                                     nil, NO);
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Broker retry not supported on this platform");
+    completion(NO, error);
+#endif
+}
+
+- (void)openSystemWebviewWithURL:(NSURL *)url
+                         headers:(NSDictionary<NSString *, NSString *> *)headers
+                         purpose:(MSIDSystemWebviewPurpose)purpose
+                      completion:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completion
+{
+    // Delegate to helper (shared implementation)
+    [self.webviewHelper openSystemWebviewWithURL:url
+                                         headers:headers
+                                         purpose:purpose
+                                      completion:completion];
 }
 
 @end

@@ -32,6 +32,10 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDNotifications.h"
+#import "MSIDInteractiveWebviewHelper.h"
+#import "MSIDWebviewAction.h"
+#import "MSIDWebviewFactory.h"
+#import "MSIDEnrollmentCompletionResponse.h"
 
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
@@ -45,6 +49,14 @@
 @interface MSIDOAuth2EmbeddedWebviewController()
 
 @property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
+/*! Stores HTTP headers from the most recent navigation response for telemetry access */
+@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *lastResponseHeaders;
+
+/*! Helper for special URL handling (orchestrates BRT, retry, system webview) */
+@property (nonatomic, weak) MSIDInteractiveWebviewHelper *webviewHelper;
+
+/*! Factory for creating webview responses from URLs (needed for ASWebAuth callback processing) */
+@property (nonatomic, strong) MSIDWebviewFactory *responseFactory;
 
 @end
 
@@ -364,6 +376,12 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         }
     }
     
+    // Call responseHeaderHandler for capturing HTTP headers
+    if (self.responseHeaderHandler && navigationResponse.response)
+    {
+        self.responseHeaderHandler(navigationResponse.response);
+    }
+    
     decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
@@ -438,6 +456,53 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
             decisionHandler(WKNavigationActionPolicyCancel);
             return;
         }
+    }
+    
+    // Check for special URL schemes (msauth://, browser://) - HELPER PATTERN
+    NSString *scheme = requestURL.scheme.lowercaseString ?: @"";
+    if (self.webviewHelper &&
+        ([scheme isEqualToString:@"msauth"] || [scheme isEqualToString:@"browser"]))
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                             @"Special URL detected, delegating to helper for async processing: %@",
+                             MSID_PII_LOG_MASKABLE(requestURL));
+        
+        // Delegate to helper for full processing (may include async BRT acquisition)
+        // Helper contains all business logic (BRT checks, acquisition, retry decisions)
+        // Webview is just UI layer - calls helper and executes returned action
+        __weak typeof(self) weakSelf = self;
+        [self.webviewHelper processSpecialURL:requestURL
+                                   completion:^(MSIDWebviewAction * _Nullable action, NSError * _Nullable error) {
+            __strong typeof(self) strongSelf = weakSelf;
+            if (!strongSelf) return;
+            
+            if (error) {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context,
+                                 @"Helper returned error processing special URL: %@", error);
+                NSError *webviewError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                                       @"Failed to process special URL",
+                                                       error, nil, nil,
+                                                       strongSelf.context.correlationId, nil, NO);
+                [strongSelf endWebAuthWithURL:nil error:webviewError];
+                return;
+            }
+            
+            if (action) {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.context,
+                                 @"Executing special URL action type: %ld (returned from helper)",
+                                 (long)action.type);
+                
+                // Execute action returned by helper
+                [strongSelf executeViewAction:action];
+            }
+            else {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context,
+                                 @"No action returned from helper for special URL");
+            }
+        }];
+        
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     }
     
     // redirecting to non-https url is not allowed
@@ -587,6 +652,156 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Special URL View Action Execution
+
+- (void)executeViewAction:(MSIDWebviewAction *)action
+{
+    if (!action)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"executeViewAction called with nil action");
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing view action type: %ld", (long)action.type);
+    
+    switch (action.type)
+    {
+        case MSIDWebviewActionTypeLoadRequest:
+        {
+            if (action.request)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Loading request: %@", MSID_PII_LOG_MASKABLE(action.request.URL));
+                [self loadRequest:action.request];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"LoadRequest action has nil request");
+            }
+            break;
+        }
+            
+        case MSIDWebviewActionTypeOpenASWebAuthSession:
+        {
+            if (action.url)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, 
+                                     @"Delegating to helper to open system webview with URL: %@", 
+                                     MSID_PII_LOG_MASKABLE(action.url));
+                
+                // Delegate to helper to manage system webview
+                // This keeps EmbeddedWebViewController focused only on embedded webview management
+                __weak __typeof(self) weakSelf = self;
+                [self.webviewHelper openSystemWebviewWithURL:action.url
+                                                      headers:action.additionalHeaders
+                                                      purpose:action.purpose
+                                                   completion:^(NSURL *callbackURL, NSError *error) {
+                    __strong __typeof(self) strongSelf = weakSelf;
+                    
+                    if (error)
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context, 
+                                         @"System webview failed: %@", error);
+                        [strongSelf endWebAuthWithURL:nil error:error];
+                    }
+                    else if (callbackURL)
+                    {
+                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, strongSelf.context, 
+                                             @"System webview completed with callback URL: %@", 
+                                             MSID_PII_LOG_MASKABLE(callbackURL));
+                        
+                        // Process callback URL via factory to create response
+                        // This allows enrollment completion (profileInstalled) to flow through
+                        // response chain without cancelling token request
+                        if (strongSelf.responseFactory)
+                        {
+                            NSError *responseError = nil;
+                            MSIDWebviewResponse *response = [strongSelf.responseFactory oAuthResponseWithURL:callbackURL
+                                                                                                requestState:nil
+                                                                                          ignoreInvalidState:YES
+                                                                                              endRedirectUri:nil
+                                                                                                     context:strongSelf.context
+                                                                                                       error:&responseError];
+                            
+                            if (response)
+                            {
+                                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.context,
+                                                 @"Created response from ASWebAuth callback, passing to completion handler");
+                                
+                                // Call webview's completion handler with response (flow continues!)
+                                [strongSelf dispatchCompletionBlock:callbackURL error:nil];
+                            }
+                            else
+                            {
+                                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context,
+                                                 @"Could not create response from callback URL: %@", responseError);
+                                [strongSelf endWebAuthWithURL:callbackURL error:responseError];
+                            }
+                        }
+                        else
+                        {
+                            // No factory - complete with callback URL
+                            [strongSelf endWebAuthWithURL:callbackURL error:nil];
+                        }
+                    }
+                }];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"OpenASWebAuthSession action has nil URL");
+            }
+            break;
+        }
+            
+        case MSIDWebviewActionTypeCompleteWithURL:
+        {
+            if (action.url)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Completing webauth with URL: %@", MSID_PII_LOG_MASKABLE(action.url));
+                [self completeWebAuthWithURL:action.url];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"CompleteWithURL action has nil URL");
+            }
+            break;
+        }
+            
+        case MSIDWebviewActionTypeDismissWebview:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing DismissWebview action");
+            
+            // Dismiss embedded webview with animation
+            if ([self presentingViewController])
+            {
+                [self dismissViewControllerAnimated:YES completion:^{
+                    // Call dismissal completion after dismiss completes (e.g., for retry in broker)
+                    if (action.dismissalCompletion)
+                    {
+                        action.dismissalCompletion();
+                    }
+                }];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Webview not presented, calling completion directly");
+                // Not presented, just call completion if exists
+                if (action.dismissalCompletion)
+                {
+                    action.dismissalCompletion();
+                }
+            }
+            
+            break;
+        }
+            
+        default:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Unknown view action type: %ld", (long)action.type);
+            break;
+        }
+    }
 }
 
 @end

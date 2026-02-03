@@ -41,6 +41,7 @@
 #import "MSIDPkce.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBaseOperation.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -139,6 +140,13 @@
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected error. Didn't find any supported web browsers.", nil, nil, nil, nil, nil, YES);
         if (completionHandler) completionHandler(nil, error);
         return;
+    }
+    
+    // Configure webview with special URL helper if available
+    if (self.webviewHelper && [webView isKindOfClass:[MSIDOAuth2EmbeddedWebviewController class]])
+    {
+        MSIDOAuth2EmbeddedWebviewController *embeddedWebView = (MSIDOAuth2EmbeddedWebviewController *)webView;
+        embeddedWebView.webviewHelper = self.webviewHelper;
     }
     
     [MSIDWebviewAuthorization startSessionWithWebView:webView

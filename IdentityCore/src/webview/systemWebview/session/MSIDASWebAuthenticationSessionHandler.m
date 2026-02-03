@@ -39,6 +39,7 @@
 @property (nonatomic) ASWebAuthenticationSession *webAuthSession;
 @property (nonatomic) BOOL useEmpheralSession;
 @property (nonatomic) BOOL sessionDismissed;
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
 
 @end
 
@@ -50,6 +51,7 @@
                                 startURL:(NSURL *)startURL
                           callbackScheme:(NSString *)callbackURLScheme
                       useEmpheralSession:(BOOL)useEmpheralSession
+                      additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
 {
     self = [super init];
     
@@ -59,6 +61,7 @@
         _startURL = startURL;
         _callbackURLScheme = callbackURLScheme;
         _useEmpheralSession = useEmpheralSession;
+        _additionalHeaders = [additionalHeaders copy];
     }
     
     return self;
@@ -95,6 +98,23 @@
     
     self.webAuthSession.presentationContextProvider = self;
     self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
+    
+    // Apply additional headers on iOS 17.4+ (native API support)
+    if (@available(iOS 17.4, macOS 14.4, tvOS 17.4, watchOS 10.4, *))
+    {
+        if (self.additionalHeaders)
+        {
+            self.webAuthSession.additionalHeaderFields = self.additionalHeaders;
+            MSID_LOG_INFO(@"Applied %lu additional header(s) to ASWebAuthenticationSession", (unsigned long)self.additionalHeaders.count);
+        }
+    }
+    else
+    {
+        if (self.additionalHeaders)
+        {
+            MSID_LOG_WARN(@"Additional headers provided but OS version doesn't support additionalHeaderFields (requires iOS 17.4+, macOS 14.4+)");
+        }
+    }
     
     if (![self.webAuthSession start] && !self.sessionDismissed)
     {
