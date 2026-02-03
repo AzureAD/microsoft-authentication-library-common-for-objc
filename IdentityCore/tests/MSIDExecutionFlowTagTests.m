@@ -25,11 +25,11 @@
 #import <XCTest/XCTest.h>
 #import "MSIDExecutionFlowConstants.h"
 
-@interface MSIDExecutionFlowTagTests : XCTestCase
+@interface MSIDExecutionFlowConstantsTests : XCTestCase
 
 @end
 
-@implementation MSIDExecutionFlowTagTests
+@implementation MSIDExecutionFlowConstantsTests
 
 - (void)test_MSIDExecutionFlowNetworkTagToString_allTagsAreUnique
 {

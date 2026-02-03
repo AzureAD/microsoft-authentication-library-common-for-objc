@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pipeline validation script to ensure MSIDExecutionFlowTag.m has no UNTAGGED or duplicate tags.
+Pipeline validation script to ensure MSIDExecutionFlowConstants.m has no UNTAGGED or duplicate tags.
 This script is designed to run in CI/CD pipelines and will exit with code 1 if validation fails.
 """
 
@@ -68,7 +68,7 @@ def validate_tags(file_path):
 
 def main():
     # Default path relative to script location
-    default_path = Path(__file__).parent.parent / "IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowTag.m"
+    default_path = Path(__file__).parent.parent / "IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m"
     
     # Allow custom path as argument
     file_path = sys.argv[1] if len(sys.argv) > 1 else default_path

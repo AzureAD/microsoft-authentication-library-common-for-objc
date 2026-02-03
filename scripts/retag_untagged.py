@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to replace all "UNTAGGED" strings in MSIDExecutionFlowTag.m with unique 5-character tags.
+Script to replace all "UNTAGGED" strings in MSIDExecutionFlowConstants.m with unique 5-character tags.
 Tags use lowercase letters a-z and digits 1-9.
 """
 
@@ -101,7 +101,7 @@ def replace_untagged(file_path):
 
 def main():
     # Default path
-    default_path = Path(__file__).parent.parent / "IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowTag.m"
+    default_path = Path(__file__).parent.parent / "IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m"
     
     # Allow custom path as argument
     file_path = sys.argv[1] if len(sys.argv) > 1 else default_path
