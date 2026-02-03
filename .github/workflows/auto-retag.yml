@@ -32,7 +32,7 @@ jobs:
     - name: Check for UNTAGGED entries
       id: check
       run: |
-        if grep -q '"UNTAGGED"' IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowTag.m; then
+        if grep -q '"UNTAGGED"' IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m; then
           echo "has_untagged=true" >> $GITHUB_OUTPUT
           echo "Found UNTAGGED entries"
         else
