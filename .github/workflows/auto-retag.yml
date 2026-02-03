@@ -4,12 +4,13 @@ name: Auto-retag UNTAGGED entries
 # Trigger manually via workflow_dispatch or on push to specific branches
 
 on:
-  workflow_dispatch:  # Manual trigger from GitHub UI
+  pull_request:
+    branches:
+      - '*'
   push:
     branches:
       - dev
-    paths:
-      - 'IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowTag.m'
+      - main
 
 jobs:
   auto-retag:
