@@ -33,6 +33,7 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebInstallProfileResponse.h"
+#import "MSIDWebProfileInstallTriggerResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebviewFactory.h"
@@ -56,6 +57,7 @@
 #endif
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 @property (nonatomic) MSIDAuthorizeWebRequestConfiguration *webViewConfiguration;
+@property (nonatomic) NSObject<MSIDWebviewInteracting> *currentWebview;
 
 @end
 
@@ -141,6 +143,9 @@
         if (completionHandler) completionHandler(nil, error);
         return;
     }
+    
+    // Store reference to current webview
+    self.currentWebview = webView;
     
     [MSIDWebviewAuthorization startSessionWithWebView:webView
                                         oauth2Factory:self.oauthFactory
@@ -307,6 +312,11 @@
 
         returnErrorBlock(oauthResponse.oauthError);
         return;
+    }
+    else if ([response isKindOfClass:MSIDWebProfileInstallTriggerResponse.class])
+    {
+        // Profile install trigger - pass to controller for orchestration
+        completionBlock(nil, nil, (MSIDWebProfileInstallTriggerResponse *)response);
     }
     else if ([response isKindOfClass:MSIDWebInstallProfileResponse.class])
     {

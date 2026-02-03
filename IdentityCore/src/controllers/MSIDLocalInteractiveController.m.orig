@@ -43,9 +43,14 @@
 
 @interface MSIDLocalInteractiveController()
 
+@property (nonatomic) MSIDWebviewTransitionCoordinator *transitionCoordinator;
+
+@end
+
+@interface MSIDLocalInteractiveController()
+
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 @property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
-@property (nonatomic) MSIDWebviewTransitionCoordinator *transitionCoordinator;
 
 @end
 
@@ -243,118 +248,6 @@
     }
 }
 
-- (void)handleProfileInstallTrigger:(MSIDWebProfileInstallTriggerResponse *)triggerResponse 
-                         completion:(MSIDRequestCompletionBlock)completionBlock
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling profile install trigger (msauth://installProfile)");
-    
-    if (!triggerResponse.profileInstallURL)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Profile install trigger detected but no installation URL provided in headers");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
-                                        @"Profile installation URL not found in response headers", 
-                                        nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
-        completionBlock(nil, error);
-        return;
-    }
-    
-    NSURL *profileURL = [NSURL URLWithString:triggerResponse.profileInstallURL];
-    if (!profileURL)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Invalid profile installation URL");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
-                                        @"Invalid profile installation URL", 
-                                        nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
-        completionBlock(nil, error);
-        return;
-    }
-    
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, 
-                         @"Starting profile installation with URL: %@", MSID_PII_LOG_MASKABLE(profileURL));
-    
-    // Get the current embedded webview to suspend
-    MSIDOAuth2EmbeddedWebviewController *embeddedWebview = (MSIDOAuth2EmbeddedWebviewController *)self.currentRequest.currentWebview;
-    
-    if (!embeddedWebview)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Cannot suspend webview - no current webview found");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
-                                        @"No current webview found for suspension", 
-                                        nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
-        completionBlock(nil, error);
-        return;
-    }
-    
-    // Suspend the embedded webview (hide but keep alive)
-    [self.transitionCoordinator suspendEmbeddedWebview:embeddedWebview];
-    
-    // Launch ASWebAuthenticationSession for profile installation
-    [self.transitionCoordinator launchProfileInstallationSession:profileURL
-                                                parentController:self.interactiveRequestParamaters.parentViewController
-                                                  callbackScheme:@"msauth"
-                                               completionHandler:^(NSURL *callbackURL, NSError *sessionError) {
-        [self handleProfileInstallationCompletion:callbackURL 
-                                            error:sessionError 
-                                       completion:completionBlock];
-    }];
-}
-
-- (void)handleProfileInstallationCompletion:(NSURL *)callbackURL 
-                                      error:(NSError *)error
-                                 completion:(MSIDRequestCompletionBlock)completionBlock
-{
-    if (error)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, 
-                         @"Profile installation session failed: %@", error);
-        
-        // Clean up
-        [self.transitionCoordinator cleanup];
-        
-        // End the flow with error
-        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
-        completionBlock(nil, error);
-        return;
-    }
-    
-    // Check if callback is msauth://profileInstalled
-    if (callbackURL && 
-        [callbackURL.scheme caseInsensitiveCompare:@"msauth"] == NSOrderedSame &&
-        [callbackURL.host caseInsensitiveCompare:@"profileInstalled"] == NSOrderedSame)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, 
-                         @"Profile installation completed successfully (msauth://profileInstalled)");
-        
-        // Dismiss the ASWebAuthenticationSession
-        [self.transitionCoordinator dismissProfileInstallationSession];
-        
-        // Resume the suspended embedded webview
-        [self.transitionCoordinator resumeSuspendedEmbeddedWebview];
-        
-        // The webview will continue its flow naturally
-        // It's still alive and will process the next response from the server
-        // We don't call completionBlock here - the webview will complete when auth finishes
-    }
-    else
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, 
-                         @"Unexpected callback URL from profile installation: %@", callbackURL);
-        
-        // Clean up
-        [self.transitionCoordinator cleanup];
-        
-        // Create error for unexpected callback
-        NSError *callbackError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
-                                                @"Unexpected callback from profile installation", 
-                                                nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], callbackError);
-        completionBlock(nil, callbackError);
-    }
-}
-
 #if !EXCLUDE_FROM_MSALCPP
 - (MSIDTelemetryAPIEvent *)telemetryAPIEvent
 {
@@ -393,19 +286,10 @@
         {
             self.currentRequest = nil;
             
-            // Handle profile installation trigger - orchestrate the flow
-            if ([msauthResponse isKindOfClass:MSIDWebProfileInstallTriggerResponse.class])
-            {
-                [self handleProfileInstallTrigger:(MSIDWebProfileInstallTriggerResponse *)msauthResponse 
-                                       completion:completionBlock];
-                return;
-            }
-            
-            // Handle profile installation response - custom actions before continuing
+            // Handle profile installation response specifically
             if ([msauthResponse isKindOfClass:MSIDWebInstallProfileResponse.class])
             {
-                [self handleWebInstallProfileResponse:(MSIDWebInstallProfileResponse *)msauthResponse 
-                                           completion:completionBlock];
+                [self handleWebInstallProfileResponse:(MSIDWebInstallProfileResponse *)msauthResponse completion:completionBlock];
                 return;
             }
             

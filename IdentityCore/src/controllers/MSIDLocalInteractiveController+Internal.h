@@ -24,6 +24,7 @@
 #import "MSIDLocalInteractiveController.h"
 
 @class MSIDWebInstallProfileResponse;
+@class MSIDWebProfileInstallTriggerResponse;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,6 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleWebInstallProfileResponse:(MSIDWebInstallProfileResponse *)response
                              completion:(MSIDRequestCompletionBlock)completionBlock;
+
+- (void)handleProfileInstallTrigger:(MSIDWebProfileInstallTriggerResponse *)triggerResponse
+                         completion:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
 

@@ -32,14 +32,12 @@
 #import "MSIDWebAuthNUtil.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
-#import "MSIDWebviewTransitionCoordinator.h"
 #import "MSIDWebProfileInstallTriggerResponse.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
 @interface MSIDAADOAuthEmbeddedWebviewController()
 
-@property (nonatomic) MSIDWebviewTransitionCoordinator *transitionCoordinator;
 @property (nonatomic) NSHTTPURLResponse *lastHTTPResponse;
 
 @end
@@ -70,8 +68,6 @@
     
     if (self)
     {
-        _transitionCoordinator = [[MSIDWebviewTransitionCoordinator alloc] init];
-        
         // Set up navigation response block to capture HTTP responses
         __weak typeof(self) weakSelf = self;
         self.navigationResponseBlock = ^(NSHTTPURLResponse *response) {
@@ -101,13 +97,13 @@
     
     if (triggerResponse)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Profile install trigger detected (msauth://installProfile)");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Profile install trigger detected (msauth://installProfile) - returning to controller");
         
-        // Cancel this navigation
+        // Cancel this navigation and return the response to controller for handling
         decisionHandler(WKNavigationActionPolicyCancel);
         
-        // Handle profile installation flow
-        [self handleProfileInstallTrigger:triggerResponse];
+        // Complete with the trigger response URL so it flows back to the controller
+        [self completeWebAuthWithURL:requestURL];
         
         return YES;
     }
@@ -194,91 +190,6 @@
     }
 
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
-}
-
-#pragma mark - Profile Installation Flow
-
-- (void)handleProfileInstallTrigger:(MSIDWebProfileInstallTriggerResponse *)triggerResponse
-{
-    if (!triggerResponse.profileInstallURL)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Profile install trigger detected but no installation URL provided in headers");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Profile installation URL not found in response headers", nil, nil, nil, self.context.correlationId, nil, YES);
-        [self endWebAuthWithURL:nil error:error];
-        return;
-    }
-    
-    NSURL *profileURL = [NSURL URLWithString:triggerResponse.profileInstallURL];
-    if (!profileURL)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Invalid profile installation URL");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Invalid profile installation URL", nil, nil, nil, self.context.correlationId, nil, YES);
-        [self endWebAuthWithURL:nil error:error];
-        return;
-    }
-    
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Starting profile installation with URL: %@", MSID_PII_LOG_MASKABLE(profileURL));
-    
-    // Suspend this embedded webview (hide but keep alive)
-    [self.transitionCoordinator suspendEmbeddedWebview:self];
-    
-    // Launch ASWebAuthenticationSession for profile installation
-    __weak typeof(self) weakSelf = self;
-    [self.transitionCoordinator launchProfileInstallationSession:profileURL
-                                                parentController:self.parentController
-                                                  callbackScheme:@"msauth"
-                                               completionHandler:^(NSURL *callbackURL, NSError *error) {
-        __strong typeof(self) strongSelf = weakSelf;
-        if (!strongSelf)
-        {
-            return;
-        }
-        
-        [strongSelf handleProfileInstallationCompletion:callbackURL error:error];
-    }];
-}
-
-- (void)handleProfileInstallationCompletion:(NSURL *)callbackURL error:(NSError *)error
-{
-    if (error)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Profile installation session failed: %@", error);
-        
-        // Clean up
-        [self.transitionCoordinator cleanup];
-        
-        // End the auth flow with error
-        [self endWebAuthWithURL:nil error:error];
-        return;
-    }
-    
-    // Check if callback is msauth://profileInstalled
-    if (callbackURL && 
-        [callbackURL.scheme caseInsensitiveCompare:@"msauth"] == NSOrderedSame &&
-        [callbackURL.host caseInsensitiveCompare:@"profileInstalled"] == NSOrderedSame)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Profile installation completed successfully");
-        
-        // Dismiss the ASWebAuthenticationSession
-        [self.transitionCoordinator dismissProfileInstallationSession];
-        
-        // Resume the suspended embedded webview
-        [self.transitionCoordinator resumeSuspendedEmbeddedWebview];
-        
-        // The webview will continue its flow naturally
-        // It's still alive and will process the next response from the server
-    }
-    else
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Unexpected callback URL from profile installation: %@", callbackURL);
-        
-        // Clean up
-        [self.transitionCoordinator cleanup];
-        
-        // Create error for unexpected callback
-        NSError *callbackError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected callback from profile installation", nil, nil, nil, self.context.correlationId, nil, YES);
-        [self endWebAuthWithURL:nil error:callbackError];
-    }
 }
 
 @end
