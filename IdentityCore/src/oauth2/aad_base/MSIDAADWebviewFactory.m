@@ -26,6 +26,7 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDWebInstallProfileResponse.h"
 #import "MSIDWebAADAuthCodeResponse.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
@@ -218,6 +219,10 @@
     
 #endif
 
+    // Try to create a profile installed response
+    MSIDWebInstallProfileResponse *profileInstalledResponse = [[MSIDWebInstallProfileResponse alloc] initWithURL:url context:context error:nil];
+    if (profileInstalledResponse) return profileInstalledResponse;
+    
     // Try to create a upgrade registration response
     MSIDWebUpgradeRegResponse *upgradeRegResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url context:context error:nil];
     if (upgradeRegResponse) return upgradeRegResponse;

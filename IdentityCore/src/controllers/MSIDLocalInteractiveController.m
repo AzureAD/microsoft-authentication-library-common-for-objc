@@ -36,6 +36,7 @@
 #endif
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDWebInstallProfileResponse.h"
 #import "MSIDThrottlingService.h"
 
 @interface MSIDLocalInteractiveController()
@@ -191,6 +192,54 @@
 #endif
 }
 
+- (void)handleWebInstallProfileResponse:(MSIDWebInstallProfileResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling profile installed response.");
+    
+    // Check if profile installation was successful
+    if (response.status && [response.status isEqualToString:@"success"])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Profile installation completed successfully. Resuming authentication flow.");
+        
+        // TODO: Perform any custom actions needed by localInteractiveController before continuing
+        // This is where you can add custom logic such as:
+        // - Updating local state
+        // - Notifying delegates
+        // - Performing additional validation
+        // - etc.
+        
+        // After custom actions, restart the authentication request
+        MSIDInteractiveTokenRequest *request = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
+        [self acquireTokenWithRequest:request completionBlock:completionBlock];
+    }
+    else
+    {
+        // Profile installation failed or status is not success
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Profile installation failed with status: %@", response.status);
+        
+        NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
+        if (response.status)
+        {
+            additionalInfo[@"profile_install_status"] = response.status;
+        }
+        if (response.additionalInfo)
+        {
+            [additionalInfo addEntriesFromDictionary:response.additionalInfo];
+        }
+        
+        NSError *profileError = MSIDCreateError(MSIDErrorDomain,
+                                               MSIDErrorInternal,
+                                               @"Profile installation failed",
+                                               nil, nil, nil,
+                                               self.requestParameters.correlationId,
+                                               additionalInfo,
+                                               NO);
+        
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], profileError);
+        completionBlock(nil, profileError);
+    }
+}
+
 #if !EXCLUDE_FROM_MSALCPP
 - (MSIDTelemetryAPIEvent *)telemetryAPIEvent
 {
@@ -228,6 +277,14 @@
         if (msauthResponse)
         {
             self.currentRequest = nil;
+            
+            // Handle profile installation response specifically
+            if ([msauthResponse isKindOfClass:MSIDWebInstallProfileResponse.class])
+            {
+                [self handleWebInstallProfileResponse:(MSIDWebInstallProfileResponse *)msauthResponse completion:completionBlock];
+                return;
+            }
+            
             [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
             return;
         }

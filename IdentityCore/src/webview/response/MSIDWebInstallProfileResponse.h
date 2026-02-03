@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,25 +17,22 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDLocalInteractiveController.h"
-
-@class MSIDWebInstallProfileResponse;
+#import "MSIDWebviewResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLocalInteractiveController ()
+@interface MSIDWebInstallProfileResponse : MSIDWebviewResponse
 
-- (void)acquireTokenWithRequest:(MSIDInteractiveTokenRequest *)request
-                completionBlock:(MSIDRequestCompletionBlock)completionBlock;
-
-- (void)handleWebInstallProfileResponse:(MSIDWebInstallProfileResponse *)response
-                             completion:(MSIDRequestCompletionBlock)completionBlock;
+@property (atomic, readonly, nullable) NSString *status;
+@property (atomic, readonly, nullable) NSDictionary *additionalInfo;
 
 @end
 

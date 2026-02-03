@@ -32,6 +32,7 @@
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDWebInstallProfileResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebviewFactory.h"
@@ -306,6 +307,10 @@
 
         returnErrorBlock(oauthResponse.oauthError);
         return;
+    }
+    else if ([response isKindOfClass:MSIDWebInstallProfileResponse.class])
+    {
+        completionBlock(nil, nil, (MSIDWebInstallProfileResponse *)response);
     }
     else if ([response isKindOfClass:MSIDWebUpgradeRegResponse.class])
     {
