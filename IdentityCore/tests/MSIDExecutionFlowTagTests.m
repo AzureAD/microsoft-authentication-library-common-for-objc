@@ -81,18 +81,18 @@
 
 - (void)test_MSIDExecutionFlowNetworkTagToString_returnsExpectedStrings
 {
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowPrepareNetworkRequestTag), @"y96sa");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseFailedObjectTag), @"aezz8");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseSucceededObjectTag), @"ukhmg");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowReceiveNetworkResponseTag), @"a2sf4");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowRetryOnNetworkFailureTag), @"c57m9");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowParseNetworkResponseTag), @"79gq0");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowOtherHttpNetworkStatusCodeTag), @"575jo");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowPrepareNetworkRequestTag), @"iq24n");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseFailedObjectTag), @"twoty");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseSucceededObjectTag), @"n3416");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowReceiveNetworkResponseTag), @"xfx8w");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowRetryOnNetworkFailureTag), @"rz95n");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowParseNetworkResponseTag), @"fxjo7");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowOtherHttpNetworkStatusCodeTag), @"5kbvm");
 }
 
 - (void)test_MSIDTokenRequestTagToString_returnsExpectedStrings
 {
-    XCTAssertEqualObjects(MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag), @"1cd7n");
+    XCTAssertEqualObjects(MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag), @"riwx7");
 }
 
 - (void)test_MSIDExecutionFlowNetworkTagToString_unknownEnum_returnsFallback
