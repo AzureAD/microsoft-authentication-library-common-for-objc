@@ -30,7 +30,7 @@
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDMainThreadUtil.h"
 #import "MSIDExecutionFlowLogger.h"
-#import "MSIDExecutionFlowTag.h"
+#import "MSIDExecutionFlowConstants.h"
 
 @implementation MSIDAADRequestErrorHandler
 

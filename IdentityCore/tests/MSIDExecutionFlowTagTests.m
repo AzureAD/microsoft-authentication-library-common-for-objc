@@ -23,7 +23,7 @@
 // THE SOFTWARE.  
 
 #import <XCTest/XCTest.h>
-#import "MSIDExecutionFlowTag.h"
+#import "MSIDExecutionFlowConstants.h"
 
 @interface MSIDExecutionFlowTagTests : XCTestCase
 

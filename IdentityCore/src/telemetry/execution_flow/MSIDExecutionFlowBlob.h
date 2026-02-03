@@ -38,16 +38,37 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDExecutionFlowBlob : NSObject
 
+/**
+ Initializes an `MSIDExecutionFlowBlob` with the given tag, timestep, and thread identifier.
+ 
+ @param tag   A string tag name (5 alphanumeric characters or a meaningful, unique identifier).
+ @param ts    The timestep, in milliseconds, since this execution flow was created.
+ @param tid   The thread identifier on which this flow is recorded.
+ @return       A newly initialized `MSIDExecutionFlowBlob` instance, or `nil` if initialization fails.
+ */
 - (nullable instancetype)initWithTag:(NSString *)tag
                             timeStep:(NSNumber *)ts
                             threadId:(NSNumber *)tid;
 
-// Developer can set any extra key/value pair(s) apart from tag, ts and tid.
+/**
+ Stores the given object for the specified key in the execution flow blob.
+ 
+ Use this method to attach additional diagnostic information—such as error codes, iteration counts, or subclass references—to the execution flow. Stored values will be included when serializing the blob via `blobToStringWithKeys:`.
+ 
+ @param obj The object to store. Can be any value (e.g., NSNumber, NSString) to include in the blob.
+ @param key The key under which to store the object. Must be a non-empty string.
+ */
 - (void)setObject:(id)obj forKey:(NSString *)key;
 
-// Converts the blob to a JSON string representation, if query keys are not provided, return all fields
+/**
+ Serializes the current execution flow blob into a string, optionally filtering by a set of keys.
+ 
+ This method produces a loggable representation (e.g., JSON) of the core execution flow properties—tag, timestamp, and thread ID—along with any additional diagnostic entries added via `-setObject:forKey:`. If `queryKeys` is non-`nil`, only entries whose keys are contained in the set (plus the mandatory fields) will be included; if `queryKeys` is `nil` or empty, all stored entries are serialized.
+ 
+ @param queryKeys An optional set of keys to filter which blob entries to include. Pass `nil` to serialize all entries.
+ @return A string representation of the execution flow blob suitable for logging or telemetry, or an empty string if serialization fails.
+ */
 - (NSString *)blobToStringWithKeys:(nullable NSSet<NSString *>*)queryKeys;
-
 @end
 
 NS_ASSUME_NONNULL_END

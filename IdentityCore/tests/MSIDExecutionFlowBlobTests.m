@@ -412,7 +412,7 @@
     NSString *jsonString = [blob blobToStringWithKeys:nil];
     
     // Verify exact output format
-    NSString *expectedJSON = @"{\"t\":\"TestTag\",\"tid\":5678,\"ts\":1234}";
+    NSString *expectedJSON = @"{\"t\":\"TestTag\",\"ts\":1234,\"tid\":5678}";
     XCTAssertEqualObjects(jsonString, expectedJSON, @"JSON string should match expected format exactly");
     
     

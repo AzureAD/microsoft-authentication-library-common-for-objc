@@ -34,7 +34,7 @@
 #import "MSIDHttpRequestServerTelemetryHandling.h"
 #import "MSIDBrokerConstants.h"
 #import "MSIDExecutionFlowLogger.h"
-#import "MSIDExecutionFlowTag.h"
+#import "MSIDExecutionFlowConstants.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;

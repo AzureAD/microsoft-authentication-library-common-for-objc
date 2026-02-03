@@ -116,15 +116,18 @@
     __block NSMutableString *jsonArray = [NSMutableString stringWithString:@"["];
     
     dispatch_sync(self.executionFlowWritingQueue, ^{
-        for (NSUInteger i = 0; i < self.executionFlow.count; i++) {
+        for (NSUInteger i = 0; i < self.executionFlow.count; i++)
+        {
             MSIDExecutionFlowBlob *blob = self.executionFlow[i];
             NSString *blobJSON = [blob blobToStringWithKeys:queryKeys];
             
-            if (blobJSON) {
+            if (blobJSON)
+            {
                 [jsonArray appendString:blobJSON];
                 
                 // Add comma separator if not the last element
-                if (i < self.executionFlow.count - 1) {
+                if (i < self.executionFlow.count - 1)
+                {
                     [jsonArray appendString:@","];
                 }
             }

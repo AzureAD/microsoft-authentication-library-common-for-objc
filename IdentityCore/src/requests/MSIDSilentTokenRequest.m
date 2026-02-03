@@ -51,7 +51,7 @@
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDExecutionFlowLogger.h"
-#import "MSIDExecutionFlowTag.h"
+#import "MSIDExecutionFlowConstants.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"

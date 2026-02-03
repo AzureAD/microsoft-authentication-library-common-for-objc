@@ -26,6 +26,8 @@
 #import "MSIDExecutionFlowBlob.h"
 #import "MSIDCache.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDExecutionFlowConstants.h"
+#import "MSIDExecutionFlowUtils.h"
 
 @interface MSIDExecutionFlowBlob ()
 
@@ -48,9 +50,9 @@
     if (self)
     {
         _blob = [[MSIDCache alloc] initWithDictionary:@{
-            @"t": tag, // Activity or tag name
-            @"ts": ts, // Time spent since the operation/startDate was created
-            @"tid": tid, // Thread id
+            MSID_EXECUTION_FLOW_TAG: tag, // Activity or tag name
+            MSID_EXECUTION_FLOW_TIME_SPENT: ts, // Time spent since the operation/startDate was created
+            MSID_EXECUTION_FLOW_THREAD_ID: tid, // Thread id
         }];
     }
     
@@ -66,7 +68,7 @@
     }
 
     // Protect reserved keys
-    if ([@[@"t", @"ts", @"tid"] containsObject:key])
+    if ([@[MSID_EXECUTION_FLOW_TAG, MSID_EXECUTION_FLOW_TIME_SPENT, MSID_EXECUTION_FLOW_THREAD_ID] containsObject:key])
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Cannot override reserved keys: t, ts, tid", nil);
         return;
@@ -82,87 +84,10 @@
     }
 }
 
-// Escapes special characters in a string for safe JSON inclusion
-- (NSString *)escapeJSONString:(NSString *)string
-{
-    if (!string)
-    {
-        return @"";
-    }
-    
-    NSMutableString *escaped = [NSMutableString stringWithCapacity:string.length];
-    for (NSUInteger i = 0; i < string.length; i++)
-    {
-        unichar c = [string characterAtIndex:i];
-        switch (c)
-        {
-            case '\\':
-                [escaped appendString:@"\\\\"];
-                break;
-            case '"':
-                [escaped appendString:@"\\\""];
-                break;
-            case '\n':
-                [escaped appendString:@"\\n"];
-                break;
-            case '\r':
-                [escaped appendString:@"\\r"];
-                break;
-            case '\t':
-                [escaped appendString:@"\\t"];
-                break;
-            case '\b':
-                [escaped appendString:@"\\b"];
-                break;
-            case '\f':
-                [escaped appendString:@"\\f"];
-                break;
-            default:
-                if (c < 0x20)
-                {
-                    // Escape other control characters as \u00XX
-                    [escaped appendFormat:@"\\u%04x", c];
-                }
-                else
-                {
-                    [escaped appendFormat:@"%C", c];
-                }
-                break;
-        }
-    }
-    return escaped;
-}
-
 - (NSString *)blobToStringWithKeys:(NSSet<NSString *>*)queryKeys
 {
-    NSDictionary *dict = self.blob.toDictionary;
-    NSMutableString *result = [NSMutableString stringWithString:@"{"];
-    
-    // Always include required fields in specific order: t, tid, ts
-    [result appendFormat:@"\"t\":\"%@\",\"tid\":%@,\"ts\":%@", [self escapeJSONString:dict[@"t"]], dict[@"tid"], dict[@"ts"]];
-    
-    // Add all other fields
-    NSSet *reservedKeys = [NSSet setWithArray:@[@"t", @"tid", @"ts"]];
-    for (NSString *key in dict)
-    {
-        if ([reservedKeys containsObject:key] || (![queryKeys containsObject:key] && queryKeys.count != 0))
-        {
-            continue;
-        }
-        
-        id value = dict[key];
-        if ([value isKindOfClass:NSString.class])
-        {
-            [result appendFormat:@",\"%@\":\"%@\"", [self escapeJSONString:key], [self escapeJSONString:value]];
-        }
-        else if ([value isKindOfClass:NSNumber.class])
-        {
-            [result appendFormat:@",\"%@\":%@", [self escapeJSONString:key], value];
-        }
-    }
-    
-    [result appendString:@"}"];
-    
+    NSString *result = [[MSIDExecutionFlowUtils sharedInstance] convertDictionary:self.blob.toDictionary
+                                                             toJsonStringWithKeys:queryKeys];
     return result;
 }
 

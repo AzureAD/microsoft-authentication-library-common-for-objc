@@ -18,46 +18,29 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// LIABILITY, WHETHER IN AN ACTION, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #import <Foundation/Foundation.h>
+
 @class MSIDExecutionFlowBlob;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDExecutionFlow : NSObject
+@interface MSIDExecutionFlowUtils : NSObject
+
+/// Returns the singleton execution‑flow utility instance.
++ (instancetype)sharedInstance;
 
 /**
- Inserts a diagnostic tag into the execution flow log.
- 
- @param tag
- A non‐null string that identifies the event or milestone being recorded.
- @param triggeringTime
- The timestamp at which the tag event occurred.
- @param tid
- The numeric identifier of the thread on which the event was triggered.
- @param info
- An optional dictionary of additional context or metadata for the event; may be nil.
- */
-- (void)insertTag:(NSString *)tag
-   triggeringTime:(NSDate *)triggeringTime
-         threadId:(NSNumber *)tid
-        extraInfo:(nullable NSDictionary *)info;
+ Convert a blob dictionary into a JSON string, always including required fields (t, ts, tid) in that order and optionally filtering by a set of additional keys.
 
-/**
- Exports the recorded execution flow entries as JSON strings, optionally filtered by a set of keys.
- 
- @param queryKeys
- An optional NSSet of NSString keys used to select which portions of the execution flow
- to include in the output. Pass `nil` to export all recorded entries.
- @return
- A JSON-formatted NSString containing the filtered execution flow data, or `nil` if
- there is no data to export.
+ @param queryKeys The set of field names to include in the JSON output in addition to the required fields. If nil or empty, all available fields are output.
+ @return A JSON-formatted string representing the blob.
  */
-- (nullable NSString *)exportExecutionFlowToJSONsWithKeys:(nullable NSSet<NSString *> *)queryKeys;
+- (NSString *)convertDictionary:(NSDictionary *)dictionary
+           toJsonStringWithKeys:(NSSet<NSString *> *)queryKeys;
 
 @end
 

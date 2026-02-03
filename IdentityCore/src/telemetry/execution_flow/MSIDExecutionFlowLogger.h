@@ -22,7 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #import <Foundation/Foundation.h>
 
 @class MSIDExecutionFlow;
@@ -32,31 +31,42 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDExecutionFlowLogger : NSObject
 
 /*!
-    Get a singleton instance of MSIDExecutionFlowLogger.
+ Returns the shared singleton instance of MSIDExecutionFlowLogger.
+
+ @return A singleton MSIDExecutionFlowLogger for registering and tracking execution flows.
  */
 + (nonnull MSIDExecutionFlowLogger *)sharedInstance;
 
 /*!
-    Register new execution flow as the first step at the beginning of the code; otherwise the execution logger does not track events for this correlation ID.
+ Begins tracking a new execution flow under the specified correlation identifier.
+
+ @param correlationId The unique identifier for the execution flow to register.
  */
 - (void)registerExecutionFlowWithCorrelationId:(NSUUID *)correlationId;
 
 /*!
-    Insert the tag and extra information at the current execution point, correlationId is required as the key entrance
+ Inserts a tag into the execution flow identified by the given correlation identifier, optionally attaching extra information.
+
+ @param tag The tag string to insert into the execution flow.
+ @param info An optional dictionary containing additional context or metadata to associate with the tag.
+ @param correlationId The unique identifier of the execution flow into which the tag should be inserted.
  */
 - (void)insertTag:(NSString *)tag
         extraInfo:(nullable NSDictionary *)info
 withCorrelationId:(NSUUID *)correlationId;
 
 /*!
-    Retrieve the full execution flow in json string format by using the correlationId and queryKeys
+ Retrieves the formatted execution flow for the specified correlation identifier, optionally filtering by a set of query keys, and then clears it from the logger.
+
+ @param correlationId The unique identifier of the execution flow to retrieve and flush.
+ @param queryKeys  An optional set of keys to filter which tags or entries are included in the returned flow. If nil, all entries are returned.
+ @return A string representation of the execution flow matching the query keys, or nil if no flow exists for the given identifier.
  */
 - (nullable NSString *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
                                                             queryKeys:(nullable NSSet<NSString *> *)queryKeys;
 
-
 /*!
-    Remove every flow from the execution logger
+ Flushes all registered execution flows, clearing any buffered tags and resetting internal state.
  */
 - (void)flush;
 
