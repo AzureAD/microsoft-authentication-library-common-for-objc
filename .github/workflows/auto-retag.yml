@@ -41,17 +41,25 @@ jobs:
         fi
     
     - name: Run retag script
+      id: retag
       if: steps.check.outputs.has_untagged == 'true'
+      continue-on-error: true
       run: python scripts/retag_untagged.py
     
     - name: Commit and push changes
-      if: steps.check.outputs.has_untagged == 'true'
+      if: steps.check.outputs.has_untagged == 'true' && steps.retag.outcome == 'success'
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowTag.m
         git commit -m "Auto-retag UNTAGGED execution flow tags"
-        git push
+        git Retag script failed
+      if: steps.check.outputs.has_untagged == 'true' && steps.retag.outcome == 'failure'
+      run: |
+        echo "::error::Retag script failed. Please run locally to debug: python scripts/retag_untagged.py"
+        exit 1
+    
+    - name: push
       
     - name: No changes needed
       if: steps.check.outputs.has_untagged == 'false'
