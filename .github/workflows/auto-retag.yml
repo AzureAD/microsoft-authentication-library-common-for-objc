@@ -1,0 +1,52 @@
+name: Auto-retag UNTAGGED entries
+
+# This workflow automatically fixes UNTAGGED entries and commits the changes
+# Trigger manually via workflow_dispatch or on push to specific branches
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches:
+      - '**'  # All branches
+
+permissions:
+  contents: write
+
+jobs:
+  auto-retag:
+    name: Automatically retag UNTAGGED entries
+    runs-on: ubuntu-latest
+    
+    # Only run if there are UNTAGGED entries
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: ${{ github.head_ref || github.ref }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    
+    - name: Run retag script
+      run: python scripts/retag_untagged.py
+    
+    - name: Commit and push changes
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m
+        git commit -m "Auto-retag UNTAGGED execution flow tags"
+        git push
+    
+    - name: Retag script failed
+      if: steps.check.outputs.has_untagged == 'true' && steps.retag.outcome == 'failure'
+      run: |
+        echo "::error::Retag script failed. Please run locally to debug: python scripts/retag_untagged.py"
+        exit 1
+    
+    - name: No changes needed
+      if: steps.check.outputs.has_untagged == 'false'
+      run: echo "All tags are already assigned. No action needed."
