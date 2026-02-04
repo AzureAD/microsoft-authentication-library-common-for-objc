@@ -63,7 +63,7 @@
 {
     if ([NSString msidIsStringNilOrBlank:key])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Key cannot be nil", nil);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Key cannot be nil or blank", nil);
         return;
     }
 

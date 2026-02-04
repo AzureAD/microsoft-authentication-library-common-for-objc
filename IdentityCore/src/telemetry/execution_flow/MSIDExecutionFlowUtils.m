@@ -25,6 +25,7 @@
 #import "MSIDExecutionFlowUtils.h"
 #import "MSIDExecutionFlowBlob.h"
 #import "MSIDExecutionFlowConstants.h"
+#import "MSIDJsonSerializer.h"
 
 @implementation MSIDExecutionFlowUtils
 
@@ -41,85 +42,28 @@
 - (NSString *)convertDictionary:(NSDictionary *)dictionary
            toJsonStringWithKeys:(NSSet<NSString *> *)queryKeys
 {
-    NSMutableString *result = [NSMutableString stringWithString:@"{"];
+    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
     
-    // Always include required fields in specific order: t, tid, ts
-    [result appendFormat:@"\"t\":\"%@\",\"ts\":%@,\"tid\":%@", [self escapeJSONString:dictionary[MSID_EXECUTION_FLOW_TAG]], dictionary[MSID_EXECUTION_FLOW_TIME_SPENT], dictionary[MSID_EXECUTION_FLOW_THREAD_ID]];
-    
-    // Add all other fields
-    NSSet *reservedKeys = [NSSet setWithArray:@[MSID_EXECUTION_FLOW_TAG, MSID_EXECUTION_FLOW_TIME_SPENT, MSID_EXECUTION_FLOW_THREAD_ID]];
-    for (NSString *key in dictionary)
+    if ([queryKeys count] == 0)
     {
-        if ([reservedKeys containsObject:key] || (![queryKeys containsObject:key] && queryKeys.count != 0))
+        return [serializer serializeToJsonString:dictionary error:nil];
+        
+    }
+    else
+    {
+        NSSet *reservedKeys = [NSSet setWithArray:@[MSID_EXECUTION_FLOW_TAG, MSID_EXECUTION_FLOW_TIME_SPENT, MSID_EXECUTION_FLOW_THREAD_ID]];
+        NSMutableDictionary *resultDict = [NSMutableDictionary new];
+        for (NSString *key in dictionary)
         {
-            continue;
+            if ([reservedKeys containsObject:key] || [queryKeys containsObject:key])
+            {
+                id value = dictionary[key];
+                resultDict[key] = value;
+            }
         }
         
-        id value = dictionary[key];
-        if ([value isKindOfClass:NSString.class])
-        {
-            [result appendFormat:@",\"%@\":\"%@\"", [self escapeJSONString:key], [self escapeJSONString:value]];
-        }
-        else if ([value isKindOfClass:NSNumber.class])
-        {
-            [result appendFormat:@",\"%@\":%@", [self escapeJSONString:key], value];
-        }
+        return [serializer serializeToJsonString:resultDict error:nil];
     }
-    
-    [result appendString:@"}"];
-    
-    return result;
-}
-
-// Escapes special characters in a string for safe JSON inclusion
-- (NSString *)escapeJSONString:(NSString *)string
-{
-    if (!string)
-    {
-        return @"";
-    }
-    
-    NSMutableString *escaped = [NSMutableString stringWithCapacity:string.length];
-    for (NSUInteger i = 0; i < string.length; i++)
-    {
-        unichar c = [string characterAtIndex:i];
-        switch (c)
-        {
-            case '\\':
-                [escaped appendString:@"\\\\"];
-                break;
-            case '"':
-                [escaped appendString:@"\\\""];
-                break;
-            case '\n':
-                [escaped appendString:@"\\n"];
-                break;
-            case '\r':
-                [escaped appendString:@"\\r"];
-                break;
-            case '\t':
-                [escaped appendString:@"\\t"];
-                break;
-            case '\b':
-                [escaped appendString:@"\\b"];
-                break;
-            case '\f':
-                [escaped appendString:@"\\f"];
-                break;
-            default:
-                if (c < 0x20)
-                {
-                    // Escape other control characters as \u00XX
-                    [escaped appendFormat:@"\\u%04x", c];
-                }
-                else
-                {
-                    [escaped appendFormat:@"%C", c];
-                }
-                break;
-        }
-    }
-    return escaped;
 }
 
 @end
