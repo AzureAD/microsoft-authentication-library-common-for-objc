@@ -37,11 +37,16 @@
  This ensures all tags remain distinct while streamlining the tagging process.
  */
 
+// Required
 extern NSString * _Nonnull const MSID_EXECUTION_FLOW_TAG;
 extern NSString * _Nonnull const MSID_EXECUTION_FLOW_TIME_SPENT;
 extern NSString * _Nonnull const MSID_EXECUTION_FLOW_THREAD_ID;
 
-/// A enum of MSIDExecutionFlowNetworkTag.
+// Optional
+extern NSString * _Nonnull const MSID_EXECUTION_FLOW_DIAGNOSTIC_ID;
+extern NSString * _Nonnull const MSID_EXECUTION_FLOW_ERROR_CODE;
+
+/// A enum of MSIDExecutionFlowNetworkT@"e"ag.
 typedef NS_ENUM(NSInteger, MSIDExecutionFlowNetworkTag)
 {
     MSIDExecutionFlowPrepareNetworkRequestTag = 0,

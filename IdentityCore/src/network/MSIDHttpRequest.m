@@ -146,7 +146,7 @@ static NSDictionary *s_experimentBag = nil;
         void (^completeBlockWrapper)(id, NSError *) = ^(id wrapperResponse, NSError *wrapperError)
         {
             [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowParseNetworkResponseTag]
-                                                      extraInfo:wrapperError ? @{@"e":@(wrapperError.code)} : nil
+                                                      extraInfo:wrapperError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(wrapperError.code)} : nil
                                               withCorrelationId:self.context.correlationId];
             [self.serverTelemetry handleError:wrapperError context:self.context];
 
@@ -189,7 +189,7 @@ static NSDictionary *s_experimentBag = nil;
           {
               
               [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowOtherHttpNetworkStatusCodeTag]
-                                                        extraInfo:@{@"d":@(httpResponse.statusCode)}
+                                                        extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(httpResponse.statusCode)}
                                                 withCorrelationId:self.context.correlationId];
               if (self.errorHandler)
               {

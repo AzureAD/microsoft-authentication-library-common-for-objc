@@ -30,6 +30,10 @@ NSString *const MSID_EXECUTION_FLOW_TIME_SPENT  = @"ts";
 
 NSString *const MSID_EXECUTION_FLOW_THREAD_ID  = @"tid";
 
+NSString *const MSID_EXECUTION_FLOW_DIAGNOSTIC_ID  = @"d";
+
+NSString *const MSID_EXECUTION_FLOW_ERROR_CODE  = @"e";
+
 
 NSString *MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowNetworkTag state)
 {

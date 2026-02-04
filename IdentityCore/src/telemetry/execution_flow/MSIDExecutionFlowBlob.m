@@ -61,7 +61,7 @@
 
 - (void)setObject:(id)obj forKey:(NSString *)key
 {
-    if (!key)
+    if ([NSString msidIsStringNilOrBlank:key])
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Key cannot be nil", nil);
         return;

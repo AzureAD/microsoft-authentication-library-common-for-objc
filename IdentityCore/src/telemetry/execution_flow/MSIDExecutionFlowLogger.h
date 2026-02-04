@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return A singleton MSIDExecutionFlowLogger for registering and tracking execution flows.
  */
-+ (nonnull MSIDExecutionFlowLogger *)sharedInstance;
++ (MSIDExecutionFlowLogger *)sharedInstance;
 
 /*!
  Begins tracking a new execution flow under the specified correlation identifier.
