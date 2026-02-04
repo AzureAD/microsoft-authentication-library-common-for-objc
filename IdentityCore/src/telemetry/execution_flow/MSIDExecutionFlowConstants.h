@@ -24,22 +24,22 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString * _Nonnull const MSID_EXECUTION_FLOW_TAG;
-
-extern NSString * _Nonnull const MSID_EXECUTION_FLOW_TIME_SPENT;
-
-extern NSString * _Nonnull const MSID_EXECUTION_FLOW_THREAD_ID;
-
 /**
  Each enum tag must be unique within the codebase—you cannot reuse the same tag in different locations,
- although different execution‑flow blobs may share a tag in the final flow.
+ although different execution‑flow blobs may share a tsame ag in the final flow.
 
- To assign a tag, simply use the placeholder "UNTAGGED" and run the retagging script from the project root:
+ To generate a new tag, follow these steps:
+   1. Add a meaningful enum and Insert the corresponding string placeholder "UNTAGGED" in MSIDExecutionFlowConstants.m where you need the new tag.
+   2. Commit and push your changes to GitHub.
+   3. A GitHub Action will automatically replace every "UNTAGGED" placeholder
+      with a unique, valid 5‑character tag and create a follow-up commit.
 
-     python3 retag_untagged.py
-
- This script will replace every "UNTAGGED" placeholder with a valid, unique 5‑character tag.
+ This ensures all tags remain distinct while streamlining the tagging process.
  */
+
+extern NSString * _Nonnull const MSID_EXECUTION_FLOW_TAG;
+extern NSString * _Nonnull const MSID_EXECUTION_FLOW_TIME_SPENT;
+extern NSString * _Nonnull const MSID_EXECUTION_FLOW_THREAD_ID;
 
 /// A enum of MSIDExecutionFlowNetworkTag.
 typedef NS_ENUM(NSInteger, MSIDExecutionFlowNetworkTag)
