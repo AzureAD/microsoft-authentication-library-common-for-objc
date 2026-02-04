@@ -33,7 +33,19 @@ jobs:
     - name: Run retag script
       run: python scripts/retag_untagged.py
     
+    - name: Check if file was modified
+      id: check_changes
+      run: |
+        if git diff --quiet IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No changes made - file already has all tags assigned"
+        else
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "Changes detected - UNTAGGED entries were replaced"
+        fi
+    
     - name: Commit and push changes
+      if: steps.check_changes.outputs.has_changes == 'true'
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -41,12 +53,6 @@ jobs:
         git commit -m "Auto-retag UNTAGGED execution flow tags"
         git push
     
-    - name: Retag script failed
-      if: steps.check.outputs.has_untagged == 'true' && steps.retag.outcome == 'failure'
-      run: |
-        echo "::error::Retag script failed. Please run locally to debug: python scripts/retag_untagged.py"
-        exit 1
-    
     - name: No changes needed
-      if: steps.check.outputs.has_untagged == 'false'
-      run: echo "All tags are already assigned. No action needed."
+      if: steps.check_changes.outputs.has_changes == 'false'
+      run: echo "✓ All tags are already assigned. No action needed."
