@@ -78,6 +78,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Dismisses the ASWebAuthenticationSession if active
+ * NOTE: Only call this if the session needs to be canceled (error, timeout, user cancellation).
+ * If the session has already completed successfully (completion handler fired with callback URL),
+ * the session has already cleaned itself up - just set externalSessionHandler = nil instead.
  */
 - (void)dismissExternalSession;
 

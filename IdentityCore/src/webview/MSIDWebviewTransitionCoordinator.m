@@ -159,9 +159,11 @@
 {
     if (self.externalSessionHandler)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Dismissing external session");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Dismissing external session (canceling active session)");
         
-        // Dismiss the ASWebAuthenticationSession
+        // Cancel the ASWebAuthenticationSession
+        // NOTE: Only call this if the session is still active and needs to be canceled
+        // If the session has already completed (completion handler fired), it has cleaned itself up
         [self.externalSessionHandler dismiss];
         self.externalSessionHandler = nil;
     }
@@ -173,8 +175,11 @@
     
     self.suspendedEmbeddedWebview = nil;
     
+    // Dismiss external session if still active (e.g., on error or cancellation)
+    // If the session completed successfully, it should already be nil
     if (self.externalSessionHandler)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"[MSIDWebviewTransitionCoordinator] Dismissing active external session during cleanup");
         [self.externalSessionHandler dismiss];
         self.externalSessionHandler = nil;
     }

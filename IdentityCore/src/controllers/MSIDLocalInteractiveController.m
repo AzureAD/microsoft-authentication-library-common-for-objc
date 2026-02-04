@@ -341,8 +341,10 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, 
                          @"Profile installation completed successfully (msauth://profileInstalled)");
         
-        // Dismiss the ASWebAuthenticationSession
-        [self.transitionCoordinator dismissExternalSession];
+        // ASWebAuthenticationSession has already completed successfully
+        // Its completion handler has fired, and the session has cleaned itself up
+        // We should NOT call dismiss (which would try to cancel it) - just release our reference
+        self.transitionCoordinator.externalSessionHandler = nil;
         
         // Resume the suspended embedded webview
         [self.transitionCoordinator resumeSuspendedEmbeddedWebview];
@@ -356,7 +358,7 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, 
                          @"Unexpected callback URL from profile installation: %@", callbackURL);
         
-        // Clean up
+        // Clean up - this will dismiss the session if still active
         [self.transitionCoordinator cleanup];
         
         // Create error for unexpected callback
