@@ -77,6 +77,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)resumeSuspendedEmbeddedWebview;
 
 /**
+ * Dismisses the suspended embedded webview (cancels and releases it)
+ * Use this when you need to completely abandon the embedded webview and switch to a different flow
+ */
+- (void)dismissSuspendedEmbeddedWebview;
+
+/**
  * Dismisses the ASWebAuthenticationSession if active
  * NOTE: Only call this if the session needs to be canceled (error, timeout, user cancellation).
  * If the session has already completed successfully (completion handler fired with callback URL),

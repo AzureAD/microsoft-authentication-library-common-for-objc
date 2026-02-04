@@ -341,24 +341,51 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, 
                          @"Profile installation completed successfully (msauth://profileInstalled)");
         
-        // ASWebAuthenticationSession has already completed successfully
-        // Its completion handler has fired, and the session has cleaned itself up
-        // We should NOT call dismiss (which would try to cancel it) - just release our reference
+        // ASWebAuthenticationSession has already completed and cleaned itself up
+        // Just release our reference (don't call dismiss on completed session)
         self.transitionCoordinator.externalSessionHandler = nil;
         
-        // Resume the suspended embedded webview
-        [self.transitionCoordinator resumeSuspendedEmbeddedWebview];
+        // Dismiss the suspended embedded webview (we're switching to broker context)
+        [self.transitionCoordinator dismissSuspendedEmbeddedWebview];
         
-        // The webview will continue its flow naturally
-        // It's still alive and will process the next response from the server
-        // We don't call completionBlock here - the webview will complete when auth finishes
+        // After profile installation, switch to broker context
+        // The SSO extension will handle the authentication request in its own webview
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, 
+                         @"Switching to broker context after profile installation");
+        
+#if TARGET_OS_IPHONE
+        NSError *brokerError = nil;
+        MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:self.interactiveRequestParamaters
+                                                                                                                     tokenRequestProvider:self.tokenRequestProvider
+                                                                                                                        brokerInstallLink:nil
+                                                                                                                                    error:&brokerError];
+        
+        if (!brokerController)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, 
+                             @"Failed to create broker controller after profile installation: %@", brokerError);
+            CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], brokerError);
+            completionBlock(nil, brokerError);
+            return;
+        }
+        
+        // Broker will invoke SSO extension which handles the request in its own webview
+        // Response will be sent back to calling app through the broker completion handler
+        [brokerController acquireToken:completionBlock];
+#else
+        NSError *platformError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
+                                                @"Broker authentication not supported on this platform", 
+                                                nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], platformError);
+        completionBlock(nil, platformError);
+#endif
     }
     else
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, 
                          @"Unexpected callback URL from profile installation: %@", callbackURL);
         
-        // Clean up - this will dismiss the session if still active
+        // Clean up - this will dismiss both webviews
         [self.transitionCoordinator cleanup];
         
         // Create error for unexpected callback

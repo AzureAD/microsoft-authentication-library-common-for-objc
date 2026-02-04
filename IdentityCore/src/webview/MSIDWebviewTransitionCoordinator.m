@@ -155,6 +155,23 @@
     // We don't need to manually trigger anything as it's been kept alive
 }
 
+- (void)dismissSuspendedEmbeddedWebview
+{
+    if (!self.suspendedEmbeddedWebview)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[MSIDWebviewTransitionCoordinator] No suspended webview to dismiss");
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Dismissing suspended embedded webview");
+    
+    // Cancel the suspended webview to properly clean it up
+    [self.suspendedEmbeddedWebview cancelProgrammatically];
+    
+    // Release the reference
+    self.suspendedEmbeddedWebview = nil;
+}
+
 - (void)dismissExternalSession
 {
     if (self.externalSessionHandler)
@@ -173,7 +190,12 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionCoordinator] Cleaning up coordinator state");
     
-    self.suspendedEmbeddedWebview = nil;
+    // Dismiss suspended webview if exists
+    if (self.suspendedEmbeddedWebview)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"[MSIDWebviewTransitionCoordinator] Dismissing suspended webview during cleanup");
+        [self dismissSuspendedEmbeddedWebview];
+    }
     
     // Dismiss external session if still active (e.g., on error or cancellation)
     // If the session completed successfully, it should already be nil
