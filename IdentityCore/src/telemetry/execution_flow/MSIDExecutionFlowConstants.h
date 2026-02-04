@@ -49,6 +49,7 @@ typedef NS_ENUM(NSInteger, MSIDExecutionFlowNetworkTag)
     MSIDExecutionFlowCacheResponseSucceededObjectTag,
     MSIDExecutionFlowReceiveNetworkResponseTag,
     MSIDExecutionFlowRetryOnNetworkFailureTag,
+    MSIDExecutionFlowStartToRetryOnNetworkFailureTag,
     MSIDExecutionFlowParseNetworkResponseTag,
     MSIDExecutionFlowOtherHttpNetworkStatusCodeTag,
 };

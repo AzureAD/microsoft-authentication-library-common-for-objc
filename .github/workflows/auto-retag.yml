@@ -8,6 +8,8 @@ on:
   push:
     branches:
       - '**'  # All branches
+    paths:
+      - 'IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m'
 
 permissions:
   contents: write
