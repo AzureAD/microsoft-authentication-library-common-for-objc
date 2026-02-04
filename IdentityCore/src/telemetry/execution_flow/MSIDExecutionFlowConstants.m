@@ -46,7 +46,7 @@ NSString *MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowNetworkTag state)
         case MSIDExecutionFlowRetryOnNetworkFailureTag:
             return @"rz95n";
         case MSIDExecutionFlowStartToRetryOnNetworkFailureTag:
-            return @"UNTAGGED";
+            return @"6f7qc";
         case MSIDExecutionFlowParseNetworkResponseTag:
             return @"fxjo7";
         case MSIDExecutionFlowOtherHttpNetworkStatusCodeTag:
