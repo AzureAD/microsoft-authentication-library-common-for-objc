@@ -108,6 +108,8 @@
         _shouldExpirePRT = [json[@"should_expire_prt"] boolValue];
         _isSsoSeedingCompleted = [json[@"is_sso_seeding_completed"] boolValue];
         _shouldOnlyDeleteSeedingPrt = [json[@"should_only_delete_seeding_prt"] boolValue];
+        _requestBoundAppRefreshToken = [json[@"request_bound_app_refresh_token"] boolValue];
+        _mockFlightParameters = [[MSIDAutomationMockFlightActionParameters alloc] initWithJSONDictionary:json error:nil];
     }
 
     return self;
@@ -191,7 +193,12 @@
     json[@"should_expire_prt"] = @(_shouldExpirePRT);
     json[@"is_sso_seeding_completed"] = @(_isSsoSeedingCompleted);
     json[@"should_only_delete_seeding_prt"] = @(_shouldOnlyDeleteSeedingPrt);
-    
+    json[@"request_bound_app_refresh_token"] = @(_requestBoundAppRefreshToken);
+    NSDictionary *mockFlightDictionaryParams = [_mockFlightParameters jsonDictionary];
+    if (mockFlightDictionaryParams)
+    {
+        [json addEntriesFromDictionary:mockFlightDictionaryParams];
+    }
     return json;
 }
 

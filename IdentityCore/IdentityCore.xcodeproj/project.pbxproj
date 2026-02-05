@@ -798,6 +798,18 @@
 		72978AF02E4C2A4C00DEA46D /* MSIDBoundRefreshTokenRedemptionParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 72978AEF2E4C2A1E00DEA46D /* MSIDBoundRefreshTokenRedemptionParameters.h */; };
 		72978AF22E4C2C3500DEA46D /* MSIDBoundRefreshTokenRedemptionParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 72978AF12E4C2C3300DEA46D /* MSIDBoundRefreshTokenRedemptionParameters.m */; };
 		72978AF32E4C2C3500DEA46D /* MSIDBoundRefreshTokenRedemptionParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 72978AF12E4C2C3300DEA46D /* MSIDBoundRefreshTokenRedemptionParameters.m */; };
+		72B2B3D92EF4E21E004CA124 /* MSIDAutomationReturnedTokensResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 72B2B3D82EF4E1F9004CA124 /* MSIDAutomationReturnedTokensResult.h */; };
+		72B2B3DA2EF4E21E004CA124 /* MSIDAutomationReturnedTokensResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 72B2B3D82EF4E1F9004CA124 /* MSIDAutomationReturnedTokensResult.h */; };
+		72B2B3DC2EF4E226004CA124 /* MSIDAutomationReturnedTokensResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B2B3DB2EF4E224004CA124 /* MSIDAutomationReturnedTokensResult.m */; };
+		72B2B3DD2EF4E226004CA124 /* MSIDAutomationReturnedTokensResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B2B3DB2EF4E224004CA124 /* MSIDAutomationReturnedTokensResult.m */; };
+		72B2B3DE2EF4E226004CA124 /* MSIDAutomationReturnedTokensResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B2B3DB2EF4E224004CA124 /* MSIDAutomationReturnedTokensResult.m */; };
+		72B2B3DF2EF4E226004CA124 /* MSIDAutomationReturnedTokensResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B2B3DB2EF4E224004CA124 /* MSIDAutomationReturnedTokensResult.m */; };
+		72B2B4332EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B2B4322EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m */; };
+		72B2B4342EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B2B4322EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m */; };
+		72B2B4352EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 72B2B4312EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.h */; };
+		72B2B4362EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B2B4322EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m */; };
+		72B2B4372EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B2B4322EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m */; };
+		72B2B4382EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 72B2B4312EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.h */; };
 		72C1EBF52DE91AC8004C40A4 /* MSIDBoundRefreshToken.h in Headers */ = {isa = PBXBuildFile; fileRef = 72C1EBF42DE91ABE004C40A4 /* MSIDBoundRefreshToken.h */; };
 		72C1EBF72DE91AD0004C40A4 /* MSIDBoundRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 72C1EBF62DE91ACC004C40A4 /* MSIDBoundRefreshToken.m */; };
 		72C1EBF82DE91AD0004C40A4 /* MSIDBoundRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = 72C1EBF62DE91ACC004C40A4 /* MSIDBoundRefreshToken.m */; };
@@ -2745,6 +2757,10 @@
 		72978AEC2E4C248500DEA46D /* MSIDBoundRefreshToken+Redemption.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDBoundRefreshToken+Redemption.m"; sourceTree = "<group>"; };
 		72978AEF2E4C2A1E00DEA46D /* MSIDBoundRefreshTokenRedemptionParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBoundRefreshTokenRedemptionParameters.h; sourceTree = "<group>"; };
 		72978AF12E4C2C3300DEA46D /* MSIDBoundRefreshTokenRedemptionParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshTokenRedemptionParameters.m; sourceTree = "<group>"; };
+		72B2B3D82EF4E1F9004CA124 /* MSIDAutomationReturnedTokensResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationReturnedTokensResult.h; sourceTree = "<group>"; };
+		72B2B3DB2EF4E224004CA124 /* MSIDAutomationReturnedTokensResult.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationReturnedTokensResult.m; sourceTree = "<group>"; };
+		72B2B4312EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationMockFlightActionParameters.h; sourceTree = "<group>"; };
+		72B2B4322EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationMockFlightActionParameters.m; sourceTree = "<group>"; };
 		72C1EBF42DE91ABE004C40A4 /* MSIDBoundRefreshToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBoundRefreshToken.h; sourceTree = "<group>"; };
 		72C1EBF62DE91ACC004C40A4 /* MSIDBoundRefreshToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshToken.m; sourceTree = "<group>"; };
 		72C1EBFB2DEA8185004C40A4 /* MSIDBoundRefreshTokenCacheItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBoundRefreshTokenCacheItem.h; sourceTree = "<group>"; };
@@ -4857,6 +4873,10 @@
 		B21FA9D922063C3A00806B68 /* shared */ = {
 			isa = PBXGroup;
 			children = (
+				72B2B4312EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.h */,
+				72B2B4322EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m */,
+				72B2B3DB2EF4E224004CA124 /* MSIDAutomationReturnedTokensResult.m */,
+				72B2B3D82EF4E1F9004CA124 /* MSIDAutomationReturnedTokensResult.h */,
 				B25A39EE21C4CD6300213A62 /* MSIDAutomationActionConstants.h */,
 				B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */,
 				B25A437F21C3516B000B3DD4 /* MSIDAutomationTestRequest.h */,
@@ -6064,6 +6084,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B2D8582E21C1DC2E0043035A /* MSIDAutomationPassedInWebViewController.h in Headers */,
+				72B2B3DA2EF4E21E004CA124 /* MSIDAutomationReturnedTokensResult.h in Headers */,
 				B2D8582F21C1DC2E0043035A /* MSIDAutomationMainViewController.h in Headers */,
 				B21FA9EC22063D1300806B68 /* NSString+MSIDAutomationUtils.h in Headers */,
 				B2D0A68A21D0875C0071E0DA /* MSIDAutomationErrorResult.h in Headers */,
@@ -6072,6 +6093,7 @@
 				B25A39F021C4CD6300213A62 /* MSIDAutomationActionConstants.h in Headers */,
 				B2D8582421C1DAF20043035A /* MSIDAutomation.h in Headers */,
 				B2D0A68F21D087790071E0DA /* MSIDAutomationSuccessResult.h in Headers */,
+				72B2B4382EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.h in Headers */,
 				B25A437721C34CB6000B3DD4 /* MSIDClearKeychainTestAction.h in Headers */,
 				B25A438121C3516B000B3DD4 /* MSIDAutomationTestRequest.h in Headers */,
 				B2D8582121C1DAF20043035A /* MSIDAutomationTestAction.h in Headers */,
@@ -6098,9 +6120,11 @@
 				B248FFB1223C8F4D00628574 /* MSIDAutomationBaseApiRequest.h in Headers */,
 				B248FFA3223C88CC00628574 /* MSIDAutomationTemporaryAccountRequest.h in Headers */,
 				B23F2849220E0EDE004ADA72 /* MSIDAutomationResetAPIRequest.h in Headers */,
+				72B2B4352EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.h in Headers */,
 				23E3A826289B4889007767BA /* XCUIElement+CrossPlat.h in Headers */,
 				B253158123E2A67600432133 /* MSIDTestAutomationApplication.h in Headers */,
 				B21FA9E022063CFA00806B68 /* MSIDAutomationErrorResult.h in Headers */,
+				72B2B3D92EF4E21E004CA124 /* MSIDAutomationReturnedTokensResult.h in Headers */,
 				B25315C423E7782A00432133 /* MSIDAutomationOperationResponseHandler.h in Headers */,
 				B248FFD0223D839B00628574 /* MSIDAutomationTemporaryAccountResponseHandler.h in Headers */,
 				B2ED1BD42204D35400A24E82 /* MSIDClientCredentialHelper.h in Headers */,
@@ -7028,10 +7052,12 @@
 				B2D0A69021D087790071E0DA /* MSIDAutomationSuccessResult.m in Sources */,
 				B25A39F121C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */,
 				B2D8583B21C1DD830043035A /* MSIDAutomationPassedInWebViewController.m in Sources */,
+				72B2B4342EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m in Sources */,
 				B2D8583C21C1DD830043035A /* MSIDAutomationRequestViewController.m in Sources */,
 				B2D8582221C1DAF20043035A /* MSIDAutomationActionManager.m in Sources */,
 				B25A437321C34A26000B3DD4 /* MSIDAutomationTestResult.m in Sources */,
 				B2D0A69C21D09F220071E0DA /* MSIDAutomationUserInformation.m in Sources */,
+				72B2B3DE2EF4E226004CA124 /* MSIDAutomationReturnedTokensResult.m in Sources */,
 				B21FA9ED22063D1600806B68 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2D8583921C1DD830043035A /* MSIDAutomationMainViewController.m in Sources */,
 				B2D0A68B21D0875C0071E0DA /* MSIDAutomationErrorResult.m in Sources */,
@@ -7046,6 +7072,7 @@
 			files = (
 				B25A436F21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m in Sources */,
 				B2D8584421C1DD9A0043035A /* MSIDAutomationMainViewController.m in Sources */,
+				72B2B4372EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m in Sources */,
 				B25A438321C3516B000B3DD4 /* MSIDAutomationTestRequest.m in Sources */,
 				B21FA9EE22063D1600806B68 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2D8584221C1DD9A0043035A /* MSIDAutomationResultViewController.m in Sources */,
@@ -7053,6 +7080,7 @@
 				B2D8584121C1DD9A0043035A /* MSIDAutomationRequestViewController.m in Sources */,
 				B25A39F221C4CD6300213A62 /* MSIDAutomationActionConstants.m in Sources */,
 				B2D8584321C1DD9A0043035A /* MSIDAutomationPassedInWebViewController.m in Sources */,
+				72B2B3DC2EF4E226004CA124 /* MSIDAutomationReturnedTokensResult.m in Sources */,
 				B25A437421C34A26000B3DD4 /* MSIDAutomationTestResult.m in Sources */,
 				B2D8582321C1DAF20043035A /* MSIDAutomationActionManager.m in Sources */,
 				B2D0A69D21D09F220071E0DA /* MSIDAutomationUserInformation.m in Sources */,
@@ -7075,6 +7103,7 @@
 				B248FFAD223C8DF700628574 /* MSIDAutomationPolicyToggleAPIRequest.m in Sources */,
 				23E3A824289B4889007767BA /* XCUIElement+CrossPlat.m in Sources */,
 				B25315CA23E7A0E800432133 /* MSIDTestAutomationAccountConfigurationRequest.m in Sources */,
+				72B2B3DD2EF4E226004CA124 /* MSIDAutomationReturnedTokensResult.m in Sources */,
 				B25315C023E772B000432133 /* MSIDAutomationOperationAPIInMemoryCacheHandler.m in Sources */,
 				B248FFA9223C8A9C00628574 /* MSIDAutomationTemporaryAccountRequest.m in Sources */,
 				B25315BB23E7631400432133 /* MSIDTestAutomationAppConfigurationRequest.m in Sources */,
@@ -7084,6 +7113,7 @@
 				B21FA9E822063D0A00806B68 /* MSIDAutomationSuccessResult.m in Sources */,
 				B2ED1BCC2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */,
 				B2ED1BC92204D2C300A24E82 /* AuthHeader.swift in Sources */,
+				72B2B4332EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m in Sources */,
 				B2ED1BC52204D2BC00A24E82 /* Secret.swift in Sources */,
 				B21FA9DC22063CEE00806B68 /* MSIDAutomationActionConstants.m in Sources */,
 				B248FFC3223C97C200628574 /* MSIDAutomationPasswordRequestHandler.m in Sources */,
@@ -7117,6 +7147,7 @@
 				B248FFAE223C8DF700628574 /* MSIDAutomationPolicyToggleAPIRequest.m in Sources */,
 				23E3A825289B4889007767BA /* XCUIElement+CrossPlat.m in Sources */,
 				B25315CB23E7A0E800432133 /* MSIDTestAutomationAccountConfigurationRequest.m in Sources */,
+				72B2B3DF2EF4E226004CA124 /* MSIDAutomationReturnedTokensResult.m in Sources */,
 				B25315C123E772B000432133 /* MSIDAutomationOperationAPIInMemoryCacheHandler.m in Sources */,
 				B248FFA5223C88CC00628574 /* MSIDAutomationTemporaryAccountRequest.m in Sources */,
 				B25315BC23E7631400432133 /* MSIDTestAutomationAppConfigurationRequest.m in Sources */,
@@ -7126,6 +7157,7 @@
 				B21FA9E722063D0A00806B68 /* MSIDAutomationSuccessResult.m in Sources */,
 				B2ED1BCD2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */,
 				B2ED1BCA2204D2C300A24E82 /* AuthHeader.swift in Sources */,
+				72B2B4362EF640A8004CA124 /* MSIDAutomationMockFlightActionParameters.m in Sources */,
 				B2ED1BC62204D2BC00A24E82 /* Secret.swift in Sources */,
 				B21FA9DB22063CED00806B68 /* MSIDAutomationActionConstants.m in Sources */,
 				B248FFC4223C97C200628574 /* MSIDAutomationPasswordRequestHandler.m in Sources */,

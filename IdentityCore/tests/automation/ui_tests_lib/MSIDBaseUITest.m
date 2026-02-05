@@ -35,6 +35,7 @@
 #import "MSIDTestAutomationAccount.h"
 #import "MSIDAutomationOperationResponseHandler.h"
 #import "MSIDTestAutomationApplication.h"
+#import "MSIDAutomationReturnedTokensResult.h"
 
 static MSIDTestConfigurationProvider *s_confProvider;
 
@@ -165,7 +166,8 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (MSIDAutomationSuccessResult *)automationSuccessResult:(XCUIApplication *)application
 {
-    MSIDAutomationSuccessResult *result = [[MSIDAutomationSuccessResult alloc] initWithJSONDictionary:[self automationResultDictionary:application] error:nil];
+    NSDictionary *jsonFromResult = [self automationResultDictionary:application];
+    MSIDAutomationSuccessResult *result = [[MSIDAutomationSuccessResult alloc] initWithJSONDictionary:jsonFromResult error:nil];
     XCTAssertNotNil(result);
     if (!result.success)
     {
@@ -173,6 +175,12 @@ static MSIDTestConfigurationProvider *s_confProvider;
         XCTAssertEqualObjects(@{}, [result jsonDictionary]);
     }
     XCTAssertTrue(result.success);
+    
+    if ([@"Read Tokens" isEqual:result.actionId])
+    {
+        return (MSIDAutomationSuccessResult *)[[MSIDAutomationReturnedTokensResult alloc] initWithJSONDictionary:jsonFromResult error:nil];
+    }
+    
     return result;
 }
 
