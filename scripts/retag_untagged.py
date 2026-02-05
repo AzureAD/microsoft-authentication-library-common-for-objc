@@ -65,26 +65,44 @@ def replace_untagged(file_path, placeholder, length, charset):
     
     print("✓ No duplicate tags found")
     
-    # Find all placeholder occurrences
+    # Find all placeholder occurrences with context
     placeholder_quoted = f'"{placeholder}"'
-    untagged_count = content.count(placeholder_quoted)
-    print(f"Found {untagged_count} {placeholder} entries to replace")
+    lines = content.split('\n')
+    untagged_lines = []
+    
+    for line_num, line in enumerate(lines, 1):
+        if placeholder_quoted in line:
+            # Extract function/constant name from the line
+            # Look for pattern like: NSString * const MSID_TELEMETRY_TAG_SOMETHING = @"UNTAGGED";
+            match = re.search(r'MSID_TELEMETRY_TAG_(\w+)\s*=', line)
+            func_name = match.group(1) if match else "unknown"
+            untagged_lines.append((line_num, func_name, line.strip()))
+    
+    untagged_count = len(untagged_lines)
+    print(f"\nFound {untagged_count} {placeholder} entries to replace:")
     
     if untagged_count == 0:
         print(f"No {placeholder} entries found. Nothing to do.")
         return
     
+    # Show what will be replaced
+    for line_num, func_name, line in untagged_lines:
+        print(f"  Line {line_num}: {func_name}")
+    
     # Generate new unique tags
+    print(f"\nGenerating {untagged_count} unique tags...")
     new_tags = []
     for i in range(untagged_count):
         tag = generate_tag(existing_tags_set | set(new_tags), length, charset)
         new_tags.append(tag)
-        print(f"Generated tag {i+1}/{untagged_count}: {tag}")
     
     # Replace placeholder one by one to ensure each gets a unique tag
     modified_content = content
-    for tag in new_tags:
+    replacements = []
+    for i, tag in enumerate(new_tags):
         modified_content = modified_content.replace(placeholder_quoted, f'"{tag}"', 1)
+        line_num, func_name, _ = untagged_lines[i]
+        replacements.append((line_num, func_name, placeholder, tag))
     
     # Verify all replacements were made
     remaining_untagged = modified_content.count(placeholder_quoted)
@@ -96,8 +114,13 @@ def replace_untagged(file_path, placeholder, length, charset):
     with open(file_path, 'w') as f:
         f.write(modified_content)
     
-    print(f"\n✓ Successfully replaced {untagged_count} {placeholder} entries")
-    print(f"New tags: {new_tags}")
+    # Show what was replaced
+    print(f"\n✅ Successfully replaced {untagged_count} {placeholder} entries:\n")
+    for line_num, func_name, old_tag, new_tag in replacements:
+        print(f"  Line {line_num}: {func_name}")
+        print(f"    {old_tag} → {new_tag}")
+    
+    print(f"\nNew tags generated: {', '.join(new_tags)}")
 
 
 def main():
