@@ -264,8 +264,28 @@
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"OpenASWebAuthSession action has nil URL");
                 [self completeWebAuthWithURL:requestURL];
             }
-            break;
             // alternatively replace above action with the delegate method to handoff to ASWebAuthSession
+            id<MSIDWebviewSpecialNavigationDelegate> strongSpecialNavigationDelegate = self.specialNavigationDelegate;
+            if (strongSpecialNavigationDelegate)
+            {
+                if ([strongSpecialNavigationDelegate respondsToSelector:@selector(webviewController:handleSpecialRedirect:completion:)])
+                {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                                     @"Detected special redirect scheme: %@. Delegating to navigationDelegate.", requestURL.scheme);
+                    
+                    // Call delegate on main thread
+                    __weak typeof(self) weakSelf = self;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        __strong typeof(self) strongSelf = weakSelf;
+                        if (!strongSelf) return;
+                        
+                        [strongSpecialNavigationDelegate handleASWebAuthenticationTransitionWithUrl:action.url embeddedWebview:strongSelf additionalHeaders:action.additionalHeaders MSIDSystemWebviewPurpose:action.purpose completion:^(MSIDWebviewNavigationAction * _Nonnull navigationAction, NSError * _Nonnull aswebAuthError) {
+                            [strongSelf executeViewNavigationAction:navigationAction requestURL:requestURL error:aswebAuthError]; //need to test if this recursion could cause any issue
+                        }];
+                    });
+            }
+        }
+            break;
         }
             
         case MSIDWebviewNavigationActionTypeCompleteWebAuthWithURL:
@@ -291,6 +311,7 @@
         }
     }
 }
+
 
 @end
 
