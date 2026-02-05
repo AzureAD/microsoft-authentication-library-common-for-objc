@@ -766,10 +766,9 @@
 		724C9E112E6F9F430039BAA0 /* NSData+MSIDEccSecKeyRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E0F2E6F9F410039BAA0 /* NSData+MSIDEccSecKeyRef.m */; };
 		724C9E322E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
 		724C9E332E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
-		724C9E342E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
-		724C9E352E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
 		724C9E592E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */; };
 		724C9E5A2E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */; };
+		7252BB782F2AE56E00B2287F /* MSIDSwiftBridgingHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 7252BB772F2AE53700B2287F /* MSIDSwiftBridgingHeader.h */; };
 		728209C326FA9C9A00B5F018 /* MSIDBackgroundTaskData.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C226FA9C9A00B5F018 /* MSIDBackgroundTaskData.m */; };
 		728209C926FE94D800B5F018 /* MSIDJwtAlgorithm.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */; };
 		728209CA26FE94D800B5F018 /* MSIDJwtAlgorithm.m in Sources */ = {isa = PBXBuildFile; fileRef = 728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */; };
@@ -2753,6 +2752,7 @@
 		724C9E0F2E6F9F410039BAA0 /* NSData+MSIDEccSecKeyRef.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MSIDEccSecKeyRef.m"; sourceTree = "<group>"; };
 		724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDConcatKdfProvider.swift; sourceTree = "<group>"; };
 		724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJweResponseDecryptionTests.m; sourceTree = "<group>"; };
+		7252BB772F2AE53700B2287F /* MSIDSwiftBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSwiftBridgingHeader.h; sourceTree = "<group>"; };
 		728209C126FA9C9A00B5F018 /* MSIDBackgroundTaskData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskData.h; sourceTree = "<group>"; };
 		728209C226FA9C9A00B5F018 /* MSIDBackgroundTaskData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskData.m; sourceTree = "<group>"; };
 		728209C826FE94D800B5F018 /* MSIDJwtAlgorithm.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJwtAlgorithm.m; sourceTree = "<group>"; };
@@ -5808,6 +5808,7 @@
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				7252BB772F2AE53700B2287F /* MSIDSwiftBridgingHeader.h */,
 				7209A3D42EB581BB0050CB13 /* MSIDJweResponse.m */,
 				7209A3D22EB581A90050CB13 /* MSIDJweResponse.h */,
 				E7B671B7257B15790053773F /* throttling */,
@@ -6585,6 +6586,7 @@
 				2308476B207D6D500024CE7C /* NSData+MSIDExtensions.h in Headers */,
 				A0E5419625CDC44B0016E167 /* MSIDThrottlingMetaData.h in Headers */,
 				B286B9DE2389DF79007833AD /* NSMutableDictionary+MSIDExtensions.h in Headers */,
+				7252BB782F2AE56E00B2287F /* MSIDSwiftBridgingHeader.h in Headers */,
 				B286B9882389DC27007833AD /* MSIDBrokerOperationRemoveAccountRequest.h in Headers */,
 				B210F44D1FDDF5AA005A8F76 /* MSIDClientInfo.h in Headers */,
 				23D2046221CF1F60009B5975 /* MSIDAADTokenResponseSerializer.h in Headers */,
@@ -8086,7 +8088,6 @@
 				B2E4A06A24DDE54B007CE642 /* MSIDRegistrationInformationMock.m in Sources */,
 				B24DE9FD21A60F0E003A651D /* MSIDTestBrokerTokenRequest.m in Sources */,
 				B2968CA822F67B4C005AFC33 /* MSIDTestLocalInteractiveController.m in Sources */,
-				724C9E342E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */,
 				B2E4A07A24DDE5D5007CE642 /* NSUUID+MSIDTestUtil.m in Sources */,
 				964E669720AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m in Sources */,
 				B2E4A06D24DDE559007CE642 /* MSIDTestContext.m in Sources */,
@@ -8173,7 +8174,6 @@
 				B2E4A07924DDE5D4007CE642 /* NSUUID+MSIDTestUtil.m in Sources */,
 				B253154723DD763E00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.m in Sources */,
 				B217861923A57EDB00839CE8 /* MSIDAuthorizationControllerMock.m in Sources */,
-				724C9E352E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */,
 				B2E4A07624DDE5CD007CE642 /* NSDate+MSIDTestUtil.m in Sources */,
 				B24DE9FC21A60F0D003A651D /* MSIDTestBrokerTokenRequest.m in Sources */,
 				5898426D2525448A0075DFED /* MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams.m in Sources */,
@@ -9622,6 +9622,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MODULEMAP_FILE = src/util/module.modulemap;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -9643,6 +9644,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MODULEMAP_FILE = src/util/module.modulemap;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos xrsimulator xros";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
