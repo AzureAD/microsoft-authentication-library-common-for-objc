@@ -27,6 +27,20 @@
 #import "MSIDExecutionFlowConstants.h"
 #import "MSIDJsonSerializer.h"
 
+
+static NSSet<NSString *> *MSIDReservedExecutionFlowKeys(void)
+{
+    static NSSet<NSString *> *reservedKeys;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        reservedKeys = [NSSet setWithArray:@[MSID_EXECUTION_FLOW_TAG,
+                                             MSID_EXECUTION_FLOW_TIME_SPENT,
+                                             MSID_EXECUTION_FLOW_THREAD_ID]];
+    });
+    return reservedKeys;
+}
+
+
 @implementation MSIDExecutionFlowUtils
 
 + (instancetype)sharedInstance
@@ -51,7 +65,7 @@
     }
     else
     {
-        NSSet *reservedKeys = [NSSet setWithArray:@[MSID_EXECUTION_FLOW_TAG, MSID_EXECUTION_FLOW_TIME_SPENT, MSID_EXECUTION_FLOW_THREAD_ID]];
+        NSSet *reservedKeys = MSIDReservedExecutionFlowKeys();
         NSMutableDictionary *resultDict = [NSMutableDictionary new];
         for (NSString *key in dictionary)
         {

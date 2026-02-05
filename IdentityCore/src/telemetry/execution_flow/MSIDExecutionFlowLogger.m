@@ -72,14 +72,13 @@
     }
     
     dispatch_barrier_sync(self.executionFlowLoggerQueue, ^{
-        NSSet<NSUUID *> *allFlowKeys = [NSSet setWithArray:self.executionFlowMap.toDictionary.allKeys];
-        if (allFlowKeys.count >= MAX_EXECUTION_FLOW_ELIMINATION_POOL_SIZE)
+        if (self.executionFlowMap.count >= MAX_EXECUTION_FLOW_ELIMINATION_POOL_SIZE)
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The number of execution flows is reaching the maximum, cannot add new flows. Please check if ended flows are flushed correctly", nil);
             return;
         }
         
-        if ([allFlowKeys containsObject:correlationId])
+        if ([self.executionFlowMap objectForKey:correlationId])
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The execution flow for this correlationId %@ has been registered, and cannot be re-registered. This is a developer error, please check", correlationId, nil);
             return;
