@@ -1,32 +1,32 @@
 #!/usr/bin/env python3
 """
 Script to replace all "UNTAGGED" strings in MSIDExecutionFlowConstants.m with unique 5-character tags.
-Tags use lowercase letters a-z and digits 0-9.
+Tags use lowercase letters a-z and digits 1-9.
 """
 
+import argparse
 import re
 import random
 import sys
 from pathlib import Path
 
 
-def generate_tag(existing_tags):
-    """Generate a unique 5-character tag using a-z and 0-9."""
-    chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+def generate_tag(existing_tags, length, charset):
+    """Generate a unique tag using specified length and charset."""
     max_attempts = 10000
     
     for _ in range(max_attempts):
-        tag = ''.join(random.choice(chars) for _ in range(5))
+        tag = ''.join(random.choice(charset) for _ in range(length))
         if tag not in existing_tags:
             return tag
     
     raise RuntimeError("Failed to generate unique tag after many attempts")
 
 
-def extract_existing_tags(content):
+def extract_existing_tags(content, length):
     """Extract all existing tags from the file content."""
     # Match patterns like: return @"y96sa";
-    pattern = r'return @"([a-z0-9]{5})";'
+    pattern = rf'return @"([a-z0-9]{{{length}}})";'
     tags = re.findall(pattern, content)
     return tags
 
@@ -41,14 +41,14 @@ def check_for_duplicates(tags):
     return duplicates
 
 
-def replace_untagged(file_path):
-    """Replace all UNTAGGED strings with unique tags."""
+def replace_untagged(file_path, placeholder, length, charset):
+    """Replace all placeholder strings with unique tags."""
     # Read the file
     with open(file_path, 'r') as f:
         content = f.read()
     
     # Extract existing tags (as list to detect duplicates)
-    existing_tags_list = extract_existing_tags(content)
+    existing_tags_list = extract_existing_tags(content, length)
     existing_tags_set = set(existing_tags_list)
     
     print(f"Found {len(existing_tags_list)} total tags")
@@ -65,56 +65,87 @@ def replace_untagged(file_path):
     
     print("✓ No duplicate tags found")
     
-    # Find all UNTAGGED occurrences
-    untagged_count = content.count('"UNTAGGED"')
-    print(f"Found {untagged_count} UNTAGGED entries to replace")
+    # Find all placeholder occurrences
+    placeholder_quoted = f'"{placeholder}"'
+    untagged_count = content.count(placeholder_quoted)
+    print(f"Found {untagged_count} {placeholder} entries to replace")
     
     if untagged_count == 0:
-        print("No UNTAGGED entries found. Nothing to do.")
+        print(f"No {placeholder} entries found. Nothing to do.")
         return
     
     # Generate new unique tags
     new_tags = []
     for i in range(untagged_count):
-        tag = generate_tag(existing_tags_set | set(new_tags))
+        tag = generate_tag(existing_tags_set | set(new_tags), length, charset)
         new_tags.append(tag)
         print(f"Generated tag {i+1}/{untagged_count}: {tag}")
     
-    # Replace UNTAGGED one by one to ensure each gets a unique tag
+    # Replace placeholder one by one to ensure each gets a unique tag
     modified_content = content
     for tag in new_tags:
-        modified_content = modified_content.replace('"UNTAGGED"', f'"{tag}"', 1)
+        modified_content = modified_content.replace(placeholder_quoted, f'"{tag}"', 1)
     
     # Verify all replacements were made
-    remaining_untagged = modified_content.count('"UNTAGGED"')
+    remaining_untagged = modified_content.count(placeholder_quoted)
     if remaining_untagged > 0:
-        print(f"Warning: {remaining_untagged} UNTAGGED entries remain!")
+        print(f"Warning: {remaining_untagged} {placeholder} entries remain!")
         return
     
     # Write back to file
     with open(file_path, 'w') as f:
         f.write(modified_content)
     
-    print(f"\n✓ Successfully replaced {untagged_count} UNTAGGED entries")
+    print(f"\n✓ Successfully replaced {untagged_count} {placeholder} entries")
     print(f"New tags: {new_tags}")
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description='Replace placeholder strings in MSIDExecutionFlowConstants.m with unique tags'
+    )
+    
     # Default path
     default_path = Path(__file__).parent.parent / "IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m"
     
-    # Allow custom path as argument
-    file_path = sys.argv[1] if len(sys.argv) > 1 else default_path
-    file_path = Path(file_path)
+    parser.add_argument(
+        'file_path',
+        nargs='?',
+        default=str(default_path),
+        help='Path to the file to process (default: MSIDExecutionFlowConstants.m)'
+    )
+    parser.add_argument(
+        '--placeholder',
+        default='UNTAGGED',
+        help='Placeholder string to replace (default: UNTAGGED)'
+    )
+    parser.add_argument(
+        '--length',
+        type=int,
+        default=5,
+        help='Length of generated tags (default: 5)'
+    )
+    parser.add_argument(
+        '--charset',
+        default='abcdefghijklmnopqrstuvwxyz123456789',
+        help='Character set for generating tags (default: a-z and 1-9)'
+    )
+    
+    args = parser.parse_args()
+    
+    file_path = Path(args.file_path)
     
     if not file_path.exists():
         print(f"Error: File not found: {file_path}")
         sys.exit(1)
     
     print(f"Processing file: {file_path}")
+    print(f"Placeholder: {args.placeholder}")
+    print(f"Tag length: {args.length}")
+    print(f"Character set: {args.charset}")
     print("-" * 60)
     
-    replace_untagged(file_path)
+    replace_untagged(file_path, args.placeholder, args.length, args.charset)
 
 
 if __name__ == "__main__":
