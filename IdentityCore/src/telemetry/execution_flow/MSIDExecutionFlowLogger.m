@@ -57,7 +57,7 @@
     if (self)
     {
         _executionFlowMap = [MSIDCache new];
-        _executionFlowLoggerQueue = dispatch_queue_create("com.microsoft.executionFlowLoggerQueue", DISPATCH_QUEUE_CONCURRENT);
+        _executionFlowLoggerQueue = dispatch_queue_create("com.microsoft.executionFlowLoggerQueue", DISPATCH_QUEUE_SERIAL);
     }
     
     return self;
@@ -71,7 +71,7 @@
         return;
     }
     
-    dispatch_barrier_sync(self.executionFlowLoggerQueue, ^{
+    dispatch_async(self.executionFlowLoggerQueue, ^{
         if (self.executionFlowMap.count >= MAX_EXECUTION_FLOW_ELIMINATION_POOL_SIZE)
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The number of execution flows is reaching the maximum, cannot add new flows. Please check if ended flows are flushed correctly", nil);
@@ -90,7 +90,7 @@
 }
 
 - (void)insertTag:(NSString *)tag
-       extraInfo:(NSDictionary *)info
+        extraInfo:(NSDictionary *)info
 withCorrelationId:(NSUUID *)correlationId
 {
     if ([NSString msidIsStringNilOrBlank:tag])
@@ -112,7 +112,7 @@ withCorrelationId:(NSUUID *)correlationId
     }
     
     NSDate *triggeringTime = [NSDate date];
-    dispatch_barrier_async(self.executionFlowLoggerQueue, ^{        
+    dispatch_async(self.executionFlowLoggerQueue, ^{
         if (![self.executionFlowMap.toDictionary.allKeys containsObject:correlationId])
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The execution flow for adding this tag %@ with correlationId: %@ has been flushed or not registered yet, this is a developer error, please check", tag, correlationId, nil);
@@ -130,30 +130,32 @@ withCorrelationId:(NSUUID *)correlationId
     });
 }
 
-- (NSString *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
-                                                   queryKeys:(NSSet<NSString *> *)queryKeys
+// Asynchronously retrieves and flushes the execution flow for the specified correlation identifier.
+- (void)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
+                                            queryKeys:(nullable NSSet<NSString *> *)queryKeys
+                                           completion:(void (^)(NSString * _Nullable executionFlow))completion
 {
     if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationId cannot be nil", nil);
-        return nil;
+        if (completion) { completion(nil); }
+        return;
     }
-    
-    __block MSIDExecutionFlow *flow = nil;
-    dispatch_sync(self.executionFlowLoggerQueue, ^{
-        flow = [self.executionFlowMap objectForKey:correlationId];
-    });
-    
-    dispatch_barrier_async(self.executionFlowLoggerQueue, ^{
+
+    dispatch_async(self.executionFlowLoggerQueue, ^{
+        MSIDExecutionFlow *flow = [self.executionFlowMap objectForKey:correlationId];
         [self.executionFlowMap removeObjectForKey:correlationId];
+        NSString *result = [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
+        if (completion)
+        {
+            completion(result);
+        }
     });
-    
-    return [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
 }
 
 - (void)flush
 {
-    dispatch_barrier_async(self.executionFlowLoggerQueue, ^{
+    dispatch_async(self.executionFlowLoggerQueue, ^{
         [self.executionFlowMap removeAllObjects];
     });
 }

@@ -10,16 +10,26 @@ on:
       - '**'  # All branches
     paths:
       - 'IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m'
+  pull_request:
+    paths:
+      - 'IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m'
 
 permissions:
   contents: write
+
+env:
+  TAG_PLACEHOLDER: "UNTAGGED"
+  TAG_LENGTH: "5"
+  TAG_CHARSET: "abcdefghijklmnopqrstuvwxyz0123456789"
 
 jobs:
   auto-retag:
     name: Automatically retag UNTAGGED entries
     runs-on: ubuntu-latest
     
-    # Only run if there are UNTAGGED entries
+    # Skip if the commit was made by github-actions bot (prevents infinite loop)
+    if: github.actor != 'github-actions[bot]'
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -33,7 +43,13 @@ jobs:
         python-version: '3.x'
     
     - name: Run retag script
-      run: python scripts/retag_untagged.py
+      id: retag
+      run: |
+        OUTPUT=$(python scripts/retag_untagged.py --placeholder "${{ env.TAG_PLACEHOLDER }}" --length "${{ env.TAG_LENGTH }}" --charset "${{ env.TAG_CHARSET }}" 2>&1)
+        echo "$OUTPUT"
+        echo "output<<EOF" >> $GITHUB_OUTPUT
+        echo "$OUTPUT" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
     
     - name: Check if file was modified
       id: check_changes
@@ -58,3 +74,15 @@ jobs:
     - name: No changes needed
       if: steps.check_changes.outputs.has_changes == 'false'
       run: echo "✓ All tags are already assigned. No action needed."
+    
+    - name: Post PR comment
+      if: steps.check_changes.outputs.has_changes == 'true' && github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '## 🏷️ Auto-retag Results\n\n```\n${{ steps.retag.outputs.output }}\n```\n\n✅ UNTAGGED entries have been automatically replaced with unique tags.'
+          })

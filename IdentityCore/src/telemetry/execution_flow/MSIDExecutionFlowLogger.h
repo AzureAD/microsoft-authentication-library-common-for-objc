@@ -56,19 +56,15 @@ NS_ASSUME_NONNULL_BEGIN
 withCorrelationId:(NSUUID *)correlationId;
 
 /*!
- Retrieves the formatted execution flow for the specified correlation identifier, optionally filtering by a set of query keys, and then clears it from the logger.
+ Retrieves and flushes the execution flow for the specified correlation identifier asynchronously.
 
  @param correlationId The unique identifier of the execution flow to retrieve and flush.
- @param queryKeys  An optional set of keys to filter which tags or entries are included in the returned flow. If nil, all entries are returned.
- @return A string representation of the execution flow matching the query keys, or nil if no flow exists for the given identifier.
+ @param queryKeys  An optional set of keys to filter which tags or entries are included. Pass nil to include all entries.
+ @param completion A block invoked with the string representation of the execution flow matching the query keys, or nil if no flow exists for the given identifier.
  */
-- (nullable NSString *)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
-                                                            queryKeys:(nullable NSSet<NSString *> *)queryKeys;
-
-/*!
- Flushes all registered execution flows, clearing any buffered tags and resetting internal state.
- */
-- (void)flush;
+- (void)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
+                                            queryKeys:(nullable NSSet<NSString *> *)queryKeys
+                                           completion:(void (^)(NSString * _Nullable executionFlow))completion;
 
 @end
 
