@@ -76,14 +76,33 @@ jobs:
       run: echo "✓ All tags are already assigned. No action needed."
     
     - name: Post PR comment
-      if: steps.check_changes.outputs.has_changes == 'true' && github.event_name == 'pull_request'
+      if: steps.check_changes.outputs.has_changes == 'true'
       uses: actions/github-script@v7
       with:
         script: |
           const output = `${{ steps.retag.outputs.output }}`;
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
+          
+          // Get the current branch name
+          const branch = context.ref.replace('refs/heads/', '');
+          
+          // Find open PRs for this branch
+          const { data: prs } = await github.rest.pulls.list({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `## 🏷️ Auto-retag Results\n\n\`\`\`\n${output}\n\`\`\`\n\n✅ UNTAGGED entries have been automatically replaced with unique tags.`
-          })
+            state: 'open',
+            head: `${context.repo.owner}:${branch}`
+          });
+          
+          // If there's an open PR, comment on it
+          if (prs.length > 0) {
+            const pr = prs[0];
+            await github.rest.issues.createComment({
+              issue_number: pr.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🏷️ Auto-retag Results\n\n\`\`\`\n${output}\n\`\`\`\n\n✅ UNTAGGED entries have been automatically replaced with unique tags.`
+            });
+            console.log(`Posted comment to PR #${pr.number}`);
+          } else {
+            console.log('No open PR found for this branch - skipping comment');
+          }
