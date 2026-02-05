@@ -332,6 +332,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorUINotSupportedInExtension";
         case MSIDErrorInsufficientDeviceStrength:
             return @"MSIDErrorInsufficientDeviceStrength";
+        case MSIDErrorMDMEnrollmentCompletedNeedsRetry:
+            return @"MSIDErrorMDMEnrollmentCompletedNeedsRetry";
             // Broker flow errors
         case MSIDErrorBrokerResponseNotReceived:
             return @"MSIDErrorBrokerResponseNotReceived";

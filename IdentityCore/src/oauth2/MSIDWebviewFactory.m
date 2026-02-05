@@ -250,7 +250,7 @@
                          requestState:requestState
                    ignoreInvalidState:ignoreInvalidState
                        endRedirectUri:endRedirectUri
-                         httpResponse:nil
+                      responseHeaders:nil
                               context:context
                                 error:error];
 }
@@ -259,7 +259,7 @@
                                  requestState:(NSString *)requestState
                            ignoreInvalidState:(BOOL)ignoreInvalidState
                                endRedirectUri:(NSString *)endRedirectUri
-                                 httpResponse:(__unused NSHTTPURLResponse *)httpResponse
+                              responseHeaders:(NSDictionary<NSString *, NSString *> *)lastResponseHeaders
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError *__autoreleasing*)error
 {

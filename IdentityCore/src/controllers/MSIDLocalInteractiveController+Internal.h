@@ -23,21 +23,34 @@
 
 #import "MSIDLocalInteractiveController.h"
 
-@class MSIDWebInstallProfileResponse;
-@class MSIDWebProfileInstallTriggerResponse;
+@class MSIDWebMDMInstallProfileResponse;
+@class MSIDWebMDMEnrollmentCompletionResponse;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDLocalInteractiveController ()
 
+/*!
+ Whether BRT acquisition has been attempted in this session.
+ BRT acquisition logic (simplified):
+ - Acquired on FIRST msauth:// or browser:// redirect if needed
+ - Only ONE attempt per session (no retry)
+ 
+ Check before acquisition: !brtAcquired && !brtAttemptAttempted
+ */
+@property (nonatomic, assign) BOOL brtAttempted;
+
+/*! Whether BRT was successfully acquired in this session */
+@property (nonatomic, assign) BOOL brtAcquired;
+
 - (void)acquireTokenWithRequest:(MSIDInteractiveTokenRequest *)request
                 completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
-- (void)handleWebInstallProfileResponse:(MSIDWebInstallProfileResponse *)response
-                             completion:(MSIDRequestCompletionBlock)completionBlock;
-
-- (void)handleProfileInstallTrigger:(MSIDWebProfileInstallTriggerResponse *)triggerResponse
-                         completion:(MSIDRequestCompletionBlock)completionBlock;
+//- (void)handleWebMDMInstallProfileResponse:(MSIDWebMDMInstallProfileResponse *)mdmInstallProfileResponse
+//                                completion:(MSIDRequestCompletionBlock)completionBlock;
+//
+//- (void)handleWebMDMEnrollmentCompletionResponse:(MSIDWebMDMEnrollmentCompletionResponse *)mdmEnrollmentCompletionResponse
+//                                      completion:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
 

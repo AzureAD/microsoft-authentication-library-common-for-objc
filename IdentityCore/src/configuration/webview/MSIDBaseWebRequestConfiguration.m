@@ -71,11 +71,11 @@
 
 - (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                        factory:(MSIDWebviewFactory *)factory
-                                  httpResponse:(__unused NSHTTPURLResponse *)httpResponse
+                               responseHeaders:(NSDictionary<NSString *, NSString *> *)lastResponseHeaders
                                        context:(id<MSIDRequestContext>)context
                                          error:(NSError *__autoreleasing*)error
 {
-    // Default implementation ignores httpResponse parameter for backward compatibility
+    // Default implementation ignores responseHeaders parameter for backward compatibility
     return [self responseWithResultURL:url factory:factory context:context error:error];
 }
 

@@ -25,13 +25,13 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebInstallProfileResponse.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
 #import "MSIDWebResponseOperationConstants.h"
 
-@implementation MSIDWebInstallProfileResponse
+@implementation MSIDWebMDMEnrollmentCompletionResponse
 
 static NSString *const SCHEME_MSAUTH = @"msauth";
-static NSString *const PROFILE_INSTALLED = @"profileinstalled";
+static NSString *const ENROLLMENT_COMPLETE = @"in_app_enrollment_complete";
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
@@ -45,8 +45,8 @@ static NSString *const PROFILE_INSTALLED = @"profileinstalled";
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
                                      [NSString stringWithFormat:
-                                      @"Profile installed response should have %@ as a scheme and %@ as a host",
-                                        SCHEME_MSAUTH, PROFILE_INSTALLED],
+                                      @"Enrollment complete response should have %@ as a scheme and %@ as a host",
+                                        SCHEME_MSAUTH, ENROLLMENT_COMPLETE],
                                      nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
@@ -79,10 +79,10 @@ static NSString *const PROFILE_INSTALLED = @"profileinstalled";
 {
     NSString *scheme = url.scheme;
     NSString *host = url.host;
-    
-    // For embedded webview, if link starts with msauth scheme and contains profileInstalled host
-    // e.g. msauth://profileInstalled?status=success
-    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host caseInsensitiveCompare:PROFILE_INSTALLED] == NSOrderedSame)
+
+    // For embedded webview, if link starts with msauth scheme and host in_app_enrollment_complete
+    // e.g. msauth://in_app_enrollment_complete?status=success
+    if ([scheme isEqualToString:SCHEME_MSAUTH] && [host caseInsensitiveCompare:ENROLLMENT_COMPLETE] == NSOrderedSame)
     {
         return YES;
     }
@@ -94,11 +94,11 @@ static NSString *const PROFILE_INSTALLED = @"profileinstalled";
         return NO;
     }
     
-    // For system webview, this link will start with the redirect uri and will have msauth and profileInstalled as path parameters
-    // e.g. myscheme://auth/msauth/profileInstalled?status=success
+    // For system webview, this link will start with the redirect uri and will have msauth and in_app_enrollment_complete as path parameters - Need to verify this during testing with webCP
+    // e.g. myscheme://auth/msauth/in_app_enrollment_complete?status=success
     NSUInteger pathComponentCount = pathComponents.count;
     
-    if ([pathComponents[pathComponentCount - 1] caseInsensitiveCompare:PROFILE_INSTALLED] == NSOrderedSame
+    if ([pathComponents[pathComponentCount - 1] caseInsensitiveCompare:ENROLLMENT_COMPLETE] == NSOrderedSame
         && [pathComponents[pathComponentCount - 2] isEqualToString:SCHEME_MSAUTH])
     {
         return YES;
@@ -109,7 +109,7 @@ static NSString *const PROFILE_INSTALLED = @"profileinstalled";
 
 + (NSString *)operation
 {
-    return @"install_profile";
+    return @"in_app_enrollment_complete";
 }
 
 @end

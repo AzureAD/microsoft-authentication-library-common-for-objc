@@ -82,7 +82,7 @@
                                  requestState:(NSString *)requestState
                            ignoreInvalidState:(BOOL)ignoreInvalidState
                                endRedirectUri:(NSString *)endRedirectUri
-                                 httpResponse:(NSHTTPURLResponse * _Nullable)httpResponse
+                              responseHeaders:(NSDictionary<NSString *, NSString *> *)lastResponseHeaders
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError *__autoreleasing*)error;
 

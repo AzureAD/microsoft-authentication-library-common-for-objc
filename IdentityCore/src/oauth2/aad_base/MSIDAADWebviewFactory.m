@@ -26,7 +26,8 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
-#import "MSIDWebInstallProfileResponse.h"
+#import "MSIDWebMDMInstallProfileResponse.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
 #import "MSIDWebAADAuthCodeResponse.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
@@ -189,7 +190,7 @@
                          requestState:requestState
                    ignoreInvalidState:ignoreInvalidState
                        endRedirectUri:endRedirectUri
-                         httpResponse:nil
+                      responseHeaders:nil
                               context:context
                                 error:error];
 }
@@ -198,7 +199,7 @@
                                  requestState:(NSString *)requestState
                            ignoreInvalidState:(BOOL)ignoreInvalidState
                                endRedirectUri:(NSString *)endRedirectUri
-                                 httpResponse:(NSHTTPURLResponse *)httpResponse
+                              responseHeaders:(NSDictionary<NSString *, NSString *> *)lastResponseHeaders
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError *__autoreleasing*)error
 {
@@ -237,15 +238,15 @@
 #endif
 
     // Try to create a profile install trigger response (with HTTP headers for Intune URL and token)
-    MSIDWebProfileInstallTriggerResponse *profileInstallTriggerResponse = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:url
-                                                                                                                         httpResponse:httpResponse
-                                                                                                                              context:context
-                                                                                                                                error:nil];
-    if (profileInstallTriggerResponse) return profileInstallTriggerResponse;
+    MSIDWebMDMInstallProfileResponse *mdmInstallProfileResponse = [[MSIDWebMDMInstallProfileResponse alloc] initWithURL:url
+                                                                                                        responseHeaders:lastResponseHeaders
+                                                                                                                context:context
+                                                                                                                  error:nil];
+    if (mdmInstallProfileResponse) return mdmInstallProfileResponse;
     
     // Try to create a profile installed response
-    MSIDWebInstallProfileResponse *profileInstalledResponse = [[MSIDWebInstallProfileResponse alloc] initWithURL:url context:context error:nil];
-    if (profileInstalledResponse) return profileInstalledResponse;
+    MSIDWebMDMEnrollmentCompletionResponse *mdmEnrollmentCompletionResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:url context:context error:nil];
+    if (mdmEnrollmentCompletionResponse) return mdmEnrollmentCompletionResponse;
     
     // Try to create a upgrade registration response
     MSIDWebUpgradeRegResponse *upgradeRegResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url context:context error:nil];

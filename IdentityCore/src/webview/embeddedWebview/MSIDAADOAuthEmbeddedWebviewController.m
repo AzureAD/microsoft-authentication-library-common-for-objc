@@ -32,15 +32,16 @@
 #import "MSIDWebAuthNUtil.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
-#import "MSIDWebProfileInstallTriggerResponse.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDWebviewSession.h"
+#import "MSIDWebviewNavigationAction.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
 @interface MSIDAADOAuthEmbeddedWebviewController()
 
 @property (nonatomic) NSHTTPURLResponse *lastHTTPResponse;
+
 
 @end
 
@@ -82,7 +83,7 @@
                 MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
                 if (currentSession)
                 {
-                    currentSession.lastHTTPResponse = response;
+                    currentSession.lastResponseHeaders = response.allHeaderFields;
                 }
             }
         };
@@ -96,26 +97,6 @@
 {
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
-    
-    // Check for profile install trigger (msauth://installProfile)
-    NSError *triggerError = nil;
-    MSIDWebProfileInstallTriggerResponse *triggerResponse = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:requestURL
-                                                                                                          httpResponse:self.lastHTTPResponse
-                                                                                                               context:self.context
-                                                                                                                 error:&triggerError];
-    
-    if (triggerResponse)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Profile install trigger detected (msauth://installProfile) - returning to controller");
-        
-        // Cancel this navigation and return the response to controller for handling
-        decisionHandler(WKNavigationActionPolicyCancel);
-        
-        // Complete with the trigger response URL so it flows back to the controller
-        [self completeWebAuthWithURL:requestURL];
-        
-        return YES;
-    }
     
     // Stop at broker or browser
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
@@ -140,6 +121,36 @@
 
                 return YES;
             }
+        }
+    }
+    
+    // ===== NEW: Delegate-based special redirect handling =====
+    id<MSIDWebviewSpecialNavigationDelegate> strongSpecialNavigationDelegate = self.specialNavigationDelegate;
+    if ((isBrokerUrl || isBrowserUrl) && strongSpecialNavigationDelegate)
+    {
+        if ([strongSpecialNavigationDelegate respondsToSelector:@selector(webviewController:handleSpecialRedirect:completion:)])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                             @"Detected special redirect scheme: %@. Delegating to navigationDelegate.", requestURL.scheme);
+            
+            // Cancel current navigation - delegate will decide what to do next
+            decisionHandler(WKNavigationActionPolicyCancel);
+            
+            // Call delegate on main thread
+            __weak typeof(self) weakSelf = self;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                __strong typeof(self) strongSelf = weakSelf;
+                if (!strongSelf) return;
+                
+                [strongSpecialNavigationDelegate webviewController:strongSelf
+                                           handleSpecialRedirect:requestURL
+                                                      completion:^(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error)
+                 {
+                    [strongSelf executeViewNavigationAction:action requestURL:requestURL error:error];
+                }];
+            });
+            
+            return YES;
         }
     }
     
@@ -199,6 +210,86 @@
     }
 
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
+}
+
+
+#pragma mark - Special URL View Action Execution
+
+- (void)executeViewNavigationAction:(MSIDWebviewNavigationAction *)action
+                         requestURL:(NSURL *)requestURL
+                              error:(NSError *)error
+{
+    if (!action)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                                 @"Received nil navigation action from delegate. Ending with error.");
+                NSError *localerror = MSIDCreateError(MSIDErrorDomain,
+                                                MSIDErrorInternal,
+                                                @"Navigation delegate returned nil action",
+                                                nil, nil, error,
+                                                self.context.correlationId,
+                                                nil, NO);
+                [self endWebAuthWithURL:nil error:localerror]; //endWebAuth or do completeWebAuth ?
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Executing view action type: %ld", (long)action.type);
+    
+    switch (action.type)
+    {
+        case MSIDWebviewNavigationActionTypeLoadRequestInWebview:
+        {
+            if (action.request)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Loading request: %@", MSID_PII_LOG_MASKABLE(action.request.URL));
+                [self loadRequest:action.request];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"LoadRequest action has nil request");
+                [self completeWebAuthWithURL:requestURL];
+            }
+            break;
+        }
+            
+        case MSIDWebviewNavigationActionTypeOpenInASWebAuthenticationSession:
+        {
+            if (action.url)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"URL needs to be opened in ASWebAuthenticationSession, calling CompleteWebauth with URL so controller can handle this via response: %@", MSID_PII_LOG_MASKABLE(action.url));
+                [self completeWebAuthWithURL:action.url]; // should we complete request or invoke a delegate method to handoff to ASWebAuthSession ?
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"OpenASWebAuthSession action has nil URL");
+                [self completeWebAuthWithURL:requestURL];
+            }
+            break;
+            // alternatively replace above action with the delegate method to handoff to ASWebAuthSession
+        }
+            
+        case MSIDWebviewNavigationActionTypeCompleteWebAuthWithURL:
+        {
+            if (action.url)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Completing webauth with URL: %@", MSID_PII_LOG_MASKABLE(action.url));
+                [self completeWebAuthWithURL:action.url];
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"CompleteWithURL action has nil URL");
+                [self completeWebAuthWithURL:requestURL];
+            }
+            break;
+        }
+            
+        default:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Unknown view action type: %ld", (long)action.type);
+            [self completeWebAuthWithURL:requestURL];
+            break;
+        }
+    }
 }
 
 @end

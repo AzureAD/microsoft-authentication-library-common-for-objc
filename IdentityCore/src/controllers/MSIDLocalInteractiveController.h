@@ -25,11 +25,13 @@
 #import "MSIDBaseRequestController.h"
 #import "MSIDTokenRequestProviding.h"
 #import "MSIDRequestControlling.h"
+#import "MSIDWebviewSpecialNavigationDelegate.h"
 
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDWebWPJResponse;
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
+
+@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewSpecialNavigationDelegate>
 
 @property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 

@@ -29,9 +29,13 @@
 
 #if !MSID_EXCLUDE_WEBKIT
 
+#import "MSIDWebviewNavigationAction.h"
+#import "MSIDConstants.h"
+
 @class MSIDOAuth2EmbeddedWebviewController;
 @class MSIDASWebAuthenticationSessionHandler;
 @class MSIDViewController;
+
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,10 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) MSIDOAuth2EmbeddedWebviewController *suspendedEmbeddedWebview;
 
 /// The ASWebAuthenticationSession handler for external authentication flow
-@property (nonatomic, nullable) MSIDASWebAuthenticationSessionHandler *externalSessionHandler;
+@property (nonatomic, nullable) MSIDASWebAuthenticationSessionHandler *aSWebAuthenticationSessionHandler;
 
 /// Whether a transition is currently in progress
 @property (nonatomic, readonly) BOOL isTransitioning;
+
 
 /**
  * Suspends the embedded webview (hides UI but keeps it alive)
@@ -61,15 +66,23 @@ NS_ASSUME_NONNULL_BEGIN
  * Launches ASWebAuthenticationSession for external authentication flow
  * @param url The URL to open in ASWebAuthenticationSession
  * @param parentController The parent view controller
- * @param callbackScheme The callback URL scheme (e.g., "msauth")
  * @param additionalHeaders Optional HTTP headers to include in the request (iOS 18+)
- * @param completionHandler Called when ASWebAuthenticationSession completes
+ *
  */
-- (void)launchExternalSession:(NSURL *)url
-             parentController:(MSIDViewController *)parentController
-               callbackScheme:(NSString *)callbackScheme
-            additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
-            completionHandler:(void (^)(NSURL * _Nullable callbackURL, NSError * _Nullable error))completionHandler;
+- (void)launchASWebAuthenticationSession:(NSURL *)url
+                        parentController:(MSIDViewController *)parentController
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+                MSIDSystemWebviewPurpose:(MSIDSystemWebviewPurpose)systemWebViewPurpose
+                                 context:(id<MSIDRequestContext>)context
+                              completion:(MSIDRequestCompletionBlock)completionBlock;
+                       
+
+- (void)launchASWebAuthenticationSessionWithUrl:(NSURL *)url
+                               parentController:(MSIDViewController *)parentController
+                              additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+                       MSIDSystemWebviewPurpose:(MSIDSystemWebviewPurpose)systemWebViewPurpose
+                                        context:(id<MSIDRequestContext>)context
+                                     completion:(void (^)(MSIDWebviewNavigationAction *action, NSError *error))completion;
 
 /**
  * Resumes the suspended embedded webview (shows UI and continues flow)
@@ -79,7 +92,13 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Dismisses the ASWebAuthenticationSession if active
  */
-- (void)dismissExternalSession;
+- (void)dismissASWebAuthenticationSession;
+
+/**
+ * Dismisses the suspended embedded webview (cancels and releases it)
+ * Use this when you need to completely abandon the embedded webview and switch to a different flow
+ */
+- (void)dismissSuspendedEmbeddedWebview;
 
 /**
  * Cleans up all state (call when authentication completes or fails)

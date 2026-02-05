@@ -31,6 +31,12 @@
 
 @interface MSIDAADOAuthEmbeddedWebviewController : MSIDOAuth2EmbeddedWebviewController
 
+/**
+ * Delegate for handling special navigation redirects
+ * Controller implementing this delegate can intercept msauth:// and browser:// schemes
+ * to perform additional processing (e.g., BRT acquisition) before webview proceeds
+ */
+
 - (id)init NS_UNAVAILABLE;
 
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction

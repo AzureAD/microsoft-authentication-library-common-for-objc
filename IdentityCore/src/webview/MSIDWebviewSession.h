@@ -32,12 +32,14 @@
 @class MSIDWebviewFactory;
 @class MSIDBaseWebRequestConfiguration;
 
+NS_ASSUME_NONNULL_BEGIN
 @interface MSIDWebviewSession : NSObject
 
 @property (nonatomic) NSObject<MSIDWebviewInteracting> *webviewController;
 @property (nonatomic) MSIDWebviewFactory *factory;
 @property (nonatomic) MSIDBaseWebRequestConfiguration *webViewConfiguration;
-@property (nonatomic, nullable) NSHTTPURLResponse *lastHTTPResponse;
+/*! Stores HTTP headers from the most recent navigation response */
+@property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *lastResponseHeaders;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -46,3 +48,4 @@
                             configuration:(MSIDBaseWebRequestConfiguration *)configuration;
 
 @end
+NS_ASSUME_NONNULL_END

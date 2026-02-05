@@ -32,8 +32,7 @@
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
-#import "MSIDWebInstallProfileResponse.h"
-#import "MSIDWebProfileInstallTriggerResponse.h"
+#import "MSIDWebMDMInstallProfileResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebviewFactory.h"
@@ -57,7 +56,6 @@
 #endif
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 @property (nonatomic) MSIDAuthorizeWebRequestConfiguration *webViewConfiguration;
-@property (nonatomic) NSObject<MSIDWebviewInteracting> *currentWebview;
 
 @end
 
@@ -146,6 +144,26 @@
     
     // Store reference to current webview
     self.currentWebview = webView;
+    
+    // configure webview
+    // ===== NEW: Call configuration block if provided =====
+    if (self.requestParameters.webviewConfigurationBlock)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                          @"Calling webview configuration block");
+        
+        // Ensure configuration happens on main thread
+        if ([NSThread isMainThread])
+        {
+            self.requestParameters.webviewConfigurationBlock(webView);
+        }
+        else
+        {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                self.requestParameters.webviewConfigurationBlock(webView);
+            });
+        }
+    }
     
     [MSIDWebviewAuthorization startSessionWithWebView:webView
                                         oauth2Factory:self.oauthFactory
@@ -238,7 +256,7 @@
             webviewResponseCompletionBlock:^(MSIDWebviewResponse *webviewResponse, NSError *responseError) {
         
         [weakSelf handleWebReponseV2:webviewResponse error:responseError completionBlock:completionBlock];
-    } authorizationCodeCompletionBlock:^(MSIDAuthorizationCodeResult *codeResult, NSError *resultError, MSIDWebWPJResponse *wpjResponse) {
+    } authorizationCodeCompletionBlock:^(MSIDAuthorizationCodeResult *codeResult, NSError *resultError, MSIDWebviewResponse *wpjResponse) {
         if (resultError)
         {
             returnErrorBlock(resultError);
@@ -313,14 +331,10 @@
         returnErrorBlock(oauthResponse.oauthError);
         return;
     }
-    else if ([response isKindOfClass:MSIDWebProfileInstallTriggerResponse.class])
+    else if ([response isKindOfClass:MSIDWebMDMInstallProfileResponse.class])
     {
         // Profile install trigger - pass to controller for orchestration
-        completionBlock(nil, nil, (MSIDWebProfileInstallTriggerResponse *)response);
-    }
-    else if ([response isKindOfClass:MSIDWebInstallProfileResponse.class])
-    {
-        completionBlock(nil, nil, (MSIDWebInstallProfileResponse *)response);
+        completionBlock(nil, nil, (MSIDWebMDMInstallProfileResponse *)response);
     }
     else if ([response isKindOfClass:MSIDWebUpgradeRegResponse.class])
     {

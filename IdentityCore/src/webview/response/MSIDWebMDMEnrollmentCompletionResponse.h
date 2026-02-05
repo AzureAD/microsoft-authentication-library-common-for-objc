@@ -29,30 +29,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * Response class for detecting msauth://installProfile trigger
- * This is different from MSIDWebInstallProfileResponse (profileInstalled)
- * This one triggers the profile installation flow by transitioning to ASWebAuthenticationSession
- */
-@interface MSIDWebProfileInstallTriggerResponse : MSIDWebviewResponse
+@interface MSIDWebMDMEnrollmentCompletionResponse : MSIDWebviewResponse
 
-/// The Intune profile installation URL extracted from x-intune-url HTTP header
-@property (atomic, readonly, nullable) NSString *intuneURL;
-
-/// The Intune authentication token extracted from x-intune-token HTTP header
-@property (atomic, readonly, nullable) NSString *intuneToken;
-
-/**
- * Initialize with URL and HTTP response headers
- * @param url The response URL
- * @param httpResponse The HTTP response containing headers
- * @param context The request context
- * @param error Output error if initialization fails
- */
-- (instancetype)initWithURL:(NSURL *)url
-               httpResponse:(NSHTTPURLResponse * _Nullable)httpResponse
-                    context:(id<MSIDRequestContext> _Nullable)context
-                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+@property (atomic, readonly, nullable) NSString *status;
+@property (atomic, readonly, nullable) NSDictionary *additionalInfo;
 
 @end
 

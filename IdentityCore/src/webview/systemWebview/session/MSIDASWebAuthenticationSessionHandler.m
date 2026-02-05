@@ -39,12 +39,33 @@
 @property (nonatomic) ASWebAuthenticationSession *webAuthSession;
 @property (nonatomic) BOOL useEmpheralSession;
 @property (nonatomic) BOOL sessionDismissed;
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
 
 @end
 
 @implementation MSIDASWebAuthenticationSessionHandler
 
 #pragma mark - MSIDAuthSessionHandling
+
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                      useEmpheralSession:(BOOL)useEmpheralSession
+                       additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _parentController = parentController;
+        _startURL = startURL;
+        _callbackURLScheme = callbackURLScheme;
+        _useEmpheralSession = useEmpheralSession;
+        _additionalHeaders = [additionalHeaders copy];
+    }
+    
+    return self;
+}
 
 - (instancetype)initWithParentController:(MSIDViewController *)parentController
                                 startURL:(NSURL *)startURL
@@ -99,7 +120,7 @@
     // Set additional headers if available (iOS 18+)
     if (self.additionalHeaders && self.additionalHeaders.count > 0)
     {
-        if (@available(iOS 18.0, macOS 15.0, *))
+        if (@available(iOS 17.4, macOS 15.0, *))
         {
             self.webAuthSession.additionalHeaderFields = self.additionalHeaders;
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Set %lu additional headers for ASWebAuthenticationSession", (unsigned long)self.additionalHeaders.count);

@@ -25,30 +25,30 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebProfileInstallTriggerResponse.h"
+#import "MSIDWebMDMInstallProfileResponse.h"
 #import "MSIDWebResponseOperationConstants.h"
 
-@implementation MSIDWebProfileInstallTriggerResponse
+@implementation MSIDWebMDMInstallProfileResponse
 
 static NSString *const SCHEME_MSAUTH = @"msauth";
-static NSString *const INSTALL_PROFILE = @"installprofile";
-static NSString *const INTUNE_URL_HEADER = @"x-intune-url";
-static NSString *const INTUNE_TOKEN_HEADER = @"x-intune-token";
+static NSString *const INSTALL_PROFILE = @"installProfile";
+static NSString *const INTUNE_URL_HEADER = @"x-ms-intune-profile-url";
+static NSString *const INTUNE_TOKEN_HEADER = @"x-ms-intune-authToken";
 
 - (instancetype)initWithURL:(NSURL *)url
-               httpResponse:(NSHTTPURLResponse *)httpResponse
+            responseHeaders:(NSDictionary<NSString *, NSString *> *)lastResponseHeaders
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing*)error
 {
     // Check for profile install trigger
-    if (![self isProfileInstallTrigger:url])
+    if (![self isInstallProfileResponse:url])
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
                                      [NSString stringWithFormat:
-                                      @"Profile install trigger response should have %@ as a scheme and %@ as a host",
+                                      @"Install profile response should have %@ as a scheme and %@ as a host",
                                         SCHEME_MSAUTH, INSTALL_PROFILE],
                                      nil, nil, nil, context.correlationId, nil, NO);
         }
@@ -59,10 +59,10 @@ static NSString *const INTUNE_TOKEN_HEADER = @"x-intune-token";
     if (self)
     {
         // Extract Intune URL and token from HTTP headers
-        if (httpResponse && httpResponse.allHeaderFields)
+        if (lastResponseHeaders)
         {
-            _intuneURL = [self extractHeaderValue:INTUNE_URL_HEADER fromResponse:httpResponse];
-            _intuneToken = [self extractHeaderValue:INTUNE_TOKEN_HEADER fromResponse:httpResponse];
+            _intuneURL = [self extractHeaderValue:INTUNE_URL_HEADER fromResponseHeaders:lastResponseHeaders];
+            _intuneToken = [self extractHeaderValue:INTUNE_TOKEN_HEADER fromResponseHeaders:lastResponseHeaders];
             
             if (_intuneURL)
             {
@@ -73,7 +73,7 @@ static NSString *const INTUNE_TOKEN_HEADER = @"x-intune-token";
             else
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, 
-                                 @"Profile install trigger detected but no %@ header found", 
+                                 @"Install profile response  detected but no %@ header found",
                                  INTUNE_URL_HEADER);
             }
             
@@ -97,19 +97,19 @@ static NSString *const INTUNE_TOKEN_HEADER = @"x-intune-token";
 /**
  * Helper method to extract header value with case-insensitive matching
  */
-- (nullable NSString *)extractHeaderValue:(NSString *)headerName fromResponse:(NSHTTPURLResponse *)httpResponse
+- (nullable NSString *)extractHeaderValue:(NSString *)headerName fromResponseHeaders:(NSDictionary<NSString *, NSString *> *)responseHeaders
 {
     // Try exact match first
-    NSString *value = httpResponse.allHeaderFields[headerName];
+    NSString *value = responseHeaders[headerName];
     
     if (!value)
     {
         // Try case-insensitive search
-        for (NSString *headerKey in httpResponse.allHeaderFields.allKeys)
+        for (NSString *headerKey in responseHeaders.allKeys)
         {
             if ([headerKey caseInsensitiveCompare:headerName] == NSOrderedSame)
             {
-                value = httpResponse.allHeaderFields[headerKey];
+                value = responseHeaders[headerKey];
                 break;
             }
         }
@@ -121,7 +121,7 @@ static NSString *const INTUNE_TOKEN_HEADER = @"x-intune-token";
 /**
  * Return true when the url response is matching a profile installation trigger
  **/
-- (BOOL)isProfileInstallTrigger:(NSURL *)url
+- (BOOL)isInstallProfileResponse:(NSURL *)url
 {
     NSString *scheme = url.scheme;
     NSString *host = url.host;
@@ -140,7 +140,7 @@ static NSString *const INTUNE_TOKEN_HEADER = @"x-intune-token";
         return NO;
     }
     
-    // For system webview, this link will start with the redirect uri and will have msauth and installProfile as path parameters
+    // For system webview, this link will start with the redirect uri and will have msauth and installProfile as path parameters - Verify this
     // e.g. myscheme://auth/msauth/installProfile
     NSUInteger pathComponentCount = pathComponents.count;
     
@@ -155,7 +155,7 @@ static NSString *const INTUNE_TOKEN_HEADER = @"x-intune-token";
 
 + (NSString *)operation
 {
-    return @"profile_install_trigger";
+    return @"install-profile";
 }
 
 @end
