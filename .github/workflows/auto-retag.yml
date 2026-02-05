@@ -16,6 +16,8 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
+  issues: write
 
 env:
   TAG_PLACEHOLDER: "UNTAGGED"
