@@ -28,6 +28,8 @@
 
 @class MSIDAADAuthority;
 @class MSIDAccountIdentifier;
+@class MSIDAuthenticationScheme;
+@class MSIDClaimsRequest;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,6 +76,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// When this flag is 'false', ui is not allowed. If we cannot acquire tokens silently, UI_NOT_ALLOWED status should be returned to the browser. This param is optional and by defrault it is 'true'.
 @property (nonatomic) BOOL canShowUI;
+
+/// Authentication scheme to be used for the token request.
+@property (nonatomic) MSIDAuthenticationScheme *authScheme;
+
+/// Optional claims to be included in the token request.
+@property (nonatomic, nullable) MSIDClaimsRequest *claimsRequest;
 
 @end
 

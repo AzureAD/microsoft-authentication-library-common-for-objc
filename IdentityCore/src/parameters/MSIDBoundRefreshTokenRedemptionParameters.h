@@ -34,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 // Set of scopes to request in bound refresh token redemption request payload
 @property (nonatomic, copy) NSSet <NSString *>*scopes;
 
+// redirect_uri claim in request payload
+@property (nonatomic, copy) NSString *redirectUri;
+
 // Client nonce GUID to be used in bound refresh token redemption request payload.
 @property (nonatomic, copy) NSString *nonce;
 
@@ -52,6 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
                authorityEndpoint:(NSURL *)authorityEndpoint
                           scopes:(NSSet <NSString *>*)scopes
                            nonce:(NSString *)nonce
+                     redirectUri:(NSString *)redirectUri
               extraPayloadClaims:(nullable NSDictionary *)extraPayloadClaims
                workplaceJoinInfo:(nullable MSIDWPJKeyPairWithCert *)workplaceJoinInfo;
 
