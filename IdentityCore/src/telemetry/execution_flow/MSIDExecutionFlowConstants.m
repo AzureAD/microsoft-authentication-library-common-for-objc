@@ -65,7 +65,7 @@ NSString *MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowNetworkTag state)
         case MSIDExecutionFlowParseNetworkResponseTag:
             return @"fxjo7";
         case MSIDExecutionFlowOtherHttpNetworkStatusCodeTag:
-            return @"2m0no";
+            return @"5kbvm";
     }
 
     // Fallback for any future enum values
@@ -77,7 +77,7 @@ NSString *MSIDTokenRequestTagToString(MSIDTokenRequestTag state)
     switch (state)
     {
         case MSIDTokenRequestAtExpirationElapsedTag:
-            return @"2n6bl";
+            return @"UNTAGGED";
     }
 
     // Fallback for any future enum values
