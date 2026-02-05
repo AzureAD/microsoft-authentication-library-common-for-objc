@@ -107,7 +107,8 @@ withCorrelationId:(NSUUID *)correlationId
     }
     
     __uint64_t tid = 0;
-    if (pthread_threadid_np(NULL, &tid) != 0) {
+    if (pthread_threadid_np(NULL, &tid) != 0)
+    {
         tid = (uint64_t)[NSThread currentThread].hash; // Fallback
     }
     

@@ -97,12 +97,14 @@
         
         if (info && info.allKeys.count > 0)
         {
-            for (id key in info) {
+            for (id key in info)
+            {
                 [blob setObject:info[key] forKey:key];
             }
         }
         // This is unlikely but just in case to keep the execution flow not tracking too many
-        if (self.executionFlow.count >= MAX_EXECUTION_FLOW_SIZE) {
+        if (self.executionFlow.count >= MAX_EXECUTION_FLOW_SIZE)
+        {
             [self.executionFlow removeObjectAtIndex:0];
         }
         
