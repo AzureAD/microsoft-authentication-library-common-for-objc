@@ -1,8 +1,8 @@
-# Objective-C Code Style Guidelines for AI Agents
+# Objective-C and Swift Code Style Guidelines for AI Agents
 
 ## Overview
 
-This document provides code style guidelines that AI agents MUST follow when working with this Objective-C codebase. These guidelines are adapted from industry best practices and tailored to match the existing code patterns in this repository.
+This document provides code style guidelines that AI agents MUST follow when working with this codebase. These guidelines are adapted from industry best practices and tailored to match the existing Objective-C and Swift patterns in this repository.
 
 ## Key Principles
 
@@ -44,7 +44,7 @@ NSString *username = [account username];
 ```objc
 // Correct (as used in this repository)
 - (instancetype)initWithUsername:(NSString *)username
-                   homeAccountId:(MSALAccountId *)homeAccountId
+                   homeAccountId:(MSIDAccountId *)homeAccountId
                      environment:(NSString *)environment
 {
     self = [super init];
@@ -127,12 +127,12 @@ if (error)
 
 ```objc
 // Correct
-- (void)acquireTokenWithParameters:(MSALSilentTokenParameters *)parameters
-                   completionBlock:(MSALCompletionBlock)completionBlock;
+- (void)acquireTokenWithParameters:(MSIDSilentTokenParameters *)parameters
+                   completionBlock:(MSIDCompletionBlock)completionBlock;
 
 // For methods exceeding 80 characters, format like a form
-- (MSALResult *)resultWithTokenResult:(MSIDTokenResult *)result
-                           authScheme:(id<MSALAuthenticationSchemeProtocol>)authScheme
+- (MSIDResult *)resultWithTokenResult:(MSIDTokenResult *)result
+                           authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
                            popManager:(MSIDDevicePopManager *)popManager
                                 error:(NSError **)error;
 ```
@@ -145,9 +145,9 @@ if (error)
 
 - `NSString *username` - clear and concise
 - `NSString *accessToken` - describes the token type
-- `MSALAccount *currentAccount` - not just `account`
+- `MSIDAccount *currentAccount` - not just `account`
 - `MSIDRequestParameters *requestParams` - abbreviated but clear
-- `MSALPublicClientApplicationConfig *config` - clear context
+- `MSIDApplicationConfig *config` - clear context
 
 **NOT RECOMMENDED:** Single letter variable names (except loop counters)
 
@@ -164,7 +164,7 @@ NSString* clientId
 NSString * clientId
 ```
 
-Exception: Constants (`NSString * const MSALErrorDomain`)
+Exception: Constants (`NSString * const MSIDErrorDomain`)
 
 #### Properties vs Instance Variables
 
@@ -172,13 +172,13 @@ Exception: Constants (`NSString * const MSALErrorDomain`)
 
 ```objc
 // Preferred
-@interface MSALAccount : NSObject
+@interface MSIDAccount : NSObject
 @property (nonatomic) NSString *username;
 @property (nonatomic) NSString *environment;
 @end
 
 // Avoid
-@interface MSALAccount : NSObject
+@interface MSIDAccount : NSObject
 {
     NSString *username;
     NSString *environment;
@@ -198,7 +198,7 @@ Exception: Constants (`NSString * const MSALErrorDomain`)
 
 ```objc
 NSString * __weak weakReference;
-MSALAccount * __autoreleasing autoreleasedAccount;
+MSIDAccount * __autoreleasing autoreleasedAccount;
 ```
 
 ### 8. Naming Conventions
@@ -209,8 +209,8 @@ MSALAccount * __autoreleasing autoreleasedAccount;
 
 ```objc
 // Correct
-static const NSTimeInterval MSALDefaultTokenRefreshInterval = 300.0;
-static NSString * const MSALErrorDomain = @"MSALErrorDomain";
+static const NSTimeInterval MSIDDefaultTokenRefreshInterval = 300.0;
+static NSString * const MSIDInvalidTokenResultKey = @"MSIDInvalidTokenResultKey";
 
 // Incorrect
 static const NSTimeInterval refreshInterval = 300.0;
@@ -222,7 +222,7 @@ static const NSTimeInterval refreshInterval = 300.0;
 
 ```objc
 NSString *accessToken;
-MSALAccount *currentAccount;
+MSIDALAccount *currentAccount;
 MSIDRequestParameters *requestParams;
 ```
 
@@ -231,7 +231,7 @@ MSIDRequestParameters *requestParams;
 **MUST** be camelCase with lowercase leading word and underscore prefix:
 
 ```objc
-@implementation MSALPublicClientApplication
+@implementation MSIDPublicClientApplication
 {
     BOOL _validateAuthority;
     WKWebView *_customWebview;
@@ -245,12 +245,12 @@ MSIDRequestParameters *requestParams;
 
 ```objc
 // Correct
-@interface NSArray (MSALAccessors)
+@interface NSArray (MSIDAccessors)
 - (id)msidObjectOrNilAtIndex:(NSUInteger)index;
 @end
 
 // Incorrect - may conflict with other libraries
-@interface NSArray (MSALAccessors)
+@interface NSArray (MSIDAccessors)
 - (id)objectOrNilAtIndex:(NSUInteger)index;
 @end
 ```
@@ -283,9 +283,9 @@ NSArray *scopes = [NSArray arrayWithObjects:@"user.read", @"mail.read", @"profil
 **MUST** declare as `static` constants:
 
 ```objc
-static NSString * const MSALErrorDomain = @"MSALErrorDomain";
-static const CGFloat MSALDefaultTimeout = 30.0;
-static const NSTimeInterval MSALTokenExpirationBuffer = 300.0;
+static NSString * const MSIDInvalidTokenResultKey = @"MSIDInvalidTokenResultKey";
+static const CGFloat MSIDDefaultTimeout = 30.0;
+static const NSTimeInterval MSIDTokenExpirationBuffer = 300.0;
 ```
 
 **MAY** use `#define` only when explicitly used as a macro.
@@ -295,12 +295,11 @@ static const NSTimeInterval MSALTokenExpirationBuffer = 300.0;
 **MUST** use `NS_ENUM()` for enumerations:
 
 ```objc
-typedef NS_ENUM(NSInteger, MSALPromptType)
+typedef NS_ENUM(NSInteger, MSIDThrottlingType)
 {
-    MSALPromptTypeDefault,
-    MSALPromptTypeLogin,
-    MSALPromptTypeConsent,
-    MSALPromptTypeSelectAccount
+    MSIDThrottlingTypeNone = 0,
+    MSIDThrottlingType429 = 1,
+    MSIDThrottlingTypeInteractiveRequired = 2
 };
 ```
 
@@ -309,16 +308,11 @@ typedef NS_ENUM(NSInteger, MSALPromptType)
 **SHALL** declare private properties in class extensions in implementation file:
 
 ```objc
-// In MSALPublicClientApplication.m
-@interface MSALPublicClientApplication()
-{
-    BOOL _validateAuthority;
-    WKWebView *_customWebview;
-}
+// In MSIDDRSDiscoveryRequest.m
+@interface MSIDDRSDiscoveryRequest()
 
-@property (nonatomic) MSALPublicClientApplicationConfig *internalConfig;
-@property (nonatomic) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-@property (nonatomic) MSIDCacheConfig *msidCacheConfig;
+@property (nonatomic) NSString *domain;
+@property (nonatomic) MSIDDRSType adfsType;
 
 @end
 ```
@@ -345,20 +339,19 @@ typedef NS_ENUM(NSInteger, MSALPromptType)
 
 ```objc
 // Correct (as used in this repository)
-#import "MSALPublicClientApplication+Internal.h"
-#import "MSALPromptType_Internal.h"
-#import "MSALError.h"
-#import "MSALTelemetryApiId.h"
-#import "MSIDMacTokenCache.h"
-#import "MSIDLegacyTokenCacheAccessor.h"
-#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDSSOExtensionSignoutController.h"
+#import "MSIDSSOExtensionSignoutRequest.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
+#import "MSIDMainThreadUtil.h"
 
 // Do NOT group like this
 // Frameworks
-@import Foundation;
+#import <Foundation/Foundation.h>
 
-// MSAL Core
-#import "MSALPublicClientApplication.h"
+// Extensions
+#import "NSString+MSIDExtensions.h"
+#import "NSData+MSIDExtensions.h"
 ```
 
 ### 21. Protocols (Delegates)
@@ -378,25 +371,11 @@ typedef NS_ENUM(NSInteger, MSALPromptType)
 **SHOULD** use clear formatting for complex blocks:
 
 ```objc
-__auto_type block = ^(MSALResult *result, NSError *msidError, id<MSIDRequestContext> context)
-{
-    NSError *msalError = [MSALErrorConverter msalErrorFromMsidError:msidError 
-                                                     classifyErrors:YES 
-                                                 msalOauth2Provider:self.msalOauth2Provider];
-    
-    if (!completionBlock) return;
-    
-    if (parameters.completionBlockQueue)
+MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
-        dispatch_async(parameters.completionBlockQueue, ^{
-            completionBlock(result, msalError);
-        });
-    }
-    else
-    {
-        completionBlock(result, msalError);
-    }
-};
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker xpc flow finished. Result %@, error: %ld error domain: %@, shouldFallBack: %@", _PII_NULLIFY(result), (long)error.code, error.domain, @(self.fallbackController != nil));
+        completionBlock(result, error);
+    };
 ```
 
 ### 23. Xcode Project Organization
@@ -408,12 +387,72 @@ __auto_type block = ^(MSALResult *result, NSError *msidError, id<MSIDRequestCont
 
 ---
 
+## Swift Code Style Rules
+
+### 1. Formatting and Indentation
+
+- **MUST** use 4-space indentation (no tabs).
+- **MUST** keep opening braces on the same line for types, functions, and control flow.
+- **SHOULD** keep one blank line between methods for readability.
+- **MUST** preserve the existing whitespace style within a file; do not normalize spacing differences between files.
+
+```swift
+class MSIDFlightManagerTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+    }
+}
+```
+
+### 2. Naming
+
+- **MUST** use `MSID` prefix for library types in Swift when adding new shared types.
+- **MUST** use PascalCase for type names and enum cases.
+- **MUST** use lowerCamelCase for functions, variables, and properties.
+
+```swift
+public enum Result<T> {
+    case Success(T)
+    case Failure(Error)
+}
+```
+
+### 3. Access Control
+
+- **SHOULD** specify access control (`private`, `internal`, `public`) explicitly.
+- **SHOULD** keep helpers `private`/`internal` and limit exposure in test helpers.
+
+### 4. Spacing Conventions
+
+- **MUST** follow the existing spacing conventions in the file for type annotations and `switch` cases.
+- In this repository you will encounter both `Type: Protocol` and `Type : Protocol` styles; match the local file.
+- In `switch` statements, spacing around `case` colons must follow the local file style.
+
+```swift
+struct SecretInfo : Codable {
+    let id: String
+}
+
+switch result {
+case .Failure(let err) : return .Failure(err)
+case .Success(let list) :
+    return .Success(list)
+}
+```
+
+### 5. Comments
+
+- **SHOULD** use `// MARK:` separators in tests to group related cases.
+- **MUST** keep comments accurate; remove stale comments.
+
+---
+
 ## AI Agent-Specific Guidelines
 
 ### When Adding New Features:
 
 1. **Match Existing Patterns**: Analyze similar existing code before implementing
-2. **Follow MSAL Conventions**: Use `MSID` for classes
+2. **Follow Common Core Conventions**: Use `MSID` for classes
 3. **Maintain Consistency**: Match indentation, spacing, and naming in surrounding code
 4. **Property-First**: Use `@property` declarations rather than instance variables
 5. **Error Handling**: Always check return values, never the error variable
@@ -431,7 +470,7 @@ __auto_type block = ^(MSALResult *result, NSError *msidError, id<MSIDRequestCont
 4. **Deprecation**: Use proper deprecation warnings when replacing APIs
 5. **Backward Compatibility**: Consider impact on existing integrations
 
-### Common MSAL Patterns:
+### Common Patterns:
 
 #### Error Handling Pattern
 
@@ -441,15 +480,16 @@ BOOL result = [self performOperationWithError:&msidError];
 
 if (!result)
 {
-    if (error) *error = [MSALErrorConverter msalErrorFromMsidError:msidError];
-    return NO;
+    NSString *message = @"Failed perform operation MSIDOperationA"];
+    if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
+    return nil;
 }
 ```
 
 #### Completion Block Pattern
 
 ```objc
-__auto_type block = ^(MSALResult *result, NSError *error)
+__auto_type block = ^(MSIDResult *result, NSError *error)
 {
     // Process result
     
@@ -493,7 +533,7 @@ MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context,
 - [ ] Imports not grouped (per repository style)
 - [ ] Delegate methods include sender as first parameter
 - [ ] No warnings or errors in build
-- [ ] Follows existing MSAL/MSID patterns
+- [ ] Follows existing MSID patterns
 
 ---
 
@@ -545,4 +585,4 @@ All new files **MUST** include the Microsoft copyright header when added to this
 
 ## Notes
 
-This style guide is adapted specifically for AI agents working on the Microsoft Authentication Library (MSAL) for iOS and macOS. When in doubt, prioritize consistency with existing codebase patterns over strict adherence to external style guides.
+This style guide is adapted specifically for AI agents working on the Microsoft Authentication Library Common for iOS and macOS. When in doubt, prioritize consistency with existing codebase patterns over strict adherence to external style guides.
