@@ -5,9 +5,9 @@ name: Auto-retag UNTAGGED entries
 
 on:
   workflow_dispatch:  # Manual trigger
-  pull_request:
+  push:
     branches:
-      - dev  # Only for PRs targeting dev branch
+      - '**'  # All branches
     paths:
       - 'IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m'
 
