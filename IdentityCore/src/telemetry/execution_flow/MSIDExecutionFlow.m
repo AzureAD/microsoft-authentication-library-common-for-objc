@@ -27,6 +27,7 @@
 #import "MSIDJsonSerializer.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDExecutionFlowConstants.h"
 
 #define MAX_EXECUTION_FLOW_SIZE 50
 
@@ -59,19 +60,19 @@
 {
     if ([NSString msidIsStringNilOrBlank:tag])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Tag cannot be nil", nil);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, MSID_EXECUTION_FLOW_TAG_NIL_MESSAGE, nil);
         return;
     }
     
     if (!tid)
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"tid cannot be nil", nil);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, MSID_EXECUTION_FLOW_TID_NIL_MESSAGE, nil);
         return;
     }
     
     if (!triggeringTime)
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"triggeringTime cannot be nil", nil);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, MSID_EXECUTION_FLOW_TRIGGERING_TIME_NIL_MESSAGE, nil);
         return;
     }
     
@@ -91,7 +92,7 @@
         MSIDExecutionFlowBlob *blob = [[MSIDExecutionFlowBlob alloc] initWithTag:tag timeStep:@(ts) threadId:tid];
         if (!blob)
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to create execution flow blob", nil);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, MSID_EXECUTION_FLOW_FAILED_TO_CREATE_BLOB_MESSAGE, nil);
             return;
         }
         
@@ -115,7 +116,7 @@
 - (NSString *)exportExecutionFlowToJSONsWithKeys:(NSSet<NSString *> *)queryKeys
 {
     
-    __block NSMutableString *jsonArray = [NSMutableString stringWithString:@"["];
+    __block NSMutableString *jsonArray = [NSMutableString stringWithString:MSID_EXECUTION_FLOW_JSON_OPEN_BRACKET];
     
     dispatch_sync(self.executionFlowWritingQueue, ^{
         for (NSUInteger i = 0; i < self.executionFlow.count; i++)
@@ -130,16 +131,16 @@
                 // Add comma separator if not the last element
                 if (i < self.executionFlow.count - 1)
                 {
-                    [jsonArray appendString:@","];
+                    [jsonArray appendString:MSID_EXECUTION_FLOW_JSON_COMMA];
                 }
             }
         }
     });
     
-    [jsonArray appendString:@"]"];
+    [jsonArray appendString:MSID_EXECUTION_FLOW_JSON_CLOSE_BRACKET];
     
     // Return nil if array is empty
-    if ([jsonArray isEqualToString:@"[]"])
+    if ([jsonArray isEqualToString:MSID_EXECUTION_FLOW_JSON_EMPTY_ARRAY])
     {
         return nil;
     }

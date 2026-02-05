@@ -34,6 +34,17 @@ NSString *const MSID_EXECUTION_FLOW_DIAGNOSTIC_ID  = @"d";
 
 NSString *const MSID_EXECUTION_FLOW_ERROR_CODE  = @"e";
 
+// Log messages
+NSString *const MSID_EXECUTION_FLOW_TAG_NIL_MESSAGE = @"Tag cannot be nil";
+NSString *const MSID_EXECUTION_FLOW_TID_NIL_MESSAGE = @"tid cannot be nil";
+NSString *const MSID_EXECUTION_FLOW_TRIGGERING_TIME_NIL_MESSAGE = @"triggeringTime cannot be nil";
+NSString *const MSID_EXECUTION_FLOW_FAILED_TO_CREATE_BLOB_MESSAGE = @"Failed to create execution flow blob";
+
+// JSON formatting constants
+NSString *const MSID_EXECUTION_FLOW_JSON_OPEN_BRACKET = @"[";
+NSString *const MSID_EXECUTION_FLOW_JSON_COMMA = @",";
+NSString *const MSID_EXECUTION_FLOW_JSON_CLOSE_BRACKET = @"]";
+NSString *const MSID_EXECUTION_FLOW_JSON_EMPTY_ARRAY = @"[]";
 
 NSString *MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowNetworkTag state)
 {
