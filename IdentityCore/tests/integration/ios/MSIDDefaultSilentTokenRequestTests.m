@@ -58,6 +58,7 @@
 #import "MSIDTestSwizzle.h"
 #import "MSIDFlightManager.h"
 #import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -1491,7 +1492,7 @@
                                                                                                                  queryKeys:nil
                                                                                                                 completion:^(NSString * _Nullable executionFlow) {
             XCTAssertNotNil(executionFlow);
-            XCTAssertTrue([executionFlow containsString:@"riwx7"]);
+            XCTAssertTrue([executionFlow containsString:MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag)]);
             [expectation fulfill];
         }];
     }];
