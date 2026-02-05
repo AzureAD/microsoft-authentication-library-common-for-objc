@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Script to replace all "UNTAGGED" strings in MSIDExecutionFlowConstants.m with unique 5-character tags.
-Tags use lowercase letters a-z and digits 1-9.
+Tags use lowercase letters a-z and digits 0-9.
 """
 
 import re
@@ -11,8 +11,8 @@ from pathlib import Path
 
 
 def generate_tag(existing_tags):
-    """Generate a unique 5-character tag using a-z and 1-9."""
-    chars = 'abcdefghijklmnopqrstuvwxyz123456789'
+    """Generate a unique 5-character tag using a-z and 0-9."""
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
     max_attempts = 10000
     
     for _ in range(max_attempts):
