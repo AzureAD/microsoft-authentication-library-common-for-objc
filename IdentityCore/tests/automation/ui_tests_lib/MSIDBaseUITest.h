@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) MSIDTestAutomationAccount *primaryAccount;
 @property (nonatomic, class) MSIDTestConfigurationProvider *confProvider;
+@property (nonatomic, class, nullable) MSIDKeyVaultAccountProvider *keyVaultAccountProvider;
 @property (nonatomic) NSArray *testAccounts;
 @property (nonatomic) MSIDTestAutomationApplication *testApplication;
 @property (nonatomic) NSArray *testApplications;

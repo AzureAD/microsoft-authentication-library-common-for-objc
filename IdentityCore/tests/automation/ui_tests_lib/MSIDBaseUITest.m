@@ -35,8 +35,12 @@
 #import "MSIDTestAutomationAccount.h"
 #import "MSIDAutomationOperationResponseHandler.h"
 #import "MSIDTestAutomationApplication.h"
+#import "MSIDKeyVaultAccountProvider.h"
+#import "MSIDKeyVaultCredentialProvider.h"
+#import "MSIDTestAutomationAccountConfigurationRequest.h"
 
 static MSIDTestConfigurationProvider *s_confProvider;
+static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
 
 @implementation MSIDBaseUITest
 
@@ -48,6 +52,16 @@ static MSIDTestConfigurationProvider *s_confProvider;
 + (void)setConfProvider:(MSIDTestConfigurationProvider *)accountsProvider
 {
     s_confProvider = accountsProvider;
+}
+
++ (MSIDKeyVaultAccountProvider *)keyVaultAccountProvider
+{
+    return s_keyVaultAccountProvider;
+}
+
++ (void)setKeyVaultAccountProvider:(MSIDKeyVaultAccountProvider *)provider
+{
+    s_keyVaultAccountProvider = provider;
 }
 
 #pragma mark - Pipelines
@@ -448,6 +462,72 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (NSArray *)loadTestAccountRequest:(MSIDAutomationBaseApiRequest *)accountRequest
 {
+    // Try Key Vault JSON first if available
+    if (s_keyVaultAccountProvider && s_keyVaultAccountProvider.hasCachedAccounts)
+    {
+        // Check if this is an account configuration request we can use
+        if ([accountRequest isKindOfClass:[MSIDTestAutomationAccountConfigurationRequest class]])
+        {
+            MSIDTestAutomationAccountConfigurationRequest *configRequest = (MSIDTestAutomationAccountConfigurationRequest *)accountRequest;
+            
+            // Use the accountType directly as the Key Vault key (e.g., "cloud", "msa", "federated")
+            NSString *accountType = configRequest.accountType;
+            
+            if (accountType)
+            {
+                NSError *error = nil;
+                MSIDTestAutomationAccount *account = [s_keyVaultAccountProvider accountForType:accountType error:&error];
+                
+                if (account)
+                {
+                    NSLog(@"[MSIDBaseUITest] Loaded account from Key Vault JSON with type: %@", accountType);
+                    
+                    // Load password for the account
+                    XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
+                    
+                    [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
+                                                                             completionHandler:^(NSString *password, NSError *pwdError)
+                    {
+                        if (password)
+                        {
+                            NSLog(@"[MSIDBaseUITest] Password loaded successfully for Key Vault account");
+                        }
+                        else
+                        {
+                            NSLog(@"[MSIDBaseUITest] Failed to load password for Key Vault account: %@", pwdError.localizedDescription);
+                        }
+                        [passwordExpectation fulfill];
+                    }];
+                    
+                    [self waitForExpectations:@[passwordExpectation] timeout:60];
+                    
+                    if (account.password)
+                    {
+                        return @[account];
+                    }
+                    else
+                    {
+                        NSLog(@"[MSIDBaseUITest] Key Vault account has no password, falling back to Lab API");
+                    }
+                }
+                else
+                {
+                    NSLog(@"[MSIDBaseUITest] Account type '%@' not found in Key Vault JSON, falling back to Lab API. Error: %@", accountType, error.localizedDescription);
+                }
+            }
+            else
+            {
+                NSLog(@"[MSIDBaseUITest] No accountType specified in request, falling back to Lab API");
+            }
+        }
+    }
+    
+    // Fall back to Lab API
+    return [self loadTestAccountRequestFromLabAPI:accountRequest];
+}
+
+- (NSArray *)loadTestAccountRequestFromLabAPI:(MSIDAutomationBaseApiRequest *)accountRequest
+{
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get account"];
     
     MSIDAutomationOperationResponseHandler *responseHandler = [[MSIDAutomationOperationResponseHandler alloc] initWithClass:MSIDTestAutomationAccount.class];
@@ -463,7 +543,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
         
         results = (NSArray *)result;
         
-        if (!results.count) 
+        if (!results.count)
         {
             // Try again because Lab API is sometimes flaky
             [self.class.confProvider.operationAPIRequestHandler executeAPIRequest:accountRequest
