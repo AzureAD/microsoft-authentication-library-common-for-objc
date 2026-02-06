@@ -10,9 +10,6 @@ on:
       - '**'  # All branches
     paths:
       - 'IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m'
-  pull_request:
-    paths:
-      - 'IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m'
 
 permissions:
   contents: write
