@@ -27,7 +27,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDExecutionFlowLogger ()
+@interface MSIDExecutionFlowLogger (Test)
 
 /*!
  Flushes all registered execution flows, clearing any buffered tags and resetting internal state.
