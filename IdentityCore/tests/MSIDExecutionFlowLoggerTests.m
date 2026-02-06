@@ -845,7 +845,7 @@
 //    dispatch_async(queue, ^{
         [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
                                                      queryKeys:nil
-                                                    completion:^(NSString * _Nullable executionFlow) {
+                                                    completion:^(__unused NSString * _Nullable executionFlow) {
             [retrieveExpectation fulfill];
         }];
 //    });
