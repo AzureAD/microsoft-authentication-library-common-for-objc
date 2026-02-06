@@ -495,7 +495,7 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
-//----------New Batch----------------
+
 - (void)testRetrieveAndFlushWithNonExistentCorrelationId_shouldReturnNil
 {
     MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
@@ -634,149 +634,152 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-//#pragma mark - Eliminated Pool Tests
-//
-//- (void)testEliminatedPool_shouldPreventReaddingSameFlow
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *correlationId = [NSUUID UUID];
-//    
-//    // Insert and flush
-//    [logger registerExecutionFlowWithCorrelationId:correlationId];
-//    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
-//
-//    XCTestExpectation *firstPoolExpectation = [self expectationWithDescription:@"first flow before eliminated pool test"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNotNil(executionFlow);
-//        [firstPoolExpectation fulfill];
-//    }];
-//    
-//    // Try to insert again with same correlationId
-//    [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId];
-//    
-//    // Should not create new flow
-//    XCTestExpectation *secondPoolExpectation = [self expectationWithDescription:@"no flow after eliminated pool"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow);
-//        [secondPoolExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
-//
-//#pragma mark - flush Tests
-//
-//- (void)testFlush_shouldRemoveAllFlows
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *correlationId1 = [NSUUID UUID];
-//    NSUUID *correlationId2 = [NSUUID UUID];
-//    
-//    [logger registerExecutionFlowWithCorrelationId:correlationId1];
-//    [logger registerExecutionFlowWithCorrelationId:correlationId2];
-//    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId1];
-//    [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId2];
-//    
-//    [logger flush];
-//    
-//    XCTestExpectation *firstFlushExpectation = [self expectationWithDescription:@"first flow nil after flush"];
-//    XCTestExpectation *secondFlushExpectation = [self expectationWithDescription:@"second flow nil after flush"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId1 queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow);
-//        [firstFlushExpectation fulfill];
-//    }];
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId2 queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow);
-//        [secondFlushExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
-//
-//- (void)testFlush_shouldClearEliminatedPool
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *correlationId = [NSUUID UUID];
-//    
-//    // Insert, flush, and verify it's in eliminated pool
-//    [logger registerExecutionFlowWithCorrelationId:correlationId];
-//    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
-//
-//    XCTestExpectation *initialFlowExpectation = [self expectationWithDescription:@"flow before flush clears pool"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNotNil(executionFlow);
-//        [initialFlowExpectation fulfill];
-//    }];
-//    
-//    // Call flush
-//    [logger flush];
-//    
-//    // Should be able to use same correlationId again
-//    [logger registerExecutionFlowWithCorrelationId:correlationId];
-//    [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId];
-//    
-//    NSSet *keys = [NSSet setWithArray:@[@"t"]];
-//    XCTestExpectation *secondFlowExpectation = [self expectationWithDescription:@"flow after flush clears pool"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:keys completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNotNil(executionFlow);
-//        
-//        NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
-//        NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
-//        
-//        XCTAssertEqual(result.count, 1);
-//        XCTAssertEqualObjects(result[0][@"t"], @"Tag2");
-//
-//        [secondFlowExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
-//
-//#pragma mark - Thread Safety Tests
-//
-//- (void)testConcurrentInsertsWithSameCorrelationId_shouldHandleThreadSafely
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *correlationId = [NSUUID UUID];
-//    
-//    [logger registerExecutionFlowWithCorrelationId:correlationId];
-//    
-//    dispatch_group_t group = dispatch_group_create();
-//    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-//    
-//    // Insert from multiple threads
-//    for (int i = 0; i < 20; i++) {
-//        dispatch_group_async(group, queue, ^{
-//            [logger insertTag:[NSString stringWithFormat:@"Tag%d", i] 
-//                    extraInfo:nil 
-//            withCorrelationId:correlationId];
-//        });
-//    }
-//    
-//    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-//    
-//    NSSet *keys = [NSSet setWithArray:@[@"t"]];
-//
-//    XCTestExpectation *concurrentExpectation = [self expectationWithDescription:@"concurrent inserts completed"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:keys completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNotNil(executionFlow);
-//        
-//        NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
-//        NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
-//        
-//        XCTAssertEqual(result.count, 20, @"All concurrent inserts should succeed");
-//
-//        [concurrentExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
+//----------New Batch----------------
+
+
+#pragma mark - Eliminated Pool Tests
+
+- (void)testEliminatedPool_shouldPreventReaddingSameFlow
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+    
+    // Insert and flush
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
+
+    XCTestExpectation *firstPoolExpectation = [self expectationWithDescription:@"first flow before eliminated pool test"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        [firstPoolExpectation fulfill];
+    }];
+    
+    // Try to insert again with same correlationId
+    [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId];
+    
+    // Should not create new flow
+    XCTestExpectation *secondPoolExpectation = [self expectationWithDescription:@"no flow after eliminated pool"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow);
+        [secondPoolExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+#pragma mark - flush Tests
+
+- (void)testFlush_shouldRemoveAllFlows
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId1 = [NSUUID UUID];
+    NSUUID *correlationId2 = [NSUUID UUID];
+    
+    [logger registerExecutionFlowWithCorrelationId:correlationId1];
+    [logger registerExecutionFlowWithCorrelationId:correlationId2];
+    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId1];
+    [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId2];
+    
+    [logger flush];
+    
+    XCTestExpectation *firstFlushExpectation = [self expectationWithDescription:@"first flow nil after flush"];
+    XCTestExpectation *secondFlushExpectation = [self expectationWithDescription:@"second flow nil after flush"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId1 queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow);
+        [firstFlushExpectation fulfill];
+    }];
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId2 queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow);
+        [secondFlushExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testFlush_shouldClearEliminatedPool
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+    
+    // Insert, flush, and verify it's in eliminated pool
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
+
+    XCTestExpectation *initialFlowExpectation = [self expectationWithDescription:@"flow before flush clears pool"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        [initialFlowExpectation fulfill];
+    }];
+    
+    // Call flush
+    [logger flush];
+    
+    // Should be able to use same correlationId again
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId];
+    
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    XCTestExpectation *secondFlowExpectation = [self expectationWithDescription:@"flow after flush clears pool"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:keys completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        
+        NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
+        NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+        
+        XCTAssertEqual(result.count, 1);
+        XCTAssertEqualObjects(result[0][@"t"], @"Tag2");
+
+        [secondFlowExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+#pragma mark - Thread Safety Tests
+
+- (void)testConcurrentInsertsWithSameCorrelationId_shouldHandleThreadSafely
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+    
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    // Insert from multiple threads
+    for (int i = 0; i < 20; i++) {
+        dispatch_group_async(group, queue, ^{
+            [logger insertTag:[NSString stringWithFormat:@"Tag%d", i] 
+                    extraInfo:nil 
+            withCorrelationId:correlationId];
+        });
+    }
+    
+    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+
+    XCTestExpectation *concurrentExpectation = [self expectationWithDescription:@"concurrent inserts completed"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:keys completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        
+        NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
+        NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+        
+        XCTAssertEqual(result.count, 20, @"All concurrent inserts should succeed");
+
+        [concurrentExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
 //
 //- (void)testConcurrentInsertsWithDifferentCorrelationIds_shouldNotInterfere
 //{
