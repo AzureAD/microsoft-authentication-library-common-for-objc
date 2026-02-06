@@ -495,145 +495,145 @@
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
-//
-//- (void)testRetrieveAndFlushWithNonExistentCorrelationId_shouldReturnNil
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *correlationId = [NSUUID UUID];
-//
-//    XCTestExpectation *nonexistentExpectation = [self expectationWithDescription:@"flow should be nil for missing correlation"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
-//                                                 queryKeys:nil
-//                                                completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow, @"Should return nil for non-existent correlationId");
-//        [nonexistentExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
-//
-//- (void)testRetrieveAndFlushWithNilCorrelationId_shouldReturnNil
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *nilCorrelationId = nil;
-//    XCTestExpectation *nilExpectation = [self expectationWithDescription:@"flow should be nil for nil correlation"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:nilCorrelationId
-//                                                 queryKeys:nil
-//                                                completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow, @"Should return nil for nil correlationId");
-//        [nilExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
-//
-//- (void)testRetrieveAndFlushWithEmptyCorrelationId_shouldReturnNil
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSString *uuidString = @"";
-//    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
-//    XCTestExpectation *emptyExpectation = [self expectationWithDescription:@"flow should be nil for empty correlation"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid
-//                                                 queryKeys:nil
-//                                                completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow, @"Should return nil for nil correlationId");
-//        [emptyExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
-//
-//- (void)testRetrieveAndFlush_shouldRemoveFlowFromCache
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *correlationId = [NSUUID UUID];
-//    
-//    [logger registerExecutionFlowWithCorrelationId:correlationId];
-//    [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
-//    XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow removed after first retrieve"];
-//    XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow nil after flush"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
-//                                                 queryKeys:nil
-//                                                completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNotNil(executionFlow);
-//        [firstRetrieveExpectation fulfill];
-//
-//    }];
-//    
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
-//                                                 queryKeys:nil
-//                                                completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow, @"Flow should be removed after first retrieve and flush");
-//        [secondRetrieveExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
-//
-//- (void)testRetrieveAndFlushMultipleTimes_shouldOnlyReturnFirstTime
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *correlationId = [NSUUID UUID];
-//    
-//    [logger registerExecutionFlowWithCorrelationId:correlationId];
-//    [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
-//    
-//    XCTestExpectation *firstExpectation = [self expectationWithDescription:@"flow only first time"];
-//    XCTestExpectation *secondExpectation = [self expectationWithDescription:@"second retrieve nil"];
-//    XCTestExpectation *thirdExpectation = [self expectationWithDescription:@"third retrieve nil"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNotNil(executionFlow);
-//        [firstExpectation fulfill];
-//    }];
-//    
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow);
-//        [secondExpectation fulfill];
-//    }];
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow);
-//        [thirdExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
-//
-//- (void)testInsertAfterFlush_shouldBeRejected
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *correlationId = [NSUUID UUID];
-//    
-//    [logger registerExecutionFlowWithCorrelationId:correlationId];
-//    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
-//    
-//    XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow present before flush rejection"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNotNil(executionFlow);
-//        [firstRetrieveExpectation fulfill];
-//    }];
-//
-//    // Give flush time to add correlationId to eliminated pool
-//
-//    // Try to insert after flush
-//    [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId];
-//
-//    // Should not create new flow
-//    XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow nil after flush rejection"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNil(executionFlow, @"Should reject inserts after flush");
-//        [secondRetrieveExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
-//
+//----------New Batch----------------
+- (void)testRetrieveAndFlushWithNonExistentCorrelationId_shouldReturnNil
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+
+    XCTestExpectation *nonexistentExpectation = [self expectationWithDescription:@"flow should be nil for missing correlation"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+                                                 queryKeys:nil
+                                                completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow, @"Should return nil for non-existent correlationId");
+        [nonexistentExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testRetrieveAndFlushWithNilCorrelationId_shouldReturnNil
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *nilCorrelationId = nil;
+    XCTestExpectation *nilExpectation = [self expectationWithDescription:@"flow should be nil for nil correlation"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:nilCorrelationId
+                                                 queryKeys:nil
+                                                completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow, @"Should return nil for nil correlationId");
+        [nilExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testRetrieveAndFlushWithEmptyCorrelationId_shouldReturnNil
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSString *uuidString = @"";
+    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
+    XCTestExpectation *emptyExpectation = [self expectationWithDescription:@"flow should be nil for empty correlation"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid
+                                                 queryKeys:nil
+                                                completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow, @"Should return nil for nil correlationId");
+        [emptyExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testRetrieveAndFlush_shouldRemoveFlowFromCache
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+    
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
+    XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow removed after first retrieve"];
+    XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow nil after flush"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+                                                 queryKeys:nil
+                                                completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        [firstRetrieveExpectation fulfill];
+
+    }];
+    
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+                                                 queryKeys:nil
+                                                completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow, @"Flow should be removed after first retrieve and flush");
+        [secondRetrieveExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testRetrieveAndFlushMultipleTimes_shouldOnlyReturnFirstTime
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+    
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
+    
+    XCTestExpectation *firstExpectation = [self expectationWithDescription:@"flow only first time"];
+    XCTestExpectation *secondExpectation = [self expectationWithDescription:@"second retrieve nil"];
+    XCTestExpectation *thirdExpectation = [self expectationWithDescription:@"third retrieve nil"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        [firstExpectation fulfill];
+    }];
+    
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow);
+        [secondExpectation fulfill];
+    }];
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow);
+        [thirdExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testInsertAfterFlush_shouldBeRejected
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+    
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
+    
+    XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow present before flush rejection"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        [firstRetrieveExpectation fulfill];
+    }];
+
+    // Give flush time to add correlationId to eliminated pool
+
+    // Try to insert after flush
+    [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId];
+
+    // Should not create new flow
+    XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow nil after flush rejection"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNil(executionFlow, @"Should reject inserts after flush");
+        [secondRetrieveExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
 //#pragma mark - Eliminated Pool Tests
 //
 //- (void)testEliminatedPool_shouldPreventReaddingSameFlow
