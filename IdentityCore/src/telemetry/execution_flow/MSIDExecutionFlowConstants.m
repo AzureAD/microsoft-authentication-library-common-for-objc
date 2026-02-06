@@ -77,7 +77,7 @@ NSString *MSIDTokenRequestTagToString(MSIDTokenRequestTag state)
     switch (state)
     {
         case MSIDTokenRequestAtExpirationElapsedTag:
-            return @"yhjin";
+            return @"xilux";
     }
 
     // Fallback for any future enum values
