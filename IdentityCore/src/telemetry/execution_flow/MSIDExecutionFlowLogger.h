@@ -66,12 +66,6 @@ withCorrelationId:(NSUUID *)correlationId;
                                             queryKeys:(nullable NSSet<NSString *> *)queryKeys
                                            completion:(void (^)(NSString * _Nullable executionFlow))completion;
 
-/*!
- Flushes all registered execution flows, clearing any buffered tags and resetting internal state.
- */
-- (void)flush;
-
-
 @end
 
 NS_ASSUME_NONNULL_END

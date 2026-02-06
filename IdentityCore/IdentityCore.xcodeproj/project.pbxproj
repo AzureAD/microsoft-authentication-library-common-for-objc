@@ -582,6 +582,7 @@
 		2A6614082F32637200FFA6AD /* MSIDExecutionFlowUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6614072F32637200FFA6AD /* MSIDExecutionFlowUtils.m */; };
 		2A6614092F32637200FFA6AD /* MSIDExecutionFlowUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6614062F32637200FFA6AD /* MSIDExecutionFlowUtils.h */; };
 		2A66140A2F32637200FFA6AD /* MSIDExecutionFlowUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6614072F32637200FFA6AD /* MSIDExecutionFlowUtils.m */; };
+		2A7665552F35C213005B75D9 /* MSIDExecutionFlowLogger+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A7665542F35C213005B75D9 /* MSIDExecutionFlowLogger+Test.h */; };
 		2A886D6E2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */; };
 		2A886D702ECBE3D600675D31 /* MSIDGCDStarvationDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */; };
 		2AADDAC72DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */; };
@@ -2593,6 +2594,7 @@
 		2A59B4422D7A0CB500304FB1 /* MSIDXpcInteractiveTokenRequestController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcInteractiveTokenRequestController.m; sourceTree = "<group>"; };
 		2A6614062F32637200FFA6AD /* MSIDExecutionFlowUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDExecutionFlowUtils.h; sourceTree = "<group>"; };
 		2A6614072F32637200FFA6AD /* MSIDExecutionFlowUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowUtils.m; sourceTree = "<group>"; };
+		2A7665542F35C213005B75D9 /* MSIDExecutionFlowLogger+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDExecutionFlowLogger+Test.h"; sourceTree = "<group>"; };
 		2A886D6C2ECBE3D600675D31 /* MSIDGCDStarvationDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDGCDStarvationDetector.h; sourceTree = "<group>"; };
 		2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDGCDStarvationDetector.m; sourceTree = "<group>"; };
 		2AADDAC52DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOXpcSilentTokenRequest.h; sourceTree = "<group>"; };
@@ -6122,6 +6124,7 @@
 				2A465DF12F0C74A6006E7571 /* MSIDExecutionFlowTests.m */,
 				2A465DF42F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m */,
 				2A294C2D2F31372E0042AEA0 /* MSIDExecutionFlowTagTests.m */,
+				2A7665542F35C213005B75D9 /* MSIDExecutionFlowLogger+Test.h */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -6716,6 +6719,7 @@
 				B217862E23A58A0E00839CE8 /* ASAuthorizationSingleSignOnCredentialMock.h in Headers */,
 				B2E4A06C24DDE54F007CE642 /* MSIDRegistrationInformationMock.h in Headers */,
 				B2BE925821A24CB000F5AB8C /* MSIDTestSilentTokenRequest.h in Headers */,
+				2A7665552F35C213005B75D9 /* MSIDExecutionFlowLogger+Test.h in Headers */,
 				B2E4A06F24DDE55C007CE642 /* MSIDTestContext.h in Headers */,
 				B24DE9FE21A60F13003A651D /* MSIDTestBrokerTokenRequest.h in Headers */,
 				B2BE926721A25F7F00F5AB8C /* MSIDTestBrokerResponseHandler.h in Headers */,
