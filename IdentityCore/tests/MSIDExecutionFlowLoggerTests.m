@@ -832,7 +832,8 @@
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     
     // Concurrent inserts
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++)
+    {
         dispatch_group_async(group, queue, ^{
             [logger insertTag:[NSString stringWithFormat:@"Tag%d", i] 
                     extraInfo:nil 
@@ -841,15 +842,16 @@
     }
     
     // Concurrent retrieve (may or may not get data depending on timing)
-    dispatch_group_enter(group);
+    // Verify all flows were created
+    XCTestExpectation *allFlowsExpectation = [self expectationWithDescription:@"all separate flows retrieved"];
     dispatch_async(queue, ^{
         [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-            dispatch_group_leave(group);
+            [allFlowsExpectation fulfill];
         }];
     });
     
-    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-    
+    [self waitForExpectationsWithTimeout:3 handler:nil];
+
     // Test passes if no crash occurs
 }
 
@@ -861,7 +863,8 @@
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     
     NSMutableArray *correlationIds = [NSMutableArray new];
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 20; i++)
+    {
         [correlationIds addObject:[NSUUID UUID]];
     }
     
@@ -872,8 +875,18 @@
         });
     }
     
-    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+    XCTestExpectation *allFlowsExpectation = [self expectationWithDescription:@"all separate flows retrieved"];
+    allFlowsExpectation.expectedFulfillmentCount = 20;
+    for (int i = 0; i < 20; i++)
+    {
+        dispatch_async(queue, ^{
+            [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationIds[i] queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+                [allFlowsExpectation fulfill];
+            }];
+        });
+    }
     
+    [self waitForExpectationsWithTimeout:3 handler:nil];
     // Test passes if no crash occurs
 }
 //
