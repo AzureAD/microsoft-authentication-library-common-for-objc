@@ -94,8 +94,10 @@ static MSIDWebviewSession *s_currentSession = nil;
         
         NSError *responseError = nil;
         
+        // Pass the HTTP response from session to factory for response creation
         MSIDWebviewResponse *response = [s_currentSession.webViewConfiguration responseWithResultURL:callbackURL
                                                                                              factory:s_currentSession.factory
+                                                                                     responseHeaders:s_currentSession.lastResponseHeaders
                                                                                              context:context
                                                                                                error:&responseError];
         

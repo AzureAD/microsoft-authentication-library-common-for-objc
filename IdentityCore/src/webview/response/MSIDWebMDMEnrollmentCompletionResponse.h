@@ -25,30 +25,15 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
-
-#if !MSID_EXCLUDE_WEBKIT
+#import "MSIDWebviewResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
+@interface MSIDWebMDMEnrollmentCompletionResponse : MSIDWebviewResponse
 
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders;
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
+@property (atomic, readonly, nullable) NSString *status;
+@property (atomic, readonly, nullable) NSDictionary *additionalInfo;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

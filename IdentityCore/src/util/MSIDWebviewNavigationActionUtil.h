@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -17,38 +16,21 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
-
-#if !MSID_EXCLUDE_WEBKIT
-
+@class MSIDWebviewNavigationAction;
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
+@interface MSIDWebviewNavigationActionUtil : NSObject
 
++ (instancetype)sharedInstance;
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders;
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
-
+- (MSIDWebviewNavigationAction * _Nullable)resolveActionForMSAuthURL:(NSURL *)url
+                                               responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders;
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

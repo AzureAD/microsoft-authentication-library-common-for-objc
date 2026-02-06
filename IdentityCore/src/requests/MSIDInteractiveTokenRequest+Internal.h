@@ -26,6 +26,7 @@
 
 @class MSIDTokenResponse;
 @class MSIDAuthorizeWebRequestConfiguration;
+@protocol MSIDWebviewInteracting;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,6 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
 @property (nonatomic, readonly, nullable) id<MSIDExtendedTokenCacheDataSource> extendedTokenCache;
+
+// Inherited from MSIDInteractiveAuthorizationCodeRequest
+// @property (nonatomic, readonly, nullable) NSObject<MSIDWebviewInteracting> *currentWebview;
 
 @end
 

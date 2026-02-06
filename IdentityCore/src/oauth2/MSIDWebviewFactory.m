@@ -246,6 +246,23 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError *__autoreleasing*)error
 {
+    return [self oAuthResponseWithURL:url
+                         requestState:requestState
+                   ignoreInvalidState:ignoreInvalidState
+                       endRedirectUri:endRedirectUri
+                      responseHeaders:nil
+                              context:context
+                                error:error];
+}
+
+- (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
+                                 requestState:(NSString *)requestState
+                           ignoreInvalidState:(BOOL)ignoreInvalidState
+                               endRedirectUri:(NSString *)endRedirectUri
+                              responseHeaders:(NSDictionary<NSString *, NSString *> *)lastResponseHeaders
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError *__autoreleasing*)error
+{
     //  return base response
     NSError *responseCreationError = nil;
     MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:url

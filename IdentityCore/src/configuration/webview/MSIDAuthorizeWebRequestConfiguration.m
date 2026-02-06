@@ -65,4 +65,19 @@
                                    error:error];
 }
 
+- (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
+                                       factory:(MSIDWebviewFactory *)factory
+                               responseHeaders:(NSDictionary<NSString *, NSString *> *)lastResponseHeaders
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError *__autoreleasing*)error
+{
+    return [factory oAuthResponseWithURL:url
+                            requestState:self.state
+                      ignoreInvalidState:self.ignoreInvalidState
+                          endRedirectUri:self.endRedirectUrl
+                         responseHeaders:lastResponseHeaders
+                                 context:context
+                                   error:error];
+}
+
 @end

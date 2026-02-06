@@ -78,6 +78,14 @@
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError *__autoreleasing*)error;
 
+- (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
+                                 requestState:(NSString *)requestState
+                           ignoreInvalidState:(BOOL)ignoreInvalidState
+                               endRedirectUri:(NSString *)endRedirectUri
+                              responseHeaders:(NSDictionary<NSString *, NSString *> *)lastResponseHeaders
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError *__autoreleasing*)error;
+
 // Helper for generating state for state verification
 - (NSString *)generateStateValue;
 

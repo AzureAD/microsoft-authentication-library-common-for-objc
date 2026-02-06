@@ -25,30 +25,35 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
-
-#if !MSID_EXCLUDE_WEBKIT
+#import "MSIDWebviewResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
+/**
+ * Response class for detecting msauth://installProfile trigger
+ * This is different from MSIDWebInstallProfileResponse (profileInstalled)
+ * This one triggers the profile installation flow by transitioning to ASWebAuthenticationSession
+ */
+@interface MSIDWebMDMInstallProfileResponse : MSIDWebviewResponse
 
+/// The Intune profile installation URL extracted from x-intune-url HTTP header
+@property (atomic, readonly, nullable) NSString *intuneURL;
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders;
+/// The Intune authentication token extracted from x-intune-token HTTP header
+@property (atomic, readonly, nullable) NSString *intuneToken;
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
+/**
+ * Initialize with URL and HTTP response headers
+ * @param url The response URL
+ * @param lastResponseHeaders from last response
+ * @param context The request context
+ * @param error Output error if initialization fails
+ */
+- (instancetype)initWithURL:(NSURL *)url
+            responseHeaders:(NSDictionary<NSString *, NSString *> *)lastResponseHeaders
+                    context:(id<MSIDRequestContext> _Nullable)context
+                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif
