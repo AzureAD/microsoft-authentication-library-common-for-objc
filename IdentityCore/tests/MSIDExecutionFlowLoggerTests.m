@@ -841,16 +841,16 @@
     }
     
     // Concurrent retrieve; test passes if it completes without crashing
-//    XCTestExpectation *retrieveExpectation = [self expectationWithDescription:@"retrieve finishes"];
+    XCTestExpectation *retrieveExpectation = [self expectationWithDescription:@"retrieve finishes"];
 //    dispatch_async(queue, ^{
-//        [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
-//                                                     queryKeys:nil
-//                                                    completion:^(NSString * _Nullable executionFlow) {
-//            [retrieveExpectation fulfill];
-//        }];
+        [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+                                                     queryKeys:nil
+                                                    completion:^(NSString * _Nullable executionFlow) {
+            [retrieveExpectation fulfill];
+        }];
 //    });
-//    
-//    [self waitForExpectationsWithTimeout:3 handler:nil];
+    
+    [self waitForExpectationsWithTimeout:3 handler:nil];
 
     // Test passes if no crash occurs
 }
