@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDAutomationAccountsResult;
 @class MSIDIdTokenClaims;
 @class MSIDTestAutomationAccount;
+@class MSIDKeyVaultAccountProvider;
 
 @interface MSIDBaseUITest : XCTestCase
 
