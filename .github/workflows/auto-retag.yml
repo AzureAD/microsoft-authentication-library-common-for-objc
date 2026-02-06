@@ -80,6 +80,7 @@ jobs:
       with:
         script: |
           const output = `${{ steps.retag.outputs.output }}`;
+          const placeholder = `${{ env.TAG_PLACEHOLDER }}`;
           
           // Get the current branch name
           const branch = context.ref.replace('refs/heads/', '');
@@ -99,7 +100,7 @@ jobs:
               issue_number: pr.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## 🏷️ Auto-retag Results\n\n\`\`\`\n${output}\n\`\`\`\n\n✅ UNTAGGED entries have been automatically replaced with unique tags.`
+              body: `## 🏷️ Auto-retag Results\n\n\`\`\`\n${output}\n\`\`\`\n\n✅ ${placeholder} entries have been automatically replaced with unique tags.`
             });
             console.log(`Posted comment to PR #${pr.number}`);
           } else {
