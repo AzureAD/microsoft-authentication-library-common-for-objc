@@ -32,55 +32,55 @@
 
 @implementation MSIDExecutionFlowLoggerTests
 
-//- (void)setUp
-//{
-//    [super setUp];
-//    // Flush logger before each test to ensure clean state
-//    [[MSIDExecutionFlowLogger sharedInstance] flush];
-//    // Give async flush time to complete
-//}
-//
-//- (void)tearDown
-//{
-//    [[MSIDExecutionFlowLogger sharedInstance] flush];
-//    [super tearDown];
-//}
-//
-//#pragma mark - Singleton Tests
-//
-//- (void)testSharedInstance_shouldReturnSameInstance
-//{
-//    MSIDExecutionFlowLogger *logger1 = [MSIDExecutionFlowLogger sharedInstance];
-//    MSIDExecutionFlowLogger *logger2 = [MSIDExecutionFlowLogger sharedInstance];
-//    
-//    XCTAssertNotNil(logger1);
-//    XCTAssertNotNil(logger2);
-//    XCTAssertEqual(logger1, logger2, @"Should return the same singleton instance");
-//}
-//
-//#pragma mark - registerExecutionFlowWithCorrelationId: Tests
-//
-//- (void)testRegisterExecutionFlowWithValidCorrelationId_shouldSucceed
-//{
-//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-//    NSUUID *correlationId = [NSUUID UUID];
-//    
-//    XCTAssertNoThrow([logger registerExecutionFlowWithCorrelationId:correlationId]);
-//    
-//    // Verify by inserting a tag
-//    [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
-//
-//    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"flow should exist after register"];
-//
-//    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
-//                                                                  queryKeys:nil
-//                                                                 completion:^(NSString * _Nullable executionFlow) {
-//        XCTAssertNotNil(executionFlow, @"Flow should be created after registration");
-//        [flowExpectation fulfill];
-//    }];
-//
-//    [self waitForExpectationsWithTimeout:1 handler:nil];
-//}
+- (void)setUp
+{
+    [super setUp];
+    // Flush logger before each test to ensure clean state
+    [[MSIDExecutionFlowLogger sharedInstance] flush];
+    // Give async flush time to complete
+}
+
+- (void)tearDown
+{
+    [[MSIDExecutionFlowLogger sharedInstance] flush];
+    [super tearDown];
+}
+
+#pragma mark - Singleton Tests
+
+- (void)testSharedInstance_shouldReturnSameInstance
+{
+    MSIDExecutionFlowLogger *logger1 = [MSIDExecutionFlowLogger sharedInstance];
+    MSIDExecutionFlowLogger *logger2 = [MSIDExecutionFlowLogger sharedInstance];
+    
+    XCTAssertNotNil(logger1);
+    XCTAssertNotNil(logger2);
+    XCTAssertEqual(logger1, logger2, @"Should return the same singleton instance");
+}
+
+#pragma mark - registerExecutionFlowWithCorrelationId: Tests
+
+- (void)testRegisterExecutionFlowWithValidCorrelationId_shouldSucceed
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+    
+    XCTAssertNoThrow([logger registerExecutionFlowWithCorrelationId:correlationId]);
+    
+    // Verify by inserting a tag
+    [logger insertTag:@"TestTag" extraInfo:nil withCorrelationId:correlationId];
+
+    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"flow should exist after register"];
+
+    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+                                                                  queryKeys:nil
+                                                                 completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow, @"Flow should be created after registration");
+        [flowExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
 //
 //- (void)testRegisterExecutionFlowWithNilCorrelationId_shouldNotCrash
 //{
