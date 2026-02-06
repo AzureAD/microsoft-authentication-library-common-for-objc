@@ -23,10 +23,12 @@ def generate_tag(existing_tags, length, charset):
     raise RuntimeError("Failed to generate unique tag after many attempts")
 
 
-def extract_existing_tags(content, length):
+def extract_existing_tags(content, length, charset):
     """Extract all existing tags from the file content."""
     # Match patterns like: return @"y96sa";
-    pattern = rf'return @"([a-z0-9]{{{length}}})";'
+    # Escape special regex characters in charset
+    escaped_charset = re.escape(charset)
+    pattern = rf'return @"([{escaped_charset}]{{{length}}})";'
     tags = re.findall(pattern, content)
     return tags
 
@@ -48,7 +50,7 @@ def replace_untagged(file_path, placeholder, length, charset):
         content = f.read()
     
     # Extract existing tags (as list to detect duplicates)
-    existing_tags_list = extract_existing_tags(content, length)
+    existing_tags_list = extract_existing_tags(content, length, charset)
     existing_tags_set = set(existing_tags_list)
     
     print(f"Found {len(existing_tags_list)} total tags")

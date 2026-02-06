@@ -92,7 +92,7 @@
 
 - (void)test_MSIDTokenRequestTagToString_returnsExpectedStrings
 {
-    XCTAssertEqualObjects(MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag), @"riwx7");
+    XCTAssertEqualObjects(MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag), @"xilux");
 }
 
 - (void)test_MSIDExecutionFlowNetworkTagToString_unknownEnum_returnsFallback
