@@ -582,6 +582,7 @@
 		2A6614082F32637200FFA6AD /* MSIDExecutionFlowUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6614072F32637200FFA6AD /* MSIDExecutionFlowUtils.m */; };
 		2A6614092F32637200FFA6AD /* MSIDExecutionFlowUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A6614062F32637200FFA6AD /* MSIDExecutionFlowUtils.h */; };
 		2A66140A2F32637200FFA6AD /* MSIDExecutionFlowUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A6614072F32637200FFA6AD /* MSIDExecutionFlowUtils.m */; };
+		2A7665482F35727E005B75D9 /* MSIDExecutionFlowLogger+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A7665472F354D64005B75D9 /* MSIDExecutionFlowLogger+Test.h */; };
 		2A886D6E2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */; };
 		2A886D702ECBE3D600675D31 /* MSIDGCDStarvationDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A886D6D2ECBE3D600675D31 /* MSIDGCDStarvationDetector.m */; };
 		2AADDAC72DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2AADDAC62DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m */; };
@@ -6718,6 +6719,7 @@
 				B217862E23A58A0E00839CE8 /* ASAuthorizationSingleSignOnCredentialMock.h in Headers */,
 				B2E4A06C24DDE54F007CE642 /* MSIDRegistrationInformationMock.h in Headers */,
 				B2BE925821A24CB000F5AB8C /* MSIDTestSilentTokenRequest.h in Headers */,
+				2A7665482F35727E005B75D9 /* MSIDExecutionFlowLogger+Test.h in Headers */,
 				B2E4A06F24DDE55C007CE642 /* MSIDTestContext.h in Headers */,
 				B24DE9FE21A60F13003A651D /* MSIDTestBrokerTokenRequest.h in Headers */,
 				B2BE926721A25F7F00F5AB8C /* MSIDTestBrokerResponseHandler.h in Headers */,
