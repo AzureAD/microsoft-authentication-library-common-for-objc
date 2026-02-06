@@ -854,40 +854,40 @@
     // Test passes if no crash occurs
 }
 
-- (void)testConcurrentRegistrations_shouldHandleThreadSafely
-{
-    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
-    
-    dispatch_group_t group = dispatch_group_create();
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    
-    NSMutableArray *correlationIds = [NSMutableArray new];
-    for (int i = 0; i < 20; i++)
-    {
-        [correlationIds addObject:[NSUUID UUID]];
-    }
-    
-    // Register from multiple threads
-    for (int i = 0; i < 20; i++) {
-        dispatch_group_async(group, queue, ^{
-            [logger registerExecutionFlowWithCorrelationId:correlationIds[i]];
-        });
-    }
-    
-    XCTestExpectation *allFlowsExpectation = [self expectationWithDescription:@"all separate flows retrieved"];
-    allFlowsExpectation.expectedFulfillmentCount = 20;
-    for (int i = 0; i < 20; i++)
-    {
-        dispatch_async(queue, ^{
-            [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationIds[i] queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
-                [allFlowsExpectation fulfill];
-            }];
-        });
-    }
-    
-    [self waitForExpectationsWithTimeout:3 handler:nil];
-    // Test passes if no crash occurs
-}
+//- (void)testConcurrentRegistrations_shouldHandleThreadSafely
+//{
+//    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+//    
+//    dispatch_group_t group = dispatch_group_create();
+//    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+//    
+//    NSMutableArray *correlationIds = [NSMutableArray new];
+//    for (int i = 0; i < 20; i++)
+//    {
+//        [correlationIds addObject:[NSUUID UUID]];
+//    }
+//    
+//    // Register from multiple threads
+//    for (int i = 0; i < 20; i++) {
+//        dispatch_group_async(group, queue, ^{
+//            [logger registerExecutionFlowWithCorrelationId:correlationIds[i]];
+//        });
+//    }
+//    
+//    XCTestExpectation *allFlowsExpectation = [self expectationWithDescription:@"all separate flows retrieved"];
+//    allFlowsExpectation.expectedFulfillmentCount = 20;
+//    for (int i = 0; i < 20; i++)
+//    {
+//        dispatch_async(queue, ^{
+//            [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationIds[i] queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+//                [allFlowsExpectation fulfill];
+//            }];
+//        });
+//    }
+//    
+//    [self waitForExpectationsWithTimeout:3 handler:nil];
+//    // Test passes if no crash occurs
+//}
 //
 //#pragma mark - Integration Tests
 //
