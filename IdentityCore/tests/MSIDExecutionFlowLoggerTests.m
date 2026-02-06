@@ -24,7 +24,7 @@
 
 
 #import <XCTest/XCTest.h>
-#import "MSIDExecutionFlowLogger+Test.h"
+#import "MSIDExecutionFlowLogger.h"
 
 @interface MSIDExecutionFlowLoggerTests : XCTestCase
 
