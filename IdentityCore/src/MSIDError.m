@@ -75,6 +75,20 @@ NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescri
                                   userInfo:additionalUserInfo];
 }
 
+MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(NSString *oauthError, MSIDErrorCode defaultCode, NSArray<NSNumber *> *stsErrorCodes)
+{
+    if (stsErrorCodes.count == 0)
+    {
+        return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame
+        && [stsErrorCodes containsObject:@50142])
+    {
+        return MSIDErrorServerInvalidRequestResetPasswordRequired;
+    }
+    return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
+}
+
 MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode)
 {
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)
@@ -228,6 +242,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorServerProtectionPoliciesRequired),
                       @(MSIDErrorAuthorizationFailed),
                       @(MSIDErrorServerError),
+                      @(MSIDErrorServerInvalidRequestResetPasswordRequired),
                       ],
               MSIDHttpErrorCodeDomain : @[
                       @(MSIDErrorServerUnhandledResponse),
@@ -307,6 +322,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorServerProtectionPoliciesRequired";
         case MSIDErrorAuthorizationFailed:
             return @"MSIDErrorAuthorizationFailed";
+        case MSIDErrorServerInvalidRequestResetPasswordRequired:
+            return @"MSIDErrorServerInvalidRequestResetPasswordRequired";
             // HTTP errors
         case MSIDErrorServerUnhandledResponse:
             return @"MSIDErrorServerUnhandledResponse";

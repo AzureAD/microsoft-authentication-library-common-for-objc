@@ -48,6 +48,7 @@
 #import "MSIDV1IdToken.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDError.h"
 
 @implementation MSIDOauth2Factory
 
@@ -88,8 +89,14 @@
             userInfo[MSIDBrokerVersionKey] = response.clientAppVersion;
             if (response.stsErrorCodes) userInfo[MSIDSTSErrorCodesKey] = response.stsErrorCodes;
             
+            // CHANGED: Use STS-aware lookup instead of response.oauthErrorCode
+            MSIDErrorCode errorCode = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(
+                                          response.error,
+                                          MSIDErrorServerOauth,
+                                          response.stsErrorCodes);
+            
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
-                                     response.oauthErrorCode,
+                                     errorCode,
                                      response.errorDescription,
                                      response.error,
                                      nil,
