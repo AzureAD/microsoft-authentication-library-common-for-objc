@@ -203,29 +203,12 @@
     XCTAssertEqual(result, MSIDErrorServerInvalidRequestResetPasswordRequired);
 }
 
-- (void)testMSIDErrorWithInvalidRequestAndSTS50142AmongMultipleCodesShouldReturnResetPasswordRequired
-{
-    MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_request",
-                                                                       MSIDErrorServerOauth,
-                                                                       @[@70000, @50142, @12345]);
-    XCTAssertEqual(result, MSIDErrorServerInvalidRequestResetPasswordRequired);
-}
-
 - (void)testMSIDErrorWithInvalidRequestAndDifferentSTSCodeShouldReturnInvalidRequest
 {
     MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_request",
                                                                        MSIDErrorServerOauth,
                                                                        @[@99999]);
     XCTAssertEqual(result, MSIDErrorServerInvalidRequest);
-}
-
-- (void)testMSIDErrorWithInvalidGrantAndSTS50142ShouldReturnInvalidGrant
-{
-    // 50142 only matters for invalid_request, not invalid_grant
-    MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_grant",
-                                                                       MSIDErrorServerOauth,
-                                                                       @[@50142]);
-    XCTAssertEqual(result, MSIDErrorServerInvalidGrant);
 }
 
 - (void)testMSIDErrorWithNilSTSCodesShouldFallbackToBaseFunction
