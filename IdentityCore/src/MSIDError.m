@@ -82,7 +82,7 @@ MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(NSString *oauthError, 
         return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
     }
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame
-        && [stsErrorCodes containsObject:@50142])
+        && [stsErrorCodes containsObject:@(MSIDSTSErrorCodeResetPasswordRequired)])
     {
         return MSIDErrorServerInvalidRequestResetPasswordRequired;
     }
