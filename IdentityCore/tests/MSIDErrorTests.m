@@ -203,6 +203,14 @@
     XCTAssertEqual(result, MSIDErrorServerInvalidRequestResetPasswordRequired);
 }
 
+- (void)testMSIDErrorWithInvalidRequestAndMultipleErrorsWithSTS50142ShouldReturnResetPasswordRequired
+{
+    MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_request",
+                                                                       MSIDErrorServerOauth,
+                                                                       @[@50142, @99999, @51410]);
+    XCTAssertEqual(result, MSIDErrorServerInvalidRequestResetPasswordRequired);
+}
+
 - (void)testMSIDErrorWithInvalidRequestAndDifferentSTSCodeShouldReturnInvalidRequest
 {
     MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_request",

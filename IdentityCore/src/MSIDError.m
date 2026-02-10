@@ -77,7 +77,7 @@ NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescri
 
 MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(NSString *oauthError, MSIDErrorCode defaultCode, NSArray<NSNumber *> *stsErrorCodes)
 {
-    if (stsErrorCodes.count == 0)
+    if (!stsErrorCodes || !stsErrorCodes.count)
     {
         return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
     }

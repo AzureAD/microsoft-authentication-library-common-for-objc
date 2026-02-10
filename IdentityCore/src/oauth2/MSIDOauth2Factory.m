@@ -48,7 +48,6 @@
 #import "MSIDV1IdToken.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthenticationScheme.h"
-#import "MSIDError.h"
 
 @implementation MSIDOauth2Factory
 
