@@ -163,8 +163,8 @@
                 if (!innerStrongSelf) return;
                 
                 [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestCompletionTag)
-                                                         extraInfo:error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil
-                                                 withCorrelationId:strongSelf.requestParameters.correlationId];
+                                                        extraInfo:localError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(localError.code)} : nil
+                                                 withCorrelationId:innerStrongSelf.requestParameters.correlationId];
                 MSIDInteractiveRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;
                 innerStrongSelf.requestCompletionBlock = nil;
                 if (completionBlock) completionBlock(result, localError, nil);
