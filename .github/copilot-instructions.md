@@ -9,7 +9,7 @@ This repository contains `IdentityCore`, a shared library used by the Microsoft 
 - **Platforms**: iOS, macOS, visionOS.
 - **Key Frameworks**: Foundation, Security.
 - **Versioning**: Semantic Versioning.
-- **Branching**: `main` is the active branch.
+- **Branching**: `main` is the active branch. `dev` is the active development branch.
 
 ## Build and Validation
 
@@ -32,7 +32,9 @@ Run the `build.py` script with the appropriate target. This command performs bot
 **Note:**
 - The build script uses `xcodebuild` under the hood.
 - Ensure you have the appropriate Xcode version selected (CI uses Xcode 16.2).
+- The build script requires `xcpretty` by default. If `xcpretty` is not installed locally, use `--no-xcpretty` to bypass it.
 - If you encounter issues, try running with `--no-clean` to speed up subsequent builds or `--show-build-settings` for debugging.
+- The iOS simulator device and OS version are hardcoded in `build.py` (e.g., `ios_sim_device` and `ios_sim_dest`). If the configured simulator is not available in your local Xcode/simulator environment, update these variables to match an available device and runtime (use `xcrun simctl list devices available` to check).
 
 ## Code Style
 
