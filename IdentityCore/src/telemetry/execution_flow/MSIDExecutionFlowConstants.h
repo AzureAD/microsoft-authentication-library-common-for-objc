@@ -25,8 +25,8 @@
 #import <Foundation/Foundation.h>
 
 /**
- Each enum tag must be unique within the codebase—you cannot reuse the same tag in different locations,
- although different execution‑flow blobs may share a tsame ag in the final flow.
+ Each enum tag must be unique within the codebase. Reuse is allowed only when two flows are mutually exclusive for a single token request (i.e., flow A or flow B can occur, but never both in the same request).
+ Although different execution‑flow blobs may share the same tag in the final flow.
 
  To generate a new tag, follow these steps:
    1. Add a meaningful enum and Insert the corresponding string placeholder "UNTAGGED" in MSIDExecutionFlowConstants.m where you need the new tag.
