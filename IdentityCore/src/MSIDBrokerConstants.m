@@ -95,6 +95,7 @@ NSString *const MSID_PRIMARY_REGISTRATION_CLOUD = @"primary_registration_metadat
 NSString *const MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT = @"primary_registration_metadata_certificate_thumbprint";
 NSString *const MSID_PLATFORM_SSO_STATUS_KEY = @"platform_sso_status";
 NSString *const MSID_JIT_TROUBLESHOOTING_HOST = @"jit_troubleshooting";
+NSString *const MSID_IGNORE_BROKER_REQUEST = @"ignore_broker_request";
 NSString *const MSID_IS_CALLER_MANAGED_KEY = @"isCallerAppManaged";
 NSString *const MSID_BROKER_SDM_WPJ_ATTEMPTED = @"sdm_reg_attempted";
 NSString *const MSID_BART_DEVICE_ID_KEY = @"bart_device_id";
