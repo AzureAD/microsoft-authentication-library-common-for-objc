@@ -120,8 +120,8 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
                         if (!innerStrongSelf) return;
                         
                         [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestCompletionTag)
-                                                                 extraInfo:error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil
-                                                         withCorrelationId:strongSelf.requestParameters.correlationId];
+                                                                 extraInfo:localError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(localError.code)} : nil
+                                                         withCorrelationId:innerStrongSelf.requestParameters.correlationId];
                         MSIDRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;
                         innerStrongSelf.requestCompletionBlock = nil;
                         if (localError)
