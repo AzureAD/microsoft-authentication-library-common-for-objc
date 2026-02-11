@@ -46,5 +46,6 @@
 @property (nonatomic) MSIDWindow *presentationAnchorWindow;
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 @property (nonatomic) NSString *telemetryWebviewType;
+@property (nonatomic) BOOL isReplayRequest;
 
 @end

@@ -47,8 +47,14 @@
 #import "MSIDDefaultTokenRequestProvider.h"
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDLogger+Internal.h"
+#import "NSURL+MSIDExtensions.h"
+#import "MSIDOnboardingStatus.h"
+#import "MSIDOnboardingStatusCache.h"
+#import "MSIDBrokerConstants.h"
 
 static MSIDBrokerInteractiveController *s_currentExecutingController;
+static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 
 @interface MSIDBrokerInteractiveController()
 
@@ -56,6 +62,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 @property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (atomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
+@property (nonatomic, readwrite) BOOL isReplayRequest;
 
 @end
 
@@ -233,6 +240,16 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return;
     }
     
+    self.isReplayRequest = NO;
+    [self.class setCurrentBrokerRequest:brokerRequest];
+    // Phase 1, do not show UI to users, just save the current onboarding status for the current MSAL client, and overwrite it.
+    // This is to return to Authenticator with the same request if it was initiated from the same app.
+    MSIDOnboardingStatus *onboardingStatus = [MSIDOnboardingStatus new];
+    onboardingStatus.phase = MSIDOnboardingPhaseBrokerInteractiveInProgress;
+    onboardingStatus.onboardingContext = MSIDOnboardingContextBroker;
+    onboardingStatus.correlationId = self.requestParameters.correlationId;
+    [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:onboardingStatus];
+    
     NSDictionary *brokerResumeDictionary = brokerRequest.resumeDictionary;
     [[NSUserDefaults standardUserDefaults] setObject:brokerResumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 
@@ -248,6 +265,13 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, MSID_TELEMETRY_EVENT_LAUNCH_BROKER);
 
     NSURL *brokerRequestURL = brokerRequest.brokerRequestURL;
+    
+#if !TARGET_OS_OSX
+    if (self.isReplayRequest)
+    {
+        brokerRequestURL = [brokerRequestURL msidURLWithQueryParameters:@{MSID_IGNORE_BROKER_REQUEST: @"1"}];
+    }
+#endif
 
     NSURL *launchURL = _brokerInstallLink ? _brokerInstallLink : brokerRequestURL;
     BOOL firstTimeInstall = _brokerInstallLink != nil;
@@ -391,9 +415,38 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     if ([self.class currentBrokerController])
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerResponseNotReceived, @"application did not receive response from broker.", nil, nil, nil, nil, nil, YES);
-
         MSIDBrokerInteractiveController *brokerController = [self.class currentBrokerController];
+        
+        // Go back to broker
+        BOOL returnToBroker = NO;
+        // First read from Keychain to see if we have a request in progress from this app
+        MSIDOnboardingStatus *onboardingStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        if (onboardingStatus.phase == MSIDOnboardingPhaseBrokerInteractiveInProgress &&
+            onboardingStatus.onboardingContext == MSIDOnboardingContextBroker &&
+            onboardingStatus.originatingBundleId && [onboardingStatus.originatingBundleId isEqualToString:[NSBundle.mainBundle bundleIdentifier]])
+        {
+            returnToBroker = YES;
+        }
+        
+        if (returnToBroker)
+        {
+            if ([self canPerformRequest:brokerController.interactiveParameters])
+            {
+                MSIDBrokerTokenRequest *brokerRequest = [self currentBrokerRequest];
+                if (brokerRequest)
+                {
+                    brokerController.isReplayRequest = YES;
+                    
+                    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, brokerController.requestParameters, @"Returning request to broker app to continue authentication.");
+                    [brokerController callBrokerWithRequest:brokerRequest];
+                    
+                    return;
+                }
+            }
+        }
+        
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerResponseNotReceived, @"Application did not receive response from broker.", nil, nil, nil, nil, nil, YES);
+
         [brokerController completeAcquireTokenWithResult:nil error:error];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     }
@@ -450,10 +503,12 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         MSIDRequestCompletionBlock requestCompletion = [self copyAndClearCompletionBlock];
         requestCompletion(tokenResult, error);
         [self.class setCurrentBrokerController:nil];
+        [self.class setCurrentBrokerRequest:nil];
         return YES;
     }
 
     [self.class setCurrentBrokerController:nil];
+    [self.class setCurrentBrokerRequest:nil];
     return NO;
 }
 
@@ -499,6 +554,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 #endif
     
     [self.class setCurrentBrokerController:nil];
+    [self.class setCurrentBrokerRequest:nil];
     
     MSIDRequestCompletionBlock completionBlock = [self copyAndClearCompletionBlock];
     
@@ -545,6 +601,22 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
     @synchronized ([self class]) {
         return s_currentExecutingController;
+    }
+}
+
+#pragma mark - Current request
+
++ (void)setCurrentBrokerRequest:(MSIDBrokerTokenRequest *)currentBrokerRequest
+{
+    @synchronized ([self class]) {
+        s_currentBrokerRequest = currentBrokerRequest;
+    }
+}
+
++ (MSIDBrokerTokenRequest *)currentBrokerRequest
+{
+    @synchronized ([self class]) {
+        return s_currentBrokerRequest;
     }
 }
 
