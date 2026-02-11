@@ -89,29 +89,29 @@ NSString *MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryTa
     switch (state)
     {
         case MSIDRequestControllerFactorySilentControllerForParametersTag:
-            return @"UNTAGGED";
+            return @"9jwnp";
         case MSIDRequestControllerFactorySilentControllerShouldUseBrokerTag:
-            return @"UNTAGGED";
+            return @"fi9bq";
         case MSIDRequestControllerFactorySilentControllerCanPerformSsoExtTag:
-            return @"UNTAGGED";
+            return @"e1r45";
         case MSIDRequestControllerFactorySilentControllerCanPerformBrokerXpcTag:
-            return @"UNTAGGED";
+            return @"ahpij";
         case MSIDRequestControllerFactorySilentControllerNoBrokerFallbackTag:
-            return @"UNTAGGED";
+            return @"e3qe8";
         case MSIDRequestControllerFactorySilentControllerFinishTag:
-            return @"UNTAGGED";
+            return @"0vik0";
         case MSIDRequestControllerFactoryInteractiveControllerForParametersTag:
-            return @"UNTAGGED";
+            return @"go2o4";
         case MSIDRequestControllerFactoryInteractiveControllerShouldUseBrokerTag:
-            return @"UNTAGGED";
+            return @"wj1z1";
         case MSIDRequestControllerFactoryInteractiveControllerCanPerformSsoExtTag:
-            return @"UNTAGGED";
+            return @"vfl3d";
         case MSIDRequestControllerFactoryInteractiveControllerCanPerformBrokerXpcTag:
-            return @"UNTAGGED";
+            return @"wyxmu";
         case MSIDRequestControllerFactoryInteractiveControllerNoBrokerFallbackTag:
-            return @"UNTAGGED";
+            return @"beb43";
         case MSIDRequestControllerFactoryInteractiveControllerFinishTag:
-            return @"UNTAGGED";
+            return @"29h5q";
     }
 
     // Fallback for any future enum values
@@ -122,11 +122,11 @@ NSString *MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteracti
     switch (state)
     {
         case MSIDSSORemoteInteractiveTokenRequestResolveAuthorityTag:
-            return @"UNTAGGED";
+            return @"ea0zm";
         case MSIDSSORemoteInteractiveTokenRequestHandleOperationResponseTag:
-            return @"UNTAGGED";
+            return @"7iqlk";
         case MSIDSSORemoteInteractiveTokenRequestCompletionTag:
-            return @"UNTAGGED";
+            return @"vy42f";
     }
 
     // Fallback for any future enum values
@@ -138,11 +138,11 @@ NSString *MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenReq
     switch (state)
     {
         case MSIDSSORemoteSilentTokenRequestResolveAuthorityTag:
-            return @"UNTAGGED";
+            return @"n3rpu";
         case MSIDSSORemoteSilentTokenRequestHandleOperationResponseTag:
-            return @"UNTAGGED";
+            return @"u46x0";
         case MSIDSSORemoteSilentTokenRequestCompletionTag:
-            return @"UNTAGGED";
+            return @"x8cgg";
     }
     // Fallback for any future enum values
     return [NSString stringWithFormat:@"MSIDSSORemoteSilentTokenRequestTag(%ld)", (long)state];
