@@ -83,3 +83,69 @@ NSString *MSIDTokenRequestTagToString(MSIDTokenRequestTag state)
     // Fallback for any future enum values
     return [NSString stringWithFormat:@"MSIDTokenRequestTag(%ld)", (long)state];
 }
+
+NSString *MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryTag state)
+{
+    switch (state)
+    {
+        case MSIDRequestControllerFactorySilentControllerForParametersTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactorySilentControllerShouldUseBrokerTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactorySilentControllerCanPerformSsoExtTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactorySilentControllerCanPerformBrokerXpcTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactorySilentControllerNoBrokerFallbackTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactorySilentControllerFinishTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactoryInteractiveControllerForParametersTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactoryInteractiveControllerShouldUseBrokerTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactoryInteractiveControllerCanPerformSsoExtTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactoryInteractiveControllerCanPerformBrokerXpcTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactoryInteractiveControllerNoBrokerFallbackTag:
+            return @"UNTAGGED";
+        case MSIDRequestControllerFactoryInteractiveControllerFinishTag:
+            return @"UNTAGGED";
+    }
+
+    // Fallback for any future enum values
+    return [NSString stringWithFormat:@"MSIDRequestControllerFactoryTag(%ld)", (long)state];
+}
+NSString *MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestTag state)
+{
+    switch (state)
+    {
+        case MSIDSSORemoteInteractiveTokenRequestResolveAuthorityTag:
+            return @"UNTAGGED";
+        case MSIDSSORemoteInteractiveTokenRequestHandleOperationResponseTag:
+            return @"UNTAGGED";
+        case MSIDSSORemoteInteractiveTokenRequestCompletionTag:
+            return @"UNTAGGED";
+    }
+
+    // Fallback for any future enum values
+    return [NSString stringWithFormat:@"MSIDSSORemoteInteractiveTokenRequestTag(%ld)", (long)state];
+}
+
+NSString *MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestTag state)
+{
+    switch (state)
+    {
+        case MSIDSSORemoteSilentTokenRequestResolveAuthorityTag:
+            return @"UNTAGGED";
+        case MSIDSSORemoteSilentTokenRequestHandleOperationResponseTag:
+            return @"UNTAGGED";
+        case MSIDSSORemoteSilentTokenRequestCompletionTag:
+            return @"UNTAGGED";
+    }
+    // Fallback for any future enum values
+    return [NSString stringWithFormat:@"MSIDSSORemoteSilentTokenRequestTag(%ld)", (long)state];
+}
+
+

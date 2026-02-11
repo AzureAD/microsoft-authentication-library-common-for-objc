@@ -81,3 +81,46 @@ typedef NS_ENUM(NSInteger, MSIDTokenRequestTag)
 
 /// Returns the string representation for each MSIDTokenRequestTag value.
 FOUNDATION_EXPORT NSString * _Nonnull MSIDTokenRequestTagToString(MSIDTokenRequestTag state);
+
+/// An enum of MSIDRequestControllerFactoryTag.
+typedef NS_ENUM(NSInteger, MSIDRequestControllerFactoryTag)
+{
+    MSIDRequestControllerFactorySilentControllerForParametersTag = 0,
+    MSIDRequestControllerFactorySilentControllerShouldUseBrokerTag,
+    MSIDRequestControllerFactorySilentControllerCanPerformSsoExtTag,
+    MSIDRequestControllerFactorySilentControllerCanPerformBrokerXpcTag,
+    MSIDRequestControllerFactorySilentControllerNoBrokerFallbackTag,
+    MSIDRequestControllerFactorySilentControllerFinishTag,
+    MSIDRequestControllerFactoryInteractiveControllerForParametersTag,
+    MSIDRequestControllerFactoryInteractiveControllerShouldUseBrokerTag,
+    MSIDRequestControllerFactoryInteractiveControllerCanPerformSsoExtTag,
+    MSIDRequestControllerFactoryInteractiveControllerCanPerformBrokerXpcTag,
+    MSIDRequestControllerFactoryInteractiveControllerNoBrokerFallbackTag,
+    MSIDRequestControllerFactoryInteractiveControllerFinishTag
+};
+
+/// Returns the string representation for each MSIDRequestControllerFactoryTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryTag state);
+
+/// An enum of MSIDSSORemoteInteractiveTokenRequestTag.
+typedef NS_ENUM(NSInteger, MSIDSSORemoteInteractiveTokenRequestTag)
+{
+    MSIDSSORemoteInteractiveTokenRequestResolveAuthorityTag = 0,
+    MSIDSSORemoteInteractiveTokenRequestHandleOperationResponseTag,
+    MSIDSSORemoteInteractiveTokenRequestCompletionTag
+};
+
+/// Returns the string representation for each MSIDSSORemoteInteractiveTokenRequestTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestTag state);
+
+/// An enum of MSIDSSORemoteSilentTokenRequestTag.
+typedef NS_ENUM(NSInteger, MSIDSSORemoteSilentTokenRequestTag)
+{
+    MSIDSSORemoteSilentTokenRequestResolveAuthorityTag = 0,
+    MSIDSSORemoteSilentTokenRequestHandleOperationResponseTag,
+    MSIDSSORemoteSilentTokenRequestCompletionTag
+};
+/// Returns the string representation for each MSIDSSORemoteSilentTokenRequestTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestTag state);
+
+
