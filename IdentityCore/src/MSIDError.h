@@ -370,6 +370,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     // Broker Xpc internal error
     MSIDErrorBrokerXpcUnexpectedError = -52001,
+    
+    // Error thrown when oauth error = MSIDServerInvalidRequest and error_code = 50142 (SecureChangePasswordDueToConditionalAccess)
+    MSIDErrorServerInvalidRequestResetPasswordRequired = -50142,
 
 };
 
@@ -378,6 +381,8 @@ extern NSError * _Nonnull MSIDCreateError(NSString * _Nonnull domain, NSInteger 
 extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString * _Nullable oauthError, MSIDErrorCode defaultCode);
 
 extern MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString * _Nullable oauthError, MSIDErrorCode defaultCode, NSString * _Nullable subError);
+
+extern MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(NSString * _Nullable oauthError, MSIDErrorCode defaultCode, NSArray<NSNumber *> * _Nullable stsErrorCodes);
 
 extern NSDictionary<NSString *, NSArray *> * _Nonnull MSIDErrorDomainsAndCodes(void);
 
