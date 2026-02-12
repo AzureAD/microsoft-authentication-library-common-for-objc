@@ -1250,7 +1250,7 @@
         CONDITIONAL_STOP_CACHE_EVENT(event, nil, NO, context);
         return nil;
     }
-    cacheItems = [self validateBoundAppRefreshTokens:cacheItems homeAccountId:cacheQuery.homeAccountId];
+    cacheItems = [self validateBoundAppRefreshTokens:cacheItems];
     NSMutableArray<MSIDBaseToken *> *resultTokens = [NSMutableArray new];
     for (MSIDCredentialCacheItem *cacheItem in cacheItems)
     {
@@ -1345,7 +1345,7 @@
 - (NSArray<MSIDBaseToken *> *)validTokensFromCacheItems:(NSArray<MSIDCredentialCacheItem *> *)cacheItems
 {
     NSMutableArray<MSIDBaseToken *> *tokens = [NSMutableArray new];
-    cacheItems = [self validateBoundAppRefreshTokens:cacheItems homeAccountId:nil];
+    cacheItems = [self validateBoundAppRefreshTokens:cacheItems];
     for (MSIDCredentialCacheItem *item in cacheItems)
     {
         MSIDBaseToken *token = [item tokenWithType:item.credentialType];
@@ -1566,11 +1566,9 @@
 }
 
 - (NSArray<MSIDCredentialCacheItem *> *)validateBoundAppRefreshTokens:(NSArray<MSIDCredentialCacheItem *> *)cacheItems
-                                                        homeAccountId:(NSString *)homeAccountId
 {
     NSMutableArray<MSIDCredentialCacheItem *> *validCacheItems = [NSMutableArray new];
     NSMutableArray<MSIDCredentialCacheItem *> *boundAppRTItems = [NSMutableArray new];
-    NSString *tenantId = [[[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:homeAccountId] utid];
     MSIDWPJKeyPairWithCert *wpjData;
     // cacheItems are assumed to be results of getTokensUsingCacheQuery. Hence they will be tokens for a particular homeAccountIdentifier.
     for (MSIDCredentialCacheItem *item in cacheItems)
@@ -1583,7 +1581,7 @@
                 if (!wpjData)
                 {
                     // Obtain the workplacejoin information for the account that token is queried for.
-                    wpjData = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:nil];
+                    wpjData = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:bart.accountIdentifier.utid context:nil];
                 }
                 if (wpjData)
                 {
@@ -1593,7 +1591,7 @@
                     }
                     else
                     {
-                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Filtering out Bound app RT as bound deviceID for account %@ doesn't match current registration deviceId.", MSID_PII_LOG_TRACKABLE(homeAccountId));
+                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Filtering out Bound app RT as bound deviceID for account %@ doesn't match current registration deviceId.", MSID_PII_LOG_TRACKABLE(bart.accountIdentifier.homeAccountId));
                     }
                 }
                 else

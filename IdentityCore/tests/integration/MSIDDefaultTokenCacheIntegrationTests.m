@@ -56,8 +56,7 @@
 
 // Category to expose private method for testing
 @interface MSIDDefaultTokenCacheAccessor (Testing)
-- (NSArray<MSIDCredentialCacheItem *> *)validateBoundAppRefreshTokens:(NSArray<MSIDCredentialCacheItem *> *)cacheItems
-                                                        homeAccountId:(NSString *)homeAccountId;
+- (NSArray<MSIDCredentialCacheItem *> *)validateBoundAppRefreshTokens:(NSArray<MSIDCredentialCacheItem *> *)cacheItems;
 @end
 
 // Category to allow setting readonly properties for testing
@@ -1105,7 +1104,7 @@
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[];
     NSString *homeAccountId = @"uid.utid";
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 0);
@@ -1123,7 +1122,7 @@
     
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[item];
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:nil];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 1);
@@ -1150,7 +1149,7 @@
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[item1, item2];
     NSString *homeAccountId = @"uid.utid";
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 2);
@@ -1179,7 +1178,7 @@
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[regularItem, accessItem];
     NSString *homeAccountId = @"uid.utid";
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 2);
@@ -1215,7 +1214,7 @@
         return wpjData;
     }];
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     [MSIDTestSwizzle reset];
     
@@ -1253,7 +1252,7 @@
         return wpjData;
     }];
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     [MSIDTestSwizzle reset];
     
@@ -1276,7 +1275,7 @@
     boundItem.cachedAt = [NSDate date];
     
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 1);
@@ -1334,7 +1333,7 @@
         return wpjData;
     }];
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     [MSIDTestSwizzle reset];
     
@@ -1394,7 +1393,7 @@
         return wpjData;
     }];
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     [MSIDTestSwizzle reset];
     
@@ -1423,7 +1422,7 @@
     
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     XCTAssertNotNil(result);
     // Token should be filtered out because it's a bound token but doesn't meet criteria
@@ -1484,7 +1483,7 @@
         return wpjData;
     }];
     
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:homeAccountId];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     [MSIDTestSwizzle reset];
     
@@ -1513,7 +1512,7 @@
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
     
     // When homeAccountId is nil, the bound token should not be filtered out
-    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems homeAccountId:nil];
+    NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 1, @"Bound token should not be filtered out when homeAccountId is nil");
