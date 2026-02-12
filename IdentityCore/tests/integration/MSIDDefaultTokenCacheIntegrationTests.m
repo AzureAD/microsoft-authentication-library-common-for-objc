@@ -1102,7 +1102,6 @@
 - (void)testValidateBoundAppRefreshTokens_whenEmptyArray_shouldReturnEmptyArray
 {
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[];
-    NSString *homeAccountId = @"uid.utid";
     
     NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
@@ -1147,7 +1146,6 @@
     item2.secret = @"refresh-token-2";
     
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[item1, item2];
-    NSString *homeAccountId = @"uid.utid";
     
     NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
@@ -1176,7 +1174,6 @@
     accessItem.secret = @"access-token";
     
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[regularItem, accessItem];
-    NSString *homeAccountId = @"uid.utid";
     
     NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
@@ -1511,11 +1508,11 @@
     
     NSArray<MSIDCredentialCacheItem *> *cacheItems = @[boundItem];
     
-    // When homeAccountId is nil, the bound token should not be filtered out
+    // Bound token should be included when WPJ data is not available
     NSArray<MSIDCredentialCacheItem *> *result = [_cacheAccessor validateBoundAppRefreshTokens:cacheItems];
     
     XCTAssertNotNil(result);
-    XCTAssertEqual(result.count, 1, @"Bound token should not be filtered out when homeAccountId is nil");
+    XCTAssertEqual(result.count, 1, @"Bound token should be included when WPJ data is not available");
 }
 #endif
 @end
