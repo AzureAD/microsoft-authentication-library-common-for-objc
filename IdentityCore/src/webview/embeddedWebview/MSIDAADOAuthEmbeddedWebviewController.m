@@ -128,7 +128,7 @@
     id<MSIDWebviewSpecialNavigationDelegate> strongSpecialNavigationDelegate = self.specialNavigationDelegate;
     if ((isBrokerUrl || isBrowserUrl) && strongSpecialNavigationDelegate)
     {
-        if ([strongSpecialNavigationDelegate respondsToSelector:@selector(webviewController:handleSpecialRedirect:completion:)])
+        if ([strongSpecialNavigationDelegate respondsToSelector:@selector(handleSpecialRedirectUrl:webviewController:completion:)])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                              @"Detected special redirect scheme: %@. Delegating to navigationDelegate.", requestURL.scheme);
@@ -142,9 +142,9 @@
                 __strong typeof(self) strongSelf = weakSelf;
                 if (!strongSelf) return;
                 
-                [strongSpecialNavigationDelegate webviewController:strongSelf
-                                           handleSpecialRedirect:requestURL
-                                                      completion:^(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error)
+                [strongSpecialNavigationDelegate handleSpecialRedirectUrl:requestURL
+                                                        webviewController:strongSelf
+                                                               completion:^(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error)
                  {
                     [strongSelf executeViewNavigationAction:action requestURL:requestURL error:error];
                 }];
@@ -268,7 +268,7 @@
             id<MSIDWebviewSpecialNavigationDelegate> strongSpecialNavigationDelegate = self.specialNavigationDelegate;
             if (strongSpecialNavigationDelegate)
             {
-                if ([strongSpecialNavigationDelegate respondsToSelector:@selector(webviewController:handleSpecialRedirect:completion:)])
+                if ([strongSpecialNavigationDelegate respondsToSelector:@selector(handleASWebAuthenticationTransitionWithUrl:embeddedWebview:additionalHeaders:MSIDSystemWebviewPurpose:completion:)])
                 {
                     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                                      @"Detected special redirect scheme: %@. Delegating to navigationDelegate.", requestURL.scheme);

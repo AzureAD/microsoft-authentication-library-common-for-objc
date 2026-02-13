@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import "MSIDWebviewInteracting.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 
 @class MSIDWebviewNavigationAction;
@@ -32,7 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance;
 
 - (MSIDWebviewNavigationAction * _Nullable)resolveActionForMSAuthURL:(NSURL *)url
-                                               responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders
+                                                   webviewController:(id<MSIDWebviewInteracting>)webviewController
+                                                     responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders
+                                                     isBrokerContext:(BOOL)isBrokerContext
                                              externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock;
 @end
 

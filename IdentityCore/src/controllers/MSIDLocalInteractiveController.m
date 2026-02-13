@@ -452,7 +452,7 @@
         
         // TODO: Perform any custom actions needed by localInteractiveController before continuing
         NSError *brokerError = nil;
-        id<MSIDRequestControlling> brokerController = [MSIDRequestControllerFactory interactiveControllerForParameters:msidParams tokenRequestProvider:tokenRequestProvider error:&brokerError];
+        id<MSIDRequestControlling> brokerController = [MSIDRequestControllerFactory interactiveControllerForParameters:self.interactiveRequestParamaters tokenRequestProvider:self.tokenRequestProvider error:&brokerError];
         
         // if broker is installed and sso profile is active this should return sso controller
         if (!brokerController)
@@ -529,9 +529,9 @@
 
 //TODO: Delegate methods are duplicated in both controllers, move to a common place
 
-- (void)webviewController:(MSIDAADOAuthEmbeddedWebviewController *)controller
-    handleSpecialRedirect:(NSURL *)url
-               completion:(void (^)(MSIDWebviewNavigationAction *action, NSError *error))completion
+- (void)handleSpecialRedirectUrl:(NSURL *)url
+               webviewController:(id<MSIDWebviewInteracting>)webviewController
+                      completion:(void (^)(MSIDWebviewNavigationAction *action, NSError *error))completion
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
                      @"MSIDLocalInteractiveController handling special redirect: %@", _PII_NULLIFY(url));
@@ -541,7 +541,7 @@
     // Handle msauth:// scheme
     if ([scheme isEqualToString:@"msauth"])
     {
-        [self handleMsauthRedirect:url completion:completion];
+        [self handleMsauthRedirect:url webviewController:webviewController completion:completion];
         return;
     }
     
@@ -611,6 +611,7 @@
 #pragma mark - Special URL Handling helpers
 
 - (void)handleMsauthRedirect:(NSURL *)url
+           webviewController:(id<MSIDWebviewInteracting>)webviewController
                   completion:(void (^)(MSIDWebviewNavigationAction *action, NSError *error))completion
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
@@ -634,14 +635,13 @@
             }
             
             MSIDWebviewNavigationActionUtil *webViewNavigationActionUtil = [MSIDWebviewNavigationActionUtil sharedInstance];
-            MSIDWebviewNavigationAction *navigationAction = [webViewNavigationActionUtil resolveActionForMSAuthURL:url responseHeaders:self.lastResponseHeaders];
-            completion(navigationAction, nil);
+            MSIDWebviewNavigationAction *navigationAction = [webViewNavigationActionUtil resolveActionForMSAuthURL:url webviewController:webviewController responseHeaders:self.lastResponseHeaders isBrokerContext:NO externalNavigationBlock:self.currentRequest.externalDecidePolicyForBrowserAction];            completion(navigationAction, nil);
         }];
     }
     else
     {
         MSIDWebviewNavigationActionUtil *webViewNavigationActionUtil = [MSIDWebviewNavigationActionUtil sharedInstance];
-        MSIDWebviewNavigationAction *navigationAction = [webViewNavigationActionUtil resolveActionForMSAuthURL:url responseHeaders:self.lastResponseHeaders];
+        MSIDWebviewNavigationAction *navigationAction = [webViewNavigationActionUtil resolveActionForMSAuthURL:url webviewController:webviewController responseHeaders:self.lastResponseHeaders isBrokerContext:NO externalNavigationBlock:self.currentRequest.externalDecidePolicyForBrowserAction];
         completion(navigationAction, nil);
     }
         

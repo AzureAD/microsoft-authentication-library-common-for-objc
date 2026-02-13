@@ -40,15 +40,16 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Called when webview encounters a special redirect scheme (msauth://, browser://)
  *
- * @param controller The webview controller that detected the redirect
+
  * @param url The redirect URL with special scheme
+ * @param webviewController The webview controller that detected the redirect
  * @param completion Completion block to call with navigation decision
  *        Must be called on main thread
  *        MUST be called exactly once
  */
-- (void)webviewController:(id<MSIDWebviewInteracting> _Nonnull)controller
-    handleSpecialRedirect:(NSURL * _Nonnull)url
-               completion:(void (^_Nonnull)(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error))completion;
+- (void)handleSpecialRedirectUrl:(NSURL * _Nonnull)url
+               webviewController:(id<MSIDWebviewInteracting> _Nonnull)webviewController
+                      completion:(void (^_Nonnull)(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error))completion;
 
 - (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *_Nullable)headers;
 

@@ -40,7 +40,9 @@
 }
 
 - (MSIDWebviewNavigationAction *)resolveActionForMSAuthURL:(NSURL *)url
+                                         webviewController:(id<MSIDWebviewInteracting>)webviewController
                                            responseHeaders:(NSDictionary<NSString *,NSString *> * _Nullable)responseHeaders
+                                           isBrokerContext:(BOOL)isBrokerContext
                                    externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
 {
     // handle msauth redirect , can be moved to util
@@ -92,13 +94,11 @@
         }
         
         // TODO: Add extra headers and query parameters for compliance
-        // For now, create a basic request
+        
         NSURLRequest *request = [NSURLRequest requestWithURL:cpurl];
 
-        // Optional legacy browser flow decision.
-        // Note: MSIDExternalDecidePolicyForBrowserActionBlock expects an embedded webview
-        // controller as the first param. This util doesn't have that instance, so we pass nil.
-        // Implementations should treat nil as "no webview context".
+        // Optional externalNavigationBlock logic to append any extra headers or other processing needed.
+
         if (externalNavigationBlock)
         {
             NSString *requestURLString = request.URL.absoluteString;
@@ -112,10 +112,10 @@
 
                 if (legacyFlowUrl)
                 {
-                    NSURLRequest *challengeResponse = externalNavigationBlock(nil, legacyFlowUrl);
-                    if (challengeResponse)
+                    NSURLRequest *updatedURL = externalNavigationBlock((MSIDOAuth2EmbeddedWebviewController *)webviewController, legacyFlowUrl);
+                    if (updatedURL)
                     {
-                        return [MSIDWebviewNavigationAction loadRequestAction:challengeResponse];
+                        return [MSIDWebviewNavigationAction loadRequestAction:updatedURL];
                     }
                 }
             }
