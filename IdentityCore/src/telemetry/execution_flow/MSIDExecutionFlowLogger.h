@@ -68,7 +68,7 @@ withCorrelationId:(NSUUID *)correlationId;
 /// - Parameters:
 ///   - correlationId: The unique identifier of the execution flow to retrieve.
 ///   - queryKeys: An optional set of keys to filter which tags or entries are included. Pass `nil` to include all entries.
-///   - shouldFlush: `YES` to flush the stored flow after retrieval; otherwise `NO`. Itis importat to make sure the flow is flushed somewhere!
+///   - shouldFlush: `YES` to flush the stored flow after retrieval; otherwise `NO`. It is importat to make sure the flow is flushed somewhere!
 ///   - completion: A block invoked with the string representation of the execution flow matching the query keys,
 ///     or `nil` if no flow exists for the given identifier.
 - (void)retrieveExecutionFlowWithCorrelationId:(NSUUID *)correlationId
