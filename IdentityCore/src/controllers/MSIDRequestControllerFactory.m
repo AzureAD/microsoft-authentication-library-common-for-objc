@@ -50,9 +50,9 @@
                                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError *__autoreleasing*)error
 {
-    [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerForParametersTag)
-                                              extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.xpcMode)}
-                                      withCorrelationId:parameters.correlationId];
+    MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerForParametersTag),
+                                   @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.xpcMode)},
+                                   parameters.correlationId);
     if (parameters.xpcMode == MSIDXpcModeDisabled)
     {
         return [self SilentControllerWithoutXpcForParameters:parameters
@@ -87,14 +87,14 @@
     
     if ([parameters shouldUseBroker])
     {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerShouldUseBrokerTag)
-                                                  extraInfo:nil
-                                          withCorrelationId:parameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerShouldUseBrokerTag),
+                                       nil,
+                                       parameters.correlationId);
         if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
         {
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerCanPerformSsoExtTag)
-                                                      extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.allowUsingLocalCachedRtWhenSsoExtFailed)}
-                                              withCorrelationId:parameters.correlationId];
+            MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerCanPerformSsoExtTag),
+                                           @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.allowUsingLocalCachedRtWhenSsoExtFailed)},
+                                           parameters.correlationId);
             MSIDSilentController *localController = nil;
             if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
             {
@@ -118,9 +118,9 @@
     
     if (!brokerController)
     {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerNoBrokerFallbackTag)
-                                                  extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.allowUsingLocalCachedRtWhenSsoExtFailed)}
-                                          withCorrelationId:parameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerNoBrokerFallbackTag),
+                                       @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.allowUsingLocalCachedRtWhenSsoExtFailed)},
+                                       parameters.correlationId);
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"No fallback brokerController is provided", nil);
     }
     
@@ -149,9 +149,9 @@
             break;
     }
     
-    [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerFinishTag)
-                                              extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(localController.skipLocalRt)}
-                                      withCorrelationId:parameters.correlationId];
+    MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerFinishTag),
+                                   @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(localController.skipLocalRt)},
+                                   parameters.correlationId);
     
     return localController;
 }
@@ -172,9 +172,9 @@
     
     if ([parameters shouldUseBroker])
     {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerShouldUseBrokerTag)
-                                                  extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.allowUsingLocalCachedRtWhenSsoExtFailed)}
-                                          withCorrelationId:parameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerShouldUseBrokerTag),
+                                       @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.allowUsingLocalCachedRtWhenSsoExtFailed)},
+                                       parameters.correlationId);
         if (parameters.allowUsingLocalCachedRtWhenSsoExtFailed)
         {
             fallbackController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
@@ -188,9 +188,9 @@
 #if TARGET_OS_OSX
         if (parameters.xpcMode != MSIDXpcModeDisabled && [MSIDXpcSilentTokenRequestController canPerformRequest])
         {
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerCanPerformBrokerXpcTag)
-                                                      extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.xpcMode)}
-                                              withCorrelationId:parameters.correlationId];
+            MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerCanPerformBrokerXpcTag),
+                                           @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.xpcMode)},
+                                           parameters.correlationId);
             xpcController = [[MSIDXpcSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                            forceRefresh:forceRefresh
                                                                                    tokenRequestProvider:tokenRequestProvider
@@ -209,9 +209,9 @@
         
         if (!shouldSkipSsoExtension && [MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
         {
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerCanPerformSsoExtTag)
-                                                      extraInfo:nil
-                                              withCorrelationId:parameters.correlationId];
+            MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerCanPerformSsoExtTag),
+                                           nil,
+                                           parameters.correlationId);
             fallbackController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                                     forceRefresh:forceRefresh
                                                                                             tokenRequestProvider:tokenRequestProvider
@@ -222,9 +222,9 @@
     
     if (!fallbackController)
     {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerNoBrokerFallbackTag)
-                                                  extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.allowUsingLocalCachedRtWhenSsoExtFailed)}
-                                          withCorrelationId:parameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerNoBrokerFallbackTag),
+                                       @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.allowUsingLocalCachedRtWhenSsoExtFailed)},
+                                       parameters.correlationId);
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"No fallbackController is provided", nil);
     }
     
@@ -253,9 +253,9 @@
             break;
     }
     
-    [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerFinishTag)
-                                              extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(silentController.skipLocalRt)}
-                                      withCorrelationId:parameters.correlationId];
+    MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactorySilentControllerFinishTag),
+                                   @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(silentController.skipLocalRt)},
+                                   parameters.correlationId);
     return silentController;
     
 }
@@ -270,9 +270,9 @@
         [parameters reverseNestedAuthParametersIfNeeded];
     }
 
-    [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerForParametersTag)
-                                              extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.xpcMode)}
-                                      withCorrelationId:parameters.correlationId];
+    MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerForParametersTag),
+                                   @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.xpcMode)},
+                                   parameters.correlationId);
 
     id<MSIDRequestControlling> interactiveController = [self platformInteractiveController:parameters
                                                                       tokenRequestProvider:tokenRequestProvider
@@ -288,9 +288,9 @@
                                                                             error:error];
     }
 
-    [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerFinishTag)
-                                              extraInfo:nil
-                                      withCorrelationId:parameters.correlationId];
+    MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerFinishTag),
+                                   nil,
+                                   parameters.correlationId);
 
     return finalController;
 }
@@ -310,9 +310,9 @@
     
     if ([parameters shouldUseBroker])
     {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerShouldUseBrokerTag)
-                                                  extraInfo:nil
-                                          withCorrelationId:parameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerShouldUseBrokerTag),
+                                       nil,
+                                       parameters.correlationId);
         id<MSIDRequestControlling> brokerController = [self brokerController:parameters
                                                         tokenRequestProvider:tokenRequestProvider
                                                           fallbackController:localController
@@ -323,9 +323,9 @@
             return brokerController;
         }
 
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerNoBrokerFallbackTag)
-                                                  extraInfo:nil
-                                          withCorrelationId:parameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerNoBrokerFallbackTag),
+                                       nil,
+                                       parameters.correlationId);
     }
 
     return localController;
@@ -429,9 +429,9 @@
 {
     if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
     {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerCanPerformSsoExtTag)
-                                                  extraInfo:nil
-                                          withCorrelationId:parameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerCanPerformSsoExtTag),
+                                       nil,
+                                       parameters.correlationId);
         return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
                                                                                           tokenRequestProvider:tokenRequestProvider
                                                                                             fallbackController:fallbackController
@@ -449,9 +449,9 @@
 {
     if ([MSIDXpcInteractiveTokenRequestController canPerformRequest])
     {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerCanPerformBrokerXpcTag)
-                                                  extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.xpcMode)}
-                                          withCorrelationId:parameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryInteractiveControllerCanPerformBrokerXpcTag),
+                                       @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.xpcMode)},
+                                       parameters.correlationId);
         return [[MSIDXpcInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
                                                                                  tokenRequestProvider:tokenRequestProvider
                                                                                    fallbackController:fallbackController

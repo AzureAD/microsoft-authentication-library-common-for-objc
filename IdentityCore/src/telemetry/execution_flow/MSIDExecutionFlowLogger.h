@@ -30,6 +30,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDExecutionFlowLogger : NSObject
 
+// Convenience macros to avoid repeated sharedInstance calls.
+#define MSID_EXECUTION_FLOW_COMMON(_CALL) \
+    do { \
+        [[MSIDExecutionFlowLogger sharedInstance] _CALL]; \
+    } while (0)
+
+#define MSID_EXECUTION_FLOW_INSERT_TAG(_TAG, _INFO, _CORRELATION_ID) \
+    MSID_EXECUTION_FLOW_COMMON(insertTag:(_TAG) \
+                            extraInfo:(_INFO) \
+                    withCorrelationId:(_CORRELATION_ID))
+
+#define MSID_EXECUTION_FLOW_REGISTER(_CORRELATION_ID) \
+    MSID_EXECUTION_FLOW_COMMON(registerExecutionFlowWithCorrelationId:(_CORRELATION_ID))
+
+#define MSID_EXECUTION_FLOW_RETRIEVE(_CORRELATION_ID, _QUERY_KEYS, _SHOULD_FLUSH, _COMPLETION) \
+    MSID_EXECUTION_FLOW_COMMON(retrieveExecutionFlowWithCorrelationId:(_CORRELATION_ID) \
+                                                               queryKeys:(_QUERY_KEYS) \
+                                                             shouldFlush:(_SHOULD_FLUSH) \
+                                                              completion:(_COMPLETION))
+
 /*!
  Returns the shared singleton instance of MSIDExecutionFlowLogger.
 

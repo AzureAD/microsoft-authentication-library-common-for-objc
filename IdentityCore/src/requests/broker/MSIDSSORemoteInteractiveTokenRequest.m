@@ -101,9 +101,9 @@
                                                  context:self.requestParameters
                                          completionBlock:^(__unused NSURL *openIdConfigurationEndpoint, __unused BOOL validated, NSError *error)
      {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestResolveAuthorityTag)
-                                                 extraInfo:error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil
-                                         withCorrelationId:self.requestParameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestResolveAuthorityTag),
+                                       error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
+                                       self.requestParameters.correlationId);
          if (error)
          {
              completionBlock(nil, error, nil);
@@ -145,9 +145,9 @@
     #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
             strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
     #endif
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestHandleOperationResponseTag)
-                                                     extraInfo:error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil
-                                             withCorrelationId:strongSelf.requestParameters.correlationId];
+            MSID_EXECUTION_FLOW_INSERT_TAG(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestHandleOperationResponseTag),
+                                           error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
+                                           strongSelf.requestParameters.correlationId);
             __typeof__(strongSelf) __weak weakStrongSelf = strongSelf;
             [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                                       requestParameters:strongSelf.requestParameters
@@ -162,9 +162,9 @@
                 __strong __typeof__(weakStrongSelf) innerStrongSelf = weakStrongSelf;
                 if (!innerStrongSelf) return;
                 
-                [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestCompletionTag)
-                                                        extraInfo:localError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(localError.code)} : nil
-                                                 withCorrelationId:innerStrongSelf.requestParameters.correlationId];
+                MSID_EXECUTION_FLOW_INSERT_TAG(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestCompletionTag),
+                                               localError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(localError.code)} : nil,
+                                               innerStrongSelf.requestParameters.correlationId);
                 MSIDInteractiveRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;
                 innerStrongSelf.requestCompletionBlock = nil;
                 if (completionBlock) completionBlock(result, localError, nil);

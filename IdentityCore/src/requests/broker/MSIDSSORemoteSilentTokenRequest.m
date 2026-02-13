@@ -103,9 +103,9 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
                     strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
     #endif
                     __typeof__(strongSelf) __weak weakStrongSelf = strongSelf;
-                    [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestHandleOperationResponseTag)
-                                                             extraInfo:error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil
-                                                     withCorrelationId:strongSelf.requestParameters.correlationId];
+                    MSID_EXECUTION_FLOW_INSERT_TAG(MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestHandleOperationResponseTag),
+                                                   error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
+                                                   strongSelf.requestParameters.correlationId);
                     [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                                         requestParameters:strongSelf.requestParameters
                                                    tokenResponseValidator:strongSelf.tokenResponseValidator
@@ -119,9 +119,9 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
                         __strong __typeof__(weakStrongSelf) innerStrongSelf = weakStrongSelf;
                         if (!innerStrongSelf) return;
                         
-                        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestCompletionTag)
-                                                                 extraInfo:localError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(localError.code)} : nil
-                                                         withCorrelationId:innerStrongSelf.requestParameters.correlationId];
+                        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestCompletionTag),
+                                                       localError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(localError.code)} : nil,
+                                                       innerStrongSelf.requestParameters.correlationId);
                         MSIDRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;
                         innerStrongSelf.requestCompletionBlock = nil;
                         if (localError)
@@ -161,9 +161,9 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
                                          completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
                                                            __unused BOOL validated, NSError *error)
      {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestResolveAuthorityTag)
-                                                 extraInfo:error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil
-                                         withCorrelationId:self.requestParameters.correlationId];
+        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestResolveAuthorityTag),
+                                       error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
+                                       self.requestParameters.correlationId);
         if (error)
         {
             completionBlock(nil, error);
