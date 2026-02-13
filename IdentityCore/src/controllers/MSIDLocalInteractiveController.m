@@ -43,6 +43,7 @@
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewNavigationAction.h"
 #import "MSIDWebviewNavigationActionUtil.h"
+#import "MSIDRequestControllerFactory.h"
 
 @interface MSIDLocalInteractiveController()
 
@@ -450,14 +451,10 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Profile installation completed successfully. Resuming authentication flow in broker context.");
         
         // TODO: Perform any custom actions needed by localInteractiveController before continuing
-        
-#if TARGET_OS_IPHONE
         NSError *brokerError = nil;
-        MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:self.interactiveRequestParamaters
-                                                                                                                     tokenRequestProvider:self.tokenRequestProvider
-                                                                                                                       fallbackController:nil
-                                                                                                                                    error:&brokerError];
+        id<MSIDRequestControlling> brokerController = [MSIDRequestControllerFactory interactiveControllerForParameters:msidParams tokenRequestProvider:tokenRequestProvider error:&brokerError];
         
+        // if broker is installed and sso profile is active this should return sso controller
         if (!brokerController)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
@@ -466,17 +463,9 @@
             completionBlock(nil, brokerError);
             return;
         }
-        
         // Broker will invoke SSO extension which handles the request in its own webview
         // Response will be sent back to calling app through the broker completion handler
         [brokerController acquireToken:completionBlock];
-#else
-        NSError *platformError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                                 @"Broker authentication not supported on this platform",
-                                                 nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], platformError);
-        completionBlock(nil, platformError);
-#endif
     }
     else
     {
