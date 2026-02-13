@@ -39,7 +39,9 @@
     return s_webviewNavigationActionUtil;
 }
 
-- (MSIDWebviewNavigationAction *)resolveActionForMSAuthURL:(NSURL *)url responseHeaders:(NSDictionary<NSString *,NSString *> * _Nullable)responseHeaders
+- (MSIDWebviewNavigationAction *)resolveActionForMSAuthURL:(NSURL *)url
+                                           responseHeaders:(NSDictionary<NSString *,NSString *> * _Nullable)responseHeaders
+                                   externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
 {
     // handle msauth redirect , can be moved to util
     if (!url)
@@ -92,6 +94,32 @@
         // TODO: Add extra headers and query parameters for compliance
         // For now, create a basic request
         NSURLRequest *request = [NSURLRequest requestWithURL:cpurl];
+
+        // Optional legacy browser flow decision.
+        // Note: MSIDExternalDecidePolicyForBrowserActionBlock expects an embedded webview
+        // controller as the first param. This util doesn't have that instance, so we pass nil.
+        // Implementations should treat nil as "no webview context".
+        if (externalNavigationBlock)
+        {
+            NSString *requestURLString = request.URL.absoluteString;
+
+            // Create new URL replacing 'https' scheme with 'browser' scheme
+            // ("https://..." => "browser://..."). Only do this for https URLs.
+            if (requestURLString.length > 5 &&
+                [[requestURLString substringToIndex:5].lowercaseString isEqualToString:@"https:"])
+            {
+                NSURL *legacyFlowUrl = [NSURL URLWithString:[NSString stringWithFormat:@"browser%@", [requestURLString substringFromIndex:5]]];
+
+                if (legacyFlowUrl)
+                {
+                    NSURLRequest *challengeResponse = externalNavigationBlock(nil, legacyFlowUrl);
+                    if (challengeResponse)
+                    {
+                        return [MSIDWebviewNavigationAction loadRequestAction:challengeResponse];
+                    }
+                }
+            }
+        }
         
         return [MSIDWebviewNavigationAction loadRequestAction:request];
     }
