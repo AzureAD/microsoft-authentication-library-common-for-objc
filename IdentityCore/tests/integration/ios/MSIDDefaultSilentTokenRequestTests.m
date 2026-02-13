@@ -1488,9 +1488,10 @@
         XCTAssertEqual(underlyingError.code, MSIDErrorUnexpectedHttpResponse);
         XCTAssertEqualObjects(error.domain, MSIDHttpErrorCodeDomain);
         XCTAssertEqualObjects(error.userInfo[MSIDHTTPResponseCodeKey], @"403");
-        [[MSIDExecutionFlowLogger sharedInstance] retrieveAndFlushExecutionFlowWithCorrelationId:silentParameters.correlationId
-                                                                                                                 queryKeys:nil
-                                                                                                                completion:^(NSString * _Nullable executionFlow) {
+        [[MSIDExecutionFlowLogger sharedInstance] retrieveExecutionFlowWithCorrelationId:silentParameters.correlationId
+                                                                                                                queryKeys:nil
+                                                                                                              shouldFlush:YES
+                                                                                                               completion:^(NSString * _Nullable executionFlow) {
             XCTAssertNotNil(executionFlow);
             XCTAssertTrue([executionFlow containsString:MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag)]);
             [expectation fulfill];

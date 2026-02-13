@@ -72,9 +72,10 @@
 
     XCTestExpectation *flowExpectation = [self expectationWithDescription:@"flow should exist after register"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                                   queryKeys:nil
-                                                                 completion:^(NSString * _Nullable executionFlow) {
+                                                                  shouldFlush:YES
+                                                                  completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Flow should be created after registration");
         [flowExpectation fulfill];
     }];
@@ -109,9 +110,10 @@
 
     XCTestExpectation *flowExpectation = [self expectationWithDescription:@"flow should still exist after duplicate register"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                                   queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                                  shouldFlush:YES
+                                                                  completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Should still have one flow");
         [flowExpectation fulfill];
     }];
@@ -130,9 +132,10 @@
 
     XCTestExpectation *firstFlowExpectation = [self expectationWithDescription:@"first flow before re-registration"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                                   queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                                  shouldFlush:YES
+                                                                  completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Should allow re-registration after flush");
         [firstFlowExpectation fulfill];
     }];
@@ -144,9 +147,10 @@
     // Should not create new flow
     XCTestExpectation *secondFlowExpectation = [self expectationWithDescription:@"second flow after re-registration"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                                   queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                                  shouldFlush:YES
+                                                                  completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Should allow re-registration after flush");
         [secondFlowExpectation fulfill];
     }];
@@ -164,7 +168,7 @@
 
     XCTestExpectation *firstFlowExpectation = [self expectationWithDescription:@"first blob before flush"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Should add new event blob after flush");
         [firstFlowExpectation fulfill];
     }];
@@ -176,7 +180,7 @@
 
     XCTestExpectation *secondFlowExpectation = [self expectationWithDescription:@"no blob after flush"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not add new event blob after flush");
         [secondFlowExpectation fulfill];
     }];
@@ -199,9 +203,10 @@
 
     XCTestExpectation *tagsExpectation = [self expectationWithDescription:@"tag stored expectation"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:keys
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
 
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -233,9 +238,10 @@
     
     XCTestExpectation *extraInfoExpectation = [self expectationWithDescription:@"extra info stored"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:keys
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
 
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -263,9 +269,10 @@
 
     XCTestExpectation *noRegistrationExpectation = [self expectationWithDescription:@"no flow without registration"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not create flow without registration");
         [noRegistrationExpectation fulfill];
     }];
@@ -286,9 +293,10 @@
 
     XCTestExpectation *nilTagExpectation = [self expectationWithDescription:@"no flow with nil tag"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:keys
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not add tag with nil tag");
         [nilTagExpectation fulfill];
     }];
@@ -307,9 +315,10 @@
 
     XCTestExpectation *emptyTagExpectation = [self expectationWithDescription:@"no flow with empty tag"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:keys
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not add empty tag");
         [emptyTagExpectation fulfill];
     }];
@@ -328,9 +337,10 @@
 
     XCTestExpectation *whitespaceTagExpectation = [self expectationWithDescription:@"no flow with whitespace tag"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:keys
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not add whitespace-only tag");
         [whitespaceTagExpectation fulfill];
     }];
@@ -356,9 +366,10 @@
     
     XCTestExpectation *emptyCorrelationExpectation = [self expectationWithDescription:@"no flow with empty correlation id"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid
+    [logger retrieveExecutionFlowWithCorrelationId:uuid
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not create flow with empty correlationId");
         [emptyCorrelationExpectation fulfill];
     }];
@@ -381,9 +392,10 @@
 
     XCTestExpectation *multiTagExpectation = [self expectationWithDescription:@"multiple tags recorded"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:keys
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
 
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -418,9 +430,10 @@
     XCTestExpectation *flow1Expectation = [self expectationWithDescription:@"flow1 different correlation"];
     XCTestExpectation *flow2Expectation = [self expectationWithDescription:@"flow2 different correlation"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId1
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId1
                                                  queryKeys:keys
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         NSData *jsonData1 = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
         NSArray *result1 = [NSJSONSerialization JSONObjectWithData:jsonData1 options:0 error:nil];
         XCTAssertEqual(result1.count, 1);
@@ -429,9 +442,10 @@
         [flow1Expectation fulfill];
     }];
     
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId2
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId2
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         NSData *jsonData2 = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
         NSArray *result2 = [NSJSONSerialization JSONObjectWithData:jsonData2 options:0 error:nil];
         XCTAssertEqual(result2.count, 1);
@@ -455,9 +469,10 @@
 
     XCTestExpectation *threadIdExpectation = [self expectationWithDescription:@"thread id stored"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:keys
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -473,7 +488,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-#pragma mark - retrieveAndFlushExecutionFlowWithCorrelationId: Tests
+#pragma mark - retrieveExecutionFlowWithCorrelationId: Tests
 
 - (void)testRetrieveAndFlushWithValidCorrelationId_shouldReturnFlow
 {
@@ -485,9 +500,10 @@
 
     XCTestExpectation *validFlowExpectation = [self expectationWithDescription:@"valid execution flow retrieved"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [validFlowExpectation fulfill];
 
@@ -503,9 +519,10 @@
 
     XCTestExpectation *nonexistentExpectation = [self expectationWithDescription:@"flow should be nil for missing correlation"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should return nil for non-existent correlationId");
         [nonexistentExpectation fulfill];
     }];
@@ -519,9 +536,10 @@
     NSUUID *nilCorrelationId = nil;
     XCTestExpectation *nilExpectation = [self expectationWithDescription:@"flow should be nil for nil correlation"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:nilCorrelationId
+    [logger retrieveExecutionFlowWithCorrelationId:nilCorrelationId
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should return nil for nil correlationId");
         [nilExpectation fulfill];
     }];
@@ -536,9 +554,10 @@
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     XCTestExpectation *emptyExpectation = [self expectationWithDescription:@"flow should be nil for empty correlation"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:uuid
+    [logger retrieveExecutionFlowWithCorrelationId:uuid
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should return nil for nil correlationId");
         [emptyExpectation fulfill];
     }];
@@ -556,17 +575,19 @@
     XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow removed after first retrieve"];
     XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow nil after flush"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstRetrieveExpectation fulfill];
 
     }];
     
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Flow should be removed after first retrieve and flush");
         [secondRetrieveExpectation fulfill];
     }];
@@ -586,18 +607,89 @@
     XCTestExpectation *secondExpectation = [self expectationWithDescription:@"second retrieve nil"];
     XCTestExpectation *thirdExpectation = [self expectationWithDescription:@"third retrieve nil"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstExpectation fulfill];
     }];
     
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [secondExpectation fulfill];
     }];
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [thirdExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testRetrieveWithoutFlush_shouldKeepFlowAvailable
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
+
+    XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow returned without flush"];
+    XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow still present after no-flush retrieve"];
+
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
+                                         queryKeys:nil
+                                       shouldFlush:NO
+                                        completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        [firstRetrieveExpectation fulfill];
+    }];
+
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
+                                         queryKeys:nil
+                                       shouldFlush:YES
+                                        completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow, @"Flow should remain when shouldFlush is NO");
+        [secondRetrieveExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testRetrieveWithoutFlush_shouldAllowAdditionalTags
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId];
+
+    XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow retrieved without flush"];
+    XCTestExpectation *finalRetrieveExpectation = [self expectationWithDescription:@"flow includes tags added after no-flush retrieve"];
+
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
+                                         queryKeys:nil
+                                       shouldFlush:NO
+                                        completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        [firstRetrieveExpectation fulfill];
+    }];
+
+    [logger insertTag:@"Tag2" extraInfo:nil withCorrelationId:correlationId];
+
+    NSSet *keys = [NSSet setWithArray:@[@"t"]];
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
+                                         queryKeys:keys
+                                       shouldFlush:YES
+                                        completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+
+        NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
+        NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+
+        XCTAssertEqual(result.count, 2);
+        XCTAssertEqualObjects(result[0][@"t"], @"Tag1");
+        XCTAssertEqualObjects(result[1][@"t"], @"Tag2");
+
+        [finalRetrieveExpectation fulfill];
     }];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -613,7 +705,7 @@
     
     XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow present before flush rejection"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstRetrieveExpectation fulfill];
     }];
@@ -626,7 +718,7 @@
     // Should not create new flow
     XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow nil after flush rejection"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should reject inserts after flush");
         [secondRetrieveExpectation fulfill];
     }];
@@ -647,7 +739,7 @@
 
     XCTestExpectation *firstPoolExpectation = [self expectationWithDescription:@"first flow before eliminated pool test"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstPoolExpectation fulfill];
     }];
@@ -658,7 +750,7 @@
     // Should not create new flow
     XCTestExpectation *secondPoolExpectation = [self expectationWithDescription:@"no flow after eliminated pool"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [secondPoolExpectation fulfill];
     }];
@@ -684,11 +776,11 @@
     XCTestExpectation *firstFlushExpectation = [self expectationWithDescription:@"first flow nil after flush"];
     XCTestExpectation *secondFlushExpectation = [self expectationWithDescription:@"second flow nil after flush"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId1 queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId1 queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [firstFlushExpectation fulfill];
     }];
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId2 queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId2 queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [secondFlushExpectation fulfill];
     }];
@@ -707,7 +799,7 @@
 
     XCTestExpectation *initialFlowExpectation = [self expectationWithDescription:@"flow before flush clears pool"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [initialFlowExpectation fulfill];
     }];
@@ -722,7 +814,7 @@
     NSSet *keys = [NSSet setWithArray:@[@"t"]];
     XCTestExpectation *secondFlowExpectation = [self expectationWithDescription:@"flow after flush clears pool"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:keys completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:keys shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -732,6 +824,73 @@
         XCTAssertEqualObjects(result[0][@"t"], @"Tag2");
 
         [secondFlowExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+#pragma mark - Enabled State Tests
+
+- (void)testSetEnabledNO_shouldIgnoreOperations
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+
+    @try {
+        [logger setEnabled:NO];
+
+        XCTAssertNoThrow([logger registerExecutionFlowWithCorrelationId:correlationId]);
+        XCTAssertNoThrow([logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId]);
+
+        XCTestExpectation *disabledExpectation = [self expectationWithDescription:@"disabled logger returns nil flow"];
+        [logger retrieveExecutionFlowWithCorrelationId:correlationId
+                                             queryKeys:nil
+                                           shouldFlush:YES
+                                            completion:^(NSString * _Nullable executionFlow) {
+            XCTAssertNil(executionFlow, @"Logger should ignore operations when disabled");
+            [disabledExpectation fulfill];
+        }];
+
+        [self waitForExpectationsWithTimeout:1 handler:nil];
+    }
+    @finally {
+        [logger setEnabled:YES];
+    }
+}
+
+- (void)testRetrieveWithQueryKeys_shouldFilterExtraInfoButKeepReservedKeys
+{
+    MSIDExecutionFlowLogger *logger = [MSIDExecutionFlowLogger sharedInstance];
+    NSUUID *correlationId = [NSUUID UUID];
+
+    NSDictionary *extraInfo = @{
+        @"key1": @"value1",
+        @"key2": @"value2"
+    };
+
+    [logger registerExecutionFlowWithCorrelationId:correlationId];
+    [logger insertTag:@"TestTag" extraInfo:extraInfo withCorrelationId:correlationId];
+
+    NSSet *keys = [NSSet setWithArray:@[@"key1"]];
+
+    XCTestExpectation *filterExpectation = [self expectationWithDescription:@"filtered keys returned"];
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
+                                         queryKeys:keys
+                                       shouldFlush:YES
+                                        completion:^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+
+        NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
+        NSArray *result = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+
+        XCTAssertEqual(result.count, 1);
+        XCTAssertEqualObjects(result[0][@"t"], @"TestTag");
+        XCTAssertNotNil(result[0][@"ts"]);
+        XCTAssertNotNil(result[0][@"tid"]);
+        XCTAssertEqualObjects(result[0][@"key1"], @"value1");
+        XCTAssertNil(result[0][@"key2"]);
+
+        [filterExpectation fulfill];
     }];
 
     [self waitForExpectationsWithTimeout:1 handler:nil];
@@ -764,7 +923,7 @@
 
     XCTestExpectation *concurrentExpectation = [self expectationWithDescription:@"concurrent inserts completed"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:keys completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:keys shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -808,7 +967,7 @@
     allFlowsExpectation.expectedFulfillmentCount = 10;
 
     for (int i = 0; i < 10; i++) {
-        [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationIds[i] queryKeys:nil completion:^(NSString * _Nullable executionFlow) {
+        [logger retrieveExecutionFlowWithCorrelationId:correlationIds[i] queryKeys:nil shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
             XCTAssertNotNil(executionFlow, @"Flow should exist for correlationId %d", i);
             [allFlowsExpectation fulfill];
         }];
@@ -839,9 +998,10 @@
     // Concurrent retrieve; test passes if it completes without crashing
     XCTestExpectation *retrieveExpectation = [self expectationWithDescription:@"retrieve finishes"];
     dispatch_async(queue, ^{
-        [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+        [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                      queryKeys:nil
-                                                    completion:^(__unused NSString * _Nullable executionFlow) {
+                                                     shouldFlush:YES
+                                                     completion:^(__unused NSString * _Nullable executionFlow) {
             [retrieveExpectation fulfill];
         }];
     });
@@ -875,9 +1035,10 @@
     for (int i = 0; i < 20; i++)
     {
         dispatch_async(queue, ^{
-            [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationIds[i]
+            [logger retrieveExecutionFlowWithCorrelationId:correlationIds[i]
                                                          queryKeys:nil
-                                                        completion:^(__unused NSString * _Nullable executionFlow) {
+                                                         shouldFlush:YES
+                                                         completion:^(__unused NSString * _Nullable executionFlow) {
                 [allFlowsExpectation fulfill];
             }];
         });
@@ -910,7 +1071,7 @@
     XCTestExpectation *workflowExpectation = [self expectationWithDescription:@"integration flow verified"];
     XCTestExpectation *flushExpectation = [self expectationWithDescription:@"flow flushed after integration"];
 
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId queryKeys:keys completion:^(NSString * _Nullable executionFlow) {
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId queryKeys:keys shouldFlush:YES completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -938,9 +1099,10 @@
     }];
         
     // Verify flow is flushed
-    [logger retrieveAndFlushExecutionFlowWithCorrelationId:correlationId
+    [logger retrieveExecutionFlowWithCorrelationId:correlationId
                                                  queryKeys:nil
-                                                completion:^(NSString * _Nullable executionFlow) {
+                                                 shouldFlush:YES
+                                                 completion:^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [flushExpectation fulfill];
     }];

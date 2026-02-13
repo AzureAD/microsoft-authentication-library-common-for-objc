@@ -38,6 +38,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (MSIDExecutionFlowLogger *)sharedInstance;
 
 /*!
+ Enables or disables execution flow logging. When disabled, all stored flows are flushed
+ and subsequent calls to register, insert, retrieve, or flush are ignored.
+
+ @param enabled YES to enable logging; NO to disable it.
+ */
+- (void)setEnabled:(BOOL)enabled;
+
+/*!
  Begins tracking a new execution flow under the specified correlation identifier.
 
  @param correlationId The unique identifier for the execution flow to register.
@@ -55,16 +63,18 @@ NS_ASSUME_NONNULL_BEGIN
         extraInfo:(nullable NSDictionary *)info
 withCorrelationId:(NSUUID *)correlationId;
 
-/*!
- Retrieves and flushes the execution flow for the specified correlation identifier asynchronously.
-
- @param correlationId The unique identifier of the execution flow to retrieve and flush.
- @param queryKeys  An optional set of keys to filter which tags or entries are included. Pass nil to include all entries.
- @param completion A block invoked with the string representation of the execution flow matching the query keys, or nil if no flow exists for the given identifier.
- */
-- (void)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
-                                            queryKeys:(nullable NSSet<NSString *> *)queryKeys
-                                           completion:(void (^)(NSString * _Nullable executionFlow))completion;
+/// Retrieves the execution flow for the specified correlation identifier and optionally flushes it.
+///
+/// - Parameters:
+///   - correlationId: The unique identifier of the execution flow to retrieve.
+///   - queryKeys: An optional set of keys to filter which tags or entries are included. Pass `nil` to include all entries.
+///   - shouldFlush: `YES` to flush the stored flow after retrieval; otherwise `NO`. Itis importat to make sure the flow is flushed somewhere!
+///   - completion: A block invoked with the string representation of the execution flow matching the query keys,
+///     or `nil` if no flow exists for the given identifier.
+- (void)retrieveExecutionFlowWithCorrelationId:(NSUUID *)correlationId
+                                             queryKeys:(nullable NSSet<NSString *> *)queryKeys
+                                           shouldFlush:(BOOL)shouldFlush
+                                            completion:(void (^)(NSString * _Nullable executionFlow))completion;
 
 @end
 
