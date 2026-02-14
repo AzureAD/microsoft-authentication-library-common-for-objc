@@ -75,6 +75,9 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
 {
+    self = [super init];
+    if (!self) return nil;
+    
     if (![json isKindOfClass:NSDictionary.class])
     {
         if (error)
@@ -93,10 +96,10 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
         return nil;
     }
 
-    NSString *message = json[MSID_ONBOARDING_REASON_MESSAGE_JSON_KEY];
-    MSIDOnboardingReasonCode code = [MSIDOnboardingStatus reasonCodeFromString:codeString];
+    _message = json[MSID_ONBOARDING_REASON_MESSAGE_JSON_KEY];
+    _code = [MSIDOnboardingStatus reasonCodeFromString:codeString];
 
-    return [self initWithCode:code message:message];
+    return self;
 }
 
 - (NSDictionary *)jsonDictionary
@@ -121,7 +124,7 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
         _version = 1;
         _phase = MSIDOnboardingPhaseNone;
         _onboardingContext = MSIDOnboardingContextUnknown;
-        _ownerBundleId = nil;
+        _ownerBundleId = [[NSBundle mainBundle] bundleIdentifier];
         _originatingBundleId = [[NSBundle mainBundle] bundleIdentifier];
         NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
         if (!displayName)
@@ -141,30 +144,32 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
     return self;
 }
 
-- (instancetype)initWithVersion:(NSInteger)version
-                          phase:(MSIDOnboardingPhase)phase
+- (instancetype)initWithPhase:(MSIDOnboardingPhase)phase
               onboardingContext:(MSIDOnboardingContext)onboardingContext
                   ownerBundleId:(NSString *)ownerBundleId
-            originatingBundleId:(NSString *)originatingBundleId
-        originatingDisplayName:(NSString *)originatingDisplayName
                   correlationId:(NSUUID *)correlationId
-                      startedAt:(NSDate *)startedAt
-                     ttlSeconds:(NSInteger)ttlSeconds
-                         reason:(MSIDOnboardingReason *)reason
 {
     self = [super init];
     if (self)
     {
-        _version = version;
+        _version = 1;
         _phase = phase;
         _onboardingContext = onboardingContext;
         _ownerBundleId = ownerBundleId;
-        _originatingBundleId = originatingBundleId;
-        _originatingDisplayName = originatingDisplayName;
-        _correlationId = correlationId;
-        _startedAt = startedAt ?: [NSDate date];
-        _ttlSeconds = ttlSeconds > 0 ? ttlSeconds : MSID_ONBOARDING_DEFAULT_TTL_SECONDS;
-        _reason = reason;
+        _originatingBundleId = [[NSBundle mainBundle] bundleIdentifier];
+        NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+        if (!displayName)
+        {
+            // Fallback to CFBundleName if CFBundleDisplayName is not set
+            displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+        }
+        if (![NSString msidIsStringNilOrBlank:displayName])
+        {
+            _originatingDisplayName = displayName;
+        }
+        _correlationId = correlationId ?: [[NSUUID alloc] init];
+        _startedAt = [NSDate date];
+        _ttlSeconds = MSID_ONBOARDING_DEFAULT_TTL_SECONDS;
     }
     return self;
 }
@@ -173,6 +178,9 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
 {
+    self = [super init];
+    if (!self) return nil;
+    
     if (![json isKindOfClass:NSDictionary.class])
     {
         if (error)
@@ -182,11 +190,11 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
         return nil;
     }
 
-    NSInteger version = 1;
+    _version = 1;
     if (json[MSID_ONBOARDING_VERSION_JSON_KEY])
     {
         if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_ONBOARDING_VERSION_JSON_KEY required:NO error:error]) return nil;
-        version = [json[MSID_ONBOARDING_VERSION_JSON_KEY] integerValue];
+        _version = [json[MSID_ONBOARDING_VERSION_JSON_KEY] integerValue];
     }
 
     if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_PHASE_JSON_KEY required:YES error:error]) return nil;
@@ -195,57 +203,45 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
     if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_CONTEXT_JSON_KEY required:YES error:error]) return nil;
     NSString *contextString = json[MSID_ONBOARDING_CONTEXT_JSON_KEY];
 
-    MSIDOnboardingPhase phase = [MSIDOnboardingStatus onboardingPhaseFromString:phaseString];
-    MSIDOnboardingContext onboardingContext = [MSIDOnboardingStatus onboardingContextFromString:contextString];
+    _phase = [MSIDOnboardingStatus onboardingPhaseFromString:phaseString];
+    _onboardingContext = [MSIDOnboardingStatus onboardingContextFromString:contextString];
 
     if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_OWNER_BUNDLE_ID_JSON_KEY required:NO error:error]) return nil;
-    NSString *ownerBundleId = json[MSID_ONBOARDING_OWNER_BUNDLE_ID_JSON_KEY];
+    _ownerBundleId = json[MSID_ONBOARDING_OWNER_BUNDLE_ID_JSON_KEY];
     
     if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_ORIGINATING_BUNDLE_ID_JSON_KEY required:NO error:error]) return nil;
-    NSString *originatingBundleId = json[MSID_ONBOARDING_ORIGINATING_BUNDLE_ID_JSON_KEY];
+    _originatingBundleId = json[MSID_ONBOARDING_ORIGINATING_BUNDLE_ID_JSON_KEY];
     
     if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_ORIGINATING_DISPLAY_NAME_JSON_KEY required:NO error:error]) return nil;
-    NSString *originatingDisplayName = json[MSID_ONBOARDING_ORIGINATING_DISPLAY_NAME_JSON_KEY];
+    _originatingDisplayName = json[MSID_ONBOARDING_ORIGINATING_DISPLAY_NAME_JSON_KEY];
 
-    NSUUID *correlationId = nil;
     if (json[MSID_ONBOARDING_CORRELATION_ID_JSON_KEY])
     {
         if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_CORRELATION_ID_JSON_KEY required:NO error:error]) return nil;
-        correlationId = [[NSUUID alloc] initWithUUIDString:json[MSID_ONBOARDING_CORRELATION_ID_JSON_KEY]];
+        _correlationId = [[NSUUID alloc] initWithUUIDString:json[MSID_ONBOARDING_CORRELATION_ID_JSON_KEY]];
     }
 
-    NSDate *startedAt = nil;
     if (json[MSID_ONBOARDING_STARTED_AT_JSON_KEY])
     {
         if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STARTED_AT_JSON_KEY required:NO error:error]) return nil;
-        startedAt = [MSIDOnboardingStatus dateFromISOString:json[MSID_ONBOARDING_STARTED_AT_JSON_KEY]];
+        _startedAt = [MSIDOnboardingStatus dateFromISOString:json[MSID_ONBOARDING_STARTED_AT_JSON_KEY]];
     }
 
-    NSInteger ttlSeconds = MSID_ONBOARDING_DEFAULT_TTL_SECONDS;
+    _ttlSeconds = MSID_ONBOARDING_DEFAULT_TTL_SECONDS;
     if (json[MSID_ONBOARDING_TTL_SECONDS_JSON_KEY])
     {
         if (![json msidAssertType:NSNumber.class ofKey:MSID_ONBOARDING_TTL_SECONDS_JSON_KEY required:NO error:error]) return nil;
-        ttlSeconds = [json[MSID_ONBOARDING_TTL_SECONDS_JSON_KEY] integerValue];
+        _ttlSeconds = [json[MSID_ONBOARDING_TTL_SECONDS_JSON_KEY] integerValue];
     }
 
-    MSIDOnboardingReason *reason = nil;
     if (json[MSID_ONBOARDING_REASON_JSON_KEY])
     {
         if (![json msidAssertType:NSDictionary.class ofKey:MSID_ONBOARDING_REASON_JSON_KEY required:NO error:error]) return nil;
-        reason = [[MSIDOnboardingReason alloc] initWithJSONDictionary:json[MSID_ONBOARDING_REASON_JSON_KEY] error:error];
-        if (!reason) return nil;
+        _reason = [[MSIDOnboardingReason alloc] initWithJSONDictionary:json[MSID_ONBOARDING_REASON_JSON_KEY] error:error];
+        if (!_reason) return nil;
     }
-
-    return [self initWithVersion:version
-                           phase:phase
-               onboardingContext:onboardingContext
-                   ownerBundleId:ownerBundleId
-             originatingBundleId:originatingBundleId
-         originatingDisplayName:originatingDisplayName
-                   correlationId:correlationId
-                       startedAt:startedAt
-                      ttlSeconds:ttlSeconds
-                          reason:reason];
+    
+    return self;
 }
 
 - (NSDictionary *)jsonDictionary

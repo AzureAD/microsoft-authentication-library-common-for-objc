@@ -244,10 +244,12 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     [self.class setCurrentBrokerRequest:brokerRequest];
     // Phase 1, do not show UI to users, just save the current onboarding status for the current MSAL client, and overwrite it.
     // This is to return to Authenticator with the same request if it was initiated from the same app.
-    MSIDOnboardingStatus *onboardingStatus = [MSIDOnboardingStatus new];
-    onboardingStatus.phase = MSIDOnboardingPhaseBrokerInteractiveInProgress;
-    onboardingStatus.onboardingContext = MSIDOnboardingContextBroker;
-    onboardingStatus.correlationId = self.requestParameters.correlationId;
+    // We are letting broker handle authentication, so broker is the owner
+    MSIDOnboardingStatus *onboardingStatus = [[MSIDOnboardingStatus alloc] initWithPhase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                                                       onboardingContext:MSIDOnboardingContextBroker
+                                                                           ownerBundleId:MSID_BROKER_APP_BUNDLE_ID
+                                                                           correlationId:self.requestParameters.correlationId];
+    
     [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:onboardingStatus];
     
     NSDictionary *brokerResumeDictionary = brokerRequest.resumeDictionary;
@@ -421,9 +423,12 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         BOOL returnToBroker = NO;
         // First read from Keychain to see if we have a request in progress from this app
         MSIDOnboardingStatus *onboardingStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        NSString *originatingBundleId = onboardingStatus.originatingBundleId;
+        NSString *currentBundleId = [NSBundle.mainBundle bundleIdentifier];
         if (onboardingStatus.phase == MSIDOnboardingPhaseBrokerInteractiveInProgress &&
             onboardingStatus.onboardingContext == MSIDOnboardingContextBroker &&
-            onboardingStatus.originatingBundleId && [onboardingStatus.originatingBundleId isEqualToString:[NSBundle.mainBundle bundleIdentifier]])
+            originatingBundleId.length > 0 && currentBundleId.length > 0 &&
+            [originatingBundleId caseInsensitiveCompare:currentBundleId] == NSOrderedSame)
         {
             returnToBroker = YES;
         }
@@ -498,6 +503,23 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     CONDITIONAL_STOP_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, brokerEvent);
 #endif
 
+    if (error)
+    {
+        MSIDOnboardingStatus *status = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        status.phase = MSIDOnboardingPhaseFailed;
+        [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:status];
+    }
+    else
+    {
+        NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
+        if (!bundleId)
+        {
+            bundleId = @"unknown";
+        }
+        
+        [MSIDOnboardingStatusCache.sharedInstance clear:bundleId];
+    }
+    
     if (self.requestCompletionBlock)
     {
         MSIDRequestCompletionBlock requestCompletion = [self copyAndClearCompletionBlock];

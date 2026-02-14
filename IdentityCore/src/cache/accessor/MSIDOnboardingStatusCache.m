@@ -25,7 +25,6 @@
 #import "MSIDTokenCacheDataSource.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDOnboardingStatus.h"
-#import "MSIDKeychainTokenCache.h"
 #import "MSIDCacheKey.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDJsonObject.h"
@@ -42,7 +41,7 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 @property (nonatomic) id<MSIDExtendedTokenCacheDataSource> dataSource;
 @property (nonatomic) MSIDCacheItemJsonSerializer *serializer;
 
-- (BOOL)isBrokerOverride:(MSIDOnboardingStatus *)status;
+- (BOOL)isOwnerOverride:(MSIDOnboardingStatus *)status;
 
 @end
 
@@ -70,7 +69,7 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
     
     if (self)
     {
-        _dataSource = [MSIDKeychainTokenCache defaultKeychainCache];
+        _dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDKeychainTokenCache.defaultKeychainGroup error:nil];
         _serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     }
     
@@ -234,11 +233,16 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 
 #pragma mark - Public Convenience Methods
 
-- (BOOL)isBrokerOverride:(MSIDOnboardingStatus *)status
+- (BOOL)isOwnerOverride:(MSIDOnboardingStatus *)status
 {
-    // This method checks if the onboarding status is an override for the broker.
-    // The broker override is determined by checking if the ownerBundleId of the status matches the known broker app bundle ID (MSID_BROKER_APP_BUNDLE_ID).
-    return [MSID_BROKER_APP_BUNDLE_ID caseInsensitiveCompare:status.ownerBundleId] == NSOrderedSame;
+    // This method checks if the onboarding status is owned by the current running app.
+    NSString *currentBundleId = [[NSBundle mainBundle] bundleIdentifier];
+    if ([NSString msidIsStringNilOrBlank:currentBundleId])
+    {
+        currentBundleId = @"unknown";
+    }
+    
+    return [currentBundleId caseInsensitiveCompare:status.ownerBundleId] == NSOrderedSame;
 }
 
 - (BOOL)setWithStatus:(MSIDOnboardingStatus *)status
@@ -250,11 +254,20 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
     
     MSIDOnboardingStatus *current = [self getOnboardingStatus];
     
-    if (current)
+    // If there's an existing status with a phase other than none, validate that the new status is either
+    // from the same originating bundle or is an owner override. This prevents different apps from overwriting
+    // each other's onboarding status.
+    if (current && current.phase != MSIDOnboardingPhaseNone)
     {
-        // Validate ownership or broker override
-        if ([current.ownerBundleId caseInsensitiveCompare:status.ownerBundleId] != NSOrderedSame
-            && ![self isBrokerOverride:status])
+        NSString *currentBundleId = current.originatingBundleId;
+        if ([NSString msidIsStringNilOrBlank:currentBundleId])
+        {
+            currentBundleId = @"unknown";
+        }
+        
+        // Validate ownership or self-override
+        if ([currentBundleId caseInsensitiveCompare:status.originatingBundleId] != NSOrderedSame
+            && ![self isOwnerOverride:status])
         {
             return NO;
         }
@@ -299,14 +312,16 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
     
     MSIDOnboardingStatus *current = [self getOnboardingStatus];
     
-    if (!current)
+    // If there's no existing status or the phase is none, there's nothing to clear
+    if (!current || current.phase == MSIDOnboardingPhaseNone)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(MSIDOnboardingStatusCache) No onboarding status found to clear");
         return YES;
     }
     
     // If the current status matches the bundleId (checking ownerBundleId or originatingBundleId), remove it
-    if ([current.ownerBundleId caseInsensitiveCompare:bundleId] != NSOrderedSame)
+    if ([current.ownerBundleId caseInsensitiveCompare:bundleId] != NSOrderedSame &&
+        [current.originatingBundleId caseInsensitiveCompare:bundleId] != NSOrderedSame)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(MSIDOnboardingStatusCache) BundleId does not match current status, nothing to clear");
         return NO;

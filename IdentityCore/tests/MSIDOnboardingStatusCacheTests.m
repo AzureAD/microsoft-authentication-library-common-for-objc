@@ -33,7 +33,7 @@
 @property (nonatomic) id<MSIDExtendedTokenCacheDataSource> dataSource;
 @property (nonatomic) MSIDCacheItemJsonSerializer *serializer;
 
-- (BOOL)isBrokerOverride:(MSIDOnboardingStatus *)status;
+- (BOOL)isOwnerOverride:(MSIDOnboardingStatus *)status;
 
 @end
 
@@ -68,16 +68,43 @@
                                ttlSeconds:(NSInteger)ttl
                                 startedAt:(NSDate *)startedAt
 {
-    return [[MSIDOnboardingStatus alloc] initWithVersion:1
-                                                   phase:phase
-                                       onboardingContext:MSIDOnboardingContextBroker
-                                           ownerBundleId:ownerBundleId
-                                     originatingBundleId:@"com.microsoft.teams"
-                                 originatingDisplayName:@"Teams"
-                                           correlationId:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]
-                                               startedAt:startedAt ?: [NSDate date]
-                                              ttlSeconds:ttl
-                                                  reason:[[MSIDOnboardingReason alloc] initWithCode:MSIDOnboardingReasonCodeNone message:@""]];
+    return [self statusWithOwner:ownerBundleId
+                     originating:@"com.microsoft.teams"
+                           phase:phase
+                      ttlSeconds:ttl
+                       startedAt:startedAt];
+}
+
+- (MSIDOnboardingStatus *)statusWithOwner:(NSString *)ownerBundleId
+                              originating:(NSString *)originatingBundleId
+                                    phase:(MSIDOnboardingPhase)phase
+                               ttlSeconds:(NSInteger)ttl
+                                startedAt:(NSDate *)startedAt
+{
+    NSMutableDictionary *json = [NSMutableDictionary dictionary];
+    json[@"version"] = @1;
+    json[@"phase"] = [MSIDOnboardingStatus stringFromPhase:phase];
+    json[@"context"] = [MSIDOnboardingStatus stringFromContext:MSIDOnboardingContextBroker];
+    json[@"ownerBundleId"] = ownerBundleId;
+    json[@"originatingBundleId"] = originatingBundleId;
+    json[@"originatingDisplayName"] = @"Teams";
+    json[@"correlationId"] = @"00000000-0000-0000-0000-000000000000";
+    json[@"ttlSeconds"] = @(ttl);
+    
+    if (startedAt)
+    {
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        formatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
+        json[@"startedAt"] = [formatter stringFromDate:startedAt];
+    }
+    
+    json[@"reason"] = @{@"code": @"none", @"message": @""};
+    
+    NSError *error = nil;
+    MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:json error:&error];
+    NSAssert(status != nil, @"Failed to create status: %@", error);
+    return status;
 }
 
 #pragma mark - getOnboardingStatus
@@ -162,15 +189,17 @@
     XCTAssertTrue(result);
 }
 
-- (void)testSetWithStatus_whenSameOwner_shouldSucceed
+- (void)testSetWithStatus_whenSameOriginatingBundleId_shouldSucceed
 {
     MSIDOnboardingStatus *first = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                            originating:@"com.microsoft.teams"
                                                   phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
                                              ttlSeconds:900
                                               startedAt:[NSDate date]];
     [self.cache setWithStatus:first];
 
     MSIDOnboardingStatus *second = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                             originating:@"com.microsoft.teams"
                                                    phase:MSIDOnboardingPhaseMdmEnrollmentInProgress
                                               ttlSeconds:900
                                                startedAt:[NSDate date]];
@@ -183,15 +212,17 @@
     XCTAssertEqual(retrieved.phase, MSIDOnboardingPhaseMdmEnrollmentInProgress);
 }
 
-- (void)testSetWithStatus_whenDifferentOwner_shouldReturnNO
+- (void)testSetWithStatus_whenDifferentOriginatingBundleId_shouldReturnNO
 {
     MSIDOnboardingStatus *first = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                            originating:@"com.microsoft.teams"
                                                   phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
                                              ttlSeconds:900
                                               startedAt:[NSDate date]];
     [self.cache setWithStatus:first];
 
-    MSIDOnboardingStatus *second = [self statusWithOwner:@"com.microsoft.another.app"
+    MSIDOnboardingStatus *second = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                             originating:@"com.microsoft.outlook"
                                                    phase:MSIDOnboardingPhaseMdmEnrollmentInProgress
                                               ttlSeconds:900
                                                startedAt:[NSDate date]];
@@ -201,34 +232,40 @@
     XCTAssertFalse(result);
 }
 
-- (void)testSetWithStatus_whenDifferentOwnerButBrokerOverride_shouldSucceed
+- (void)testSetWithStatus_whenDifferentOriginatingBundleIdButOwnerOverride_shouldSucceed
 {
     MSIDOnboardingStatus *first = [self statusWithOwner:@"com.microsoft.another.app"
+                                            originating:@"com.microsoft.teams"
                                                   phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
                                              ttlSeconds:900
                                               startedAt:[NSDate date]];
     [self.cache setWithStatus:first];
 
-    // Broker override: new status owned by broker app bundle ID
-    MSIDOnboardingStatus *brokerStatus = [self statusWithOwner:MSID_BROKER_APP_BUNDLE_ID
-                                                         phase:MSIDOnboardingPhaseMdmEnrollmentInProgress
-                                                    ttlSeconds:900
-                                                     startedAt:[NSDate date]];
+    // Owner override: new status owned by current app bundle ID (test host)
+    // Even with different originatingBundleId, the override should succeed
+    NSString *currentBundleId = [[NSBundle mainBundle] bundleIdentifier];
+    MSIDOnboardingStatus *overrideStatus = [self statusWithOwner:currentBundleId
+                                                     originating:@"com.microsoft.outlook"
+                                                           phase:MSIDOnboardingPhaseMdmEnrollmentInProgress
+                                                      ttlSeconds:900
+                                                       startedAt:[NSDate date]];
 
-    BOOL result = [self.cache setWithStatus:brokerStatus];
+    BOOL result = [self.cache setWithStatus:overrideStatus];
 
     XCTAssertTrue(result);
 }
 
-- (void)testSetWithStatus_whenOwnerMatchIsCaseInsensitive_shouldSucceed
+- (void)testSetWithStatus_whenOriginatingBundleIdMatchIsCaseInsensitive_shouldSucceed
 {
-    MSIDOnboardingStatus *first = [self statusWithOwner:@"com.Microsoft.AzureAuthenticator"
+    MSIDOnboardingStatus *first = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                            originating:@"com.Microsoft.Teams"
                                                   phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
                                              ttlSeconds:900
                                               startedAt:[NSDate date]];
     [self.cache setWithStatus:first];
 
     MSIDOnboardingStatus *second = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                             originating:@"com.microsoft.teams"
                                                    phase:MSIDOnboardingPhaseFailed
                                               ttlSeconds:900
                                                startedAt:[NSDate date]];
@@ -308,28 +345,85 @@
     XCTAssertTrue(result);
 }
 
-#pragma mark - isBrokerOverride
-
-- (void)testIsBrokerOverride_whenOwnerIsBrokerBundleId_shouldReturnYES
+- (void)testClear_whenOriginatingBundleIdMatches_shouldRemoveAndReturnYES
 {
-    MSIDOnboardingStatus *status = [self statusWithOwner:MSID_BROKER_APP_BUNDLE_ID
+    MSIDOnboardingStatus *status = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                             originating:@"com.microsoft.teams"
+                                                   phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                              ttlSeconds:900
+                                               startedAt:[NSDate date]];
+    [self.cache setWithStatus:status];
+
+    // Clear using the originating bundle ID instead of owner bundle ID
+    BOOL result = [self.cache clear:@"com.microsoft.teams"];
+
+    XCTAssertTrue(result);
+
+    MSIDOnboardingStatus *retrieved = [self.cache getOnboardingStatus];
+    XCTAssertEqual(retrieved.phase, MSIDOnboardingPhaseNone);
+}
+
+- (void)testClear_whenOriginatingBundleIdMatchIsCaseInsensitive_shouldRemoveAndReturnYES
+{
+    MSIDOnboardingStatus *status = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                             originating:@"com.microsoft.teams"
+                                                   phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                              ttlSeconds:900
+                                               startedAt:[NSDate date]];
+    [self.cache setWithStatus:status];
+
+    // Clear using the originating bundle ID with different case
+    BOOL result = [self.cache clear:@"com.Microsoft.Teams"];
+
+    XCTAssertTrue(result);
+
+    MSIDOnboardingStatus *retrieved = [self.cache getOnboardingStatus];
+    XCTAssertEqual(retrieved.phase, MSIDOnboardingPhaseNone);
+}
+
+- (void)testClear_whenNeitherOwnerNorOriginatingBundleIdMatches_shouldReturnNO
+{
+    MSIDOnboardingStatus *status = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                             originating:@"com.microsoft.teams"
+                                                   phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                              ttlSeconds:900
+                                               startedAt:[NSDate date]];
+    [self.cache setWithStatus:status];
+
+    // Clear using a bundle ID that matches neither owner nor originating
+    BOOL result = [self.cache clear:@"com.microsoft.outlook"];
+
+    XCTAssertFalse(result);
+
+    // Verify status is still there
+    MSIDOnboardingStatus *retrieved = [self.cache getOnboardingStatus];
+    XCTAssertEqual(retrieved.phase, MSIDOnboardingPhaseBrokerInteractiveInProgress);
+}
+
+#pragma mark - isOwnerOverride
+
+- (void)testIsOwnerOverride_whenOwnerMatchesCurrentBundleId_shouldReturnYES
+{
+    // The current bundle ID in tests is the test host's bundle ID
+    NSString *currentBundleId = [[NSBundle mainBundle] bundleIdentifier];
+    MSIDOnboardingStatus *status = [self statusWithOwner:currentBundleId
                                                    phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
                                               ttlSeconds:900
                                                startedAt:[NSDate date]];
 
-    BOOL result = [self.cache isBrokerOverride:status];
+    BOOL result = [self.cache isOwnerOverride:status];
 
     XCTAssertTrue(result);
 }
 
-- (void)testIsBrokerOverride_whenOwnerIsNotBrokerBundleId_shouldReturnNO
+- (void)testIsOwnerOverride_whenOwnerDoesNotMatchCurrentBundleId_shouldReturnNO
 {
-    MSIDOnboardingStatus *status = [self statusWithOwner:@"com.microsoft.teams"
+    MSIDOnboardingStatus *status = [self statusWithOwner:@"com.microsoft.other.app"
                                                    phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
                                               ttlSeconds:900
                                                startedAt:[NSDate date]];
 
-    BOOL result = [self.cache isBrokerOverride:status];
+    BOOL result = [self.cache isOwnerOverride:status];
 
     XCTAssertFalse(result);
 }
@@ -338,20 +432,28 @@
 
 - (void)testSetAndGet_shouldPreserveAllFields
 {
-    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:@"12345678-1234-1234-1234-123456789abc"];
-    MSIDOnboardingReason *reason = [[MSIDOnboardingReason alloc] initWithCode:MSIDOnboardingReasonCodeNetwork message:@"Network error"];
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    formatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
     NSDate *startDate = [NSDate date];
-
-    MSIDOnboardingStatus *original = [[MSIDOnboardingStatus alloc] initWithVersion:1
-                                                                             phase:MSIDOnboardingPhaseFailed
-                                                                 onboardingContext:MSIDOnboardingContextInAppWebview
-                                                                     ownerBundleId:@"com.microsoft.azureauthenticator"
-                                                               originatingBundleId:@"com.microsoft.outlook"
-                                                           originatingDisplayName:@"Outlook"
-                                                                     correlationId:correlationId
-                                                                         startedAt:startDate
-                                                                        ttlSeconds:1800
-                                                                            reason:reason];
+    
+    NSDictionary *json = @{
+        @"version": @1,
+        @"phase": @"failed",
+        @"context": @"inAppWebview",
+        @"ownerBundleId": @"com.microsoft.azureauthenticator",
+        @"originatingBundleId": @"com.microsoft.outlook",
+        @"originatingDisplayName": @"Outlook",
+        @"correlationId": @"12345678-1234-1234-1234-123456789abc",
+        @"startedAt": [formatter stringFromDate:startDate],
+        @"ttlSeconds": @1800,
+        @"reason": @{@"code": @"network", @"message": @"Network error"}
+    };
+    
+    NSError *error = nil;
+    MSIDOnboardingStatus *original = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:json error:&error];
+    XCTAssertNotNil(original);
+    XCTAssertNil(error);
 
     BOOL writeResult = [self.cache setWithStatus:original];
     XCTAssertTrue(writeResult);

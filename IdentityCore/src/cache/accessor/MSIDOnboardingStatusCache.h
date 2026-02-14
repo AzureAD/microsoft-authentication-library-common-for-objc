@@ -53,9 +53,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Gets the current onboarding status.
  
- @return The MSIDOnboardingStatus if found, nil otherwise.
+ @return The MSIDOnboardingStatus representing the current status. If no status is stored, a default status object is returned.
  */
-- (nullable MSIDOnboardingStatus *)getOnboardingStatus;
+- (MSIDOnboardingStatus *)getOnboardingStatus;
 
 /**
  Clears the onboarding status for a specific bundle identifier.

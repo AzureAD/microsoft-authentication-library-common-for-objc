@@ -67,18 +67,12 @@
 
 - (void)testJsonDictionary_whenRoundtrip_shouldMatchExpectedKeys
 {
-    NSDate *date = [NSDate dateWithTimeIntervalSince1970:0];
-    MSIDOnboardingReason *reason = [[MSIDOnboardingReason alloc] initWithCode:MSIDOnboardingReasonCodeUserCancel message:@"User canceled enrollment"];    
-    MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithVersion:1
-                                                                           phase:MSIDOnboardingPhaseFailed
-                                                               onboardingContext:MSIDOnboardingContextInAppWebview
-                                                                   ownerBundleId:@"com.microsoft.azureauthenticator"
-                                                             originatingBundleId:@"com.microsoft.teams"
-                                                         originatingDisplayName:@"Teams"
-                                                                   correlationId:[[NSUUID alloc] initWithUUIDString:@"f2b9c6e7-1234-5678-90ab-abcdef123456"]
-                                                                       startedAt:date
-                                                                      ttlSeconds:900
-                                                                          reason:reason];
+    MSIDOnboardingReason *reason = [[MSIDOnboardingReason alloc] initWithCode:MSIDOnboardingReasonCodeUserCancel message:@"User canceled enrollment"];
+    MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithPhase:MSIDOnboardingPhaseFailed
+                                                             onboardingContext:MSIDOnboardingContextInAppWebview
+                                                                 ownerBundleId:@"com.microsoft.azureauthenticator"
+                                                                 correlationId:[[NSUUID alloc] initWithUUIDString:@"f2b9c6e7-1234-5678-90ab-abcdef123456"]];
+    status.reason = reason;
 
     NSDictionary *json = [status jsonDictionary];
 
@@ -86,10 +80,9 @@
     XCTAssertEqualObjects(json[@"phase"], @"failed");
     XCTAssertEqualObjects(json[@"context"], @"inAppWebview");
     XCTAssertEqualObjects(json[@"ownerBundleId"], @"com.microsoft.azureauthenticator");
-    XCTAssertEqualObjects(json[@"originatingBundleId"], @"com.microsoft.teams");
-    XCTAssertEqualObjects(json[@"originatingDisplayName"], @"Teams");
+    XCTAssertNotNil(json[@"originatingBundleId"]); // Set from main bundle
     XCTAssertEqualObjects(json[@"correlationId"], @"F2B9C6E7-1234-5678-90AB-ABCDEF123456");
-    XCTAssertEqualObjects(json[@"startedAt"], @"1970-01-01T00:00:00Z");
+    XCTAssertNotNil(json[@"startedAt"]); // Set automatically
     XCTAssertEqualObjects(json[@"ttlSeconds"], @900);
 
     NSDictionary *reasonJson = json[@"reason"];
@@ -265,61 +258,40 @@
     XCTAssertEqual(status.version, 1);
     XCTAssertEqual(status.phase, MSIDOnboardingPhaseNone);
     XCTAssertEqual(status.onboardingContext, MSIDOnboardingContextUnknown);
-    XCTAssertNil(status.ownerBundleId);
+    XCTAssertNotNil(status.ownerBundleId);
     XCTAssertNotNil(status.startedAt);
     XCTAssertEqual(status.ttlSeconds, 900);
     XCTAssertNil(status.correlationId);
     XCTAssertNil(status.reason);
 }
 
-#pragma mark - initWithVersion edge cases
+#pragma mark - initWithPhase tests
 
-- (void)testInitWithVersion_whenTTLIsZero_shouldDefaultTo900
+- (void)testInitWithPhase_whenCalled_shouldSetProperties
 {
-    MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithVersion:1
-                                                                           phase:MSIDOnboardingPhaseNone
-                                                               onboardingContext:MSIDOnboardingContextUnknown
-                                                                   ownerBundleId:@"com.test"
-                                                             originatingBundleId:@"com.test"
-                                                         originatingDisplayName:@"Test"
-                                                                   correlationId:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]
-                                                                       startedAt:[NSDate date]
-                                                                      ttlSeconds:0
-                                                                          reason:[[MSIDOnboardingReason alloc] initWithCode:MSIDOnboardingReasonCodeNone message:@""]];
+    NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"];
+    MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithPhase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                                             onboardingContext:MSIDOnboardingContextBroker
+                                                                 ownerBundleId:@"com.test"
+                                                                 correlationId:correlationId];
 
+    XCTAssertEqual(status.version, 1);
+    XCTAssertEqual(status.phase, MSIDOnboardingPhaseBrokerInteractiveInProgress);
+    XCTAssertEqual(status.onboardingContext, MSIDOnboardingContextBroker);
+    XCTAssertEqualObjects(status.ownerBundleId, @"com.test");
+    XCTAssertEqualObjects(status.correlationId, correlationId);
+    XCTAssertNotNil(status.startedAt);
     XCTAssertEqual(status.ttlSeconds, 900);
 }
 
-- (void)testInitWithVersion_whenTTLIsNegative_shouldDefaultTo900
+- (void)testInitWithPhase_whenCorrelationIdNil_shouldGenerateNew
 {
-    MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithVersion:1
-                                                                           phase:MSIDOnboardingPhaseNone
-                                                               onboardingContext:MSIDOnboardingContextUnknown
-                                                                   ownerBundleId:@"com.test"
-                                                             originatingBundleId:@"com.test"
-                                                         originatingDisplayName:@"Test"
-                                                                   correlationId:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]
-                                                                       startedAt:[NSDate date]
-                                                                      ttlSeconds:-5
-                                                                          reason:[[MSIDOnboardingReason alloc] initWithCode:MSIDOnboardingReasonCodeNone message:@""]];
+    MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithPhase:MSIDOnboardingPhaseNone
+                                                             onboardingContext:MSIDOnboardingContextUnknown
+                                                                 ownerBundleId:@"com.test"
+                                                                 correlationId:nil];
 
-    XCTAssertEqual(status.ttlSeconds, 900);
-}
-
-- (void)testInitWithVersion_whenPositiveTTL_shouldUseProvidedValue
-{
-    MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithVersion:1
-                                                                           phase:MSIDOnboardingPhaseNone
-                                                               onboardingContext:MSIDOnboardingContextUnknown
-                                                                   ownerBundleId:@"com.test"
-                                                             originatingBundleId:@"com.test"
-                                                         originatingDisplayName:@"Test"
-                                                                   correlationId:[[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"]
-                                                                       startedAt:[NSDate date]
-                                                                      ttlSeconds:1800
-                                                                          reason:[[MSIDOnboardingReason alloc] initWithCode:MSIDOnboardingReasonCodeNone message:@""]];
-
-    XCTAssertEqual(status.ttlSeconds, 1800);
+    XCTAssertNotNil(status.correlationId);
 }
 
 #pragma mark - jsonDictionary
@@ -336,27 +308,36 @@
     XCTAssertEqualObjects(json[@"context"], @"unknown");
     XCTAssertEqualObjects(json[@"ttlSeconds"], @900);
     XCTAssertNotNil(json[@"startedAt"]);
-    XCTAssertNil(json[@"ownerBundleId"]);
+    XCTAssertNotNil(json[@"ownerBundleId"]);
     XCTAssertNil(json[@"correlationId"]);
     XCTAssertNil(json[@"reason"]);
 }
 
 - (void)testJsonDictionary_thenInitFromJSON_shouldRoundtrip
 {
-    MSIDOnboardingReason *reason = [[MSIDOnboardingReason alloc] initWithCode:MSIDOnboardingReasonCodePolicy message:@"Policy violation"];
-    MSIDOnboardingStatus *original = [[MSIDOnboardingStatus alloc] initWithVersion:1
-                                                                             phase:MSIDOnboardingPhaseMdmEnrollmentInProgress
-                                                                 onboardingContext:MSIDOnboardingContextBroker
-                                                                     ownerBundleId:@"com.microsoft.azureauthenticator"
-                                                               originatingBundleId:@"com.microsoft.outlook"
-                                                           originatingDisplayName:@"Outlook"
-                                                                     correlationId:[[NSUUID alloc] initWithUUIDString:@"abcdef12-3456-7890-abcd-ef1234567890"]
-                                                                         startedAt:[NSDate dateWithTimeIntervalSince1970:1000000]
-                                                                        ttlSeconds:600
-                                                                            reason:reason];
+    // Create the original status from JSON to set all the fields precisely
+    NSDictionary *originalJson = @{
+        @"version" : @1,
+        @"phase" : @"mdm_enrollment_in_progress",
+        @"context" : @"broker",
+        @"ownerBundleId" : @"com.microsoft.azureauthenticator",
+        @"originatingBundleId" : @"com.microsoft.outlook",
+        @"originatingDisplayName" : @"Outlook",
+        @"correlationId" : @"abcdef12-3456-7890-abcd-ef1234567890",
+        @"startedAt" : @"1970-01-12T13:46:40Z",
+        @"ttlSeconds" : @600,
+        @"reason" : @{
+            @"code" : @"policy",
+            @"message" : @"Policy violation"
+        }
+    };
+
+    NSError *error = nil;
+    MSIDOnboardingStatus *original = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:originalJson error:&error];
+    XCTAssertNotNil(original);
+    XCTAssertNil(error);
 
     NSDictionary *json = [original jsonDictionary];
-    NSError *error = nil;
     MSIDOnboardingStatus *parsed = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:json error:&error];
 
     XCTAssertNotNil(parsed);
