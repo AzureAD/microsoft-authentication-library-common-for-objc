@@ -460,6 +460,63 @@ static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
     self.testAccounts = allAccounts;
 }
 
+#pragma mark - Key Vault compound key
+
+/// Build a compound lookup key from a configuration request.
+/// This MUST match the _make_key() logic in logs_to_json.py exactly.
+/// Format: <accountType>[_<protectionPolicy>][_<mfa>][_<federationProvider>]
+///                      [_<b2cProvider>][_<environment>][_<userRole>]
+/// Only non-default values are appended.
++ (NSString *)keyForAccountConfigurationRequest:(MSIDTestAutomationAccountConfigurationRequest *)request
+{
+    NSMutableString *key = [NSMutableString stringWithString:request.accountType ?: @"unknown"];
+    
+    // Protection policy (default: "none")
+    if (request.protectionPolicyType
+        && ![request.protectionPolicyType isEqualToString:MSIDTestAccountProtectionPolicyTypeNone])
+    {
+        [key appendFormat:@"_%@", request.protectionPolicyType];
+    }
+    
+    // MFA (default: "none")
+    if (request.mfaType
+        && ![request.mfaType isEqualToString:MSIDTestAccountMFATypeNone])
+    {
+        [key appendFormat:@"_%@", request.mfaType];
+    }
+    
+    // Federation provider (default: "none")
+    if (request.federationProviderType
+        && ![request.federationProviderType isEqualToString:MSIDTestAccountFederationProviderTypeNone])
+    {
+        [key appendFormat:@"_%@", request.federationProviderType];
+    }
+    
+    // B2C provider (default: "none")
+    if (request.b2cProviderType
+        && ![request.b2cProviderType isEqualToString:MSIDTestAccountB2CProviderTypeNone])
+    {
+        [key appendFormat:@"_%@", request.b2cProviderType];
+    }
+    
+    // Environment (default: "azurecloud")
+    if (request.environmentType
+        && ![request.environmentType isEqualToString:MSIDTestAccountEnvironmentTypeWWCloud])
+    {
+        [key appendFormat:@"_%@", request.environmentType];
+    }
+    
+    // User role (default: nil/empty)
+    if (request.userRole.length > 0)
+    {
+        [key appendFormat:@"_%@", request.userRole.lowercaseString];
+    }
+    
+    return [key copy];
+}
+
+#pragma mark - Account loading
+
 - (NSArray *)loadTestAccountRequest:(MSIDAutomationBaseApiRequest *)accountRequest
 {
     // Try Key Vault JSON first if available
@@ -470,8 +527,8 @@ static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
         {
             MSIDTestAutomationAccountConfigurationRequest *configRequest = (MSIDTestAutomationAccountConfigurationRequest *)accountRequest;
             
-            // Use the accountType directly as the Key Vault key (e.g., "cloud", "msa", "federated")
-            NSString *accountType = configRequest.accountType;
+            // Build compound key from all request properties (must match logs_to_json.py _make_key)
+            NSString *accountType = [self.class keyForAccountConfigurationRequest:configRequest];
             
             if (accountType)
             {
@@ -480,7 +537,7 @@ static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
                 
                 if (account)
                 {
-                    NSLog(@"[MSIDBaseUITest] Loaded account from Key Vault JSON with type: %@", accountType);
+                    NSLog(@"[MSIDBaseUITest] Loaded account from Key Vault JSON with key: %@", accountType);
                     
                     // Load password for the account
                     XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
@@ -512,7 +569,7 @@ static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
                 }
                 else
                 {
-                    NSLog(@"[MSIDBaseUITest] Account type '%@' not found in Key Vault JSON, falling back to Lab API. Error: %@", accountType, error.localizedDescription);
+                    NSLog(@"[MSIDBaseUITest] Account key '%@' not found in Key Vault JSON, falling back to Lab API. Error: %@", accountType, error.localizedDescription);
                 }
             }
             else
