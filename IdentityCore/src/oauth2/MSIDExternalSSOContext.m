@@ -124,14 +124,28 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"identityRef passed is nil, cannot set identity from LoginManager");
         return;
     }
+    
+    NSLog(@"MSFT debug -- getPlatformSSOIdentity: ENTERING, loginManager=%@", self.loginManager ? @"present" : @"nil");
+    
+    @try {
 #if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
-    if (@available(macOS 14.0, *))
-    {
-        *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeCurrentDeviceSigning];
-        return;
-    }
+        if (@available(macOS 14.0, *))
+        {
+            NSLog(@"MSFT debug -- getPlatformSSOIdentity: calling copyIdentityForKeyType:CurrentDeviceSigning");
+            *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeCurrentDeviceSigning];
+            NSLog(@"MSFT debug -- getPlatformSSOIdentity: copyIdentityForKeyType returned, identityRef=%@", *identityRef ? @"present" : @"nil");
+            return;
+        }
 #endif
-    *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
+        NSLog(@"MSFT debug -- getPlatformSSOIdentity: calling copyIdentityForKeyType:UserDeviceSigning");
+        *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
+        NSLog(@"MSFT debug -- getPlatformSSOIdentity: copyIdentityForKeyType returned, identityRef=%@", *identityRef ? @"present" : @"nil");
+    }
+    @catch (NSException *exception) {
+        NSLog(@"MSFT debug -- getPlatformSSOIdentity: EXCEPTION caught: name=%@, reason=%@", exception.name, exception.reason);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Exception in getPlatformSSOIdentity: %@ - %@", exception.name, exception.reason);
+        *identityRef = nil;
+    }
 #endif
 
 }

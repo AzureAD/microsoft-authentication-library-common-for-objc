@@ -42,6 +42,10 @@
                              externalSSOContext:(MSIDExternalSSOContext *)externalSSOContext
                                         context:(nullable id<MSIDRequestContext>)context
 {
+    NSLog(@"MSFT debug -- createDeviceAuthResponse: ENTERING, externalSSOContext=%@, loginManager=%@", 
+          externalSSOContext ? @"present" : @"nil",
+          externalSSOContext.loginManager ? @"present" : @"nil");
+    
     NSString *authToken = @"";
     NSString *challengeContext = challengeData ? [challengeData valueForKey:@"Context"] : @"";
     NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";
@@ -52,15 +56,19 @@
     
     if (externalSSOContext)
     {
+        NSLog(@"MSFT debug -- createDeviceAuthResponse: about to call wpjKeyPairWithSSOContext");
         // First try reading WPJ from the SSO context if present
         info = [MSIDWorkPlaceJoinUtil wpjKeyPairWithSSOContext:externalSSOContext tenantId:challengeTenantId context:context];
+        NSLog(@"MSFT debug -- createDeviceAuthResponse: wpjKeyPairWithSSOContext returned info=%@", info ? @"present" : @"nil");
     }
     
     if (!info)
     {
+        NSLog(@"MSFT debug -- createDeviceAuthResponse: falling back to getWPJKeysWithTenantId");
         // If no SSO context is present, or mismatches requested tenant, try using old way
         // This will always be the case on iOS
         info = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:challengeTenantId context:context];
+        NSLog(@"MSFT debug -- createDeviceAuthResponse: getWPJKeysWithTenantId returned info=%@", info ? @"present" : @"nil");
     }
         
     if (!info)
