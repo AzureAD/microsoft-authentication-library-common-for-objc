@@ -124,8 +124,194 @@
     XCTAssertEqualObjects(@"29a788ca-7bcf-4732-b23c-c8d294347e5b", request.clientId);
     XCTAssertEqualObjects(@"user.read openid profile offline_access", request.scopes);
     XCTAssertEqualObjects(@"https://login.microsoft.com", request.redirectUri);
-    XCTAssertTrue(request.canShowUI);
+    
+    // Assert default values for optional fields
+    XCTAssertNil(request.accountId);
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.authority.url.absoluteString);
     XCTAssertNotNil(request.correlationId.UUIDString);
+    XCTAssertEqual(MSIDPromptTypeDefault, request.prompt);
+    XCTAssertFalse(request.isSts);
+    XCTAssertTrue(request.canShowUI);
+    XCTAssertNil(request.nonce);
+    XCTAssertNil(request.state);
+    XCTAssertNil(request.loginHint);
+    XCTAssertFalse(request.instanceAware);
+    XCTAssertNil(request.extraParameters);
+}
+
+- (void)testInitWithJSONDictionary_whenAuthorityNotProvided_shouldUseDefaultAuthority
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNotNil(request.authority);
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.authority.url.absoluteString);
+}
+
+- (void)testInitWithJSONDictionary_whenCorrelationIdNotProvided_shouldGenerateCorrelationId
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNotNil(request.correlationId);
+    XCTAssertNotNil(request.correlationId.UUIDString);
+}
+
+- (void)testInitWithJSONDictionary_whenPromptNotProvided_shouldUseDefaultPrompt
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertEqual(MSIDPromptTypeDefault, request.prompt);
+}
+
+- (void)testInitWithJSONDictionary_whenIsStsNotProvided_shouldDefaultToNo
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertFalse(request.isSts);
+}
+
+- (void)testInitWithJSONDictionary_whenNonceNotProvided_shouldBeNil
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(request.nonce);
+}
+
+- (void)testInitWithJSONDictionary_whenStateNotProvided_shouldBeNil
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(request.state);
+}
+
+- (void)testInitWithJSONDictionary_whenLoginHintNotProvided_shouldBeNil
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(request.loginHint);
+    XCTAssertNil(request.accountId);
+}
+
+- (void)testInitWithJSONDictionary_whenInstanceAwareNotProvided_shouldDefaultToNo
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertFalse(request.instanceAware);
+}
+
+- (void)testInitWithJSONDictionary_whenExtraParametersNotProvided_shouldBeNil
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(request.extraParameters);
 }
 
 - (void)testInitWithJSONDictionary_whenCorrelationIdProvidedInWrongFormat_shouldGenerateCorrelationId
