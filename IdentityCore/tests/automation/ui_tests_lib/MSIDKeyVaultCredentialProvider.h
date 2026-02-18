@@ -32,9 +32,8 @@ typedef NS_ENUM(NSInteger, MSIDKeyVaultAuthMethod) {
     MSIDKeyVaultAuthMethodUnknown
 };
 
-/// Environment variable names for pipeline certificate
+/// Environment variable name for pipeline certificate (LabAuth is passwordless)
 extern NSString * const MSIDKeyVaultEnvVarsCertificateData;
-extern NSString * const MSIDKeyVaultEnvVarsCertificatePassword;
 
 /// Returns the display name for the auth method
 NSString *MSIDKeyVaultAuthMethodName(MSIDKeyVaultAuthMethod method);

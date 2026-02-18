@@ -33,6 +33,7 @@ public class KeyvaultAuthentication : NSObject {
     @objc public init?(certContents: String, certPassword: String) {
 
         self.certificateContents = certContents
+        // LabAuth certs from Key Vault may have no password (empty string is valid)
         self.certificatePassword = certPassword
 
         guard let certData = Data(base64Encoded: certContents) else {

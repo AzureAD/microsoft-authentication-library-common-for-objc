@@ -34,7 +34,6 @@
 #endif
 
 NSString * const MSIDKeyVaultEnvVarsCertificateData = @"KEYVAULT_CERTIFICATE_DATA";
-NSString * const MSIDKeyVaultEnvVarsCertificatePassword = @"KEYVAULT_CERTIFICATE_PASSWORD";
 
 NSString *MSIDKeyVaultAuthMethodName(MSIDKeyVaultAuthMethod method) {
     switch (method) {
@@ -72,15 +71,15 @@ NSString *MSIDKeyVaultAuthMethodName(MSIDKeyVaultAuthMethod method) {
             NSLog(@"[MSIDKeyVaultCredentialProvider] Config certificate auth initialized");
         }
         
-        // Check for pipeline certificate from environment variables
+        // Check for pipeline certificate from environment variable
+        // LabAuth from Key Vault is passwordless — no KEYVAULT_CERTIFICATE_PASSWORD needed
         NSDictionary *env = [[NSProcessInfo processInfo] environment];
         NSString *pipelineCertData = env[MSIDKeyVaultEnvVarsCertificateData];
-        NSString *pipelineCertPassword = env[MSIDKeyVaultEnvVarsCertificatePassword];
         
-        if (pipelineCertData.length > 0 && pipelineCertPassword.length > 0) {
+        if (pipelineCertData.length > 0) {
             _pipelineCertAuth = [[KeyvaultAuthentication alloc] initWithCertContents:pipelineCertData
-                                                                        certPassword:pipelineCertPassword];
-            NSLog(@"[MSIDKeyVaultCredentialProvider] Pipeline certificate auth initialized from environment variables");
+                                                                        certPassword:@""];
+            NSLog(@"[MSIDKeyVaultCredentialProvider] Pipeline certificate auth initialized from environment variable (passwordless)");
         }
     }
     return self;
