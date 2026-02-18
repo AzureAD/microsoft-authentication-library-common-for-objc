@@ -138,12 +138,6 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
         return nil;
     }
     _clientId = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY];
-    
-    if (!_clientId)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to init with JSON Dictionary via Browser NativeMessageGetTokenRequest. Cliet ID is marked as required but was nil when extracting from dictionary.");
-        return nil;
-    }
 
     NSString *authorityString = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY];
     
