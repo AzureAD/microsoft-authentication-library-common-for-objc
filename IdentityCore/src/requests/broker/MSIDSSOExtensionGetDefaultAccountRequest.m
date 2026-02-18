@@ -1,0 +1,107 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+#if MSID_ENABLE_SSO_EXTENSION
+
+#import "MSIDSSOExtensionGetDataBaseRequest+Internal.h"
+#import "MSIDSSOExtensionGetDefaultAccountRequest.h"
+#import "MSIDBrokerOperationGetDefaultAccountRequest.h"
+#import "MSIDBrokerOperationGetDefaultAccountResponse.h"
+#import "MSIDRequestParameters.h"
+#import <AuthenticationServices/AuthenticationServices.h>
+#import "MSIDSSOExtensionOperationRequestDelegate.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
+#import "ASAuthorizationController+MSIDExtensions.h"
+#import "MSIDConstants.h"
+
+@interface MSIDSSOExtensionGetDefaultAccountRequest()
+
+@property (nonatomic, copy) MSIDGetDefaultAccountRequestCompletionBlock requestCompletionBlock;
+@property (nonatomic) NSDate *requestSentDate;
+
+@end
+
+@implementation MSIDSSOExtensionGetDefaultAccountRequest
+
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error
+{
+    self = [super initWithRequestParameters:requestParameters error:error];
+    
+    if (!requestParameters)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Unexpected error. Nil request parameter provided", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    if (self)
+    {
+        __typeof__(self) __weak weakSelf = self;
+        self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *resultError)
+        {
+            MSIDAccount *defaultAccount = nil;
+            
+            if (!operationResponse.success)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Finished reading default account with error %@", MSID_PII_LOG_MASKABLE(resultError));
+            }
+            else if (![operationResponse isKindOfClass:[MSIDBrokerOperationGetDefaultAccountResponse class]])
+            {
+                resultError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Received incorrect response type for the get default account request", nil, nil, nil, nil, nil, YES);
+            }
+            else
+            {
+                MSIDBrokerOperationGetDefaultAccountResponse *response = (MSIDBrokerOperationGetDefaultAccountResponse *)operationResponse;
+                defaultAccount = response.account;
+            }
+            
+            __typeof__(self) strongSelf = weakSelf;
+            
+            MSIDGetDefaultAccountRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+            strongSelf.requestCompletionBlock = nil;
+            
+            if (completionBlock) completionBlock(defaultAccount, resultError);
+        };
+    }
+    
+    return self;
+}
+
+- (void)executeRequestWithCompletion:(nonnull MSIDGetDefaultAccountRequestCompletionBlock)completionBlock
+{
+    MSIDBrokerOperationGetDefaultAccountRequest *getDefaultAccountRequest = [MSIDBrokerOperationGetDefaultAccountRequest new];
+    self.requestSentDate = [NSDate date];
+    self.requestCompletionBlock = completionBlock;
+    
+    [self executeBrokerOperationRequest:getDefaultAccountRequest requiresUI:NO errorBlock:^(NSError *error) {
+        if(completionBlock) completionBlock(nil, error);
+    }];
+}
+
+@end
+
+#endif

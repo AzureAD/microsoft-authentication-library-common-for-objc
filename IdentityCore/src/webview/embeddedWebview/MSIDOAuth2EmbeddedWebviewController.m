@@ -38,6 +38,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDMainThreadUtil.h"
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDFlightManager.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -208,6 +209,13 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         return;
     }
     self.complete = YES;
+    
+    BOOL enableSpinnerFix = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SPINNER_FIX];
+    
+    if (enableSpinnerFix)
+    {
+        [self stopSpinner];
+    }
     
     if (error)
     {

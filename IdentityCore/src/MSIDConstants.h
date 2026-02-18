@@ -105,6 +105,7 @@ typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, N
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
 typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error);
+typedef void (^MSIDGetDefaultAccountRequestCompletionBlock)(MSIDAccount * _Nullable account, NSError * _Nullable error);
 typedef void (^MSIDGetSsoCookiesRequestCompletionBlock)(NSArray<MSIDPrtHeader *> * _Nullable prtHeaders, NSArray<MSIDDeviceHeader *> * _Nullable deviceHeaders, NSError * _Nullable error);
 typedef void (^MSIDSsoExtensionWrapperErrorBlock)(NSError * _Nullable error);
 typedef void (^MSIDPasskeyAssertionRequestCompletionBlock)(MSIDPasskeyAssertion * _Nullable passkeyAssertion, NSError * _Nullable error);
@@ -132,6 +133,7 @@ extern NSString * _Nonnull const MSID_APP_VER_KEY;
 extern NSString * _Nonnull const MSID_CCS_HINT_KEY;
 extern NSString * _Nonnull const MSID_WEBAUTH_IGNORE_SSO_KEY;
 extern NSString * _Nonnull const MSID_WEBAUTH_REFRESH_TOKEN_KEY;
+extern NSString * _Nonnull const MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY;
 
 extern NSString * _Nonnull const MSID_DEFAULT_FAMILY_ID;
 extern NSString * _Nonnull const MSID_ADAL_SDK_NAME;
@@ -237,10 +239,24 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS;
 /// ECS configuration id: /1678824
 extern NSString * _Nonnull const MSID_FLIGHT_IS_BART_SUPPORTED;
 
+/// Flight to enable embedded webview spinner fix
+/// Owner: zeyong
+extern NSString * _Nonnull const MSID_FLIGHT_SPINNER_FIX;
+
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_QUERYING_STK;
+
+/// Owner: sedemche
 extern NSString * _Nonnull const MSID_FLIGHT_USE_AUTOLAYOUT_FOR_LOADING_INDICATOR;
+
+/// Owner: sedemche
+extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_POP;
+
+/// Owner: sedemche
+extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS;
 
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
+
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

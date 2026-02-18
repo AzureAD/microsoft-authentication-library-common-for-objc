@@ -47,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *webPageUri;
 @property (nonatomic, nullable) NSString *accountHomeTenantId;
 @property (nonatomic, nullable) NSString *clientSku;
+@property (nonatomic, nullable) NSString *userFederatedIdentityToken;
 @property (nonatomic) BOOL skipValidateResultAccount;
 @property (nonatomic) BOOL forceRefresh;
 @property (nonatomic) BOOL ignoreScopeValidation;
