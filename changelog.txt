@@ -1,5 +1,6 @@
 TBD
 * Add token request execution flow logger (#1655)
+* Aligned Init Logic for Get Token API With Documentation (#1698)
 
 Version 1.19.0
 * Add logic to save bound app RT only when token response has refresh_token_type=bound_app_rt
