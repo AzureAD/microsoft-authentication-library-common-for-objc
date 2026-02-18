@@ -197,13 +197,12 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
         _extraParameters = nil;
     }
 
-    // Because the correlation ID is not marked as required we should not eixt the flow just because it can be nil. instead we will gen a temp correlation id.
+    // Because the correlation ID is not marked as required we should not exit the flow just because it can be nil. instead we will gen a temp correlation id.
     NSString *uuidString = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
     _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
     if (!_correlationId)
     {
         _correlationId = [NSUUID UUID];
-    // Because the correlation ID is not marked as required we should not exit the flow just because it can be nil. instead we will gen a temp correlation id.
     }
     
     _platformSequence = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY];
