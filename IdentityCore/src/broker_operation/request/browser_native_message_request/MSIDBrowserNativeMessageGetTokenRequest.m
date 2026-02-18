@@ -203,6 +203,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     if (!_correlationId)
     {
         _correlationId = [NSUUID UUID];
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationID is invalid or not in UUID format: %@. Use new correlationId: %@", uuidString, _correlationId);
     }
     
     _platformSequence = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY];
