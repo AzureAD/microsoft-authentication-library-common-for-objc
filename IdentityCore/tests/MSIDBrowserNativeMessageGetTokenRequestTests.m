@@ -314,6 +314,46 @@
     XCTAssertNil(request.extraParameters);
 }
 
+- (void)testInitWithJSONDictionary_whenExtraParametersWrongType_shouldNotFail
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"extraParameters": @"not_a_dictionary"
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(request.extraParameters);
+}
+
+- (void)testInitWithJSONDictionary_whenExtraParametersNumberType_shouldNotFail
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"extraParameters": @1
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNil(request.extraParameters);
+}
+
 - (void)testInitWithJSONDictionary_whenCorrelationIdProvidedInWrongFormat_shouldGenerateCorrelationId
 {
     __auto_type json = @{

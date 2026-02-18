@@ -193,8 +193,15 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     _state = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_STATE_KEY];
     _instanceAware = [requestJson msidBoolObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_INSTANCE_AWARE_KEY];
     
-    if (![requestJson msidAssertType:NSDictionary.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY required:NO error:error]) return nil;
-    _extraParameters = requestJson[MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY];
+    if ([requestJson msidAssertType:NSDictionary.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY required:NO error:nil])
+    {
+        _extraParameters = requestJson[MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"'extraParameters' was provided but is not a valid dictionary. Ignoring.");
+        _extraParameters = nil;
+    }
 
     // Because the correlation ID is not marked as required we should not eixt the flow just because it can be nil. instead we will gen a temp correlation id.
     NSString *uuidString = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
