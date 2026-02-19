@@ -101,7 +101,7 @@
                                                  context:self.requestParameters
                                          completionBlock:^(__unused NSURL *openIdConfigurationEndpoint, __unused BOOL validated, NSError *error)
      {
-        MSID_EXECUTION_FLOW_INSERT_TAG(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestResolveAuthorityTag),
+        MSIDExecutionFlowInsertTag(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDInteractiveResolveAuthorityTag),
                                        error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
                                        self.requestParameters.correlationId);
          if (error)
@@ -145,7 +145,7 @@
     #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
             strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
     #endif
-            MSID_EXECUTION_FLOW_INSERT_TAG(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestHandleOperationResponseTag),
+            MSIDExecutionFlowInsertTag(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDInteractiveHandleOperationResponseTag),
                                            error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
                                            strongSelf.requestParameters.correlationId);
             __typeof__(strongSelf) __weak weakStrongSelf = strongSelf;
@@ -162,7 +162,7 @@
                 __strong __typeof__(weakStrongSelf) innerStrongSelf = weakStrongSelf;
                 if (!innerStrongSelf) return;
                 
-                MSID_EXECUTION_FLOW_INSERT_TAG(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestCompletionTag),
+                MSIDExecutionFlowInsertTag(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDInteractiveCompletionTag),
                                                localError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(localError.code)} : nil,
                                                innerStrongSelf.requestParameters.correlationId);
                 MSIDInteractiveRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;

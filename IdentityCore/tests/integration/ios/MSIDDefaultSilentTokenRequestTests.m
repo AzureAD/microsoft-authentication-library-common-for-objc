@@ -1434,7 +1434,7 @@
 - (void)testAcquireTokenSilent_when403HttpCodeReturned_shouldReturnMSIDErrorUnexpectedHttpResponseInUnderlyingError
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
-    MSID_EXECUTION_FLOW_REGISTER(silentParameters.correlationId);
+    MSIDExecutionFlowRegister(silentParameters.correlationId);
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
 
     [self saveExpiredTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
@@ -1488,9 +1488,9 @@
         XCTAssertEqual(underlyingError.code, MSIDErrorUnexpectedHttpResponse);
         XCTAssertEqualObjects(error.domain, MSIDHttpErrorCodeDomain);
         XCTAssertEqualObjects(error.userInfo[MSIDHTTPResponseCodeKey], @"403");
-        MSID_EXECUTION_FLOW_RETRIEVE(silentParameters.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        MSIDExecutionFlowRetrieve(silentParameters.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
             XCTAssertNotNil(executionFlow);
-            XCTAssertTrue([executionFlow containsString:MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag)]);
+            XCTAssertTrue([executionFlow containsString:MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag)]);
             [expectation fulfill];
         });
     }];

@@ -68,11 +68,11 @@
     XCTAssertNoThrow([logger registerExecutionFlowWithCorrelationId:correlationId]);
     
     // Verify by inserting a tag
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
 
     XCTestExpectation *flowExpectation = [self expectationWithDescription:@"flow should exist after register"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Flow should be created after registration");
         [flowExpectation fulfill];
     });
@@ -99,14 +99,14 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_REGISTER(correlationId); // Second registration should be ignored
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowRegister(correlationId); // Second registration should be ignored
     
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
 
     XCTestExpectation *flowExpectation = [self expectationWithDescription:@"flow should still exist after duplicate register"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Should still have one flow");
         [flowExpectation fulfill];
     });
@@ -119,24 +119,24 @@
     NSUUID *correlationId = [NSUUID UUID];
     
     // Register and flush
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
 
     XCTestExpectation *firstFlowExpectation = [self expectationWithDescription:@"first flow before re-registration"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Should allow re-registration after flush");
         [firstFlowExpectation fulfill];
     });
     
     // Try to register again after flush
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag2", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag2", nil, correlationId);
     
     // Should not create new flow
     XCTestExpectation *secondFlowExpectation = [self expectationWithDescription:@"second flow after re-registration"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Should allow re-registration after flush");
         [secondFlowExpectation fulfill];
     });
@@ -148,24 +148,24 @@
     NSUUID *correlationId = [NSUUID UUID];
     
     // Register and flush
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
 
     XCTestExpectation *firstFlowExpectation = [self expectationWithDescription:@"first blob before flush"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Should add new event blob after flush");
         [firstFlowExpectation fulfill];
     });
     
     // Try to register again after flush
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag2", nil, correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag2", nil, correlationId);
 
     // Should not create new flow
 
     XCTestExpectation *secondFlowExpectation = [self expectationWithDescription:@"no blob after flush"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not add new event blob after flush");
         [secondFlowExpectation fulfill];
     });
@@ -178,15 +178,15 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
     
     // Give async operation time to complete
     
     NSSet *keys = [NSSet setWithArray:@[@"t"]];
 
     XCTestExpectation *tagsExpectation = [self expectationWithDescription:@"tag stored expectation"];
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
 
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -210,14 +210,14 @@
         @"key2": @(123)
     };
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", extraInfo, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", extraInfo, correlationId);
     
     NSSet *keys = [NSSet setWithArray:@[@"t", @"key1", @"key2"]];
     
     XCTestExpectation *extraInfoExpectation = [self expectationWithDescription:@"extra info stored"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
 
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -240,11 +240,11 @@
     NSUUID *correlationId = [NSUUID UUID];
     
     // Insert without registering
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
 
     XCTestExpectation *noRegistrationExpectation = [self expectationWithDescription:@"no flow without registration"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not create flow without registration");
         [noRegistrationExpectation fulfill];
     });
@@ -256,15 +256,15 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
+    MSIDExecutionFlowRegister(correlationId);
     
     NSString *nilTag = nil;
-    MSID_EXECUTION_FLOW_INSERT_TAG(nilTag, nil, correlationId);
+    MSIDExecutionFlowInsertTag(nilTag, nil, correlationId);
     NSSet *keys = [NSSet setWithArray:@[@"t"]];
 
     XCTestExpectation *nilTagExpectation = [self expectationWithDescription:@"no flow with nil tag"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not add tag with nil tag");
         [nilTagExpectation fulfill];
     });
@@ -276,13 +276,13 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"", nil, correlationId);
     NSSet *keys = [NSSet setWithArray:@[@"t"]];
 
     XCTestExpectation *emptyTagExpectation = [self expectationWithDescription:@"no flow with empty tag"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not add empty tag");
         [emptyTagExpectation fulfill];
     });
@@ -294,13 +294,13 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"   ", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"   ", nil, correlationId);
     NSSet *keys = [NSSet setWithArray:@[@"t"]];
 
     XCTestExpectation *whitespaceTagExpectation = [self expectationWithDescription:@"no flow with whitespace tag"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not add whitespace-only tag");
         [whitespaceTagExpectation fulfill];
     });
@@ -321,11 +321,11 @@
 {
     NSString *uuidString = @"";
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, uuid);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, uuid);
     
     XCTestExpectation *emptyCorrelationExpectation = [self expectationWithDescription:@"no flow with empty correlation id"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(uuid, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(uuid, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should not create flow with empty correlationId");
         [emptyCorrelationExpectation fulfill];
     });
@@ -337,17 +337,17 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag1", nil, correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag2", nil, correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag3", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag1", nil, correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag2", nil, correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag3", nil, correlationId);
     
     
     NSSet *keys = [NSSet setWithArray:@[@"t"]];
 
     XCTestExpectation *multiTagExpectation = [self expectationWithDescription:@"multiple tags recorded"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
 
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -370,10 +370,10 @@
     NSUUID *correlationId1 = [NSUUID UUID];
     NSUUID *correlationId2 = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId1);
-    MSID_EXECUTION_FLOW_REGISTER(correlationId2);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag1", nil, correlationId1);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag2", nil, correlationId2);
+    MSIDExecutionFlowRegister(correlationId1);
+    MSIDExecutionFlowRegister(correlationId2);
+    MSIDExecutionFlowInsertTag(@"Tag1", nil, correlationId1);
+    MSIDExecutionFlowInsertTag(@"Tag2", nil, correlationId2);
     
     
     NSSet *keys = [NSSet setWithArray:@[@"t"]];
@@ -381,7 +381,7 @@
     XCTestExpectation *flow1Expectation = [self expectationWithDescription:@"flow1 different correlation"];
     XCTestExpectation *flow2Expectation = [self expectationWithDescription:@"flow2 different correlation"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId1, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId1, keys, YES, ^(NSString * _Nullable executionFlow) {
         NSData *jsonData1 = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
         NSArray *result1 = [NSJSONSerialization JSONObjectWithData:jsonData1 options:0 error:nil];
         XCTAssertEqual(result1.count, 1);
@@ -390,7 +390,7 @@
         [flow1Expectation fulfill];
     });
     
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId2, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId2, nil, YES, ^(NSString * _Nullable executionFlow) {
         NSData *jsonData2 = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
         NSArray *result2 = [NSJSONSerialization JSONObjectWithData:jsonData2 options:0 error:nil];
         XCTAssertEqual(result2.count, 1);
@@ -406,14 +406,14 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
     
     NSSet *keys = [NSSet setWithArray:@[@"tid"]];
 
     XCTestExpectation *threadIdExpectation = [self expectationWithDescription:@"thread id stored"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -435,12 +435,12 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
 
     XCTestExpectation *validFlowExpectation = [self expectationWithDescription:@"valid execution flow retrieved"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [validFlowExpectation fulfill];
 
@@ -455,7 +455,7 @@
 
     XCTestExpectation *nonexistentExpectation = [self expectationWithDescription:@"flow should be nil for missing correlation"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should return nil for non-existent correlationId");
         [nonexistentExpectation fulfill];
     });
@@ -468,7 +468,7 @@
     NSUUID *nilCorrelationId = nil;
     XCTestExpectation *nilExpectation = [self expectationWithDescription:@"flow should be nil for nil correlation"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(nilCorrelationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(nilCorrelationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should return nil for nil correlationId");
         [nilExpectation fulfill];
     });
@@ -482,7 +482,7 @@
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     XCTestExpectation *emptyExpectation = [self expectationWithDescription:@"flow should be nil for empty correlation"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(uuid, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(uuid, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should return nil for nil correlationId");
         [emptyExpectation fulfill];
     });
@@ -494,18 +494,18 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
     XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow removed after first retrieve"];
     XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow nil after flush"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstRetrieveExpectation fulfill];
 
     });
     
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Flow should be removed after first retrieve and flush");
         [secondRetrieveExpectation fulfill];
     });
@@ -517,23 +517,23 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", nil, correlationId);
     
     XCTestExpectation *firstExpectation = [self expectationWithDescription:@"flow only first time"];
     XCTestExpectation *secondExpectation = [self expectationWithDescription:@"second retrieve nil"];
     XCTestExpectation *thirdExpectation = [self expectationWithDescription:@"third retrieve nil"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstExpectation fulfill];
     });
     
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [secondExpectation fulfill];
     });
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [thirdExpectation fulfill];
     });
@@ -545,18 +545,18 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
 
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag1", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag1", nil, correlationId);
 
     XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow returned without flush"];
     XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow still present after no-flush retrieve"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, NO, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, NO, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstRetrieveExpectation fulfill];
     });
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow, @"Flow should remain when shouldFlush is NO");
         [secondRetrieveExpectation fulfill];
     });
@@ -568,21 +568,21 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
 
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag1", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag1", nil, correlationId);
 
     XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow retrieved without flush"];
     XCTestExpectation *finalRetrieveExpectation = [self expectationWithDescription:@"flow includes tags added after no-flush retrieve"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, NO, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, NO, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstRetrieveExpectation fulfill];
     });
 
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag2", nil, correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag2", nil, correlationId);
 
     NSSet *keys = [NSSet setWithArray:@[@"t"]];
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
 
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -602,12 +602,12 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag1", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag1", nil, correlationId);
     
     XCTestExpectation *firstRetrieveExpectation = [self expectationWithDescription:@"flow present before flush rejection"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstRetrieveExpectation fulfill];
     });
@@ -615,12 +615,12 @@
     // Give flush time to add correlationId to eliminated pool
 
     // Try to insert after flush
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag2", nil, correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag2", nil, correlationId);
 
     // Should not create new flow
     XCTestExpectation *secondRetrieveExpectation = [self expectationWithDescription:@"flow nil after flush rejection"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow, @"Should reject inserts after flush");
         [secondRetrieveExpectation fulfill];
     });
@@ -635,23 +635,23 @@
     NSUUID *correlationId = [NSUUID UUID];
     
     // Insert and flush
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag1", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag1", nil, correlationId);
 
     XCTestExpectation *firstPoolExpectation = [self expectationWithDescription:@"first flow before eliminated pool test"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [firstPoolExpectation fulfill];
     });
     
     // Try to insert again with same correlationId
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag2", nil, correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag2", nil, correlationId);
     
     // Should not create new flow
     XCTestExpectation *secondPoolExpectation = [self expectationWithDescription:@"no flow after eliminated pool"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [secondPoolExpectation fulfill];
     });
@@ -667,21 +667,21 @@
     NSUUID *correlationId1 = [NSUUID UUID];
     NSUUID *correlationId2 = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId1);
-    MSID_EXECUTION_FLOW_REGISTER(correlationId2);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag1", nil, correlationId1);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag2", nil, correlationId2);
+    MSIDExecutionFlowRegister(correlationId1);
+    MSIDExecutionFlowRegister(correlationId2);
+    MSIDExecutionFlowInsertTag(@"Tag1", nil, correlationId1);
+    MSIDExecutionFlowInsertTag(@"Tag2", nil, correlationId2);
     
     [logger flush];
     
     XCTestExpectation *firstFlushExpectation = [self expectationWithDescription:@"first flow nil after flush"];
     XCTestExpectation *secondFlushExpectation = [self expectationWithDescription:@"second flow nil after flush"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId1, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId1, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [firstFlushExpectation fulfill];
     });
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId2, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId2, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [secondFlushExpectation fulfill];
     });
@@ -695,12 +695,12 @@
     NSUUID *correlationId = [NSUUID UUID];
     
     // Insert, flush, and verify it's in eliminated pool
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag1", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag1", nil, correlationId);
 
     XCTestExpectation *initialFlowExpectation = [self expectationWithDescription:@"flow before flush clears pool"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         [initialFlowExpectation fulfill];
     });
@@ -709,13 +709,13 @@
     [logger flush];
     
     // Should be able to use same correlationId again
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Tag2", nil, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"Tag2", nil, correlationId);
     
     NSSet *keys = [NSSet setWithArray:@[@"t"]];
     XCTestExpectation *secondFlowExpectation = [self expectationWithDescription:@"flow after flush clears pool"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -744,7 +744,7 @@
         XCTAssertNoThrow([logger insertTag:@"Tag1" extraInfo:nil withCorrelationId:correlationId]);
 
         XCTestExpectation *disabledExpectation = [self expectationWithDescription:@"disabled logger returns nil flow"];
-        MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
             XCTAssertNil(executionFlow, @"Logger should ignore operations when disabled");
             [disabledExpectation fulfill];
         });
@@ -765,13 +765,13 @@
         @"key2": @"value2"
     };
 
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"TestTag", extraInfo, correlationId);
+    MSIDExecutionFlowRegister(correlationId);
+    MSIDExecutionFlowInsertTag(@"TestTag", extraInfo, correlationId);
 
     NSSet *keys = [NSSet setWithArray:@[@"key1"]];
 
     XCTestExpectation *filterExpectation = [self expectationWithDescription:@"filtered keys returned"];
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
 
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -796,7 +796,7 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
+    MSIDExecutionFlowRegister(correlationId);
     
     dispatch_group_t group = dispatch_group_create();
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -804,7 +804,7 @@
     // Insert from multiple threads
     for (int i = 0; i < 20; i++) {
         dispatch_group_async(group, queue, ^{
-            MSID_EXECUTION_FLOW_INSERT_TAG(([NSString stringWithFormat:@"Tag%d", i]), nil, correlationId);
+            MSIDExecutionFlowInsertTag(([NSString stringWithFormat:@"Tag%d", i]), nil, correlationId);
         });
     }
     
@@ -814,7 +814,7 @@
 
     XCTestExpectation *concurrentExpectation = [self expectationWithDescription:@"concurrent inserts completed"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -838,13 +838,13 @@
     for (int i = 0; i < 10; i++) {
         NSUUID *correlationId = [NSUUID UUID];
         [correlationIds addObject:correlationId];
-        MSID_EXECUTION_FLOW_REGISTER(correlationId);
+        MSIDExecutionFlowRegister(correlationId);
     }
     
     // Insert from multiple threads with different correlationIds
     for (int i = 0; i < 10; i++) {
         dispatch_group_async(group, queue, ^{
-            MSID_EXECUTION_FLOW_INSERT_TAG(([NSString stringWithFormat:@"Tag%d", i]), nil, correlationIds[i]);
+            MSIDExecutionFlowInsertTag(([NSString stringWithFormat:@"Tag%d", i]), nil, correlationIds[i]);
         });
     }
     
@@ -855,7 +855,7 @@
     allFlowsExpectation.expectedFulfillmentCount = 10;
 
     for (int i = 0; i < 10; i++) {
-        MSID_EXECUTION_FLOW_RETRIEVE(correlationIds[i], nil, YES, ^(NSString * _Nullable executionFlow) {
+        MSIDExecutionFlowRetrieve(correlationIds[i], nil, YES, ^(NSString * _Nullable executionFlow) {
             XCTAssertNotNil(executionFlow, @"Flow should exist for correlationId %d", i);
             [allFlowsExpectation fulfill];
         });
@@ -868,7 +868,7 @@
 {
     NSUUID *correlationId = [NSUUID UUID];
     
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
+    MSIDExecutionFlowRegister(correlationId);
     
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     
@@ -876,14 +876,14 @@
     for (int i = 0; i < 10; i++)
     {
         dispatch_async(queue, ^{
-            MSID_EXECUTION_FLOW_INSERT_TAG(([NSString stringWithFormat:@"Tag%d", i]), nil, correlationId);
+            MSIDExecutionFlowInsertTag(([NSString stringWithFormat:@"Tag%d", i]), nil, correlationId);
         });
     }
     
     // Concurrent retrieve; test passes if it completes without crashing
     XCTestExpectation *retrieveExpectation = [self expectationWithDescription:@"retrieve finishes"];
     dispatch_async(queue, ^{
-        MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(__unused NSString * _Nullable executionFlow) {
+        MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(__unused NSString * _Nullable executionFlow) {
             [retrieveExpectation fulfill];
         });
     });
@@ -907,7 +907,7 @@
     // Register from multiple threads
     for (int i = 0; i < 20; i++) {
         dispatch_async(queue, ^{
-            MSID_EXECUTION_FLOW_REGISTER(correlationIds[i]);
+            MSIDExecutionFlowRegister(correlationIds[i]);
         });
     }
     
@@ -916,7 +916,7 @@
     for (int i = 0; i < 20; i++)
     {
         dispatch_async(queue, ^{
-            MSID_EXECUTION_FLOW_RETRIEVE(correlationIds[i], nil, YES, ^(__unused NSString * _Nullable executionFlow) {
+            MSIDExecutionFlowRetrieve(correlationIds[i], nil, YES, ^(__unused NSString * _Nullable executionFlow) {
                 [allFlowsExpectation fulfill];
             });
         });
@@ -933,12 +933,12 @@
     NSUUID *correlationId = [NSUUID UUID];
     
     // Register first
-    MSID_EXECUTION_FLOW_REGISTER(correlationId);
+    MSIDExecutionFlowRegister(correlationId);
     
     // Insert multiple tags
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Start", @{@"step": @"1"}, correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"Middle", @{@"step": @"2"}, correlationId);
-    MSID_EXECUTION_FLOW_INSERT_TAG(@"End", @{@"step": @"3"}, correlationId);
+    MSIDExecutionFlowInsertTag(@"Start", @{@"step": @"1"}, correlationId);
+    MSIDExecutionFlowInsertTag(@"Middle", @{@"step": @"2"}, correlationId);
+    MSIDExecutionFlowInsertTag(@"End", @{@"step": @"3"}, correlationId);
     
     
     // Retrieve and verify
@@ -948,7 +948,7 @@
     XCTestExpectation *workflowExpectation = [self expectationWithDescription:@"integration flow verified"];
     XCTestExpectation *flushExpectation = [self expectationWithDescription:@"flow flushed after integration"];
 
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, keys, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNotNil(executionFlow);
         
         NSData *jsonData = [executionFlow dataUsingEncoding:NSUTF8StringEncoding];
@@ -976,7 +976,7 @@
     });
         
     // Verify flow is flushed
-    MSID_EXECUTION_FLOW_RETRIEVE(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+    MSIDExecutionFlowRetrieve(correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
         XCTAssertNil(executionFlow);
         [flushExpectation fulfill];
     });

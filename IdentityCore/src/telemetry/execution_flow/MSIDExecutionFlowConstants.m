@@ -50,21 +50,21 @@ NSString *MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowNetworkTag state)
 {
     switch (state)
     {
-        case MSIDExecutionFlowPrepareNetworkRequestTag:
+        case MSIDPrepareNetworkRequestTag:
             return @"iq24n";
-        case MSIDExecutionFlowCacheResponseFailedObjectTag:
+        case MSIDCacheResponseFailedObjectTag:
             return @"twoty";
-        case MSIDExecutionFlowCacheResponseSucceededObjectTag:
+        case MSIDCacheResponseSucceededObjectTag:
             return @"n3416";
-        case MSIDExecutionFlowReceiveNetworkResponseTag:
+        case MSIDReceiveNetworkResponseTag:
             return @"xfx8w";
-        case MSIDExecutionFlowRetryOnNetworkFailureTag:
+        case MSIDRetryOnNetworkFailureTag:
             return @"rz95n";
-        case MSIDExecutionFlowStartToRetryOnNetworkFailureTag:
+        case MSIDStartToRetryOnNetworkFailureTag:
             return @"6f7qc";
-        case MSIDExecutionFlowParseNetworkResponseTag:
+        case MSIDParseNetworkResponseTag:
             return @"fxjo7";
-        case MSIDExecutionFlowOtherHttpNetworkStatusCodeTag:
+        case MSIDOtherHttpNetworkStatusCodeTag:
             return @"5kbvm";
     }
 
@@ -76,7 +76,7 @@ NSString *MSIDTokenRequestTagToString(MSIDTokenRequestTag state)
 {
     switch (state)
     {
-        case MSIDTokenRequestAtExpirationElapsedTag:
+        case MSIDAtExpirationElapsedTag:
             return @"xilux";
     }
 
@@ -88,29 +88,29 @@ NSString *MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryTa
 {
     switch (state)
     {
-        case MSIDRequestControllerFactorySilentControllerForParametersTag:
+        case MSIDSilentControllerForParametersTag:
             return @"9jwnp";
-        case MSIDRequestControllerFactorySilentControllerShouldUseBrokerTag:
+        case MSIDSilentControllerShouldUseBrokerTag:
             return @"fi9bq";
-        case MSIDRequestControllerFactorySilentControllerCanPerformSsoExtTag:
+        case MSIDSilentControllerCanPerformSsoExtTag:
             return @"e1r45";
-        case MSIDRequestControllerFactorySilentControllerCanPerformBrokerXpcTag:
+        case MSIDSilentControllerCanPerformBrokerXpcTag:
             return @"ahpij";
-        case MSIDRequestControllerFactorySilentControllerNoBrokerFallbackTag:
+        case MSIDSilentControllerNoBrokerFallbackTag:
             return @"e3qe8";
-        case MSIDRequestControllerFactorySilentControllerFinishTag:
+        case MSIDSilentControllerFinishTag:
             return @"0vik0";
-        case MSIDRequestControllerFactoryInteractiveControllerForParametersTag:
+        case MSIDInteractiveControllerForParametersTag:
             return @"go2o4";
-        case MSIDRequestControllerFactoryInteractiveControllerShouldUseBrokerTag:
+        case MSIDInteractiveControllerShouldUseBrokerTag:
             return @"wj1z1";
-        case MSIDRequestControllerFactoryInteractiveControllerCanPerformSsoExtTag:
+        case MSIDInteractiveControllerCanPerformSsoExtTag:
             return @"vfl3d";
-        case MSIDRequestControllerFactoryInteractiveControllerCanPerformBrokerXpcTag:
+        case MSIDInteractiveControllerCanPerformBrokerXpcTag:
             return @"wyxmu";
-        case MSIDRequestControllerFactoryInteractiveControllerNoBrokerFallbackTag:
+        case MSIDInteractiveControllerNoBrokerFallbackTag:
             return @"beb43";
-        case MSIDRequestControllerFactoryInteractiveControllerFinishTag:
+        case MSIDInteractiveControllerFinishTag:
             return @"29h5q";
     }
 
@@ -121,11 +121,11 @@ NSString *MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteracti
 {
     switch (state)
     {
-        case MSIDSSORemoteInteractiveTokenRequestResolveAuthorityTag:
+        case MSIDInteractiveResolveAuthorityTag:
             return @"ea0zm";
-        case MSIDSSORemoteInteractiveTokenRequestHandleOperationResponseTag:
+        case MSIDInteractiveHandleOperationResponseTag:
             return @"7iqlk";
-        case MSIDSSORemoteInteractiveTokenRequestCompletionTag:
+        case MSIDInteractiveCompletionTag:
             return @"vy42f";
     }
 
@@ -137,15 +137,14 @@ NSString *MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenReq
 {
     switch (state)
     {
-        case MSIDSSORemoteSilentTokenRequestResolveAuthorityTag:
+        case MSIDSilentResolveAuthorityTag:
             return @"n3rpu";
-        case MSIDSSORemoteSilentTokenRequestHandleOperationResponseTag:
+        case MSIDSilentHandleOperationResponseTag:
             return @"u46x0";
-        case MSIDSSORemoteSilentTokenRequestCompletionTag:
+        case MSIDSilentCompletionTag:
             return @"x8cgg";
     }
     // Fallback for any future enum values
     return [NSString stringWithFormat:@"MSIDSSORemoteSilentTokenRequestTag(%ld)", (long)state];
 }
-
 

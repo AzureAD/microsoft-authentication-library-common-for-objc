@@ -29,27 +29,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDExecutionFlowLogger : NSObject
-
-// Convenience macros to avoid repeated sharedInstance calls.
-#define MSID_EXECUTION_FLOW_COMMON(_CALL) \
-    do { \
-        [[MSIDExecutionFlowLogger sharedInstance] _CALL]; \
-    } while (0)
-
-#define MSID_EXECUTION_FLOW_INSERT_TAG(_TAG, _INFO, _CORRELATION_ID) \
-    MSID_EXECUTION_FLOW_COMMON(insertTag:(_TAG) \
-                            extraInfo:(_INFO) \
-                    withCorrelationId:(_CORRELATION_ID))
-
-#define MSID_EXECUTION_FLOW_REGISTER(_CORRELATION_ID) \
-    MSID_EXECUTION_FLOW_COMMON(registerExecutionFlowWithCorrelationId:(_CORRELATION_ID))
-
-#define MSID_EXECUTION_FLOW_RETRIEVE(_CORRELATION_ID, _QUERY_KEYS, _SHOULD_FLUSH, _COMPLETION) \
-    MSID_EXECUTION_FLOW_COMMON(retrieveExecutionFlowWithCorrelationId:(_CORRELATION_ID) \
-                                                               queryKeys:(_QUERY_KEYS) \
-                                                             shouldFlush:(_SHOULD_FLUSH) \
-                                                              completion:(_COMPLETION))
-
 /*!
  Returns the shared singleton instance of MSIDExecutionFlowLogger.
 
@@ -97,5 +76,39 @@ withCorrelationId:(NSUUID *)correlationId;
                                             completion:(void (^)(NSString * _Nullable executionFlow))completion;
 
 @end
+
+// Convenience inline functions to avoid repeated sharedInstance calls.
+NS_INLINE void MSIDExecutionFlowInsertTag(NSString *tag,
+                                          NSDictionary * _Nullable info,
+                                          NSUUID *correlationId) __attribute__((unused));
+NS_INLINE void MSIDExecutionFlowInsertTag(NSString *tag,
+                                          NSDictionary * _Nullable info,
+                                          NSUUID *correlationId)
+{
+    [[MSIDExecutionFlowLogger sharedInstance] insertTag:tag
+                                              extraInfo:info
+                                      withCorrelationId:correlationId];
+}
+
+NS_INLINE void MSIDExecutionFlowRegister(NSUUID *correlationId) __attribute__((unused));
+NS_INLINE void MSIDExecutionFlowRegister(NSUUID *correlationId)
+{
+    [[MSIDExecutionFlowLogger sharedInstance] registerExecutionFlowWithCorrelationId:correlationId];
+}
+
+NS_INLINE void MSIDExecutionFlowRetrieve(NSUUID *correlationId,
+                                         NSSet<NSString *> * _Nullable queryKeys,
+                                         BOOL shouldFlush,
+                                         void (^completion)(NSString * _Nullable executionFlow)) __attribute__((unused));
+NS_INLINE void MSIDExecutionFlowRetrieve(NSUUID *correlationId,
+                                         NSSet<NSString *> * _Nullable queryKeys,
+                                         BOOL shouldFlush,
+                                         void (^completion)(NSString * _Nullable executionFlow))
+{
+    [[MSIDExecutionFlowLogger sharedInstance] retrieveExecutionFlowWithCorrelationId:correlationId
+                                                                           queryKeys:queryKeys
+                                                                         shouldFlush:shouldFlush
+                                                                          completion:completion];
+}
 
 NS_ASSUME_NONNULL_END
