@@ -25,13 +25,11 @@
 #import "MSIDKeyVaultCredentialProvider.h"
 #import "MSIDTestAutomationAccount.h"
 
-// KeyvaultAuthentication and Secret are Swift classes - import via the auto-generated Swift header
 #if __has_include("MSIDAutomation-Swift.h")
 #import "MSIDAutomation-Swift.h"
 #elif __has_include("IdentityCore-Swift.h")
 #import "IdentityCore-Swift.h"
 #else
-// Forward declare for compilation - actual import handled by build system
 @class KeyvaultAuthentication;
 @class Secret;
 #endif

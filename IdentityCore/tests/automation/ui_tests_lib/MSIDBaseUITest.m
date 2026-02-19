@@ -475,7 +475,6 @@ static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
 #pragma mark - Key Vault compound key
 
 /// Build a compound lookup key from a configuration request.
-/// This MUST match the _make_key() logic in logs_to_json.py exactly.
 /// Format: <accountType>[_<protectionPolicy>][_<mfa>][_<federationProvider>]
 ///                      [_<b2cProvider>][_<environment>][_<userRole>]
 /// Only non-default values are appended.
@@ -539,7 +538,7 @@ static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
         {
             MSIDTestAutomationAccountConfigurationRequest *configRequest = (MSIDTestAutomationAccountConfigurationRequest *)accountRequest;
             
-            // Build compound key from all request properties (must match logs_to_json.py _make_key)
+            // Build compound key from all request properties
             NSString *accountType = [self.class keyForAccountConfigurationRequest:configRequest];
             
             if (accountType)
