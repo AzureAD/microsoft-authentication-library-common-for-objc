@@ -77,6 +77,17 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context
 {
+    
+    // add temp test here
+//    if (1 == 1)
+//    {
+//        NSURLComponents *components = [NSURLComponents componentsWithURL:startURL resolvingAgainstBaseURL:NO];
+//        NSMutableArray<NSURLQueryItem *> *queryItems = [components.queryItems mutableCopy] ?: [NSMutableArray new];
+//        [queryItems addObject:[NSURLQueryItem queryItemWithName:@"dc" value:@"ESTS-PUB-SCUS-FD000-TEST1-100"]];
+//        components.queryItems = queryItems;
+//        startURL = components.URL;
+//    }
+    
     if (!startURL)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attempted to start with nil URL");

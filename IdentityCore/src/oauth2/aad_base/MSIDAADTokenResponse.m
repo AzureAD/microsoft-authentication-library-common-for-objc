@@ -108,6 +108,7 @@
         _refreshOn = [json msidIntegerObjectForKey:MSID_OAUTH2_REFRESH_ON];
         self.ccsRequestId = [json msidStringObjectForKey:MSID_CCS_REQUEST_ID_RESPONSE];
         self.ccsRequestSequence = [json msidStringObjectForKey:MSID_CCS_REQUEST_SEQUENCE_RESPONSE];
+        self.clientData = [json msidStringObjectForKey:MSID_CLIENT_DATA_RESPONSE];
     }
     
     return self;
@@ -126,6 +127,7 @@
     json[MSID_OAUTH2_CLIENT_INFO] = self.clientInfo.rawClientInfo;
     json[MSID_CCS_REQUEST_ID_RESPONSE] = self.ccsRequestId;
     json[MSID_CCS_REQUEST_SEQUENCE_RESPONSE] = self.ccsRequestSequence;
+    json[MSID_CLIENT_DATA_RESPONSE] = self.clientData;
     if (!self.error)
     {
         json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];

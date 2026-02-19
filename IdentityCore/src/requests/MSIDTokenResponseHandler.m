@@ -28,6 +28,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDOAuth2Constants.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -112,6 +113,12 @@ brokerRequestReceivedTimeStamp:(nullable NSDate *)brokerRequestReceivedTimeStamp
 
     [tokenResult insertBrokerMetaData:@(responseLatency) forKey:MSID_TOKEN_RESULT_BROKER_APP_RESPONSE_LATENCY];
     [tokenResult insertBrokerMetaData:@(brokerHandlingTime) forKey:MSID_TOKEN_RESULT_BROKER_APP_BROKER_HANDLING_TIME_INTERVAL];
+
+    if (tokenResponse.clientData)
+    {
+        [tokenResult insertBrokerMetaData:tokenResponse.clientData forKey:MSID_TOKEN_RESULT_CLIENT_DATA];
+    }
+
     void (^validateAccountAndCompleteBlock)(void) = ^
     {
         if (validateAccount)
