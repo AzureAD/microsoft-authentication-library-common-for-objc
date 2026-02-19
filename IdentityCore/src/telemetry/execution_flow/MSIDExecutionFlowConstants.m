@@ -128,7 +128,7 @@ NSString *MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteracti
         case MSIDInteractiveCompletionTag:
             return @"vy42f";
         case MSIDLegacyBrokerInteractiveCompletionTag:
-            return @"UNTAGGED";
+            return @"xbxa9";
     }
 
     // Fallback for any future enum values
