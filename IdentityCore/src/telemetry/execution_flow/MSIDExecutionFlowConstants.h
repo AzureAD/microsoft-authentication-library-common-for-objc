@@ -107,7 +107,8 @@ typedef NS_ENUM(NSInteger, MSIDSSORemoteInteractiveTokenRequestTag)
 {
     MSIDInteractiveResolveAuthorityTag = 0,
     MSIDInteractiveHandleOperationResponseTag,
-    MSIDInteractiveCompletionTag
+    MSIDInteractiveCompletionTag,
+    MSIDLegacyBrokerInteractiveCompletionTag
 };
 
 /// Returns the string representation for each MSIDSSORemoteInteractiveTokenRequestTag value.

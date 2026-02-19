@@ -47,6 +47,8 @@
 #import "MSIDDefaultTokenRequestProvider.h"
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 
 static MSIDBrokerInteractiveController *s_currentExecutingController;
 
@@ -418,6 +420,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
     // TODO: vt handling for older broker (not necessary for MSAL, so can come later)
 
+    MSIDExecutionFlowInsertTag(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDLegacyBrokerInteractiveCompletionTag), error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil, self.requestParameters.correlationId);
     [self.class stopTrackingAppState];
 
 #if !EXCLUDE_FROM_MSALCPP
