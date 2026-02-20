@@ -1,4 +1,5 @@
 TBD
+* Add retry logic when bound app refresh token redemption fails.
 * Add token request execution flow logger (#1655)
 
 Version 1.19.1

@@ -88,7 +88,12 @@
 - (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull __unused MSIDRequestParameters *)parameters
                                                          forceRefresh:(__unused BOOL)forceRefresh
 {
-    return [[MSIDTestSilentTokenRequest alloc] initWithTestResponse:self.testTokenResult testError:self.testError];
+    if (!self.silentRequest)
+    {
+        _silentRequest = [[MSIDTestSilentTokenRequest alloc] initWithTestResponse:self.testTokenResult testError:self.testError];
+        return self.silentRequest;
+    }
+    return self.silentRequest;
 }
 
 
