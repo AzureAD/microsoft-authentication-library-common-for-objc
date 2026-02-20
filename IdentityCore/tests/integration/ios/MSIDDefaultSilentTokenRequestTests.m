@@ -57,6 +57,8 @@
 #import "MSIDOAuth2Constants.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDFlightManager.h"
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDLastRequestTelemetry.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
 
@@ -123,6 +125,7 @@
 
 - (void)tearDown
 {
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
@@ -2713,6 +2716,103 @@
         [expectation fulfill];
     }];
 
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireTokenSilent_whenBoundRefreshTokenRedemptionFails_shouldReportBartRedemptionError
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    // Remove access token to force refresh
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:silentParameters.accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(accessToken);
+    BOOL removeResult = [tokenCache removeToken:accessToken context:nil error:nil];
+    XCTAssertTrue(removeResult);
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+    
+    MSIDTestURLResponse *bartTokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                requestClaims:nil
+                                                                                requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                   responseAT:@"new at"
+                                                                                   responseRT:@"new rt"
+                                                                                   responseID:nil
+                                                                                responseScope:@"user.read tasks.read"
+                                                                           responseClientInfo:nil
+                                                                                          url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil
+                                                                         additionalBodyParams:nil];
+    
+    [self addBoundAppRefreshTokenResponseAttributesInResponse:bartTokenResponse responseAttributes:@{
+        MSID_REFRESH_TOKEN_TYPE : @"bound_app_rt",
+        MSID_BART_DEVICE_ID_KEY : @"test-device-id-123"
+    }];
+    [MSIDTestURLSession addResponse:bartTokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"bart redemption silent request error"];
+    
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertNotNil(result.refreshToken);
+        
+        // Verify that the refresh token is a bound refresh token
+        XCTAssertTrue([result.refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]);
+        
+        if ([result.refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]) {
+            MSIDBoundRefreshToken *boundToken = (MSIDBoundRefreshToken *)result.refreshToken;
+            XCTAssertEqualObjects(boundToken.boundDeviceId, @"test-device-id-123");
+            XCTAssertEqualObjects(boundToken.refreshToken, @"new rt");
+        }
+        
+        MSIDDefaultSilentTokenRequest *bartRedemptionRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                            forceRefresh:NO
+                                                                            oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                  tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                              tokenCache:tokenCache
+                                                                    accountMetadataCache:self.accountMetadataCache];
+
+        // Remove access token to force refresh
+        MSIDAccessToken *accessToken1 = [tokenCache getAccessTokenForAccount:silentParameters.accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+        XCTAssertNotNil(accessToken1);
+        XCTAssertTrue([tokenCache removeToken:accessToken1 context:nil error:nil]);
+        
+        XCTAssertFalse(bartRedemptionRequest.shouldSkipBoundAppRefreshTokenUsage);
+        // Due to no workplacejoin information mocked, we should get an error here that bart redemption fails
+        [bartRedemptionRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable bartresult, NSError * _Nullable barterror) {
+            XCTAssertNotNil(barterror);
+            XCTAssertNil(bartresult);
+            XCTAssertEqual(barterror.code, MSIDErrorBoundAppRefreshTokenRedemptionError);
+            XCTAssertTrue(bartRedemptionRequest.shouldSkipBoundAppRefreshTokenUsage);
+            
+            // Verify telemetry contains bart redemption error info
+            MSIDLastRequestTelemetry *telemetry = bartRedemptionRequest.lastRequestTelemetry;
+            XCTAssertNotNil(telemetry);
+            NSString *telemString = [telemetry telemetryString];
+            XCTAssertTrue([telemString containsString:@"BART-RED-FAIL"]);
+            [expectation1 fulfill];
+        }];
+        [expectation fulfill];
+    }];
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
