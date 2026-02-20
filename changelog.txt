@@ -1,6 +1,7 @@
 TBD
 * Add retry logic when bound app refresh token redemption fails.
 * Add token request execution flow logger (#1655)
+* Aligned Init Logic for Get Token API With Documentation (#1698)
 
 Version 1.19.1
 * Support POP and claims in browser core
