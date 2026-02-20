@@ -199,7 +199,10 @@ withCorrelationId:(NSUUID *)correlationId
 
 - (void)setEnabled:(BOOL)enabled
 {
-    _enabled = enabled;
+    @synchronized (self)
+    {
+        _enabled = enabled;
+    }
     if (!enabled)
     {
         dispatch_async(self.executionFlowLoggerQueue, ^{
