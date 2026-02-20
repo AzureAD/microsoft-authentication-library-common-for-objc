@@ -116,7 +116,7 @@
     self.currentRequest = request;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
     {
-        if (!result && error)
+        if (error)
         {
             if (request.shouldSkipBoundAppRefreshTokenUsage
                 && [error.domain isEqualToString:MSIDErrorDomain]
