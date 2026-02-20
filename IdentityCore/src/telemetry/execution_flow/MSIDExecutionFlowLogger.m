@@ -27,7 +27,6 @@
 #import "MSIDCache.h"
 #import "MSIDExecutionFlow.h"
 #import "NSString+MSIDExtensions.h"
-#import "MSIDBackgroundThreadUtil.h"
 
 #define MAX_EXECUTION_FLOW_ELIMINATION_POOL_SIZE 200
 
@@ -163,7 +162,7 @@ withCorrelationId:(NSUUID *)correlationId
     dispatch_async(self.executionFlowLoggerQueue, ^{
         if (!self.enabled)
         {
-            [MSIDBackgroundThreadUtil executeAsyncOnOtherBackgroundThread:^{
+            [self executeAsyncOnOtherBackgroundThread:^{
                 if (completion)
                 {
                     completion(nil);
@@ -180,7 +179,7 @@ withCorrelationId:(NSUUID *)correlationId
         
         NSString *result = [flow exportExecutionFlowToJSONsWithKeys:queryKeys];
         // Dispatch completion on a background queue so the logger queue can continue.
-        [MSIDBackgroundThreadUtil executeAsyncOnOtherBackgroundThread:^{
+        [self executeAsyncOnOtherBackgroundThread:^{
             if (completion)
             {
                 completion(result);
@@ -208,5 +207,13 @@ withCorrelationId:(NSUUID *)correlationId
         });
     }
 }
+
+#pragma mark - helper
+
+- (void)executeAsyncOnOtherBackgroundThread:(void (^)(void))block
+{
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), block);
+}
+
 
 @end

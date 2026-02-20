@@ -548,9 +548,6 @@
 		2A294C2C2F2D56310042AEA0 /* MSIDExecutionFlowConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A294C2A2F2D56310042AEA0 /* MSIDExecutionFlowConstants.m */; };
 		2A294C2E2F31372E0042AEA0 /* MSIDExecutionFlowTagTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A294C2D2F31372E0042AEA0 /* MSIDExecutionFlowTagTests.m */; };
 		2A294C2F2F31372E0042AEA0 /* MSIDExecutionFlowTagTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A294C2D2F31372E0042AEA0 /* MSIDExecutionFlowTagTests.m */; };
-		2A2DC5782F3FCF3F00800521 /* MSIDBackgroundThreadUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2DC5772F3FCF3F00800521 /* MSIDBackgroundThreadUtil.m */; };
-		2A2DC5792F3FCF3F00800521 /* MSIDBackgroundThreadUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A2DC5762F3FCF3F00800521 /* MSIDBackgroundThreadUtil.h */; };
-		2A2DC57A2F3FCF3F00800521 /* MSIDBackgroundThreadUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A2DC5772F3FCF3F00800521 /* MSIDBackgroundThreadUtil.m */; };
 		2A366B762D9EEB4400774DD4 /* MSIDXpcProviderCaching.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A366B752D9EEB4400774DD4 /* MSIDXpcProviderCaching.h */; };
 		2A366B782D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A366B772D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m */; };
 		2A366B7B2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */; };
@@ -2572,8 +2569,6 @@
 		2A294C282F2D56300042AEA0 /* MSIDExecutionFlowConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDExecutionFlowConstants.h; sourceTree = "<group>"; };
 		2A294C2A2F2D56310042AEA0 /* MSIDExecutionFlowConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowConstants.m; sourceTree = "<group>"; };
 		2A294C2D2F31372E0042AEA0 /* MSIDExecutionFlowTagTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowTagTests.m; sourceTree = "<group>"; };
-		2A2DC5762F3FCF3F00800521 /* MSIDBackgroundThreadUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundThreadUtil.h; sourceTree = "<group>"; };
-		2A2DC5772F3FCF3F00800521 /* MSIDBackgroundThreadUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundThreadUtil.m; sourceTree = "<group>"; };
 		2A366B752D9EEB4400774DD4 /* MSIDXpcProviderCaching.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCaching.h; sourceTree = "<group>"; };
 		2A366B772D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcSingleSignOnProviderTest.m; sourceTree = "<group>"; };
 		2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCacheMock.h; sourceTree = "<group>"; };
@@ -4554,8 +4549,6 @@
 				B2525C6923302364006FBA4B /* MSIDMainThreadUtil.m */,
 				2394F19E2D2866F700E44F6E /* MSIDCertAuthManager.h */,
 				2394F19F2D2866F700E44F6E /* MSIDCertAuthManager.m */,
-				2A2DC5762F3FCF3F00800521 /* MSIDBackgroundThreadUtil.h */,
-				2A2DC5772F3FCF3F00800521 /* MSIDBackgroundThreadUtil.m */,
 			);
 			path = webview;
 			sourceTree = "<group>";
@@ -6656,7 +6649,6 @@
 				2394F2052D4894FF00E44F6E /* MSIDWebUpgradeRegOperation.h in Headers */,
 				B251CC3B2041058D005E0179 /* MSIDRefreshToken.h in Headers */,
 				2A294C292F2D56300042AEA0 /* MSIDExecutionFlowConstants.h in Headers */,
-				2A2DC5792F3FCF3F00800521 /* MSIDBackgroundThreadUtil.h in Headers */,
 				B28BDA84217E9676003E5670 /* MSIDB2CIdTokenClaims.h in Headers */,
 				74F04D49246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.h in Headers */,
 				72433DDA2ECEA9260008E337 /* MSIDJweResponseDecryptPreProcessor.h in Headers */,
@@ -7544,7 +7536,6 @@
 				2AADDAC72DADB84D00CB7740 /* MSIDSSOXpcSilentTokenRequest.m in Sources */,
 				23C548062A2A5DBF00633DC0 /* MSIDBrokerOperationBrowserNativeMessageRequest.m in Sources */,
 				72C6EF0E2EB192D800AF9AD0 /* MSIDBartFeatureUtil.m in Sources */,
-				2A2DC57A2F3FCF3F00800521 /* MSIDBackgroundThreadUtil.m in Sources */,
 				238D5D8C22B353830091A135 /* MSIDAADV2TokenResponseForV1Request.m in Sources */,
 				2352AF342AA7C7B700FA2253 /* MSIDBrowserNativeMessageGetTokenResponse.m in Sources */,
 				589BDB292718F18800BF3799 /* MSIDCredentialHeader.m in Sources */,
@@ -8347,7 +8338,6 @@
 				B2C708892198DE3900D917B8 /* MSIDBrokerCryptoProvider.m in Sources */,
 				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				8878C62729DCA04F002F5F4B /* MSIDCIAMOauth2Factory.m in Sources */,
-				2A2DC5782F3FCF3F00800521 /* MSIDBackgroundThreadUtil.m in Sources */,
 				B210F4321FDDE7EB005A8F76 /* MSIDTokenResponse.m in Sources */,
 				8878C62E29DCA0E2002F5F4B /* MSIDCIAMTokenResponse.m in Sources */,
 				1E00D282248F27ED006E4BAE /* MSIDAuthScheme.m in Sources */,
