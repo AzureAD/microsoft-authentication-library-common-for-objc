@@ -23,11 +23,13 @@
 
 #import "MSIDKeyVaultCredentialProvider.h"
 
+// KeyvaultAuthentication is a Swift class - import via the auto-generated Swift header
 #if __has_include("MSIDAutomation-Swift.h")
 #import "MSIDAutomation-Swift.h"
 #elif __has_include("IdentityCore-Swift.h")
 #import "IdentityCore-Swift.h"
 #else
+// Forward declare for compilation - actual import handled by build system
 @class KeyvaultAuthentication;
 #endif
 
@@ -63,9 +65,11 @@ NSString *MSIDKeyVaultAuthMethodName(MSIDKeyVaultAuthMethod method) {
         _lastSuccessfulMethod = MSIDKeyVaultAuthMethodUnknown;
         
         // Initialize config certificate auth if provided
-        if (certContents.length > 0 && certPassword.length > 0) {
+        // Password can be empty for passwordless certs (e.g. LabAuth)
+        if (certContents.length > 0) {
+            NSString *password = certPassword ?: @"";
             _configCertAuth = [[KeyvaultAuthentication alloc] initWithCertContents:certContents
-                                                                      certPassword:certPassword];
+                                                                      certPassword:password];
             NSLog(@"[MSIDKeyVaultCredentialProvider] Config certificate auth initialized");
         }
         
