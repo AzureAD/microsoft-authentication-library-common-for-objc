@@ -782,6 +782,9 @@
 		720B5B562DD57D6800318FE5 /* MSIDEcdhApv.m in Sources */ = {isa = PBXBuildFile; fileRef = 720B5B542DD57D6600318FE5 /* MSIDEcdhApv.m */; };
 		720B5B582DD58A7F00318FE5 /* MSIDJWECryptoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */; };
 		720B5B592DD58A7F00318FE5 /* MSIDJWECryptoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */; };
+		722AC5172F0EF1C9005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 722AC5162F0EF1AC005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.h */; };
+		722AC5192F0EF277005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 722AC5182F0EF275005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m */; };
+		722AC51A2F0EF277005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 722AC5182F0EF275005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m */; };
 		72371CEB27051CC200EF5475 /* MSIDKeyOperationUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */; };
 		72433DD02ECEA65D0008E337 /* MSIDBoundRefreshTokenGrantRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 72433DCF2ECEA6560008E337 /* MSIDBoundRefreshTokenGrantRequest.h */; };
 		72433DD22ECEA6920008E337 /* MSIDBoundRefreshTokenGrantRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 72433DD12ECEA6900008E337 /* MSIDBoundRefreshTokenGrantRequest.m */; };
@@ -2780,6 +2783,8 @@
 		720B5B522DD57C3700318FE5 /* MSIDEcdhApv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDEcdhApv.h; sourceTree = "<group>"; };
 		720B5B542DD57D6600318FE5 /* MSIDEcdhApv.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDEcdhApv.m; sourceTree = "<group>"; };
 		720B5B572DD58A6A00318FE5 /* MSIDJWECryptoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJWECryptoTests.m; sourceTree = "<group>"; };
+		722AC5162F0EF1AC005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestBoundAppRefreshTokenRequest.h; sourceTree = "<group>"; };
+		722AC5182F0EF275005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestBoundAppRefreshTokenRequest.m; sourceTree = "<group>"; };
 		72371CEA27051CC200EF5475 /* MSIDKeyOperationUtilTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyOperationUtilTest.m; sourceTree = "<group>"; };
 		72433DCF2ECEA6560008E337 /* MSIDBoundRefreshTokenGrantRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBoundRefreshTokenGrantRequest.h; sourceTree = "<group>"; };
 		72433DD12ECEA6900008E337 /* MSIDBoundRefreshTokenGrantRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundRefreshTokenGrantRequest.m; sourceTree = "<group>"; };
@@ -3944,6 +3949,8 @@
 		23642AB32187D88C00F97009 /* mocks */ = {
 			isa = PBXGroup;
 			children = (
+				722AC5182F0EF275005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m */,
+				722AC5162F0EF1AC005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.h */,
 				729357EE2DDBCBAB0001D03C /* MSIDNonceTokenRequestMock.m */,
 				729357EC2DDBCB930001D03C /* MSIDNonceTokenRequestMock.h */,
 				23FB5C32225585E6002BF1EB /* MSIDClaimsRequestMock.h */,
@@ -6754,6 +6761,7 @@
 				1E0B145024CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.h in Headers */,
 				B233F8BE219CE04200DC90E3 /* MSIDTestURLResponse+Util.h in Headers */,
 				D6D9A44C1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.h in Headers */,
+				722AC5172F0EF1C9005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.h in Headers */,
 				B2BE925321A24B8200F5AB8C /* MSIDTestTokenRequestProvider.h in Headers */,
 				964E669620AE97FD00857009 /* MSIDTestWebviewInteractingViewController.h in Headers */,
 				D626FFF31FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h in Headers */,
@@ -8195,6 +8203,7 @@
 				B4C8501629E79E220055B0D3 /* MSIDTestURLSessionUploadTask.m in Sources */,
 				E75DD08B25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */,
 				B2BE925921A24CB000F5AB8C /* MSIDTestSilentTokenRequest.m in Sources */,
+				722AC51A2F0EF277005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m in Sources */,
 				B2BE925E21A2529E00F5AB8C /* MSIDTestInteractiveTokenRequest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -8227,6 +8236,7 @@
 				96290E5721489BB800FDD5C8 /* NSString+MSIDTestUtil.m in Sources */,
 				607A788E23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m in Sources */,
 				58D1514424A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.m in Sources */,
+				722AC5192F0EF277005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m in Sources */,
 				23D4DEE72D92537D005A77E4 /* MSIDFlightManagerMockProvider.m in Sources */,
 				D6D9A44E1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
 				589842C6252544940075DFED /* MSIDAccountMetadataCacheMockUpdateAuthorityParameters.m in Sources */,

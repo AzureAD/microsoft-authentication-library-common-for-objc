@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,26 +21,34 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+#import "MSIDTestBoundAppRefreshTokenRequest.h"
+#import "MSIDTestSilentTokenRequest.h"
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+@implementation MSIDTestBoundAppRefreshTokenRequest
 
-@class MSIDTokenResult;
-@class MSIDWebWPJResponse;
-@class MSIDTestSilentTokenRequest;
-
-@interface MSIDTestTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
-
-@property (nonatomic) MSIDTestSilentTokenRequest *silentRequest;
-
-- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
-                           testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse;
-
-- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
-                           testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
-                    brokerRequestURL:(NSURL *)brokerRequestURL
-                    resumeDictionary:(NSDictionary *)brokerResumeDictionary;
+- (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
+{
+    if (self.skipLocalRt)
+    {
+        completionBlock(nil, nil);
+    }
+    else
+    {
+        if (!self.shouldSkipBoundAppRefreshTokenUsage)
+        {
+            if (self.resultAfterRetry)
+            {
+                self.shouldSkipBoundAppRefreshTokenUsage = YES;
+            }
+            
+            completionBlock(self.testTokenResult, self.testError);
+        }
+        else
+        {
+            self.shouldSkipBoundAppRefreshTokenUsage = NO;
+            completionBlock(self.resultAfterRetry, self.errorAfterRetry);
+        }
+    }
+}
 
 @end
