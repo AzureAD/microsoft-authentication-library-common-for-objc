@@ -36,12 +36,14 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDIdTokenClaims;
 @class MSIDTestAutomationAccount;
 @class MSIDKeyVaultAccountProvider;
+@class MSIDKeyVaultAppConfigProvider;
 
 @interface MSIDBaseUITest : XCTestCase
 
 @property (nonatomic) MSIDTestAutomationAccount *primaryAccount;
 @property (nonatomic, class) MSIDTestConfigurationProvider *confProvider;
 @property (nonatomic, class, nullable) MSIDKeyVaultAccountProvider *keyVaultAccountProvider;
+@property (nonatomic, class, nullable) MSIDKeyVaultAppConfigProvider *keyVaultAppConfigProvider;
 @property (nonatomic) NSArray *testAccounts;
 @property (nonatomic) MSIDTestAutomationApplication *testApplication;
 @property (nonatomic) NSArray *testApplications;

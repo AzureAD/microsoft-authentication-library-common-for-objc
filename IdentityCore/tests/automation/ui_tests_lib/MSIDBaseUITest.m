@@ -36,11 +36,14 @@
 #import "MSIDAutomationOperationResponseHandler.h"
 #import "MSIDTestAutomationApplication.h"
 #import "MSIDKeyVaultAccountProvider.h"
+#import "MSIDKeyVaultAppConfigProvider.h"
 #import "MSIDKeyVaultCredentialProvider.h"
 #import "MSIDTestAutomationAccountConfigurationRequest.h"
+#import "MSIDTestAutomationAppConfigurationRequest.h"
 
 static MSIDTestConfigurationProvider *s_confProvider;
 static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
+static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
 
 @implementation MSIDBaseUITest
 
@@ -62,6 +65,16 @@ static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
 + (void)setKeyVaultAccountProvider:(MSIDKeyVaultAccountProvider *)provider
 {
     s_keyVaultAccountProvider = provider;
+}
+
++ (MSIDKeyVaultAppConfigProvider *)keyVaultAppConfigProvider
+{
+    return s_keyVaultAppConfigProvider;
+}
+
++ (void)setKeyVaultAppConfigProvider:(MSIDKeyVaultAppConfigProvider *)provider
+{
+    s_keyVaultAppConfigProvider = provider;
 }
 
 #pragma mark - Pipelines
@@ -419,6 +432,32 @@ static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
 
 - (void)loadTestApp:(MSIDTestAutomationAppConfigurationRequest *)appRequest
 {
+    // Try Key Vault JSON first if available
+    if (s_keyVaultAppConfigProvider && s_keyVaultAppConfigProvider.hasCachedAppConfigs)
+    {
+        NSString *appConfigKey = [MSIDTestAutomationAppConfigurationRequest keyForAppConfigurationRequest:appRequest];
+
+        if (appConfigKey)
+        {
+            NSError *error = nil;
+            MSIDTestAutomationApplication *app = [s_keyVaultAppConfigProvider appConfigForKey:appConfigKey error:&error];
+
+            if (app)
+            {
+                NSLog(@"[MSIDBaseUITest] Loaded app config from Key Vault JSON with key: %@, appId: %@", appConfigKey, app.appId);
+                app.redirectUriPrefix = self.redirectUriPrefix;
+                self.testApplication = app;
+                self.testApplications = @[app];
+                return;
+            }
+            else
+            {
+                NSLog(@"[MSIDBaseUITest] App config key '%@' not found in Key Vault JSON, falling back to API. Error: %@", appConfigKey, error.localizedDescription);
+            }
+        }
+    }
+
+    // Fall back to Lab API / in-memory cache
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
     
     MSIDAutomationOperationResponseHandler *responseHandler = [[MSIDAutomationOperationResponseHandler alloc] initWithClass:MSIDTestAutomationApplication.class];
