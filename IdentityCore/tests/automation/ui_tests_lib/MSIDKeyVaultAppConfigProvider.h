@@ -55,8 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param appConfigKey The compound key (use +[MSIDTestAutomationAppConfigurationRequest keyForAppConfigurationRequest:])
 /// @param error Error pointer for error details
 /// @return MSIDTestAutomationApplication or nil if not found
-- (MSIDTestAutomationApplication *)appConfigForKey:(NSString *)appConfigKey
-                                             error:(NSError **)error;
+- (nullable MSIDTestAutomationApplication *)appConfigForKey:(NSString *)appConfigKey
+                                                      error:(NSError * _Nullable * _Nullable)error;
 
 @end
 
