@@ -580,51 +580,44 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
             // Build compound key from all request properties
             NSString *accountType = [self.class keyForAccountConfigurationRequest:configRequest];
             
-            if (accountType)
+            NSError *error = nil;
+            MSIDTestAutomationAccount *account = [s_keyVaultAccountProvider accountForType:accountType error:&error];
+            
+            if (account)
             {
-                NSError *error = nil;
-                MSIDTestAutomationAccount *account = [s_keyVaultAccountProvider accountForType:accountType error:&error];
+                NSLog(@"[MSIDBaseUITest] Loaded account from Key Vault JSON with key: %@", accountType);
                 
-                if (account)
-                {
-                    NSLog(@"[MSIDBaseUITest] Loaded account from Key Vault JSON with key: %@", accountType);
-                    
-                    // Load password for the account
-                    XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
-                    
-                    [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
-                                                                             completionHandler:^(NSString *password, NSError *pwdError)
+                // Load password for the account
+                XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
+                
+                [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
+                                                                         completionHandler:^(NSString *password, NSError *pwdError)
+                 {
+                    if (password)
                     {
-                        if (password)
-                        {
-                            NSLog(@"[MSIDBaseUITest] Password loaded successfully for Key Vault account");
-                        }
-                        else
-                        {
-                            NSLog(@"[MSIDBaseUITest] Failed to load password for Key Vault account: %@", pwdError.localizedDescription);
-                        }
-                        [passwordExpectation fulfill];
-                    }];
-                    
-                    [self waitForExpectations:@[passwordExpectation] timeout:60];
-                    
-                    if (account.password)
-                    {
-                        return @[account];
+                        NSLog(@"[MSIDBaseUITest] Password loaded successfully for Key Vault account");
                     }
                     else
                     {
-                        NSLog(@"[MSIDBaseUITest] Key Vault account has no password, falling back to Lab API");
+                        NSLog(@"[MSIDBaseUITest] Failed to load password for Key Vault account: %@", pwdError.localizedDescription);
                     }
+                    [passwordExpectation fulfill];
+                }];
+                
+                [self waitForExpectations:@[passwordExpectation] timeout:60];
+                
+                if (account.password)
+                {
+                    return @[account];
                 }
                 else
                 {
-                    NSLog(@"[MSIDBaseUITest] Account key '%@' not found in Key Vault JSON, falling back to Lab API. Error: %@", accountType, error.localizedDescription);
+                    NSLog(@"[MSIDBaseUITest] Key Vault account has no password, falling back to Lab API");
                 }
             }
             else
             {
-                NSLog(@"[MSIDBaseUITest] No accountType specified in request, falling back to Lab API");
+                NSLog(@"[MSIDBaseUITest] Account key '%@' not found in Key Vault JSON, falling back to Lab API. Error: %@", accountType, error.localizedDescription);
             }
         }
     }
