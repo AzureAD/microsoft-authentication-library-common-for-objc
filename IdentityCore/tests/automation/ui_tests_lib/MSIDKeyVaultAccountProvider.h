@@ -55,8 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param accountType The account type (use MSIDTestAccountType values like "cloud", "msa", "federated", etc.)
 /// @param error Error pointer for error details
 /// @return MSIDTestAutomationAccount or nil if not found
-- (MSIDTestAutomationAccount *)accountForType:(NSString *)accountType
-                                        error:(NSError **)error;
+- (MSIDTestAutomationAccount * _Nullable)accountForType:(NSString *)accountType
+                                                 error:(NSError * _Nullable * _Nullable)error;
 
 @end
 

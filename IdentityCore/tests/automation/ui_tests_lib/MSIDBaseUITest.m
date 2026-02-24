@@ -437,23 +437,20 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
     {
         NSString *appConfigKey = [MSIDTestAutomationAppConfigurationRequest keyForAppConfigurationRequest:appRequest];
 
-        if (appConfigKey)
-        {
-            NSError *error = nil;
-            MSIDTestAutomationApplication *app = [s_keyVaultAppConfigProvider appConfigForKey:appConfigKey error:&error];
+        NSError *error = nil;
+        MSIDTestAutomationApplication *app = [s_keyVaultAppConfigProvider appConfigForKey:appConfigKey error:&error];
 
-            if (app)
-            {
-                NSLog(@"[MSIDBaseUITest] Loaded app config from Key Vault JSON with key: %@, appId: %@", appConfigKey, app.appId);
-                app.redirectUriPrefix = self.redirectUriPrefix;
-                self.testApplication = app;
-                self.testApplications = @[app];
-                return;
-            }
-            else
-            {
-                NSLog(@"[MSIDBaseUITest] App config key '%@' not found in Key Vault JSON, falling back to API. Error: %@", appConfigKey, error.localizedDescription);
-            }
+        if (app)
+        {
+            NSLog(@"[MSIDBaseUITest] Loaded app config from Key Vault JSON with key: %@, appId: %@", appConfigKey, app.appId);
+            app.redirectUriPrefix = self.redirectUriPrefix;
+            self.testApplication = app;
+            self.testApplications = @[app];
+            return;
+        }
+        else
+        {
+            NSLog(@"[MSIDBaseUITest] App config key '%@' not found in Key Vault JSON, falling back to API. Error: %@", appConfigKey, error.localizedDescription);
         }
     }
 
