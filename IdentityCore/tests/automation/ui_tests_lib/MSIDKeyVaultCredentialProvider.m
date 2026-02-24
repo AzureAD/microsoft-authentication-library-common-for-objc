@@ -70,7 +70,11 @@ NSString *MSIDKeyVaultAuthMethodName(MSIDKeyVaultAuthMethod method) {
             NSString *password = certPassword ?: @"";
             _configCertAuth = [[KeyvaultAuthentication alloc] initWithCertContents:certContents
                                                                       certPassword:password];
-            NSLog(@"[MSIDKeyVaultCredentialProvider] Config certificate auth initialized");
+            if (_configCertAuth) {
+                NSLog(@"[MSIDKeyVaultCredentialProvider] Config certificate auth initialized");
+            } else {
+                NSLog(@"[MSIDKeyVaultCredentialProvider] Config certificate auth failed to initialize (invalid certificate data)");
+            }
         }
         
         // Check for pipeline certificate from environment variable
@@ -81,7 +85,11 @@ NSString *MSIDKeyVaultAuthMethodName(MSIDKeyVaultAuthMethod method) {
         if (pipelineCertData.length > 0) {
             _pipelineCertAuth = [[KeyvaultAuthentication alloc] initWithCertContents:pipelineCertData
                                                                         certPassword:@""];
-            NSLog(@"[MSIDKeyVaultCredentialProvider] Pipeline certificate auth initialized from environment variable (passwordless)");
+            if (_pipelineCertAuth) {
+                NSLog(@"[MSIDKeyVaultCredentialProvider] Pipeline certificate auth initialized from environment variable (passwordless)");
+            } else {
+                NSLog(@"[MSIDKeyVaultCredentialProvider] Pipeline certificate auth failed to initialize (invalid certificate data)");
+            }
         }
     }
     return self;
