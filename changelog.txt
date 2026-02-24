@@ -1,3 +1,6 @@
+Version 1.20.0
+* Add token request execution flow logger (#1655)
+
 Version 1.19.1
 * Support POP and claims in browser core
 

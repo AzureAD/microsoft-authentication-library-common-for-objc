@@ -35,6 +35,7 @@ NSString *const MSID_APP_VER_KEY                   = @"x-app-ver";
 NSString *const MSID_CCS_HINT_KEY                  = @"X-AnchorMailbox";
 NSString *const MSID_WEBAUTH_IGNORE_SSO_KEY        = @"x-ms-sso-Ignore-SSO";
 NSString *const MSID_WEBAUTH_REFRESH_TOKEN_KEY     = @"x-ms-sso-RefreshToken";
+NSString *const MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY     = @"x-ms-UserFederatedIdentityCredential";
 
 NSString *const MSID_DEFAULT_FAMILY_ID             = @"1";
 NSString *const MSID_ADAL_SDK_NAME                 = @"adal-objc";
@@ -109,6 +110,9 @@ NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 
 // This is SsoExt flow only flight
 NSString *const MSID_FLIGHT_ENABLE_THREAD_STARVATION = @"ts_en";
+
+// This is SsoExt flow only flight
+NSString *const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE = @"skip_brk_cache";
 
 NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 

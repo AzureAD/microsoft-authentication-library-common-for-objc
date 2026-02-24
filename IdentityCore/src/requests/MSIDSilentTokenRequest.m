@@ -50,6 +50,8 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -184,6 +186,13 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         if (accessToken)
         {
             accessTokenExpired = [accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer];
+            if (accessToken.cachedAt)
+            {
+                NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:accessToken.expiresOn];
+                [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag)
+                                                          extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@((int64_t)elapsed)}
+                                                  withCorrelationId:self.requestParameters.correlationId];
+            }
         }
         
         if (accessToken && ![NSString msidIsStringNilOrBlank:accessToken.kid])

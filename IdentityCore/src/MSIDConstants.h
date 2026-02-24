@@ -133,6 +133,7 @@ extern NSString * _Nonnull const MSID_APP_VER_KEY;
 extern NSString * _Nonnull const MSID_CCS_HINT_KEY;
 extern NSString * _Nonnull const MSID_WEBAUTH_IGNORE_SSO_KEY;
 extern NSString * _Nonnull const MSID_WEBAUTH_REFRESH_TOKEN_KEY;
+extern NSString * _Nonnull const MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY;
 
 extern NSString * _Nonnull const MSID_DEFAULT_FAMILY_ID;
 extern NSString * _Nonnull const MSID_ADAL_SDK_NAME;
@@ -256,4 +257,6 @@ extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS;
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
+
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
