@@ -26,11 +26,16 @@ steps:
           fi
           echo "Active developer directory: $(xcode-select -p)"
 
-          # Check if visionOS SDK is already installed
+          # Check if visionOS SDK is already installed and simulator device exists
           if xcodebuild -showsdks 2>/dev/null | grep -qi vision; then
-              echo "visionOS SDK is already installed, skipping download."
+              echo "visionOS SDK is already installed."
               xcodebuild -showsdks | grep -i vision
-              exit 0
+              if xcrun xctrace list devices 2>&1 | grep -qi "Vision Pro"; then
+                  echo "Apple Vision Pro simulator device also exists, skipping setup."
+                  exit 0
+              else
+                  echo "SDK found but no simulator device — will create one."
+              fi
           fi
 
           echo "Setting visionOS preferences..."
@@ -69,19 +74,37 @@ steps:
           xcrun simctl list devices > /dev/null 2>&1 || true
 
           # Create Apple Vision Pro simulator device if it doesn't exist
-          echo "Checking for existing Apple Vision Pro simulator..."
-          if ! xcrun simctl list devices | grep -q "Apple Vision Pro"; then
-              echo "Creating Apple Vision Pro simulator device..."
-              VISIONOS_RUNTIME=$(xcrun simctl list runtimes | grep -i visionOS | tail -1 | awk '{print $NF}')
-              if [ -n "$VISIONOS_RUNTIME" ]; then
-                  xcrun simctl create "Apple Vision Pro" "Apple Vision Pro" "$VISIONOS_RUNTIME"
-                  echo "Apple Vision Pro simulator device created with runtime: $VISIONOS_RUNTIME"
-              else
-                  echo "WARNING: Could not find visionOS runtime to create simulator device"
-              fi
-          else
+          echo "=== Simulator device setup ==="
+          echo "Available visionOS device types:"
+          xcrun simctl list devicetypes | grep -i vision || echo "No visionOS device types found"
+          echo "Available visionOS runtimes:"
+          xcrun simctl list runtimes | grep -i visionOS || echo "No visionOS runtimes found"
+
+          if xcrun simctl list devices | grep -q "Apple Vision Pro"; then
               echo "Apple Vision Pro simulator device already exists."
+          else
+              echo "Creating Apple Vision Pro simulator device..."
+              # Get the device type identifier (e.g., com.apple.CoreSimulator.SimDeviceType.Apple-Vision-Pro)
+              VISION_DEVICE_TYPE=$(xcrun simctl list devicetypes | grep -i "Vision Pro" | head -1 | sed 's/.*(//' | sed 's/)//')
+              # Get the runtime identifier (e.g., com.apple.CoreSimulator.SimRuntime.xrOS-2-1)
+              VISIONOS_RUNTIME=$(xcrun simctl list runtimes | grep -i visionOS | tail -1 | awk '{print $NF}')
+
+              echo "Device type: $VISION_DEVICE_TYPE"
+              echo "Runtime: $VISIONOS_RUNTIME"
+
+              if [ -n "$VISION_DEVICE_TYPE" ] && [ -n "$VISIONOS_RUNTIME" ]; then
+                  xcrun simctl create "Apple Vision Pro" "$VISION_DEVICE_TYPE" "$VISIONOS_RUNTIME"
+                  echo "Apple Vision Pro simulator device created successfully."
+              else
+                  echo "WARNING: Could not determine device type or runtime for visionOS simulator."
+              fi
           fi
+
+          echo "Existing simulator devices (visionOS):"
+          xcrun simctl list devices | grep -A 5 -i visionOS || echo "No visionOS devices listed"
+
+          echo "Verifying device is visible to xctrace..."
+          xcrun xctrace list devices 2>&1 | grep -i "Vision Pro" || echo "WARNING: Apple Vision Pro not visible in xctrace"
 
           echo "=== Post-download verification ==="
           echo "Available SDKs after download:"
