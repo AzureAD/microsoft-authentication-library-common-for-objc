@@ -58,70 +58,12 @@ jobs:
         gem install slather bundler -N
       failOnStderr: true
 
-# The following is needed to install the visionOS SDK on macos-14 vm image which
-# doesn't have visionOS installed by default.
+# The following is needed to install the visionOS SDK with retry logic.
 # TODO: Remove when macos-14-arm64 is supported on ADO.
-  - task: Bash@3
-    displayName: download visionOS SDK
-    inputs:
-      targetType: 'inline'
-      script: |
-        echo $(target)
-        if [ $(target) == 'visionOSFramework' ]; then
-            echo "=== Setting up visionOS SDK ==="
-
-            sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-            echo "Active developer directory: $(xcode-select -p)"
-
-            echo "Setting visionOS preferences..."
-            defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-            defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-
-            echo "Downloading visionOS platform..."
-            MAX_RETRIES=3
-            RETRY_DELAY=15
-            for attempt in $(seq 1 $MAX_RETRIES); do
-                echo "Download attempt $attempt of $MAX_RETRIES..."
-                if xcodebuild -downloadPlatform visionOS; then
-                    echo "Download succeeded on attempt $attempt."
-                    break
-                else
-                    echo "Download attempt $attempt failed."
-                    if [ $attempt -lt $MAX_RETRIES ]; then
-                        echo "Retrying in $RETRY_DELAY seconds..."
-                        # Kill simulator service before retrying to clear stale connections
-                        sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
-                        sleep $RETRY_DELAY
-                    else
-                        echo "All $MAX_RETRIES attempts failed." >&2
-                        exit 1
-                    fi
-                fi
-            done
-
-            # Wait for platform installation to complete
-            echo "Waiting for platform installation to complete..."
-            sleep 10
-
-            # Refresh simulator service
-            echo "Refreshing CoreSimulator service..."
-            sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
-            sleep 5
-
-            # Force refresh of available SDKs and runtimes
-            echo "Refreshing available SDKs and runtimes..."
-            xcrun simctl list devices > /dev/null 2>&1 || true
-
-            echo "=== Post-download verification ==="
-            echo "Available SDKs after download:"
-            xcodebuild -showsdks
-
-            echo "VisionOS specific check:"
-            xcodebuild -showsdks | grep -i vision || echo "WARNING: VisionOS SDK not found after download"
-        else
-            echo "Not visionOS job, no download needed"
-        fi
-      failOnStderr: false
+  - template: templates/download-visionos-sdk.yml
+    parameters:
+      targetValue: 'visionOSFramework'
+      xcodeVersion: '16.2'
 
   - checkout: microsoft-authentication-library-for-objc
     displayName: 'Checkout MSAL'

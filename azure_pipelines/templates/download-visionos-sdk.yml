@@ -1,0 +1,80 @@
+# Template for downloading visionOS SDK with retry logic.
+# Parameters:
+#   targetValue: The target variable value that indicates a visionOS build (e.g., 'vision_library', 'visionOSFramework')
+#   xcodeVersion: The Xcode version to use for xcode-select (e.g., '16.4'). Leave empty to skip xcode-select.
+
+parameters:
+  - name: targetValue
+    type: string
+    default: 'vision_library'
+  - name: xcodeVersion
+    type: string
+    default: ''
+
+steps:
+- task: Bash@3
+  displayName: download visionOS SDK
+  inputs:
+    targetType: 'inline'
+    script: |
+      if [ $(target) == '${{ parameters.targetValue }}' ]; then
+          echo "=== Setting up visionOS SDK ==="
+
+          XCODE_VERSION="${{ parameters.xcodeVersion }}"
+          if [ -n "$XCODE_VERSION" ]; then
+              sudo xcode-select -s /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer
+          fi
+          echo "Active developer directory: $(xcode-select -p)"
+
+          # Check if visionOS SDK is already installed
+          if xcodebuild -showsdks 2>/dev/null | grep -qi vision; then
+              echo "visionOS SDK is already installed, skipping download."
+              xcodebuild -showsdks | grep -i vision
+              exit 0
+          fi
+
+          echo "Setting visionOS preferences..."
+          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+
+          echo "Downloading visionOS platform..."
+          MAX_RETRIES=3
+          RETRY_DELAY=15
+          for attempt in $(seq 1 $MAX_RETRIES); do
+              echo "Download attempt $attempt of $MAX_RETRIES..."
+              if xcodebuild -downloadPlatform visionOS; then
+                  echo "Download succeeded on attempt $attempt."
+                  break
+              else
+                  echo "Download attempt $attempt failed."
+                  if [ $attempt -lt $MAX_RETRIES ]; then
+                      echo "Retrying in $RETRY_DELAY seconds..."
+                      sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
+                      sleep $RETRY_DELAY
+                  else
+                      echo "All $MAX_RETRIES attempts failed." >&2
+                      exit 1
+                  fi
+              fi
+          done
+
+          echo "Waiting for platform installation to complete..."
+          sleep 10
+
+          echo "Refreshing CoreSimulator service..."
+          sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService 2>/dev/null || true
+          sleep 5
+
+          echo "Refreshing available SDKs and runtimes..."
+          xcrun simctl list devices > /dev/null 2>&1 || true
+
+          echo "=== Post-download verification ==="
+          echo "Available SDKs after download:"
+          xcodebuild -showsdks
+
+          echo "VisionOS specific check:"
+          xcodebuild -showsdks | grep -i vision || echo "WARNING: VisionOS SDK not found after download"
+      else
+          echo "Not visionOS job, no download needed"
+      fi
+    failOnStderr: false
