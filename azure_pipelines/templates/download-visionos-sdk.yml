@@ -68,6 +68,21 @@ steps:
           echo "Refreshing available SDKs and runtimes..."
           xcrun simctl list devices > /dev/null 2>&1 || true
 
+          # Create Apple Vision Pro simulator device if it doesn't exist
+          echo "Checking for existing Apple Vision Pro simulator..."
+          if ! xcrun simctl list devices | grep -q "Apple Vision Pro"; then
+              echo "Creating Apple Vision Pro simulator device..."
+              VISIONOS_RUNTIME=$(xcrun simctl list runtimes | grep -i visionOS | tail -1 | awk '{print $NF}')
+              if [ -n "$VISIONOS_RUNTIME" ]; then
+                  xcrun simctl create "Apple Vision Pro" "Apple Vision Pro" "$VISIONOS_RUNTIME"
+                  echo "Apple Vision Pro simulator device created with runtime: $VISIONOS_RUNTIME"
+              else
+                  echo "WARNING: Could not find visionOS runtime to create simulator device"
+              fi
+          else
+              echo "Apple Vision Pro simulator device already exists."
+          fi
+
           echo "=== Post-download verification ==="
           echo "Available SDKs after download:"
           xcodebuild -showsdks
