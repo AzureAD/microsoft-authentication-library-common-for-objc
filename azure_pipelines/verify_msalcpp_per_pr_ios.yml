@@ -59,10 +59,10 @@ jobs:
 
   - task: PythonScript@0
     name: Build
-    displayName: 'Build x64 Debug iOS'
+    displayName: 'Build arm64 Debug iOS'
     inputs:
       scriptPath: msal/build.py
-      arguments: '--clean --arch x64 --configuration Debug --platform iOS --djinni hashfail --test --test-type unit integration --build-projects tests'
+      arguments: '--clean --arch arm64 --configuration Debug --platform iOS --djinni hashfail --test --test-type unit integration --build-projects tests'
     env:
       MSAL_LAB_VAULT_ACCESS_CERT_LOCATION: $(Agent.TempDirectory)
       MSAL_CERTIFICATE_PASSWORD: $(MSAL_CERTIFICATE_PASSWORD)
