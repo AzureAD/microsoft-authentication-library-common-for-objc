@@ -77,8 +77,6 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context
 {
-    
-    
     if (!startURL)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attempted to start with nil URL");
