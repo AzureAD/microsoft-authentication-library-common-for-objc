@@ -29,7 +29,7 @@
 
 - (NSString *)requestOperationPath
 {
-    return self.policyEnabled ? @"EnablePolicy" : @"DisablePolicy";
+    return self.policyEnabled ? @"EnablePolicyID4SLab2" : @"DisablePolicyID4SLab2";
 }
 
 - (NSString *)httpMethod

@@ -29,7 +29,7 @@
 
 - (NSString *)requestOperationPath
 {
-    return @"DeleteDevice";
+    return @"DeleteDeviceID4SLab2";
 }
 
 - (NSString *)httpMethod
