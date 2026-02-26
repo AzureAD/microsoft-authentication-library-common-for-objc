@@ -106,12 +106,10 @@
     [Secret getWithUrl:url completion:^(NSError * _Nullable fetchError, Secret * _Nullable secret) {
         if (fetchError || !secret)
         {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSError *error = fetchError ?: [NSError errorWithDomain:@"MSIDKeyVaultAppConfigProvider"
-                                                                   code:-1
-                                                               userInfo:@{NSLocalizedDescriptionKey: @"Failed to fetch secret from Key Vault"}];
-                completionHandler(error);
-            });
+            NSError *error = fetchError ?: [NSError errorWithDomain:@"MSIDKeyVaultAppConfigProvider"
+                                                               code:-1
+                                                           userInfo:@{NSLocalizedDescriptionKey: @"Failed to fetch secret from Key Vault"}];
+            completionHandler(error);
             return;
         }
 
@@ -124,12 +122,10 @@
 
         if (parseError || ![appConfigsJSON isKindOfClass:[NSDictionary class]])
         {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSError *error = parseError ?: [NSError errorWithDomain:@"MSIDKeyVaultAppConfigProvider"
-                                                                   code:-1
-                                                               userInfo:@{NSLocalizedDescriptionKey: @"Could not parse app configurations JSON from Key Vault secret"}];
-                completionHandler(error);
-            });
+            NSError *error = parseError ?: [NSError errorWithDomain:@"MSIDKeyVaultAppConfigProvider"
+                                                               code:-1
+                                                           userInfo:@{NSLocalizedDescriptionKey: @"Could not parse app configurations JSON from Key Vault secret"}];
+            completionHandler(error);
             return;
         }
 
@@ -139,9 +135,7 @@
 
         NSLog(@"[MSIDKeyVaultAppConfigProvider] Successfully cached %lu app configuration types", (unsigned long)appConfigsJSON.count);
 
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completionHandler(nil);
-        });
+        completionHandler(nil);
     }];
 }
 

@@ -105,12 +105,10 @@
     
     [Secret getWithUrl:url completion:^(NSError * _Nullable fetchError, Secret * _Nullable secret) {
         if (fetchError || !secret) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSError *error = fetchError ?: [NSError errorWithDomain:@"MSIDKeyVaultAccountProvider"
-                                                                   code:-1
-                                                               userInfo:@{NSLocalizedDescriptionKey: @"Failed to fetch secret from Key Vault"}];
-                completionHandler(error);
-            });
+            NSError *error = fetchError ?: [NSError errorWithDomain:@"MSIDKeyVaultAccountProvider"
+                                                               code:-1
+                                                           userInfo:@{NSLocalizedDescriptionKey: @"Failed to fetch secret from Key Vault"}];
+            completionHandler(error);
             return;
         }
         
@@ -123,12 +121,10 @@
                                                                        error:&parseError];
         
         if (parseError || ![accountsJSON isKindOfClass:[NSDictionary class]]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSError *error = parseError ?: [NSError errorWithDomain:@"MSIDKeyVaultAccountProvider"
-                                                                   code:-1
-                                                               userInfo:@{NSLocalizedDescriptionKey: @"Could not parse accounts JSON from Key Vault secret"}];
-                completionHandler(error);
-            });
+            NSError *error = parseError ?: [NSError errorWithDomain:@"MSIDKeyVaultAccountProvider"
+                                                               code:-1
+                                                           userInfo:@{NSLocalizedDescriptionKey: @"Could not parse accounts JSON from Key Vault secret"}];
+            completionHandler(error);
             return;
         }
         
@@ -139,9 +135,7 @@
         
         NSLog(@"[MSIDKeyVaultAccountProvider] Successfully cached %lu account types", (unsigned long)accountsJSON.count);
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completionHandler(nil);
-        });
+        completionHandler(nil);
     }];
 }
 
