@@ -27,6 +27,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDBrokerResponse.h"
+#import "MSIDOAuth2Constants.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDBoundRefreshToken.h"
@@ -67,12 +68,19 @@
         return nil;
     }
     
-    return [self createTokenResultFromResponse:tokenResponse
-                                  oauthFactory:factory
-                                 configuration:configuration
-                                requestAccount:accountIdentifier
-                                 correlationID:correlationID
-                                         error:error];
+    MSIDTokenResult *tokenResult = [self createTokenResultFromResponse:tokenResponse
+                                                          oauthFactory:factory
+                                                         configuration:configuration
+                                                        requestAccount:accountIdentifier
+                                                         correlationID:correlationID
+                                                                 error:error];
+
+    if (tokenResult && tokenResponse.clientData)
+    {
+        [tokenResult insertBrokerMetaData:tokenResponse.clientData forKey:MSID_CLIENT_DATA_RESPONSE];
+    }
+
+    return tokenResult;
 }
 
 - (MSIDTokenResult *)createTokenResultFromResponse:(MSIDTokenResponse *)tokenResponse

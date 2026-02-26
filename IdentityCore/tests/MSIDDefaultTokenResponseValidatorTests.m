@@ -34,6 +34,8 @@
 #import "MSIDTestIdentifiers.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAccount.h"
+#import "MSIDOAuth2Constants.h"
+#import "MSIDCache.h"
 
 @interface MSIDDefaultTokenResponseValidatorTests : XCTestCase
 
@@ -283,6 +285,60 @@
     XCTAssertFalse(validated);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorMismatchedAccount);
+}
+
+#pragma mark - Client Data Tests
+
+- (void)testValidateTokenResponse_whenClientDataIsPresent_shouldInsertClientDataIntoBrokerMetaData
+{
+    __auto_type correlationID = [NSUUID new];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"some_uri"
+                                                                           clientId:@"myclient"
+                                                                             target:DEFAULT_TEST_SCOPE];
+
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    response.clientData = @"test_client_data_value";
+
+    NSError *error;
+    MSIDTokenResult *result = [self.validator validateTokenResponse:response
+                                                       oauthFactory:factory
+                                                      configuration:configuration
+                                                     requestAccount:nil
+                                                      correlationID:correlationID
+                                                              error:&error];
+
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects([result.brokerMetaData objectForKey:MSID_CLIENT_DATA_RESPONSE], @"test_client_data_value");
+}
+
+- (void)testValidateTokenResponse_whenClientDataIsNil_shouldNotInsertClientDataIntoBrokerMetaData
+{
+    __auto_type correlationID = [NSUUID new];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"some_uri"
+                                                                           clientId:@"myclient"
+                                                                             target:DEFAULT_TEST_SCOPE];
+
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    // clientData intentionally not set
+
+    NSError *error;
+    MSIDTokenResult *result = [self.validator validateTokenResponse:response
+                                                       oauthFactory:factory
+                                                      configuration:configuration
+                                                     requestAccount:nil
+                                                      correlationID:correlationID
+                                                              error:&error];
+
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertNil([result.brokerMetaData objectForKey:MSID_CLIENT_DATA_RESPONSE]);
 }
 
 - (void)testValidateAccount_whenUIDMismatch_ForDeletedAndRecreatedUser_shouldReturnYES
