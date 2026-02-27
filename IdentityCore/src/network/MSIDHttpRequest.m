@@ -33,6 +33,7 @@
 #import "MSIDOAuthRequestConfigurator.h"
 #import "MSIDHttpRequestServerTelemetryHandling.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDHttpRequestInterceptorProtocol.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -88,6 +89,35 @@ static NSDictionary *s_experimentBag = nil;
     }
 
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:localHeaders ?: self.headers];
+
+    if (self.requestInterceptor)
+    {
+        [self.requestInterceptor adapt:self.urlRequest withBlock:^(NSURLRequest * _Nullable adaptedRequest, NSError * _Nullable interceptorError)
+        {
+            if (interceptorError)
+            {
+                if (completionBlock) completionBlock(nil, interceptorError);
+                return;
+            }
+
+            if (!adaptedRequest)
+            {
+                NSError *nilRequestError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Request interceptor returned a nil request.", nil, nil, nil, self.context.correlationId, nil, YES);
+                if (completionBlock) completionBlock(nil, nilRequestError);
+                return;
+            }
+
+            self.urlRequest = adaptedRequest;
+            [self sendRequestWithCompletionBlock:completionBlock];
+        }];
+        return;
+    }
+
+    [self sendRequestWithCompletionBlock:completionBlock];
+}
+
+- (void)sendRequestWithCompletionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
+{
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
     {
