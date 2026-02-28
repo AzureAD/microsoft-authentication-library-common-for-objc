@@ -67,7 +67,7 @@
 
 - (void)registerExecutionFlowWithCorrelationId:(NSUUID *)correlationId
 {
-    if (!self.enabled) { return; }
+    if (![self isEnabledThreadSafe]) { return; }
 
     if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
@@ -76,7 +76,7 @@
     }
     
     dispatch_async(self.executionFlowLoggerQueue, ^{
-        if (!self.enabled) { return; }
+        if (![self isEnabledThreadSafe]) { return; }
 
         if (self.executionFlowMap.count >= MAX_EXECUTION_FLOW_ELIMINATION_POOL_SIZE)
         {
@@ -99,7 +99,7 @@
         extraInfo:(NSDictionary *)info
 withCorrelationId:(NSUUID *)correlationId
 {
-    if (!self.enabled) { return; }
+    if (![self isEnabledThreadSafe]) { return; }
 
     if ([NSString msidIsStringNilOrBlank:tag])
     {
@@ -121,7 +121,7 @@ withCorrelationId:(NSUUID *)correlationId
     
     NSDate *triggeringTime = [NSDate date];
     dispatch_async(self.executionFlowLoggerQueue, ^{
-        if (!self.enabled) { return; }
+        if (![self isEnabledThreadSafe]) { return; }
 
         if (![self.executionFlowMap.toDictionary.allKeys containsObject:correlationId])
         {
@@ -146,7 +146,7 @@ withCorrelationId:(NSUUID *)correlationId
                                    shouldFlush:(BOOL)shouldFlush
                                     completion:(void (^)(NSString * _Nullable executionFlow))completion
 {
-    if (!self.enabled)
+    if (![self isEnabledThreadSafe])
     {
         if (completion) { completion(nil); }
         return;
@@ -160,7 +160,7 @@ withCorrelationId:(NSUUID *)correlationId
     }
 
     dispatch_async(self.executionFlowLoggerQueue, ^{
-        if (!self.enabled)
+        if (![self isEnabledThreadSafe])
         {
             [self executeAsyncOnOtherBackgroundThread:^{
                 if (completion)
@@ -190,7 +190,7 @@ withCorrelationId:(NSUUID *)correlationId
 
 - (void)flush
 {
-    if (!self.enabled) { return; }
+    if (![self isEnabledThreadSafe]) { return; }
 
     dispatch_async(self.executionFlowLoggerQueue, ^{
         [self.executionFlowMap removeAllObjects];
@@ -208,6 +208,15 @@ withCorrelationId:(NSUUID *)correlationId
         dispatch_async(self.executionFlowLoggerQueue, ^{
             [self.executionFlowMap removeAllObjects];
         });
+    }
+}
+
+// Reads the enabled flag under lock to avoid cross-thread races on the singleton state.
+- (BOOL)isEnabledThreadSafe
+{
+    @synchronized (self)
+    {
+        return _enabled;
     }
 }
 
