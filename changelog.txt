@@ -1,7 +1,7 @@
 TBD
 * Add retry logic when bound app refresh token redemption fails.
 * Add token request execution flow logger (#1655)
-* Captures the x-ms-clientData HTTP response header from ESTS & MSTS (#1699)
+* Captures the x-ms-clientData HTTP response header from ESTS & MSTS and supports client data from redirect uri (#1699)
 * Aligned Init Logic for Get Token API With Documentation (#1698)
 
 Version 1.19.1
