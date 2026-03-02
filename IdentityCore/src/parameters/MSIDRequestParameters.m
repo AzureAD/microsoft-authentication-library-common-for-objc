@@ -163,6 +163,10 @@
     {
         [endpointQPs addEntriesFromDictionary:self.extraURLQueryParameters];
     }
+    
+#if DEBUG
+    endpointQPs[@"dc"] = @"ESTS-PUB-SCUS-FD000-TEST1-100";
+#endif
 
     tokenEndpoint.query = [endpointQPs msidURLEncode];
     return tokenEndpoint.URL;

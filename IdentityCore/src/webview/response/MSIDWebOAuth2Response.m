@@ -55,6 +55,7 @@
     
     if (self)
     {
+        // nil if self.parameters does not contain MSID_OAUTH2_ERROR
         _oauthError = [self oauthErrorFromParameters:self.parameters];
     }
     
@@ -67,6 +68,19 @@
 {
     NSUUID *correlationId = [parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
     [[NSUUID alloc] initWithUUIDString:[parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
+
+#if DEBUG
+    // Debug-only: inject a synthetic /authorize error to exercise error parsing and clidata propagation.
+    NSMutableDictionary *mutableParameters = [parameters mutableCopy];
+    if (!mutableParameters[MSID_OAUTH2_ERROR])
+    {
+        mutableParameters[MSID_OAUTH2_ERROR] = @"interaction_required";
+        mutableParameters[MSID_OAUTH2_ERROR_DESCRIPTION] = @"[DEBUG] Mocked STS error for clidata flow testing";
+        mutableParameters[MSID_OAUTH2_SUB_ERROR] = @"basic_action";
+        mutableParameters[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM] = @"mock_clidata_value|50076|basic_action||";
+    }
+    parameters = mutableParameters;
+#endif
     
     NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];
 
@@ -74,11 +88,14 @@
     {
         NSString *errorDescription = parameters[MSID_OAUTH2_ERROR_DESCRIPTION];
         NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
+        // client-data for /authorize failures is returned by STS in redirect URL query parameter `clidata`.
+        NSString *clientData = parameters[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM];
         MSIDErrorCode errorCode = MSIDErrorCodeForOAuthErrorWithSubErrorCode(serverOAuth2Error, MSIDErrorAuthorizationFailed, subError);
+        NSDictionary *additionalUserInfo = [NSString msidIsStringNilOrBlank:clientData] ? nil : @{MSID_CLIENT_DATA_RESPONSE : clientData};
         
         MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Failed authorization code response with error %@, sub error %@, description %@", serverOAuth2Error, subError, MSID_PII_LOG_MASKABLE(errorDescription));
         
-        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil, NO);
+        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, additionalUserInfo, NO);
     }
     
     return nil;

@@ -427,6 +427,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     {
         [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_FAILED];
         [brokerEvent setBrokerAppVersion:error.userInfo[MSIDBrokerVersionKey]];
+
         CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
     }
     else
