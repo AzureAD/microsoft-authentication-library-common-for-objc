@@ -289,7 +289,7 @@
     }
 
     MSIDExecutionFlowInsertTag(MSIDRequestControllerFactoryTagToString(MSIDInteractiveControllerFinishTag),
-                                   nil,
+                                   @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(parameters.uiBehaviorType)},
                                    parameters.correlationId);
 
     return finalController;
