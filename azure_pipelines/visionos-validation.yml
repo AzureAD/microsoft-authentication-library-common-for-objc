@@ -1,13 +1,6 @@
 # Consolidated visionOS validation pipeline
 # This pipeline runs all visionOS checks for IdentityCore, MSAL, and Broker in one place.
 
-pr:
-  autoCancel: true
-  branches:
-    include:
-    - '*'
-  drafts: true
-
 trigger:
   branches:
     include:
@@ -166,7 +159,6 @@ stages:
         targetType: 'inline'
         script: |
           echo "Downloading simulator for visionOS"
-          sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
           defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
           defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
           xcodebuild -downloadPlatform visionOS
@@ -227,4 +219,9 @@ stages:
     variables:
       target: "vision_library"
     steps:
+    - task: Bash@3
+      displayName: 'Select Xcode version'
+      inputs:
+        targetType: 'inline'
+        script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"'
     - template: broker_submodule_steps.yml
