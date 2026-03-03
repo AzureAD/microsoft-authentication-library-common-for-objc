@@ -1,0 +1,2 @@
+variables:
+  XCODE_VERSION: "16.2"

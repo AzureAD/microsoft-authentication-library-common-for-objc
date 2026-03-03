@@ -35,10 +35,13 @@ jobs:
     vmImage: 'macOS-14'
     timeOutInMinutes: 30
 
+  variables:
+  - template: templates/build-vars.yml
+
   steps:
   - script: |
-          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"
-    displayName: 'Switch to use Xcode 16.2'
+          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_$(XCODE_VERSION).app"
+    displayName: 'Switch to use Xcode $(XCODE_VERSION)'
   - task: CmdLine@2
     displayName: Uninstalling xcpretty v0.4.0
     inputs:
@@ -63,7 +66,7 @@ jobs:
   - template: templates/download-visionos-sdk.yml
     parameters:
       targetValue: 'visionOSFramework'
-      xcodeVersion: '16.2'
+      xcodeVersion: $(XCODE_VERSION)
 
   - checkout: microsoft-authentication-library-for-objc
     displayName: 'Checkout MSAL'

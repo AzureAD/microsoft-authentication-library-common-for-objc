@@ -27,6 +27,9 @@ jobs:
     vmImage: 'macos-15'
     timeOutInMinutes: 30
 
+  variables:
+  - template: templates/build-vars.yml
+
   steps:
   - task: CmdLine@2
     displayName: Uninstalling xcpretty v0.4.0
@@ -55,7 +58,7 @@ jobs:
     displayName: 'Select Xcode version'
     inputs:
       targetType: 'inline'
-      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_26.2.app"'
+      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_$(XCODE_VERSION).app"'
   - task: Bash@3
     displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
     inputs:
@@ -67,7 +70,7 @@ jobs:
   - template: templates/download-visionos-sdk.yml
     parameters:
       targetValue: 'vision_library'
-      xcodeVersion: '16.2'
+      xcodeVersion: $(XCODE_VERSION)
   - task: Bash@3
     displayName: Run CPP script
     inputs:
