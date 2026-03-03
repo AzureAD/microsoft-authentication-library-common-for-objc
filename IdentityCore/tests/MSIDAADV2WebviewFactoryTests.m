@@ -37,6 +37,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDOAuth2Constants.h"
 
 @interface MSIDAADV2WebviewFactoryTests : XCTestCase
 
@@ -77,6 +78,7 @@
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
                                           @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
+                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];

@@ -48,6 +48,7 @@
 #import "MSIDBrokerConstants.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDOAuth2Constants.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -98,6 +99,7 @@
                                           @"code_challenge_method" : @"S256",
                                           @"code_challenge" : pkce.codeChallenge,
                                           @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
+                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
 #if TARGET_OS_IPHONE
@@ -166,7 +168,8 @@
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
                                           @"code_challenge_method" : @"S256",
-                                          @"code_challenge" : pkce.codeChallenge
+                                          @"code_challenge" : pkce.codeChallenge,
+                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
 #if TARGET_OS_IPHONE

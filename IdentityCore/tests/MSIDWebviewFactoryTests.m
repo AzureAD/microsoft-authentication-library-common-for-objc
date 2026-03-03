@@ -44,6 +44,7 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDTestParametersProvider.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDOAuth2Constants.h"
 
 @interface MSIDWebviewFactoryTests : XCTestCase
 
@@ -83,6 +84,7 @@
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
                                           @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
+                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
                                           }];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
@@ -212,8 +214,8 @@
                                     @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                     @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
                                     @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
+                                    @"clidata" : @"1",
     };
-
     NSURL *actualURL = conf.startURL;
     XCTAssertTrue([expectedRequest compareAndPrintDiff:actualURL.msidQueryParameters]);
     

@@ -69,18 +69,18 @@
     NSUUID *correlationId = [parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE] ?
     [[NSUUID alloc] initWithUUIDString:[parameters objectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE]]:nil;
 
-#if DEBUG
-    // Debug-only: inject a synthetic /authorize error to exercise error parsing and clidata propagation.
-    NSMutableDictionary *mutableParameters = [parameters mutableCopy];
-    if (!mutableParameters[MSID_OAUTH2_ERROR])
-    {
-        mutableParameters[MSID_OAUTH2_ERROR] = @"interaction_required";
-        mutableParameters[MSID_OAUTH2_ERROR_DESCRIPTION] = @"[DEBUG] Mocked STS error for clidata flow testing";
-        mutableParameters[MSID_OAUTH2_SUB_ERROR] = @"basic_action";
-        mutableParameters[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM] = @"mock_clidata_value|50076|basic_action||";
-    }
-    parameters = mutableParameters;
-#endif
+//#if DEBUG
+//    // Debug-only: inject a synthetic /authorize error to exercise error parsing and clidata propagation.
+//    NSMutableDictionary *mutableParameters = [parameters mutableCopy];
+//    if (!mutableParameters[MSID_OAUTH2_ERROR])
+//    {
+//        mutableParameters[MSID_OAUTH2_ERROR] = @"interaction_required";
+//        mutableParameters[MSID_OAUTH2_ERROR_DESCRIPTION] = @"[DEBUG] Mocked STS error for clidata flow testing";
+//        mutableParameters[MSID_OAUTH2_SUB_ERROR] = @"basic_action";
+//        mutableParameters[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM] = @"mock_clidata_value|50076|basic_action||";
+//    }
+//    parameters = mutableParameters;
+//#endif
     
     NSString *serverOAuth2Error = [parameters objectForKey:MSID_OAUTH2_ERROR];
 
