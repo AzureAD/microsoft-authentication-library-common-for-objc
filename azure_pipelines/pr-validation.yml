@@ -20,8 +20,6 @@ jobs:
         target: "ios_library"
       MAC_LIB: 
         target: "mac_library"
-      VISION_LIB:
-        target: "vision_library"
   displayName: Validate Pull Request
   pool:
     vmImage: 'macos-15'
@@ -65,12 +63,6 @@ jobs:
       targetType: 'inline'
       script: |
         find . -name "*.gcda" -print0 | xargs -0 rm
-# The following is needed to install the visionOS SDK with retry logic.
-# TODO: Remove when macos-14-arm64 is supported on ADO.
-  - template: templates/download-visionos-sdk.yml
-    parameters:
-      targetValue: 'vision_library'
-      xcodeVersion: $(XCODE_VERSION)
   - task: Bash@3
     displayName: Run CPP script
     inputs:
