@@ -38,8 +38,9 @@ jobs:
 
   steps:
   - script: |
-          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_$(XCODE_VERSION).app"
+      /bin/bash -c "sudo xcode-select -s /Applications/Xcode_$(XCODE_VERSION).app"
     displayName: 'Switch to use Xcode $(XCODE_VERSION)'
+
   - task: CmdLine@2
     displayName: Uninstalling xcpretty v0.4.0
     inputs:
