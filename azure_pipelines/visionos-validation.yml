@@ -13,20 +13,20 @@ pool:
 
 resources:
   repositories:
-    - repository: microsoft-authentication-library-for-objc
-      type: github
-      endpoint: 'MSAL ObjC Service Connection'
-      name: AzureAD/microsoft-authentication-library-for-objc
+  - repository: microsoft-authentication-library-for-objc
+    type: github
+    endpoint: 'MSAL ObjC Service Connection'
+    name: AzureAD/microsoft-authentication-library-for-objc
 
-    - repository: azure-activedirectory-tokenbroker-for-objc
-      type: github
-      endpoint: 'MSAL ObjC Service Connection'
-      name: AzureAD/azure-activedirectory-tokenbroker-for-objc
+  - repository: azure-activedirectory-tokenbroker-for-objc
+    type: github
+    endpoint: 'MSAL ObjC Service Connection'
+    name: AzureAD/azure-activedirectory-tokenbroker-for-objc
 
-    - repository: WorkplaceJoin-for-iOS
-      type: github
-      endpoint: 'MSAL ObjC Service Connection'
-      name: AzureAD/WorkplaceJoin-for-iOS
+  - repository: WorkplaceJoin-for-iOS
+    type: github
+    endpoint: 'MSAL ObjC Service Connection'
+    name: AzureAD/WorkplaceJoin-for-iOS
 
 stages:
 # Stage 1: IdentityCore visionOS validation
@@ -100,7 +100,7 @@ stages:
           final_status=$(<./build/status.txt)
           echo "FINAL STATUS  = ${final_status}"
           echo "POSSIBLE ERRORS: ${output}"
-          
+
           if [ $final_status != "0" ]; then
             echo "Build & Testing Failed! \n ${output}" >&2
           fi
@@ -185,7 +185,7 @@ stages:
           final_status=$(<./build/status.txt)
           echo "FINAL STATUS  = ${final_status}"
           echo "POSSIBLE ERRORS: ${output}"
-          
+
           if [ $final_status != "0" ]; then
             echo "Build & Testing Failed! \n ${output}" >&2
           fi
@@ -224,4 +224,14 @@ stages:
       inputs:
         targetType: 'inline'
         script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"'
+    - task: Bash@3
+      displayName: Download visionOS SDK
+      inputs:
+        targetType: 'inline'
+        script: |
+          echo "Downloading simulator for visionOS"
+          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+          xcodebuild -downloadPlatform visionOS
+        failOnStderr: false
     - template: broker_submodule_steps.yml
