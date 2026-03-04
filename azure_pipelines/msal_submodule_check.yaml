@@ -46,18 +46,21 @@ jobs:
       script: |
         gem uninstall xcpretty -I --version 0.4.0
       failOnStderr: false
+
   - task: CmdLine@2
     displayName: Installing xcpretty v0.3.0
     inputs:
       script: |
         gem install xcpretty -N -v 0.3.0
       failOnStderr: true
+
   - task: CmdLine@2
     displayName: Installing dependencies
     inputs:
       script: |
         gem install slather bundler -N
       failOnStderr: true
+
   - checkout: microsoft-authentication-library-for-objc
     displayName: 'Checkout MSAL'
     clean: true
@@ -82,11 +85,12 @@ jobs:
         final_status=$(<./build/status.txt)
         echo "FINAL STATUS  = ${final_status}"
         echo "POSSIBLE ERRORS: ${output}"
-        
+
         if [ $final_status != "0" ]; then
           echo "Build & Testing Failed! \n ${output}" >&2
         fi
       failOnStderr: true
+
   - task: Bash@3
     condition: always()
     displayName: Cleanup
@@ -94,7 +98,7 @@ jobs:
       targetType: 'inline'
       script: |
         rm -rf $(Agent.BuildDirectory)/s/build/status.txt
-        
+
   - task: PublishTestResults@2
     condition: always()
     displayName: Publish Test Report
