@@ -98,6 +98,21 @@ steps:
 #      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"'
 
 - task: Bash@3
+  displayName: download visionOS SDK
+  inputs:
+    targetType: 'inline'
+    script: |
+      if [ $(target) == 'vision_library' ]; then
+          echo "Downloading simulator for visionOS"
+          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
+          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
+          xcodebuild -downloadPlatform visionOS
+      else
+          echo "Not visionOS job, no download needed"
+      fi
+    failOnStderr: false
+
+- task: Bash@3
   displayName: 'Run a python script for Broker'
   inputs:
     targetType: 'inline'
