@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,27 +20,20 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
 
-@class MSIDTokenResult;
-@class MSIDWebWPJResponse;
-@class MSIDTestSilentTokenRequest;
+#import "MSIDExecutionFlowLogger.h"
 
-@interface MSIDTestTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic) MSIDTestSilentTokenRequest *silentRequest;
+@interface MSIDExecutionFlowLogger ()
 
-- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
-                           testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse;
-
-- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
-                           testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
-                    brokerRequestURL:(NSURL *)brokerRequestURL
-                    resumeDictionary:(NSDictionary *)brokerResumeDictionary;
+/*!
+ Flushes all registered execution flows, clearing any buffered tags and resetting internal state.
+ */
+- (void)flush;
 
 @end
+
+NS_ASSUME_NONNULL_END

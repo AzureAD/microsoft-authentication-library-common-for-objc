@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,29 +18,30 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// LIABILITY, WHETHER IN AN ACTION, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
 
-@class MSIDTokenResult;
-@class MSIDWebWPJResponse;
-@class MSIDTestSilentTokenRequest;
+@class MSIDExecutionFlowBlob;
 
-@interface MSIDTestTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic) MSIDTestSilentTokenRequest *silentRequest;
+@interface MSIDExecutionFlowUtils : NSObject
 
-- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
-                           testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse;
+/// Returns the singleton execution‑flow utility instance.
++ (instancetype)sharedInstance;
 
-- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
-                           testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
-                    brokerRequestURL:(NSURL *)brokerRequestURL
-                    resumeDictionary:(NSDictionary *)brokerResumeDictionary;
+/**
+ Convert a blob dictionary into a JSON string, always including required fields (t, ts, tid) in that order and optionally filtering by a set of additional keys.
+
+ @param queryKeys The set of field names to include in the JSON output in addition to the required fields. If nil or empty, all available fields are output.
+ @return A JSON-formatted string representing the blob.
+ */
+- (NSString *)convertDictionary:(NSDictionary *)dictionary
+           toJsonStringWithKeys:(NSSet<NSString *> *)queryKeys;
 
 @end
+
+NS_ASSUME_NONNULL_END
