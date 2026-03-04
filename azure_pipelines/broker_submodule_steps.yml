@@ -97,6 +97,9 @@ steps:
 #      targetType: 'inline'
 #      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"'
 
+# The following is needed to install the visionOS SDK on macos-14 vm image which
+# doesn't have visionOS installed by default.
+# TODO: Remove when macos-14-arm64 is supported on ADO.
 - task: Bash@3
   displayName: download visionOS SDK
   inputs:
