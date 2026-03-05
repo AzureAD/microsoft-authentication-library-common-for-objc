@@ -33,6 +33,8 @@
 #import "MSIDOAuthRequestConfigurator.h"
 #import "MSIDHttpRequestServerTelemetryHandling.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -76,7 +78,9 @@ static NSDictionary *s_experimentBag = nil;
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     NSParameterAssert(self.urlRequest);
-
+    MSIDExecutionFlowInsertTag([self toString:MSIDPrepareNetworkRequestTag],
+                                   nil,
+                                   self.context.correlationId);
     __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
@@ -99,11 +103,17 @@ static NSDictionary *s_experimentBag = nil;
 
         if (!responseObject)
         {
+            MSIDExecutionFlowInsertTag([self toString:MSIDCacheResponseFailedObjectTag],
+                                           nil,
+                                           self.context.correlationId);
             [self.cache removeCachedResponseForRequest:self.urlRequest];
             MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Removing invalid response from cache %@, response: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(response.response));
         }
         else
         {
+            MSIDExecutionFlowInsertTag([self toString:MSIDCacheResponseSucceededObjectTag],
+                                           nil,
+                                           self.context.correlationId);
             if (completionBlock) { completionBlock(responseObject, error); }
             return;
         }
@@ -117,6 +127,9 @@ static NSDictionary *s_experimentBag = nil;
 
     [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error)
       {
+        MSIDExecutionFlowInsertTag([self toString:MSIDReceiveNetworkResponseTag],
+                                       nil,
+                                       self.context.correlationId);
           MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Received network response: %@, error %@", _PII_NULLIFY(urlResponse), _PII_NULLIFY(error));
 
           if (urlResponse) NSAssert([urlResponse isKindOfClass:NSHTTPURLResponse.class], NULL);
@@ -132,6 +145,9 @@ static NSDictionary *s_experimentBag = nil;
 
         void (^completeBlockWrapper)(id, NSError *) = ^(id wrapperResponse, NSError *wrapperError)
         {
+            MSIDExecutionFlowInsertTag([self toString:MSIDParseNetworkResponseTag],
+                                           wrapperError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(wrapperError.code)} : nil,
+                                           self.context.correlationId);
             [self.serverTelemetry handleError:wrapperError context:self.context];
 
             if (completionBlock) { completionBlock(wrapperResponse, wrapperError); }
@@ -140,7 +156,7 @@ static NSDictionary *s_experimentBag = nil;
           if (error)
           {
               if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_RETRY_ON_NETWORK])
-              {
+              {   
                   [self.errorHandler handleError:error
                                     httpResponse:nil
                                             data:nil
@@ -171,6 +187,10 @@ static NSDictionary *s_experimentBag = nil;
           }
           else
           {
+              
+              MSIDExecutionFlowInsertTag([self toString:MSIDOtherHttpNetworkStatusCodeTag],
+                                             @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(httpResponse.statusCode)},
+                                             self.context.correlationId);
               if (self.errorHandler)
               {
                   id<MSIDResponseSerialization> responseSerializer = self.errorResponseSerializer ? self.errorResponseSerializer : self.responseSerializer;
@@ -208,9 +228,14 @@ static NSDictionary *s_experimentBag = nil;
     return [self.cache cachedResponseForRequest:self.urlRequest];
 }
 
--(void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request
+- (void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request
 {
    [self.cache storeCachedResponse:cachedResponse forRequest:request];
+}
+
+- (NSString *)toString:(MSIDExecutionFlowNetworkTag)tag
+{
+    return MSIDExecutionFlowNetworkTagToString(tag);
 }
 
 @end
