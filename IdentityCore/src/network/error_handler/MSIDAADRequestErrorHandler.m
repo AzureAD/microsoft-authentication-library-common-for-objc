@@ -74,17 +74,17 @@
     
     if (shouldRetry)
     {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowRetryOnNetworkFailureTag)
-                                                  extraInfo:nil
-                                          withCorrelationId:context.correlationId];
+        MSIDExecutionFlowInsertTag(MSIDExecutionFlowNetworkTagToString(MSIDRetryOnNetworkFailureTag),
+                                       nil,
+                                       context.correlationId);
         httpRequest.retryCounter--;
         
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowStartToRetryOnNetworkFailureTag)
-                                                      extraInfo:nil
-                                              withCorrelationId:context.correlationId];
+            MSIDExecutionFlowInsertTag(MSIDExecutionFlowNetworkTagToString(MSIDStartToRetryOnNetworkFailureTag),
+                                           nil,
+                                           context.correlationId);
             [httpRequest sendWithBlock:completionBlock];
         });
         
