@@ -34,13 +34,13 @@
 - (void)test_MSIDExecutionFlowNetworkTagToString_allTagsAreUnique
 {
     NSArray *tags = @[
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowPrepareNetworkRequestTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseFailedObjectTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseSucceededObjectTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowReceiveNetworkResponseTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowRetryOnNetworkFailureTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowParseNetworkResponseTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowOtherHttpNetworkStatusCodeTag)
+        MSIDExecutionFlowNetworkTagToString(MSIDPrepareNetworkRequestTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseFailedObjectTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseSucceededObjectTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDReceiveNetworkResponseTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDRetryOnNetworkFailureTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDParseNetworkResponseTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDOtherHttpNetworkStatusCodeTag)
     ];
     
     NSSet *uniqueTags = [NSSet setWithArray:tags];
@@ -50,7 +50,7 @@
 - (void)test_MSIDTokenRequestTagToString_allTagsAreUnique
 {
     NSArray *tags = @[
-        MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag)
+        MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag)
     ];
     
     NSSet *uniqueTags = [NSSet setWithArray:tags];
@@ -62,17 +62,17 @@
     NSMutableArray *allTags = [NSMutableArray array];
     
     [allTags addObjectsFromArray:@[
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowPrepareNetworkRequestTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseFailedObjectTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseSucceededObjectTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowReceiveNetworkResponseTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowRetryOnNetworkFailureTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowParseNetworkResponseTag),
-        MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowOtherHttpNetworkStatusCodeTag)
+        MSIDExecutionFlowNetworkTagToString(MSIDPrepareNetworkRequestTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseFailedObjectTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseSucceededObjectTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDReceiveNetworkResponseTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDRetryOnNetworkFailureTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDParseNetworkResponseTag),
+        MSIDExecutionFlowNetworkTagToString(MSIDOtherHttpNetworkStatusCodeTag)
     ]];
     
     [allTags addObjectsFromArray:@[
-        MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag)
+        MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag)
     ]];
     
     NSSet *uniqueTags = [NSSet setWithArray:allTags];
@@ -81,18 +81,18 @@
 
 - (void)test_MSIDExecutionFlowNetworkTagToString_returnsExpectedStrings
 {
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowPrepareNetworkRequestTag), @"iq24n");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseFailedObjectTag), @"twoty");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowCacheResponseSucceededObjectTag), @"n3416");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowReceiveNetworkResponseTag), @"xfx8w");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowRetryOnNetworkFailureTag), @"rz95n");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowParseNetworkResponseTag), @"fxjo7");
-    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowOtherHttpNetworkStatusCodeTag), @"5kbvm");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDPrepareNetworkRequestTag), @"iq24n");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseFailedObjectTag), @"twoty");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDCacheResponseSucceededObjectTag), @"n3416");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDReceiveNetworkResponseTag), @"xfx8w");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDRetryOnNetworkFailureTag), @"rz95n");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDParseNetworkResponseTag), @"fxjo7");
+    XCTAssertEqualObjects(MSIDExecutionFlowNetworkTagToString(MSIDOtherHttpNetworkStatusCodeTag), @"5kbvm");
 }
 
 - (void)test_MSIDTokenRequestTagToString_returnsExpectedStrings
 {
-    XCTAssertEqualObjects(MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag), @"xilux");
+    XCTAssertEqualObjects(MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag), @"xilux");
 }
 
 - (void)test_MSIDExecutionFlowNetworkTagToString_unknownEnum_returnsFallback
