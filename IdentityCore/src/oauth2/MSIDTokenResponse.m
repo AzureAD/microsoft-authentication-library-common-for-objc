@@ -118,7 +118,7 @@
 
 - (MSIDErrorCode)oauthErrorCode
 {
-    return MSIDErrorCodeForOAuthError(self.error, MSIDErrorServerOauth);
+    return MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(self.error, MSIDErrorServerOauth, self.stsErrorCodes);
 }
 
 + (MSIDProviderType)providerType
