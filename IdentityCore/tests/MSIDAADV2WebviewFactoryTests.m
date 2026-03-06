@@ -78,7 +78,6 @@
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
                                           @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
-                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
@@ -90,6 +89,70 @@
 #endif
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
+- (void)testAuthorizationParametersFromParameters_whenClidataPassedInExtraQPs_shouldIncludeClidataInParameters
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"fakeuser@contoso.com" homeAccountId:@"uid.utid"];
+    parameters.extraAuthorizeURLQueryParameters = @{ MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1" };
+
+    NSString *requestState = @"state";
+
+    MSIDAADV2WebviewFactory *factory = [MSIDAADV2WebviewFactory new];
+
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
+                                        @{
+                                          @"client_id" : DEFAULT_TEST_CLIENT_ID,
+                                          @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
+                                          @"response_type" : @"code",
+                                          @"code_challenge_method" : @"S256",
+                                          @"code_challenge" : pkce.codeChallenge,
+                                          @"return-client-request-id" : @"true",
+                                          @"client-request-id" : parameters.correlationId.UUIDString,
+                                          @"login_hint" : @"fakeuser@contoso.com",
+                                          @"state" : requestState.msidBase64UrlEncode,
+                                          @"scope" : @"scope1",
+                                          @"client_info" : @"1",
+                                          @"login_req" : @"uid",
+                                          @"domain_req" : @"utid",
+                                          @"haschrome" : @"1",
+                                          @"x-app-name" : [MSIDTestRequireValueSentinel new],
+                                          @"x-app-ver" : [MSIDTestRequireValueSentinel new],
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
+                                          @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
+                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
+                                          }];
+
+    [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+#if TARGET_OS_IPHONE
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        expectedQPs[@"switch_browser"] = @"1";
+    }
+#endif
+
+    XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
+- (void)testAuthorizationParametersFromParameters_whenClidataNotPassed_shouldNotIncludeClidataInParameters
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"fakeuser@contoso.com" homeAccountId:@"uid.utid"];
+
+    NSString *requestState = @"state";
+
+    MSIDAADV2WebviewFactory *factory = [MSIDAADV2WebviewFactory new];
+
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    XCTAssertNil(params[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM]);
 }
 
 - (void)testAuthorizationParametersFromParameters_whenNestedAuthParametersComplete_shouldBeIncluded

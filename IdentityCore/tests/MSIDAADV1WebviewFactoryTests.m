@@ -77,7 +77,6 @@
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
                                           @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
-                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
@@ -89,6 +88,68 @@
 #endif
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
+- (void)testAuthorizationParametersFromParameters_whenClidataPassedInExtraQPs_shouldIncludeClidataInParameters
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1" };
+    parameters.promptType = MSIDPromptTypeLogin;
+    parameters.loginHint = @"fakeuser@contoso.com";
+    parameters.target = DEFAULT_TEST_RESOURCE;
+
+    NSString *requestState = @"state";
+
+    MSIDAADV1WebviewFactory *factory = [MSIDAADV1WebviewFactory new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:nil requestState:requestState];
+
+    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
+                                        @{
+                                          @"client_id" : DEFAULT_TEST_CLIENT_ID,
+                                          @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
+                                          @"resource" : DEFAULT_TEST_RESOURCE,
+                                          @"response_type" : @"code",
+                                          @"eqp1" : @"val1",
+                                          @"eqp2" : @"val2",
+                                          @"return-client-request-id" : @"true",
+                                          @"client-request-id" : parameters.correlationId.UUIDString,
+                                          @"login_hint" : @"fakeuser@contoso.com",
+                                          @"state" : requestState.msidBase64UrlEncode,
+                                          @"prompt" : @"login",
+                                          @"haschrome" : @"1",
+                                          @"x-app-name" : [MSIDTestRequireValueSentinel new],
+                                          @"x-app-ver" : [MSIDTestRequireValueSentinel new],
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
+                                          @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
+                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
+                                          }];
+
+    [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+#if TARGET_OS_IPHONE
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        expectedQPs[@"switch_browser"] = @"1";
+    }
+#endif
+
+    XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
+- (void)testAuthorizationParametersFromParameters_whenClidataNotPassed_shouldNotIncludeClidataInParameters
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.promptType = MSIDPromptTypeLogin;
+    parameters.loginHint = @"fakeuser@contoso.com";
+    parameters.target = DEFAULT_TEST_RESOURCE;
+
+    NSString *requestState = @"state";
+
+    MSIDAADV1WebviewFactory *factory = [MSIDAADV1WebviewFactory new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:nil requestState:requestState];
+
+    XCTAssertNil(params[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM]);
 }
 
 - (void)testAuthorizationParametersFromConfiguration_withValidParamsWithScopes_shouldContainAADV1ConfigurationWithScopes
@@ -117,7 +178,6 @@
                                           @"x-app-name" : [MSIDTestRequireValueSentinel new],
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
-                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
