@@ -245,7 +245,7 @@
 
     XCTAssertNotNil(result);
     XCTAssertNil(error);
-    XCTAssertEqualObjects([result.brokerMetaData objectForKey:MSID_CLIENT_DATA_RESPONSE], @"test_client_data_value");
+    XCTAssertEqualObjects([result.brokerMetaData objectForKey:MSID_TOKEN_RESULT_CLIENT_DATA], @"test_client_data_value");
 }
 
 - (void)testValidateTokenResponse_whenClientDataIsNil_shouldNotInsertClientDataIntoBrokerMetaData
@@ -271,7 +271,36 @@
 
     XCTAssertNotNil(result);
     XCTAssertNil(error);
-    XCTAssertNil([result.brokerMetaData objectForKey:MSID_CLIENT_DATA_RESPONSE]);
+    XCTAssertNil([result.brokerMetaData objectForKey:MSID_TOKEN_RESULT_CLIENT_DATA]);
+}
+
+- (void)testValidateTokenResponse_whenTokenResponseHasErrorAndClientDataIsPresent_shouldPropagateClientDataIntoErrorUserInfo
+{
+    __auto_type correlationID = [NSUUID new];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"some_uri"
+                                                                           clientId:@"myclient"
+                                                                             target:DEFAULT_TEST_SCOPE];
+
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    // Simulate a /token failure response (e.g. invalid_grant) that also carries clientData.
+    MSIDAADV2TokenResponse *response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:@{@"error" : @"invalid_grant",
+                                                                                                 @"error_description" : @"AADSTS50076"}
+                                                                                         error:nil];
+    response.clientData = @"test_client_data_value";
+
+    NSError *error;
+    MSIDTokenResult *result = [self.validator validateTokenResponse:response
+                                                       oauthFactory:factory
+                                                      configuration:configuration
+                                                     requestAccount:nil
+                                                      correlationID:correlationID
+                                                              error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSID_CLIENT_DATA_RESPONSE], @"test_client_data_value");
 }
 
 #pragma mark - Helpers

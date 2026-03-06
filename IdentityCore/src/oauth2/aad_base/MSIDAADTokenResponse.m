@@ -49,7 +49,8 @@
                              @"ext_expires_on",
                              MSID_OAUTH2_SUB_ERROR,
                              MSID_CCS_REQUEST_ID_RESPONSE,
-                             MSID_CCS_REQUEST_SEQUENCE_RESPONSE];
+                             MSID_CCS_REQUEST_SEQUENCE_RESPONSE,
+                             MSID_CLIENT_DATA_RESPONSE];
     
     NSDictionary *additionalInfo = [additionalServerInfo msidDictionaryByRemovingFields:knownFields];
     

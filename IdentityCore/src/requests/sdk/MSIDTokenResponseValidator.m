@@ -60,6 +60,17 @@
     {
         if (error)
         {
+            // Propagate clientData from /token response header into the error userInfo
+            // so callers can surface STS diagnostic information even on failure responses.
+            if (tokenResponse.clientData && verificationError)
+            {
+                NSMutableDictionary *userInfo = verificationError.userInfo ? [verificationError.userInfo mutableCopy] : [NSMutableDictionary new];
+                userInfo[MSID_CLIENT_DATA_RESPONSE] = tokenResponse.clientData;
+                verificationError = [NSError errorWithDomain:verificationError.domain
+                                                        code:verificationError.code
+                                                    userInfo:userInfo];
+            }
+
             *error = verificationError;
         }
 
@@ -74,11 +85,6 @@
                                                         requestAccount:accountIdentifier
                                                          correlationID:correlationID
                                                                  error:error];
-
-    if (tokenResult && tokenResponse.clientData)
-    {
-        [tokenResult insertBrokerMetaData:tokenResponse.clientData forKey:MSID_CLIENT_DATA_RESPONSE];
-    }
 
     return tokenResult;
 }
@@ -126,7 +132,12 @@
                                                                  authority:resultAuthority
                                                              correlationId:correlationID
                                                              tokenResponse:tokenResponse];
-    
+
+    if (result && tokenResponse.clientData)
+    {
+        [result insertBrokerMetaData:tokenResponse.clientData forKey:MSID_TOKEN_RESULT_CLIENT_DATA];
+    }
+
     return result;
 }
 

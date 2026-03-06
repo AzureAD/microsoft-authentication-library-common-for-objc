@@ -218,10 +218,10 @@
     
     [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
 
-//    // When in debug mode add test slice from STS to allow MSAL to obtain error info telemetry.
-//    #if DEBUG
-//         result[@"dc"] = @"ESTS-PUB-SCUS-FD000-TEST1-100";
-//    #endif
+    // When in debug mode add test slice from STS to allow MSAL to obtain error info telemetry.
+    #if DEBUG
+         result[@"dc"] = @"ESTS-PUB-SCUS-FD000-TEST1-100";
+    #endif
     
     // Include client telemetry data request flag so STS can return client-data on /authorize errors.
     result[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM] = @"1";
