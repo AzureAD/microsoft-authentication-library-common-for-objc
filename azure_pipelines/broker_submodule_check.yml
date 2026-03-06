@@ -58,18 +58,4 @@ stages:
       target: "mac_library"
     steps:
     - template: broker_submodule_steps.yml
-
-- stage: Stage_VISION
-  displayName: "Validate Vision"
-  dependsOn: []
-  jobs:
-  - job: Validate_Pull_Request_VISION
-    displayName: Validate Pull Request (Vision)
-    timeoutInMinutes: 60
-    pool:
-      vmImage: 'macOS-15'
-    variables:
-      target: "vision_library"
-    steps:
-    - template: broker_submodule_steps.yml
         
