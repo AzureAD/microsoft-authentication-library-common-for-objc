@@ -22,61 +22,45 @@ resources:
 jobs:
 - job: 'Validate_Pull_Request'
   strategy:
-    maxParallel: 3
+    maxParallel: 2
     matrix:
       IOS_FRAMEWORK:
         target: "iosFramework iosTestApp sampleIosApp sampleIosAppSwift"
       MAC_FRAMEWORK:
         target: "macFramework"
-      VISION_FRAMEWORK:
-        target: "visionOSFramework"
   displayName: Validate Pull Request
   pool:
     vmImage: 'macOS-14'
     timeOutInMinutes: 30
 
+  variables:
+  - template: templates/build-vars.yml
+
   steps:
   - script: |
-          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"
-    displayName: 'Switch to use Xcode 16.2'
+      /bin/bash -c "sudo xcode-select -s /Applications/Xcode_$(XCODE_VERSION).app"
+    displayName: 'Switch to use Xcode $(XCODE_VERSION)'
+
   - task: CmdLine@2
     displayName: Uninstalling xcpretty v0.4.0
     inputs:
       script: |
         gem uninstall xcpretty -I --version 0.4.0
       failOnStderr: false
+
   - task: CmdLine@2
     displayName: Installing xcpretty v0.3.0
     inputs:
       script: |
         gem install xcpretty -N -v 0.3.0
       failOnStderr: true
+
   - task: CmdLine@2
     displayName: Installing dependencies
     inputs:
       script: |
         gem install slather bundler -N
       failOnStderr: true
-
-# The following is needed to install the visionOS SDK on macos-14 vm image which
-# doesn't have visionOS installed by default.
-# TODO: Remove when macos-14-arm64 is supported on ADO.
-  - task: Bash@3
-    displayName: download visionOS SDK
-    inputs:
-      targetType: 'inline'
-      script: |
-        echo $(target)
-        if [ $(target) == 'visionOSFramework' ]; then
-            echo "Downloading simulator for visionOS"
-            sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-            defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-            defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-            xcodebuild -downloadPlatform visionOS
-        else
-            echo "Not visionOS job, no download needed"
-        fi
-      failOnStderr: false
 
   - checkout: microsoft-authentication-library-for-objc
     displayName: 'Checkout MSAL'
@@ -102,11 +86,12 @@ jobs:
         final_status=$(<./build/status.txt)
         echo "FINAL STATUS  = ${final_status}"
         echo "POSSIBLE ERRORS: ${output}"
-        
+
         if [ $final_status != "0" ]; then
           echo "Build & Testing Failed! \n ${output}" >&2
         fi
       failOnStderr: true
+
   - task: Bash@3
     condition: always()
     displayName: Cleanup
@@ -114,7 +99,7 @@ jobs:
       targetType: 'inline'
       script: |
         rm -rf $(Agent.BuildDirectory)/s/build/status.txt
-        
+
   - task: PublishTestResults@2
     condition: always()
     displayName: Publish Test Report

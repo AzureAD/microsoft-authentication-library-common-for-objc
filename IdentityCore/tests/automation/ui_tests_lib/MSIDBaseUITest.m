@@ -35,8 +35,15 @@
 #import "MSIDTestAutomationAccount.h"
 #import "MSIDAutomationOperationResponseHandler.h"
 #import "MSIDTestAutomationApplication.h"
+#import "MSIDKeyVaultAccountProvider.h"
+#import "MSIDKeyVaultAppConfigProvider.h"
+#import "MSIDKeyVaultCredentialProvider.h"
+#import "MSIDTestAutomationAccountConfigurationRequest.h"
+#import "MSIDTestAutomationAppConfigurationRequest.h"
 
 static MSIDTestConfigurationProvider *s_confProvider;
+static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
+static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
 
 @implementation MSIDBaseUITest
 
@@ -48,6 +55,26 @@ static MSIDTestConfigurationProvider *s_confProvider;
 + (void)setConfProvider:(MSIDTestConfigurationProvider *)accountsProvider
 {
     s_confProvider = accountsProvider;
+}
+
++ (MSIDKeyVaultAccountProvider *)keyVaultAccountProvider
+{
+    return s_keyVaultAccountProvider;
+}
+
++ (void)setKeyVaultAccountProvider:(MSIDKeyVaultAccountProvider *)provider
+{
+    s_keyVaultAccountProvider = provider;
+}
+
++ (MSIDKeyVaultAppConfigProvider *)keyVaultAppConfigProvider
+{
+    return s_keyVaultAppConfigProvider;
+}
+
++ (void)setKeyVaultAppConfigProvider:(MSIDKeyVaultAppConfigProvider *)provider
+{
+    s_keyVaultAppConfigProvider = provider;
 }
 
 #pragma mark - Pipelines
@@ -405,6 +432,29 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)loadTestApp:(MSIDTestAutomationAppConfigurationRequest *)appRequest
 {
+    // Try Key Vault JSON first if available
+    if (s_keyVaultAppConfigProvider && s_keyVaultAppConfigProvider.hasCachedAppConfigs)
+    {
+        NSString *appConfigKey = [MSIDTestAutomationAppConfigurationRequest keyForAppConfigurationRequest:appRequest];
+
+        NSError *error = nil;
+        MSIDTestAutomationApplication *app = [s_keyVaultAppConfigProvider appConfigForKey:appConfigKey error:&error];
+
+        if (app)
+        {
+            NSLog(@"[MSIDBaseUITest] Loaded app config from Key Vault JSON with key: %@, appId: %@", appConfigKey, app.appId);
+            app.redirectUriPrefix = self.redirectUriPrefix;
+            self.testApplication = app;
+            self.testApplications = @[app];
+            return;
+        }
+        else
+        {
+            NSLog(@"[MSIDBaseUITest] App config key '%@' not found in Key Vault JSON, falling back to API. Error: %@", appConfigKey, error.localizedDescription);
+        }
+    }
+
+    // Fall back to Lab API / in-memory cache
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
     
     MSIDAutomationOperationResponseHandler *responseHandler = [[MSIDAutomationOperationResponseHandler alloc] initWithClass:MSIDTestAutomationApplication.class];
@@ -458,7 +508,122 @@ static MSIDTestConfigurationProvider *s_confProvider;
     self.testAccounts = allAccounts;
 }
 
+#pragma mark - Key Vault compound key
+
+/// Build a compound lookup key from a configuration request.
+/// Format: <accountType>[_<protectionPolicy>][_<mfa>][_<federationProvider>]
+///                      [_<b2cProvider>][_<environment>][_<userRole>]
+/// Only non-default values are appended.
++ (NSString *)keyForAccountConfigurationRequest:(MSIDTestAutomationAccountConfigurationRequest *)request
+{
+    NSMutableString *key = [NSMutableString stringWithString:request.accountType ?: @"unknown"];
+    
+    // Protection policy (default: "none")
+    if (request.protectionPolicyType
+        && ![request.protectionPolicyType isEqualToString:MSIDTestAccountProtectionPolicyTypeNone])
+    {
+        [key appendFormat:@"_%@", request.protectionPolicyType];
+    }
+    
+    // MFA (default: "none")
+    if (request.mfaType
+        && ![request.mfaType isEqualToString:MSIDTestAccountMFATypeNone])
+    {
+        [key appendFormat:@"_%@", request.mfaType];
+    }
+    
+    // Federation provider (default: "none")
+    if (request.federationProviderType
+        && ![request.federationProviderType isEqualToString:MSIDTestAccountFederationProviderTypeNone])
+    {
+        [key appendFormat:@"_%@", request.federationProviderType];
+    }
+    
+    // B2C provider (default: "none")
+    if (request.b2cProviderType
+        && ![request.b2cProviderType isEqualToString:MSIDTestAccountB2CProviderTypeNone])
+    {
+        [key appendFormat:@"_%@", request.b2cProviderType];
+    }
+    
+    // Environment (default: "azurecloud")
+    if (request.environmentType
+        && ![request.environmentType isEqualToString:MSIDTestAccountEnvironmentTypeWWCloud])
+    {
+        [key appendFormat:@"_%@", request.environmentType];
+    }
+    
+    // User role (default: nil/empty)
+    if (request.userRole.length > 0)
+    {
+        [key appendFormat:@"_%@", request.userRole.lowercaseString];
+    }
+    
+    return [key copy];
+}
+
+#pragma mark - Account loading
+
 - (NSArray *)loadTestAccountRequest:(MSIDAutomationBaseApiRequest *)accountRequest
+{
+    // Try Key Vault JSON first if available
+    if (s_keyVaultAccountProvider && s_keyVaultAccountProvider.hasCachedAccounts)
+    {
+        // Check if this is an account configuration request we can use
+        if ([accountRequest isKindOfClass:[MSIDTestAutomationAccountConfigurationRequest class]])
+        {
+            MSIDTestAutomationAccountConfigurationRequest *configRequest = (MSIDTestAutomationAccountConfigurationRequest *)accountRequest;
+            
+            // Build compound key from all request properties
+            NSString *accountType = [self.class keyForAccountConfigurationRequest:configRequest];
+            
+            NSError *error = nil;
+            MSIDTestAutomationAccount *account = [s_keyVaultAccountProvider accountForType:accountType error:&error];
+            
+            if (account)
+            {
+                NSLog(@"[MSIDBaseUITest] Loaded account from Key Vault JSON with key: %@", accountType);
+                
+                // Load password for the account
+                XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
+                
+                [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
+                                                                         completionHandler:^(NSString *password, NSError *pwdError)
+                 {
+                    if (password)
+                    {
+                        NSLog(@"[MSIDBaseUITest] Password loaded successfully for Key Vault account");
+                    }
+                    else
+                    {
+                        NSLog(@"[MSIDBaseUITest] Failed to load password for Key Vault account: %@", pwdError.localizedDescription);
+                    }
+                    [passwordExpectation fulfill];
+                }];
+                
+                [self waitForExpectations:@[passwordExpectation] timeout:60];
+                
+                if (account.password)
+                {
+                    return @[account];
+                }
+                else
+                {
+                    NSLog(@"[MSIDBaseUITest] Key Vault account has no password, falling back to Lab API");
+                }
+            }
+            else
+            {
+                NSLog(@"[MSIDBaseUITest] Account key '%@' not found in Key Vault JSON, falling back to Lab API. Error: %@", accountType, error.localizedDescription);
+            }
+        }
+    }
+    
+    // Fall back to Lab API
+    return [self loadTestAccountRequestFromLabAPI:accountRequest];
+}
+
+- (NSArray *)loadTestAccountRequestFromLabAPI:(MSIDAutomationBaseApiRequest *)accountRequest
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get account"];
     
@@ -475,7 +640,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
         
         results = (NSArray *)result;
         
-        if (!results.count) 
+        if (!results.count)
         {
             // Try again because Lab API is sometimes flaky
             [self.class.confProvider.operationAPIRequestHandler executeAPIRequest:accountRequest
