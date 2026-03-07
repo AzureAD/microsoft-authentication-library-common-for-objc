@@ -76,7 +76,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
         platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context
-{   
+{
     if (!startURL)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attempted to start with nil URL");
@@ -219,6 +219,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     
     if (error)
     {
+        // TODO: check if we can pass the STS info back from here too
         [MSIDNotifications notifyWebAuthDidFailWithError:error];
     }
     else

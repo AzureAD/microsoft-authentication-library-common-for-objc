@@ -113,7 +113,6 @@ brokerRequestReceivedTimeStamp:(nullable NSDate *)brokerRequestReceivedTimeStamp
 
     [tokenResult insertBrokerMetaData:@(responseLatency) forKey:MSID_TOKEN_RESULT_BROKER_APP_RESPONSE_LATENCY];
     [tokenResult insertBrokerMetaData:@(brokerHandlingTime) forKey:MSID_TOKEN_RESULT_BROKER_APP_BROKER_HANDLING_TIME_INTERVAL];
-
     void (^validateAccountAndCompleteBlock)(void) = ^
     {
         if (validateAccount)

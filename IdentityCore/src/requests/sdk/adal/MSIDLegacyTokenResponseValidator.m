@@ -76,7 +76,12 @@
                                                                  authority:configuration.authority
                                                              correlationId:correlationID
                                                              tokenResponse:tokenResponse];
-    
+
+    if (result && tokenResponse.clientData)
+    {
+        [result insertBrokerMetaData:tokenResponse.clientData forKey:MSID_TOKEN_RESULT_CLIENT_DATA];
+    }
+
     return result;
 }
 

@@ -59,6 +59,7 @@
                                 @"home_account_id" : MSIDHomeAccountIdkey,
                                 @"declined_scopes" : MSIDDeclinedScopesKey,
                                 @"granted_scopes" : MSIDGrantedScopesKey,
+                                @"client-data" : MSID_CLIENT_DATA_RESPONSE,
                                 };
     }
     
