@@ -202,4 +202,84 @@
     return account;
 }
 
+- (NSArray<MSIDTestAutomationAccount *> *)accountsForType:(NSString *)accountType error:(NSError *__autoreleasing *)error
+{
+    __block NSDictionary *accounts;
+    dispatch_sync(self.cacheQueue, ^{
+        accounts = self.cachedAccounts;
+    });
+    
+    if (!accounts) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"MSIDKeyVaultAccountProvider"
+                                         code:-1
+                                     userInfo:@{NSLocalizedDescriptionKey: @"Accounts not loaded. Call fetchAccountsWithCompletionHandler first."}];
+        }
+        return nil;
+    }
+    
+    id accountData = accounts[accountType];
+    if (!accountData) {
+        if (error) {
+            NSMutableArray *accountTypes = [NSMutableArray array];
+            for (NSString *key in [accounts allKeys]) {
+                if (![key hasPrefix:@"__comment"]) {
+                    [accountTypes addObject:key];
+                }
+            }
+            NSString *availableTypes = [accountTypes componentsJoinedByString:@", "];
+            NSString *message = [NSString stringWithFormat:@"Account type '%@' not found in Key Vault JSON. Available types: %@",
+                                 accountType, availableTypes];
+            *error = [NSError errorWithDomain:@"MSIDKeyVaultAccountProvider"
+                                         code:-1
+                                     userInfo:@{NSLocalizedDescriptionKey: message}];
+        }
+        return nil;
+    }
+    
+    NSMutableArray<MSIDTestAutomationAccount *> *result = [NSMutableArray array];
+    
+    // Support both a single dict and an array of dicts
+    NSArray *accountDicts;
+    if ([accountData isKindOfClass:[NSArray class]])
+    {
+        accountDicts = (NSArray *)accountData;
+    }
+    else if ([accountData isKindOfClass:[NSDictionary class]])
+    {
+        accountDicts = @[accountData];
+    }
+    else
+    {
+        if (error) {
+            *error = [NSError errorWithDomain:@"MSIDKeyVaultAccountProvider"
+                                         code:-1
+                                     userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Unexpected type for account key '%@'", accountType]}];
+        }
+        return nil;
+    }
+    
+    for (NSDictionary *dict in accountDicts)
+    {
+        NSError *createError = nil;
+        MSIDTestAutomationAccount *account = [[MSIDTestAutomationAccount alloc] initWithJSONDictionary:dict error:&createError];
+        if (createError) {
+            NSLog(@"[MSIDKeyVaultAccountProvider] Failed to create account from JSON: %@", createError.localizedDescription);
+            continue;
+        }
+        [result addObject:account];
+    }
+    
+    if (result.count == 0) {
+        if (error) {
+            *error = [NSError errorWithDomain:@"MSIDKeyVaultAccountProvider"
+                                         code:-1
+                                     userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"No valid accounts for key '%@'", accountType]}];
+        }
+        return nil;
+    }
+    
+    return [result copy];
+}
+
 @end

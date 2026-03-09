@@ -58,6 +58,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (MSIDTestAutomationAccount * _Nullable)accountForType:(NSString *)accountType
                                                  error:(NSError * _Nullable * _Nullable)error;
 
+/// Get all accounts for the specified type. Supports both single-object and array JSON values.
+/// @param accountType The account type key in the JSON
+/// @param error Error pointer for error details
+/// @return Array of MSIDTestAutomationAccount or nil if not found
+- (NSArray<MSIDTestAutomationAccount *> * _Nullable)accountsForType:(NSString *)accountType
+                                                              error:(NSError * _Nullable * _Nullable)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

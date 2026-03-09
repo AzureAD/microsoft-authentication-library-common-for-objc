@@ -585,38 +585,51 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
             NSString *accountType = [self.class keyForAccountConfigurationRequest:configRequest];
             
             NSError *error = nil;
-            MSIDTestAutomationAccount *account = [s_keyVaultAccountProvider accountForType:accountType error:&error];
-            
-            if (account)
+            NSArray<MSIDTestAutomationAccount *> *kvAccounts = [s_keyVaultAccountProvider accountsForType:accountType error:&error];
+            if (kvAccounts.count > 0)
             {
-                NSLog(@"[MSIDBaseUITest] Loaded account from Key Vault JSON with key: %@", accountType);
+                NSLog(@"[MSIDBaseUITest] Loaded %lu account(s) from Key Vault JSON with key: %@", (unsigned long)kvAccounts.count, accountType);
                 
-                // Load password for the account
+                // Load passwords for all accounts
                 XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
+                passwordExpectation.expectedFulfillmentCount = kvAccounts.count;
                 
-                [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
-                                                                         completionHandler:^(NSString *password, NSError *pwdError)
-                 {
-                    if (password)
-                    {
-                        NSLog(@"[MSIDBaseUITest] Password loaded successfully for Key Vault account");
-                    }
-                    else
-                    {
-                        NSLog(@"[MSIDBaseUITest] Failed to load password for Key Vault account: %@", pwdError.localizedDescription);
-                    }
-                    [passwordExpectation fulfill];
-                }];
+                for (MSIDTestAutomationAccount *account in kvAccounts)
+                {
+                    [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
+                                                                             completionHandler:^(NSString *password, NSError *pwdError)
+                     {
+                        if (password)
+                        {
+                            NSLog(@"[MSIDBaseUITest] Password loaded successfully for Key Vault account: %@", account.upn);
+                        }
+                        else
+                        {
+                            NSLog(@"[MSIDBaseUITest] Failed to load password for Key Vault account %@: %@", account.upn, pwdError.localizedDescription);
+                        }
+                        [passwordExpectation fulfill];
+                    }];
+                }
                 
                 [self waitForExpectations:@[passwordExpectation] timeout:60];
                 
-                if (account.password)
+                // Filter to accounts that have passwords
+                NSMutableArray *accountsWithPasswords = [NSMutableArray array];
+                for (MSIDTestAutomationAccount *account in kvAccounts)
                 {
-                    return @[account];
+                    if (account.password)
+                    {
+                        [accountsWithPasswords addObject:account];
+                    }
+                }
+                
+                if (accountsWithPasswords.count > 0)
+                {
+                    return [accountsWithPasswords copy];
                 }
                 else
                 {
-                    NSLog(@"[MSIDBaseUITest] Key Vault account has no password, falling back to Lab API");
+                    NSLog(@"[MSIDBaseUITest] No Key Vault accounts have passwords, falling back to Lab API");
                 }
             }
             else
