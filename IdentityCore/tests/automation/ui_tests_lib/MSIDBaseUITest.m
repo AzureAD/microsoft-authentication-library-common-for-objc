@@ -559,6 +559,13 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
         [key appendFormat:@"_%@", request.userRole.lowercaseString];
     }
     
+    // Guest home azure environment from additional query params (disambiguates cross-cloud guest accounts)
+    NSString *guestHomeEnv = request.additionalQueryParameters[@"guesthomeazureenvironment"];
+    if (guestHomeEnv.length > 0)
+    {
+        [key appendFormat:@"_%@", guestHomeEnv];
+    }
+    
     return [key copy];
 }
 
