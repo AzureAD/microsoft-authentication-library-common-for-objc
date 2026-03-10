@@ -500,6 +500,26 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     }
 }
 
+#pragma mark - WKUIDelegate Protocol
+
+- (WKWebView *)webView:(WKWebView *)webView
+createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
+   forNavigationAction:(WKNavigationAction *)navigationAction
+        windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+    // Handle window.open() and target="_blank" links by opening them in Safari
+    NSURL *requestURL = navigationAction.request.URL;
+
+    if (requestURL)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening new window URL in system browser with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
+        [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
+    }
+
+    // Return nil to prevent WKWebView from creating a new web view
+    return nil;
+}
+
 #if AD_BROKER
 - (void) webView:(WKWebView *)webView
 requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin
