@@ -219,7 +219,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     
     if (error)
     {
-        // TODO: check if we can pass the STS info back from here too
+        // TODO: https://identitydivision.visualstudio.com/Engineering/_workitems/edit/3539094
         [MSIDNotifications notifyWebAuthDidFailWithError:error];
     }
     else

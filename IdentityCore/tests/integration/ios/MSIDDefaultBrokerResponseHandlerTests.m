@@ -1632,7 +1632,7 @@
     @{
       @"http_response_code" : @200,
       @"username" : @"user@contoso.com",
-      @"client-data" : @"test_client_data_value",
+      MSID_CLIENT_DATA_RESPONSE : @"test_client_data_value",
       };
     NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
 

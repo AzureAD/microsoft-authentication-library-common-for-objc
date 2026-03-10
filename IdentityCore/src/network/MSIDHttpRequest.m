@@ -159,7 +159,7 @@ static NSDictionary *s_experimentBag = nil;
               NSString *clientData = httpResponse.allHeaderFields[MSID_CLIENT_DATA_HEADER_KEY];
               if (clientData)
               {
-                  MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Error in MSIDHTTPRequest SendWithBlock and client data is available, Error should be stored in user info and passed up to MSAL via callbacks.");
+                  MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Enriching error userInfo with client data from response header.");
                   NSMutableDictionary *userInfo = error.userInfo ? [error.userInfo mutableCopy] : [NSMutableDictionary new];
                   userInfo[MSID_CLIENT_DATA_RESPONSE] = clientData;
                   error = [NSError errorWithDomain:error.domain code:error.code userInfo:userInfo];

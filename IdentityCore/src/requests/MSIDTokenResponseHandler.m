@@ -28,7 +28,6 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
-#import "MSIDOAuth2Constants.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"

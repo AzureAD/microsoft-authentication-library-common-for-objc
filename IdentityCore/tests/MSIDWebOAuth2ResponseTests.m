@@ -136,7 +136,7 @@
                                  MSID_OAUTH2_ERROR : errorString,
                                  MSID_OAUTH2_ERROR_DESCRIPTION : errorDescription,
                                  MSID_OAUTH2_SUB_ERROR : subError,
-                                 @"clidata" : clientData,
+                                 MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : clientData,
                                  }.urlQueryItemsArray;
 
     MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:urlComponents.URL
