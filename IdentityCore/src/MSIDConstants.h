@@ -260,7 +260,9 @@ extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
 
-/// Flight to enable opening new-window requests (window.open / target=_blank) in the system browser
+/// Flight to enable opening JavaScript-initiated new-window requests (e.g. window.open()) in the system browser
+/// from the WKUIDelegate createWebViewWithConfiguration: path. Does not affect target=_blank anchor clicks,
+/// which are handled separately in decidePolicyForNavigationAction:.
 /// Owner: josephpab
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 
