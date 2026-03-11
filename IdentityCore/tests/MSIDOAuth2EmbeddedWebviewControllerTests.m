@@ -124,7 +124,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:nil];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertEqualObjects(openedURL.absoluteString, @"https://support.microsoft.com/help");
@@ -151,7 +151,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:nil];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Link-activated navigations should not open in browser from createWebView — decidePolicyForNavigationAction handles them");
@@ -178,7 +178,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:nil];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Insecure http URLs should not be opened in the system browser");
@@ -205,7 +205,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:nil];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertEqualObjects(openedURL.absoluteString, @"msauth://com.contoso.app/callback");
@@ -232,7 +232,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:nil];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Nil URL should not trigger system browser open");
