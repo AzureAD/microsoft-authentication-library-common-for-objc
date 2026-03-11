@@ -30,6 +30,9 @@
 #import "MSIDWKNavigationActionMock.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDTestSwizzle.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -41,9 +44,14 @@
 
 - (void)setUp {
     [super setUp];
+
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER: @YES};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 
 - (void)tearDown {
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
     [MSIDTestSwizzle reset];
     [super tearDown];
 }
@@ -263,6 +271,38 @@
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Schemeless/relative URLs should not be opened in the system browser");
+}
+
+- (void)testCreateWebView_whenFlightDisabled_shouldNotOpenInBrowserAndReturnNil
+{
+    // Disable the flight
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER: @NO};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://support.microsoft.com/help"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                             navigationType:WKNavigationTypeOther
+                                                                                targetFrame:nil];
+
+    __block NSURL *openedURL = nil;
+    [MSIDTestSwizzle classMethod:@selector(sharedApplicationOpenURL:)
+                           class:[MSIDAppExtensionUtil class]
+                           block:(id)^(id obj, NSURL *url)
+    {
+        openedURL = url;
+    }];
+
+    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
+         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
+                    forNavigationAction:action
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
+
+    XCTAssertNil(result);
+    XCTAssertNil(openedURL, @"When flight is disabled, URLs should not be opened in the system browser");
 }
 
 @end
