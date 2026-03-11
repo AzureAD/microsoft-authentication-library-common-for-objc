@@ -27,6 +27,9 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDWKNavigationActionMock.h"
+#import "MSIDAppExtensionUtil.h"
+#import "MSIDTestSwizzle.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -38,12 +41,22 @@
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [MSIDTestSwizzle reset];
     [super tearDown];
+}
+
+- (MSIDOAuth2EmbeddedWebviewController *)createTestWebviewController
+{
+    return [[MSIDOAuth2EmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
 }
 
 
@@ -86,6 +99,143 @@
                                                            context:nil];
     XCTAssertNotNil(webVC);
     
+}
+
+#pragma mark - createWebViewWithConfiguration tests
+
+- (void)testCreateWebView_whenWindowOpenWithHttpsURL_shouldOpenInSystemBrowserAndReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://support.microsoft.com/help"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                             navigationType:WKNavigationTypeOther
+                                                                                targetFrame:nil];
+
+    __block NSURL *openedURL = nil;
+    [MSIDTestSwizzle classMethod:@selector(sharedApplicationOpenURL:)
+                           class:[MSIDAppExtensionUtil class]
+                           block:(id)^(id obj, NSURL *url)
+    {
+        openedURL = url;
+    }];
+
+    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
+         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
+                    forNavigationAction:action
+                         windowFeatures:nil];
+
+    XCTAssertNil(result);
+    XCTAssertEqualObjects(openedURL.absoluteString, @"https://support.microsoft.com/help");
+}
+
+- (void)testCreateWebView_whenLinkActivatedNavigation_shouldNotOpenInBrowserAndReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://support.microsoft.com/help"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                             navigationType:WKNavigationTypeLinkActivated
+                                                                                targetFrame:nil];
+
+    __block NSURL *openedURL = nil;
+    [MSIDTestSwizzle classMethod:@selector(sharedApplicationOpenURL:)
+                           class:[MSIDAppExtensionUtil class]
+                           block:(id)^(id obj, NSURL *url)
+    {
+        openedURL = url;
+    }];
+
+    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
+         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
+                    forNavigationAction:action
+                         windowFeatures:nil];
+
+    XCTAssertNil(result);
+    XCTAssertNil(openedURL, @"Link-activated navigations should not open in browser from createWebView — decidePolicyForNavigationAction handles them");
+}
+
+- (void)testCreateWebView_whenWindowOpenWithHttpURL_shouldNotOpenInBrowserAndReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://insecure.example.com"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                             navigationType:WKNavigationTypeOther
+                                                                                targetFrame:nil];
+
+    __block NSURL *openedURL = nil;
+    [MSIDTestSwizzle classMethod:@selector(sharedApplicationOpenURL:)
+                           class:[MSIDAppExtensionUtil class]
+                           block:(id)^(id obj, NSURL *url)
+    {
+        openedURL = url;
+    }];
+
+    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
+         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
+                    forNavigationAction:action
+                         windowFeatures:nil];
+
+    XCTAssertNil(result);
+    XCTAssertNil(openedURL, @"Insecure http URLs should not be opened in the system browser");
+}
+
+- (void)testCreateWebView_whenWindowOpenWithCustomScheme_shouldOpenInSystemBrowserAndReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"msauth://com.contoso.app/callback"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                             navigationType:WKNavigationTypeOther
+                                                                                targetFrame:nil];
+
+    __block NSURL *openedURL = nil;
+    [MSIDTestSwizzle classMethod:@selector(sharedApplicationOpenURL:)
+                           class:[MSIDAppExtensionUtil class]
+                           block:(id)^(id obj, NSURL *url)
+    {
+        openedURL = url;
+    }];
+
+    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
+         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
+                    forNavigationAction:action
+                         windowFeatures:nil];
+
+    XCTAssertNil(result);
+    XCTAssertEqualObjects(openedURL.absoluteString, @"msauth://com.contoso.app/callback");
+}
+
+- (void)testCreateWebView_whenWindowOpenWithNilURL_shouldNotOpenInBrowserAndReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:nil];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+                                                                             navigationType:WKNavigationTypeOther
+                                                                                targetFrame:nil];
+
+    __block NSURL *openedURL = nil;
+    [MSIDTestSwizzle classMethod:@selector(sharedApplicationOpenURL:)
+                           class:[MSIDAppExtensionUtil class]
+                           block:(id)^(id obj, NSURL *url)
+    {
+        openedURL = url;
+    }];
+
+    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
+         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
+                    forNavigationAction:action
+                         windowFeatures:nil];
+
+    XCTAssertNil(result);
+    XCTAssertNil(openedURL, @"Nil URL should not trigger system browser open");
 }
 
 @end
