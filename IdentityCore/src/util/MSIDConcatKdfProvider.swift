@@ -27,6 +27,7 @@ import Foundation
 import CommonCrypto
 import CryptoKit
 
+@objc(MSIDConcatKdfProvider)
 public class MSIDConcatKdfProvider: NSObject {
     
     internal func intToData<T>(value: T) -> Data where T: FixedWidthInteger {
