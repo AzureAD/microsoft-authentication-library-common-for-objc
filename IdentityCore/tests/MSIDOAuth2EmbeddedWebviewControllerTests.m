@@ -216,8 +216,7 @@
     MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
     XCTAssertNotNil(webVC);
 
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:nil];
-    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:nil
                                                                              navigationType:WKNavigationTypeOther
                                                                                 targetFrame:nil];
 
