@@ -507,10 +507,20 @@ createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
    forNavigationAction:(WKNavigationAction *)navigationAction
         windowFeatures:(WKWindowFeatures *)windowFeatures
 {
-    // Handle window.open() and target="_blank" links by opening them in Safari
     NSURL *requestURL = navigationAction.request.URL;
 
-    if (requestURL)
+    // Skip link-activated navigations — decidePolicyForNavigationAction: already handles
+    // target="_blank" anchor clicks by opening them in the system browser.
+    if (navigationAction.navigationType == WKNavigationTypeLinkActivated)
+    {
+        return nil;
+    }
+
+    // For other new-window requests (e.g. window.open()), apply the same scheme gating
+    // used in decidePolicyForNavigationAction: — only open https or non-http(s) schemes.
+    if (requestURL
+        && ([requestURL.scheme.lowercaseString isEqualToString:@"https"]
+            || ![requestURL.scheme.lowercaseString hasPrefix:@"http"]))
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening new window URL in system browser with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
         [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
