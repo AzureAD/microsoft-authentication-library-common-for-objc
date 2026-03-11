@@ -518,9 +518,13 @@ createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
 
     // For other new-window requests (e.g. window.open()), apply the same scheme gating
     // used in decidePolicyForNavigationAction: — only open https or non-http(s) schemes.
+    // Extracting scheme once avoids a double lowercaseString call; nil scheme (malformed or
+    // relative URLs) produces an empty-length string, causing the guard to skip the open.
+    NSString *scheme = requestURL.scheme.lowercaseString;
     if (requestURL
-        && ([requestURL.scheme.lowercaseString isEqualToString:@"https"]
-            || ![requestURL.scheme.lowercaseString hasPrefix:@"http"]))
+        && scheme.length > 0
+        && ([scheme isEqualToString:@"https"]
+            || ![scheme hasPrefix:@"http"]))
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening new window URL in system browser with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
         [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
