@@ -38,7 +38,7 @@
 - (instancetype)initWithRequest:(NSURLRequest *)request
 {
     self = [super init];
-    _requestMock = request;
+    _requestMock = [request copy];
     _navigationTypeMock = WKNavigationTypeOther;
     _targetFrameMock = nil;
 
@@ -50,7 +50,7 @@
                     targetFrame:(WKFrameInfo *)targetFrame
 {
     self = [super init];
-    _requestMock = request;
+    _requestMock = [request copy];
     _navigationTypeMock = navigationType;
     _targetFrameMock = targetFrame;
 
