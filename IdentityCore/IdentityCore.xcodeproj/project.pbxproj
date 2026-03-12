@@ -1898,7 +1898,6 @@
 		B41163B729BAC20000E64619 /* MSIDAADOAuthEmbeddedWebviewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B41163B529BAC20000E64619 /* MSIDAADOAuthEmbeddedWebviewControllerTests.m */; };
 		B41163B929BAC9BF00E64619 /* MSIDWKNavigationActionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = B41163B829BAC9BF00E64619 /* MSIDWKNavigationActionMock.m */; };
 		B41163BA29BAC9BF00E64619 /* MSIDWKNavigationActionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = B41163B829BAC9BF00E64619 /* MSIDWKNavigationActionMock.m */; };
-		B41163BC29BAC9EE00E64619 /* MSIDWKNavigationActionMock.h in Headers */ = {isa = PBXBuildFile; fileRef = B41163BB29BAC9DE00E64619 /* MSIDWKNavigationActionMock.h */; };
 		B42C16012CE7E54800553316 /* MSIDFamilyRefreshToken.h in Headers */ = {isa = PBXBuildFile; fileRef = B42C16002CE7E53800553316 /* MSIDFamilyRefreshToken.h */; };
 		B42C16032CE7E55200553316 /* MSIDFamilyRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = B42C16022CE7E54C00553316 /* MSIDFamilyRefreshToken.m */; };
 		B42C16042CE7E55200553316 /* MSIDFamilyRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = B42C16022CE7E54C00553316 /* MSIDFamilyRefreshToken.m */; };
@@ -6712,7 +6711,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B216826023AB09C300F4897A /* MSIDSSOExtensionGetAccountsRequestMock.h in Headers */,
-				B41163BC29BAC9EE00E64619 /* MSIDWKNavigationActionMock.h in Headers */,
 				D6D9A4561FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h in Headers */,
 				B217861823A57ED800839CE8 /* MSIDAuthorizationControllerMock.h in Headers */,
 				B2E4A07B24DDE5D7007CE642 /* NSUUID+MSIDTestUtil.h in Headers */,
