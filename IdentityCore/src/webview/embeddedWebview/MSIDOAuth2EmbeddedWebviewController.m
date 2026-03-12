@@ -522,7 +522,7 @@ createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
    forNavigationAction:(WKNavigationAction *)navigationAction
         windowFeatures:(WKWindowFeatures *)windowFeatures
 {
-    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER])
+    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER])
     {
         return nil;
     }
