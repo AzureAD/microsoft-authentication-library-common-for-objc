@@ -507,11 +507,6 @@ createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
    forNavigationAction:(WKNavigationAction *)navigationAction
         windowFeatures:(WKWindowFeatures *)windowFeatures
 {
-    if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER])
-    {
-        return nil;
-    }
-
     NSURL *requestURL = navigationAction.request.URL;
 
     // Skip link-activated navigations — decidePolicyForNavigationAction: already handles

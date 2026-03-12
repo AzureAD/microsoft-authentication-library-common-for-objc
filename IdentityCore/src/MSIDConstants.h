@@ -259,9 +259,4 @@ extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
-
-/// Flight to enable opening new-window requests (window.open / target=_blank) in the system browser
-/// Owner: josephpab
-extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER;
-
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
