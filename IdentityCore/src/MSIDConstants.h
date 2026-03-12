@@ -260,10 +260,11 @@ extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
 
-/// Flight to enable opening JavaScript-initiated new-window requests (e.g. window.open()) in the system browser
-/// from the WKUIDelegate createWebViewWithConfiguration: path. Does not affect target=_blank anchor clicks,
-/// which are handled separately in decidePolicyForNavigationAction:.
+/// Kill-switch flight to disable opening JavaScript-initiated new-window requests (e.g. window.open()) in the
+/// system browser from the WKUIDelegate createWebViewWithConfiguration: path. The feature is enabled by default;
+/// setting this flight to YES disables it. Does not affect target=_blank anchor clicks, which are handled
+/// separately in decidePolicyForNavigationAction:.
 /// Owner: josephpab
-extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER;
+extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

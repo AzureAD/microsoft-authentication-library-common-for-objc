@@ -45,9 +45,7 @@
 - (void)setUp {
     [super setUp];
 
-    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER: @YES};
-    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    // No flight configuration needed — the feature is enabled by default
 }
 
 - (void)tearDown {
@@ -275,9 +273,9 @@
 
 - (void)testCreateWebView_whenFlightDisabled_shouldNotOpenInBrowserAndReturnNil
 {
-    // Disable the flight
+    // Enable the kill-switch flight to disable the feature
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER: @NO};
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER: @YES};
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 
     MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
