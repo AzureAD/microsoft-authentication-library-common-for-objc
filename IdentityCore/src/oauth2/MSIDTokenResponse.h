@@ -89,7 +89,7 @@
 // CCS Request Sequence details the order the services were requested if the request is serviced by CCS
 @property (nonatomic, nullable) NSString *ccsRequestSequence;
 
-// Client data from the /token response header (x-ms-clientData)
+// Client data from the /token response header (x-ms-clientdata)
 @property (nonatomic, nullable) NSString *clientData;
 
 @property (nonatomic, readonly, nullable) NSString *accountIdentifier;
