@@ -217,7 +217,7 @@
     if (![NSString msidIsStringNilOrBlank:promptParam]) result[MSID_OAUTH2_PROMPT] = promptParam;
     
     [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
-    
+
     return result;
 }
 
