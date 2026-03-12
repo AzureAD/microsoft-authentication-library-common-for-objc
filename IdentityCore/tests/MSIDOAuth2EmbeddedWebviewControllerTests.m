@@ -217,32 +217,6 @@
     XCTAssertEqualObjects(openedURL.absoluteString, @"msauth://com.contoso.app/callback");
 }
 
-- (void)testCreateWebView_whenWindowOpenWithNilURL_shouldNotOpenInBrowserAndReturnNil
-{
-    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
-    XCTAssertNotNil(webVC);
-
-    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:nil
-                                                                             navigationType:WKNavigationTypeOther
-                                                                                targetFrame:nil];
-
-    __block NSURL *openedURL = nil;
-    [MSIDTestSwizzle classMethod:@selector(sharedApplicationOpenURL:)
-                           class:[MSIDAppExtensionUtil class]
-                           block:(id)^(id obj, NSURL *url)
-    {
-        openedURL = url;
-    }];
-
-    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
-         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
-                    forNavigationAction:action
-                         windowFeatures:[[WKWindowFeatures alloc] init]];
-
-    XCTAssertNil(result);
-    XCTAssertNil(openedURL, @"Nil URL should not trigger system browser open");
-}
-
 - (void)testCreateWebView_whenWindowOpenWithSchemelessURL_shouldNotOpenInBrowserAndReturnNil
 {
     MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
