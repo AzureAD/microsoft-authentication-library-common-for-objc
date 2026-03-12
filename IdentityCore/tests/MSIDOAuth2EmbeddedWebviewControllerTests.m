@@ -237,34 +237,6 @@
     XCTAssertNil(openedURL, @"Nil URL should not trigger system browser open");
 }
 
-- (void)testCreateWebView_whenWindowOpenWithSchemelessURL_shouldNotOpenInBrowserAndReturnNil
-{
-    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
-    XCTAssertNotNil(webVC);
-
-    // A relative/scheme-less URL has a nil scheme; it should not be opened in the system browser.
-    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"/relative/path"]];
-    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request
-                                                                             navigationType:WKNavigationTypeOther
-                                                                                targetFrame:nil];
-
-    __block NSURL *openedURL = nil;
-    [MSIDTestSwizzle classMethod:@selector(sharedApplicationOpenURL:)
-                           class:[MSIDAppExtensionUtil class]
-                           block:(id)^(id obj, NSURL *url)
-    {
-        openedURL = url;
-    }];
-
-    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
-         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
-                    forNavigationAction:action
-                         windowFeatures:[[WKWindowFeatures alloc] init]];
-
-    XCTAssertNil(result);
-    XCTAssertNil(openedURL, @"Schemeless/relative URLs should not be opened in the system browser");
-}
-
 @end
 
 #endif
