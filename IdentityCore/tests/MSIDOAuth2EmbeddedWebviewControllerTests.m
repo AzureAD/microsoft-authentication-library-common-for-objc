@@ -46,7 +46,7 @@
     [super setUp];
 
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER: @YES};
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER: @NO};
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 
@@ -247,11 +247,11 @@
     XCTAssertNil(openedURL, @"Schemeless/relative URLs should not be opened in the system browser");
 }
 
-- (void)testCreateWebView_whenFlightDisabled_shouldNotOpenInBrowserAndReturnNil
+- (void)testCreateWebView_whenKillSwitchEnabled_shouldNotOpenInBrowserAndReturnNil
 {
-    // Disable the flight
+    // Enable the kill switch to disable the feature
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_ENABLE_OPEN_NEW_WINDOW_IN_BROWSER: @NO};
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER: @YES};
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 
     MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
