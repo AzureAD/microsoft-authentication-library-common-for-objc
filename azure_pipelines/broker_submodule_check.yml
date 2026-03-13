@@ -47,7 +47,8 @@ stages:
   jobs:
   - job: Validate_Pull_Request_IOS
     displayName: Validate Pull Request (iOS)
-    timeoutInMinutes: 60
+    # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
+    timeoutInMinutes: 0
     pool:
       vmImage: 'macOS-15'
     variables:
@@ -61,7 +62,8 @@ stages:
   jobs:
   - job: Validate_Pull_Request_MAC
     displayName: Validate Pull Request (Mac)
-    timeoutInMinutes: 60
+    # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
+    timeoutInMinutes: 0
     pool:
       vmImage: 'macOS-15'
     variables:
