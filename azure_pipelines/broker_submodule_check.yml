@@ -1,8 +1,7 @@
 # Pipeline will be triggered for PR & any updates on the PR on all branches
 #
 # To manually trigger this pipeline from a pull request comment, post:
-#   /azp run Broker Submodule Check
-# (replace "Broker Submodule Check" with the actual name of this pipeline in Azure DevOps)
+#   /azp run [Broker] Common core submodule check v2
 
 trigger:
   branches:
