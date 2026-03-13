@@ -2,6 +2,7 @@
 #
 # To manually trigger this pipeline from a pull request comment, post:
 #   /azp run [Broker] Common core submodule check v2
+# To specify a branch (e.g., main), queue the pipeline via the Azure DevOps UI and set brokerBranch=main
 
 trigger:
   branches:
