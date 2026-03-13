@@ -63,7 +63,7 @@ NSString *const MSID_TOKEN_RESULT_CLIENT_DATA = @"client_data";
 
 - (void)insertBrokerMetaData:(id)obj forKey:(NSString *)key
 {
-    if (!obj || !key)
+    if (!obj || [NSString msidIsStringNilOrBlank:key])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Broker metadata insert skipped from MSIDTokenResult because key or object is nil.");
         return;
