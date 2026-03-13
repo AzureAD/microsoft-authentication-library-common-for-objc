@@ -37,7 +37,7 @@ resources:
 # Define parallel jobs that run build script for specified targets
 jobs:
 - job: 'Validate_Pull_Request'
-  timeoutInMinutes: 30
+  timeoutInMinutes: 75
   strategy:
     maxParallel: 2
     matrix:
