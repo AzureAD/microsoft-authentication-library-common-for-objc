@@ -1,7 +1,8 @@
-# Xcode
-# Build, test, and archive an Xcode workspace on macOS.
-# Add steps that install certificates, test, sign, and distribute an app, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/xcode
+# Pipeline will be triggered for PR & any updates on the PR on all branches
+#
+# To manually trigger this pipeline from a pull request comment, post:
+#   /azp run Broker Submodule Check
+# (replace "Broker Submodule Check" with the actual name of this pipeline in Azure DevOps)
 
 trigger:
   branches:
@@ -18,12 +19,21 @@ pr:
 pool:
   name: 'Azure Pipelines'
 
+# Pipeline parameter: supply the branch of azure-activedirectory-tokenbroker-for-objc to validate against.
+# Defaults to 'dev'. Can be overridden when manually queuing the pipeline or via /azp run.
+parameters:
+- name: brokerBranch
+  displayName: 'Broker for ObjC branch'
+  type: string
+  default: 'dev'
+
 resources:
  repositories:
    - repository: azure-activedirectory-tokenbroker-for-objc
      type: github
      endpoint: 'MSAL ObjC Service Connection'
      name: AzureAD/azure-activedirectory-tokenbroker-for-objc
+     ref: refs/heads/${{ parameters.brokerBranch }}
 
    - repository: WorkplaceJoin-for-iOS
      type: github
