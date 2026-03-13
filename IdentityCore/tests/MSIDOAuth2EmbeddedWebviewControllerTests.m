@@ -54,7 +54,6 @@
 
 - (void)tearDown {
     MSIDFlightManager.sharedInstance.flightProvider = nil;
-    [MSIDTestSwizzle reset];
     [super tearDown];
 }
 
