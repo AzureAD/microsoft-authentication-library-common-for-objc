@@ -92,23 +92,41 @@ static NSDictionary *s_experimentBag = nil;
 
     if (self.requestInterceptor)
     {
-        [self.requestInterceptor adapt:self.urlRequest withBlock:^(NSURLRequest * _Nullable adaptedRequest, NSError * _Nullable interceptorError)
+        __weak typeof(self) weakSelf = self;
+        [self.requestInterceptor addAdditionalHeaderFieldsForUrl:self.urlRequest.URL withBlock:^(NSDictionary<NSString *, NSString *> * _Nullable additionalHeaders)
         {
-            if (interceptorError)
+            __typeof__(self) strongSelf = weakSelf;
+            if (!strongSelf) return;
+
+            NSMutableURLRequest *mutableRequest = [strongSelf.urlRequest mutableCopy];
+            if (additionalHeaders.count)
             {
-                if (completionBlock) completionBlock(nil, interceptorError);
-                return;
+                NSArray<NSString *> *reservedPrefixes = @[@"x-ms-", @"x-client-", @"x-broker-", @"x-app-"];
+                for (NSString *field in additionalHeaders)
+                {
+                    if (![field.lowercaseString hasPrefix:@"x-"])
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context, @"Additional header field \"%@\" must start with the \"x-\" prefix", field);
+                        continue;
+                    }
+                    
+                    for (NSString *reserved in reservedPrefixes)
+                    {
+                        if ([field.lowercaseString hasPrefix:reserved])
+                        {
+                            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context, @"Additional header field \"%@\" uses reserved prefix \"%@\".", field, reserved);
+                            continue;
+                        }
+                    }
+                    
+                    NSString *value = additionalHeaders[field];
+                    [mutableRequest setValue:value forHTTPHeaderField:field];
+                }
+
+                strongSelf.urlRequest = mutableRequest;
             }
 
-            if (!adaptedRequest)
-            {
-                NSError *nilRequestError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Request interceptor returned a nil request.", nil, nil, nil, self.context.correlationId, nil, YES);
-                if (completionBlock) completionBlock(nil, nilRequestError);
-                return;
-            }
-
-            self.urlRequest = adaptedRequest;
-            [self sendRequestWithCompletionBlock:completionBlock];
+            [strongSelf sendRequestWithCompletionBlock:completionBlock];
         }];
         return;
     }

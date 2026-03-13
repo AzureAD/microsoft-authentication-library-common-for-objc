@@ -23,10 +23,13 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^MSIDHttpRequestInterceptorCompletionBlock)(NSURLRequest * _Nullable request, NSError * _Nullable error);
+typedef void (^MSIDHttpRequestInterceptorAddHeaderCompletionBlock)(NSDictionary<NSString *, NSString *> * _Nullable additionalHeaders);
 
 @protocol MSIDHttpRequestInterceptorProtocol <NSObject>
 
-- (void)adapt:(nonnull NSURLRequest *)request withBlock:(nonnull MSIDHttpRequestInterceptorCompletionBlock)completionBlock;
+// Any additional header fields to be set when sending the request.
+// All header field names must start with the "x-" prefix.
+// "x-ms-", "x-client-", "x-broker-" prefixes are reserved and should not be used for additional header fields.
+- (void)addAdditionalHeaderFieldsForUrl:(nullable NSURL *)requestUrl withBlock:(nonnull MSIDHttpRequestInterceptorAddHeaderCompletionBlock)completionBlock;
 
 @end
