@@ -36,9 +36,6 @@
 
 #if !MSID_EXCLUDE_WEBKIT
 
-// WKWindowFeatures has no public initializer; suppress nonnull warning when passing nil in tests.
-#define TEST_WINDOW_FEATURES ((WKWindowFeatures * _Nonnull)nil)
-
 @interface MSIDOAuth2EmbeddedWebviewControllerTests : XCTestCase
 
 @end
@@ -135,7 +132,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:TEST_WINDOW_FEATURES];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertEqualObjects(openedURL.absoluteString, @"https://support.microsoft.com/help");
@@ -162,7 +159,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:TEST_WINDOW_FEATURES];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Link-activated navigations should not open in browser from createWebView — decidePolicyForNavigationAction handles them");
@@ -189,7 +186,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:TEST_WINDOW_FEATURES];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Insecure http URLs should not be opened in the system browser");
@@ -216,7 +213,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:TEST_WINDOW_FEATURES];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertEqualObjects(openedURL.absoluteString, @"msauth://com.contoso.app/callback");
@@ -244,7 +241,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:TEST_WINDOW_FEATURES];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Schemeless/relative URLs should not be opened in the system browser");
@@ -276,7 +273,7 @@
     WKWebView *result = [webVC webView:[[WKWebView alloc] init]
          createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
                     forNavigationAction:action
-                         windowFeatures:TEST_WINDOW_FEATURES];
+                         windowFeatures:[[WKWindowFeatures alloc] init]];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"When flight is disabled, URLs should not be opened in the system browser");
