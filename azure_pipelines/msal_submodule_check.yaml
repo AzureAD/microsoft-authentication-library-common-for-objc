@@ -1,8 +1,15 @@
 # Pipeline will be triggered for PR & any updates on the PR on all branches
+#
+# To manually trigger this pipeline from a pull request comment, post:
+#   /azp run MSAL Submodule Check
+# (replace "MSAL Submodule Check" with the actual name of this pipeline in Azure DevOps)
+
 pr:
+  autoCancel: true
   branches:
     include:
     - '*'
+  drafts: true
 
 # Trigger CI for only main/release branches
 trigger:
@@ -11,16 +18,26 @@ trigger:
     - main
     - release/*
 
+# Pipeline parameter: supply the branch of microsoft-authentication-library-for-objc to validate against.
+# Defaults to 'dev'. Can be overridden when manually queuing the pipeline or via /azp run.
+parameters:
+- name: msalBranch
+  displayName: 'MSAL for ObjC branch'
+  type: string
+  default: 'dev'
+
 resources:
  repositories:
    - repository: microsoft-authentication-library-for-objc
      type: github
      endpoint: 'MSAL ObjC Service Connection'
      name: AzureAD/microsoft-authentication-library-for-objc
+     ref: refs/heads/${{ parameters.msalBranch }}
 
 # Define parallel jobs that run build script for specified targets
 jobs:
 - job: 'Validate_Pull_Request'
+  timeoutInMinutes: 30
   strategy:
     maxParallel: 2
     matrix:
@@ -31,7 +48,6 @@ jobs:
   displayName: Validate Pull Request
   pool:
     vmImage: 'macOS-14'
-    timeOutInMinutes: 30
 
   steps:
   - script: |
