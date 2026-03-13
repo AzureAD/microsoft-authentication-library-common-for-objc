@@ -67,6 +67,20 @@
                      context:nil];
 }
 
+// Helper to invoke createWebViewWithConfiguration: — WKWindowFeatures has no public initializer,
+// so we pass nil and suppress the nonnull diagnostic since our implementation ignores this parameter.
+- (WKWebView *)invokeCreateWebView:(MSIDOAuth2EmbeddedWebviewController *)controller
+                 navigationAction:(WKNavigationAction *)action
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+    return [controller webView:[[WKWebView alloc] init]
+         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
+                    forNavigationAction:action
+                         windowFeatures:nil];
+#pragma clang diagnostic pop
+}
+
 
 - (void)testInitWithStartURL_whenURLisNil_shouldFail
 {
@@ -129,10 +143,7 @@
         openedURL = url;
     }];
 
-    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
-         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
-                    forNavigationAction:action
-                         windowFeatures:[[WKWindowFeatures alloc] init]];
+    WKWebView *result = [self invokeCreateWebView:webVC navigationAction:action];
 
     XCTAssertNil(result);
     XCTAssertEqualObjects(openedURL.absoluteString, @"https://support.microsoft.com/help");
@@ -156,10 +167,7 @@
         openedURL = url;
     }];
 
-    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
-         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
-                    forNavigationAction:action
-                         windowFeatures:[[WKWindowFeatures alloc] init]];
+    WKWebView *result = [self invokeCreateWebView:webVC navigationAction:action];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Link-activated navigations should not open in browser from createWebView — decidePolicyForNavigationAction handles them");
@@ -183,10 +191,7 @@
         openedURL = url;
     }];
 
-    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
-         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
-                    forNavigationAction:action
-                         windowFeatures:[[WKWindowFeatures alloc] init]];
+    WKWebView *result = [self invokeCreateWebView:webVC navigationAction:action];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Insecure http URLs should not be opened in the system browser");
@@ -210,10 +215,7 @@
         openedURL = url;
     }];
 
-    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
-         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
-                    forNavigationAction:action
-                         windowFeatures:[[WKWindowFeatures alloc] init]];
+    WKWebView *result = [self invokeCreateWebView:webVC navigationAction:action];
 
     XCTAssertNil(result);
     XCTAssertEqualObjects(openedURL.absoluteString, @"msauth://com.contoso.app/callback");
@@ -238,10 +240,7 @@
         openedURL = url;
     }];
 
-    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
-         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
-                    forNavigationAction:action
-                         windowFeatures:[[WKWindowFeatures alloc] init]];
+    WKWebView *result = [self invokeCreateWebView:webVC navigationAction:action];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"Schemeless/relative URLs should not be opened in the system browser");
@@ -270,10 +269,7 @@
         openedURL = url;
     }];
 
-    WKWebView *result = [webVC webView:[[WKWebView alloc] init]
-         createWebViewWithConfiguration:[[WKWebViewConfiguration alloc] init]
-                    forNavigationAction:action
-                         windowFeatures:[[WKWindowFeatures alloc] init]];
+    WKWebView *result = [self invokeCreateWebView:webVC navigationAction:action];
 
     XCTAssertNil(result);
     XCTAssertNil(openedURL, @"When flight is disabled, URLs should not be opened in the system browser");
