@@ -257,7 +257,11 @@
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Token result is valid.");
     // Keep old flow for now in case the old MSAL/OneAuth client is broken.
     [tokenResult insertBrokerMetaData:brokerResponse.brokerAppVer forKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
-
+    if (brokerResponse.tokenResponse.clientData)
+    {
+        [tokenResult insertBrokerMetaData:brokerResponse.tokenResponse.clientData forKey:MSID_TOKEN_RESULT_CLIENT_DATA];
+    }
+    
     return tokenResult;
 }
 
