@@ -493,10 +493,6 @@
 		23D204A521D5A745009B5975 /* MSIDDefaultTokenResponseValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D204A421D5A745009B5975 /* MSIDDefaultTokenResponseValidatorTests.m */; };
 		23D4DEE72D92537D005A77E4 /* MSIDFlightManagerMockProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D4DEE52D92537D005A77E4 /* MSIDFlightManagerMockProvider.m */; };
 		23D4DEE82D92537D005A77E4 /* MSIDFlightManagerMockProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D4DEE52D92537D005A77E4 /* MSIDFlightManagerMockProvider.m */; };
-		23D4DEE92D92537D005A77E4 /* MSIDFlightManagerMockProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D4DEE52D92537D005A77E4 /* MSIDFlightManagerMockProvider.m */; };
-		23D4DEEA2D92537D005A77E4 /* MSIDFlightManagerMockProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D4DEE52D92537D005A77E4 /* MSIDFlightManagerMockProvider.m */; };
-		23D4DEE92D92537D005A77E4 /* MSIDFlightManagerMockProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D4DEE52D92537D005A77E4 /* MSIDFlightManagerMockProvider.m */; };
-		23D4DEEA2D92537D005A77E4 /* MSIDFlightManagerMockProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D4DEE52D92537D005A77E4 /* MSIDFlightManagerMockProvider.m */; };
 		23D744782097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 23D744762097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.h */; };
 		23D744792097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D744772097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m */; };
 		23D7447A2097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D744772097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m */; };
