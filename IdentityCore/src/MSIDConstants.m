@@ -50,6 +50,7 @@ NSString *const MSIDTrustedAuthorityGermany        = @"login.microsoftonline.de"
 NSString *const MSIDTrustedAuthorityWorldWide      = @"login.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityUSGovernment   = @"login-us.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityCloudGovApi    = @"login.usgovcloudapi.net";
+NSString *const MSIDTrustedAuthorityFrance         = @"login.sovcloud-identity.fr";
 
 NSString *const MSID_DEFAULT_AAD_AUTHORITY         = @"https://login.microsoftonline.com/common";
 NSString *const MSID_DEFAULT_MSA_TENANTID          = @"9188040d-6c67-4c5b-b112-36a304b66dad";
