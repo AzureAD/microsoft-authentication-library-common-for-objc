@@ -41,6 +41,7 @@
 #import "MSIDPkce.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBaseOperation.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -141,6 +142,29 @@
         return;
     }
     
+    // Store reference to current webview
+    self.currentWebview = webView;
+    
+    // Call webview configuration block if provided
+    if (self.requestParameters.webviewConfigurationBlock)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                          @"Calling webview configuration block");
+        
+        // Ensure configuration happens on main thread
+        // Configuration block may access UI properties or WKWebView settings
+        if ([NSThread isMainThread])
+        {
+            self.requestParameters.webviewConfigurationBlock(webView);
+        }
+        else
+        {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                self.requestParameters.webviewConfigurationBlock(webView);
+            });
+        }
+    }
+    
     [MSIDWebviewAuthorization startSessionWithWebView:webView
                                         oauth2Factory:self.oauthFactory
                                         configuration:self.webViewConfiguration
@@ -232,7 +256,7 @@
             webviewResponseCompletionBlock:^(MSIDWebviewResponse *webviewResponse, NSError *responseError) {
         
         [weakSelf handleWebReponseV2:webviewResponse error:responseError completionBlock:completionBlock];
-    } authorizationCodeCompletionBlock:^(MSIDAuthorizationCodeResult *codeResult, NSError *resultError, MSIDWebWPJResponse *wpjResponse) {
+    } authorizationCodeCompletionBlock:^(MSIDAuthorizationCodeResult *codeResult, NSError *resultError, MSIDWebviewResponse *wpjResponse) {
         if (resultError)
         {
             returnErrorBlock(resultError);
@@ -314,6 +338,10 @@
     else if ([response isKindOfClass:MSIDWebWPJResponse.class])
     {
         completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
+    }
+    else if ([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class])
+    {
+        completionBlock(nil, nil, (MSIDWebMDMEnrollmentCompletionResponse *)response);
     }
     else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
     {

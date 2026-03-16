@@ -364,6 +364,16 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         }
     }
     
+    id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+    if ((strongNavigationDelegate) && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:)] && navigationResponse.response)
+    {
+        NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
+        if (response)
+        {
+            [strongNavigationDelegate processResponseHeaders:response.allHeaderFields];
+        }
+    }
+    
     decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
