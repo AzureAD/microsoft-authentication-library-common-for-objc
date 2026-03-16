@@ -38,6 +38,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDMainThreadUtil.h"
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDFlightManager.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -209,8 +210,16 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     }
     self.complete = YES;
     
+    BOOL enableSpinnerFix = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SPINNER_FIX];
+    
+    if (enableSpinnerFix)
+    {
+        [self stopSpinner];
+    }
+    
     if (error)
     {
+        // TODO: https://identitydivision.visualstudio.com/Engineering/_workitems/edit/3539094
         [MSIDNotifications notifyWebAuthDidFailWithError:error];
     }
     else

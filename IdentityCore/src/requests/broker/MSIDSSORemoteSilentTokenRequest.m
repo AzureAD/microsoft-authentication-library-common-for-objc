@@ -37,6 +37,8 @@
 #import "MSIDThrottlingService.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDTokenResult.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 #if !EXCLUDE_FROM_MSALCPP
 #import "MSIDLastRequestTelemetry.h"
 #endif
@@ -101,6 +103,9 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
                     strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
     #endif
                     __typeof__(strongSelf) __weak weakStrongSelf = strongSelf;
+                    MSIDExecutionFlowInsertTag(MSIDSSORemoteSilentTokenRequestTagToString(MSIDSilentHandleOperationResponseTag),
+                                                   error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
+                                                   strongSelf.requestParameters.correlationId);
                     [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                                         requestParameters:strongSelf.requestParameters
                                                    tokenResponseValidator:strongSelf.tokenResponseValidator
@@ -114,6 +119,9 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
                         __strong __typeof__(weakStrongSelf) innerStrongSelf = weakStrongSelf;
                         if (!innerStrongSelf) return;
                         
+                        MSIDExecutionFlowInsertTag(MSIDSSORemoteSilentTokenRequestTagToString(MSIDSilentCompletionTag),
+                                                       localError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(localError.code)} : nil,
+                                                       innerStrongSelf.requestParameters.correlationId);
                         MSIDRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;
                         innerStrongSelf.requestCompletionBlock = nil;
                         if (localError)
@@ -127,7 +135,7 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
                             }
                         }
                         
-                        [result insertBrokerMetaData:@(innerStrongSelf.gcdStarvedDuration) forKey:MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION];
+                        [result insertBrokerMetaData:@(innerStrongSelf.gcdStarvedDuration * 1000) forKey:MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION];
                         if (completionBlock) completionBlock(result, localError);
                     }];
                 }
@@ -153,6 +161,9 @@ NSString *const MSID_TOKEN_RESULT_BROKER_REQUEST_STARVATION_DURATION = @"broker_
                                          completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
                                                            __unused BOOL validated, NSError *error)
      {
+        MSIDExecutionFlowInsertTag(MSIDSSORemoteSilentTokenRequestTagToString(MSIDSilentResolveAuthorityTag),
+                                       error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
+                                       self.requestParameters.correlationId);
         if (error)
         {
             completionBlock(nil, error);

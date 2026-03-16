@@ -1,8 +1,15 @@
 # Pipeline will be triggered for PR & any updates on the PR on all branches
+#
+# To manually trigger this pipeline from a pull request comment, post:
+#   /azp run [MSAL] Common core submodule check v2
+# To specify a branch (e.g., main), queue the pipeline via the Azure DevOps UI and set msalBranch=main
+
 pr:
+  autoCancel: true
   branches:
     include:
     - '*'
+  drafts: true
 
 # Trigger CI for only main/release branches
 trigger:
@@ -11,29 +18,37 @@ trigger:
     - main
     - release/*
 
+# Pipeline parameter: supply the branch of microsoft-authentication-library-for-objc to validate against.
+# Defaults to 'dev'. Can be overridden when manually queuing the pipeline or via /azp run.
+parameters:
+- name: msalBranch
+  displayName: 'MSAL for ObjC branch'
+  type: string
+  default: 'dev'
+
 resources:
  repositories:
    - repository: microsoft-authentication-library-for-objc
      type: github
      endpoint: 'MSAL ObjC Service Connection'
      name: AzureAD/microsoft-authentication-library-for-objc
+     ref: refs/heads/${{ parameters.msalBranch }}
 
 # Define parallel jobs that run build script for specified targets
 jobs:
 - job: 'Validate_Pull_Request'
+  # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
+  timeoutInMinutes: 0
   strategy:
-    maxParallel: 3
+    maxParallel: 2
     matrix:
       IOS_FRAMEWORK:
         target: "iosFramework iosTestApp sampleIosApp sampleIosAppSwift"
       MAC_FRAMEWORK:
         target: "macFramework"
-      VISION_FRAMEWORK:
-        target: "visionOSFramework"
   displayName: Validate Pull Request
   pool:
     vmImage: 'macOS-14'
-    timeOutInMinutes: 30
 
   steps:
   - script: |
@@ -57,26 +72,6 @@ jobs:
       script: |
         gem install slather bundler -N
       failOnStderr: true
-
-# The following is needed to install the visionOS SDK on macos-14 vm image which
-# doesn't have visionOS installed by default.
-# TODO: Remove when macos-14-arm64 is supported on ADO.
-  - task: Bash@3
-    displayName: download visionOS SDK
-    inputs:
-      targetType: 'inline'
-      script: |
-        echo $(target)
-        if [ $(target) == 'visionOSFramework' ]; then
-            echo "Downloading simulator for visionOS"
-            sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-            defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-            defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-            xcodebuild -downloadPlatform visionOS
-        else
-            echo "Not visionOS job, no download needed"
-        fi
-      failOnStderr: false
 
   - checkout: microsoft-authentication-library-for-objc
     displayName: 'Checkout MSAL'

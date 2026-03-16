@@ -31,9 +31,9 @@
 #import "NSData+MSIDEccSecKeyRef.h"
 #import "MSIDEcdhApv.h"
 #import "MSIDJsonSerializer.h"
-#import "IdentityCore-Swift.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDSwiftBridgingHeader.h"
 
 MSIDJWECryptoKeyExchangeAlgorithm const MSID_KEY_EXCHANGE_ALGORITHM_ECDH_ES = @"ECDH-ES";
 MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGORITHM_A256GCM = @"A256GCM";
@@ -208,10 +208,12 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     {
         return nil;
     }
-    
+    NSData *decryptedData;
+
     // Since only A256GCM is supported, we can decrypt jwe message using AES256GCM.
     MSIDAesGcmDecryptor *decryptor = [MSIDAesGcmDecryptor new];
-    NSData *decryptedData = [decryptor decryptWithAES256GCMHandlerWithMessage:self.payload iv:self.iv key:symmetricKey tag:self.tag aad:self.aad error:error];
+    decryptedData = [decryptor decryptWithAES256GMCiphertext:self.payload nonce:self.iv key:symmetricKey tag:self.tag aad:self.aad error:error];
+    
     // Deallocate symmetricKey as it is no longer needed
     symmetricKey = nil;
     if (!decryptedData)

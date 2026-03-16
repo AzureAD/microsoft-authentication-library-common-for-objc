@@ -96,6 +96,8 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
         
         _instanceAware = [json msidBoolObjectForKey:MSID_BROKER_INSTANCE_AWARE_KEY];
         
+        _userFederatedIdentityToken = [json msidStringObjectForKey:MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY];
+        
         NSString *enrollmentIdsStr = [json msidStringObjectForKey:MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY];
         if (enrollmentIdsStr)
         {
@@ -146,6 +148,7 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     json[@"web_page_uri"] = self.webPageUri;
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
     json[MSID_BROKER_EXTRA_OIDC_SCOPES_KEY] = self.oidcScope;
+    json[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY] = self.userFederatedIdentityToken;
     json[MSID_BROKER_EXTRA_QUERY_PARAM_KEY] = [self.extraQueryParameters msidWWWFormURLEncode];
     json[MSID_BROKER_INSTANCE_AWARE_KEY] = [@(self.instanceAware) stringValue];
     json[MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY] = [self.enrollmentIds msidJSONSerializeWithContext:nil];

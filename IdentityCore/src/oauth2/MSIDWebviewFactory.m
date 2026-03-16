@@ -217,7 +217,7 @@
     if (![NSString msidIsStringNilOrBlank:promptParam]) result[MSID_OAUTH2_PROMPT] = promptParam;
     
     [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
-    
+
     return result;
 }
 
@@ -299,15 +299,24 @@
 #if MSAL_JS_AUTOMATION
     configuration.clientAutomationScript = [[parameters allAuthorizeRequestExtraParametersWithMetadata:YES] objectForKey:@"script"];
 #endif
-
+    
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;
     configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
-    configuration.customHeaderProvider = parameters.crossDomainHeaderProvider;
+    configuration.customHeaderProvider = parameters.prtHeaderProvider;
     
 #if TARGET_OS_IPHONE
     configuration.presentationType = parameters.presentationType;
 #endif
+    
+    if (!configuration.customHeaders[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY])
+    {
+        NSMutableDictionary *mutableHeaders = configuration.customHeaders ? [configuration.customHeaders mutableCopy] : [NSMutableDictionary dictionary];
+        
+        mutableHeaders[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY] = parameters.userFederatedIdentityToken;
+        
+        configuration.customHeaders = mutableHeaders;
+    }
 
     return configuration;
 }

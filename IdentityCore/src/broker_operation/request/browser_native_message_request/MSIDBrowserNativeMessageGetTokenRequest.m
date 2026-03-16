@@ -29,6 +29,10 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDConstants.h"
 #import "MSIDPromptType_Internal.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthScheme.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDFlightManager.h"
 
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY = @"clientId";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY = @"authority";
@@ -44,6 +48,9 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY = @"extraParame
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY = @"request";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY = @"x-client-xtra-sku";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY = @"reqCnf";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY = @"tokenType";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
 
 @implementation MSIDBrowserNativeMessageGetTokenRequest
 
@@ -105,19 +112,31 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
     self = [super initWithJSONDictionary:json error:error];
     if (!self) return nil;
     
-    if (![json msidAssertType:NSDictionary.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY required:YES error:error]) return nil;
+    if (![json msidAssertType:NSDictionary.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY required:YES error:error])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDBrowserNativeMessageGetTokenRequest: 'request' dictionary is required but was missing or invalid.");
+        return nil;
+    }
     NSDictionary *requestJson = json[MSID_BROWSER_NATIVE_MESSAGE_REQUEST_KEY];
     
     _loginHint = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_LOGIN_HINT_KEY];
     NSString *homeAccountId = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY];
-    if (homeAccountId != nil && ![MSIDAccountIdentifier isAccountIdValid:homeAccountId error:error]) return nil;
+    if (homeAccountId != nil && ![MSIDAccountIdentifier isAccountIdValid:homeAccountId error:error])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDBrowserNativeMessageGetTokenRequest: 'accountId' was provided but is not in a valid 'uid.utid' format.");
+        return nil;
+    }
     
     if (homeAccountId || _loginHint)
     {
         _accountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:_loginHint homeAccountId:homeAccountId];
     }
     
-    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY required:YES error:error]) return nil;
+    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY required:YES error:error])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDBrowserNativeMessageGetTokenRequest: 'clientId' is required but was missing or not a string.");
+        return nil;
+    }
     _clientId = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CLIENT_ID_KEY];
 
     NSString *authorityString = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_AUTHORITY_KEY];
@@ -139,26 +158,47 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
             return nil;
         }
     }
+    else
+    {
+        // Use default authority if no authority provided.
+        NSURL *authorityURL = [NSURL URLWithString:MSID_DEFAULT_AAD_AUTHORITY];
+        _authority = [[MSIDAADAuthority alloc] initWithURL:authorityURL rawTenant:nil context:nil error:nil];
+    }
     
-    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_SCOPE_KEY required:YES error:error]) return nil;
+    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_SCOPE_KEY required:YES error:error])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDBrowserNativeMessageGetTokenRequest: 'scope' is required but was missing or not a string.");
+        return nil;
+    }
     _scopes = requestJson[MSID_BROWSER_NATIVE_MESSAGE_SCOPE_KEY];
     
-    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REDIRECT_URI_KEY required:YES error:error]) return nil;
+    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_REDIRECT_URI_KEY required:YES error:error])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDBrowserNativeMessageGetTokenRequest: 'redirectUri' is required but was missing or not a string.");
+        return nil;
+    }
     _redirectUri = requestJson[MSID_BROWSER_NATIVE_MESSAGE_REDIRECT_URI_KEY];
     
     NSString *promptString = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_PROMPT_KEY];
-    _prompt = MSIDPromptTypeFromString(promptString);
+    _prompt = promptString ? MSIDPromptTypeFromString(promptString) : MSIDPromptTypeDefault;
     
     _nonce = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_NONCE_KEY];
     _isSts = [requestJson msidBoolObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_IS_STS_KEY];
     _state = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_STATE_KEY];
     _instanceAware = [requestJson msidBoolObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_INSTANCE_AWARE_KEY];
     
-    if (![requestJson msidAssertType:NSDictionary.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY required:NO error:error]) return nil;
-    _extraParameters = requestJson[MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY];
+    if ([requestJson msidAssertType:NSDictionary.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY required:NO error:nil])
+    {
+        _extraParameters = requestJson[MSID_BROWSER_NATIVE_MESSAGE_EXTRA_PARAMETERS_KEY];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"'extraParameters' was provided but is not a valid dictionary. Ignoring.");
+        _extraParameters = nil;
+    }
 
-    if (![requestJson msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY required:NO error:error]) return nil;
-    NSString *uuidString = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
+    // Because the correlation ID is not marked as required we should not exit the flow just because it can be nil. instead we will gen a temp correlation id.
+    NSString *uuidString = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
     _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
     if (!_correlationId)
     {
@@ -171,6 +211,48 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
     id canShowUIValue = requestJson[MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY];
     // It is optional param, if nil -- set it to 'true' by default.
     _canShowUI = canShowUIValue ? [requestJson msidBoolObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY] : YES;
+    
+    BOOL disablePop = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_BROWSER_CORE_DISABLE_POP];
+    
+    if (!disablePop)
+    {
+        NSString *reqCnf = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY];
+        NSString *tokenType = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
+        tokenType = tokenType.capitalizedString;
+        
+        if (MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
+        {
+            NSMutableDictionary *schemeParams = [NSMutableDictionary new];
+            schemeParams[MSID_OAUTH2_TOKEN_TYPE] = tokenType;
+            schemeParams[MSID_OAUTH2_REQUEST_CONFIRMATION] = reqCnf;
+            
+            _authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
+        }
+    }
+    
+    if (!_authScheme)
+    {
+        _authScheme = [MSIDAuthenticationScheme new]; // Bearer by default.
+    }
+    
+    BOOL disableClaims = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS];
+    
+    if (!disableClaims)
+    {
+        NSString *claims = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY];
+        
+        if (claims)
+        {
+            NSDictionary *claimsJson = [claims msidJson];
+            
+            NSError *claimsError;
+            _claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJson error:&claimsError];
+            if (claimsError)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to create claims request. Claims: %@", MSID_PII_LOG_MASKABLE(claimsJson));
+            }
+        }
+    }
     
     return self;
 }

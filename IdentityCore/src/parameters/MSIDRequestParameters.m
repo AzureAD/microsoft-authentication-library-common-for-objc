@@ -163,6 +163,7 @@
     {
         [endpointQPs addEntriesFromDictionary:self.extraURLQueryParameters];
     }
+    
 
     tokenEndpoint.query = [endpointQPs msidURLEncode];
     return tokenEndpoint.URL;
