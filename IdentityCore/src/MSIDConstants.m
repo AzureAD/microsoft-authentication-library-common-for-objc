@@ -47,6 +47,7 @@ NSString *const MSIDTrustedAuthorityUS             = @"login.microsoftonline.us"
 NSString *const MSIDTrustedAuthorityChina          = @"login.chinacloudapi.cn";
 NSString *const MSIDTrustedAuthorityChina2         = @"login.partner.microsoftonline.cn";
 NSString *const MSIDTrustedAuthorityGermany        = @"login.microsoftonline.de";
+NSString *const MSIDTrustedAuthorityFrance         = @"login.sovcloud-identity.fr";
 NSString *const MSIDTrustedAuthorityWorldWide      = @"login.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityUSGovernment   = @"login-us.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityCloudGovApi    = @"login.usgovcloudapi.net";
