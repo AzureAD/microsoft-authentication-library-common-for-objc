@@ -118,4 +118,6 @@ NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 
 NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 
+NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_new_window_in_browser";
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

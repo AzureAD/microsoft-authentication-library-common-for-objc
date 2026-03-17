@@ -29,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDWKNavigationActionMock : WKNavigationAction
 
 - (instancetype)initWithRequest:(NSURLRequest *)request;
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                 navigationType:(WKNavigationType)navigationType
+                    targetFrame:(nullable WKFrameInfo *)targetFrame;
 
 @end
 
