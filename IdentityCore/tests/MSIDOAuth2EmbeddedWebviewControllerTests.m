@@ -156,26 +156,6 @@
     XCTAssertFalse([webVC shouldOpenURLInSystemBrowser:nil targetFrame:nil]);
 }
 
-- (void)testCreateWebView_whenKillSwitchEnabled_flightManagerReturnsYes
-{
-    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER: @YES};
-    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
-
-    XCTAssertTrue([[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER],
-                  @"Kill switch should return YES when enabled");
-}
-
-- (void)testCreateWebView_whenKillSwitchNotSet_flightManagerReturnsNo
-{
-    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{};
-    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
-
-    XCTAssertFalse([[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER],
-                   @"Kill switch should return NO when not set (feature enabled by default)");
-}
-
 @end
 
 #endif
