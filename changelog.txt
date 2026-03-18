@@ -1,4 +1,5 @@
 TBD
+* Add French sovereign cloud instance (login.sovcloud-identity.fr) as a trusted authority.
 * Add retry logic when bound app refresh token redemption fails.
 * Aligned Init Logic for Get Token API With Documentation (#1698)
 * Strip eqp from CIAM authority #1714
