@@ -65,6 +65,8 @@ extern NSString *const MSID_OAUTH2_SCOPE_PROFILE_VALUE;
 extern NSString *const MSID_OAUTH2_SCOPE_EMAIL_VALUE;
 extern NSString *const MSID_OAUTH2_ASSERTION;
 extern NSString *const MSID_OAUTH2_CLIENT_TELEMETRY;
+// Query parameter used on /authorize to request and receive STS client telemetry data.
+extern NSString *const MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM;
 extern NSString *const MSID_OAUTH2_PROMPT;
 extern NSString *const MSID_OAUTH2_PROMPT_NONE;
 extern NSString *const MSID_OAUTH2_SIGNOUT_REDIRECT_URI;
@@ -179,6 +181,10 @@ extern NSString *const MSID_CCS_REQUEST_ID_RESPONSE;
 
 extern NSString *const MSID_CCS_REQUEST_SEQUENCE_KEY;
 extern NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE;
+
+extern NSString *const MSID_CLIENT_DATA_HEADER_KEY;
+extern NSString *const MSID_CLIENT_DATA_RESPONSE;
+
 extern NSString *const MSID_REFRESH_TOKEN_TYPE;
 extern NSString *const MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT;
 extern NSString *const MSID_BOUND_DEVICE_ID_CACHE_KEY;
