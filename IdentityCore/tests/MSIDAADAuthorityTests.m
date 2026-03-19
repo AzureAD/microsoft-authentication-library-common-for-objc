@@ -220,6 +220,17 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitAADAuthority_whenAADAuthorityWithTenantAndEQP_shouldReturnNormalizedAuthorityUrl
+{
+    __auto_type authorityUrl = [@"https://login.microsoftonline.com/common/qwe?bad=param" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+
+    XCTAssertEqualObjects(authority.url, [@"https://login.microsoftonline.com/common" msidUrl]);
+    XCTAssertNil(error);
+}
+
 - (void)testInitAADAuthority_whenAADAuthorityWithTenantAndSlash_shouldReturnNormalizedAuthority
 {
     __auto_type authorityUrl = [@"https://login.microsoftonline.com/common/" msidUrl];
@@ -511,7 +522,11 @@
     authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.de/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
-    
+
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.sovcloud-identity.fr/common"];
+    authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    XCTAssertTrue([authority isKnown]);
+
     authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);

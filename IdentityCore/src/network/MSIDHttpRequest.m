@@ -35,6 +35,7 @@
 #import "MSIDBrokerConstants.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
+#import "MSIDOAuth2Constants.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -78,9 +79,9 @@ static NSDictionary *s_experimentBag = nil;
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     NSParameterAssert(self.urlRequest);
-    [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowPrepareNetworkRequestTag]
-                                              extraInfo:nil
-                                      withCorrelationId:self.context.correlationId];
+    MSIDExecutionFlowInsertTag([self toString:MSIDPrepareNetworkRequestTag],
+                                   nil,
+                                   self.context.correlationId);
     __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
@@ -103,17 +104,17 @@ static NSDictionary *s_experimentBag = nil;
 
         if (!responseObject)
         {
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowCacheResponseFailedObjectTag]
-                                                      extraInfo:nil
-                                              withCorrelationId:self.context.correlationId];
+            MSIDExecutionFlowInsertTag([self toString:MSIDCacheResponseFailedObjectTag],
+                                           nil,
+                                           self.context.correlationId);
             [self.cache removeCachedResponseForRequest:self.urlRequest];
             MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Removing invalid response from cache %@, response: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(response.response));
         }
         else
         {
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowCacheResponseSucceededObjectTag]
-                                                      extraInfo:nil
-                                              withCorrelationId:self.context.correlationId];
+            MSIDExecutionFlowInsertTag([self toString:MSIDCacheResponseSucceededObjectTag],
+                                           nil,
+                                           self.context.correlationId);
             if (completionBlock) { completionBlock(responseObject, error); }
             return;
         }
@@ -127,9 +128,9 @@ static NSDictionary *s_experimentBag = nil;
 
     [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error)
       {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowReceiveNetworkResponseTag]
-                                                  extraInfo:nil
-                                          withCorrelationId:self.context.correlationId];
+        MSIDExecutionFlowInsertTag([self toString:MSIDReceiveNetworkResponseTag],
+                                       nil,
+                                       self.context.correlationId);
           MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Received network response: %@, error %@", _PII_NULLIFY(urlResponse), _PII_NULLIFY(error));
 
           if (urlResponse) NSAssert([urlResponse isKindOfClass:NSHTTPURLResponse.class], NULL);
@@ -145,9 +146,9 @@ static NSDictionary *s_experimentBag = nil;
 
         void (^completeBlockWrapper)(id, NSError *) = ^(id wrapperResponse, NSError *wrapperError)
         {
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowParseNetworkResponseTag]
-                                                      extraInfo:wrapperError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(wrapperError.code)} : nil
-                                              withCorrelationId:self.context.correlationId];
+            MSIDExecutionFlowInsertTag([self toString:MSIDParseNetworkResponseTag],
+                                           wrapperError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(wrapperError.code)} : nil,
+                                           self.context.correlationId);
             [self.serverTelemetry handleError:wrapperError context:self.context];
 
             if (completionBlock) { completionBlock(wrapperResponse, wrapperError); }
@@ -155,6 +156,15 @@ static NSDictionary *s_experimentBag = nil;
 
           if (error)
           {
+              NSString *clientData = httpResponse.allHeaderFields[MSID_CLIENT_DATA_HEADER_KEY];
+              if (clientData)
+              {
+                  MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Enriching error userInfo with client data from response header.");
+                  NSMutableDictionary *userInfo = error.userInfo ? [error.userInfo mutableCopy] : [NSMutableDictionary new];
+                  userInfo[MSID_CLIENT_DATA_RESPONSE] = clientData;
+                  error = [NSError errorWithDomain:error.domain code:error.code userInfo:userInfo];
+              }
+
               if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_RETRY_ON_NETWORK])
               {   
                   [self.errorHandler handleError:error
@@ -188,9 +198,9 @@ static NSDictionary *s_experimentBag = nil;
           else
           {
               
-              [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowOtherHttpNetworkStatusCodeTag]
-                                                        extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(httpResponse.statusCode)}
-                                                withCorrelationId:self.context.correlationId];
+              MSIDExecutionFlowInsertTag([self toString:MSIDOtherHttpNetworkStatusCodeTag],
+                                             @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(httpResponse.statusCode)},
+                                             self.context.correlationId);
               if (self.errorHandler)
               {
                   id<MSIDResponseSerialization> responseSerializer = self.errorResponseSerializer ? self.errorResponseSerializer : self.responseSerializer;

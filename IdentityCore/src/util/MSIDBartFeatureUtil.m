@@ -23,11 +23,9 @@
 // THE SOFTWARE.
 
 #import "MSIDBartFeatureUtil.h"
-#import "MSIDCache.h"
-#import "MSIDFlightManager.h"
-#import "MSIDConstants.h"
 
-static NSString *const k_bartCacheKey = @"com.microsoft.msid.bart_feature_enabled";
+static NSString *const k_bartUserDefaultsKey = @"com.microsoft.msid.bart_feature_enabled";
+
 @implementation MSIDBartFeatureUtil
 
 + (instancetype)sharedInstance
@@ -36,27 +34,15 @@ static NSString *const k_bartCacheKey = @"com.microsoft.msid.bart_feature_enable
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [[self alloc] init];
-        [self sharedCache];
     });
     return sharedInstance;
-}
-
-+ (MSIDCache *)sharedCache
-{
-    static MSIDCache *k_nonceCache;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        k_nonceCache = [MSIDCache new];
-    });
-    return k_nonceCache;
 }
 
 - (BOOL)isBartFeatureEnabled
 {
 #if TARGET_OS_IPHONE
     // Enable feature if it is enabled by app setting
-    id cachedValue = [[self.class sharedCache] objectForKey:k_bartCacheKey];
-    return [cachedValue boolValue];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:k_bartUserDefaultsKey];
 #else
     return NO;
 #endif
@@ -65,7 +51,7 @@ static NSString *const k_bartCacheKey = @"com.microsoft.msid.bart_feature_enable
 - (void)setBartSupportInAppCache:(BOOL)isEnabled
 {
 #if TARGET_OS_IPHONE
-    [[self.class sharedCache] setObject:@(isEnabled) forKey:k_bartCacheKey];
+    [[NSUserDefaults standardUserDefaults] setBool:isEnabled forKey:k_bartUserDefaultsKey];
 #endif
 }
 @end

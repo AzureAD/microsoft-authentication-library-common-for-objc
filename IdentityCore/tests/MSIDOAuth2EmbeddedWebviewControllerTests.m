@@ -27,8 +27,16 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
+
+// Expose private method for testing
+@interface MSIDOAuth2EmbeddedWebviewController (Testing)
+- (BOOL)shouldOpenURLInSystemBrowser:(NSURL *)url targetFrame:(WKFrameInfo *)targetFrame;
+@end
 
 @interface MSIDOAuth2EmbeddedWebviewControllerTests : XCTestCase
 
@@ -38,12 +46,26 @@
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER: @NO};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
     [super tearDown];
+}
+
+- (MSIDOAuth2EmbeddedWebviewController *)createTestWebviewController
+{
+    return [[MSIDOAuth2EmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
 }
 
 
@@ -86,6 +108,52 @@
                                                            context:nil];
     XCTAssertNotNil(webVC);
     
+}
+
+#pragma mark - shouldOpenURLInSystemBrowser tests
+
+- (void)testShouldOpenURL_whenHttpsURLWithNilTargetFrame_shouldReturnYes
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURL *url = [NSURL URLWithString:@"https://support.microsoft.com/help"];
+    XCTAssertTrue([webVC shouldOpenURLInSystemBrowser:url targetFrame:nil]);
+}
+
+- (void)testShouldOpenURL_whenHttpURL_shouldReturnNo
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURL *url = [NSURL URLWithString:@"http://insecure.example.com"];
+    XCTAssertFalse([webVC shouldOpenURLInSystemBrowser:url targetFrame:nil]);
+}
+
+- (void)testShouldOpenURL_whenCustomScheme_shouldReturnYes
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURL *url = [NSURL URLWithString:@"msauth://com.contoso.app/callback"];
+    XCTAssertTrue([webVC shouldOpenURLInSystemBrowser:url targetFrame:nil]);
+}
+
+- (void)testShouldOpenURL_whenSchemelessURL_shouldReturnNo
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURL *url = [NSURL URLWithString:@"/relative/path"];
+    XCTAssertFalse([webVC shouldOpenURLInSystemBrowser:url targetFrame:nil]);
+}
+
+- (void)testShouldOpenURL_whenNilURL_shouldReturnNo
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    XCTAssertFalse([webVC shouldOpenURLInSystemBrowser:nil targetFrame:nil]);
 }
 
 @end
