@@ -37,6 +37,7 @@
 @interface MSIDWebviewNavigationDelegateHelper()
 
 @property (nonatomic) id<MSIDRequestContext> context;
+@property (nonatomic) NSString *intuneAuthToken;
 
 @end
 
@@ -69,33 +70,12 @@
     if ([webviewController isKindOfClass:MSIDOAuth2EmbeddedWebviewController.class])
     {
         MSIDAADOAuthEmbeddedWebviewController *aadWebviewController =
-            (MSIDAADOAuthEmbeddedWebviewController *)webviewController;
+        (MSIDAADOAuthEmbeddedWebviewController *)webviewController;
         
         aadWebviewController.navigationDelegate = delegate;
         
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
-                         @"Set navigation delegate on embedded webview controller.");
-        
-        // ====================================================================
-        // Set up navigationResponseBlock to capture HTTP response headers
-        // This is critical for MDM flows where headers contain enrollment URLs and tokens
-        //
-        // PRODUCTION: Captures real HTTP response headers from AAD server
-        // TESTING: Allows injection of fake headers via navigationResponseBlock for testing
-        //          (See test code in MSIDAADOAuthEmbeddedWebviewController.m)
-        // ====================================================================
-        __weak typeof(self) weakSelf = self;
-        aadWebviewController.navigationResponseBlock = ^(NSHTTPURLResponse *response) {
-            __strong typeof(self) strongSelf = weakSelf;
-            if (strongSelf)
-            {
-                // Process headers from both real HTTP responses and test fake responses
-                [strongSelf processResponseHeaders:response.allHeaderFields];
-            }
-        };
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
-                         @"Set up navigationResponseBlock to capture HTTP headers.");
+                          @"Set navigation delegate on embedded webview controller.");
     }
     else
     {
@@ -137,6 +117,7 @@
                     MSIDWebviewNavigationAction *action = [util resolveActionForMSAuthURL:url
                                                                            webviewController:webviewController
                                                                             responseHeaders:self.lastResponseHeaders
+                                                                          intuneAuthToken:self.intuneAuthToken
                                                                             isBrokerContext:isBrokerContext
                                                                        externalNavigationBlock:externalNavigationBlock];
                     completion(action, nil);
@@ -150,6 +131,7 @@
         MSIDWebviewNavigationAction *action = [util resolveActionForMSAuthURL:url
                                                                webviewController:webviewController
                                                                 responseHeaders:self.lastResponseHeaders
+                                                              intuneAuthToken:self.intuneAuthToken
                                                                 isBrokerContext:isBrokerContext
                                                            externalNavigationBlock:externalNavigationBlock];
         completion(action, nil);
@@ -189,6 +171,7 @@
 - (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *)headers
 {
     self.lastResponseHeaders = headers;
+    self.intuneAuthToken = headers[@"x-ms-intune-token"];
     // TODO: Add telemetry handling for response headers
 }
 

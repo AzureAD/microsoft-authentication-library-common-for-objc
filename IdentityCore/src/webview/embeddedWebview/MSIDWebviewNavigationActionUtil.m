@@ -40,6 +40,7 @@
 - (MSIDWebviewNavigationAction *)resolveActionForMSAuthURL:(NSURL *)url
                                          webviewController:(id<MSIDWebviewInteracting>)webviewController
                                            responseHeaders:(NSDictionary<NSString *,NSString *> * _Nullable)responseHeaders
+                                           intuneAuthToken:(NSString * _Nullable)intuneAuthToken
                                            isBrokerContext:(BOOL)isBrokerContext
                                    externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
 {
@@ -128,12 +129,12 @@
 //    {
 //        additionalHeaders[@"x-ms-enrollment-token"] = responseHeaders[@"x-ms-enrollment-token"];
 //    }
-//    
+//
 //    if (responseHeaders[@"x-ms-compliance-token"])
 //    {
 //        additionalHeaders[@"x-ms-compliance-token"] = responseHeaders[@"x-ms-compliance-token"];
 //    }
-//    
+//
 //    if (responseHeaders[@"x-ms-enrollment-id"])
 //    {
 //        additionalHeaders[@"x-ms-enrollment-id"] = responseHeaders[@"x-ms-enrollment-id"];
@@ -226,9 +227,10 @@
 - (MSIDWebviewNavigationAction *)actionForInstallProfileURL:(NSURL *)url
                                                      params:(NSDictionary *)params
                                             responseHeaders:(nullable NSDictionary *)responseHeaders
+                                            intuneAuthToken:(NSString * _Nullable)intuneAuthToken
 {
     // Extract install URL from response header
-    NSString *installURLString = responseHeaders[@"x-ms-intune-install-url"]; //@"https://portal.manage-beta.microsoft.com/enrollment/webenrollment/installprofile?platform=iPhone"; 
+    NSString *installURLString = params[@"profileUrl"]; //@"https://portal.manage-beta.microsoft.com/enrollment/webenrollment/installprofile?platform=iPhone";
     NSURL *profileURL = nil;
     
     if (installURLString)
@@ -243,7 +245,7 @@
     }
         
     // Check if ASWebAuthenticationSession is required
-    //NSString *requireASWebAuthString = params[@"requireASWebAuthenticationSession"];
+    NSString *requireASWebAuthString = params[@"requireASWebAuthenticationSession"];
     BOOL requireASWebAuth = [requireASWebAuthString.lowercaseString isEqualToString:@"true"];
         
     if (requireASWebAuth)
@@ -251,8 +253,12 @@
         // Extract X-Intune-AuthToken for passing to ASWebAuthenticationSession
         // Note: X-Install-Url is used for the URL, not passed in additionalHeaders
         NSDictionary<NSString *, NSString *> *authHeaders = nil;
-        NSString *intuneAuthToken = responseHeaders[@"x-ms-intune-token"];
-        if (intuneAuthToken)
+        NSString *intuneAuthTokenInResponseHeaders = responseHeaders[@"x-ms-intune-token"];
+        if (intuneAuthTokenInResponseHeaders)
+        {
+            authHeaders = @{@"x-ms-intune-token": intuneAuthTokenInResponseHeaders};
+        }
+        else if (intuneAuthToken)
         {
             authHeaders = @{@"x-ms-intune-token": intuneAuthToken};
         }

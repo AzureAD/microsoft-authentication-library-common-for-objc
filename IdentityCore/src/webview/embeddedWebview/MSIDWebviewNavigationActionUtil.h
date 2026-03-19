@@ -53,11 +53,15 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param url The msauth:// URL to resolve
  * @param responseHeaders HTTP response headers for additional context
+ * @param intuneAuthToken Optional Intune auth token for compliance checks
+ * @param isBrokerContext YES if called from broker context, NO if called from local controller
+ * @param externalNavigationBlock Optional block to handle external navigation (e.g., browser URLs)
  * @return Navigation action to execute
  */
 - (MSIDWebviewNavigationAction * _Nullable)resolveActionForMSAuthURL:(NSURL *)url
                                                    webviewController:(id<MSIDWebviewInteracting>)webviewController
                                                      responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders
+                                                     intuneAuthToken:(NSString * _Nullable)intuneAuthToken
                                                      isBrokerContext:(BOOL)isBrokerContext
                                              externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock;
 @end
