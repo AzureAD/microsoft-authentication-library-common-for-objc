@@ -170,8 +170,13 @@
 
 - (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *)headers
 {
-    self.lastResponseHeaders = headers;
-    self.intuneAuthToken = headers[@"x-ms-intune-token"];
+    self.lastResponseHeaders = [headers copy];
+    NSString *token = headers[@"x-ms-intune-token"];
+    if ([token isKindOfClass:NSString.class] && token.length > 0)
+    {
+            self.intuneAuthToken = token;
+    }
+    
     // TODO: Add telemetry handling for response headers
 }
 
