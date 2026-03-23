@@ -226,10 +226,6 @@
                  MSIDSystemWebviewPurpose:(MSIDSystemWebviewPurpose)systemWebViewPurpose
                                   context:(id<MSIDRequestContext>)context
 {
-    NSString *profileInstallURLString = @"msauth://in_app_enrollment_complete?status=success";
-    callbackURL = [NSURL URLWithString:profileInstallURLString];
-    
-    error = nil; // Simulate no error for testing
     if (error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil,
