@@ -30,7 +30,6 @@
 #import "MSIDConstants.h"
 
 @class MSIDOAuth2EmbeddedWebviewController;
-@class MSIDASWebAuthenticationSessionHandler;
 @class MSIDViewController;
 
 

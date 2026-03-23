@@ -29,13 +29,8 @@
 @class MSIDWebviewNavigationAction;
 @class MSIDAADOAuthEmbeddedWebviewController;
 @class MSIDOAuth2EmbeddedWebviewController;
-@class MSIDWebMDMEnrollmentCompletionResponse;
-@class MSIDInteractiveTokenRequest;
 @class MSIDWebviewTransitionHandler;
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDTokenResult;
 
-typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 typedef NS_ENUM(NSInteger, MSIDSystemWebviewPurpose);
 
 NS_ASSUME_NONNULL_BEGIN

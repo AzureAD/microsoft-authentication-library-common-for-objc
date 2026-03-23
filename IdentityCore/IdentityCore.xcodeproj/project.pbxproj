@@ -1936,9 +1936,6 @@
 		B4635C662F3FCF8100E7DB3A /* MSIDWebviewTransitionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = B4635C652F3FCF6C00E7DB3A /* MSIDWebviewTransitionHandler.h */; };
 		B4635C682F3FCF8900E7DB3A /* MSIDWebviewTransitionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B4635C672F3FCF8700E7DB3A /* MSIDWebviewTransitionHandler.m */; };
 		B4635C692F3FCF8900E7DB3A /* MSIDWebviewTransitionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B4635C672F3FCF8700E7DB3A /* MSIDWebviewTransitionHandler.m */; };
-		B4635C702F3FE3D700E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B4635C6F2F3FE3A900E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.h */; };
-		B4635C722F3FE3DF00E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B4635C712F3FE3DD00E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.m */; };
-		B4635C732F3FE3DF00E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B4635C712F3FE3DD00E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.m */; };
 		B46F3B662F3C321B00CDD8F7 /* MSIDWebviewNavigationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = B46F3B652F3C31F200CDD8F7 /* MSIDWebviewNavigationDelegate.h */; };
 		B46F3B6B2F3C325300CDD8F7 /* MSIDWebviewNavigationAction.h in Headers */ = {isa = PBXBuildFile; fileRef = B46F3B6A2F3C323500CDD8F7 /* MSIDWebviewNavigationAction.h */; };
 		B46F3B6D2F3C325A00CDD8F7 /* MSIDWebviewNavigationAction.m in Sources */ = {isa = PBXBuildFile; fileRef = B46F3B6C2F3C325800CDD8F7 /* MSIDWebviewNavigationAction.m */; };
@@ -3512,8 +3509,6 @@
 		B443F0012AD6328700782168 /* MSIDBrokerOperationPasskeyCredentialRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationPasskeyCredentialRequest.m; sourceTree = "<group>"; };
 		B4635C652F3FCF6C00E7DB3A /* MSIDWebviewTransitionHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewTransitionHandler.h; sourceTree = "<group>"; };
 		B4635C672F3FCF8700E7DB3A /* MSIDWebviewTransitionHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewTransitionHandler.m; sourceTree = "<group>"; };
-		B4635C6F2F3FE3A900E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebMDMEnrollmentCompletionResponse.h; sourceTree = "<group>"; };
-		B4635C712F3FE3DD00E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebMDMEnrollmentCompletionResponse.m; sourceTree = "<group>"; };
 		B46F3B652F3C31F200CDD8F7 /* MSIDWebviewNavigationDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewNavigationDelegate.h; sourceTree = "<group>"; };
 		B46F3B6A2F3C323500CDD8F7 /* MSIDWebviewNavigationAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewNavigationAction.h; sourceTree = "<group>"; };
 		B46F3B6C2F3C325800CDD8F7 /* MSIDWebviewNavigationAction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewNavigationAction.m; sourceTree = "<group>"; };
@@ -4592,8 +4587,6 @@
 		96235F93207D723F007EAB36 /* response */ = {
 			isa = PBXGroup;
 			children = (
-				B4635C712F3FE3DD00E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.m */,
-				B4635C6F2F3FE3A900E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.h */,
 				9658102F20C7E1180025F4A4 /* MSIDWebviewResponse.h */,
 				9658103020C7E1180025F4A4 /* MSIDWebviewResponse.m */,
 				B286B9752389CE67007833AD /* MSIDWebOAuth2Response.h */,
@@ -6524,7 +6517,6 @@
 				B286B9862389DC22007833AD /* MSIDBrokerOperationGetAccountsRequest.h in Headers */,
 				2317FFC02A44FDD400E3DAA2 /* MSIDBrowserNativeMessageGetCookiesRequest.h in Headers */,
 				B217863323A5948D00839CE8 /* MSIDSignoutController.h in Headers */,
-				B4635C702F3FE3D700E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.h in Headers */,
 				2307163D2299ED3800FDD044 /* MSIDExternalAADCacheSeeder.h in Headers */,
 				B21786A023A710A000839CE8 /* MSIDSSOExtensionGetAccountsRequest.h in Headers */,
 				1E74094924197E8F00133EF7 /* NSDictionary+MSIDLogging.h in Headers */,
@@ -7837,7 +7829,6 @@
 				B2E2A925239221A000BA2EA3 /* MSIDBrokerOperationSignoutFromDeviceRequest.m in Sources */,
 				23FB5C452255A11D002BF1EB /* MSIDClaimsRequest.m in Sources */,
 				B2893CB11FCF6A8C00E348E9 /* NSMutableDictionary+MSIDExtensions.m in Sources */,
-				B4635C732F3FE3DF00E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.m in Sources */,
 				B493239D2AD4DABE00E0CBC0 /* MSIDPasskeyAssertion.m in Sources */,
 				B227036022A367A000030ADC /* MSIDMaskedHashableLogParameter.m in Sources */,
 				E70C4A31258D68D900A7A07E /* MSIDThrottlingCacheRecord.m in Sources */,
@@ -8616,7 +8607,6 @@
 				237777CB2853FF9400DDEAFC /* ASAuthorizationController+MSIDExtensions.m in Sources */,
 				600D19A320964B930004CD43 /* MSIDClientTLSHandler.m in Sources */,
 				B2908C081FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */,
-				B4635C722F3FE3DF00E7DB3A /* MSIDWebMDMEnrollmentCompletionResponse.m in Sources */,
 				B26A0B832071B6CC006BD95A /* MSIDAADOauth2Factory.m in Sources */,
 				B5AAE1202F03DADD0026B21B /* MSIDBrokerOperationGetDefaultAccountRequest.m in Sources */,
 				23B5DF81234031EE002C530F /* MSIDSSOExtensionInteractiveTokenRequestController.m in Sources */,
