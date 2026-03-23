@@ -86,7 +86,7 @@
         
         if ([self.executionFlowMap objectForKey:correlationId])
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"The execution flow for this correlationId %@ has been registered, and cannot be re-registered. This is a developer error, please check", correlationId, nil);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"Duplicate registration is not allowed for %@. Please ensure the flow is registered only once.", correlationId, nil);
             return;
         }
         
