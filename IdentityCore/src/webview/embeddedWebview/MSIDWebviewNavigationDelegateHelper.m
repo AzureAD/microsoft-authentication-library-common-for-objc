@@ -74,27 +74,6 @@
         aadWebviewController.navigationDelegate = delegate;
         
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
-                         @"Set navigation delegate on embedded webview controller.");
-        
-        // ====================================================================
-        // Set up navigationResponseBlock to capture HTTP response headers
-        // This is critical for MDM flows where headers contain enrollment URLs and tokens
-        //
-        // PRODUCTION: Captures real HTTP response headers from AAD server
-        // TESTING: Allows injection of fake headers via navigationResponseBlock for testing
-        //          (See test code in MSIDAADOAuthEmbeddedWebviewController.m)
-        // ====================================================================
-        __weak typeof(self) weakSelf = self;
-        aadWebviewController.navigationResponseBlock = ^(NSHTTPURLResponse *response) {
-            __strong typeof(self) strongSelf = weakSelf;
-            if (strongSelf)
-            {
-                // Process headers from both real HTTP responses and test fake responses
-                [strongSelf processResponseHeaders:response.allHeaderFields];
-            }
-        };
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
                          @"Set up navigationResponseBlock to capture HTTP headers.");
     }
     else
