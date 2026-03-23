@@ -154,7 +154,7 @@ withCorrelationId:(NSUUID *)correlationId
 
     if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"CorrelationId cannot be nil", nil);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"CorrelationId must be non-nil and have a non-empty UUIDString", nil);
         if (completion) { completion(nil); }
         return;
     }
