@@ -1,3 +1,17 @@
+TBD
+* Import the right bridging header when common-core is consumed as submodule 
+* Add retry logic when bound app refresh token redemption fails.
+* Captures the x-ms-clientData HTTP response header from ESTS & MSTS and supports client data from redirect uri (#1699)
+* Aligned Init Logic for Get Token API With Documentation (#1698)
+* Strip eqp from CIAM authority #1714
+* Add French sovereign cloud authority as a trusted authority (#1731)
+
+Version 1.20.0
+* Add token request execution flow logger (#1655)
+
+Version 1.19.1
+* Support POP and claims in browser core
+
 Version 1.19.0
 * Add logic to save bound app RT only when token response has refresh_token_type=bound_app_rt
 * Filter Bound app RTs when reg deviceId doesn't match

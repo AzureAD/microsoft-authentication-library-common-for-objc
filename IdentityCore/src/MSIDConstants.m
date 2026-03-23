@@ -48,6 +48,7 @@ NSString *const MSIDTrustedAuthorityUS             = @"login.microsoftonline.us"
 NSString *const MSIDTrustedAuthorityChina          = @"login.chinacloudapi.cn";
 NSString *const MSIDTrustedAuthorityChina2         = @"login.partner.microsoftonline.cn";
 NSString *const MSIDTrustedAuthorityGermany        = @"login.microsoftonline.de";
+NSString *const MSIDTrustedAuthorityFrance         = @"login.sovcloud-identity.fr";
 NSString *const MSIDTrustedAuthorityWorldWide      = @"login.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityUSGovernment   = @"login-us.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityCloudGovApi    = @"login.usgovcloudapi.net";
@@ -102,6 +103,10 @@ NSString *const MSID_FLIGHT_ENABLE_QUERYING_STK = @"enable_querying_stk";
 
 NSString *const MSID_FLIGHT_USE_AUTOLAYOUT_FOR_LOADING_INDICATOR = @"use_autolayout_for_loading_indicator";
 
+NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_POP = @"browser_core_disable_pop";
+
+NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS = @"browser_core_disable_claims";
+
 NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 
 // This is SsoExt flow only flight
@@ -113,5 +118,7 @@ NSString *const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE = @"skip_brk_cache";
 NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 
 NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
+
+NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_new_window_in_browser";
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
