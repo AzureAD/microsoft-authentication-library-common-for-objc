@@ -109,7 +109,7 @@ withCorrelationId:(NSUUID *)correlationId
     
     if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"CorrelationId cannot be nil, fail to insert tag: %@", tag, nil);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"CorrelationId cannot be nil or invalid/blank, fail to insert tag: %@", tag, nil);
         return;
     }
     
