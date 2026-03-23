@@ -52,7 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
  * - in_app_enrollment_complete: Profile installation completion
  *
  * @param url The msauth:// URL to resolve
+ * @param webviewController The webview controller handling the navigation
  * @param responseHeaders HTTP response headers for additional context
+ * @param isBrokerContext Indicates if the navigation is occurring in a broker context
+ * @param externalNavigationBlock Callback for controller-specific navigation logic
  * @return Navigation action to execute
  */
 - (MSIDWebviewNavigationAction * _Nullable)resolveActionForMSAuthURL:(NSURL *)url

@@ -52,23 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDWebviewTransitionHandler : NSObject
 
 /**
- * Reference to the suspended embedded webview kept alive during the transition
- */
-@property (nonatomic, nullable) MSIDOAuth2EmbeddedWebviewController *suspendedEmbeddedWebview;
-
-/**
- * Handler for ASWebAuthenticationSession lifecycle.
- * Manages the system webview instance.
- */
-@property (nonatomic, nullable) id aSWebAuthenticationSessionHandler;
-
-/**
- * Indicates whether a transition is currently in progress.
- * Returns YES if either a suspended webview exists or ASWebAuthenticationSession is active.
- */
-@property (nonatomic, readonly) BOOL isTransitioning;
-
-/**
  * Suspends the embedded webview by hiding it while keeping it alive in memory.
  * The webview can be resumed later with resumeSuspendedEmbeddedWebview.
  *
@@ -78,7 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Launches ASWebAuthenticationSession and returns navigation action.
- * Alternative to the token-based completion handler above.
  *
  * @param url The URL to load in ASWebAuthenticationSession
  * @param parentController The parent view controller to present from (iOS only)

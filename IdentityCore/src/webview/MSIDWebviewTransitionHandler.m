@@ -30,6 +30,21 @@
 #import "MSIDMainThreadUtil.h"
 #import "MSIDWebviewNavigationAction.h"
 
+@interface MSIDWebviewTransitionHandler ()
+
+/**
+ * Reference to the suspended embedded webview kept alive during the transition
+ */
+@property (nonatomic, nullable) MSIDOAuth2EmbeddedWebviewController *suspendedEmbeddedWebview;
+
+/**
+ * Handler for ASWebAuthenticationSession lifecycle.
+ * Manages the system webview instance.
+ */
+@property (nonatomic, nullable) id aSWebAuthenticationSessionHandler;
+
+@end
+
 @implementation MSIDWebviewTransitionHandler
 
 #pragma mark - Launch ASWebAuthenticationSession
@@ -231,11 +246,9 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil,
                          @"ASWebAuthenticationSession session failed: %@", error);
         // Clean up
-        [self dismissASWebAuthenticationSession]; // TODO: check if this will cancel the token request and return cancel error to calling app
+        [self dismissASWebAuthenticationSession];
         return [MSIDWebviewNavigationAction failWebAuthWithErrorAction:error];
     }
-    
-    
     
     // Currently only implemented for MSIDSystemWebviewPurposeInstallProfile purpose, can be extended for future cases
     // Check if callback is msauth://in_app_enrollment_complete
@@ -250,13 +263,11 @@
             
             self.aSWebAuthenticationSessionHandler = nil;
             
-            // TODO: check
-            // Option 1: cancel ASWebAuthN , load callback URL in WKWebview and let WKWebView handle the response
-            // 2. Resume embedded webview UI
+            // Resume embedded webview UI
             [self resumeSuspendedEmbeddedWebview];
             
             
-            // 4. Load callback URL
+            // Load callback URL
             return [MSIDWebviewNavigationAction loadRequestAction:[NSURLRequest requestWithURL:callbackURL]];
         }
         else
@@ -276,15 +287,13 @@
     }
     else
     {
-        // for now in other cases we will transition the control back to Embedded webview
+        // Transition back to embedded webview with the callback URL as the new navigation request
         self.aSWebAuthenticationSessionHandler = nil;
         
-        // TODO: check
-        // Option 1: cancel ASWebAuthN , load callback URL in WKWebview and let WKWebView handle the response
-        // 2. Resume embedded webview UI
+        // Resume embedded webview UI
         [self resumeSuspendedEmbeddedWebview];
         
-        // 4. Load callback URL
+        // Load callback URL
         return [MSIDWebviewNavigationAction loadRequestAction:[NSURLRequest requestWithURL:callbackURL]];
     }
 }
