@@ -86,7 +86,7 @@
         
         if ([self.executionFlowMap objectForKey:correlationId])
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The execution flow for this correlationId %@ has been registered, and cannot be re-registered. This is a developer error, please check", correlationId, nil);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"Duplicate registration is not allowed for %@. Please ensure the flow is registered only once.", correlationId, nil);
             return;
         }
         
@@ -103,13 +103,13 @@ withCorrelationId:(NSUUID *)correlationId
 
     if ([NSString msidIsStringNilOrBlank:tag])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Tag cannot be nil, fail to insert tag", nil);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"Tag is invalid/blank, fail to insert tag", nil);
         return;
     }
     
     if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationId cannot be nil, fail to insert tag: %@", tag, nil);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"CorrelationId cannot be nil or invalid/blank, fail to insert tag: %@", tag, nil);
         return;
     }
     
@@ -125,7 +125,7 @@ withCorrelationId:(NSUUID *)correlationId
 
         if (![self.executionFlowMap.toDictionary.allKeys containsObject:correlationId])
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"The execution flow for adding this tag %@ with correlationId: %@ has been flushed or not registered yet, this is a developer error, please check", tag, correlationId, nil);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"The execution flow for adding this tag %@ with correlationId: %@ has been flushed or not registered yet, this is a developer error, please check", tag, correlationId, nil);
             return;
         }
         
@@ -154,7 +154,7 @@ withCorrelationId:(NSUUID *)correlationId
 
     if (!correlationId || [NSString msidIsStringNilOrBlank:correlationId.UUIDString])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationId cannot be nil", nil);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"CorrelationId must be non-nil and have a non-empty UUIDString", nil);
         if (completion) { completion(nil); }
         return;
     }
