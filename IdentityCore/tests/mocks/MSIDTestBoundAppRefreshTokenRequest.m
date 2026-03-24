@@ -18,40 +18,37 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+#import "MSIDTestBoundAppRefreshTokenRequest.h"
+#import "MSIDTestSilentTokenRequest.h"
 
-#import "MSIDBartFeatureUtil.h"
+@implementation MSIDTestBoundAppRefreshTokenRequest
 
-static NSString *const k_bartUserDefaultsKey = @"com.microsoft.msid.bart_feature_enabled";
-
-@implementation MSIDBartFeatureUtil
-
-+ (instancetype)sharedInstance
+- (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
 {
-    static MSIDBartFeatureUtil *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] init];
-    });
-    return sharedInstance;
+    if (self.skipLocalRt)
+    {
+        completionBlock(nil, nil);
+    }
+    else
+    {
+        if (!self.shouldSkipBoundAppRefreshTokenUsage)
+        {
+            if (self.resultAfterRetry)
+            {
+                self.shouldSkipBoundAppRefreshTokenUsage = YES;
+            }
+            
+            completionBlock(self.testTokenResult, self.testError);
+        }
+        else
+        {
+            self.shouldSkipBoundAppRefreshTokenUsage = NO;
+            completionBlock(self.resultAfterRetry, self.errorAfterRetry);
+        }
+    }
 }
 
-- (BOOL)isBartFeatureEnabled
-{
-#if TARGET_OS_IPHONE
-    // Enable feature if it is enabled by app setting
-    return [[NSUserDefaults standardUserDefaults] boolForKey:k_bartUserDefaultsKey];
-#else
-    return NO;
-#endif
-}
-
-- (void)setBartSupportInAppCache:(BOOL)isEnabled
-{
-#if TARGET_OS_IPHONE
-    [[NSUserDefaults standardUserDefaults] setBool:isEnabled forKey:k_bartUserDefaultsKey];
-#endif
-}
 @end

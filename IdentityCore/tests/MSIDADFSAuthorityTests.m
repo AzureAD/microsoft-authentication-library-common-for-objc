@@ -108,6 +108,17 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitADFSAuthority_whenValidUrlEQP_shouldRemoveEQP
+{
+    __auto_type authorityUrl = [@"https://contoso.com:8080/adfs?bad=param" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.url, [@"https://contoso.com:8080/adfs" msidUrl]);
+    XCTAssertNil(error);
+}
+
 #pragma mark - universalAuthorityURL
 
 - (void)testUniversalAuthorityURL_whenADFSAuhority_shouldReturnOriginalAuthority

@@ -219,6 +219,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     
     if (error)
     {
+        // TODO: https://identitydivision.visualstudio.com/Engineering/_workitems/edit/3539094
         [MSIDNotifications notifyWebAuthDidFailWithError:error];
     }
     else
@@ -403,6 +404,21 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     [self endWebAuthWithURL:nil error:error];
 }
 
+#pragma mark - URL scheme helpers
+
+- (BOOL)shouldOpenURLInSystemBrowser:(NSURL *)url targetFrame:(WKFrameInfo *)targetFrame
+{
+    NSString *scheme = url.scheme.lowercaseString;
+
+    if (!scheme.length)
+    {
+        return NO;
+    }
+
+    // Open https links targeting a new window (targetFrame == nil) or non-http(s) scheme URLs
+    return ([scheme isEqualToString:@"https"] && !targetFrame) || ![scheme hasPrefix:@"http"];
+}
+
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(__unused WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
@@ -430,7 +446,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     {
         //Open secure web links with target=new window in default browser or non-web links with URL schemes that can be opened by the application
         // If the target of the navigation is a new window, navigationAction.targetFrame is nil. (See discussions in : https://developer.apple.com/documentation/webkit/wknavigationaction/1401918-targetframe?language=objc)
-        if (([requestURL.scheme.lowercaseString isEqualToString:@"https"] && !navigationAction.targetFrame) || ![requestURL.scheme.lowercaseString hasPrefix:@"http"])
+        if ([self shouldOpenURLInSystemBrowser:requestURL targetFrame:navigationAction.targetFrame])
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening URL outside embedded webview with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
             [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
@@ -498,6 +514,40 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     {
         [self completeWebAuthWithURL:url];
     }
+}
+
+#pragma mark - WKUIDelegate Protocol
+
+- (WKWebView *)webView:(WKWebView *)webView
+createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
+   forNavigationAction:(WKNavigationAction *)navigationAction
+        windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+    if ([[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER])
+    {
+        return nil;
+    }
+
+    NSURL *requestURL = navigationAction.request.URL;
+
+    // Skip link-activated navigations — decidePolicyForNavigationAction: already handles
+    // target="_blank" anchor clicks by opening them in the system browser.
+    if (navigationAction.navigationType == WKNavigationTypeLinkActivated)
+    {
+        return nil;
+    }
+
+    // For other new-window requests (e.g. window.open()), use the same scheme gating
+    // as decidePolicyForNavigationAction:. targetFrame is nil for new-window requests.
+    if ([self shouldOpenURLInSystemBrowser:requestURL targetFrame:nil])
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening new window URL in system browser with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
+        [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
+        [self notifyFinishedNavigation:requestURL webView:webView];
+    }
+
+    // Return nil to prevent WKWebView from creating a new web view
+    return nil;
 }
 
 #if AD_BROKER

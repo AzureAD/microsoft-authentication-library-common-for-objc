@@ -18,40 +18,15 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+#import "MSIDTestSilentTokenRequest.h"
+#import "MSIDTokenResult.h"
 
-#import "MSIDBartFeatureUtil.h"
+@interface MSIDTestBoundAppRefreshTokenRequest : MSIDTestSilentTokenRequest
 
-static NSString *const k_bartUserDefaultsKey = @"com.microsoft.msid.bart_feature_enabled";
+@property (nonatomic) MSIDTokenResult *resultAfterRetry;
+@property (nonatomic) NSError *errorAfterRetry;
 
-@implementation MSIDBartFeatureUtil
-
-+ (instancetype)sharedInstance
-{
-    static MSIDBartFeatureUtil *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] init];
-    });
-    return sharedInstance;
-}
-
-- (BOOL)isBartFeatureEnabled
-{
-#if TARGET_OS_IPHONE
-    // Enable feature if it is enabled by app setting
-    return [[NSUserDefaults standardUserDefaults] boolForKey:k_bartUserDefaultsKey];
-#else
-    return NO;
-#endif
-}
-
-- (void)setBartSupportInAppCache:(BOOL)isEnabled
-{
-#if TARGET_OS_IPHONE
-    [[NSUserDefaults standardUserDefaults] setBool:isEnabled forKey:k_bartUserDefaultsKey];
-#endif
-}
 @end
