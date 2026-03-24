@@ -7,7 +7,7 @@ Version 1.22.0
 * Serialize `is_sso_account` as NSString instead of NSNumber in MSIDAccount
 
 Version 1.21.0
-* Import the right bridging header when common-core is consumed as submodule 
+* Import the right bridging header when common-core is consumed as submodule  (#1678)
 
 Version 1.20.0
 * Add token request execution flow logger (#1655)
