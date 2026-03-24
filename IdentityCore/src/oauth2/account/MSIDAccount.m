@@ -231,7 +231,7 @@
     json[@"client_info"] = self.clientInfo.rawClientInfo;
     json[@"alternative_account_id"] = self.alternativeAccountId;
     json[@"id_token_claims"] = self.idTokenClaims.jsonDictionary;
-    json[@"is_sso_account"] = @(self.isSSOAccount);
+    json[@"is_sso_account"] = [@(self.isSSOAccount) stringValue];
     [json addEntriesFromDictionary:[self.accountIdentifier jsonDictionary]];
     
     return json;

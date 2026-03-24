@@ -61,6 +61,7 @@
         @"realm" : @"common",
         @"storage_environment" : @"login.windows2.net",
         @"username" : @"username",
+        @"is_sso_account" : @"1",
     };
 
     NSError *error;
@@ -86,6 +87,7 @@
     XCTAssertEqualObjects(account.name, @"Eric Middle Last");
     XCTAssertEqualObjects(account.clientInfo.rawClientInfo, [@{@"key" : @"value"} msidBase64UrlJson]);
     XCTAssertEqualObjects(account.alternativeAccountId, @"AltID");
+    XCTAssertTrue(account.isSSOAccount);
 }
 
 - (void)testInitWithJSONDictionary_whenSuccessButAccountInvalid_shouldReturnNil {
@@ -136,6 +138,7 @@
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
     account.clientInfo = clientInfo;
     account.alternativeAccountId = @"AltID";
+    account.isSSOAccount = YES;
     
     MSIDBrokerOperationGetDefaultAccountResponse *response = [[MSIDBrokerOperationGetDefaultAccountResponse alloc] initWithDeviceInfo:nil];
     response.account = account;
@@ -153,6 +156,36 @@
     XCTAssertEqualObjects(result[@"username"], @"username");
     XCTAssertEqualObjects(result[@"environment"], @"login.microsoftonline.com");
     XCTAssertEqualObjects(result[@"realm"], @"common");
+    XCTAssertEqualObjects(result[@"is_sso_account"], @"1");
+}
+
+- (void)testJsonDictionary_allValuesMustBeNSString_noNSNumberAllowed
+{
+    MSIDAccount *account = [MSIDAccount new];
+    account.accountType = MSIDAccountTypeMSSTS;
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                        homeAccountId:@"uid.utid"];
+    account.localAccountId = @"local";
+    account.environment = @"login.microsoftonline.com";
+    account.realm = @"common";
+    account.isSSOAccount = YES;
+
+    MSIDBrokerOperationGetDefaultAccountResponse *response = [[MSIDBrokerOperationGetDefaultAccountResponse alloc] initWithDeviceInfo:nil];
+    response.account = account;
+    response.operation = @"get_default_account";
+    response.success = YES;
+
+    NSDictionary *result = response.jsonDictionary;
+    XCTAssertNotNil(result);
+
+    [result enumerateKeysAndObjectsUsingBlock:^(id key, id value, __unused BOOL *stop) {
+        // nil values are filtered out by NSDictionary, but nested dicts or arrays
+        // are not valid HTTP header values either — only flat strings are.
+        XCTAssertTrue([value isKindOfClass:[NSString class]],
+                      @"Value for key '%@' must be NSString for NSHTTPURLResponse "
+                       "headerFields compatibility, but got %@ (%@)",
+                      key, NSStringFromClass([value class]), value);
+    }];
 }
 
 #endif
