@@ -27,8 +27,27 @@
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWKNavigationActionMock.h"
 #import "MSIDWebAuthNUtil.h"
+#import "MSIDTestBundle.h"
 
 #if !MSID_EXCLUDE_WEBKIT
+
+#if AD_BROKER && TARGET_OS_IPHONE
+@interface MSIDMockAppDelegate : NSObject <UIApplicationDelegate>
+@property (nonatomic) XCTestExpectation *continueUserActivityExpectation;
+@property (nonatomic) NSURL *receivedURL;
+@end
+
+@implementation MSIDMockAppDelegate
+- (BOOL)application:(UIApplication *)application
+    continueUserActivity:(NSUserActivity *)userActivity
+      restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
+{
+    self.receivedURL = userActivity.webpageURL;
+    [self.continueUserActivityExpectation fulfill];
+    return YES;
+}
+@end
+#endif
 
 @interface MSIDAADOAuthEmbeddedWebviewControllerTests : XCTestCase
 
@@ -256,6 +275,46 @@
 
     XCTAssertFalse(result);
 }
+
+#if AD_BROKER && TARGET_OS_IPHONE
+- (void)testDecidePolicyForNavigationAction_whenActivationURL_shouldCancelActionAndInvokeContinueUserActivity
+{
+    [MSIDTestBundle overrideBundleId:@"com.microsoft.azureauthenticator"];
+
+    MSIDMockAppDelegate *mockDelegate = [MSIDMockAppDelegate new];
+    mockDelegate.continueUserActivityExpectation = [self expectationWithDescription:@"continueUserActivity invoked"];
+
+    id<UIApplicationDelegate> originalDelegate = [UIApplication sharedApplication].delegate;
+    [UIApplication sharedApplication].delegate = mockDelegate;
+
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    NSURL *activationURL = [NSURL URLWithString:@"https://login.microsoftonline.com/authenticatorApp/activateAccount"];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:activationURL];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *decisionExpectation = [self expectationWithDescription:@"decision handler"];
+
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+        [decisionExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(result);
+    XCTAssertEqualObjects(mockDelegate.receivedURL, activationURL);
+
+    [UIApplication sharedApplication].delegate = originalDelegate;
+    [MSIDTestBundle reset];
+}
+#endif
 
 @end
 

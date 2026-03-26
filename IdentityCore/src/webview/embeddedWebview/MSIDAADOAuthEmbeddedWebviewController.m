@@ -32,6 +32,8 @@
 #import "MSIDWebAuthNUtil.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDAppExtensionUtil.h"
+#import "MSIDBrokerConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -58,6 +60,20 @@
                      customHeaders:headers
                     platfromParams:platformParams
                            context:context];
+}
+
+- (BOOL)isAuthenticatorAppActivationURL:(NSURL *)url
+{
+    NSString *host = url.host.lowercaseString;
+    NSString *path = url.path.lowercaseString;
+
+    BOOL isAADHost = [host isEqualToString:@"login.microsoftonline.com"] ||
+                     [host isEqualToString:@"login.microsoftonline.us"] ||
+                     [host isEqualToString:@"login.chinacloudapi.cn"];
+
+    BOOL isActivationPath = [path isEqualToString:@"/authenticatorapp/activateaccount"];
+
+    return isAADHost && isActivationPath;
 }
 
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
@@ -134,6 +150,30 @@
                            }];
         return YES;
     }
+    
+#if AD_BROKER && TARGET_OS_IPHONE
+    // Based on https://developer.apple.com/documentation/xcode/allowing-apps-and-websites-to-link-to-your-content,
+    // Universal link won't open Authenticator if it is already in Authetnicatior.
+    // Directly invoke the app delegate's continueUserActivity to handle it in-app.
+    // Only apply when running in the main Authenticator app.
+    if ([MSID_BROKER_APP_BUNDLE_ID isEqualToString:[[NSBundle mainBundle] bundleIdentifier]]
+        && [self isAuthenticatorAppActivationURL:requestURL])
+    {
+        decisionHandler(WKNavigationActionPolicyCancel);
+        NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
+        userActivity.webpageURL = requestURL;
+        UIApplication *app = [MSIDAppExtensionUtil sharedApplication];
+        id<UIApplicationDelegate> appDelegate = app.delegate;
+        if ([appDelegate respondsToSelector:@selector(application:continueUserActivity:restorationHandler:)])
+        {
+            [appDelegate application:app
+                continueUserActivity:userActivity
+                  restorationHandler:^(NSArray<id<UIUserActivityRestoring>> * _Nullable _) {}];
+        }
+        return YES;
+    }
+#endif
+
     
     return NO;
 }
