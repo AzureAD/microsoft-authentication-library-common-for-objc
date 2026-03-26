@@ -72,9 +72,9 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         aadHosts = [NSSet setWithArray:@[
-            @"login.microsoftonline.com",
-            @"login.microsoftonline.us",
-            @"login.chinacloudapi.cn"
+            MSIDTrustedAuthorityWorldWide,
+            MSIDTrustedAuthorityUS,
+            MSIDTrustedAuthorityChina
         ]];
     });
     
