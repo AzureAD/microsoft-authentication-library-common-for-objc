@@ -38,9 +38,9 @@
 @end
 
 @implementation MSIDMockAppDelegate
-- (BOOL)application:(UIApplication *)application
+- (BOOL)application:(__unused UIApplication *)application
     continueUserActivity:(NSUserActivity *)userActivity
-      restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
+      restorationHandler:(__unused void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
     self.receivedURL = userActivity.webpageURL;
     [self.continueUserActivityExpectation fulfill];

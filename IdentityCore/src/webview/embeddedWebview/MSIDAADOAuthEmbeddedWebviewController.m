@@ -64,15 +64,23 @@
 
 - (BOOL)isAuthenticatorAppActivationURL:(NSURL *)url
 {
+    
     NSString *host = url.host.lowercaseString;
     NSString *path = url.path.lowercaseString;
-
-    BOOL isAADHost = [host isEqualToString:@"login.microsoftonline.com"] ||
-                     [host isEqualToString:@"login.microsoftonline.us"] ||
-                     [host isEqualToString:@"login.chinacloudapi.cn"];
-
+    
+    static NSSet<NSString *> *aadHosts = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        aadHosts = [NSSet setWithArray:@[
+            @"login.microsoftonline.com",
+            @"login.microsoftonline.us",
+            @"login.chinacloudapi.cn"
+        ]];
+    });
+    
+    BOOL isAADHost = host && [aadHosts containsObject:host];
     BOOL isActivationPath = [path isEqualToString:@"/authenticatorapp/activateaccount"];
-
+    
     return isAADHost && isActivationPath;
 }
 
@@ -153,7 +161,7 @@
     
 #if AD_BROKER && TARGET_OS_IPHONE
     // Based on https://developer.apple.com/documentation/xcode/allowing-apps-and-websites-to-link-to-your-content,
-    // Universal link won't open Authenticator if it is already in Authetnicatior.
+    // Universal links won't open Authenticator if it is already in Authenticator.
     // Directly invoke the app delegate's continueUserActivity to handle it in-app.
     // Only apply when running in the main Authenticator app.
     if ([MSID_BROKER_APP_BUNDLE_ID isEqualToString:[[NSBundle mainBundle] bundleIdentifier]]
@@ -168,7 +176,11 @@
         {
             [appDelegate application:app
                 continueUserActivity:userActivity
-                  restorationHandler:^(NSArray<id<UIUserActivityRestoring>> * _Nullable _) {}];
+                  restorationHandler:^(NSArray<id<UIUserActivityRestoring>> * _Nullable __unused _) {}];
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Received MFA activation link in webview but failed to call delegate.");
         }
         return YES;
     }
