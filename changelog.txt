@@ -1,4 +1,4 @@
-TBD
+X.X.4
 * Import the right bridging header when common-core is consumed as submodule 
 * Add retry logic when bound app refresh token redemption fails.
 * Captures the x-ms-clientData HTTP response header from ESTS & MSTS and supports client data from redirect uri (#1699)
