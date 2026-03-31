@@ -5,6 +5,11 @@ TBD
 * Aligned Init Logic for Get Token API With Documentation (#1698)
 * Strip eqp from CIAM authority #1714
 * Add French sovereign cloud authority as a trusted authority (#1731)
+* Serialize `is_sso_account` as NSString instead of NSNumber in MSIDAccount
+* Remove experiment bag for http request and try to resolve crash reported.
+
+Version 1.21.0
+* Import the right bridging header when common-core is consumed as submodule  (#1678)
 
 Version 1.20.0
 * Add token request execution flow logger (#1655)
