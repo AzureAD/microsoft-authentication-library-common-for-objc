@@ -76,11 +76,8 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
-    NSMutableDictionary *localHeaders = nil;
-    localHeaders = self.headers ? [self.headers mutableCopy] : [NSMutableDictionary dictionary];
-    [localHeaders setValue:MSID_HTTP_CONNECTION_VALUE forKey:MSID_HTTP_CONNECTION];
 
-    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:localHeaders ?: self.headers];
+    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
     {

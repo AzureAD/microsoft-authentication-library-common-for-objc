@@ -99,6 +99,3 @@ NSString *const MSID_IS_CALLER_MANAGED_KEY = @"isCallerAppManaged";
 NSString *const MSID_BROKER_SDM_WPJ_ATTEMPTED = @"sdm_reg_attempted";
 NSString *const MSID_BART_DEVICE_ID_KEY = @"bart_device_id";
 NSString *const MSID_FORCE_REFRESH_KEY = @"force_refresh";
-// Http header
-NSString *const MSID_HTTP_CONNECTION = @"Connection";
-NSString *const MSID_HTTP_CONNECTION_VALUE = @"close";

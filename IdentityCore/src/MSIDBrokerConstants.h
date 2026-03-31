@@ -100,7 +100,5 @@ extern NSString * _Nonnull const MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY;
 extern NSString * _Nonnull const MSID_BROKER_CLIENT_FLIGHTS_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SDM_WPJ_ATTEMPTED;
 extern NSString * _Nonnull const MSID_BART_DEVICE_ID_KEY;
-extern NSString * _Nonnull const MSID_HTTP_CONNECTION;
-extern NSString * _Nonnull const MSID_HTTP_CONNECTION_VALUE;
 extern NSString * _Nonnull const MSID_FORCE_REFRESH_KEY;
 
