@@ -146,6 +146,7 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityUS;
 extern NSString * _Nonnull const MSIDTrustedAuthorityChina;
 extern NSString * _Nonnull const MSIDTrustedAuthorityChina2;
 extern NSString * _Nonnull const MSIDTrustedAuthorityGermany;
+extern NSString * _Nonnull const MSIDTrustedAuthorityFrance;
 extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUSGovernment;
 extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
@@ -259,4 +260,11 @@ extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
+
+/// Kill-switch flight to disable opening JavaScript-initiated new-window requests (e.g. window.open()) in the system browser
+/// from the WKUIDelegate createWebViewWithConfiguration: path. Does not affect target=_blank anchor clicks,
+/// which are handled separately in decidePolicyForNavigationAction:.
+/// Owner: josephpab
+extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

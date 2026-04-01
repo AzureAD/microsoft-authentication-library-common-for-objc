@@ -1,7 +1,8 @@
-# Xcode
-# Build, test, and archive an Xcode workspace on macOS.
-# Add steps that install certificates, test, sign, and distribute an app, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/xcode
+# Pipeline will be triggered for PR & any updates on the PR on all branches
+#
+# To manually trigger this pipeline from a pull request comment, post:
+#   /azp run [Broker] Common core submodule check v2
+# To specify a branch (e.g., main), queue the pipeline via the Azure DevOps UI and set brokerBranch=main
 
 trigger:
   branches:
@@ -18,12 +19,21 @@ pr:
 pool:
   name: 'Azure Pipelines'
 
+# Pipeline parameter: supply the branch of azure-activedirectory-tokenbroker-for-objc to validate against.
+# Defaults to 'dev'. Can be overridden when manually queuing the pipeline or via /azp run.
+parameters:
+- name: brokerBranch
+  displayName: 'Broker for ObjC branch'
+  type: string
+  default: 'dev'
+
 resources:
  repositories:
    - repository: azure-activedirectory-tokenbroker-for-objc
      type: github
      endpoint: 'MSAL ObjC Service Connection'
      name: AzureAD/azure-activedirectory-tokenbroker-for-objc
+     ref: refs/heads/${{ parameters.brokerBranch }}
 
    - repository: WorkplaceJoin-for-iOS
      type: github
@@ -37,7 +47,8 @@ stages:
   jobs:
   - job: Validate_Pull_Request_IOS
     displayName: Validate Pull Request (iOS)
-    timeoutInMinutes: 60
+    # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
+    timeoutInMinutes: 0
     pool:
       vmImage: 'macOS-15'
     variables:
@@ -51,7 +62,8 @@ stages:
   jobs:
   - job: Validate_Pull_Request_MAC
     displayName: Validate Pull Request (Mac)
-    timeoutInMinutes: 60
+    # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
+    timeoutInMinutes: 0
     pool:
       vmImage: 'macOS-15'
     variables:

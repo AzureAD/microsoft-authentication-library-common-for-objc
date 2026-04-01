@@ -522,7 +522,11 @@
     authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.de/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
-    
+
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.sovcloud-identity.fr/common"];
+    authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    XCTAssertTrue([authority isKnown]);
+
     authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);

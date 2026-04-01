@@ -41,7 +41,6 @@
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
 static NSTimeInterval s_requestTimeoutInterval = 300;
-static NSDictionary *s_experimentBag = nil;
 
 @implementation MSIDHttpRequest
 
@@ -51,15 +50,7 @@ static NSDictionary *s_experimentBag = nil;
 
     if (self)
     {
-        _experimentBag = s_experimentBag;
-        if ([self.experimentBag msidBoolObjectForKey:MSID_CREATE_NEW_URL_SESSION])
-        {
-            _sessionManager = MSIDURLSessionManager.instanceManager;
-        }
-        else {
-            _sessionManager = MSIDURLSessionManager.defaultManager;
-        }
-        
+        _sessionManager = MSIDURLSessionManager.defaultManager;
         __auto_type responseSerializer = [MSIDHttpResponseSerializer new];
         responseSerializer.preprocessor = [MSIDJsonResponsePreprocessor new];
         _responseSerializer = responseSerializer;
@@ -86,14 +77,8 @@ static NSDictionary *s_experimentBag = nil;
     __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
-    NSMutableDictionary *localHeaders = nil;
-    if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_ENABLE_CONNECTION_CLOSE])
-    {
-        localHeaders = self.headers ? [self.headers mutableCopy] : [NSMutableDictionary dictionary];
-        [localHeaders setValue:MSID_HTTP_CONNECTION_VALUE forKey:MSID_HTTP_CONNECTION];
-    }
 
-    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:localHeaders ?: self.headers];
+    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
 
     if (self.requestInterceptor)
     {
@@ -213,8 +198,8 @@ static NSDictionary *s_experimentBag = nil;
                   error = [NSError errorWithDomain:error.domain code:error.code userInfo:userInfo];
               }
 
-              if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_RETRY_ON_NETWORK])
-              {   
+              if (self.errorHandler)
+              {
                   [self.errorHandler handleError:error
                                     httpResponse:nil
                                             data:nil
@@ -278,8 +263,6 @@ static NSDictionary *s_experimentBag = nil;
 + (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
 + (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval { s_requestTimeoutInterval = requestTimeoutInterval; }
 + (NSTimeInterval)requestTimeoutInterval { return s_requestTimeoutInterval; }
-+ (void)setExperimentBagSetting:(NSDictionary *)experimentBagSetting { s_experimentBag = experimentBagSetting; }
-+ (NSDictionary *)experimentBagSetting { return s_experimentBag; }
 
 - (NSCachedURLResponse *)cachedResponse
 {

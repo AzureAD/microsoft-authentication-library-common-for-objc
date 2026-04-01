@@ -512,6 +512,51 @@
     XCTAssertEqualObjects(error.userInfo[MSID_CLIENT_DATA_RESPONSE], @"test_broker_client_data");
 }
 
+- (void)testValidateAndSaveBrokerResponse_whenClientDataIsNil_shouldNotInsertClientDataIntoBrokerMetaData
+{
+    __auto_type correlationID = [NSUUID new];
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID } msidBase64UrlJson];
+
+    NSDictionary *brokerDictionary = @{
+        @"authority" : @"https://login.microsoftonline.com/common",
+        @"client_id" : DEFAULT_TEST_CLIENT_ID,
+        @"scope" : DEFAULT_TEST_SCOPE,
+        @"access_token" : DEFAULT_TEST_ACCESS_TOKEN,
+        @"refresh_token" : DEFAULT_TEST_REFRESH_TOKEN,
+        @"expires_on" : @"35674848",
+        @"id_token" : [MSIDTestIdTokenUtil defaultV2IdToken],
+        @"x-broker-app-ver" : @"1.2",
+        @"vt" : @YES,
+        @"client_info" : clientInfoString,
+        @"correlation_id" : [correlationID UUIDString]
+        // MSID_CLIENT_DATA_RESPONSE intentionally omitted
+    };
+
+    NSError *brokerError = nil;
+    MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:brokerDictionary error:&brokerError];
+    XCTAssertNotNil(brokerResponse);
+    XCTAssertNil(brokerError);
+
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [self.validator validateAndSaveBrokerResponse:brokerResponse
+                                                                 oidcScope:@"openid profile offline_access"
+                                                          requestAuthority:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                                             instanceAware:NO
+                                                              oauthFactory:factory
+                                                                tokenCache:self.tokenCache
+                                                      accountMetadataCache:self.accountMetadataCache
+                                                             correlationID:correlationID
+                                                          saveSSOStateOnly:YES
+                                                                authScheme:[MSIDAuthenticationScheme new]
+                                                                     error:&error];
+
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    XCTAssertNil([result.brokerMetaData objectForKey:MSID_TOKEN_RESULT_CLIENT_DATA]);
+}
+
 - (void)testValidateAndSaveTokenResponse_whenClientDataIsPresent_shouldPropagateClientDataIntoBrokerMetaData
 {
     __auto_type correlationID = [NSUUID new];
