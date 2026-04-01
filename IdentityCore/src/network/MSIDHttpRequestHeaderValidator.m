@@ -35,6 +35,19 @@ static NSArray<NSString *> *s_reservedPrefixes = nil;
     }
 }
 
+- (NSDictionary<NSString *, NSString *> *)validHeadersFromHeaders:(NSDictionary<NSString *, NSString *> *)headers
+{
+    NSMutableDictionary<NSString *, NSString *> *validHeaders = [NSMutableDictionary new];
+    for (NSString *field in headers)
+    {
+        if ([self isValidHeaderFieldName:field])
+        {
+            validHeaders[field] = headers[field];
+        }
+    }
+    return [validHeaders copy];
+}
+
 - (BOOL)isMissingRequiredXPrefix:(NSString *)fieldName
 {
     return ![fieldName.lowercaseString hasPrefix:@"x-"];

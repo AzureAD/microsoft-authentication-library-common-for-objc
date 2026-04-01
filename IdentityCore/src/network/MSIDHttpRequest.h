@@ -35,6 +35,7 @@
 @class MSIDURLSessionManager;
 @class MSIDExternalSSOContext;
 @protocol MSIDHttpRequestInterceptorProtocol;
+@protocol MSIDHttpRequestHeaderValidating;
 
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
 {
@@ -69,6 +70,8 @@
 @property (nonatomic, nonnull) id<MSIDResponseSerialization> errorResponseSerializer;
 
 @property (nonatomic, nullable) id<MSIDHttpRequestInterceptorProtocol> requestInterceptor;
+
+@property (nonatomic, nonnull) id<MSIDHttpRequestHeaderValidating> headerValidator;
 
 #if !EXCLUDE_FROM_MSALCPP
 @property (nonatomic, nullable) id<MSIDHttpRequestTelemetryHandling> telemetry;

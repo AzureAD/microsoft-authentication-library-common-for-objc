@@ -22,25 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDHttpRequestHeaderValidating.h"
 
-// Validates custom HTTP header field names provided via MSIDHttpRequestInterceptorProtocol.
-// A header field name is valid when it starts with the "x-" prefix and does not use
-// any of the reserved prefixes: "x-ms-", "x-client-", "x-broker-", "x-app-".
-@interface MSIDHttpRequestHeaderValidator : NSObject <MSIDHttpRequestHeaderValidating>
+// Abstraction for filtering HTTP header dictionaries down to only the names
+// that are permitted to be added to an outgoing network request.
+@protocol MSIDHttpRequestHeaderValidating <NSObject>
 
 // Returns a new dictionary containing only the key-value pairs from headers
 // whose names are allowed to be added to a network request.
 - (nonnull NSDictionary<NSString *, NSString *> *)validHeadersFromHeaders:(nonnull NSDictionary<NSString *, NSString *> *)headers;
-
-// Returns YES if fieldName starts with "x-" and does not use a reserved prefix.
-// Returns NO otherwise.
-- (BOOL)isValidHeaderFieldName:(NSString *)fieldName;
-
-// Returns YES if fieldName does not start with "x-".
-- (BOOL)isMissingRequiredXPrefix:(NSString *)fieldName;
-
-// Returns the reserved prefix that fieldName starts with, or nil if none.
-- (nullable NSString *)reservedPrefixForFieldName:(NSString *)fieldName;
 
 @end

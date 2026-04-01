@@ -302,4 +302,96 @@
     XCTAssertFalse(result);
 }
 
+#pragma mark - validHeadersFromHeaders
+
+- (void)testValidHeadersFromHeaders_whenAllHeadersAreValid_shouldReturnAllHeaders
+{
+    // define
+    NSDictionary<NSString *, NSString *> *headers = @{
+        @"x-custom-header" : @"value1",
+        @"x-another-header" : @"value2"
+    };
+
+    // invoke
+    NSDictionary<NSString *, NSString *> *result = [self.validator validHeadersFromHeaders:headers];
+
+    // assert
+    XCTAssertEqualObjects(result, headers);
+}
+
+- (void)testValidHeadersFromHeaders_whenSomeHeadersAreInvalid_shouldReturnOnlyValidHeaders
+{
+    // define
+    NSDictionary<NSString *, NSString *> *headers = @{
+        @"x-custom-header" : @"validValue",
+        @"invalid-header" : @"ignoredValue",
+        @"x-ms-correlation-id" : @"alsoIgnored"
+    };
+
+    // invoke
+    NSDictionary<NSString *, NSString *> *result = [self.validator validHeadersFromHeaders:headers];
+
+    // assert
+    XCTAssertEqualObjects(result, @{@"x-custom-header" : @"validValue"});
+}
+
+- (void)testValidHeadersFromHeaders_whenAllHeadersAreInvalid_shouldReturnEmptyDictionary
+{
+    // define
+    NSDictionary<NSString *, NSString *> *headers = @{
+        @"invalid-header" : @"value1",
+        @"x-ms-correlation-id" : @"value2",
+        @"x-client-sku" : @"value3"
+    };
+
+    // invoke
+    NSDictionary<NSString *, NSString *> *result = [self.validator validHeadersFromHeaders:headers];
+
+    // assert
+    XCTAssertEqualObjects(result, @{});
+}
+
+- (void)testValidHeadersFromHeaders_whenHeadersIsEmpty_shouldReturnEmptyDictionary
+{
+    // define
+    NSDictionary<NSString *, NSString *> *headers = @{};
+
+    // invoke
+    NSDictionary<NSString *, NSString *> *result = [self.validator validHeadersFromHeaders:headers];
+
+    // assert
+    XCTAssertEqualObjects(result, @{});
+}
+
+- (void)testValidHeadersFromHeaders_whenHeadersContainAllReservedPrefixes_shouldReturnEmptyDictionary
+{
+    // define
+    NSDictionary<NSString *, NSString *> *headers = @{
+        @"x-ms-field" : @"v1",
+        @"x-client-field" : @"v2",
+        @"x-broker-field" : @"v3",
+        @"x-app-field" : @"v4"
+    };
+
+    // invoke
+    NSDictionary<NSString *, NSString *> *result = [self.validator validHeadersFromHeaders:headers];
+
+    // assert
+    XCTAssertEqualObjects(result, @{});
+}
+
+- (void)testValidHeadersFromHeaders_whenHeadersContainMixedCaseValidHeader_shouldReturnIt
+{
+    // define
+    NSDictionary<NSString *, NSString *> *headers = @{
+        @"X-Custom-Header" : @"mixedCaseValue"
+    };
+
+    // invoke
+    NSDictionary<NSString *, NSString *> *result = [self.validator validHeadersFromHeaders:headers];
+
+    // assert
+    XCTAssertEqualObjects(result, headers);
+}
+
 @end

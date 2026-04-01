@@ -513,6 +513,7 @@
 		23F48C7E2890C4AC0038E1EA /* MSIDTestsConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F48C7B2890C4AC0038E1EA /* MSIDTestsConfig.m */; };
 		23F501302F51316C0027AD44 /* MSIDHttpRequestInterceptorProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F5012F2F5131690027AD44 /* MSIDHttpRequestInterceptorProtocol.h */; };
 		23A1B0022F601A000027AD45 /* MSIDHttpRequestHeaderValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 23A1B0002F601A000027AD45 /* MSIDHttpRequestHeaderValidator.h */; };
+		23A1B0082F601A000027AD45 /* MSIDHttpRequestHeaderValidating.h in Headers */ = {isa = PBXBuildFile; fileRef = 23A1B0082F601A000027AD45 /* MSIDHttpRequestHeaderValidating.h */; };
 		23A1B0032F601A000027AD45 /* MSIDHttpRequestHeaderValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A1B0012F601A000027AD45 /* MSIDHttpRequestHeaderValidator.m */; };
 		23A1B0042F601A000027AD45 /* MSIDHttpRequestHeaderValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A1B0012F601A000027AD45 /* MSIDHttpRequestHeaderValidator.m */; };
 		23A1B0062F601A000027AD45 /* MSIDHttpRequestHeaderValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A1B0052F601A000027AD45 /* MSIDHttpRequestHeaderValidatorTests.m */; };
@@ -2553,6 +2554,7 @@
 		23F5012F2F5131690027AD44 /* MSIDHttpRequestInterceptorProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDHttpRequestInterceptorProtocol.h; sourceTree = "<group>"; };
 		23A1B0002F601A000027AD45 /* MSIDHttpRequestHeaderValidator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDHttpRequestHeaderValidator.h; sourceTree = "<group>"; };
 		23A1B0012F601A000027AD45 /* MSIDHttpRequestHeaderValidator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHttpRequestHeaderValidator.m; sourceTree = "<group>"; };
+		23A1B0082F601A000027AD45 /* MSIDHttpRequestHeaderValidating.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDHttpRequestHeaderValidating.h; sourceTree = "<group>"; };
 		23A1B0052F601A000027AD45 /* MSIDHttpRequestHeaderValidatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHttpRequestHeaderValidatorTests.m; sourceTree = "<group>"; };
 		23F7A8622A61F21E002C70CB /* MSIDBrowserNativeMessageGetCookiesResponseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrowserNativeMessageGetCookiesResponseTests.m; sourceTree = "<group>"; };
 		23F9FD4422EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSKeyedUnarchiver+MSIDExtensions.h"; sourceTree = "<group>"; };
@@ -3828,6 +3830,7 @@
 				23F5012F2F5131690027AD44 /* MSIDHttpRequestInterceptorProtocol.h */,
 				23A1B0002F601A000027AD45 /* MSIDHttpRequestHeaderValidator.h */,
 				23A1B0012F601A000027AD45 /* MSIDHttpRequestHeaderValidator.m */,
+				23A1B0082F601A000027AD45 /* MSIDHttpRequestHeaderValidating.h */,
 				2338ECCF208A69BE00809B9E /* MSIDHttpRequestProtocol.h */,
 				230847A42082C5830024CE7C /* MSIDHttpRequest.h */,
 				230847A52082C5830024CE7C /* MSIDHttpRequest.m */,
@@ -6645,6 +6648,7 @@
 				1E33F49F21711BF400919E9C /* MSIDAppMetadataCacheKey.h in Headers */,
 				23F501302F51316C0027AD44 /* MSIDHttpRequestInterceptorProtocol.h in Headers */,
 				23A1B0022F601A000027AD45 /* MSIDHttpRequestHeaderValidator.h in Headers */,
+				23A1B0082F601A000027AD45 /* MSIDHttpRequestHeaderValidating.h in Headers */,
 				233E96ED22652B00007FCE2A /* MSIDDefaultDispatcher.h in Headers */,
 				B223B09A22ACBFA400FB8713 /* MSIDMetadataCacheDataSource.h in Headers */,
 				B286B9BA2389DDB3007833AD /* MSIDHttpRequest.h in Headers */,
