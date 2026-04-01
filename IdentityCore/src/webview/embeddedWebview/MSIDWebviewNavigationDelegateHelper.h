@@ -119,7 +119,10 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param headers Response headers to process
  */
-- (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *)headers;
+- (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *)headers
+             transitionHandler:(MSIDWebviewTransitionHandler *)transitionHandler
+              parentController:(MSIDViewController *)parentController
+                    completion:(void (^_Nonnull)(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error))completion;
 
 /**
  * Handles transition from embedded webview to ASWebAuthenticationSession.
@@ -133,13 +136,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @param parentController Parent view controller for presenting system webview
  * @param completion Completion block with navigation action or error
  */
-- (void)handleASWebAuthenticationTransition:(NSURL *)url
-                           embeddedWebview:(MSIDAADOAuthEmbeddedWebviewController *)embeddedWebview
+- (void)handleASWebAuthenticationTransition:(nullable NSURL *)url
+                           embeddedWebview:(nullable MSIDAADOAuthEmbeddedWebviewController *)embeddedWebview
                          additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
                                    purpose:(MSIDSystemWebviewPurpose)purpose
                          transitionHandler:(MSIDWebviewTransitionHandler *)handler
                           parentController:(MSIDViewController *)parentController
-                                completion:(void (^)(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error))completion;
+                                completion:(nullable void (^)(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error))completion;
 
 @end
 

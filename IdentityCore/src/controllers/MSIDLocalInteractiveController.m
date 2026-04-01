@@ -326,8 +326,11 @@
 }
 
 - (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *_Nullable)headers
+                    completion:(void (^)(MSIDWebviewNavigationAction *action, NSError *error))completion
 {
-    [self.delegateHelper processResponseHeaders:headers];
+//    [self.delegateHelper processResponseHeaders:headers
+//                              transitionHandler:self.transitionHandler
+//                               parentController:self.requestParameters.parentViewController];
 }
 
 #pragma mark - BRT Acquisition

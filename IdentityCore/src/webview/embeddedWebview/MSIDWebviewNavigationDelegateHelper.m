@@ -169,12 +169,33 @@
 }
 
 - (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *)headers
+             transitionHandler:(MSIDWebviewTransitionHandler *)transitionHandler
+              parentController:(MSIDViewController *)parentController
+                    completion:(void (^)(MSIDWebviewNavigationAction * _Nullable, NSError * _Nullable))completion
 {
     self.lastResponseHeaders = [headers copy];
-    NSString *token = headers[@"x-ms-intune-token"];
+    NSString *token = headers[@"x-ms-aswebauth-handoff-intune-auth-token"];
     if ([token isKindOfClass:NSString.class] && token.length > 0)
     {
+        NSString *url = headers[@"x-ms-aswebauth-handoff-url"];
+        // Prepare additional headers if any compliance tokens are needed
+        NSMutableDictionary *additionalHeaders = [NSMutableDictionary dictionary];
+        
+        // Check for compliance-related headers in response
+        if (headers[@"x-ms-aswebauth-handoff-intune-auth-token"])
+        {
+            additionalHeaders[@"x-ms-aswebauth-handoff-intune-auth-token"] = headers[@"x-ms-aswebauth-handoff-intune-auth-token"];
+        }
+        
+        if (headers[@"x-ms-aswebauth-handoff-session-correlation-id"])
+        {
+            additionalHeaders[@"x-ms-aswebauth-handoff-session-correlation-id"] = headers[@"x-ms-aswebauth-handoff-session-correlation-id"];
+        }
+        
+        NSURL *handoffUrl = [NSURL URLWithString:url];
             self.intuneAuthToken = token;
+        [self handleASWebAuthenticationTransition:handoffUrl embeddedWebview:nil additionalHeaders:additionalHeaders purpose:MSIDSystemWebviewPurposeInstallProfile transitionHandler:transitionHandler parentController:parentController completion:completion];
+        
     }
     
     // TODO: Add telemetry handling for response headers
@@ -204,20 +225,20 @@
         return;
     }
     
-    if (!embeddedWebview)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context,
-                         @"Cannot suspend webview - no current webview found");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                        @"No current webview found for suspension",
-                                        nil, nil, nil, context.correlationId, nil, YES);
-        completion([MSIDWebviewNavigationAction failWebAuthWithErrorAction:error], nil);
-        return;
-    }
+//    if (!embeddedWebview)
+//    {
+//        MSID_LOG_WITH_CTX(MSIDLogLevelError, context,
+//                         @"Cannot suspend webview - no current webview found");
+//        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+//                                        @"No current webview found for suspension",
+//                                        nil, nil, nil, context.correlationId, nil, YES);
+//        completion([MSIDWebviewNavigationAction failWebAuthWithErrorAction:error], nil);
+//        return;
+//    }
     
     // Suspend the embedded webview (hide but keep alive)
-    [transitionHandler suspendEmbeddedWebview:embeddedWebview];
-    
+//    [transitionHandler suspendEmbeddedWebview:embeddedWebview];
+//    
     [transitionHandler launchASWebAuthenticationSessionWithUrl:url
                                               parentController:parentController
                                              additionalHeaders:additionalHeaders

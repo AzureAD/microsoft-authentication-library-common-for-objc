@@ -365,12 +365,20 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     }
     
     id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
-    if ((strongNavigationDelegate) && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:)] && navigationResponse.response)
+    if ((strongNavigationDelegate) && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:completion:)] && navigationResponse.response)
     {
         NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
+        NSURL *requestURL = response.URL;
         if (response)
         {
-            [strongNavigationDelegate processResponseHeaders:response.allHeaderFields];
+            [strongNavigationDelegate processResponseHeaders:response.allHeaderFields
+                                                  //completion:nil];
+                                                  completion:^(MSIDWebviewNavigationAction * _Nonnull navigationAction, NSError * _Nonnull aswebAuthError)
+             {
+                [self executeWebviewNavigationAction:navigationAction
+                                          requestURL:requestURL
+                                               error:aswebAuthError];
+            }];
         }
     }
     
@@ -597,6 +605,119 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Navigation Action Execution
+
+- (void)executeWebviewNavigationAction:(MSIDWebviewNavigationAction *)action
+                            requestURL:(NSURL *)requestURL
+                                 error:(NSError *)error
+{
+    // Ensure this method is always called on the main thread since it interacts with webview
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                         @"Navigation delegate returned error: %@", error);
+        // TODO: check for endWebAuthWithURl or completeWebAuth
+        [self endWebAuthWithURL:nil error:error];
+        return;
+    }
+    
+    // Explicit error for nil action
+    if (!action)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                         @"Navigation delegate returned nil action");
+        NSError *localError = MSIDCreateError(MSIDErrorDomain,
+                                        MSIDErrorInternal,
+                                        @"Navigation action is nil",
+                                        nil, nil, nil,
+                                        self.context.correlationId,
+                                        nil, NO);
+        
+        // TODO: check for endWebAuthWithURl or completeWebAuth
+        [self endWebAuthWithURL:nil error:localError];
+        return;
+    }
+    
+    // Check validity
+    if (![action isValid])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                         @"Action validation failed, using fallback");
+        [self completeWebAuthWithURL:requestURL];
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                     @"Executing navigation action type: %ld", (long)action.type);
+    
+    switch (action.type)
+    {
+        case MSIDWebviewNavigationActionTypeLoadRequestInWebview:
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                 @"Loading request: %@",
+                                 MSID_PII_LOG_MASKABLE(action.request.URL));
+            [self loadRequest:action.request];
+            break;
+        }
+            // TODO: Check for more actions
+        case MSIDWebviewNavigationActionTypeOpenInExternalBrowser:
+        {
+            /*MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                 @"Opening in external browser: %@",
+                                 MSID_PII_LOG_MASKABLE(action.url));
+#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
+            #if !defined(MSID_EXCLUDE_SHARED_APPLICATION)
+            if ([[UIApplication class] respondsToSelector:@selector(sharedApplication)])
+            {
+                [[UIApplication sharedApplication] openURL:action.url
+                                                   options:@{}
+                                         completionHandler:nil];
+            }
+            #endif
+#elif TARGET_OS_OSX
+            [[NSWorkspace sharedWorkspace] openURL:action.url];
+#endif*/
+            break;
+        }
+            
+        case MSIDWebviewNavigationActionTypeCompleteWebAuthWithURL:
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                 @"Completing webauth with URL: %@",
+                                 MSID_PII_LOG_MASKABLE(action.url));
+            [self completeWebAuthWithURL:action.url];
+            break;
+        }
+            
+        case MSIDWebviewNavigationActionTypeFailWithError:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                             @"Failing webauth with error: %@", action.error);
+            [self endWebAuthWithURL:nil error:action.error];
+            break;
+        }
+            
+        case MSIDWebviewNavigationActionTypeContinueDefault:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                             @"Continuing with default behavior");
+            [self completeWebAuthWithURL:requestURL];
+            break;
+        }
+            
+        default:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                             @"Unknown action type: %ld, using fallback", (long)action.type);
+            [self completeWebAuthWithURL:requestURL];
+            break;
+        }
+    }
+    }];
 }
 
 @end

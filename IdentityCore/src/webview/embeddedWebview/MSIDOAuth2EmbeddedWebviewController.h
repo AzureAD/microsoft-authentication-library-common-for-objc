@@ -58,6 +58,20 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
 
+/**
+ Executes the navigation action returned by the delegate.
+ 
+ @param action The navigation action to execute
+ @param requestURL The URL of the original request
+ @param error An error from the delegate, if any
+ 
+ @note This method automatically ensures execution on the main thread. If called from a background thread,
+       it will dispatch to the main queue automatically.
+ */
+- (void)executeWebviewNavigationAction:(MSIDWebviewNavigationAction *)action
+                            requestURL:(NSURL *)requestURL
+                                 error:(NSError *)error;
+
 @property (atomic, readonly) NSURL *startURL;
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;

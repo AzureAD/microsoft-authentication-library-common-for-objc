@@ -72,7 +72,8 @@
     {
         return [self actionForInstallProfileURL:url
                                          params:params
-                                responseHeaders:responseHeaders];
+                                responseHeaders:responseHeaders
+                                intuneAuthToken:intuneAuthToken];
     }
     else if ([host isEqualToString:@"in_app_enrollment_complete"])
     {
@@ -114,7 +115,7 @@
     }
     
     // Add new broker-specific query parameters for enrollment
-    allQueryParams[@"inAppWebview"] = @"true";
+    allQueryParams[@"in-app"] = @"True";
     //webauthn=1
     
     // Prepare additional headers for enrollment

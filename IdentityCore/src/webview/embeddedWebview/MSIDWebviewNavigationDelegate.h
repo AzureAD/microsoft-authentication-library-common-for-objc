@@ -48,13 +48,9 @@ NS_ASSUME_NONNULL_BEGIN
                       completion:(void (^_Nonnull)(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error))completion;
 
 
-- (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *_Nullable)headers;
+- (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *_Nullable)headers
+                    completion:(void (^_Nullable)(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error))completion;
 
-- (void)handleASWebAuthenticationTransitionWithUrl:(NSURL *)url
-                                   embeddedWebview:(MSIDAADOAuthEmbeddedWebviewController *)embeddedWebview
-                                 additionalHeaders:(NSDictionary<NSString *, NSString *> *_Nullable)additionalHeaders
-                          MSIDSystemWebviewPurpose:(MSIDSystemWebviewPurpose)systemWebViewPurpose
-                                        completion:(void (^)(MSIDWebviewNavigationAction *action, NSError *error))completion;
 
 @end
 
