@@ -37,6 +37,7 @@
 #import "MSIDExecutionFlowConstants.h"
 #import "MSIDOAuth2Constants.h"
 #import "MSIDHttpRequestInterceptorProtocol.h"
+#import "MSIDHttpRequestHeaderValidator.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -91,24 +92,22 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
             NSMutableURLRequest *mutableRequest = [strongSelf.urlRequest mutableCopy];
             if (additionalHeaders.count)
             {
-                NSArray<NSString *> *reservedPrefixes = @[@"x-ms-", @"x-client-", @"x-broker-", @"x-app-"];
+                __auto_type headerValidator = [MSIDHttpRequestHeaderValidator new];
                 for (NSString *field in additionalHeaders)
                 {
-                    if (![field.lowercaseString hasPrefix:@"x-"])
+                    if ([headerValidator isMissingRequiredXPrefix:field])
                     {
                         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context, @"Additional header field \"%@\" must start with the \"x-\" prefix", field);
                         continue;
                     }
-                    
-                    for (NSString *reserved in reservedPrefixes)
+
+                    NSString *reserved = [headerValidator reservedPrefixForFieldName:field];
+                    if (reserved)
                     {
-                        if ([field.lowercaseString hasPrefix:reserved])
-                        {
-                            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context, @"Additional header field \"%@\" uses reserved prefix \"%@\".", field, reserved);
-                            continue;
-                        }
+                        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context, @"Additional header field \"%@\" uses reserved prefix \"%@\".", field, reserved);
+                        continue;
                     }
-                    
+
                     NSString *value = additionalHeaders[field];
                     [mutableRequest setValue:value forHTTPHeaderField:field];
                 }

@@ -1,0 +1,41 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+#import <Foundation/Foundation.h>
+
+// Validates custom HTTP header field names provided via MSIDHttpRequestInterceptorProtocol.
+// A header field name is valid when it starts with the "x-" prefix and does not use
+// any of the reserved prefixes: "x-ms-", "x-client-", "x-broker-", "x-app-".
+@interface MSIDHttpRequestHeaderValidator : NSObject
+
+// Returns YES if fieldName starts with "x-" and does not use a reserved prefix.
+// Returns NO otherwise.
+- (BOOL)isValidHeaderFieldName:(NSString *)fieldName;
+
+// Returns YES if fieldName does not start with "x-".
+- (BOOL)isMissingRequiredXPrefix:(NSString *)fieldName;
+
+// Returns the reserved prefix that fieldName starts with, or nil if none.
+- (nullable NSString *)reservedPrefixForFieldName:(NSString *)fieldName;
+
+@end
