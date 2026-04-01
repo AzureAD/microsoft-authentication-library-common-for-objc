@@ -452,7 +452,7 @@
 
     MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:baseUrl
                                                                 reponse:[NSHTTPURLResponse new]];
-    testUrlResponse->_expectedRequestHeaders = @{@"x-custom-header" : @"customValue"};
+    [testUrlResponse setRequestHeaders:@{@"x-custom-header" : @"customValue"}];
     [MSIDTestURLSession addResponse:testUrlResponse];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Valid x- header interceptor"];
@@ -564,7 +564,7 @@
 
     MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:baseUrl
                                                                 reponse:[NSHTTPURLResponse new]];
-    testUrlResponse->_expectedRequestHeaders = @{@"x-valid-header" : @"validValue"};
+    [testUrlResponse setRequestHeaders:@{@"x-valid-header" : @"validValue"}];
     [MSIDTestURLSession addResponse:testUrlResponse];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Valid header added, invalid skipped"];
