@@ -50,7 +50,7 @@ stages:
     # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
     timeoutInMinutes: 0
     pool:
-      vmImage: 'macOS-15'
+      vmImage: 'macos-latest'
     variables:
       target: "ios_library"
     steps:
@@ -65,7 +65,7 @@ stages:
     # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
     timeoutInMinutes: 0
     pool:
-      vmImage: 'macOS-15'
+      vmImage: 'macos-latest'
     variables:
       target: "mac_library"
     steps:

@@ -38,7 +38,7 @@ stages:
     displayName: IdentityCore vision_library
     timeoutInMinutes: 60
     pool:
-      vmImage: 'macOS-15'
+      vmImage: 'macos-latest'
     steps:
     - task: CmdLine@2
       displayName: Uninstalling xcpretty v0.4.0
@@ -67,7 +67,7 @@ stages:
       displayName: 'Select Xcode version'
       inputs:
         targetType: 'inline'
-        script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"'
+        script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_26.3.app"'
     - task: Bash@3
       displayName: Removing any lingering codecov files
       inputs:
@@ -130,11 +130,11 @@ stages:
     displayName: MSAL visionOSFramework
     timeoutInMinutes: 60
     pool:
-      vmImage: 'macOS-14'
+      vmImage: 'macos-latest'
     steps:
     - script: |
-        /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"
-      displayName: 'Switch to use Xcode 16.2'
+        /bin/bash -c "sudo xcode-select -s /Applications/Xcode_26.3.app"
+      displayName: 'Switch to use Xcode 26.3'
     - task: CmdLine@2
       displayName: Uninstalling xcpretty v0.4.0
       inputs:
@@ -215,7 +215,7 @@ stages:
     displayName: Broker vision_library
     timeoutInMinutes: 60
     pool:
-      vmImage: 'macOS-15'
+      vmImage: 'macos-latest'
     variables:
       target: "vision_library"
     steps:
@@ -223,5 +223,5 @@ stages:
       displayName: 'Select Xcode version'
       inputs:
         targetType: 'inline'
-        script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"'
+        script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_26.3.app"'
     - template: broker_submodule_steps.yml

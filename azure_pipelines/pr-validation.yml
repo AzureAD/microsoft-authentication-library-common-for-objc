@@ -22,7 +22,7 @@ jobs:
         target: "mac_library"
   displayName: Validate Pull Request
   pool:
-    vmImage: 'macos-15'
+    vmImage: 'macos-latest'
     timeOutInMinutes: 30
 
   steps:
@@ -53,7 +53,7 @@ jobs:
     displayName: 'Select Xcode version'
     inputs:
       targetType: 'inline'
-      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_26.2.app"'
+      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_26.3.app"'
   - task: Bash@3
     displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
     inputs:
