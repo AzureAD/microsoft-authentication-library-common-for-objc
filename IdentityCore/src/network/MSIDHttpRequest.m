@@ -91,9 +91,10 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
             __typeof__(self) strongSelf = weakSelf;
             if (!strongSelf) return;
 
-            NSMutableURLRequest *mutableRequest = [strongSelf.urlRequest mutableCopy];
             if (additionalHeaders.count)
             {
+                NSMutableURLRequest *mutableRequest = [strongSelf.urlRequest mutableCopy];
+                
                 NSDictionary<NSString *, NSString *> *validHeaders = [strongSelf.headerValidator validHeadersFromHeaders:additionalHeaders];
                 for (NSString *field in validHeaders)
                 {
