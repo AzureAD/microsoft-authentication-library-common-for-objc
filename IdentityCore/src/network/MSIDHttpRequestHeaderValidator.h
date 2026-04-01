@@ -35,12 +35,12 @@
 
 // Returns YES if fieldName starts with "x-" and does not use a reserved prefix.
 // Returns NO otherwise.
-- (BOOL)isValidHeaderFieldName:(NSString *)fieldName;
+- (BOOL)isValidHeaderFieldName:(nonnull NSString *)fieldName;
 
 // Returns YES if fieldName does not start with "x-".
-- (BOOL)isMissingRequiredXPrefix:(NSString *)fieldName;
+- (BOOL)isMissingRequiredXPrefix:(nonnull NSString *)fieldName;
 
 // Returns the reserved prefix that fieldName starts with, or nil if none.
-- (nullable NSString *)reservedPrefixForFieldName:(NSString *)fieldName;
+- (nullable NSString *)reservedPrefixForFieldName:(nonnull NSString *)fieldName;
 
 @end
