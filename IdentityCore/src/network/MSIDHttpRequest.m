@@ -36,6 +36,7 @@
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
 #import "MSIDOAuth2Constants.h"
+#import "MSIDHttpRequestInterceptorProtocol.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -78,6 +79,53 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     [requestConfigurator configure:self];
 
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
+
+    if (self.requestInterceptor)
+    {
+        __weak typeof(self) weakSelf = self;
+        [self.requestInterceptor addAdditionalHeaderFieldsForUrl:self.urlRequest.URL withBlock:^(NSDictionary<NSString *, NSString *> * _Nullable additionalHeaders)
+        {
+            __typeof__(self) strongSelf = weakSelf;
+            if (!strongSelf) return;
+
+            NSMutableURLRequest *mutableRequest = [strongSelf.urlRequest mutableCopy];
+            if (additionalHeaders.count)
+            {
+                NSArray<NSString *> *reservedPrefixes = @[@"x-ms-", @"x-client-", @"x-broker-", @"x-app-"];
+                for (NSString *field in additionalHeaders)
+                {
+                    if (![field.lowercaseString hasPrefix:@"x-"])
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context, @"Additional header field \"%@\" must start with the \"x-\" prefix", field);
+                        continue;
+                    }
+                    
+                    for (NSString *reserved in reservedPrefixes)
+                    {
+                        if ([field.lowercaseString hasPrefix:reserved])
+                        {
+                            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, strongSelf.context, @"Additional header field \"%@\" uses reserved prefix \"%@\".", field, reserved);
+                            continue;
+                        }
+                    }
+                    
+                    NSString *value = additionalHeaders[field];
+                    [mutableRequest setValue:value forHTTPHeaderField:field];
+                }
+
+                strongSelf.urlRequest = mutableRequest;
+            }
+
+            [strongSelf sendRequestWithCompletionBlock:completionBlock];
+        }];
+        return;
+    }
+
+    [self sendRequestWithCompletionBlock:completionBlock];
+}
+
+- (void)sendRequestWithCompletionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
+{
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
     {
