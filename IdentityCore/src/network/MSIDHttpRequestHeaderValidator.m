@@ -25,6 +25,14 @@
 
 static NSArray<NSString *> *s_reservedPrefixes = nil;
 
+@interface MSIDHttpRequestHeaderValidator ()
+
+- (BOOL)isValidHeaderFieldName:(nonnull NSString *)fieldName;
+- (BOOL)isMissingRequiredXPrefix:(nonnull NSString *)fieldName;
+- (nullable NSString *)reservedPrefixForFieldName:(nonnull NSString *)fieldName;
+
+@end
+
 @implementation MSIDHttpRequestHeaderValidator
 
 + (void)initialize
