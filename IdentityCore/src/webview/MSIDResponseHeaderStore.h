@@ -26,28 +26,39 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
-
-#if !MSID_EXCLUDE_WEBKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
+/**
+ MSIDResponseHeaderStore stores HTTP response headers captured during the webview flow.
+ This is used for Intune enrollment flows where headers from 302 responses
+ (x-ms-clitelem, X-Intune-AuthToken, X-Install-Url) need to be preserved
+ for later use when custom-scheme redirects occur.
+ */
+@interface MSIDResponseHeaderStore : NSObject
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
+- (instancetype)init;
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
+/**
+ Store a header value for a given key. If the key already exists, the value is updated.
+ */
+- (void)setHeader:(NSString *)value forKey:(NSString *)key;
+
+/**
+ Retrieve a header value for a given key.
+ */
+- (nullable NSString *)headerForKey:(NSString *)key;
+
+/**
+ Retrieve all stored headers.
+ */
+- (NSDictionary<NSString *, NSString *> *)allHeaders;
+
+/**
+ Clear all stored headers.
+ */
+- (void)clearHeaders;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

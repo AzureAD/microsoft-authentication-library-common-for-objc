@@ -32,6 +32,8 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDNotifications.h"
+#import "MSIDWebviewResponseEvent.h"
+#import "MSIDWebviewAction.h"
 
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
@@ -362,6 +364,19 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         if (response)
         {
             self.navigationResponseBlock(response);
+        }
+    }
+    
+    // Forward response event with headers to InteractiveController for Intune enrollment flow
+    if (self.webviewResponseEventBlock && navigationResponse && navigationResponse.response)
+    {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)navigationResponse.response;
+        if (httpResponse && [httpResponse isKindOfClass:[NSHTTPURLResponse class]])
+        {
+            MSIDWebviewResponseEvent *event = [[MSIDWebviewResponseEvent alloc] initWithURL:httpResponse.URL
+                                                                                 httpHeaders:httpResponse.allHeaderFields
+                                                                                  statusCode:httpResponse.statusCode];
+            self.webviewResponseEventBlock(event);
         }
     }
     

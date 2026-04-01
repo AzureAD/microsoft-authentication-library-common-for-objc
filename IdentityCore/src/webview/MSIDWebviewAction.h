@@ -26,28 +26,35 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
-
-#if !MSID_EXCLUDE_WEBKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
+typedef NS_ENUM(NSInteger, MSIDWebviewActionType) {
+    MSIDWebviewActionTypeCancel = 0,
+    MSIDWebviewActionTypeContinue = 1,
+    MSIDWebviewActionTypeLoadRequest = 2,
+    MSIDWebviewActionTypeComplete = 3
+};
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
+/**
+ MSIDWebviewAction represents an action to be taken by the webview controller
+ in response to a navigation event (e.g., msauth:// or browser:// URL).
+ This allows the InteractiveController to decide asynchronously how to handle
+ special URL schemes.
+ */
+@interface MSIDWebviewAction : NSObject
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
+@property (nonatomic, readonly) MSIDWebviewActionType actionType;
+@property (nonatomic, readonly, nullable) NSURLRequest *request;
+@property (nonatomic, readonly, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
+@property (nonatomic, readonly, nullable) NSURL *completeURL;
+
++ (instancetype)cancelAction;
++ (instancetype)continueAction;
++ (instancetype)loadRequestAction:(NSURLRequest *)request;
++ (instancetype)loadRequestAction:(NSURLRequest *)request additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
++ (instancetype)completeAction:(NSURL *)url;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

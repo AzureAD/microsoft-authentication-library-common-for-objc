@@ -32,6 +32,7 @@
 #import "MSIDWebAuthNUtil.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDWebviewAction.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -94,7 +95,47 @@
     
     if (isBrokerUrl || isBrowserUrl)
     {
-        // Let external code decide if browser url is allowed to continue
+        // Use new async action callback if available for Intune enrollment flow
+        if (self.webviewActionDecisionBlock)
+        {
+            decisionHandler(WKNavigationActionPolicyCancel);
+            
+            __weak typeof(self) weakSelf = self;
+            self.webviewActionDecisionBlock(requestURL, ^(MSIDWebviewAction *action) {
+                __strong typeof(self) strongSelf = weakSelf;
+                if (!strongSelf) return;
+                
+                switch (action.actionType)
+                {
+                    case MSIDWebviewActionTypeCancel:
+                        // Cancel the navigation
+                        break;
+                        
+                    case MSIDWebviewActionTypeContinue:
+                        // Continue with default behavior (complete auth)
+                        [strongSelf completeWebAuthWithURL:requestURL];
+                        break;
+                        
+                    case MSIDWebviewActionTypeLoadRequest:
+                        if (action.request)
+                        {
+                            [strongSelf loadRequest:action.request];
+                        }
+                        break;
+                        
+                    case MSIDWebviewActionTypeComplete:
+                        if (action.completeURL)
+                        {
+                            [strongSelf completeWebAuthWithURL:action.completeURL];
+                        }
+                        break;
+                }
+            });
+            
+            return YES;
+        }
+        
+        // Legacy behavior: Let external code decide if browser url is allowed to continue
         if (isBrowserUrl && self.externalDecidePolicyForBrowserAction)
         {
             NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(self, requestURL);

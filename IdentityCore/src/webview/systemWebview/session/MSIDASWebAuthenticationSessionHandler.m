@@ -39,6 +39,7 @@
 @property (nonatomic) ASWebAuthenticationSession *webAuthSession;
 @property (nonatomic) BOOL useEmpheralSession;
 @property (nonatomic) BOOL sessionDismissed;
+@property (nonatomic) NSDictionary<NSString *, NSString *> *additionalHeaders;
 
 @end
 
@@ -51,6 +52,19 @@
                           callbackScheme:(NSString *)callbackURLScheme
                       useEmpheralSession:(BOOL)useEmpheralSession
 {
+    return [self initWithParentController:parentController
+                                 startURL:startURL
+                           callbackScheme:callbackURLScheme
+                       useEmpheralSession:useEmpheralSession
+                        additionalHeaders:nil];
+}
+
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                      useEmpheralSession:(BOOL)useEmpheralSession
+                       additionalHeaders:(NSDictionary<NSString *, NSString *> *)additionalHeaders
+{
     self = [super init];
     
     if (self)
@@ -59,6 +73,7 @@
         _startURL = startURL;
         _callbackURLScheme = callbackURLScheme;
         _useEmpheralSession = useEmpheralSession;
+        _additionalHeaders = additionalHeaders;
     }
     
     return self;
@@ -95,6 +110,24 @@
     
     self.webAuthSession.presentationContextProvider = self;
     self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
+    
+    // Apply additional headers if supported (iOS 17.4+, macOS 14.4+)
+    if (self.additionalHeaders && self.additionalHeaders.count > 0)
+    {
+        if (@available(iOS 17.4, macOS 14.4, *))
+        {
+            // Use objc_msgSend for type-safe invocation
+            // ASWebAuthenticationSession.additionalHeaderFields property
+            SEL selector = NSSelectorFromString(@"setAdditionalHeaderFields:");
+            if ([self.webAuthSession respondsToSelector:selector])
+            {
+                #pragma clang diagnostic push
+                #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                [self.webAuthSession performSelector:selector withObject:self.additionalHeaders];
+                #pragma clang diagnostic pop
+            }
+        }
+    }
     
     if (![self.webAuthSession start] && !self.sessionDismissed)
     {

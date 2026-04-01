@@ -25,29 +25,47 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
+#import "MSIDResponseHeaderStore.h"
 
-#if !MSID_EXCLUDE_WEBKIT
+@interface MSIDResponseHeaderStore ()
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
+@property (nonatomic) NSMutableDictionary<NSString *, NSString *> *headers;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDResponseHeaderStore
 
-#endif
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _headers = [NSMutableDictionary new];
+    }
+    return self;
+}
+
+- (void)setHeader:(NSString *)value forKey:(NSString *)key
+{
+    if (key && value)
+    {
+        self.headers[key] = value;
+    }
+}
+
+- (NSString *)headerForKey:(NSString *)key
+{
+    return self.headers[key];
+}
+
+- (NSDictionary<NSString *, NSString *> *)allHeaders
+{
+    return [self.headers copy];
+}
+
+- (void)clearHeaders
+{
+    [self.headers removeAllObjects];
+}
+
+@end

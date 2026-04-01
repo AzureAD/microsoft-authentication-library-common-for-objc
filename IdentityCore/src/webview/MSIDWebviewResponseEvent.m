@@ -25,29 +25,22 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
+#import "MSIDWebviewResponseEvent.h"
 
-#if !MSID_EXCLUDE_WEBKIT
+@implementation MSIDWebviewResponseEvent
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
+- (instancetype)initWithURL:(NSURL *)url
+                httpHeaders:(NSDictionary<NSString *, NSString *> *)httpHeaders
+                 statusCode:(NSInteger)statusCode
+{
+    self = [super init];
+    if (self)
+    {
+        _url = url;
+        _httpHeaders = httpHeaders;
+        _statusCode = statusCode;
+    }
+    return self;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
-
-#endif

@@ -26,28 +26,24 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
-
-#if !MSID_EXCLUDE_WEBKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
+/**
+ MSIDWebviewResponseEvent represents a structured event forwarded from the webview controller
+ to the InteractiveController. This includes navigation responses with HTTP headers that need
+ to be captured for Intune enrollment flows.
+ */
+@interface MSIDWebviewResponseEvent : NSObject
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
+@property (nonatomic, readonly) NSURL *url;
+@property (nonatomic, readonly, nullable) NSDictionary<NSString *, NSString *> *httpHeaders;
+@property (nonatomic, readonly) NSInteger statusCode;
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
+- (instancetype)initWithURL:(NSURL *)url
+                httpHeaders:(nullable NSDictionary<NSString *, NSString *> *)httpHeaders
+                 statusCode:(NSInteger)statusCode;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

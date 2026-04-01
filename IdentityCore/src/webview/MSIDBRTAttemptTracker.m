@@ -25,29 +25,46 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
+#import "MSIDBRTAttemptTracker.h"
 
-#if !MSID_EXCLUDE_WEBKIT
+static const NSInteger kMSIDMaxBRTAttempts = 2;
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDBRTAttemptTracker ()
 
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
+@property (nonatomic, readwrite) NSInteger attemptCount;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDBRTAttemptTracker
 
-#endif
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _attemptCount = 0;
+    }
+    return self;
+}
+
+- (BOOL)canAttemptBRT
+{
+    return self.attemptCount < kMSIDMaxBRTAttempts;
+}
+
+- (BOOL)recordAttempt
+{
+    if (self.canAttemptBRT)
+    {
+        self.attemptCount++;
+        return YES;
+    }
+    return NO;
+}
+
+- (void)reset
+{
+    self.attemptCount = 0;
+}
+
+@end

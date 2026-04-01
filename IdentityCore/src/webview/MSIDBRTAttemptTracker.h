@@ -26,28 +26,36 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
-
-#if !MSID_EXCLUDE_WEBKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
+/**
+ MSIDBRTAttemptTracker tracks BRT (Broker Refresh Token) acquisition attempts
+ within a single token acquisition session. According to requirements:
+ - Maximum 2 attempts per session
+ - First attempt on first msauth:// or browser:// redirect
+ - Second attempt only if first fails and another msauth:// or browser:// redirect occurs
+ - Failures do not block the flow
+ */
+@interface MSIDBRTAttemptTracker : NSObject
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
+@property (nonatomic, readonly) NSInteger attemptCount;
+@property (nonatomic, readonly) BOOL canAttemptBRT;
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders;
+- (instancetype)init;
+
+/**
+ Records a BRT acquisition attempt. Returns YES if the attempt was recorded,
+ NO if the maximum number of attempts (2) has been reached.
+ */
+- (BOOL)recordAttempt;
+
+/**
+ Resets the attempt counter. This should be called at the start of a new
+ token acquisition session.
+ */
+- (void)reset;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif
