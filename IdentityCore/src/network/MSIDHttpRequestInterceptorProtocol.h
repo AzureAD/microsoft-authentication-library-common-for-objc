@@ -29,7 +29,7 @@ typedef void (^MSIDHttpRequestInterceptorAddHeaderCompletionBlock)(NSDictionary<
 
 // Any additional header fields to be set when sending the request.
 // All header field names must start with the "x-" prefix.
-// "x-ms-", "x-client-", "x-broker-" prefixes are reserved and should not be used for additional header fields.
+// "x-ms-", "x-client-", "x-broker-", "x-app-" prefixes are reserved and should not be used for additional header fields.
 - (void)addAdditionalHeaderFieldsForUrl:(nullable NSURL *)requestUrl withBlock:(nonnull MSIDHttpRequestInterceptorAddHeaderCompletionBlock)completionBlock;
 
 @end
