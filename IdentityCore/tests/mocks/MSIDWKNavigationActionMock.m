@@ -28,6 +28,8 @@
 @interface MSIDWKNavigationActionMock ()
 
 @property (nonatomic, readonly, copy) NSURLRequest *requestMock;
+@property (nonatomic, readonly) WKNavigationType navigationTypeMock;
+@property (nonatomic, readonly, strong, nullable) WKFrameInfo *targetFrameMock;
 
 @end
 
@@ -36,7 +38,21 @@
 - (instancetype)initWithRequest:(NSURLRequest *)request
 {
     self = [super init];
-    _requestMock = request;
+    _requestMock = [request copy];
+    _navigationTypeMock = WKNavigationTypeOther;
+    _targetFrameMock = nil;
+
+    return self;
+}
+
+- (instancetype)initWithRequest:(NSURLRequest *)request
+                 navigationType:(WKNavigationType)navigationType
+                    targetFrame:(nullable WKFrameInfo *)targetFrame
+{
+    self = [super init];
+    _requestMock = [request copy];
+    _navigationTypeMock = navigationType;
+    _targetFrameMock = targetFrame;
 
     return self;
 }
@@ -44,6 +60,16 @@
 - (NSURLRequest *)request
 {
     return self.requestMock;
+}
+
+- (WKNavigationType)navigationType
+{
+    return self.navigationTypeMock;
+}
+
+- (nullable WKFrameInfo *)targetFrame
+{
+    return self.targetFrameMock;
 }
 
 @end
