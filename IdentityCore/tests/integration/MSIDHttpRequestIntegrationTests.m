@@ -34,6 +34,7 @@
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDOAuth2Constants.h"
 
 @interface MSIDTestRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
 
@@ -299,6 +300,69 @@
     XCTAssertEqualObjects(testErrorHandler.responseSerializer, self.request.errorResponseSerializer);
     XCTAssertNotEqualObjects(testErrorHandler.responseSerializer, self.request.responseSerializer);
     XCTAssertNotNil(testErrorHandler.passedBlock);
+}
+
+- (void)testSendWithContext_whenErrorWithHttpResponseContainingClientData_shouldEnrichErrorUserInfo
+{
+    __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
+    NSString *expectedClientData = @"test-client-data-value";
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:baseUrl
+                                                                 statusCode:200
+                                                                HTTPVersion:nil
+                                                               headerFields:@{MSID_CLIENT_DATA_HEADER_KEY : expectedClientData}];
+    NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
+    urlRequest.HTTPMethod = @"GET";
+    self.request.urlRequest = urlRequest;
+    self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
+    MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:urlWithParameters
+                                                                reponse:httpResponse];
+    testUrlResponse->_error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:nil];
+    [MSIDTestURLSession addResponse:testUrlResponse];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request With Error And ClientData"];
+    [self.request sendWithBlock:^(id response, NSError *error)
+     {
+         XCTAssertNil(response);
+         XCTAssertNotNil(error);
+         XCTAssertEqualObjects(error.userInfo[MSID_CLIENT_DATA_RESPONSE], expectedClientData);
+         XCTAssertEqual(error.code, NSURLErrorTimedOut);
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
+
+- (void)testSendWithContext_whenErrorWithHttpResponseWithoutClientData_shouldNotEnrichErrorUserInfo
+{
+    __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:baseUrl
+                                                                 statusCode:200
+                                                                HTTPVersion:nil
+                                                               headerFields:nil];
+    NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
+    urlRequest.HTTPMethod = @"GET";
+    self.request.urlRequest = urlRequest;
+    self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
+    MSIDTestURLResponse *testUrlResponse = [MSIDTestURLResponse request:urlWithParameters
+                                                                reponse:httpResponse];
+    testUrlResponse->_error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:nil];
+    [MSIDTestURLSession addResponse:testUrlResponse];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"GET Request With Error No ClientData"];
+    [self.request sendWithBlock:^(id response, NSError *error)
+     {
+         XCTAssertNil(response);
+         XCTAssertNotNil(error);
+         XCTAssertNil(error.userInfo[MSID_CLIENT_DATA_RESPONSE]);
+         XCTAssertEqual(error.code, NSURLErrorTimedOut);
+
+         [expectation fulfill];
+     }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testSendWithContext_whenGetRequestResponseHasData_shouldParseResponse

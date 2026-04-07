@@ -27,6 +27,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDBrokerResponse.h"
+#import "MSIDOAuth2Constants.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDBoundRefreshToken.h"
@@ -59,6 +60,17 @@
     {
         if (error)
         {
+            // Propagate clientData from /token response header into the error userInfo
+            // so callers can surface STS diagnostic information even on failure responses.
+            if (tokenResponse.clientData && verificationError)
+            {
+                NSMutableDictionary *userInfo = verificationError.userInfo ? [verificationError.userInfo mutableCopy] : [NSMutableDictionary new];
+                userInfo[MSID_CLIENT_DATA_RESPONSE] = tokenResponse.clientData;
+                verificationError = [NSError errorWithDomain:verificationError.domain
+                                                        code:verificationError.code
+                                                    userInfo:userInfo];
+            }
+
             *error = verificationError;
         }
 
@@ -67,12 +79,14 @@
         return nil;
     }
     
-    return [self createTokenResultFromResponse:tokenResponse
-                                  oauthFactory:factory
-                                 configuration:configuration
-                                requestAccount:accountIdentifier
-                                 correlationID:correlationID
-                                         error:error];
+    MSIDTokenResult *tokenResult = [self createTokenResultFromResponse:tokenResponse
+                                                          oauthFactory:factory
+                                                         configuration:configuration
+                                                        requestAccount:accountIdentifier
+                                                         correlationID:correlationID
+                                                                 error:error];
+
+    return tokenResult;
 }
 
 - (MSIDTokenResult *)createTokenResultFromResponse:(MSIDTokenResponse *)tokenResponse
@@ -118,7 +132,9 @@
                                                                  authority:resultAuthority
                                                              correlationId:correlationID
                                                              tokenResponse:tokenResponse];
-    
+
+    [result insertBrokerMetaData:tokenResponse.clientData forKey:MSID_TOKEN_RESULT_CLIENT_DATA];
+
     return result;
 }
 
@@ -238,6 +254,7 @@
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Token result is valid.");
     // Keep old flow for now in case the old MSAL/OneAuth client is broken.
     [tokenResult insertBrokerMetaData:brokerResponse.brokerAppVer forKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
+    [tokenResult insertBrokerMetaData:brokerResponse.tokenResponse.clientData forKey:MSID_TOKEN_RESULT_CLIENT_DATA];
 
     return tokenResult;
 }
