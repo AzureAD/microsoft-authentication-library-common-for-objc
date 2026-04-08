@@ -50,13 +50,10 @@ jobs:
   pool:
     vmImage: 'macOS-14'
 
-  variables:
-  - template: templates/build-vars.yml
-
   steps:
   - script: |
-      /bin/bash -c "sudo xcode-select -s /Applications/Xcode_$(XCODE_VERSION).app"
-    displayName: 'Switch to use Xcode $(XCODE_VERSION)'
+          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"
+    displayName: 'Switch to use Xcode 16.2'
 
   - task: CmdLine@2
     displayName: Uninstalling xcpretty v0.4.0
