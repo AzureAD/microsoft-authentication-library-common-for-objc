@@ -39,6 +39,8 @@ stages:
     timeoutInMinutes: 60
     pool:
       vmImage: 'macOS-15'
+    variables:
+      target: "vision_library"
     steps:
     - task: CmdLine@2
       displayName: Uninstalling xcpretty v0.4.0
@@ -74,16 +76,7 @@ stages:
         targetType: 'inline'
         script: |
           find . -name "*.gcda" -print0 | xargs -0 rm
-    - task: Bash@3
-      displayName: Download visionOS SDK
-      inputs:
-        targetType: 'inline'
-        script: |
-          echo "Downloading simulator for visionOS"
-          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-          xcodebuild -downloadPlatform visionOS
-        failOnStderr: false
+    - template: templates/download-visionos-sdk.yml
     - task: Bash@3
       displayName: Run CPP script
       inputs:
@@ -131,6 +124,8 @@ stages:
     timeoutInMinutes: 60
     pool:
       vmImage: 'macOS-14'
+    variables:
+      target: "visionOSFramework"
     steps:
     - script: |
         /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"
@@ -153,16 +148,9 @@ stages:
         script: |
           gem install slather bundler -N
         failOnStderr: true
-    - task: Bash@3
-      displayName: Download visionOS SDK
-      inputs:
-        targetType: 'inline'
-        script: |
-          echo "Downloading simulator for visionOS"
-          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-          xcodebuild -downloadPlatform visionOS
-        failOnStderr: false
+    - template: templates/download-visionos-sdk.yml
+      parameters:
+        targetValue: 'visionOSFramework'
     - checkout: microsoft-authentication-library-for-objc
       displayName: 'Checkout MSAL'
       clean: true
@@ -224,14 +212,5 @@ stages:
       inputs:
         targetType: 'inline'
         script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"'
-    - task: Bash@3
-      displayName: Download visionOS SDK
-      inputs:
-        targetType: 'inline'
-        script: |
-          echo "Downloading simulator for visionOS"
-          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-          xcodebuild -downloadPlatform visionOS
-        failOnStderr: false
+    - template: templates/download-visionos-sdk.yml
     - template: broker_submodule_steps.yml
