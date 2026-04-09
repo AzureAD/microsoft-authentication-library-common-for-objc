@@ -591,6 +591,15 @@
 		4B6D222C2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B6D222A2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h */; };
 		4B6D222D2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */; };
 		4B6D222E2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */; };
+		4B9FF2562F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B9FF2552F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m */; };
+		4B9FF2572F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B9FF2532F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m */; };
+		4B9FF2582F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B9FF2522F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.h */; };
+		4B9FF2592F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B9FF2542F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.h */; };
+		4B9FF25A2F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B9FF2552F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m */; };
+		4B9FF25B2F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B9FF2532F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m */; };
+		4BA3A9462F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BA3A9452F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m */; };
+		4BA3A9472F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BA3A9442F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.h */; };
+		4BA3A9482F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BA3A9452F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m */; };
 		4BADFA5E2E85D7FC00E8C26F /* MSIDFlightManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */; };
 		4BADFA5F2E85D7FC00E8C26F /* MSIDFlightManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */; };
 		4BF51DD42E96DAC700434A36 /* MSIDSwitchBrowserResumeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2B002D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.m */; };
@@ -2604,6 +2613,12 @@
 		4B6D22252E831AEA00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyDelegate.h; sourceTree = "<group>"; };
 		4B6D222A2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyType.h; sourceTree = "<group>"; };
 		4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFlightManagerQueryKeyType.m; sourceTree = "<group>"; };
+		4B9FF2522F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeyVaultAccountProvider.h; sourceTree = "<group>"; };
+		4B9FF2532F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyVaultAccountProvider.m; sourceTree = "<group>"; };
+		4B9FF2542F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeyVaultCredentialProvider.h; sourceTree = "<group>"; };
+		4B9FF2552F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyVaultCredentialProvider.m; sourceTree = "<group>"; };
+		4BA3A9442F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeyVaultAppConfigProvider.h; sourceTree = "<group>"; };
+		4BA3A9452F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyVaultAppConfigProvider.m; sourceTree = "<group>"; };
 		4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDFlightManagerTests.swift; sourceTree = "<group>"; };
 		51E364572863C0F300A97F82 /* MSIDTelemetryConditionalCompile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryConditionalCompile.h; sourceTree = "<group>"; };
 		580E253E2719FD10003D1795 /* MSIDPrtHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrtHeader.h; sourceTree = "<group>"; };
@@ -4929,9 +4944,15 @@
 				B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */,
 				B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */,
 				B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */,
+				4B9FF2522F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.h */,
+				4B9FF2532F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m */,
+				4B9FF2542F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.h */,
+				4B9FF2552F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m */,
 				B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */,
 				23E3A809289B293F007767BA /* MSIDBaseUITest.h */,
 				23E3A80A289B293F007767BA /* MSIDBaseUITest.m */,
+				4BA3A9442F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.h */,
+				4BA3A9452F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m */,
 				23E3A823289B4889007767BA /* XCUIElement+CrossPlat.h */,
 				23E3A822289B4889007767BA /* XCUIElement+CrossPlat.m */,
 			);
@@ -6205,6 +6226,7 @@
 			files = (
 				B21FA9DD22063CF400806B68 /* MSIDAutomationTestResult.h in Headers */,
 				B25315C923E7A0E800432133 /* MSIDTestAutomationAccountConfigurationRequest.h in Headers */,
+				4BA3A9472F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.h in Headers */,
 				B2C70D67240CA4AB008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.h in Headers */,
 				B25315BF23E772B000432133 /* MSIDAutomationOperationAPIInMemoryCacheHandler.h in Headers */,
 				B2ED1BBC2204D29400A24E82 /* MSIDAutomationTestRequest.h in Headers */,
@@ -6217,6 +6239,8 @@
 				B253158123E2A67600432133 /* MSIDTestAutomationApplication.h in Headers */,
 				B21FA9E022063CFA00806B68 /* MSIDAutomationErrorResult.h in Headers */,
 				B25315C423E7782A00432133 /* MSIDAutomationOperationResponseHandler.h in Headers */,
+				4B9FF2582F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.h in Headers */,
+				4B9FF2592F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.h in Headers */,
 				B248FFD0223D839B00628574 /* MSIDAutomationTemporaryAccountResponseHandler.h in Headers */,
 				B2ED1BD42204D35400A24E82 /* MSIDClientCredentialHelper.h in Headers */,
 				B2ED1BDA2204D36C00A24E82 /* NSString+MSIDAutomationUtils.h in Headers */,
@@ -7187,6 +7211,7 @@
 				B2ED1BD52204D35700A24E82 /* MSIDClientCredentialHelper.m in Sources */,
 				B248FFD1223D839B00628574 /* MSIDAutomationTemporaryAccountResponseHandler.m in Sources */,
 				B2ED1BC12204D2B400A24E82 /* Result.swift in Sources */,
+				4BA3A9482F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m in Sources */,
 				B2ED1BC72204D2BF00A24E82 /* KeyVaultError.swift in Sources */,
 				B21FA9EB22063D1000806B68 /* MSIDAutomationAccountsResult.m in Sources */,
 				B248FFAD223C8DF700628574 /* MSIDAutomationPolicyToggleAPIRequest.m in Sources */,
@@ -7215,6 +7240,8 @@
 				B21FA9E222063CFE00806B68 /* MSIDAutomationErrorResult.m in Sources */,
 				B248FFB2223C8F4D00628574 /* MSIDAutomationBaseApiRequest.m in Sources */,
 				B21FA9DF22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */,
+				4B9FF25A2F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m in Sources */,
+				4B9FF25B2F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m in Sources */,
 				B253158223E2A67600432133 /* MSIDTestAutomationApplication.m in Sources */,
 				B21FA9E522063D0400806B68 /* MSIDAutomationUserInformation.m in Sources */,
 				B2ED1BBF2204D2B000A24E82 /* Authentication.swift in Sources */,
@@ -7229,6 +7256,7 @@
 				B2ED1BD62204D35800A24E82 /* MSIDClientCredentialHelper.m in Sources */,
 				B248FFD2223D839B00628574 /* MSIDAutomationTemporaryAccountResponseHandler.m in Sources */,
 				B2ED1BC22204D2B400A24E82 /* Result.swift in Sources */,
+				4BA3A9462F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m in Sources */,
 				B2ED1BC82204D2C000A24E82 /* KeyVaultError.swift in Sources */,
 				B21FA9EA22063D0F00806B68 /* MSIDAutomationAccountsResult.m in Sources */,
 				B248FFAE223C8DF700628574 /* MSIDAutomationPolicyToggleAPIRequest.m in Sources */,
@@ -7257,6 +7285,8 @@
 				B21FA9E122063CFD00806B68 /* MSIDAutomationErrorResult.m in Sources */,
 				B248FFB3223C8F4D00628574 /* MSIDAutomationBaseApiRequest.m in Sources */,
 				B21FA9DE22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */,
+				4B9FF2562F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m in Sources */,
+				4B9FF2572F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m in Sources */,
 				B253158323E2A67600432133 /* MSIDTestAutomationApplication.m in Sources */,
 				B21FA9E422063D0400806B68 /* MSIDAutomationUserInformation.m in Sources */,
 				B2ED1BC02204D2B100A24E82 /* Authentication.swift in Sources */,
