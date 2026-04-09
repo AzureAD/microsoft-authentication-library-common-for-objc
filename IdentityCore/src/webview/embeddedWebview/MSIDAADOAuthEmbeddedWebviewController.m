@@ -32,8 +32,17 @@
 #import "MSIDWebAuthNUtil.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDWebProfileInstallTriggerResponse.h"
+#import "MSIDWebviewAuthorization.h"
+#import "MSIDWebviewSession.h"
 
 #if !MSID_EXCLUDE_WEBKIT
+
+@interface MSIDAADOAuthEmbeddedWebviewController()
+
+@property (nonatomic) NSHTTPURLResponse *lastHTTPResponse;
+
+@end
 
 @implementation MSIDAADOAuthEmbeddedWebviewController
 
@@ -53,11 +62,33 @@
     // Declare our client as PkeyAuth-capable
     [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
         
-    return [super initWithStartURL:startURL endURL:endURL
+    self = [super initWithStartURL:startURL endURL:endURL
                            webview:webview
                      customHeaders:headers
                     platfromParams:platformParams
                            context:context];
+    
+    if (self)
+    {
+        // Set up navigation response block to capture HTTP responses
+        __weak typeof(self) weakSelf = self;
+        self.navigationResponseBlock = ^(NSHTTPURLResponse *response) {
+            __strong typeof(self) strongSelf = weakSelf;
+            if (strongSelf)
+            {
+                strongSelf.lastHTTPResponse = response;
+                
+                // Also store in the current webview session so it's available to the factory
+                MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
+                if (currentSession)
+                {
+                    currentSession.lastHTTPResponse = response;
+                }
+            }
+        };
+    }
+    
+    return self;
 }
 
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
@@ -65,6 +96,26 @@
 {
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
+    
+    // Check for profile install trigger (msauth://installProfile)
+    NSError *triggerError = nil;
+    MSIDWebProfileInstallTriggerResponse *triggerResponse = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:requestURL
+                                                                                                          httpResponse:self.lastHTTPResponse
+                                                                                                               context:self.context
+                                                                                                                 error:&triggerError];
+    
+    if (triggerResponse)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Profile install trigger detected (msauth://installProfile) - returning to controller");
+        
+        // Cancel this navigation and return the response to controller for handling
+        decisionHandler(WKNavigationActionPolicyCancel);
+        
+        // Complete with the trigger response URL so it flows back to the controller
+        [self completeWebAuthWithURL:requestURL];
+        
+        return YES;
+    }
     
     // Stop at broker or browser
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;

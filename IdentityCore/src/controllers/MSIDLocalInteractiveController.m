@@ -36,12 +36,16 @@
 #endif
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDWebInstallProfileResponse.h"
+#import "MSIDWebProfileInstallTriggerResponse.h"
+#import "MSIDWebviewTransitionCoordinator.h"
 #import "MSIDThrottlingService.h"
 
 @interface MSIDLocalInteractiveController()
 
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 @property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
+@property (nonatomic) MSIDWebviewTransitionCoordinator *transitionCoordinator;
 
 @end
 
@@ -191,6 +195,208 @@
 #endif
 }
 
+- (void)handleWebInstallProfileResponse:(MSIDWebInstallProfileResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling profile installed response.");
+    
+    // Check if profile installation was successful
+    if (response.status && [response.status isEqualToString:@"success"])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Profile installation completed successfully. Resuming authentication flow.");
+        
+        // TODO: Perform any custom actions needed by localInteractiveController before continuing
+        // This is where you can add custom logic such as:
+        // - Updating local state
+        // - Notifying delegates
+        // - Performing additional validation
+        // - etc.
+        
+        // After custom actions, restart the authentication request
+        MSIDInteractiveTokenRequest *request = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
+        [self acquireTokenWithRequest:request completionBlock:completionBlock];
+    }
+    else
+    {
+        // Profile installation failed or status is not success
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Profile installation failed with status: %@", response.status);
+        
+        NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
+        if (response.status)
+        {
+            additionalInfo[@"profile_install_status"] = response.status;
+        }
+        if (response.additionalInfo)
+        {
+            [additionalInfo addEntriesFromDictionary:response.additionalInfo];
+        }
+        
+        NSError *profileError = MSIDCreateError(MSIDErrorDomain,
+                                               MSIDErrorInternal,
+                                               @"Profile installation failed",
+                                               nil, nil, nil,
+                                               self.requestParameters.correlationId,
+                                               additionalInfo,
+                                               NO);
+        
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], profileError);
+        completionBlock(nil, profileError);
+    }
+}
+
+- (void)handleProfileInstallTrigger:(MSIDWebProfileInstallTriggerResponse *)triggerResponse 
+                         completion:(MSIDRequestCompletionBlock)completionBlock
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling profile install trigger (msauth://installProfile)");
+    
+    if (!triggerResponse.intuneURL)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Profile install trigger detected but no x-intune-url header provided");
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
+                                        @"Intune profile installation URL not found in x-intune-url header", 
+                                        nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
+        completionBlock(nil, error);
+        return;
+    }
+    
+    NSURL *profileURL = [NSURL URLWithString:triggerResponse.intuneURL];
+    if (!profileURL)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Invalid Intune profile installation URL");
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
+                                        @"Invalid Intune profile installation URL", 
+                                        nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
+        completionBlock(nil, error);
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, 
+                         @"Starting Intune profile installation with URL: %@", MSID_PII_LOG_MASKABLE(profileURL));
+    
+    // Get the current embedded webview to suspend
+    MSIDOAuth2EmbeddedWebviewController *embeddedWebview = (MSIDOAuth2EmbeddedWebviewController *)self.currentRequest.currentWebview;
+    
+    if (!embeddedWebview)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Cannot suspend webview - no current webview found");
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
+                                        @"No current webview found for suspension", 
+                                        nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
+        completionBlock(nil, error);
+        return;
+    }
+    
+    // Prepare additional headers for ASWebAuthenticationSession
+    NSDictionary<NSString *, NSString *> *additionalHeaders = nil;
+    if (triggerResponse.intuneToken)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Including x-intune-token in ASWebAuthenticationSession headers");
+        additionalHeaders = @{@"x-intune-token": triggerResponse.intuneToken};
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"No x-intune-token header found - proceeding without it");
+    }
+    
+    // Suspend the embedded webview (hide but keep alive)
+    [self.transitionCoordinator suspendEmbeddedWebview:embeddedWebview];
+    
+    // Launch ASWebAuthenticationSession for profile installation
+    [self.transitionCoordinator launchExternalSession:profileURL
+                                      parentController:self.interactiveRequestParamaters.parentViewController
+                                        callbackScheme:@"msauth"
+                                     additionalHeaders:additionalHeaders
+                                     completionHandler:^(NSURL *callbackURL, NSError *sessionError) {
+        [self handleProfileInstallationCompletion:callbackURL 
+                                            error:sessionError 
+                                       completion:completionBlock];
+    }];
+}
+
+- (void)handleProfileInstallationCompletion:(NSURL *)callbackURL 
+                                      error:(NSError *)error
+                                 completion:(MSIDRequestCompletionBlock)completionBlock
+{
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, 
+                         @"Profile installation session failed: %@", error);
+        
+        // Clean up
+        [self.transitionCoordinator cleanup];
+        
+        // End the flow with error
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], error);
+        completionBlock(nil, error);
+        return;
+    }
+    
+    // Check if callback is msauth://profileInstalled
+    if (callbackURL && 
+        [callbackURL.scheme caseInsensitiveCompare:@"msauth"] == NSOrderedSame &&
+        [callbackURL.host caseInsensitiveCompare:@"profileInstalled"] == NSOrderedSame)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, 
+                         @"Profile installation completed successfully (msauth://profileInstalled)");
+        
+        // ASWebAuthenticationSession has already completed and cleaned itself up
+        // Just release our reference (don't call dismiss on completed session)
+        self.transitionCoordinator.externalSessionHandler = nil;
+        
+        // Dismiss the suspended embedded webview (we're switching to broker context)
+        [self.transitionCoordinator dismissSuspendedEmbeddedWebview];
+        
+        // After profile installation, switch to broker context
+        // The SSO extension will handle the authentication request in its own webview
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, 
+                         @"Switching to broker context after profile installation");
+        
+#if TARGET_OS_IPHONE
+        NSError *brokerError = nil;
+        MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:self.interactiveRequestParamaters
+                                                                                                                     tokenRequestProvider:self.tokenRequestProvider
+                                                                                                                        brokerInstallLink:nil
+                                                                                                                                    error:&brokerError];
+        
+        if (!brokerController)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, 
+                             @"Failed to create broker controller after profile installation: %@", brokerError);
+            CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], brokerError);
+            completionBlock(nil, brokerError);
+            return;
+        }
+        
+        // Broker will invoke SSO extension which handles the request in its own webview
+        // Response will be sent back to calling app through the broker completion handler
+        [brokerController acquireToken:completionBlock];
+#else
+        NSError *platformError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
+                                                @"Broker authentication not supported on this platform", 
+                                                nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], platformError);
+        completionBlock(nil, platformError);
+#endif
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, 
+                         @"Unexpected callback URL from profile installation: %@", callbackURL);
+        
+        // Clean up - this will dismiss both webviews
+        [self.transitionCoordinator cleanup];
+        
+        // Create error for unexpected callback
+        NSError *callbackError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, 
+                                                @"Unexpected callback from profile installation", 
+                                                nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], callbackError);
+        completionBlock(nil, callbackError);
+    }
+}
+
 #if !EXCLUDE_FROM_MSALCPP
 - (MSIDTelemetryAPIEvent *)telemetryAPIEvent
 {
@@ -228,6 +434,23 @@
         if (msauthResponse)
         {
             self.currentRequest = nil;
+            
+            // Handle profile installation trigger - orchestrate the flow
+            if ([msauthResponse isKindOfClass:MSIDWebProfileInstallTriggerResponse.class])
+            {
+                [self handleProfileInstallTrigger:(MSIDWebProfileInstallTriggerResponse *)msauthResponse 
+                                       completion:completionBlock];
+                return;
+            }
+            
+            // Handle profile installation response - custom actions before continuing
+            if ([msauthResponse isKindOfClass:MSIDWebInstallProfileResponse.class])
+            {
+                [self handleWebInstallProfileResponse:(MSIDWebInstallProfileResponse *)msauthResponse 
+                                           completion:completionBlock];
+                return;
+            }
+            
             [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
             return;
         }

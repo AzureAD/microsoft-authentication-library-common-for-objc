@@ -26,6 +26,7 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDWebInstallProfileResponse.h"
 #import "MSIDWebAADAuthCodeResponse.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
@@ -184,6 +185,23 @@
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError *__autoreleasing*)error
 {
+    return [self oAuthResponseWithURL:url
+                         requestState:requestState
+                   ignoreInvalidState:ignoreInvalidState
+                       endRedirectUri:endRedirectUri
+                         httpResponse:nil
+                              context:context
+                                error:error];
+}
+
+- (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
+                                 requestState:(NSString *)requestState
+                           ignoreInvalidState:(BOOL)ignoreInvalidState
+                               endRedirectUri:(NSString *)endRedirectUri
+                                 httpResponse:(NSHTTPURLResponse *)httpResponse
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError *__autoreleasing*)error
+{
     // Try to create CBA response
 #if AD_BROKER
     MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:context error:nil];
@@ -218,6 +236,17 @@
     
 #endif
 
+    // Try to create a profile install trigger response (with HTTP headers for Intune URL and token)
+    MSIDWebProfileInstallTriggerResponse *profileInstallTriggerResponse = [[MSIDWebProfileInstallTriggerResponse alloc] initWithURL:url
+                                                                                                                         httpResponse:httpResponse
+                                                                                                                              context:context
+                                                                                                                                error:nil];
+    if (profileInstallTriggerResponse) return profileInstallTriggerResponse;
+    
+    // Try to create a profile installed response
+    MSIDWebInstallProfileResponse *profileInstalledResponse = [[MSIDWebInstallProfileResponse alloc] initWithURL:url context:context error:nil];
+    if (profileInstalledResponse) return profileInstalledResponse;
+    
     // Try to create a upgrade registration response
     MSIDWebUpgradeRegResponse *upgradeRegResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url context:context error:nil];
     if (upgradeRegResponse) return upgradeRegResponse;

@@ -84,6 +84,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                 context:(nullable id<MSIDRequestContext>)context
                                                   error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+- (nullable MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
+                                                factory:(MSIDWebviewFactory *)factory
+                                           httpResponse:(NSHTTPURLResponse * _Nullable)httpResponse
+                                                context:(nullable id<MSIDRequestContext>)context
+                                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -69,4 +69,14 @@
     return nil;
 }
 
+- (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
+                                       factory:(MSIDWebviewFactory *)factory
+                                  httpResponse:(__unused NSHTTPURLResponse *)httpResponse
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError *__autoreleasing*)error
+{
+    // Default implementation ignores httpResponse parameter for backward compatibility
+    return [self responseWithResultURL:url factory:factory context:context error:error];
+}
+
 @end

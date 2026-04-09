@@ -96,6 +96,20 @@
     self.webAuthSession.presentationContextProvider = self;
     self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
     
+    // Set additional headers if available (iOS 18+)
+    if (self.additionalHeaders && self.additionalHeaders.count > 0)
+    {
+        if (@available(iOS 18.0, macOS 15.0, *))
+        {
+            self.webAuthSession.additionalHeaderFields = self.additionalHeaders;
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Set %lu additional headers for ASWebAuthenticationSession", (unsigned long)self.additionalHeaders.count);
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Additional headers provided but iOS 18+ required. Headers will be ignored.");
+        }
+    }
+    
     if (![self.webAuthSession start] && !self.sessionDismissed)
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, nil, nil, YES);
