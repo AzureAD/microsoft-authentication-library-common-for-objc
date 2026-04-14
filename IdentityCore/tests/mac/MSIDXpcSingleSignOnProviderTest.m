@@ -53,7 +53,7 @@
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCacheMock]);
 }
 
-- (void)testXpcComponentInstalledOnDevice_ssoExtentionDisabled_hasValidXpcConfiguration_canPerformRequest_returnsTrue
+- (void)testXpcComponentInstalledOnDevice_ssoExtensionDisabled_hasValidXpcConfiguration_canPerformRequest_returnsTrue
 {
     
     SEL selectorForMSIDSSOExtensionGetDeviceInfoRequest = NSSelectorFromString(@"canPerformRequest");
@@ -69,7 +69,7 @@
     XCTAssertTrue([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCacheMock]);
 }
 
-- (void)testXpcComponentInstalledOnDevice_ssoExtentionDisabled_hasValidXpcConfiguration_canPerformRequest_doesNotCallRemoteXpcService
+- (void)testXpcComponentInstalledOnDevice_ssoExtensionDisabled_hasValidXpcConfiguration_canPerformRequest_doesNotCallRemoteXpcService
 {
     SEL selectorForMSIDSSOExtensionGetDeviceInfoRequest = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionGetDeviceInfoRequest
@@ -94,7 +94,7 @@
     XCTAssertFalse(xpcServiceCalled, @"getXpcService should not be called from canPerformRequest");
 }
 
-- (void)testXpcComponentInstalledOnDevice_ssoExtentionDisabled_hasInvalidXpcValidation_canPerformRequest_returnsFalse
+- (void)testXpcComponentInstalledOnDevice_ssoExtensionDisabled_hasInvalidXpcValidation_canPerformRequest_returnsFalse
 {
     SEL selectorForMSIDSSOExtensionGetDeviceInfoRequest = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionGetDeviceInfoRequest
@@ -111,7 +111,7 @@
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedMock]);
 }
 
-- (void)testNoXpcComponentInstalledOnDevice_ssoExtentionEnabled_hasInvalidXpcValidation_canPerformRequest_ssoExtensionShouldTrigger
+- (void)testNoXpcComponentInstalledOnDevice_ssoExtensionEnabled_hasInvalidXpcValidation_canPerformRequest_ssoExtensionShouldTrigger
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SsoExtension will be triggered for to get device info"];
 
