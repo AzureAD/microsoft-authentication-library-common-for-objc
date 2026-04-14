@@ -49,12 +49,11 @@
 - (void)testNoXpcComponentInstalledOnDevice_canPerformRequest_returnsFalse
 {
     MSIDXpcProviderCacheMock *xpcProviderCacheMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:NO
-                                                                                                      isXpcValidated:NO
-                                                                                         shouldReturnCachedXpcStatus:NO];
+                                                                                                      isXpcValidated:NO];
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCacheMock]);
 }
 
-- (void)testXpcComponentInstalledOnDevice_ssoExtentionDisabled_hasValidCachedXpcConfiguration_canPerformRequest_returnsCachedStatus
+- (void)testXpcComponentInstalledOnDevice_ssoExtentionDisabled_hasValidXpcConfiguration_canPerformRequest_returnsTrue
 {
     
     SEL selectorForMSIDSSOExtensionGetDeviceInfoRequest = NSSelectorFromString(@"canPerformRequest");
@@ -65,22 +64,13 @@
         return NO;
     }];
     
-    MSIDXpcProviderCacheMock *xpcProviderCachedFalseMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:YES
-                                                                                                            isXpcValidated:YES
-                                                                                               shouldReturnCachedXpcStatus:YES];
-    xpcProviderCachedFalseMock.cachedCanPerformRequestsStatus = NO;
-    XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedFalseMock]);
-    
-    MSIDXpcProviderCacheMock *xpcProviderCachedTrueMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:YES
-                                                                                                           isXpcValidated:YES
-                                                                                              shouldReturnCachedXpcStatus:YES];
-    xpcProviderCachedTrueMock.cachedCanPerformRequestsStatus = YES;
-    XCTAssertTrue([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedTrueMock]);
+    MSIDXpcProviderCacheMock *xpcProviderCacheMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:YES
+                                                                                                      isXpcValidated:YES];
+    XCTAssertTrue([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCacheMock]);
 }
 
-- (void)testXpcComponentInstalledOnDevice_ssoExtentionDisabled_hasInvalidCachedXpcConfiguration_andValidXpcValidation_canPerformRequest_shouldCallRemoteXpcService
+- (void)testXpcComponentInstalledOnDevice_ssoExtentionDisabled_hasValidXpcConfiguration_canPerformRequest_doesNotCallRemoteXpcService
 {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Remote Xpc service will be called for canPerformRequest"];
     SEL selectorForMSIDSSOExtensionGetDeviceInfoRequest = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionGetDeviceInfoRequest
                            class:[MSIDSSOExtensionGetDeviceInfoRequest class]
@@ -89,23 +79,22 @@
         return NO;
     }];
     
+    __block BOOL xpcServiceCalled = NO;
     SEL selectorForMSIDXpcSingleSignOnProvider = NSSelectorFromString(@"getXpcService:withContinueBlock:");
     [MSIDTestSwizzle instanceMethod:selectorForMSIDXpcSingleSignOnProvider
                               class:[MSIDXpcSingleSignOnProvider class]
                               block:(id)^(void)
      {
-        [expectation fulfill];
+        xpcServiceCalled = YES;
      }];
     
-    MSIDXpcProviderCacheMock *xpcProviderCachedMock = [[MSIDXpcProviderCacheMock alloc]
-                                                       initWithXpcInstallationStatus:YES
-                                                       isXpcValidated:YES
-                                                       shouldReturnCachedXpcStatus:NO];
-    [MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedMock];
-    [self waitForExpectations:@[expectation] timeout:2.0];
+    MSIDXpcProviderCacheMock *xpcProviderCacheMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:YES
+                                                                                                      isXpcValidated:YES];
+    [MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCacheMock];
+    XCTAssertFalse(xpcServiceCalled, @"getXpcService should not be called from canPerformRequest");
 }
 
-- (void)testXpcComponentInstalledOnDevice_ssoExtentionDisabled_hasInvalidCachedXpcStatus_cannotValidateXpc_canPerformRequest_returnsFalse
+- (void)testXpcComponentInstalledOnDevice_ssoExtentionDisabled_hasInvalidXpcValidation_canPerformRequest_returnsFalse
 {
     SEL selectorForMSIDSSOExtensionGetDeviceInfoRequest = NSSelectorFromString(@"canPerformRequest");
     [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionGetDeviceInfoRequest
@@ -117,13 +106,12 @@
     
     MSIDXpcProviderCacheMock *xpcProviderCachedMock = [[MSIDXpcProviderCacheMock alloc]
                                                        initWithXpcInstallationStatus:YES
-                                                       isXpcValidated:NO
-                                                       shouldReturnCachedXpcStatus:NO];
+                                                       isXpcValidated:NO];
     
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedMock]);
 }
 
-- (void)testNoXpcComponentInstalledOnDevice_ssoExtentionEnabled_hasInvalidCachedXpcStatus_canPerformRequest_ssoExtensionShouldTrigger
+- (void)testNoXpcComponentInstalledOnDevice_ssoExtentionEnabled_hasInvalidXpcValidation_canPerformRequest_ssoExtensionShouldTrigger
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"SsoExtension will be triggered for to get device info"];
 
@@ -145,8 +133,7 @@
     
     MSIDXpcProviderCacheMock *xpcProviderCachedMock = [[MSIDXpcProviderCacheMock alloc]
                                                        initWithXpcInstallationStatus:YES
-                                                       isXpcValidated:NO
-                                                       shouldReturnCachedXpcStatus:NO];
+                                                       isXpcValidated:NO];
     [MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedMock];
     [self waitForExpectations:@[expectation] timeout:2.0];
 }
