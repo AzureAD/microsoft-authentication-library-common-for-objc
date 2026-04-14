@@ -43,7 +43,7 @@ steps:
       # uncomment these for more debugging spew
       # GIT_TRACE=1
       # GIT_CURL_VERBOSE=1
-      
+
       # Note that the resource is specified to limit the token to Azure DevOps
       $token = az account get-access-token --query accessToken --resource 499b84ac-1321-427f-aa17-267ca6975798 -o tsv
       Write-Host "##vso[task.setvariable variable=aadToken;issecret=true]$token"
@@ -78,43 +78,18 @@ steps:
     script: |
       cd azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS
       git submodule update --init --recursive Frameworks/microsoft-authentication-library-for-objc
-      
+
 - script: 'gem uninstall xcpretty -I --version 0.4.0'
   displayName: 'Uninstall xcpretty v0.4.0'
 
 - script: 'gem install xcpretty -N -v 0.3.0'
   displayName: 'Install xcpretty v0.3.0'
-  
+
 - script: 'gem install slather -N'
   displayName: 'Install slather'
 
 - task: UsePythonVersion@0
   displayName: 'Use Python 3.x'
-
-#  - task: Bash@3
-#    displayName: 'Select Xcode version'
-#    inputs:
-#      targetType: 'inline'
-#      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"'
-
-# The following is needed to install the visionOS SDK on macos-14 vm image which
-# doesn't have visionOS installed by default.
-# TODO: Remove when macos-14-arm64 is supported on ADO.
-- task: Bash@3
-  displayName: download visionOS SDK
-  inputs:
-    targetType: 'inline'
-    script: |
-      if [ $(target) == 'vision_library' ]; then
-          echo "Downloading simulator for visionOS"
-          defaults write com.apple.dt.Xcode AllowUnsupportedVisionOSHost -bool YES
-          defaults write com.apple.CoreSimulator AllowUnsupportedVisionOSHost -bool YES
-          xcodebuild -downloadPlatform visionOS
-      else
-          echo "Not visionOS job, no download needed"
-      fi
-    failOnStderr: false
-
 
 - task: Bash@3
   displayName: 'Run a python script for Broker'
@@ -127,7 +102,7 @@ steps:
       final_status=$(<./build/status.txt)
       echo "FINAL STATUS  = ${final_status}"
       echo "POSSIBLE ERRORS: ${output}"
-      
+
       if [ $final_status != "0" ]; then
         echo "Build & Testing Failed! \n ${output}" >&2
       fi
