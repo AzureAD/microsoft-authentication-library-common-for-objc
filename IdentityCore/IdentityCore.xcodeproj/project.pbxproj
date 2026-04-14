@@ -1936,6 +1936,8 @@
 		B434A1172F8DFFE400CCC890 /* MSIDWebMDMEnrollmentCompletionOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = B434A1162F8DFFB600CCC890 /* MSIDWebMDMEnrollmentCompletionOperation.h */; };
 		B434A11B2F8E01FB00CCC890 /* MSIDWebMDMEnrollmentCompletionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = B434A11A2F8E01EF00CCC890 /* MSIDWebMDMEnrollmentCompletionOperation.m */; };
 		B434A11C2F8E01FB00CCC890 /* MSIDWebMDMEnrollmentCompletionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = B434A11A2F8E01EF00CCC890 /* MSIDWebMDMEnrollmentCompletionOperation.m */; };
+		B434A1392F8E475F00CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B434A1382F8E475700CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m */; };
+		B434A13A2F8E475F00CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B434A1382F8E475700CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m */; };
 		B443EFF22AD629AF00782168 /* MSIDSSOExtensionPasskeyCredentialRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B443EFF02AD6299300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.h */; };
 		B443EFF32AD629B200782168 /* MSIDSSOExtensionPasskeyCredentialRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B443EFF12AD629A300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.m */; };
 		B443EFF42AD629B300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B443EFF12AD629A300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.m */; };
@@ -3514,7 +3516,7 @@
 		B434A1132F88B25400CCC890 /* MSIDWebviewConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewConstants.m; sourceTree = "<group>"; };
 		B434A1162F8DFFB600CCC890 /* MSIDWebMDMEnrollmentCompletionOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebMDMEnrollmentCompletionOperation.h; sourceTree = "<group>"; };
 		B434A11A2F8E01EF00CCC890 /* MSIDWebMDMEnrollmentCompletionOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebMDMEnrollmentCompletionOperation.m; sourceTree = "<group>"; };
-		B434A12D2F8E2CE200CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMDMEnrollmentCompletionResponseTests.m; sourceTree = "<group>"; };
+		B434A1382F8E475700CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMDMEnrollmentCompletionResponseTests.m; sourceTree = "<group>"; };
 		B443EFF02AD6299300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOExtensionPasskeyCredentialRequest.h; sourceTree = "<group>"; };
 		B443EFF12AD629A300782168 /* MSIDSSOExtensionPasskeyCredentialRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOExtensionPasskeyCredentialRequest.m; sourceTree = "<group>"; };
 		B443EFF52AD62BB900782168 /* MSIDPasskeyCredential.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPasskeyCredential.h; sourceTree = "<group>"; };
@@ -5977,7 +5979,7 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
-				B434A12D2F8E2CE200CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m */,
+				B434A1382F8E475700CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m */,
 				724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */,
 				724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */,
 				4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */,
@@ -7525,6 +7527,7 @@
 				B210F4501FDDF5D2005A8F76 /* MSIDClientInfoTests.m in Sources */,
 				6080B9A523886DD9009B1322 /* MSIDBrokerOperationGetDeviceInfoRequestTests.m in Sources */,
 				B431B5292AF05C890020CD3D /* MSIDBrokerOperationGetPasskeyAssertionResponseTests.m in Sources */,
+				B434A13A2F8E475F00CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m in Sources */,
 				96D3A44E20E6F7D8001BD428 /* MSIDPkceTests.m in Sources */,
 				B286BA02238A0919007833AD /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */,
 				23D00DA82ABD0805006D7F16 /* MSIDBrowserNativeMessageGetTokenRequestTests.m in Sources */,
@@ -8163,6 +8166,7 @@
 				B2DD5BB2204789FB0084313F /* MSIDIdTokenTests.m in Sources */,
 				232C657721376755002A41FE /* MSIDDRSDiscoveryResponseSerializerTests.m in Sources */,
 				239FE69A236A594500D846AC /* MSIDJsonSerializableFactoryTests.m in Sources */,
+				B434A1392F8E475F00CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m in Sources */,
 				2A465DF52F0CF192006E7571 /* MSIDExecutionFlowLoggerTests.m in Sources */,
 				4BADFA5E2E85D7FC00E8C26F /* MSIDFlightManagerTests.swift in Sources */,
 				580E254F271A1815003D1795 /* MSIDBrokerOperationGetSsoCookiesResponseTests.m in Sources */,
