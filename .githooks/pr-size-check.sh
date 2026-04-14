@@ -39,7 +39,7 @@ ALL_EXCLUDES=("${COMMON_EXCLUDES[@]}" "${EXTRA_EXCLUDES[@]}")
 GREP_PATTERN=$(printf "|%s" "${ALL_EXCLUDES[@]}")
 GREP_PATTERN="${GREP_PATTERN:1}"
 
-# ── Resolve base branch — always origin/dev ──────────────────
+# ── Resolve base branch — tries origin/dev, origin/main, origin/master ──────
 BASE_BRANCH=""
 for candidate in origin/dev origin/main origin/master; do
   if git show-ref --verify --quiet "refs/remotes/${candidate}"; then
@@ -54,14 +54,14 @@ if [ -z "$BASE_BRANCH" ]; then
 fi
 
 # ── Get list of changed files (excluding patterns) ───────────
-CHANGED_FILES=$(git diff --name-only "$BASE_BRANCH"...HEAD 2>/dev/null | grep -vE "$GREP_PATTERN")
+mapfile -t CHANGED_FILES < <(git diff --name-only "$BASE_BRANCH"...HEAD 2>/dev/null | grep -vE "$GREP_PATTERN")
 
-if [ -z "$CHANGED_FILES" ]; then
+if [ "${#CHANGED_FILES[@]}" -eq 0 ]; then
   exit 0
 fi
 
 # ── Count lines changed ───────────────────────────────────────
-TOTAL_LINES=$(git diff "$BASE_BRANCH"...HEAD -- $CHANGED_FILES 2>/dev/null \
+TOTAL_LINES=$(git diff "$BASE_BRANCH"...HEAD -- "${CHANGED_FILES[@]}" 2>/dev/null \
   | grep -E "^\+|^-" \
   | grep -vE "^\+\+\+|^---" \
   | wc -l \
