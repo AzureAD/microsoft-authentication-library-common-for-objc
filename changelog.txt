@@ -1,3 +1,7 @@
+Version 1.23.0
+* Adding Workflow for PR size check (#1763)
+* New Lab API Changes (#1707)
+
 Version 1.22.0
 * Import the right bridging header when common-core is consumed as submodule 
 * Add retry logic when bound app refresh token redemption fails.
