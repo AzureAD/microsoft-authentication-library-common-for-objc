@@ -29,24 +29,21 @@
 
 @property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
 @property (nonatomic) BOOL isXpcValidated;
-@property (nonatomic) BOOL shouldReturnCachedXpcStatus;
 
 @end
 
 @implementation MSIDXpcProviderCacheMock
 
-@synthesize cachedCanPerformRequestsStatus, xpcConfiguration, cachedXpcProviderType;
+@synthesize xpcConfiguration, cachedXpcProviderType;
 
 - (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
                                isXpcValidated:(BOOL)isXpcValidated
-                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus
 {
     self = [super init];
     if (self)
     {
         self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
         self.isXpcValidated = isXpcValidated;
-        self.shouldReturnCachedXpcStatus = shouldReturnCachedXpcStatus;
         
         return self;
     }
@@ -62,11 +59,6 @@
 - (BOOL)isXpcProviderInstalledOnDevice
 {
     return _isXpcProviderInstalledOnDevice;
-}
-
-- (BOOL)shouldReturnCachedXpcStatus
-{
-    return _shouldReturnCachedXpcStatus;
 }
 
 @end
