@@ -29,9 +29,4 @@
 // any of the reserved prefixes: "x-ms-", "x-client-", "x-broker-", "x-app-".
 @interface MSIDHttpRequestHeaderValidator : NSObject <MSIDHttpRequestHeaderValidating>
 
-// Returns a new dictionary containing only the key-value pairs from headers
-// whose names are allowed to be added to a network request.
-- (nonnull NSDictionary<NSString *, NSString *> *)validHeadersFromHeaders:(nonnull NSDictionary<NSString *, NSString *> *)headers;
-
-
 @end
