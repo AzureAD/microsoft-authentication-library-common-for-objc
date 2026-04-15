@@ -39,6 +39,7 @@
 @property (nonatomic) ASWebAuthenticationSession *webAuthSession;
 @property (nonatomic) BOOL useEmpheralSession;
 @property (nonatomic) BOOL sessionDismissed;
+@property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
 
 @end
 
@@ -46,10 +47,11 @@
 
 #pragma mark - MSIDAuthSessionHandling
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
+- (instancetype)initCommonWithParentController:(MSIDViewController *)parentController
+                                      startURL:(NSURL *)startURL
+                                callbackScheme:(NSString *)callbackURLScheme
+                            useEmpheralSession:(BOOL)useEmpheralSession
+                             additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
 {
     self = [super init];
     
@@ -59,9 +61,35 @@
         _startURL = startURL;
         _callbackURLScheme = callbackURLScheme;
         _useEmpheralSession = useEmpheralSession;
+        _additionalHeaders = [additionalHeaders copy];
     }
     
     return self;
+}
+
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                      useEmpheralSession:(BOOL)useEmpheralSession
+{
+    return [self initCommonWithParentController:parentController
+                                       startURL:startURL
+                                 callbackScheme:callbackURLScheme
+                             useEmpheralSession:useEmpheralSession
+                              additionalHeaders:nil];
+}
+
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                      useEmpheralSession:(BOOL)useEmpheralSession
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders API_AVAILABLE(ios(18.0), macos(15.0))
+{
+    return [self initCommonWithParentController:parentController
+                                       startURL:startURL
+                                 callbackScheme:callbackURLScheme
+                             useEmpheralSession:useEmpheralSession
+                              additionalHeaders:additionalHeaders];
 }
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
@@ -95,6 +123,15 @@
     
     self.webAuthSession.presentationContextProvider = self;
     self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
+    
+    // Set additional headers if available (iOS 18+)
+    if (@available(iOS 18.0, macOS 15.0, *))
+    {
+        if (self.additionalHeaders && self.additionalHeaders.count > 0)
+        {
+            self.webAuthSession.additionalHeaderFields = self.additionalHeaders;
+        }
+    }
     
     if (![self.webAuthSession start] && !self.sessionDismissed)
     {
