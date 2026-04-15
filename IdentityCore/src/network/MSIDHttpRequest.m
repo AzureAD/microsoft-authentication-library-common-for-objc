@@ -89,7 +89,15 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
         [self.requestInterceptor addAdditionalHeaderFieldsForUrl:self.urlRequest.URL withBlock:^(NSDictionary<NSString *, NSString *> * _Nullable additionalHeaders)
         {
             __typeof__(self) strongSelf = weakSelf;
-            if (!strongSelf) return;
+            if (!strongSelf)
+            {
+                if (completionBlock)
+                {
+                    NSError *deallocError = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey : @"HTTP request object was deallocated before completion."}];
+                    completionBlock(nil, deallocError);
+                }
+                return;
+            }
 
             if (additionalHeaders.count)
             {
