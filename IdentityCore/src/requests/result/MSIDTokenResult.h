@@ -88,6 +88,10 @@ extern NSString *const MSID_TOKEN_RESULT_CLIENT_DATA;
 
 - (void)insertBrokerMetaData:(nonnull id)obj forKey:(nonnull NSString *)key;
 
+- (void)setBrokerMetaDataWithAppVersion:(nullable NSString *)appVersion
+                        responseLatency:(double)responseLatencyMs
+                     brokerHandlingTime:(double)brokerHandlingTimeMs;
+
 @end
 
 NS_ASSUME_NONNULL_END
