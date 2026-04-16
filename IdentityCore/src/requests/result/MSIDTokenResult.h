@@ -72,9 +72,6 @@ extern NSString *const MSID_TOKEN_RESULT_CLIENT_DATA;
 /* Token response from server */
 @property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
 
-/* Broker app version used for brokered authentication */
-@property (nonatomic, nullable) NSString *brokerAppVersion DEPRECATED_MSG_ATTRIBUTE("Use `brokerMetaData` instead.");
-
 /* Broker app meta data used for brokered authentication */
 @property (nonatomic, nullable, readonly) MSIDCache *brokerMetaData;
 
