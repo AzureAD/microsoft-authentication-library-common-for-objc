@@ -91,7 +91,7 @@ brokerRequestReceivedTimeStamp:(nullable NSDate *)brokerRequestReceivedTimeStamp
         return;
     }
     
-    // Calculate time intervals.
+    // Calculate time intervals in milliseconds.
     double responseLatency = responseGenerationTimeStamp ? [[NSDate date] timeIntervalSinceDate:responseGenerationTimeStamp] * 1000 : 0;
     double brokerHandlingTime = (brokerRequestReceivedTimeStamp && responseGenerationTimeStamp) ? [responseGenerationTimeStamp timeIntervalSinceDate:brokerRequestReceivedTimeStamp] * 1000 : 0;
 
