@@ -1,4 +1,3 @@
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,47 +19,17 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
 
-#import "MSIDXpcProviderCacheMock.h"
+typedef void (^MSIDHttpRequestInterceptorAddHeaderCompletionBlock)(NSDictionary<NSString *, NSString *> * _Nullable additionalHeaders);
 
-@interface MSIDXpcProviderCacheMock()
+@protocol MSIDHttpRequestInterceptorProtocol <NSObject>
 
-@property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
-@property (nonatomic) BOOL isXpcValidated;
-
-@end
-
-@implementation MSIDXpcProviderCacheMock
-
-@synthesize xpcConfiguration, cachedXpcProviderType;
-
-- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
-                               isXpcValidated:(BOOL)isXpcValidated
-{
-    self = [super init];
-    if (self)
-    {
-        self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
-        self.isXpcValidated = isXpcValidated;
-        
-        return self;
-    }
-    
-    return nil;
-}
-
-- (BOOL)validateCacheXpcProvider
-{
-    return _isXpcValidated;
-}
-
-- (BOOL)isXpcProviderInstalledOnDevice
-{
-    return _isXpcProviderInstalledOnDevice;
-}
+// Any additional header fields to be set when sending the request.
+// All header field names must start with the "x-" prefix.
+// "x-ms-", "x-client-", "x-broker-", "x-app-" prefixes are reserved and should not be used for additional header fields.
+- (void)addAdditionalHeaderFieldsForUrl:(nullable NSURL *)requestUrl withBlock:(nonnull MSIDHttpRequestInterceptorAddHeaderCompletionBlock)completionBlock;
 
 @end
-
-
