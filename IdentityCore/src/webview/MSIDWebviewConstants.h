@@ -24,19 +24,6 @@
 
 #import <Foundation/Foundation.h>
 
-/**
- * Purpose for launching ASWebAuthenticationSession.
- * Determines session configuration and required parameters.
- */
-typedef NS_ENUM(NSInteger, MSIDASWebAuthenticationPurpose)
-{
-    // Unknown or unspecified purpose
-    MSIDASWebAuthenticationPurposeUnknown = 0,
-    
-    // MDM enrollment flow
-    MSIDASWebAuthenticationPurposeMDMEnrollment = 1
-};
-
 #pragma mark - Constants
 
 #pragma mark - URL Schemes
@@ -67,19 +54,14 @@ extern NSString * const MSID_MDM_ENROLLMENT_COMPLETION_STATUS_VALUE_CHECK_IN_TIM
 // ASWebAuthentication handoff header keys
 extern NSString * const MSID_ASWEBAUTH_HANDOFF_URL_KEY;                    // x-ms-aswebauth-handoff-url
 extern NSString * const MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY;          // x-ms-aswebauth-handoff-use-ephemeral-session
+extern NSString *const MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY;         // @"x-ms-aswebauth-handoff-redirect-scheme";
 extern NSString * const MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY;        // x-ms-aswebauth-handoff-include-headers
 extern NSString * const MSID_ASWEBAUTH_HANDOFF_ATTACH_HEADERS_KEY;         // x-ms-aswebauth-handoff-attach-headers
-extern NSString * const MSID_ASWEBAUTH_HANDOFF_INTUNE_AUTH_TOKEN_KEY;      // x-ms-aswebauth-handoff-intune-auth-token
-extern NSString * const MSID_ASWEBAUTH_HANDOFF_SESSION_CORRELATION_ID_KEY; // x-ms-aswebauth-handoff-session-correlation-id
 extern NSString * const MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX;              // x-ms-aswebauth-handoff-
 
 // ASWebAuthentication handoff header values
 extern NSString * const MSID_ASWEBAUTH_HANDOFF_VALUE_TRUE;                 // "true"
 extern NSString * const MSID_ASWEBAUTH_HANDOFF_VALUE_FALSE;                // "false"
-
-#pragma mark - Utility Functions
-
-extern NSString *MSIDASWebAuthCallbackSchemeForPurpose(MSIDASWebAuthenticationPurpose purpose);
 
 #pragma mark - MSIDASWebAuthenticationConstants Class
 

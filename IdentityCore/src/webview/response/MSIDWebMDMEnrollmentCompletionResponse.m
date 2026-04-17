@@ -92,7 +92,7 @@
         return NO;
     }
     
-    return [url.scheme isEqualToString:MSID_SCHEME_MSAUTH]
+    return [url.scheme caseInsensitiveCompare:MSID_SCHEME_MSAUTH] == NSOrderedSame
         && [url.host caseInsensitiveCompare:MSID_MDM_ENROLLMENT_COMPLETION_HOST] == NSOrderedSame;
 }
 

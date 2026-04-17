@@ -30,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Response object representing MDM enrollment completion callback.
  *
  * This response is triggered when user returns from MDM profile installation
- * via ASWebAuthenticationSession callback URL.
  */
 @interface MSIDWebMDMEnrollmentCompletionResponse : MSIDWebviewResponse
 

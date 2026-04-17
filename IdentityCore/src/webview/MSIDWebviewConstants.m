@@ -52,37 +52,20 @@ NSString * const MSID_MDM_ENROLLMENT_COMPLETION_STATUS_VALUE_CHECK_IN_TIMED_OUT 
 // ASWebAuthentication handoff header keys
 NSString *const MSID_ASWEBAUTH_HANDOFF_URL_KEY                    = @"x-ms-aswebauth-handoff-url";
 NSString *const MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY          = @"x-ms-aswebauth-handoff-use-ephemeral-session";
+NSString *const MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY        = @"x-ms-aswebauth-handoff-redirect-scheme";
 NSString *const MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY        = @"x-ms-aswebauth-handoff-include-headers";
 NSString *const MSID_ASWEBAUTH_HANDOFF_ATTACH_HEADERS_KEY         = @"x-ms-aswebauth-handoff-attach-headers";
-NSString *const MSID_ASWEBAUTH_HANDOFF_INTUNE_AUTH_TOKEN_KEY      = @"x-ms-aswebauth-handoff-intune-auth-token";
-NSString *const MSID_ASWEBAUTH_HANDOFF_SESSION_CORRELATION_ID_KEY = @"x-ms-aswebauth-handoff-session-correlation-id";
 NSString *const MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX              = @"x-ms-aswebauth-handoff-";
 
 // ASWebAuthentication handoff header values
 NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_TRUE                 = @"true";
 NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_FALSE                = @"false";
 
-#pragma mark - Utility Functions
-
-NSString *MSIDASWebAuthCallbackSchemeForPurpose(MSIDASWebAuthenticationPurpose purpose)
-{
-    // Currently all purposes use the same callback scheme
-    // Future: Different purposes could use different schemes if needed
-    switch (purpose)
-    {
-        case MSIDASWebAuthenticationPurposeMDMEnrollment:
-            return MSID_SCHEME_MSAUTH;
-            
-        case MSIDASWebAuthenticationPurposeUnknown:
-        default:
-            return MSID_SCHEME_MSAUTH;
-    }
-}
-
 #pragma mark - ASWebAuthentication Allowed Domains
 
 @implementation MSIDASWebAuthenticationConstants
 
+// TODO: Verify allowed domains for ASWebAuthenticationSession, and update the list if needed.
 + (NSSet<NSString *> *)asWebAuthAllowedDomains
 {
     static NSSet<NSString *> *allowedDomains = nil;
@@ -92,7 +75,9 @@ NSString *MSIDASWebAuthCallbackSchemeForPurpose(MSIDASWebAuthenticationPurpose p
                                                         @"portal.manage-beta.microsoft.com",
                                                         @"portal.manage.microsoft.us",
                                                         @"portal.manage.microsoft.cn",
-                                                        @"portal.manage.microsoftonline.de"
+                                                        @"portal.manage.microsoft.de",
+                                                        @"portal.manage-dogfood.microsoft.com", //PPE
+                                                        @"portal.manage.microsoft.fr"
                                                       ]];
     });
     
