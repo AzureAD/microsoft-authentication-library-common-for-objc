@@ -25,17 +25,12 @@
 
 #import "MSIDXpcProviderCache.h"
 #import "NSString+MSIDExtensions.h"
-#import "NSDate+MSIDExtensions.h"
 #import "MSIDDeviceInfo.h"
 #import "MSIDXpcConfiguration.h"
 #import "MSIDLogger+Internal.h"
 
 NSString *const MSID_XPC_CACHE_QUEUE_NAME = @"com.microsoft.msidxpcprovidercache";
 NSString *const MSID_XPC_PROVIDER_TYPE_KEY = @"xpc_provider_type";
-NSString *const MSID_XPC_LAST_UPDATE_TIME = @"last_update_time";
-NSString *const MSID_XPC_LAST_UPDATE_TIME_DESCRIPTION = @"last_update_time_description";
-NSString *const MSID_XPC_STATUS = @"xpc_status";
-NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 
 @interface MSIDXpcProviderCache ()
 
@@ -178,84 +173,19 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
     return NO;
 }
 
-- (BOOL)shouldReturnCachedXpcStatus
-{
-    __block BOOL result = YES;
-    dispatch_sync(self.synchronizationQueue, ^{
-        
-        if (!self.xpcConfiguration)
-        {
-            result = NO;
-        }
-        else
-        {
-            NSDictionary *xpcInfo = [[NSUserDefaults standardUserDefaults] dictionaryForKey:self.xpcConfiguration.xpcMachServiceName];
-            if (!xpcInfo)
-            {
-                result = NO;
-            }
-            else
-            {
-                NSDate *lastUpdatedTime = [NSDate msidDateFromTimeStamp:xpcInfo[MSID_XPC_LAST_UPDATE_TIME]];
-                NSTimeInterval timeDifference = [[NSDate date] timeIntervalSinceDate:lastUpdatedTime];
-
-                // cached Broker Xpc status expired after 4 hours
-                if (!lastUpdatedTime || timeDifference > MSID_XPC_STATUS_EXPIRATION_TIME)
-                {
-                    result = NO;
-                }
-            }
-        }
-    });
-    
-    return result;
-}
-
-- (BOOL)cachedCanPerformRequestsStatus
-{
-    __block BOOL result = NO;
-    dispatch_sync(self.synchronizationQueue, ^{
-        if (!self.xpcConfiguration)
-        {
-            result = NO;
-        }
-        else
-        {
-            NSDictionary *xpcInfo = [[NSUserDefaults standardUserDefaults] dictionaryForKey:self.xpcConfiguration.xpcMachServiceName];
-            if ([xpcInfo[MSID_XPC_STATUS] respondsToSelector:@selector(boolValue)])
-            {
-                result = [xpcInfo[MSID_XPC_STATUS] boolValue];
-            }
-        }
-    });
-    
-    return result;
-}
-
-- (void)setCachedCanPerformRequestsStatus:(BOOL)cachedCanPerformRequestsStatus
-{
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
-        if (!self.xpcConfiguration)
-        {
-            return;
-        }
-        
-        NSDate *currentTime = [NSDate date];
-        NSDictionary *xpcInfo = @{MSID_XPC_LAST_UPDATE_TIME:[currentTime msidDateToTimestamp], MSID_XPC_LAST_UPDATE_TIME_DESCRIPTION:[currentTime msidToString], MSID_XPC_STATUS:@(cachedCanPerformRequestsStatus)};
-        [self.userDefaults setObject:xpcInfo forKey:self.xpcConfiguration.xpcMachServiceName];
-    });
-}
-
 - (MSIDXpcConfiguration *)xpcConfiguration
 {
-    @synchronized (self) {
+    __block MSIDXpcConfiguration *config = nil;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         if (!_xpcConfiguration)
         {
-            _xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:self.cachedXpcProviderType];
+            NSInteger providerType = [self.userDefaults integerForKey:MSID_XPC_PROVIDER_TYPE_KEY];
+            _xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:providerType];
         }
-        
-        return _xpcConfiguration;
-    }
+        config = _xpcConfiguration;
+    });
+    
+    return config;
 }
 
 @end

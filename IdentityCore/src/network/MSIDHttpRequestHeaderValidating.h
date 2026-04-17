@@ -1,4 +1,3 @@
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,47 +19,16 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
 
-#import "MSIDXpcProviderCacheMock.h"
+// Abstraction for filtering HTTP header dictionaries down to only the names
+// that are permitted to be added to an outgoing network request.
+@protocol MSIDHttpRequestHeaderValidating <NSObject>
 
-@interface MSIDXpcProviderCacheMock()
-
-@property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
-@property (nonatomic) BOOL isXpcValidated;
-
-@end
-
-@implementation MSIDXpcProviderCacheMock
-
-@synthesize xpcConfiguration, cachedXpcProviderType;
-
-- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
-                               isXpcValidated:(BOOL)isXpcValidated
-{
-    self = [super init];
-    if (self)
-    {
-        self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
-        self.isXpcValidated = isXpcValidated;
-        
-        return self;
-    }
-    
-    return nil;
-}
-
-- (BOOL)validateCacheXpcProvider
-{
-    return _isXpcValidated;
-}
-
-- (BOOL)isXpcProviderInstalledOnDevice
-{
-    return _isXpcProviderInstalledOnDevice;
-}
+// Returns a new dictionary containing only the key-value pairs from headers
+// whose names are allowed to be added to a network request.
+- (nonnull NSDictionary<NSString *, NSString *> *)validHeadersFromHeaders:(nonnull NSDictionary<NSString *, NSString *> *)headers;
 
 @end
-
-

@@ -1,4 +1,3 @@
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,47 +19,14 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
+#import "MSIDHttpRequestHeaderValidating.h"
 
-#import "MSIDXpcProviderCacheMock.h"
-
-@interface MSIDXpcProviderCacheMock()
-
-@property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
-@property (nonatomic) BOOL isXpcValidated;
-
-@end
-
-@implementation MSIDXpcProviderCacheMock
-
-@synthesize xpcConfiguration, cachedXpcProviderType;
-
-- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
-                               isXpcValidated:(BOOL)isXpcValidated
-{
-    self = [super init];
-    if (self)
-    {
-        self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
-        self.isXpcValidated = isXpcValidated;
-        
-        return self;
-    }
-    
-    return nil;
-}
-
-- (BOOL)validateCacheXpcProvider
-{
-    return _isXpcValidated;
-}
-
-- (BOOL)isXpcProviderInstalledOnDevice
-{
-    return _isXpcProviderInstalledOnDevice;
-}
+// Validates custom HTTP header field names provided via MSIDHttpRequestInterceptorProtocol.
+// A header field name is valid when it starts with the "x-" prefix and does not use
+// any of the reserved prefixes: "x-ms-", "x-client-", "x-broker-", "x-app-".
+@interface MSIDHttpRequestHeaderValidator : NSObject <MSIDHttpRequestHeaderValidating>
 
 @end
-
-
