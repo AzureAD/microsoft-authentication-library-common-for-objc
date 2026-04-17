@@ -7,6 +7,8 @@ Version 1.22.0
 * Add French sovereign cloud authority as a trusted authority (#1731)
 * Serialize `is_sso_account` as NSString instead of NSNumber in MSIDAccount
 * Clean up the experiment bag for HTTP requests and attempt to resolve the reported crash.
+* Remove 4-hour XPC canPerform status cache and XPC roundtrip (#1771) 
+* Add HttpRequest interceptor #1759 
 
 Version 1.21.0
 * Import the right bridging header when common-core is consumed as submodule  (#1678)
