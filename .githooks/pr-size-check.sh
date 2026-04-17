@@ -27,9 +27,14 @@ COMMON_EXCLUDES=(
   "\.xcassets/"
   "\.modulemap$"
   "\.xcprivacy$"
+  "\.strings$"
+  "\.stringsdict$"
+  "\.xcstrings$"
   "\.ya?ml$"
   "\.lock$"
   "\.(png|jpg|jpeg|svg|pdf|icns|gif|tiff)$"
+  "\.md$"
+  "\.mdx$"
 )
 
 # ── Merge common + repo-specific exclusions ───────────────────
