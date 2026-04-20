@@ -130,7 +130,8 @@
         if (webviewResponseCompletionBlock) webviewResponseCompletionBlock(nil, error);
         return;
     }
-    
+    [webView loadRequestWithURL:newURL
+             
     [MSIDWebviewAuthorization startSessionWithWebView:webView
                                         oauth2Factory:oauthFactory
                                         configuration:webRequestConfiguration

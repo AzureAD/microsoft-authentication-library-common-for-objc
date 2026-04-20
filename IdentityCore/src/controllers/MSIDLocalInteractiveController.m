@@ -37,11 +37,13 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDThrottlingService.h"
+#import "MSIDWebviewNavigationDelegateHelper.h"
 
 @interface MSIDLocalInteractiveController()
 
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 @property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
+@property (nonatomic, strong) MSIDWebviewNavigationDelegateHelper *delegateHelper;
 
 @end
 
@@ -61,6 +63,16 @@
     if (self)
     {
         _interactiveRequestParamaters = parameters;
+        // Initialize delegate helper and transition handler
+        _delegateHelper = [[MSIDWebviewNavigationDelegateHelper alloc] initWithContext:parameters];
+        // Set webview configuration block
+        __weak typeof(self) weakSelf = self;
+        parameters.webviewConfigurationBlock = ^(id<MSIDWebviewInteracting> webviewController) {
+            __strong typeof(self) strongSelf = weakSelf;
+            if (!strongSelf) return;
+            
+            [strongSelf configureWebviewController:webviewController];
+        };
     }
 
     return self;
@@ -223,8 +235,9 @@
 
     self.currentRequest = request;
     
-    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *msauthResponse)
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebviewResponse *response)
     {
+        MSIDWebWPJResponse *msauthResponse = (MSIDWebWPJResponse *)response;
         if (msauthResponse)
         {
             self.currentRequest = nil;
@@ -240,6 +253,146 @@
         
         completionBlock(result, error);
     }];
+}
+
+#pragma mark - Webview Configuration
+
+- (void)configureWebviewController:(id)webviewController
+{
+    // Setting navigation delegate
+    [self.delegateHelper configureWebviewController:webviewController 
+                                           delegate:self
+                                   parentController:self.interactiveRequestParamaters.parentViewController];
+}
+
+#pragma mark - Webview Navigation Delegate
+
+- (void)handleSpecialRedirectUrl:(NSURL *)url
+                      completion:(void (^)(MSIDWebviewNavigationAction *action, NSError *error))completion
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                     @"MSIDLocalInteractiveController handling special redirect: %@", _PII_NULLIFY(url));
+    
+    // Create BRT evaluator block
+    __weak typeof(self) weakSelf = self;
+    BOOL (^brtEvaluator)(void) = ^BOOL {
+        __strong typeof(self) strongSelf = weakSelf;
+        return strongSelf ? [strongSelf shouldAcquireBRT] : NO;
+    };
+    
+    // Create BRT handler block
+    void (^brtHandler)(void(^)(BOOL success, NSError * _Nullable error)) = ^(void(^brtCompletion)(BOOL success, NSError * _Nullable error)) {
+        __strong typeof(self) strongSelf = weakSelf;
+        if (!strongSelf) {
+            brtCompletion(NO, nil);
+            return;
+        }
+        
+        [strongSelf acquireBRTWithCompletion:^(BOOL success, NSError *error) {
+            // Track BRT acquisition attempt and result
+            strongSelf.brtAttempted = YES;
+            
+            if (error) {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.requestParameters,
+                                 @"Failed to acquire BRT: %@", error);
+            }
+            
+            if (success) {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.requestParameters,
+                                 @"BRT acquired successfully");
+                strongSelf.brtAcquired = YES;
+            }
+            
+            // Call the completion from DelegateHelper
+            brtCompletion(success, error);
+        }];
+    };
+    
+    // Delegate ALL logic to DelegateHelper
+    // DelegateHelper will handle:
+    // - Scheme checking (msauth://, browser://)
+    // - BRT acquisition (if needed)
+    // - Navigation action resolution
+    // - Error handling
+    [self.delegateHelper handleSpecialRedirectUrl:url
+                                     brtEvaluator:brtEvaluator
+                                       brtHandler:brtHandler
+                                          appName:@"MSAL"
+                                       appVersion:@"`1.0`"
+                          externalNavigationBlock:self.currentRequest.externalDecidePolicyForBrowserAction
+                                       completion:completion];
+}
+
+- (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *_Nullable)headers
+{
+    [self.delegateHelper processResponseHeaders:headers];
+}
+
+#pragma mark - BRT Acquisition
+
+/**
+ * Acquires Broker Refresh Token (BRT)
+ * This is the new logic that needs to be implemented
+ */
+- (void)acquireBRTWithCompletion:(void (^)(BOOL success, NSError *error))completion
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                     @"Starting BRT acquisition.");
+    
+    // TODO: Implement BRT acquisition logic
+    // This would involve:
+    // 1. Creating BRT request with current parameters
+    // 2. Executing BRT token request
+    // 3. Storing BRT in cache
+    // 4. Calling completion with success/failure
+    
+    // Placeholder implementation:
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        // Simulate BRT acquisition work
+        // Replace with actual implementation
+        BOOL success = YES; // Replace with actual logic
+        NSError *error = nil;
+        
+        if (!success)
+        {
+            error = MSIDCreateError(MSIDErrorDomain,
+                                   MSIDErrorInternal,
+                                   @"Failed to acquire BRT",
+                                   nil, nil, nil,
+                                   self.requestParameters.correlationId,
+                                   nil, NO);
+        }
+
+        // Call completion on main thread
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(success, error);
+        });
+    });
+}
+
+#pragma mark - Policy Checks (Internal)
+
+- (BOOL)shouldAcquireBRT
+{
+    id<MSIDRequestContext> context = self.requestParameters;
+    
+    // Check if already acquired successfully
+    if (self.brtAcquired)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Skipping BRT acquisition - already acquired");
+        return NO;
+    }
+    
+    // Simplified: Check if already attempted (only attempt once)
+    if (self.brtAttempted)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Skipping BRT acquisition - already attempted once");
+        return NO;
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"BRT acquisition needed for special redirect URL");
+    return YES;
 }
 
 @end
