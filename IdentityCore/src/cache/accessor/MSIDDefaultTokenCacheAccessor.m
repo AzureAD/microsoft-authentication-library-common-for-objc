@@ -776,6 +776,8 @@
         query.homeAccountId = homeAccountId;
         query.environmentAliases = aliases;
         query.matchAnyCredentialType = YES;
+        // MSIDAny short-circuits the requestedClaims equality check in MSIDCredentialCacheItem
+        // so access tokens saved with requestedClaims (e.g. CP1) are also removed for this account.
         query.targetMatchingOptions = MSIDAny;
 
         NSError *credentialRemovalError;

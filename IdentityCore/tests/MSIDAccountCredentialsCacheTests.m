@@ -2823,7 +2823,7 @@
     XCTAssertTrue([remainignItems count] == 0);
 }
 
-- (void)testRemoveCredentialsWithQuery_whenQueryUsesAnyTargetMatch_shouldRemoveATsWithRequestedClaims
+- (void)testRemoveCredentialsWithQuery_whenTargetMatchingOptionsIsMSIDAny_shouldIgnoreRequestedClaimsAndRemoveATsWithRequestedClaims
 {
     [self saveItem:[self createTestAccessTokenCacheItem]];
 
