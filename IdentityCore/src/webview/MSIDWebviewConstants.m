@@ -65,19 +65,21 @@ NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_FALSE                = @"false";
 
 @implementation MSIDASWebAuthenticationConstants
 
-// TODO: Verify allowed domains for ASWebAuthenticationSession, and update the list if needed.
+// TODO: Add for DE once available
 + (NSSet<NSString *> *)asWebAuthAllowedDomains
 {
     static NSSet<NSString *> *allowedDomains = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        allowedDomains = [[NSSet alloc] initWithArray:@[@"portal.manage.microsoft.com",
+        allowedDomains = [[NSSet alloc] initWithArray:@[@"portal.manage-dogfood.microsoft.com",
+                                                        @"portal.manage-selfhost.microsoft.com",
                                                         @"portal.manage-beta.microsoft.com",
+                                                        @"portal.manage.microsoft.com",
+                                                        @"portal.manage-ppe.microsoft.us",
                                                         @"portal.manage.microsoft.us",
-                                                        @"portal.manage.microsoft.cn",
-                                                        @"portal.manage.microsoft.de",
-                                                        @"portal.manage-dogfood.microsoft.com", //PPE
-                                                        @"portal.manage.microsoft.fr"
+                                                        @"portal.manage-ppe.microsoftonline.cn",
+                                                        @"portal.manage.microsoftonline.cn",
+                                                        @"portal.manage.svc.sovcloud.fr"
                                                       ]];
     });
     
