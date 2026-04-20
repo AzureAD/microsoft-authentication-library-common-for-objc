@@ -776,6 +776,7 @@
         query.homeAccountId = homeAccountId;
         query.environmentAliases = aliases;
         query.matchAnyCredentialType = YES;
+        query.targetMatchingOptions = MSIDAny;
 
         NSError *credentialRemovalError;
         result = [_accountCredentialCache removeCredentialsWithQuery:query context:context error:&credentialRemovalError];

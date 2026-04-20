@@ -2798,29 +2798,61 @@
 - (void)testRemoveCredentialsWithQuery_whenQueryIsNotExactMatch_andATPopAccessTokensQuery_shouldRemoveAllItems
 {
     [self saveItem:[self createTestATPopAccessTokenCacheItem]];
-    
+
     MSIDCredentialCacheItem *token2 = [self createTestATPopAccessTokenCacheItem];
     token2.homeAccountId = @"uid.utid2";
     [self saveItem:token2];
-    
+
     [self saveItem:[self createTestRefreshTokenCacheItem]];
-    
+
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.matchAnyCredentialType = YES;
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
 
     XCTAssertFalse(query.exactMatch);
-    
+
     NSError *error = nil;
     BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
-    
+
     NSArray *remainignItems = [self.cache getAllItemsWithContext:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(remainignItems);
     XCTAssertTrue([remainignItems count] == 0);
+}
+
+- (void)testRemoveCredentialsWithQuery_whenQueryUsesAnyTargetMatch_shouldRemoveATsWithRequestedClaims
+{
+    [self saveItem:[self createTestAccessTokenCacheItem]];
+
+    MSIDCredentialCacheItem *atWithClaims = [self createTestAccessTokenCacheItem];
+    atWithClaims.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
+    [self saveItem:atWithClaims];
+
+    MSIDCredentialCacheItem *rt = [self createTestRefreshTokenCacheItem];
+    rt.homeAccountId = @"uid.utid2";
+    [self saveItem:rt];
+
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.matchAnyCredentialType = YES;
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.requestedClaims = nil;
+    query.targetMatchingOptions = MSIDAny;
+
+    NSError *error = nil;
+    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *remainingItems = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(remainingItems);
+    XCTAssertEqual([remainingItems count], 1);
+    XCTAssertEqual(((MSIDCredentialCacheItem *)remainingItems[0]).credentialType, MSIDRefreshTokenType);
 }
 
 #pragma mark - wipeInfoWithContext
