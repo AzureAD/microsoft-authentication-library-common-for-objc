@@ -25,8 +25,10 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDSystemWebviewController.h"
+#import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDURLResponseHandling.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDTestSwizzle.h"
 
 @interface MSIDTestSession: NSObject<MSIDURLResponseHandling>
 @end
@@ -36,6 +38,34 @@
 {
     return YES;
 }
+@end
+
+@interface MSIDTestSystemWebviewSession : NSObject<MSIDWebviewInteracting>
+@end
+
+@implementation MSIDTestSystemWebviewSession
+
+- (void)startWithCompletionHandler:(__unused MSIDWebUICompletionHandler)completionHandler
+{
+}
+
+- (void)cancelProgrammatically
+{
+}
+
+- (void)dismiss
+{
+}
+
+- (void)userCancel
+{
+}
+
+- (NSURL *)startURL
+{
+    return [NSURL URLWithString:@"https://contoso.com/oauth/authorize"];
+}
+
 @end
 
 @interface MSIDSystemWebviewControllerTests : XCTestCase
@@ -53,6 +83,7 @@
 - (void)tearDown
 {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [MSIDTestSwizzle reset];
     [super tearDown];
 }
 
@@ -129,6 +160,91 @@
     [webVC setValue:[NSURL URLWithString:@"scheme://host"] forKey:@"redirectURL"];
     
     XCTAssertTrue([webVC handleURLResponse:[NSURL URLWithString:@"scheme://host"]]);
+}
+
+- (void)testInitWithAdditionalHeaders_whenInputMutableDictionaryChanges_shouldKeepCopiedHeaders
+{
+    NSMutableDictionary *mutableHeaders = [@{@"x-test-header" : @"value-1"} mutableCopy];
+    
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                                                                    redirectURI:@"some://redirecturi"
+                                                                               parentController:nil
+                                                                       useAuthenticationSession:YES
+                                                                      allowSafariViewController:YES
+                                                                     ephemeralWebBrowserSession:NO
+                                                                                additionalHeaders:mutableHeaders
+                                                                                        context:nil];
+    
+    mutableHeaders[@"x-test-header"] = @"value-2";
+    NSDictionary<NSString *, NSString *> *storedHeaders = [webVC valueForKey:@"additionalHeaders"];
+    
+    XCTAssertEqualObjects(storedHeaders, @{@"x-test-header" : @"value-1"});
+}
+
+- (void)testStartWithCompletionHandler_whenAuthSessionUsedAndAdditionalHeadersPassed_shouldPropagateHeadersToFactory
+{
+    NSDictionary<NSString *, NSString *> *expectedHeaders = @{@"x-test-header" : @"value-1"};
+    __block NSDictionary<NSString *, NSString *> *capturedHeaders = nil;
+    
+    [MSIDTestSwizzle classMethod:@selector(authSessionWithParentController:startURL:callbackScheme:useEphemeralSession:additionalHeaders:context:)
+                           class:[MSIDSystemWebViewControllerFactory class]
+                           block:(id)^(__unused id obj,
+                                      __unused id parentController,
+                                      __unused NSURL *startURL,
+                                      __unused NSString *callbackScheme,
+                                      __unused BOOL useEphemeralSession,
+                                      NSDictionary<NSString *, NSString *> *additionalHeaders,
+                                      __unused id context)
+    {
+        capturedHeaders = additionalHeaders;
+        return [MSIDTestSystemWebviewSession new];
+    }];
+    
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                                                                    redirectURI:@"some://redirecturi"
+                                                                               parentController:nil
+                                                                       useAuthenticationSession:YES
+                                                                      allowSafariViewController:NO
+                                                                     ephemeralWebBrowserSession:NO
+                                                                                additionalHeaders:expectedHeaders
+                                                                                        context:nil];
+    
+    [webVC startWithCompletionHandler:^(__unused NSURL *callbackURL, __unused NSError *error) {}];
+    
+    XCTAssertEqualObjects(capturedHeaders, expectedHeaders);
+}
+
+- (void)testStartWithCompletionHandler_whenAuthSessionUsedAndAdditionalHeadersEmpty_shouldPropagateEmptyHeadersToFactory
+{
+    NSDictionary<NSString *, NSString *> *expectedHeaders = @{};
+    __block NSDictionary<NSString *, NSString *> *capturedHeaders = nil;
+    
+    [MSIDTestSwizzle classMethod:@selector(authSessionWithParentController:startURL:callbackScheme:useEphemeralSession:additionalHeaders:context:)
+                           class:[MSIDSystemWebViewControllerFactory class]
+                           block:(id)^(__unused id obj,
+                                      __unused id parentController,
+                                      __unused NSURL *startURL,
+                                      __unused NSString *callbackScheme,
+                                      __unused BOOL useEphemeralSession,
+                                      NSDictionary<NSString *, NSString *> *additionalHeaders,
+                                      __unused id context)
+    {
+        capturedHeaders = additionalHeaders;
+        return [MSIDTestSystemWebviewSession new];
+    }];
+    
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                                                                    redirectURI:@"some://redirecturi"
+                                                                               parentController:nil
+                                                                       useAuthenticationSession:YES
+                                                                      allowSafariViewController:NO
+                                                                     ephemeralWebBrowserSession:NO
+                                                                                additionalHeaders:expectedHeaders
+                                                                                        context:nil];
+    
+    [webVC startWithCompletionHandler:^(__unused NSURL *callbackURL, __unused NSError *error) {}];
+    
+    XCTAssertEqualObjects(capturedHeaders, expectedHeaders);
 }
 
 @end
