@@ -34,6 +34,7 @@
 #import "MSIDConstants.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDWebviewConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -84,6 +85,8 @@
     return isAADHost && isActivationPath;
 }
 
+#pragma mark - Navigation Action Decision
+
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
                            decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
@@ -93,6 +96,46 @@
     // Stop at broker or browser
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+    
+    // TODO: testing
+    NSString *host = requestURL.host;
+    NSString *path = requestURL.path;
+    if (isBrowserUrl)
+    {
+        //NSDictionary *queryParams = [requestURL msidQueryParameters];
+        //NSString *linkId = queryParams[@"LinkId"];
+        // Check for enrollment URL (path could be /fwlink or /fwlink/)
+        BOOL isEnrollmentPath = [path isEqualToString:@"/fwlink"] || [path isEqualToString:@"/fwlink/"];
+        if ([host isEqualToString:@"go.microsoft.com"] &&
+            isEnrollmentPath)
+            //&& ([linkId isEqualToString:@"396941"] || [linkId isEqual:@"399153"]))
+        {
+            // Construct proper https URL with all query parameters
+            NSString *cpurlValue;
+            if (requestURL.query && requestURL.query.length > 0)
+            {
+                cpurlValue = [NSString stringWithFormat:@"https://%@%@?%@", host, path, requestURL.query];
+            }
+            else
+            {
+                cpurlValue = [NSString stringWithFormat:@"https://%@%@", host, path];
+            }
+            // Properly encode the cpurl value for use as a query parameter
+            //            NSString *encodedCpurl = [cpurlValue stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+            //            NSRange range = [encodedCpurl rangeOfString:@"?"];
+            //            if (range.location != NSNotFound) {
+            //                encodedCpurl = [cpurlValue stringByReplacingCharactersInRange:range withString:@"&"];
+            //            }
+            
+            NSString *msauthURLString = [NSString stringWithFormat:@"msauth://enroll?%@=%@", MSID_INTUNE_URL_KEY, cpurlValue];
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Converting browser enrollment URL to msauth URL. Original: %@, Converted: %@", MSID_PII_LOG_MASKABLE(requestURL.absoluteString), MSID_PII_LOG_MASKABLE(msauthURLString));
+            requestURL = [NSURL URLWithString:msauthURLString];
+            // Re-evaluate URL scheme flags after conversion
+            isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+            isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+        }
+        
+    }
     
     if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH])
     {
@@ -116,6 +159,40 @@
         }
     }
     
+    // Priority 1: Try navigationDelegate callback for redirect handling (NEW flow)
+    // Check if delegate is set for special redirect handling
+    id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+    if ((isBrokerUrl || isBrowserUrl) && strongNavigationDelegate)
+    {
+        if ([strongNavigationDelegate respondsToSelector:@selector(handleSpecialRedirectUrl:completion:)])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                              @"Delegating special redirect %@ to navigationDelegate",
+                              requestURL.scheme);
+            
+            // Cancel navigation and delegate decision to handler
+            decisionHandler(WKNavigationActionPolicyCancel);
+            
+            // Call delegate on main thread
+            __weak typeof(self) weakSelf = self;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                __strong typeof(self) strongSelf = weakSelf;
+                if (!strongSelf) return;
+                
+                [strongNavigationDelegate handleSpecialRedirectUrl:requestURL
+                                                        completion:^(MSIDWebviewNavigationAction *action, NSError *error)
+                 {
+                    [strongSelf executeWebviewNavigationAction:action
+                                                    requestURL:requestURL
+                                                         error:error];
+                }];
+            });
+            
+            return YES;
+        }
+    }
+    
+    // Priority 2: If URL is broker or browser scheme, check for external callback, otherwise complete web auth by default
     if (isBrokerUrl || isBrowserUrl)
     {
         // Let external code decide if browser url is allowed to continue

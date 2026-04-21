@@ -1,0 +1,202 @@
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+#if !MSID_EXCLUDE_WEBKIT
+
+#import "MSIDWebviewTransitionHandler.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDSystemWebviewController.h"
+#import "MSIDMainThreadUtil.h"
+#import "MSIDWebviewNavigationAction.h"
+
+@interface MSIDWebviewTransitionHandler ()
+
+/**
+ * System webview controller for managing ASWebAuthenticationSession lifecycle.
+ * Provides cancellation, state tracking, and telemetry support.
+ */
+@property (nonatomic, nullable) MSIDSystemWebviewController *systemWebviewController;
+
+/**
+ * Stored completion handler for cancellation support.
+ */
+@property (nonatomic, copy, nullable) void (^completionHandler)(MSIDWebviewNavigationAction *action, NSError *error);
+
+/**
+ * Stored context for logging during cancellation and cleanup.
+ */
+@property (nonatomic, nullable) id<MSIDRequestContext> context;
+
+/**
+ * Whether a transition session is currently in progress.
+ */
+@property (nonatomic) BOOL isTransitionInProgress;
+
+@end
+
+@implementation MSIDWebviewTransitionHandler
+
+#pragma mark - Singleton
+
++ (instancetype)sharedInstance
+{
+    static MSIDWebviewTransitionHandler *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self.class alloc] init];
+    });
+    
+    return sharedInstance;
+}
+
+#pragma mark - Launch ASWebAuthenticationSession
+
+- (void)launchASWebAuthenticationSessionWithUrl:(NSURL *)url
+                               parentController:(MSIDViewController *)parentController
+                              additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+                                 callbackScheme:(NSString *)callbackURLScheme
+                            useEphemeralSession:(BOOL)useEphemeralSession
+                                        context:(id<MSIDRequestContext>)context
+                                     completion:(void (^)(MSIDWebviewNavigationAction *action, NSError *error))completion
+{
+    // Ensure we're on the main thread for UI operations
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        
+        if (!url)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[MSIDWebviewTransitionHandler] Cannot launch ASWebAuthentication session with nil URL");
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                            @"AsWebAuthentication transition called with no url",
+                                            nil, nil, nil, context.correlationId, nil, YES);
+            completion([MSIDWebviewNavigationAction failWebAuthWithErrorAction:error], nil);
+            return;
+        }
+        
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"[MSIDWebviewTransitionHandler] Launching ASWebAuthentication session with URL: %@", MSID_PII_LOG_MASKABLE(url));
+        
+        if (additionalHeaders && additionalHeaders.count > 0)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"[MSIDWebviewTransitionHandler] Additional headers provided: %lu", (unsigned long)additionalHeaders.count);
+        }
+        
+        // Create MSIDSystemWebviewController with additionalHeaders support
+        if (@available(iOS 18.0, macOS 15.0, *))
+        {
+            self.systemWebviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:url
+                                                                                     redirectURI:callbackURLScheme
+                                                                                parentController:parentController
+                                                                        useAuthenticationSession:YES
+                                                                       allowSafariViewController:NO
+                                                                      ephemeralWebBrowserSession:useEphemeralSession
+                                                                               additionalHeaders:additionalHeaders
+                                                                                         context:context];
+        }
+        else
+        {
+            // Fallback for older OS versions
+            self.systemWebviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:url
+                                                                                     redirectURI:callbackURLScheme
+                                                                                parentController:parentController
+                                                                        useAuthenticationSession:YES
+                                                                       allowSafariViewController:NO
+                                                                      ephemeralWebBrowserSession:useEphemeralSession
+                                                                                         context:context];
+            
+            if (additionalHeaders && additionalHeaders.count > 0)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"[MSIDWebviewTransitionHandler] Additional headers ignored - iOS 18+ required");
+            }
+        }
+        
+        if (!self.systemWebviewController)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[MSIDWebviewTransitionHandler] Failed to create system webview controller");
+            
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to create system webview controller", nil, nil, nil, context.correlationId, nil, YES);
+            completion([MSIDWebviewNavigationAction failWebAuthWithErrorAction:error], nil);
+            return;
+        }
+        
+        // Start the session
+        [self.systemWebviewController startWithCompletionHandler:^(NSURL *callbackURL, NSError *error)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"[MSIDWebviewTransitionHandler] External session completed with callback: %@, error: %@",
+                                 MSID_PII_LOG_MASKABLE(callbackURL), error);
+            
+            MSIDWebviewNavigationAction *action = [self handleASWebAuthnSessionCompletion:callbackURL
+                                                                                    error:error
+                                                                           callbackScheme:callbackURLScheme
+                                                                                  context:context];
+            completion(action, nil);
+        }];
+    }];
+}
+
+#pragma mark - Private Helper Methods
+
+- (MSIDWebviewNavigationAction *)handleASWebAuthnSessionCompletion:(NSURL *)callbackURL
+                                                             error:(NSError *)error
+                                                    callbackScheme:(NSString *)expectedCallbackURLScheme
+                                                           context:(id<MSIDRequestContext>)context
+{
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context,
+                         @"ASWebAuthenticationSession session failed: %@", error);
+        return [MSIDWebviewNavigationAction failWebAuthWithErrorAction:error];
+    }
+    
+    // Validate callback URL
+    if ([self isValidCallbackURL:callbackURL
+                  callbackScheme:expectedCallbackURLScheme])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"ASWebAuthenticationSession completed with valid callback URL");
+    
+        // Load callback URL
+        return [MSIDWebviewNavigationAction loadRequestAction:[NSURLRequest requestWithURL:callbackURL]];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"ASWebAuthenticationSession completed with unexpected callback URL: %@", callbackURL);
+        
+        // Create error for unexpected callback
+        NSError *callbackError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"ASWebAuthenticationSession completed with unexpected callback URL", nil, nil, nil, context.correlationId, nil, YES);
+        return [MSIDWebviewNavigationAction failWebAuthWithErrorAction:callbackError];
+    }
+}
+
+- (BOOL)isValidCallbackURL:(NSURL *)callbackURL
+            callbackScheme:(NSString *)expectedCallbackURLScheme
+{
+    if (!callbackURL)
+    {
+        return NO;
+    }
+    
+    return [callbackURL.scheme caseInsensitiveCompare:expectedCallbackURLScheme] == NSOrderedSame;
+}
+
+@end
+
+#endif

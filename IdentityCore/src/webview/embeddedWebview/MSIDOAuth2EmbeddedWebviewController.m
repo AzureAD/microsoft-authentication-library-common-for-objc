@@ -365,6 +365,16 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         }
     }
     
+    id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+    if ((strongNavigationDelegate) && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:)] && navigationResponse.response)
+    {
+        NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
+        if (response)
+        {
+            [strongNavigationDelegate processResponseHeaders:response.allHeaderFields];
+        }
+    }
+    
     decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
@@ -637,6 +647,96 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Navigation Action Execution
+
+- (void)executeWebviewNavigationAction:(MSIDWebviewNavigationAction *)action
+                            requestURL:(NSURL *)requestURL
+                                 error:(NSError *)error
+{
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                          @"Navigation delegate returned error: %@", error);
+        // TODO: check for endWebAuthWithURl or completeWebAuth
+        [self endWebAuthWithURL:nil error:error];
+        return;
+    }
+    
+    // Explicit error for nil action
+    if (!action)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                          @"Navigation delegate returned nil action");
+        NSError *localError = MSIDCreateError(MSIDErrorDomain,
+                                              MSIDErrorInternal,
+                                              @"Navigation action is nil",
+                                              nil, nil, nil,
+                                              self.context.correlationId,
+                                              nil, NO);
+        
+        // TODO: check for endWebAuthWithURl or completeWebAuth
+        [self endWebAuthWithURL:nil error:localError];
+        return;
+    }
+    
+    // Check validity
+    if (![action isValid])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                          @"Action validation failed, using fallback");
+        [self completeWebAuthWithURL:requestURL];
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                      @"Executing navigation action type: %ld", (long)action.type);
+    
+    switch (action.type)
+    {
+        case MSIDWebviewNavigationActionTypeLoadRequestInWebview:
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                  @"Loading request: %@",
+                                  MSID_PII_LOG_MASKABLE(action.request.URL));
+            [self loadRequest:action.request];
+            break;
+        }
+            
+        case MSIDWebviewNavigationActionTypeCompleteWebAuthWithURL:
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                  @"Completing webauth with URL: %@",
+                                  MSID_PII_LOG_MASKABLE(action.url));
+            [self completeWebAuthWithURL:action.url];
+            break;
+        }
+            
+        case MSIDWebviewNavigationActionTypeFailWithError:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                              @"Failing webauth with error: %@", action.error);
+            [self endWebAuthWithURL:nil error:action.error];
+            break;
+        }
+            
+        case MSIDWebviewNavigationActionTypeContinueDefault:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                              @"Continuing with default behavior");
+            [self completeWebAuthWithURL:requestURL];
+            break;
+        }
+            
+        default:
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                              @"Unknown action type: %ld, using fallback", (long)action.type);
+            [self completeWebAuthWithURL:requestURL];
+            break;
+        }
+    }
 }
 
 @end

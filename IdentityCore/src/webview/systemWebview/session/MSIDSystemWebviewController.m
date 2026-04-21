@@ -56,6 +56,7 @@
 @property (nonatomic) BOOL useAuthenticationSession;
 @property (nonatomic) BOOL allowSafariViewController;
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
+@property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
 
 @end
 
@@ -67,6 +68,25 @@
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
       ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
+                         context:(id<MSIDRequestContext>)context
+{
+    return [self initWithStartURL:startURL
+                      redirectURI:redirectURI
+                 parentController:parentController
+         useAuthenticationSession:useAuthenticationSession
+        allowSafariViewController:allowSafariViewController
+       ephemeralWebBrowserSession:prefersEphemeralWebBrowserSession
+                additionalHeaders:nil
+                          context:context];
+}
+
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                     redirectURI:(NSString *)redirectURI
+                parentController:(MSIDViewController *)parentController
+        useAuthenticationSession:(BOOL)useAuthenticationSession
+       allowSafariViewController:(BOOL)allowSafariViewController
+      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
+               additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
                          context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
@@ -93,6 +113,7 @@
         _allowSafariViewController = allowSafariViewController;
         _useAuthenticationSession = useAuthenticationSession;
         _prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
+        _additionalHeaders = [additionalHeaders copy];
     }
     return self;
 }
@@ -231,10 +252,12 @@
     
     if (authSessionAllowed)
     {
+        // Pass additionalHeaders to factory method
         return [MSIDSystemWebViewControllerFactory authSessionWithParentController:currentViewController
                                                                           startURL:self.startURL
                                                                     callbackScheme:self.redirectURL.scheme
-                                                                useEmpheralSession:self.prefersEphemeralWebBrowserSession
+                                                               useEphemeralSession:self.prefersEphemeralWebBrowserSession
+                                                                 additionalHeaders:self.additionalHeaders
                                                                            context:self.context];
     }
 

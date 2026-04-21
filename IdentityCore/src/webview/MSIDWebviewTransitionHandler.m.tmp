@@ -1,0 +1,37 @@
+#pragma mark - Cancellation and Cleanup
+
+- (void)cancelProgrammatically
+{
+    if (!self.isTransitionInProgress)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, 
+                         @"[MSIDWebviewTransitionHandler] Cancel called but no transition in progress");
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, 
+                     @"[MSIDWebviewTransitionHandler] Cancelling transition session programmatically");
+    
+    if (self.systemWebviewController)
+    {
+        [self.systemWebviewController cancelProgrammatically];
+    }
+    
+    // Note: SystemWebviewController will call our completion handler with error
+    // resetState will be called after that completes
+}
+
+- (void)resetState
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, 
+                     @"[MSIDWebviewTransitionHandler] Resetting transition handler state");
+    
+    self.isTransitionInProgress = NO;
+    self.systemWebviewController = nil;
+    self.completionHandler = nil;
+    self.context = nil;
+}
+
+@end
+
+#endif

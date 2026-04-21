@@ -26,6 +26,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Block type for configuring webview controller after creation
+ */
+typedef void (^MSIDWebviewConfigurationBlock)(id webviewController);
+
 @interface MSIDInteractiveTokenRequestParameters : MSIDInteractiveRequestParameters
 
 @property (nonatomic) MSIDUIBehaviorType uiBehaviorType;
@@ -41,6 +46,13 @@ NS_ASSUME_NONNULL_BEGIN
 // Additional request parameter that will be utilized by OneAuth during internal automation testing. When available will be passed to web view to be consumed by ESTS as a form of MFA.
 @property (nonatomic, nullable) NSString *userFederatedIdentityToken;
 @property (nullable, nonatomic) id<MSIDCustomHeaderProviding> prtHeaderProvider;
+
+/**
+ * Optional configuration block called when webview controller is created
+ * Use this to set delegates, customize behavior, etc.
+ * Block is called on main thread before webview is presented
+ */
+@property (nonatomic, copy, nullable) MSIDWebviewConfigurationBlock webviewConfigurationBlock;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 - (NSDictionary *)allAuthorizeRequestExtraParameters DEPRECATED_MSG_ATTRIBUTE("Use -allAuthorizeRequestExtraParametersWithMetadata: instead");
