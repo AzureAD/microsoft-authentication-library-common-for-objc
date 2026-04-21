@@ -71,13 +71,13 @@ jobs:
         sudo gem install xcpretty -N -v 0.3.0
       failOnStderr: true
 
-  - task: CmdLine@2
-    displayName: Installing dependencies
-    inputs:
-      script: |
-        sudo gem install securerandom -N -v 0.3.2
-        sudo gem install slather bundler -N
-      failOnStderr: true
+  # - task: CmdLine@2
+  #   displayName: Installing dependencies
+  #   inputs:
+  #     script: |
+  #       sudo gem install securerandom -N -v 0.3.2
+  #       sudo gem install slather bundler -N
+  #     failOnStderr: true
 
   - checkout: microsoft-authentication-library-for-objc
     displayName: 'Checkout MSAL'

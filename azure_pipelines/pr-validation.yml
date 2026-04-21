@@ -40,13 +40,13 @@ jobs:
       script: |
         sudo gem install xcpretty -N -v 0.3.0
       failOnStderr: true
-  - task: CmdLine@2
-    displayName: Installing slather
-    inputs:
-      script: |
-        sudo gem install securerandom -N -v 0.3.2
-        sudo gem install slather -N
-      failOnStderr: true
+  # - task: CmdLine@2
+  #   displayName: Installing slather
+  #   inputs:
+  #     script: |
+  #       sudo gem install securerandom -N -v 0.3.2
+  #       sudo gem install slather -N
+  #     failOnStderr: true
   - checkout: self
     clean: true
     submodules: true
