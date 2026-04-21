@@ -166,14 +166,15 @@
 {
     NSMutableDictionary *mutableHeaders = [@{@"x-test-header" : @"value-1"} mutableCopy];
     
-    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
-                                                                                    redirectURI:@"some://redirecturi"
-                                                                               parentController:nil
-                                                                       useAuthenticationSession:YES
-                                                                      allowSafariViewController:YES
-                                                                     ephemeralWebBrowserSession:NO
-                                                                                additionalHeaders:mutableHeaders
-                                                                                        context:nil];
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc]
+                                          initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                               redirectURI:@"some://redirecturi"
+                                          parentController:nil
+                                  useAuthenticationSession:YES
+                                 allowSafariViewController:YES
+                                ephemeralWebBrowserSession:NO
+                                       additionalHeaders:mutableHeaders
+                                               context:nil];
     
     mutableHeaders[@"x-test-header"] = @"value-2";
     NSDictionary<NSString *, NSString *> *storedHeaders = [webVC valueForKey:@"additionalHeaders"];
@@ -200,14 +201,15 @@
         return [MSIDTestSystemWebviewSession new];
     }];
     
-    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
-                                                                                    redirectURI:@"some://redirecturi"
-                                                                               parentController:nil
-                                                                       useAuthenticationSession:YES
-                                                                      allowSafariViewController:NO
-                                                                     ephemeralWebBrowserSession:NO
-                                                                                additionalHeaders:expectedHeaders
-                                                                                        context:nil];
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc]
+                                          initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                               redirectURI:@"some://redirecturi"
+                                          parentController:nil
+                                  useAuthenticationSession:YES
+                                 allowSafariViewController:NO
+                                ephemeralWebBrowserSession:NO
+                                       additionalHeaders:expectedHeaders
+                                               context:nil];
     
     [webVC startWithCompletionHandler:^(__unused NSURL *callbackURL, __unused NSError *error) {}];
     
@@ -233,14 +235,15 @@
         return [MSIDTestSystemWebviewSession new];
     }];
     
-    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
-                                                                                    redirectURI:@"some://redirecturi"
-                                                                               parentController:nil
-                                                                       useAuthenticationSession:YES
-                                                                      allowSafariViewController:NO
-                                                                     ephemeralWebBrowserSession:NO
-                                                                                additionalHeaders:expectedHeaders
-                                                                                        context:nil];
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc]
+                                          initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                               redirectURI:@"some://redirecturi"
+                                          parentController:nil
+                                  useAuthenticationSession:YES
+                                 allowSafariViewController:NO
+                                ephemeralWebBrowserSession:NO
+                                       additionalHeaders:expectedHeaders
+                                               context:nil];
     
     [webVC startWithCompletionHandler:^(__unused NSURL *callbackURL, __unused NSError *error) {}];
     
