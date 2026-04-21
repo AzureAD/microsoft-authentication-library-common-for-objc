@@ -17,7 +17,9 @@ pr:
   drafts: true
 
 pool:
-  name: 'Azure Pipelines'
+  name: 'AcesShared'
+  demands:
+    - ImageOverride -equals ACES_arm64_Sequoia_Xcode
 
 # Pipeline parameter: supply the branch of azure-activedirectory-tokenbroker-for-objc to validate against.
 # Defaults to 'dev'. Can be overridden when manually queuing the pipeline or via /azp run.
@@ -50,7 +52,9 @@ stages:
     # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
     timeoutInMinutes: 0
     pool:
-      vmImage: 'macOS-15'
+      name: 'AcesShared'
+      demands:
+        - ImageOverride -equals ACES_arm64_Sequoia_Xcode
     variables:
       target: "ios_library"
     steps:
@@ -65,7 +69,9 @@ stages:
     # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
     timeoutInMinutes: 0
     pool:
-      vmImage: 'macOS-15'
+      name: 'AcesShared'
+      demands:
+        - ImageOverride -equals ACES_arm64_Sequoia_Xcode
     variables:
       target: "mac_library"
     steps:

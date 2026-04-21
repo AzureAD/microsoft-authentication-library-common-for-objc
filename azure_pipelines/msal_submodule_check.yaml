@@ -48,7 +48,9 @@ jobs:
         target: "macFramework"
   displayName: Validate Pull Request
   pool:
-    vmImage: 'macOS-14'
+    name: 'AcesShared'
+    demands:
+      - ImageOverride -equals ACES_arm64_Sequoia_Xcode
 
   steps:
   - script: |
