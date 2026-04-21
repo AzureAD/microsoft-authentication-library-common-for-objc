@@ -44,6 +44,7 @@ jobs:
     displayName: Installing slather
     inputs:
       script: |
+        sudo gem install securerandom -N -v 0.3.2
         sudo gem install slather -N
       failOnStderr: true
   - checkout: self
