@@ -19,7 +19,7 @@ pr:
 pool:
   name: 'AcesShared'
   demands:
-    - ImageOverride -equals ACES_arm64_Sequoia_Xcode
+    - ImageOverride -equals ACES_VM_SharedPool_Sequoia
 
 # Pipeline parameter: supply the branch of azure-activedirectory-tokenbroker-for-objc to validate against.
 # Defaults to 'dev'. Can be overridden when manually queuing the pipeline or via /azp run.
@@ -54,7 +54,7 @@ stages:
     pool:
       name: 'AcesShared'
       demands:
-        - ImageOverride -equals ACES_arm64_Sequoia_Xcode
+        - ImageOverride -equals ACES_VM_SharedPool_Sequoia
     variables:
       target: "ios_library"
     steps:
@@ -71,7 +71,7 @@ stages:
     pool:
       name: 'AcesShared'
       demands:
-        - ImageOverride -equals ACES_arm64_Sequoia_Xcode
+        - ImageOverride -equals ACES_VM_SharedPool_Sequoia
     variables:
       target: "mac_library"
     steps:

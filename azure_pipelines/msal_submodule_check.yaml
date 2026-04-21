@@ -50,7 +50,7 @@ jobs:
   pool:
     name: 'AcesShared'
     demands:
-      - ImageOverride -equals ACES_arm64_Sequoia_Xcode
+      - ImageOverride -equals ACES_VM_SharedPool_Sequoia
 
   steps:
   - script: |
