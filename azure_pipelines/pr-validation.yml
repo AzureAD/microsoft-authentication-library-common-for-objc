@@ -32,19 +32,19 @@ jobs:
     displayName: Uninstalling xcpretty v0.4.0
     inputs:
       script: |
-        gem uninstall xcpretty -I --version 0.4.0
+        sudo gem uninstall xcpretty -I --version 0.4.0
       failOnStderr: false
   - task: CmdLine@2
     displayName: Installing xcpretty v0.3.0
     inputs:
       script: |
-        gem install xcpretty -N -v 0.3.0
+        sudo gem install xcpretty -N -v 0.3.0
       failOnStderr: true
   - task: CmdLine@2
     displayName: Installing slather
     inputs:
       script: |
-        gem install slather -N
+        sudo gem install slather -N
       failOnStderr: true
   - checkout: self
     clean: true
