@@ -24,8 +24,10 @@
 #if !MSID_EXCLUDE_SYSTEMWV
 
 #import <XCTest/XCTest.h>
+#import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDSystemWebviewController.h"
 #import "MSIDSystemWebViewControllerFactory.h"
+#import "MSIDASWebAuthenticationSessionHandler.h"
 #import "MSIDURLResponseHandling.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDTestSwizzle.h"
@@ -248,6 +250,60 @@
     [webVC startWithCompletionHandler:^(__unused NSURL *callbackURL, __unused NSError *error) {}];
     
     XCTAssertEqualObjects(capturedHeaders, expectedHeaders);
+}
+
+- (void)testASWebAuthSessionHandlerStart_whenAdditionalHeadersNonEmpty_shouldSetAdditionalHeaderFieldsOnSupportedOS
+{
+    NSDictionary<NSString *, NSString *> *expectedHeaders = @{@"x-test-header" : @"value-1"};
+    
+    [MSIDTestSwizzle instanceMethod:@selector(start)
+                              class:[ASWebAuthenticationSession class]
+                              block:(id)^(__unused id obj)
+    {
+        return YES;
+    }];
+    
+    MSIDASWebAuthenticationSessionHandler *handler = [[MSIDASWebAuthenticationSessionHandler alloc]
+                                                       initWithParentController:nil
+                                                                       startURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                                                 callbackScheme:@"some"
+                                                             useEmpheralSession:NO];
+    [handler setValue:expectedHeaders forKey:@"additionalHeaders"];
+    [handler startWithCompletionHandler:^(__unused NSURL *callbackURL, __unused NSError *error) {}];
+    
+    ASWebAuthenticationSession *session = [handler valueForKey:@"webAuthSession"];
+    XCTAssertNotNil(session);
+    
+    if (@available(iOS 18.0, macOS 15.0, *))
+    {
+        XCTAssertEqualObjects(session.additionalHeaderFields, expectedHeaders);
+    }
+}
+
+- (void)testASWebAuthSessionHandlerStart_whenAdditionalHeadersEmpty_shouldNotSetAdditionalHeaderFields
+{
+    [MSIDTestSwizzle instanceMethod:@selector(start)
+                              class:[ASWebAuthenticationSession class]
+                              block:(id)^(__unused id obj)
+    {
+        return YES;
+    }];
+    
+    MSIDASWebAuthenticationSessionHandler *handler = [[MSIDASWebAuthenticationSessionHandler alloc]
+                                                       initWithParentController:nil
+                                                                       startURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                                                 callbackScheme:@"some"
+                                                             useEmpheralSession:NO];
+    [handler setValue:@{} forKey:@"additionalHeaders"];
+    [handler startWithCompletionHandler:^(__unused NSURL *callbackURL, __unused NSError *error) {}];
+    
+    ASWebAuthenticationSession *session = [handler valueForKey:@"webAuthSession"];
+    XCTAssertNotNil(session);
+    
+    if (@available(iOS 18.0, macOS 15.0, *))
+    {
+        XCTAssertNil(session.additionalHeaderFields);
+    }
 }
 
 @end
