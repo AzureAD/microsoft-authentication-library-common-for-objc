@@ -26,6 +26,7 @@ jobs:
       exclude_paths: |
         [
           "^IdentityCore/tests/",
-          "^IdentityCore/MSIDTestsHostApp/"
+          "^IdentityCore/MSIDTestsHostApp/",
+          "^scripts/"
         ]
       # max_lines: 500      # ← uncomment to override the default limit (default: 500)
