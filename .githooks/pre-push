@@ -10,7 +10,6 @@
 EXTRA_EXCLUDES=(
   "^IdentityCore/tests/"
   "^IdentityCore/MSIDTestsHostApp/"
-  "^scripts/"
 )
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
