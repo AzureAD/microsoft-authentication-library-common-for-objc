@@ -32,8 +32,6 @@
 
 @class MSIDOauth2Factory;
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
@@ -50,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
       ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
-               additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+               additionalHeaders:(NSDictionary<NSString *, NSString *> *)additionalHeaders
                          context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponse:(NSURL *)url;
@@ -70,8 +68,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedController;
 
 @end
-
-NS_ASSUME_NONNULL_END
 
 #endif
 

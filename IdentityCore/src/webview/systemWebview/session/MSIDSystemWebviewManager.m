@@ -99,6 +99,9 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"[MSIDSystemWebviewManager] Additional headers provided: %lu", (unsigned long)additionalHeaders.count);
         }
 
+        // Mark session as in progress before creating the controller so the guard blocks any concurrent launches.
+        self.isSessionInProgress = YES;
+
         self.webviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:URL
                                                                            redirectURI:redirectURL
                                                                       parentController:parentController
