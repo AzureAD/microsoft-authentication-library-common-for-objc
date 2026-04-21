@@ -44,9 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Whether a system webview session is currently in progress.
- * Derived from internal state - YES when a session is active, NO otherwise.
+ * Atomic - safe to read from any thread.
  */
-@property (nonatomic, readonly) BOOL isSessionInProgress;
+@property (atomic, readonly) BOOL isSessionInProgress;
 
 /**
  * Launches a system webview session for the given URL.
@@ -57,8 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param parentController       The parent view controller to present from
  * @param useAuthenticationSession Whether to use ASWebAuthenticationSession
  * @param allowSafariViewController Whether SFSafariViewController is allowed as fallback
+ *  @param useEphemeralSession    Whether to use an ephemeral session (ASWebAuthenticationSession only)
  * @param additionalHeaders      Optional HTTP headers (iOS 18+ ASWebAuthenticationSession only)
- * @param useEphemeralSession    Whether to use an ephemeral session (ASWebAuthenticationSession only)
  * @param context                Request context for logging and telemetry
  * @param completionBlock        Called with the callback URL on success, or an error on failure/cancellation
  */

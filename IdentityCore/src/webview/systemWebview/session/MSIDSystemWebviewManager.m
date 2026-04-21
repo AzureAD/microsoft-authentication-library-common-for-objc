@@ -27,9 +27,11 @@
 
 @interface MSIDSystemWebviewManager()
 
-// Strong reference to keep session alive until completion.
-// Also serves as state - non-nil means a session is in progress.
+// Strong reference to keep the session alive until completion.
 @property (nonatomic) MSIDSystemWebviewController *webviewController;
+
+// Atomic flag - safe to read from any thread.
+@property (atomic) BOOL isSessionInProgress;
 
 @end
 
@@ -49,13 +51,6 @@
 
 #if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
 
-#pragma mark - State
-
-- (BOOL)isSessionInProgress
-{
-    return self.webviewController != nil;
-}
-
 #pragma mark - Launch
 
 - (void)launchSystemWebviewWithURL:(NSURL *)URL
@@ -68,6 +63,12 @@
                            context:(id<MSIDRequestContext>)context
                    completionBlock:(MSIDWebUICompletionHandler)completionBlock
 {
+    if (!completionBlock)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[MSIDSystemWebviewManager] Cannot launch session with nil completionBlock");
+        return;
+    }
+
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         
         if (self.isSessionInProgress)
@@ -106,13 +107,13 @@
                                                             ephemeralWebBrowserSession:useEphemeralSession
                                                                      additionalHeaders:additionalHeaders
                                                                                context:context];
-        
         if (!self.webviewController)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[MSIDSystemWebviewManager] Failed to create system webview controller");
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
                                              @"Failed to create system webview controller",
                                              nil, nil, nil, context.correlationId, nil, YES);
+            self.isSessionInProgress = NO;
             completionBlock(nil, error);
             return;
         }
@@ -124,6 +125,7 @@
             
             // Nil out to release session and mark isSessionInProgress as NO
             self.webviewController = nil;
+            self.isSessionInProgress = NO;
             
             if (completionBlock) completionBlock(callbackURL, error);
         }];

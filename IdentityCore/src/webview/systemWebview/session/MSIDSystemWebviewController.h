@@ -69,9 +69,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)sharedController;
 
-NS_ASSUME_NONNULL_END
-
 @end
+
+NS_ASSUME_NONNULL_END
 
 #endif
 
