@@ -52,6 +52,10 @@ jobs:
     submodules: true
     fetchDepth: 1
     persistCredentials: false
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
+    inputs:
+      versionSpec: '3.x'
   - task: Bash@3
     displayName: 'Select Xcode version'
     inputs:
