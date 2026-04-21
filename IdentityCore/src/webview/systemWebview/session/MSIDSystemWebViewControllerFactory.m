@@ -49,10 +49,39 @@
                                            useEmpheralSession:(__unused BOOL)useEmpheralSession
                                                       context:(__unused id<MSIDRequestContext>)context
 {
+    return [self authSessionWithParentController:parentController
+                                        startURL:startURL
+                                  callbackScheme:callbackURLScheme
+                             useEphemeralSession:useEmpheralSession
+                               additionalHeaders:nil
+                                         context:context];
+}
+
++ (id<MSIDWebviewInteracting>)authSessionWithParentController:(__unused MSIDViewController *)parentController
+                                                     startURL:(__unused NSURL *)startURL
+                                               callbackScheme:(__unused NSString *)callbackURLScheme
+                                          useEphemeralSession:(__unused BOOL)useEphemeralSession
+                                            additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+                                                      context:(__unused id<MSIDRequestContext>)context
+{
+    // Only pass headers to ASWebAuthN on iOS 18+, but method itself is available on all versions
+    if (@available(iOS 18.0, macOS 15.0, *))
+    {
+        if (additionalHeaders && additionalHeaders.count > 0)
+        {
+            return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+                                                                                  startURL:startURL
+                                                                            callbackScheme:callbackURLScheme
+                                                                       useEphemeralSession:useEphemeralSession
+                                                                         additionalHeaders:additionalHeaders];
+        }
+    }
+    
+    // Fallback for older OS or when no headers provided
     return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
-                                                                              startURL:startURL
-                                                                        callbackScheme:callbackURLScheme
-                                                                    useEmpheralSession:useEmpheralSession];
+                                                                          startURL:startURL
+                                                                    callbackScheme:callbackURLScheme
+                                                                useEmpheralSession:useEphemeralSession];
 }
 
 #if TARGET_OS_IPHONE
