@@ -778,7 +778,8 @@
         query.matchAnyCredentialType = YES;
         // MSIDAny short-circuits the requestedClaims equality check in MSIDCredentialCacheItem
         // so access tokens saved with requestedClaims (e.g. CP1) are also removed for this account.
-        query.targetMatchingOptions = MSIDAny;
+        // Do not set targetMatchingOptions here: this clear-cache query does not set query.target,
+        // and using MSIDAny would broaden unrelated matching semantics during removal.
 
         NSError *credentialRemovalError;
         result = [_accountCredentialCache removeCredentialsWithQuery:query context:context error:&credentialRemovalError];
