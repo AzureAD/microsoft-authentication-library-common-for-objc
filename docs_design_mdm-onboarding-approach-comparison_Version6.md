@@ -141,6 +141,54 @@ Switch-browser uses a response/operation model:
 ### A1. NavAction URL Handling (Enroll/Compliance intercepted; Completion propagates)
 
 ```text
+
+## Approach 1 — Delegate + Navigation-Action orchestration (mob_on3)
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│ Interactive token request starts                                    │
+│ (MSIDLocalInteractiveController / BrokerInteractiveController)       │
+└─────────────────────────────────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ WKWebView shown (Embedded Webview Controller)                        │
+└─────────────────────────────────────────────────────────────────────┘
+         │                                  │
+         │ (A) navigationAction             │ (B) navigationResponse
+         │     decidePolicy                 │     (HTTP response headers)
+         ▼                                  ▼
+┌──────────────────────────────┐    ┌──────────────────────────────────┐
+│ Intercept special schemes     │    │ Capture response headers          │
+│ msauth://, browser://         │    │ (telemetry + handoff detection)   │
+└──────────────────────────────┘    └──────────────────────────────────┘
+         │                                  │
+         │ calls delegate/helper            │ calls delegate/helper
+         ▼                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ MSIDWebviewNavigationDelegateHelper                                  │
+│  - optional BRT acquisition gating                                   │
+│  - parse msauth://enroll, msauth://compliance,                        │
+│          msauth://in_app_enrollement_complete                         │
+│  - build MSIDWebviewNavigationAction                                  │
+│  - processResponseHeaders: detect x-ms-aswebauth-handoff-* headers    │
+└─────────────────────────────────────────────────────────────────────┘
+         │                                  │
+         │ returns action                   │ if handoff needed:
+         ▼                                  ▼
+┌──────────────────────────────┐    ┌──────────────────────────────────┐
+│ Embedded webview executes     │    │ TransitionHandler / Coordinator   │
+│ action:                       │    │  - suspend WKWebView UI           │
+│  - loadRequest(cpurl+headers) │    │  - launch ASWebAuthenticationSession│
+│  - completeWebAuthWithURL     │    │  - resume WKWebView                │
+│  - failWithError              │    │  - return action: load callbackURL │
+└──────────────────────────────┘    └──────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ Flow continues until final OAuth callback / completion               │
+└─────────────────────────────────────────────────────────────────────┘
+--------------
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ EmbeddedWebviewController (owns WKWebView instance)                           │
 └──────────────────────────────────────────────────────────────────────────────┘
@@ -252,6 +300,46 @@ This is appropriate for **terminal outcomes** like `msauth://in_app_enrollement_
 ### B1. Terminal completion handled as a response object (recommended use of B)
 
 ```text
+┌─────────────────────────────────────────────────────────────────────┐
+│ Interactive token request starts                                     │
+└─────────────────────────────────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ WKWebView runs “normally” until a callback/result URL is produced    │
+└─────────────────────────────────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ Webview authorization layer receives "resultURL"                     │
+│ (and optionally: lastResponseHeaders if plumbed through)             │
+└─────────────────────────────────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ Factory parses resultURL (+headers) and creates typed response object│
+│ Examples:                                                            │
+│  - EnrollmentResponse (enroll/compliance)                            │
+│  - ASWebAuthRequiredResponse                                         │
+│  - EnrollmentCompletionResponse                                      │
+│    (e.g., for msauth://in_app_enrollement_complete)                  │
+└─────────────────────────────────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ Controller receives response object in completion callback           │
+│ and orchestrates next step:                                          │
+│  - do BRT acquisition                                                │
+│  - build request from response fields                                │
+│  - load request in WKWebView                                         │
+│  - or open ASWebAuthenticationSession                                │
+│  - or complete/hand off to broker                                   │
+└─────────────────────────────────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ Continue loop until final token result                               │
+└─────────────────────────────────────────────────────────────────────┘
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ Embedded WKWebView                                                           │
 └──────────────────────────────────────────────────────────────────────────────┘
@@ -332,7 +420,24 @@ So the system ends up with two decision points:
 
 …which increases complexity and risk.
 ## Comparison Table
+## Comparison table
 
+| Dimension | Approach 1: Delegate + Navigation Actions (mob_on3) | Approach 2: Response Objects (factory-driven) |
+|---|---|---|
+| Primary trigger point | During WKWebView navigation (decidePolicy + navigationResponse headers) | After result/callback URL is routed into factory |
+| Best fit for `msauth://enroll` / `msauth://compliance` | Excellent (these are navigation instructions → return “loadRequest” action) | Awkward unless you treat these URLs as “responses” and/or prematurely “complete” the session |
+| Best fit for “ASWebAuth required based on response headers” | Excellent (headers processed where they exist; immediate handoff) | Requires plumbing headers into factory + deciding when/how to create “handoff response” |
+| BRT acquisition integration | Natural as a pre-step before returning an action (helper can gate it) | Possible, but typically happens later, after response object creation (more state juggling) |
+| Layering / separation of concerns | Clear separation: webview emits events → helper decides actions → webview executes | Factory starts to become an “orchestration brain” unless kept very strict |
+| Coupling to UI (ASWebAuth, suspend/resume WKWebView) | Lives in controller/helper layer (expected place) | Risks pulling UI decisions into factory/response layer, or requires extra “operation” layer anyway |
+| Determinism / timing | High: you can cancel navigation and replace it immediately | Depends on when “result URL” is emitted; may be too late for some flows |
+| Testability | Great for unit tests: URL → action, headers → handoff config | Great for semantic tests: URL(+headers) → typed response; but orchestration tests become heavier |
+| Extensibility for new special URLs | Add a new action resolver in util/helper | Add a new response class + ensure it’s produced at correct time + controller handles it |
+| Failure modes | If delegate not set, behavior may fall back to legacy/default (you must ensure it’s always configured) | If response not recognized, factory returns generic response → default behavior |
+| Complexity | Moderate, but centralized via helper + executor | Can become high if used for mid-navigation policy (needs more types + plumbing) |
+| “Feels like existing MSID patterns” | Similar to embedded webview policy decisions + operations style | Similar to existing “response + operation” pipelines, if the event is truly a response |
+
+-------
 | Dimension | Approach A: Delegate / Navigation-Time | Approach B: Response-Object / Factory |
 |---|---|---|
 | Fit for `msauth://enroll` / `msauth://compliance` | **Excellent** (cancel/replace navigation) | Weaker (completion semantics for mid-flight events) |
