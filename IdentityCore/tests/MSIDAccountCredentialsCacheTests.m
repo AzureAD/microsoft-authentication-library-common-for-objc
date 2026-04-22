@@ -2112,6 +2112,51 @@
     XCTAssertTrue(result);
 }
 
+- (void)testSaveCredential_whenTwoATsDifferOnlyByRequestedClaims_shouldStoreSeparatelyAndBeRetrievableIndependently
+{
+    MSIDCredentialCacheItem *atWithoutClaims = [self createTestAccessTokenCacheItem];
+    atWithoutClaims.secret = @"at_no_claims";
+    [self saveItem:atWithoutClaims];
+
+    MSIDCredentialCacheItem *atWithClaims = [self createTestAccessTokenCacheItem];
+    atWithClaims.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
+    atWithClaims.secret = @"at_with_claims";
+    [self saveItem:atWithClaims];
+
+    NSError *error = nil;
+    NSArray *allItems = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual([allItems count], 2);
+
+    MSIDDefaultCredentialCacheQuery *queryNoClaims = [MSIDDefaultCredentialCacheQuery new];
+    queryNoClaims.credentialType = MSIDAccessTokenType;
+    queryNoClaims.homeAccountId = @"uid.utid";
+    queryNoClaims.environment = @"login.microsoftonline.com";
+    queryNoClaims.clientId = @"client";
+    queryNoClaims.realm = @"contoso.com";
+    queryNoClaims.target = @"user.read user.write";
+    queryNoClaims.requestedClaims = nil;
+
+    NSArray *resultsNoClaims = [self.cache getCredentialsWithQuery:queryNoClaims context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual([resultsNoClaims count], 1);
+    XCTAssertEqualObjects(((MSIDCredentialCacheItem *)resultsNoClaims[0]).secret, @"at_no_claims");
+
+    MSIDDefaultCredentialCacheQuery *queryWithClaims = [MSIDDefaultCredentialCacheQuery new];
+    queryWithClaims.credentialType = MSIDAccessTokenType;
+    queryWithClaims.homeAccountId = @"uid.utid";
+    queryWithClaims.environment = @"login.microsoftonline.com";
+    queryWithClaims.clientId = @"client";
+    queryWithClaims.realm = @"contoso.com";
+    queryWithClaims.target = @"user.read user.write";
+    queryWithClaims.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
+
+    NSArray *resultsWithClaims = [self.cache getCredentialsWithQuery:queryWithClaims context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual([resultsWithClaims count], 1);
+    XCTAssertEqualObjects(((MSIDCredentialCacheItem *)resultsWithClaims[0]).secret, @"at_with_claims");
+}
+
 - (void)testSaveAccount_whenAccountPresent_shouldReturnYES
 {
     MSIDAccountCacheItem *item = [self createTestAccountCacheItem];
@@ -2823,7 +2868,7 @@
     XCTAssertTrue([remainignItems count] == 0);
 }
 
-- (void)testRemoveCredentialsWithQuery_whenTargetMatchingOptionsIsMSIDAny_shouldIgnoreRequestedClaimsAndRemoveATsWithRequestedClaims
+- (void)testRemoveCredentialsWithQuery_whenMSIDAnyShortCircuitsRequestedClaimsCheck_shouldRemoveATsWithAndWithoutRequestedClaims
 {
     [self saveItem:[self createTestAccessTokenCacheItem]];
 
@@ -2840,7 +2885,8 @@
     query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
-    query.requestedClaims = nil;
+    // MSIDAny short-circuits the requestedClaims equality check, so ATs with requestedClaims
+    // are also matched and removed even when the query itself has no requestedClaims set.
     query.targetMatchingOptions = MSIDAny;
 
     NSError *error = nil;
