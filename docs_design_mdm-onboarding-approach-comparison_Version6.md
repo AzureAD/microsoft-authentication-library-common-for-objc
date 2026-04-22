@@ -247,9 +247,90 @@ This is appropriate for **terminal outcomes** like `msauth://in_app_enrollement_
 
 - mid-flight instruction URLs (`msauth://enroll` / `msauth://compliance`), or
 - header-driven triggers (headers are only available in NavResponse and must be acted on at the boundary).
+---
+
+### B1. Terminal completion handled as a response object (recommended use of B)
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Embedded WKWebView                                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+                │
+                │ Navigation reaches terminal completion callback
+                ▼
+     msauth://in_app_enrollement_complete   (Allow; do NOT cancel)
+                │
+                ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Response parsing / factory                                                    │
+│ - classify URL as EnrollmentComplete                                          │
+│ - create EnrollmentCompleteResponse object                                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+                │
+                ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Operation (optional)                                                         │
+│ - maps response → uniform result type (success/complete state)                │
+│ - emits completion event to caller                                            │
+└──────────────────────────────────────────────────────────────────────────────┘
+                │
+                ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Caller receives a uniform outcome                                             │
+│ - handled same way as other terminal responses                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
+### B2. Header-driven ASWebAuth illustrated as response/operation (more plumbing)
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Embedded WKWebView                                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+                │
+                │ NavResponse(headers)  (headers are only available here)
+                ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Header evaluator / adapter                                                    │
+│ - extracts telemetry                                                         │
+│ - detects "ASWebAuth required" + start URL                                    │
+│ - synthesizes a typed response: ASWebAuthRequiredResponse                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+                │
+                ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Operation: ASWebAuthOperation                                                 │
+│ - launches ASWebAuthenticationSession(startURL)                               │
+│ - receives callbackURL (scheme can be anything)                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+                │
+                ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Resume embedded session                                                       │
+│ - webView.load(callbackURL request)  (same WKWebView instance)                │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### B3. Why Approach B is awkward for `msauth://enroll` / `msauth://compliance`
+
+`msauth://enroll` and `msauth://compliance` are **mid-flight navigation instructions**.
+
+Even if modeled as response objects, you still must:
+- detect them at **NavAction timing** to prevent the webview from navigating away,
+- **cancel** navigation,
+- run **BRT acquisition once per redirect instruction**,
+- build `nextRequest`,
+- and load it into the **same WKWebView**.
+
+So the system ends up with two decision points:
+  (1) NavAction cancellation logic, AND
+  (2) response-object execution logic
+
+…which increases complexity and risk.
 ## Comparison Table
 
 | Dimension | Approach A: Delegate / Navigation-Time | Approach B: Response-Object / Factory |
