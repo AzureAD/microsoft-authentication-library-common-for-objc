@@ -53,9 +53,9 @@ jobs:
       - ImageOverride -equals ACES_VM_SharedPool_Sequoia
 
   steps:
-  - script: |
-          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"
-    displayName: 'Switch to use Xcode 16.2'
+  # - script: |
+  #         /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"
+  #   displayName: 'Switch to use Xcode 16.2'
 
   - task: CmdLine@2
     displayName: Uninstalling xcpretty v0.4.0
