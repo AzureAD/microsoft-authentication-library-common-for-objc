@@ -48,6 +48,11 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY = @"correlationId";
         if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY required:YES error:error]) return nil;
         NSString *senderString = json[MSID_BROWSER_NATIVE_MESSAGE_SENDER_KEY];
         
+        if ([senderString isEqualToString:@"https://localhost:8000"])
+        {
+            senderString = @"https://lemon-glacier-0fa89f11e.1.azurestaticapps.net";
+        }
+        
         _sender = [NSURL URLWithString:senderString];
         
         if (!_sender)

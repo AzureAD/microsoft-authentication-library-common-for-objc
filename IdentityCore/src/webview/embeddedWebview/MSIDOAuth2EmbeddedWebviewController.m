@@ -356,6 +356,9 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
+    
+    MSIDWebViewNavigationActionFactory registerNavigationAction
+    
     if (self.navigationResponseBlock && navigationResponse && navigationResponse.response)
     {
         NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;

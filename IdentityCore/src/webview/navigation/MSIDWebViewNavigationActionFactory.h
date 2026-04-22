@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,27 +20,31 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDTokenRequestProviding.h"
-#import "MSIDRequestControlling.h"
-#import "MSIDWebviewNavigationDelegate.h"
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDWebWPJResponse;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewNavigationDelegate>
+@interface MSIDWebViewNavigationActionFactory : NSObject
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
++ (void)registerAction:(nonnull MSIDWebViewNavigationRequestAction *)action
+            forNavigationRequest:(nonnull MSIDWebViewNavigationRequest *)request;
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
++ (void)registerAction:(nonnull MSIDWebViewNavigationRequestAction *)action
+            forNavigationResponse:(nonnull MSIDWebViewNavigationResponse *)response;
+
++ (void)unregisterAll;
+
++ (nullable MSIDWebViewNavigationRequestAction *)createActionForRequest:(nonnull MSIDWebViewNavigationRequest *)request
+                                                                  error:(NSError * _Nullable __autoreleasing *_Nullable)error;
+
++ (nullable MSIDWebViewNavigationRequestAction *)createActionForResponse:(nonnull MSIDWebViewNavigationResponse *)response
+                                                                  error:(NSError * _Nullable __autoreleasing *_Nullable)error;
+
++ (MSIDWebViewNavigationRequest *)createNavigationRequestFromNavigationAction(WKNavigationAction *)action;
+
++ (MSIDWebViewNavigationResponse *)createNavigationResponseFromNavigationResponse(WKNavigationResponse *)response;
 
 @end
-LocalControler (Inter)
-SillentControler
-BrokerCOntr
-SingOUnt

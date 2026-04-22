@@ -85,11 +85,44 @@
     return isAADHost && isActivationPath;
 }
 
+MSIDWebViewNavigationActionFactory
++ createNavigationRequestFromNavigationAction:
++ actionForRequest:(NavigationRequest)request;
+
+MSIDWebViewNavigationRequest
+    init(NSURL *requestURL)
+
+MSIDPKeyAuthNavigationRequest: NavigationRequest
+MSIDWebMDMEnrollmentNavigationRequest: NavigationRequest
+-init()
+{
+    MSIDWebMDMEnrollmentNavigationRequest -> MSIDWebMDMEnrollmentNavigationRequesttAction
+    NavigationActionFactory register:[self forAction:MSIDWebMDMEnrollmentNavigationRequesttAction.class];
+}
+...
+
+MSIDWebViewNavigationRequestAction
+- (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
+                           decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+
+MSIDWebMDMEnrollmentNavigationRequesttAction: NavigationRequestAction
+
+
 #pragma mark - Navigation Action Decision
 
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
                            decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
+    if (MY_ECS_IS_ON)
+    {
+        NavigationRequest *request = [NavigationActionFactory createNavigationRequestFromNavigationAction: navigationAction];
+        NavigationRequestAction *action = [NavigationActionFactory actionForRequest:request];
+        
+        if (action) {
+            return [action decidePolicyAADForNavigationAction:navigationAction decisionHandler: decisionHandler];
+        }
+    }
+    
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
     
