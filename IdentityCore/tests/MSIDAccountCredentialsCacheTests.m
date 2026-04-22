@@ -2885,7 +2885,9 @@
     query.homeAccountId = @"uid.utid";
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
-    // MSIDAny short-circuits the requestedClaims equality check, so ATs with requestedClaims
+    query.target = @"user.read user.write";
+    // MSIDAny causes matchesWithRealm: to return YES as soon as clientId matches,
+    // bypassing the requestedClaims equality check so ATs with requestedClaims
     // are also matched and removed even when the query itself has no requestedClaims set.
     query.targetMatchingOptions = MSIDAny;
 

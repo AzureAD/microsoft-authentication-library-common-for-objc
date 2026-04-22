@@ -776,10 +776,10 @@
         query.homeAccountId = homeAccountId;
         query.environmentAliases = aliases;
         query.matchAnyCredentialType = YES;
-        // MSIDAny short-circuits the requestedClaims equality check in MSIDCredentialCacheItem
-        // so access tokens saved with requestedClaims (e.g. CP1) are also removed for this account.
-        // Do not set targetMatchingOptions here: this clear-cache query does not set query.target,
-        // and using MSIDAny would broaden unrelated matching semantics during removal.
+        // MSIDAny causes matchesWithRealm: to return YES as soon as clientId matches,
+        // bypassing the requestedClaims equality check so that access tokens saved with
+        // requestedClaims (e.g. CP1) are also removed for this account.
+        query.targetMatchingOptions = MSIDAny;
 
         NSError *credentialRemovalError;
         result = [_accountCredentialCache removeCredentialsWithQuery:query context:context error:&credentialRemovalError];
