@@ -641,6 +641,12 @@
 		4BC74CCA2F99DF4900235B4D /* LabKeyVaultClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CC82F99DF4900235B4D /* LabKeyVaultClient.swift */; };
 		4BC74CCC2F99DF6500235B4D /* LabPasswordManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CCB2F99DF6500235B4D /* LabPasswordManager.swift */; };
 		4BC74CCD2F99DF6500235B4D /* LabPasswordManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CCB2F99DF6500235B4D /* LabPasswordManager.swift */; };
+		4BC74CCF2F99E05200235B4D /* LabTestAccountDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CCE2F99E05200235B4D /* LabTestAccountDecodingTests.swift */; };
+		4BC74CD02F99E05200235B4D /* LabTestAccountDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CCE2F99E05200235B4D /* LabTestAccountDecodingTests.swift */; };
+		4BC74CD22F99E05D00235B4D /* LabTestApplicationDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CD12F99E05D00235B4D /* LabTestApplicationDecodingTests.swift */; };
+		4BC74CD32F99E05D00235B4D /* LabTestApplicationDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CD12F99E05D00235B4D /* LabTestApplicationDecodingTests.swift */; };
+		4BC74CD52F99E0D600235B4D /* LabRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CD42F99E0D600235B4D /* LabRequestTests.swift */; };
+		4BC74CD62F99E0D600235B4D /* LabRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CD42F99E0D600235B4D /* LabRequestTests.swift */; };
 		4BF51DD42E96DAC700434A36 /* MSIDSwitchBrowserResumeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2B002D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.m */; };
 		4BF51DD52E96DACD00434A36 /* MSIDSwitchBrowserOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2AFE2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.m */; };
 		4BF51DD62E96E0AC00434A36 /* MSIDCertAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F19F2D2866F700E44F6E /* MSIDCertAuthManager.m */; };
@@ -2680,6 +2686,9 @@
 		4BC74CC52F99DEF300235B4D /* LabAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabAPIClient.swift; sourceTree = "<group>"; };
 		4BC74CC82F99DF4900235B4D /* LabKeyVaultClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabKeyVaultClient.swift; sourceTree = "<group>"; };
 		4BC74CCB2F99DF6500235B4D /* LabPasswordManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabPasswordManager.swift; sourceTree = "<group>"; };
+		4BC74CCE2F99E05200235B4D /* LabTestAccountDecodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabTestAccountDecodingTests.swift; sourceTree = "<group>"; };
+		4BC74CD12F99E05D00235B4D /* LabTestApplicationDecodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabTestApplicationDecodingTests.swift; sourceTree = "<group>"; };
+		4BC74CD42F99E0D600235B4D /* LabRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabRequestTests.swift; sourceTree = "<group>"; };
 		51E364572863C0F300A97F82 /* MSIDTelemetryConditionalCompile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryConditionalCompile.h; sourceTree = "<group>"; };
 		580E253E2719FD10003D1795 /* MSIDPrtHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrtHeader.h; sourceTree = "<group>"; };
 		580E253F2719FD10003D1795 /* MSIDPrtHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPrtHeader.m; sourceTree = "<group>"; };
@@ -4456,6 +4465,9 @@
 				4BC74CC52F99DEF300235B4D /* LabAPIClient.swift */,
 				4BC74CC82F99DF4900235B4D /* LabKeyVaultClient.swift */,
 				4BC74CCB2F99DF6500235B4D /* LabPasswordManager.swift */,
+				4BC74CCE2F99E05200235B4D /* LabTestAccountDecodingTests.swift */,
+				4BC74CD12F99E05D00235B4D /* LabTestApplicationDecodingTests.swift */,
+				4BC74CD42F99E0D600235B4D /* LabRequestTests.swift */,
 			);
 			path = lab_api_swift;
 			sourceTree = "<group>";
@@ -7312,6 +7324,7 @@
 				4BC74CA52F99DDA900235B4D /* LabTestAccount.swift in Sources */,
 				B248FFAD223C8DF700628574 /* MSIDAutomationPolicyToggleAPIRequest.m in Sources */,
 				23E3A824289B4889007767BA /* XCUIElement+CrossPlat.m in Sources */,
+				4BC74CD52F99E0D600235B4D /* LabRequestTests.swift in Sources */,
 				B25315CA23E7A0E800432133 /* MSIDTestAutomationAccountConfigurationRequest.m in Sources */,
 				4BC74CBB2F99DE3700235B4D /* LabAuthProvider.swift in Sources */,
 				B25315C023E772B000432133 /* MSIDAutomationOperationAPIInMemoryCacheHandler.m in Sources */,
@@ -7320,6 +7333,7 @@
 				B253158723E2A68500432133 /* MSIDTestAutomationAccount.m in Sources */,
 				B2ED1BDB2204D36F00A24E82 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2ED1BD82204D36200A24E82 /* KeyvaultAuthentication.swift in Sources */,
+				4BC74CD02F99E05200235B4D /* LabTestAccountDecodingTests.swift in Sources */,
 				4BC74CB42F99DE2400235B4D /* LabTokenCache.swift in Sources */,
 				B21FA9E822063D0A00806B68 /* MSIDAutomationSuccessResult.m in Sources */,
 				B2ED1BCC2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */,
@@ -7333,6 +7347,7 @@
 				4BC74CA82F99DDB400235B4D /* LabAPIRequest.swift in Sources */,
 				B248FFCC223C9C6800628574 /* MSIDAutomationResetOperationResponseHandler.m in Sources */,
 				B2ED1BBD2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
+				4BC74CD22F99E05D00235B4D /* LabTestApplicationDecodingTests.swift in Sources */,
 				23F48C7D2890C4AC0038E1EA /* MSIDTestsConfig.m in Sources */,
 				4BC74CC12F99DE9C00235B4D /* LabAPIConfiguration.swift in Sources */,
 				4BC74CCD2F99DF6500235B4D /* LabPasswordManager.swift in Sources */,
@@ -7373,6 +7388,7 @@
 				4BC74CA62F99DDA900235B4D /* LabTestAccount.swift in Sources */,
 				B248FFAE223C8DF700628574 /* MSIDAutomationPolicyToggleAPIRequest.m in Sources */,
 				23E3A825289B4889007767BA /* XCUIElement+CrossPlat.m in Sources */,
+				4BC74CD62F99E0D600235B4D /* LabRequestTests.swift in Sources */,
 				B25315CB23E7A0E800432133 /* MSIDTestAutomationAccountConfigurationRequest.m in Sources */,
 				4BC74CBA2F99DE3700235B4D /* LabAuthProvider.swift in Sources */,
 				B25315C123E772B000432133 /* MSIDAutomationOperationAPIInMemoryCacheHandler.m in Sources */,
@@ -7381,6 +7397,7 @@
 				B253158823E2A68500432133 /* MSIDTestAutomationAccount.m in Sources */,
 				B2ED1BDC2204D36F00A24E82 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2ED1BD92204D36200A24E82 /* KeyvaultAuthentication.swift in Sources */,
+				4BC74CCF2F99E05200235B4D /* LabTestAccountDecodingTests.swift in Sources */,
 				4BC74CB52F99DE2400235B4D /* LabTokenCache.swift in Sources */,
 				B21FA9E722063D0A00806B68 /* MSIDAutomationSuccessResult.m in Sources */,
 				B2ED1BCD2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */,
@@ -7394,6 +7411,7 @@
 				4BC74CA92F99DDB400235B4D /* LabAPIRequest.swift in Sources */,
 				B248FFCD223C9C6800628574 /* MSIDAutomationResetOperationResponseHandler.m in Sources */,
 				B2ED1BBE2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
+				4BC74CD32F99E05D00235B4D /* LabTestApplicationDecodingTests.swift in Sources */,
 				23F48C7E2890C4AC0038E1EA /* MSIDTestsConfig.m in Sources */,
 				4BC74CC02F99DE9C00235B4D /* LabAPIConfiguration.swift in Sources */,
 				4BC74CCC2F99DF6500235B4D /* LabPasswordManager.swift in Sources */,
