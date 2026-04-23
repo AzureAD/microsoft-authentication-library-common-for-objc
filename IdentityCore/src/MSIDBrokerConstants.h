@@ -83,6 +83,7 @@ extern NSString * _Nonnull const MSID_ADDITIONAL_EXTENSION_DATA_KEY;
 extern NSString * _Nonnull const MSID_SSO_NONCE_QUERY_PARAM_KEY;
 extern NSString * _Nonnull const MSID_BROKER_MDM_ID_KEY;
 extern NSString * _Nonnull const MSID_ENROLLED_USER_OBJECT_ID_KEY;
+extern NSString * _Nonnull const MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY;
 extern NSString * _Nonnull const MSID_EXTRA_DEVICE_INFO_KEY;
 extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_UPN;
 extern NSString * _Nonnull const MSID_PRIMARY_REGISTRATION_DEVICE_ID;
