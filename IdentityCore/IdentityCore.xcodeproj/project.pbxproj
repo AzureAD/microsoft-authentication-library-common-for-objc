@@ -609,6 +609,10 @@
 		4BA3A9482F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BA3A9452F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m */; };
 		4BADFA5E2E85D7FC00E8C26F /* MSIDFlightManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */; };
 		4BADFA5F2E85D7FC00E8C26F /* MSIDFlightManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */; };
+		4BC74C9C2F99DC7400235B4D /* LabAPIEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74C9B2F99DC7400235B4D /* LabAPIEnums.swift */; };
+		4BC74C9D2F99DC7400235B4D /* LabAPIEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74C9B2F99DC7400235B4D /* LabAPIEnums.swift */; };
+		4BC74C9F2F99DC8200235B4D /* LabTestApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74C9E2F99DC8200235B4D /* LabTestApplication.swift */; };
+		4BC74CA02F99DC8200235B4D /* LabTestApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74C9E2F99DC8200235B4D /* LabTestApplication.swift */; };
 		4BF51DD42E96DAC700434A36 /* MSIDSwitchBrowserResumeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2B002D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.m */; };
 		4BF51DD52E96DACD00434A36 /* MSIDSwitchBrowserOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2AFE2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.m */; };
 		4BF51DD62E96E0AC00434A36 /* MSIDCertAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F19F2D2866F700E44F6E /* MSIDCertAuthManager.m */; };
@@ -2632,6 +2636,8 @@
 		4BA3A9442F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeyVaultAppConfigProvider.h; sourceTree = "<group>"; };
 		4BA3A9452F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDKeyVaultAppConfigProvider.m; sourceTree = "<group>"; };
 		4BADFA5D2E85D7EC00E8C26F /* MSIDFlightManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSIDFlightManagerTests.swift; sourceTree = "<group>"; };
+		4BC74C9B2F99DC7400235B4D /* LabAPIEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabAPIEnums.swift; sourceTree = "<group>"; };
+		4BC74C9E2F99DC8200235B4D /* LabTestApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabTestApplication.swift; sourceTree = "<group>"; };
 		51E364572863C0F300A97F82 /* MSIDTelemetryConditionalCompile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryConditionalCompile.h; sourceTree = "<group>"; };
 		580E253E2719FD10003D1795 /* MSIDPrtHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrtHeader.h; sourceTree = "<group>"; };
 		580E253F2719FD10003D1795 /* MSIDPrtHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPrtHeader.m; sourceTree = "<group>"; };
@@ -4389,6 +4395,15 @@
 			path = mac;
 			sourceTree = "<group>";
 		};
+		4BC74C9A2F99DC5400235B4D /* lab_api_swift */ = {
+			isa = PBXGroup;
+			children = (
+				4BC74C9B2F99DC7400235B4D /* LabAPIEnums.swift */,
+				4BC74C9E2F99DC8200235B4D /* LabTestApplication.swift */,
+			);
+			path = lab_api_swift;
+			sourceTree = "<group>";
+		};
 		589BDB162718BBC600BF3799 /* sso_cookies_request */ = {
 			isa = PBXGroup;
 			children = (
@@ -4971,6 +4986,7 @@
 				4BA3A9452F4D187900A761F0 /* MSIDKeyVaultAppConfigProvider.m */,
 				23E3A823289B4889007767BA /* XCUIElement+CrossPlat.h */,
 				23E3A822289B4889007767BA /* XCUIElement+CrossPlat.m */,
+				4BC74C9A2F99DC5400235B4D /* lab_api_swift */,
 			);
 			path = ui_tests_lib;
 			sourceTree = "<group>";
@@ -7249,6 +7265,7 @@
 				B2ED1BC52204D2BC00A24E82 /* Secret.swift in Sources */,
 				B21FA9DC22063CEE00806B68 /* MSIDAutomationActionConstants.m in Sources */,
 				B248FFC3223C97C200628574 /* MSIDAutomationPasswordRequestHandler.m in Sources */,
+				4BC74C9F2F99DC8200235B4D /* LabTestApplication.swift in Sources */,
 				B248FFCC223C9C6800628574 /* MSIDAutomationResetOperationResponseHandler.m in Sources */,
 				B2ED1BBD2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
 				23F48C7D2890C4AC0038E1EA /* MSIDTestsConfig.m in Sources */,
@@ -7261,6 +7278,7 @@
 				B248FFB2223C8F4D00628574 /* MSIDAutomationBaseApiRequest.m in Sources */,
 				B21FA9DF22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */,
 				4B9FF25A2F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m in Sources */,
+				4BC74C9D2F99DC7400235B4D /* LabAPIEnums.swift in Sources */,
 				4B9FF25B2F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m in Sources */,
 				B253158223E2A67600432133 /* MSIDTestAutomationApplication.m in Sources */,
 				B21FA9E522063D0400806B68 /* MSIDAutomationUserInformation.m in Sources */,
@@ -7294,6 +7312,7 @@
 				B2ED1BC62204D2BC00A24E82 /* Secret.swift in Sources */,
 				B21FA9DB22063CED00806B68 /* MSIDAutomationActionConstants.m in Sources */,
 				B248FFC4223C97C200628574 /* MSIDAutomationPasswordRequestHandler.m in Sources */,
+				4BC74CA02F99DC8200235B4D /* LabTestApplication.swift in Sources */,
 				B248FFCD223C9C6800628574 /* MSIDAutomationResetOperationResponseHandler.m in Sources */,
 				B2ED1BBE2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
 				23F48C7E2890C4AC0038E1EA /* MSIDTestsConfig.m in Sources */,
@@ -7306,6 +7325,7 @@
 				B248FFB3223C8F4D00628574 /* MSIDAutomationBaseApiRequest.m in Sources */,
 				B21FA9DE22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */,
 				4B9FF2562F3447DA0099D8AF /* MSIDKeyVaultCredentialProvider.m in Sources */,
+				4BC74C9C2F99DC7400235B4D /* LabAPIEnums.swift in Sources */,
 				4B9FF2572F3447DA0099D8AF /* MSIDKeyVaultAccountProvider.m in Sources */,
 				B253158323E2A67600432133 /* MSIDTestAutomationApplication.m in Sources */,
 				B21FA9E422063D0400806B68 /* MSIDAutomationUserInformation.m in Sources */,
