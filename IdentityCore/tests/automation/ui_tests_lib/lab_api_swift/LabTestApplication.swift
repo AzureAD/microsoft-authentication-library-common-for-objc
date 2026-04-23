@@ -2,6 +2,24 @@
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 import Foundation
 
@@ -44,9 +62,9 @@ public struct LabTestApplication: Codable, Hashable, Sendable {
         case objectId
         case labName
         case multiTenantApp
-        case redirectUris
+        case redirectUris = "redirectUri"
         case defaultScopes
-        case defaultAuthorities
+        case defaultAuthorities = "authority"
         case b2cAuthorities
     }
 
@@ -58,7 +76,10 @@ public struct LabTestApplication: Codable, Hashable, Sendable {
         appId = try container.decodeIfPresent(String.self, forKey: .appId) ?? ""
         objectId = try container.decodeIfPresent(String.self, forKey: .objectId) ?? ""
         labName = try container.decodeIfPresent(String.self, forKey: .labName) ?? ""
-        multiTenantApp = try container.decodeIfPresent(Bool.self, forKey: .multiTenantApp) ?? false
+
+        // The Lab API returns "Yes"/"No" strings for this field, not a native Bool.
+        let multiTenantStr = try container.decodeIfPresent(String.self, forKey: .multiTenantApp)
+        multiTenantApp = multiTenantStr?.caseInsensitiveCompare("yes") == .orderedSame
 
         // Handle both string and array formats for redirect URIs
         if let uris = try? container.decode([String].self, forKey: .redirectUris) {
@@ -69,8 +90,13 @@ public struct LabTestApplication: Codable, Hashable, Sendable {
             redirectUris = []
         }
 
-        defaultScopes = try container.decodeIfPresent([String].self, forKey: .defaultScopes) ?? []
-        defaultAuthorities = try container.decodeIfPresent([String].self, forKey: .defaultAuthorities) ?? []
+        // The Lab API returns comma-separated strings for scopes and authorities.
+        let scopesStr = try container.decodeIfPresent(String.self, forKey: .defaultScopes) ?? ""
+        defaultScopes = scopesStr.isEmpty ? [] : scopesStr.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+
+        let authoritiesStr = try container.decodeIfPresent(String.self, forKey: .defaultAuthorities) ?? ""
+        defaultAuthorities = authoritiesStr.isEmpty ? [] : authoritiesStr.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+
         b2cAuthorities = try container.decodeIfPresent([String].self, forKey: .b2cAuthorities) ?? []
     }
 
