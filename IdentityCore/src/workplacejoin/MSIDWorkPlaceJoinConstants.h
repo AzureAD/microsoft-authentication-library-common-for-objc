@@ -32,6 +32,7 @@ extern NSString *const kMSIDUPNKeyIdentifier;
 extern NSString *const kMSIDWPJThumbprintIdentifier;
 extern NSString *const kMSIDWPJCertificateCommonNameIdentifier;
 extern NSString *const kMSIDWPJCloudEnvironmentIdentifier;
+extern NSString *const kMSIDWPJUserObjectIdIdentifier;
 extern NSString *const kMSIDProtectionSpaceDistinguishedName;
 extern NSString *const kMSIDPKeyAuthUrn;
 extern NSString *const kMSIDPKeyAuthHeader;
