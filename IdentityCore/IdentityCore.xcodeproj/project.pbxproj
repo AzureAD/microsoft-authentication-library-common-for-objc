@@ -633,6 +633,10 @@
 		4BC74CBE2F99DE8A00235B4D /* LabClientSecretAuthProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CBC2F99DE8A00235B4D /* LabClientSecretAuthProvider.swift */; };
 		4BC74CC02F99DE9C00235B4D /* LabAPIConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CBF2F99DE9C00235B4D /* LabAPIConfiguration.swift */; };
 		4BC74CC12F99DE9C00235B4D /* LabAPIConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CBF2F99DE9C00235B4D /* LabAPIConfiguration.swift */; };
+		4BC74CC32F99DEDE00235B4D /* LabAPIRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CC22F99DEDE00235B4D /* LabAPIRouter.swift */; };
+		4BC74CC42F99DEDE00235B4D /* LabAPIRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CC22F99DEDE00235B4D /* LabAPIRouter.swift */; };
+		4BC74CC62F99DEF300235B4D /* LabAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CC52F99DEF300235B4D /* LabAPIClient.swift */; };
+		4BC74CC72F99DEF300235B4D /* LabAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC74CC52F99DEF300235B4D /* LabAPIClient.swift */; };
 		4BF51DD42E96DAC700434A36 /* MSIDSwitchBrowserResumeOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2B002D6FAF7900DEFEFB /* MSIDSwitchBrowserResumeOperation.m */; };
 		4BF51DD52E96DACD00434A36 /* MSIDSwitchBrowserOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 235C2AFE2D6FAF7900DEFEFB /* MSIDSwitchBrowserOperation.m */; };
 		4BF51DD62E96E0AC00434A36 /* MSIDCertAuthManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2394F19F2D2866F700E44F6E /* MSIDCertAuthManager.m */; };
@@ -2668,6 +2672,8 @@
 		4BC74CB92F99DE3700235B4D /* LabAuthProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabAuthProvider.swift; sourceTree = "<group>"; };
 		4BC74CBC2F99DE8A00235B4D /* LabClientSecretAuthProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabClientSecretAuthProvider.swift; sourceTree = "<group>"; };
 		4BC74CBF2F99DE9C00235B4D /* LabAPIConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabAPIConfiguration.swift; sourceTree = "<group>"; };
+		4BC74CC22F99DEDE00235B4D /* LabAPIRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabAPIRouter.swift; sourceTree = "<group>"; };
+		4BC74CC52F99DEF300235B4D /* LabAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabAPIClient.swift; sourceTree = "<group>"; };
 		51E364572863C0F300A97F82 /* MSIDTelemetryConditionalCompile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryConditionalCompile.h; sourceTree = "<group>"; };
 		580E253E2719FD10003D1795 /* MSIDPrtHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDPrtHeader.h; sourceTree = "<group>"; };
 		580E253F2719FD10003D1795 /* MSIDPrtHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPrtHeader.m; sourceTree = "<group>"; };
@@ -4440,6 +4446,8 @@
 				4BC74CB92F99DE3700235B4D /* LabAuthProvider.swift */,
 				4BC74CBC2F99DE8A00235B4D /* LabClientSecretAuthProvider.swift */,
 				4BC74CBF2F99DE9C00235B4D /* LabAPIConfiguration.swift */,
+				4BC74CC22F99DEDE00235B4D /* LabAPIRouter.swift */,
+				4BC74CC52F99DEF300235B4D /* LabAPIClient.swift */,
 			);
 			path = lab_api_swift;
 			sourceTree = "<group>";
@@ -7284,6 +7292,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23E3A80C289B2952007767BA /* MSIDBaseUITest.m in Sources */,
+				4BC74CC72F99DEF300235B4D /* LabAPIClient.swift in Sources */,
 				B2ED1BD52204D35700A24E82 /* MSIDClientCredentialHelper.m in Sources */,
 				B248FFD1223D839B00628574 /* MSIDAutomationTemporaryAccountResponseHandler.m in Sources */,
 				B2ED1BC12204D2B400A24E82 /* Result.swift in Sources */,
@@ -7322,6 +7331,7 @@
 				B23F284A220E0EDE004ADA72 /* MSIDAutomationResetAPIRequest.m in Sources */,
 				B248FFBE223C94C300628574 /* MSIDAutomationOperationAPIRequestHandler.m in Sources */,
 				B2ED1BC32204D2B800A24E82 /* Network.swift in Sources */,
+				4BC74CC42F99DEDE00235B4D /* LabAPIRouter.swift in Sources */,
 				B21FA9E222063CFE00806B68 /* MSIDAutomationErrorResult.m in Sources */,
 				B248FFB2223C8F4D00628574 /* MSIDAutomationBaseApiRequest.m in Sources */,
 				B21FA9DF22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */,
@@ -7341,6 +7351,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23E3A80D289B2953007767BA /* MSIDBaseUITest.m in Sources */,
+				4BC74CC62F99DEF300235B4D /* LabAPIClient.swift in Sources */,
 				B2ED1BD62204D35800A24E82 /* MSIDClientCredentialHelper.m in Sources */,
 				B248FFD2223D839B00628574 /* MSIDAutomationTemporaryAccountResponseHandler.m in Sources */,
 				B2ED1BC22204D2B400A24E82 /* Result.swift in Sources */,
@@ -7379,6 +7390,7 @@
 				B23F284B220E0EDE004ADA72 /* MSIDAutomationResetAPIRequest.m in Sources */,
 				B248FFBF223C94C300628574 /* MSIDAutomationOperationAPIRequestHandler.m in Sources */,
 				B2ED1BC42204D2B800A24E82 /* Network.swift in Sources */,
+				4BC74CC32F99DEDE00235B4D /* LabAPIRouter.swift in Sources */,
 				B21FA9E122063CFD00806B68 /* MSIDAutomationErrorResult.m in Sources */,
 				B248FFB3223C8F4D00628574 /* MSIDAutomationBaseApiRequest.m in Sources */,
 				B21FA9DE22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */,
