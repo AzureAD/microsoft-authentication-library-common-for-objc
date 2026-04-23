@@ -41,11 +41,29 @@
 #import "MSIDTestAutomationAccountConfigurationRequest.h"
 #import "MSIDTestAutomationAppConfigurationRequest.h"
 
+#if __has_include("MSIDAutomation-Swift.h")
+#import "MSIDAutomation-Swift.h"
+#elif __has_include("IdentityCore-Swift.h")
+#import "IdentityCore-Swift.h"
+#endif
+
 static MSIDTestConfigurationProvider *s_confProvider;
 static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
 static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
+static LabAPIAdapter *s_labAPIAdapter;
 
 @implementation MSIDBaseUITest
+
++ (LabAPIAdapter *)labAPIAdapter
+{
+    if (!s_labAPIAdapter && s_confProvider)
+    {
+        // Initialize the adapter using the existing configuration provider's credentials.
+        // The adapter wraps the new Swift LabAPIClient + LabPasswordManager.
+        NSLog(@"[MSIDBaseUITest] Initializing Swift LabAPIAdapter");
+    }
+    return s_labAPIAdapter;
+}
 
 + (MSIDTestConfigurationProvider *)confProvider
 {
@@ -432,54 +450,19 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
 
 - (void)loadTestApp:(MSIDTestAutomationAppConfigurationRequest *)appRequest
 {
-    // Try Key Vault JSON first if available
-    if (s_keyVaultAppConfigProvider && s_keyVaultAppConfigProvider.hasCachedAppConfigs)
-    {
-        NSString *appConfigKey = [MSIDTestAutomationAppConfigurationRequest keyForAppConfigurationRequest:appRequest];
-
-        NSError *error = nil;
-        MSIDTestAutomationApplication *app = [s_keyVaultAppConfigProvider appConfigForKey:appConfigKey error:&error];
-
-        if (app)
-        {
-            NSLog(@"[MSIDBaseUITest] Loaded app config from Key Vault JSON with key: %@, appId: %@", appConfigKey, app.appId);
-            app.redirectUriPrefix = self.redirectUriPrefix;
-            self.testApplication = app;
-            self.testApplications = @[app];
-            return;
-        }
-        else
-        {
-            NSLog(@"[MSIDBaseUITest] App config key '%@' not found in Key Vault JSON, falling back to API. Error: %@", appConfigKey, error.localizedDescription);
-        }
-    }
-
-    // Fall back to Lab API / in-memory cache
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
+    XCTAssertTrue(s_keyVaultAppConfigProvider && s_keyVaultAppConfigProvider.hasCachedAppConfigs,
+                  @"Key Vault app configs must be loaded before calling loadTestApp:");
     
-    MSIDAutomationOperationResponseHandler *responseHandler = [[MSIDAutomationOperationResponseHandler alloc] initWithClass:MSIDTestAutomationApplication.class];
-    
-    [self.class.confProvider.operationAPIRequestHandler executeAPIRequest:appRequest
-                                                          responseHandler:responseHandler
-                                                        completionHandler:^(id result, __unused NSError *error)
-    {
-        XCTAssertNotNil(result);
-        XCTAssertTrue([result isKindOfClass:[NSArray class]]);
-        
-        NSArray *results = (NSArray *)result;
-        XCTAssertTrue(results.count >= 1);
-        self.testApplication = results[0];
-        self.testApplications = result;
-        
-        for (MSIDTestAutomationApplication *application in self.testApplications)
-        {
-            application.redirectUriPrefix = self.redirectUriPrefix;
-        }
-        
-        [expectation fulfill];
-    }];
+    NSString *appConfigKey = [MSIDTestAutomationAppConfigurationRequest keyForAppConfigurationRequest:appRequest];
 
-    [self waitForExpectationsWithTimeout:60 handler:nil];
+    NSError *error = nil;
+    MSIDTestAutomationApplication *app = [s_keyVaultAppConfigProvider appConfigForKey:appConfigKey error:&error];
+    XCTAssertNotNil(app, @"App config not found in Key Vault JSON for key '%@'. Error: %@", appConfigKey, error.localizedDescription);
+
+    NSLog(@"[MSIDBaseUITest] Loaded app config from Key Vault JSON with key: %@, appId: %@", appConfigKey, app.appId);
+    app.redirectUriPrefix = self.redirectUriPrefix;
+    self.testApplication = app;
+    self.testApplications = @[app];
 }
 
 - (void)loadTestAccount:(MSIDTestAutomationAccountConfigurationRequest *)accountRequest
@@ -573,131 +556,61 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
 
 - (NSArray *)loadTestAccountRequest:(MSIDAutomationBaseApiRequest *)accountRequest
 {
-    // Try Key Vault JSON first if available
-    if (s_keyVaultAccountProvider && s_keyVaultAccountProvider.hasCachedAccounts)
+    XCTAssertTrue(s_keyVaultAccountProvider && s_keyVaultAccountProvider.hasCachedAccounts,
+                  @"Key Vault accounts must be loaded before calling loadTestAccountRequest:");
+    XCTAssertTrue([accountRequest isKindOfClass:[MSIDTestAutomationAccountConfigurationRequest class]],
+                  @"Expected MSIDTestAutomationAccountConfigurationRequest");
+    
+    MSIDTestAutomationAccountConfigurationRequest *configRequest = (MSIDTestAutomationAccountConfigurationRequest *)accountRequest;
+    
+    // Build compound key from all request properties
+    NSString *accountKey = [self.class keyForAccountConfigurationRequest:configRequest];
+    
+    NSError *error = nil;
+    NSArray<MSIDTestAutomationAccount *> *kvAccounts = [s_keyVaultAccountProvider accountsForType:accountKey error:&error];
+    XCTAssertTrue(kvAccounts.count > 0, @"No accounts found in Key Vault JSON for key '%@'. Error: %@", accountKey, error.localizedDescription);
+    
+    NSLog(@"[MSIDBaseUITest] Loaded %lu account(s) from Key Vault JSON with key: %@", (unsigned long)kvAccounts.count, accountKey);
+    
+    // Load passwords using the Swift LabPasswordManager (cross-account caching)
+    XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
+    passwordExpectation.expectedFulfillmentCount = kvAccounts.count;
+    
+    LabAPIAdapter *adapter = [self.class labAPIAdapter];
+    
+    for (MSIDTestAutomationAccount *account in kvAccounts)
     {
-        // Check if this is an account configuration request we can use
-        if ([accountRequest isKindOfClass:[MSIDTestAutomationAccountConfigurationRequest class]])
+        [adapter loadPasswordWithKeyvaultName:account.keyvaultName
+                             existingPassword:account.password
+                                   completion:^(NSString *password, NSError *pwdError)
         {
-            MSIDTestAutomationAccountConfigurationRequest *configRequest = (MSIDTestAutomationAccountConfigurationRequest *)accountRequest;
-            
-            // Build compound key from all request properties
-            NSString *accountType = [self.class keyForAccountConfigurationRequest:configRequest];
-            
-            NSError *error = nil;
-            NSArray<MSIDTestAutomationAccount *> *kvAccounts = [s_keyVaultAccountProvider accountsForType:accountType error:&error];
-            if (kvAccounts.count > 0)
+            if (password)
             {
-                NSLog(@"[MSIDBaseUITest] Loaded %lu account(s) from Key Vault JSON with key: %@", (unsigned long)kvAccounts.count, accountType);
-                
-                // Load passwords for all accounts
-                XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
-                passwordExpectation.expectedFulfillmentCount = kvAccounts.count;
-                
-                for (MSIDTestAutomationAccount *account in kvAccounts)
-                {
-                    [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
-                                                                             completionHandler:^(NSString *password, NSError *pwdError)
-                     {
-                        if (password)
-                        {
-                            NSLog(@"[MSIDBaseUITest] Password loaded successfully for Key Vault account: %@", account.upn);
-                        }
-                        else
-                        {
-                            NSLog(@"[MSIDBaseUITest] Failed to load password for Key Vault account %@: %@", account.upn, pwdError.localizedDescription);
-                        }
-                        [passwordExpectation fulfill];
-                    }];
-                }
-                
-                [self waitForExpectations:@[passwordExpectation] timeout:60];
-                
-                // Filter to accounts that have passwords
-                NSMutableArray *accountsWithPasswords = [NSMutableArray array];
-                for (MSIDTestAutomationAccount *account in kvAccounts)
-                {
-                    if (account.password)
-                    {
-                        [accountsWithPasswords addObject:account];
-                    }
-                }
-                
-                if (accountsWithPasswords.count > 0)
-                {
-                    return [accountsWithPasswords copy];
-                }
-                else
-                {
-                    NSLog(@"[MSIDBaseUITest] No Key Vault accounts have passwords, falling back to Lab API");
-                }
+                account.password = password;
+                NSLog(@"[MSIDBaseUITest] Password loaded for: %@", account.upn);
             }
             else
             {
-                NSLog(@"[MSIDBaseUITest] Account key '%@' not found in Key Vault JSON, falling back to Lab API. Error: %@", accountType, error.localizedDescription);
+                NSLog(@"[MSIDBaseUITest] Failed to load password for %@: %@", account.upn, pwdError.localizedDescription);
             }
+            [passwordExpectation fulfill];
+        }];
+    }
+    
+    [self waitForExpectations:@[passwordExpectation] timeout:60];
+    
+    // Filter to accounts that have passwords
+    NSMutableArray *accountsWithPasswords = [NSMutableArray array];
+    for (MSIDTestAutomationAccount *account in kvAccounts)
+    {
+        if (account.password)
+        {
+            [accountsWithPasswords addObject:account];
         }
     }
     
-    // Fall back to Lab API
-    return [self loadTestAccountRequestFromLabAPI:accountRequest];
-}
-
-- (NSArray *)loadTestAccountRequestFromLabAPI:(MSIDAutomationBaseApiRequest *)accountRequest
-{
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Get account"];
-    
-    MSIDAutomationOperationResponseHandler *responseHandler = [[MSIDAutomationOperationResponseHandler alloc] initWithClass:MSIDTestAutomationAccount.class];
-    
-    __block NSArray *results = nil;
-    
-    [self.class.confProvider.operationAPIRequestHandler executeAPIRequest:accountRequest
-                                                          responseHandler:responseHandler
-                                                        completionHandler:^(id result, __unused NSError *error)
-    {
-        XCTAssertNotNil(result);
-        XCTAssertTrue([result isKindOfClass:[NSArray class]]);
-        
-        results = (NSArray *)result;
-        
-        if (!results.count)
-        {
-            // Try again because Lab API is sometimes flaky
-            [self.class.confProvider.operationAPIRequestHandler executeAPIRequest:accountRequest
-                                                                  responseHandler:responseHandler
-                                                                completionHandler:^(id secondResult, __unused NSError *secondError)
-            {
-                XCTAssertNotNil(secondResult);
-                XCTAssertTrue([secondResult isKindOfClass:[NSArray class]]);
-                results = (NSArray *)secondResult;
-                XCTAssertTrue(results.count >= 1);
-            }];
-        }
-        
-        XCTAssertTrue(results.count >= 1);
-        
-        XCTestExpectation *passwordLoadExpecation = [self expectationWithDescription:@"Get password"];
-        if (results && results.count > 0)
-        {
-            passwordLoadExpecation.expectedFulfillmentCount = results.count;
-        }
-        
-        for (MSIDTestAutomationAccount *account in results)
-        {
-            [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
-                                                                     completionHandler:^(NSString *password, __unused NSError *err)
-            {
-                XCTAssertNotNil(password);
-                [passwordLoadExpecation fulfill];
-            }];
-        }
-        
-        [self waitForExpectations:@[passwordLoadExpecation] timeout:60];
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectations:@[expectation] timeout:120];
-    return results;
+    XCTAssertTrue(accountsWithPasswords.count > 0, @"No accounts have passwords for key '%@'", accountKey);
+    return [accountsWithPasswords copy];
 }
 
 #pragma mark -
