@@ -40,12 +40,22 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         result[MSID_PRIMARY_REGISTRATION_DEVICE_ID] = self.deviceID;
         result[MSID_PRIMARY_REGISTRATION_TENANT_ID] = self.tenantIdentifier;
         result[MSID_PRIMARY_REGISTRATION_UPN] = self.upn;
+        
+        if (self.userObjectId)
+        {
+            result[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY] = self.userObjectId;
+        }
     }
     else
     {
         result[MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY] = self.deviceID;
         result[MSID_DEVICE_INFORMATION_UPN_ID_KEY] = self.upn;
         result[MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY] = self.tenantIdentifier;
+        
+        if (self.userObjectId)
+        {
+            result[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY] = self.userObjectId;
+        }
     }
     
     return result;

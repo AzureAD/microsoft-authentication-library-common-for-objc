@@ -36,6 +36,7 @@
 #import "MSIDFlightManager.h"
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
+#import "MSIDBrokerConstants.h"
 
 @interface MSIDWorkPlaceJoinUtilTests : XCTestCase
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
@@ -399,6 +400,99 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
     NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
     XCTAssertNil(deviceRegMetaDataInfo);
+}
+
+#pragma mark - WPJMetadata userObjectId serialization tests
+
+- (void)testWPJMetadata_serializeWithPrimaryFormat_shouldIncludeUserObjectId
+{
+    MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
+    metadata.certificateThumbprint = @"thumbprint";
+    metadata.cloudHost = @"login.microsoftonline.com";
+    metadata.deviceID = @"device-id";
+    metadata.tenantIdentifier = @"tenant-id";
+    metadata.upn = @"user@contoso.com";
+    metadata.userObjectId = @"test-oid-123";
+
+    NSDictionary *result = [metadata serializeWithFormat:YES];
+
+    XCTAssertEqualObjects(result[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY], @"test-oid-123");
+    XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT], @"thumbprint");
+    XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_CLOUD], @"login.microsoftonline.com");
+    XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_DEVICE_ID], @"device-id");
+    XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_TENANT_ID], @"tenant-id");
+    XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_UPN], @"user@contoso.com");
+}
+
+- (void)testWPJMetadata_serializeWithNonPrimaryFormat_shouldIncludeUserObjectId
+{
+    MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
+    metadata.certificateThumbprint = @"thumbprint";
+    metadata.cloudHost = @"login.microsoftonline.com";
+    metadata.deviceID = @"device-id";
+    metadata.tenantIdentifier = @"tenant-id";
+    metadata.upn = @"user@contoso.com";
+    metadata.userObjectId = @"test-oid-123";
+
+    NSDictionary *result = [metadata serializeWithFormat:NO];
+
+    XCTAssertEqualObjects(result[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY], @"test-oid-123");
+    XCTAssertEqualObjects(result[@"aadDeviceIdentifier"], @"device-id");
+    XCTAssertEqualObjects(result[@"userPrincipalName"], @"user@contoso.com");
+    XCTAssertEqualObjects(result[@"aadTenantIdentifier"], @"tenant-id");
+}
+
+- (void)testWPJMetadata_serializeWithNilUserObjectId_shouldNotIncludeKey
+{
+    MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
+    metadata.certificateThumbprint = @"thumbprint";
+    metadata.cloudHost = @"login.microsoftonline.com";
+    metadata.deviceID = @"device-id";
+    metadata.tenantIdentifier = @"tenant-id";
+    metadata.upn = @"user@contoso.com";
+    metadata.userObjectId = nil;
+
+    NSDictionary *primaryResult = [metadata serializeWithFormat:YES];
+    XCTAssertNil(primaryResult[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY]);
+
+    NSDictionary *nonPrimaryResult = [metadata serializeWithFormat:NO];
+    XCTAssertNil(nonPrimaryResult[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY]);
+}
+
+- (void)testGetRegisteredDeviceMetadataInformation_withUserObjectId_shouldReturnInResult
+{
+    MSIDRequestParameters *requestParams = [MSIDRequestParameters new];
+    requestParams.validateAuthority = YES;
+
+    [MSIDTestSwizzle classMethod:@selector(getPrimaryEccTenantWithSharedAccessGroup:context:error:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup, __unused id <MSIDRequestContext> context, __unused NSError **error)
+    {
+        return @"PrimaryTenantId";
+    }];
+
+    MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
+    metadata.certificateThumbprint = @"thumbprint";
+    metadata.cloudHost = @"login.microsoftonline.com";
+    metadata.deviceID = @"device-id";
+    metadata.tenantIdentifier = @"PrimaryTenantId";
+    metadata.upn = @"user@contoso.com";
+    metadata.userObjectId = @"test-oid-456";
+
+    [MSIDTestSwizzle classMethod:@selector(readWPJMetadataWithSharedAccessGroup:tenantIdentifier:domainName:context:error:)
+                           class:[MSIDWorkPlaceJoinUtil class]
+                           block:(id) ^(__unused id obj, __unused NSString *sharedAccessGroup,
+                                        __unused NSString *tenantIdentifier,
+                                        __unused NSString *domainName,
+                                        __unused id <MSIDRequestContext> context,
+                                        __unused NSError **error)
+    {
+        return metadata;
+    }];
+
+    NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
+    XCTAssertNotNil(deviceRegMetaDataInfo);
+    XCTAssertEqualObjects(deviceRegMetaDataInfo[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY], @"test-oid-456");
 }
 
 #pragma mark - iOS WPJ tests

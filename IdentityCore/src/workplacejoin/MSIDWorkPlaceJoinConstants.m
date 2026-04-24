@@ -30,6 +30,7 @@ NSString *const kMSIDUPNKeyIdentifier                   = @"com.microsoft.workpl
 NSString *const kMSIDWPJThumbprintIdentifier            = @"com.microsoft.workplacejoin.thumbprint";
 NSString *const kMSIDWPJCertificateCommonNameIdentifier = @"com.microsoft.workplacejoin.certificateCommonNameIdentifier";
 NSString *const kMSIDWPJCloudEnvironmentIdentifier      = @"com.microsoft.workplacejoin.cloudEnvironment";
+NSString *const kMSIDWPJUserObjectIdIdentifier          = @"com.microsoft.workplacejoin.userObjectId";
 NSString *const kMSIDProtectionSpaceDistinguishedName   = @"MS-Organization-Access";
 NSString *const kMSIDPKeyAuthUrn                        = @"urn:http-auth:PKeyAuth?";
 // ADFS doesn't understand PKeyAuth+, so the client still needs to advertise PKeyAuth via user-agent.
