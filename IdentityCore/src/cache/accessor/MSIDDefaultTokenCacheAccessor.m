@@ -990,7 +990,6 @@
 }
 
 #pragma mark - Internal
-// TODO: Add another API to save device token
 - (BOOL)saveAccessTokenWithConfiguration:(MSIDConfiguration *)configuration
                                 response:(MSIDTokenResponse *)response
                                  factory:(MSIDOauth2Factory *)factory
