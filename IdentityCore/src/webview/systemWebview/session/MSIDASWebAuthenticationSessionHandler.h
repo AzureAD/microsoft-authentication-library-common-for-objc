@@ -38,7 +38,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithParentController:(MSIDViewController *)parentController
                                 startURL:(NSURL *)startURL
                           callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
+                      useEmpheralSession:(BOOL)useEphemeralSession;
+
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                     useEphemeralSession:(BOOL)useEphemeralSession
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders API_AVAILABLE(ios(18.0), macos(15.0));
 
 @end
 
