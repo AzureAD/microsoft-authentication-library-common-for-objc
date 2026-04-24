@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,21 +22,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDTokenRequestProviding.h"
-#import "MSIDRequestControlling.h"
-#import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDWebviewResponse.h"
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDWebWPJResponse;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewNavigationDelegate>
+/**
+ * Response object representing MDM enrollment completion callback.
+ *
+ * This response is triggered when user returns from MDM profile installation
+ */
+@interface MSIDWebMDMEnrollmentCompletionResponse : MSIDWebviewResponse
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
+/**
+ * Status of the MDM enrollment operation.
+ * Possible values: "success", "check_in_timed_out"
+ * Extracted from "status" query parameter.
+ */
+@property (nonatomic, readonly, nullable) NSString *status;
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+/**
+ * Error URL if SSO extension is missing
+ * Extracted from "errorUrl" query parameter.
+ */
+@property (nonatomic, readonly, nullable) NSString *errorUrl;
+
+/**
+ * Convenience property to check if enrollment completed successfully.
+ * Returns YES if status is "success" or "check_in_timed_out" (case-insensitive), NO otherwise.
+ */
+@property (nonatomic, readonly) BOOL isSuccess;
 @end
+
+NS_ASSUME_NONNULL_END

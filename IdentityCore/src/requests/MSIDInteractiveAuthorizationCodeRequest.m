@@ -31,6 +31,7 @@
 #import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDOauth2Factory.h"
@@ -141,6 +142,29 @@
         return;
     }
     
+    // Store reference to current webview
+    self.currentWebview = webView;
+    
+    // Call webview configuration block if provided
+    if (self.requestParameters.webviewConfigurationBlock)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                          @"Calling webview configuration block");
+        
+        // Ensure configuration happens on main thread
+        // Configuration block may access UI properties or WKWebView settings
+        if ([NSThread isMainThread])
+        {
+            self.requestParameters.webviewConfigurationBlock(webView);
+        }
+        else
+        {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                self.requestParameters.webviewConfigurationBlock(webView);
+            });
+        }
+    }
+    
     [MSIDWebviewAuthorization startSessionWithWebView:webView
                                         oauth2Factory:self.oauthFactory
                                         configuration:self.webViewConfiguration
@@ -232,16 +256,16 @@
             webviewResponseCompletionBlock:^(MSIDWebviewResponse *webviewResponse, NSError *responseError) {
         
         [weakSelf handleWebReponseV2:webviewResponse error:responseError completionBlock:completionBlock];
-    } authorizationCodeCompletionBlock:^(MSIDAuthorizationCodeResult *codeResult, NSError *resultError, MSIDWebWPJResponse *wpjResponse) {
+    } authorizationCodeCompletionBlock:^(MSIDAuthorizationCodeResult *codeResult, NSError *resultError, MSIDWebviewResponse *webviewResponse) {
         if (resultError)
         {
             returnErrorBlock(resultError);
             return;
         }
         
-        if (wpjResponse) 
+        if (webviewResponse) 
         {
-            completionBlock(nil, nil, wpjResponse);
+            completionBlock(nil, nil, webviewResponse);
             return;
         }
         
@@ -306,6 +330,10 @@
 
         returnErrorBlock(oauthResponse.oauthError);
         return;
+    }
+    else if ([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class])
+    {
+        completionBlock(nil, nil, (MSIDWebMDMEnrollmentCompletionResponse *)response);
     }
     else if ([response isKindOfClass:MSIDWebUpgradeRegResponse.class])
     {

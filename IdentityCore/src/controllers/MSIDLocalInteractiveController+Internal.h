@@ -27,6 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDLocalInteractiveController ()
 
+@property (nonatomic, assign) BOOL brtAttempted;
+
+@property (nonatomic, assign) BOOL brtAcquired;
+
 - (void)acquireTokenWithRequest:(MSIDInteractiveTokenRequest *)request
                 completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 

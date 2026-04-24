@@ -183,6 +183,8 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorAttemptToOpenURLFromExtension),
                       @(MSIDErrorUINotSupportedInExtension),
                       @(MSIDErrorInsufficientDeviceStrength),
+                      @(MSIDErrorMDMEnrollmentCompletedNeedsRetry),
+                      @(MSIDErrorInvalidASWebAuthenticationURL),
                       // Broker errors
                       @(MSIDErrorBrokerResponseNotReceived),
                       @(MSIDErrorBrokerNoResumeStateFound),
@@ -349,6 +351,10 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorUINotSupportedInExtension";
         case MSIDErrorInsufficientDeviceStrength:
             return @"MSIDErrorInsufficientDeviceStrength";
+        case MSIDErrorMDMEnrollmentCompletedNeedsRetry:
+            return @"MSIDErrorMDMEnrollmentCompletedNeedsRetry";
+        case MSIDErrorInvalidASWebAuthenticationURL:
+            return @"MSIDErrorInvalidASWebAuthenticationSessionURL";
             // Broker flow errors
         case MSIDErrorBrokerResponseNotReceived:
             return @"MSIDErrorBrokerResponseNotReceived";

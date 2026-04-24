@@ -27,9 +27,9 @@
 
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDOauth2Factory;
-@class MSIDWebWPJResponse;
+@class MSIDWebviewResponse;
 
-typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
+typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) MSIDInteractiveTokenRequestParameters *requestParameters;
 @property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
+@property (nonatomic) NSObject<MSIDWebviewInteracting> *currentWebview; //TODO: check if required
 
 - (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory;
