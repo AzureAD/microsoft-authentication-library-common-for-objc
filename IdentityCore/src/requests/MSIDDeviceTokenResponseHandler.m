@@ -26,12 +26,13 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResponseValidator.h"
+@class MSIDCacheAccessor;
 
 @interface MSIDDeviceTokenResponseHandler ()
 
 @property (nonatomic) MSIDRequestParameters *requestParameters;
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic) id<MSIDCacheAccessor> tokenCacheAccessor;
 
 @end
 
@@ -39,14 +40,14 @@
 
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                               tokenCache:(id<MSIDCacheAccessor>)tokenCache
 {
     self = [super init];
     if (self)
     {
         _requestParameters = requestParameters;
         _oauthFactory = oauthFactory;
-        _tokenCache = tokenCache;
+        // Device tokens are not cached on the client, so we will not initialize token cache accessor for this handler.
+        _tokenCacheAccessor = nil;
     }
     return self;
 }
@@ -68,9 +69,11 @@
                                                                                      error:&error];
     
     MSIDTokenResponseValidator *tokenResponseValidator = [MSIDTokenResponseValidator new];
+    // Since device associated access tokens are not tied to a user identity, there is account related information to use as key in the token cache. We will skip cache lookup and cache saving for device tokens by setting the following flag on request parameters. This will ensure that device tokens are always requested from the service and not cached on the client.
+    self.requestParameters.skipTokenCacheFromSsoExtensionResponse = YES;
     MSIDTokenResult *result = [tokenResponseValidator validateAndSaveTokenResponse:serializedTokenResponse
                                                                       oauthFactory:self.oauthFactory
-                                                                        tokenCache:self.tokenCache
+                                                                        tokenCache:self.tokenCacheAccessor
                                                               accountMetadataCache:nil
                                                                  requestParameters:self.requestParameters
                                                                   saveSSOStateOnly:NO

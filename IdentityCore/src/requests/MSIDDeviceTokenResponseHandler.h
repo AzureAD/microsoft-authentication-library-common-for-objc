@@ -26,8 +26,6 @@
 
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
-@class MSIDAccountMetadataCacheAccessor;
-@protocol MSIDCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,8 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)new NS_UNAVAILABLE;
 
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                             oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                               tokenCache:(id<MSIDCacheAccessor>)tokenCache NS_DESIGNATED_INITIALIZER;
+                             oauthFactory:(MSIDOauth2Factory *)oauthFactory NS_DESIGNATED_INITIALIZER;
 
 -(void)handleTokenResponse:(NSDictionary *)tokenJsonresponse
                    context:(id<MSIDRequestContext>)context
