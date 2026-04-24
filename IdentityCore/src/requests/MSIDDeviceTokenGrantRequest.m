@@ -25,7 +25,6 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDDeviceTokenGrantRequest.h"
-#import "MSIDRegistrationInformation.h"
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDKeyOperationUtil.h"
 #import "MSIDJWTHelper.h"
@@ -44,7 +43,7 @@
 @property (nonatomic) NSString *redirectUri;
 @property (nonatomic) NSString *nonce;
 @property (nonatomic) NSString *enrollmentId;
-@property (nonatomic) MSIDRegistrationInformation *wpjInfo;
+@property (nonatomic) MSIDWPJKeyPairWithCert *wpjInfo;
 @property (nonatomic) NSString *clientId;
 @property (nonatomic) NSString *resource;
 @property (nonatomic) NSSet *scopesSet;
@@ -59,7 +58,7 @@
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
                          requestParameters:(nonnull MSIDRequestParameters *)requestParameters
                                     scopes:(nullable NSString *)scopes
-                   registrationInformation:(MSIDRegistrationInformation *)registrationInformation
+                   registrationInformation:(MSIDWPJKeyPairWithCert *)registrationInformation
                                   resource:(nonnull NSString *)resource
                               enrollmentId:(nullable NSString *)enrollmentId
                            extraParameters:(nullable NSDictionary *)extraParameters
@@ -201,11 +200,10 @@
             return;
             
         }
-        NSError *tokenResponseError;
         MSIDDeviceTokenResponseHandler *tokenResponseHandler = (MSIDDeviceTokenResponseHandler *)self.tokenResponseHandler;
         [tokenResponseHandler handleTokenResponse:tokenJsonResponse
                                           context:self.requestParameters
-                                            error:tokenResponseError
+                                            error:nil
                                   completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
             completionBlock(result, error);
         }];
@@ -264,7 +262,9 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Device token] Failed to sign JWT for requesting device token.");
         if (error)
+        {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to sign JWT for requesting device token.", nil, nil, nil, context.correlationId, nil, YES);
+        }
         return nil;
     }
     
