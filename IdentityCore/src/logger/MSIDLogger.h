@@ -64,7 +64,7 @@ typedef NS_ENUM(NSInteger, MSIDLogMaskingLevel)
  logger.
  
  */
-typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL containsPII);
+typedef void (NS_SWIFT_SENDABLE NS_SWIFT_NONISOLATED ^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL containsPII);
 
 @interface MSIDLogger : NSObject
 
