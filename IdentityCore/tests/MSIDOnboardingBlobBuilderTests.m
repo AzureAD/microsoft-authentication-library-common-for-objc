@@ -140,7 +140,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 {
     MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
 
-    NSDate *timestamp = [self dateFromISO8601String:@"2025-10-29T15:04:10.000Z"];
+    NSDate *timestamp = [self dateFromISO8601String:@"2025-10-29T15:03:17.270Z"];
     [builder addStep:@"AuthenticationStarted" timestamp:timestamp];
     [builder addBlockingError:@"65001"];
 
@@ -150,26 +150,58 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
     XCTAssertEqual(steps.count, 1);
     XCTAssertEqualObjects(steps[0][@"stepId"], @"AuthenticationStarted");
-    XCTAssertEqualObjects(steps[0][@"ts"], @(1761750250));
+    XCTAssertEqualObjects(steps[0][@"ts"], @"2025-10-29T15:03:17.270Z");
 }
 
 - (void)testAddStep_whenMultipleSteps_shouldRecordAll
 {
     MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
 
-    NSDate *ts1 = [self dateFromISO8601String:@"2025-10-29T15:04:10.000Z"];
-    NSDate *ts2 = [self dateFromISO8601String:@"2025-10-29T15:05:10.000Z"];
-    [builder addStep:@"AuthenticationStarted" timestamp:ts1];
-    [builder addStep:@"BrokerInstallPrompted" timestamp:ts2];
+    NSDate *ts1 = [self dateFromISO8601String:@"2025-10-29T15:03:17.270Z"];
+    NSDate *ts2 = [self dateFromISO8601String:@"2025-10-29T15:03:17.520Z"];
+    NSDate *ts3 = [self dateFromISO8601String:@"2025-10-29T15:03:17.770Z"];
+    NSDate *ts4 = [self dateFromISO8601String:@"2025-10-29T15:03:18.190Z"];
+    [builder addStep:@"BrokerInstallPromptedForMDM" timestamp:ts1];
+    [builder addStep:@"DeviceRegistrationStarted" timestamp:ts2];
+    [builder addStep:@"DeviceRegistrationCompleted" timestamp:ts3];
+    [builder addStep:@"MDMEnrollmentStarted" timestamp:ts4];
     [builder addBlockingError:@"65001"];
 
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
     NSArray *steps = parsed[@"stepsList"];
 
-    XCTAssertEqual(steps.count, 2);
-    XCTAssertEqualObjects(steps[0][@"stepId"], @"AuthenticationStarted");
-    XCTAssertEqualObjects(steps[1][@"stepId"], @"BrokerInstallPrompted");
+    XCTAssertEqual(steps.count, 4);
+    XCTAssertEqualObjects(steps[0][@"stepId"], @"BrokerInstallPromptedForMDM");
+    XCTAssertEqualObjects(steps[0][@"ts"], @"2025-10-29T15:03:17.270Z");
+    XCTAssertEqualObjects(steps[1][@"stepId"], @"DeviceRegistrationStarted");
+    XCTAssertEqualObjects(steps[1][@"ts"], @"2025-10-29T15:03:17.520Z");
+    XCTAssertEqualObjects(steps[2][@"stepId"], @"DeviceRegistrationCompleted");
+    XCTAssertEqualObjects(steps[2][@"ts"], @"2025-10-29T15:03:17.770Z");
+    XCTAssertEqualObjects(steps[3][@"stepId"], @"MDMEnrollmentStarted");
+    XCTAssertEqualObjects(steps[3][@"ts"], @"2025-10-29T15:03:18.190Z");
+}
+
+- (void)testAddStep_whenSubMillisecondDifference_shouldPreserveMillisecondPrecision
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    NSDate *ts1 = [self dateFromISO8601String:@"2025-10-29T15:03:17.123Z"];
+    NSDate *ts2 = [self dateFromISO8601String:@"2025-10-29T15:03:17.456Z"];
+    NSDate *ts3 = [self dateFromISO8601String:@"2025-10-29T15:03:17.789Z"];
+    [builder addStep:@"AuthenticationStarted" timestamp:ts1];
+    [builder addStep:@"CredentialEntryCompleted" timestamp:ts2];
+    [builder addStep:@"BrokerInstallPrompted" timestamp:ts3];
+    [builder addBlockingError:@"65001"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+    NSArray *steps = parsed[@"stepsList"];
+
+    XCTAssertEqual(steps.count, 3);
+    XCTAssertEqualObjects(steps[0][@"ts"], @"2025-10-29T15:03:17.123Z");
+    XCTAssertEqualObjects(steps[1][@"ts"], @"2025-10-29T15:03:17.456Z");
+    XCTAssertEqualObjects(steps[2][@"ts"], @"2025-10-29T15:03:17.789Z");
 }
 
 #pragma mark - addBlockingError
@@ -322,8 +354,8 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed clientId:@"c" target:@"t"];
     builder.sessionCachePersistence = [[MSIDSessionCachePersistence alloc] initWithUserDefaults:self.testDefaults];
 
-    NSDate *ts1 = [self dateFromISO8601String:@"2025-10-29T15:04:10.000Z"];
-    NSDate *ts2 = [self dateFromISO8601String:@"2025-10-29T15:05:10.000Z"];
+    NSDate *ts1 = [self dateFromISO8601String:@"2025-10-29T15:03:17.270Z"];
+    NSDate *ts2 = [self dateFromISO8601String:@"2025-10-29T15:03:17.520Z"];
     [builder addStep:@"AuthenticationStarted" timestamp:ts1];
     [builder addStep:@"BrokerInstallPrompted" timestamp:ts2];
     [builder addBlockingError:@"BROKER_INSTALLATION_TRIGGERED"];

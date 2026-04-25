@@ -111,9 +111,11 @@ static NSString *const MSID_FIELD_TS = @"ts";
 
 - (void)addStep:(NSString *)stepId timestamp:(NSDate *)timestamp
 {
-    long ts = (long)timestamp.timeIntervalSince1970;
+    NSISO8601DateFormatter *formatter = [[NSISO8601DateFormatter alloc] init];
+    formatter.formatOptions = NSISO8601DateFormatWithInternetDateTime | NSISO8601DateFormatWithFractionalSeconds;
+    NSString *ts = [formatter stringFromDate:timestamp];
 
-    [self.stepsList addObject:@{MSID_FIELD_STEP_ID : stepId, MSID_FIELD_TS : @(ts)}];
+    [self.stepsList addObject:@{MSID_FIELD_STEP_ID : stepId, MSID_FIELD_TS : ts}];
 }
 
 - (void)addBlockingError:(NSString *)errorCode
