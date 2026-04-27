@@ -49,7 +49,7 @@
 @property (nonatomic) NSSet *scopesSet;
 @property (nonatomic) MSIDRequestParameters *requestParameters;
 
-@property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
+@property (nonatomic) MSIDDeviceTokenResponseHandler *tokenResponseHandler;
 
 @end
 
@@ -141,17 +141,24 @@
     // Passing blank accountId details as device token is not associated with a specific account. This is required to bypass cache look up in nonce request and directly request new nonce from server.
     nonceReqParams.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"" homeAccountId:@""];
     MSIDNonceTokenRequest *nonceRequest = [[MSIDNonceTokenRequest alloc] initWithRequestParameters:nonceReqParams];
+    __weak typeof(self) weakSelf = self;
     [nonceRequest executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
     {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf)
+        {
+            return;
+        }
+        
         if (!resultNonce || error)
         {
-            NSError *nonceError = error ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to retrieve nonce for device token request: nonce is nil.", nil, nil, nil, self.context.correlationId, nil, YES);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Failed to retrieve nonce for device token request: %@", nonceError);
+            NSError *nonceError = error ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to retrieve nonce for device token request: nonce is nil.", nil, nil, nil, strongSelf.context.correlationId, nil, YES);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context, @"Failed to retrieve nonce for device token request: %@", nonceError);
             completionBlock(nil, nonceError);
             return;
         }
-        self.nonce = resultNonce;
-        [self tokenRequestWithCompletionBlock:completionBlock];
+        strongSelf.nonce = resultNonce;
+        [strongSelf tokenRequestWithCompletionBlock:completionBlock];
     }];
 }
 
@@ -191,18 +198,25 @@
     requestParameters[@"request"] = jwt;
 
     self.parameters = requestParameters;
+    __weak typeof(self) weakSelf = self;
     [self sendWithBlock:^(NSDictionary *tokenJsonResponse, NSError *tokenError)
     {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf)
+        {
+            return;
+        }
+        
         if (tokenError)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Failed to retrieve device token: %@", tokenError);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context, @"Failed to retrieve device token: %@", tokenError);
             completionBlock(nil, tokenError);
             return;
-            
         }
-        MSIDDeviceTokenResponseHandler *tokenResponseHandler = (MSIDDeviceTokenResponseHandler *)self.tokenResponseHandler;
+        
+        MSIDDeviceTokenResponseHandler *tokenResponseHandler = strongSelf.tokenResponseHandler;
         [tokenResponseHandler handleTokenResponse:tokenJsonResponse
-                                          context:self.requestParameters
+                                          context:strongSelf.requestParameters
                                             error:nil
                                   completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
             completionBlock(result, error);

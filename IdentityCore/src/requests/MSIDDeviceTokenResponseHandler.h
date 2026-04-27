@@ -40,10 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory NS_DESIGNATED_INITIALIZER;
 
--(void)handleTokenResponse:(NSDictionary *)tokenJsonresponse
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError *)error
-           completionBlock:(MSIDRequestCompletionBlock)completionBlock;
+- (void)handleTokenResponse:(NSDictionary *)tokenJsonResponse
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *)error
+            completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
 
