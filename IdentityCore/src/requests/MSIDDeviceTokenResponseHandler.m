@@ -68,6 +68,12 @@
                                                                                    context:context
                                                                                      error:&error];
     
+    if (!serializedTokenResponse)
+    {
+        completionBlock(nil, error);
+        return;
+    }
+
     MSIDTokenResponseValidator *tokenResponseValidator = [MSIDTokenResponseValidator new];
     // Since device associated access tokens are not tied to a user identity, there is account related information to use as key in the token cache. We will skip cache lookup and cache saving for device tokens by setting the following flag on request parameters. This will ensure that device tokens are always requested from the service and not cached on the client.
     self.requestParameters.skipTokenCacheFromSsoExtensionResponse = YES;
