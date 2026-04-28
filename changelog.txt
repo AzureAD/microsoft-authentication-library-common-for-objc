@@ -1,4 +1,5 @@
 TBD
+* Code review feedback: fix retain cycles, nil-check deserialized response, correct @class→@protocol, restore style conventions in device token grant request (#1800)
 * Import the right bridging header when common-core is consumed as submodule 
 * Add retry logic when bound app refresh token redemption fails.
 * Captures the x-ms-clientData HTTP response header from ESTS & MSTS and supports client data from redirect uri (#1699)

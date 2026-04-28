@@ -990,6 +990,7 @@
 }
 
 #pragma mark - Internal
+
 - (BOOL)saveAccessTokenWithConfiguration:(MSIDConfiguration *)configuration
                                 response:(MSIDTokenResponse *)response
                                  factory:(MSIDOauth2Factory *)factory

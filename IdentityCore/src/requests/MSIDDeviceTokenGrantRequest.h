@@ -23,7 +23,6 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenRequest.h"
-#import "MSIDThumbprintCalculatable.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDConstants.h"
 
@@ -35,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) MSIDWPJKeyPairWithCert *wpjInfo;
 
-- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+- (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
                           requestParameters:(nonnull MSIDRequestParameters *)requestParameters
                                      scopes:(nullable NSString *)scope
                     registrationInformation:(nonnull MSIDWPJKeyPairWithCert *)registrationInformation
@@ -43,8 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
                                enrollmentId:(nullable NSString *)enrollmentId
                             extraParameters:(nullable NSDictionary *)extraParameters
                                  ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
-                     tokenResponseHandler:(nonnull MSIDDeviceTokenResponseHandler *)tokenResponseValidator
-                                      error:(NSError **)error NS_DESIGNATED_INITIALIZER;
+                    tokenResponseHandler:(nonnull MSIDDeviceTokenResponseHandler *)tokenResponseHandler
+                                     error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
                                 authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
