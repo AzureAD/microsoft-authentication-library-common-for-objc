@@ -71,6 +71,19 @@
         return nil;
     }
     
+    if ([NSString msidIsStringNilOrBlank:endpoint.absoluteString])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: authorityEndpoint is nil.");
+        return nil;
+    }
+    
+    NSString *clientId = requestParameters.clientId;
+    if ([NSString msidIsStringNilOrBlank:clientId])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: clientId is nil or blank.");
+        return nil;
+    }
+    
     self = [super initWithEndpoint:endpoint authScheme:requestParameters.authScheme clientId:requestParameters.clientId scope:scopes ssoContext:ssoContext context:requestParameters];
     if (self)
     {
@@ -79,16 +92,9 @@
         [parameters addEntriesFromDictionary:extraParameters];
 
         NSSet *scopesSet = parameters[MSID_OAUTH2_SCOPE] ? [NSSet setWithArray:[parameters[MSID_OAUTH2_SCOPE] componentsSeparatedByString:@" "]] : [NSSet set];
-        
-        NSString *clientId = requestParameters.clientId;
+
         NSString *redirectUri = requestParameters.redirectUri;
-        
-        if ([NSString msidIsStringNilOrBlank:clientId])
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: clientId is nil or blank.");
-            return nil;
-        }
-        
+                
         if ([NSString msidIsStringNilOrBlank:resource])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: resource is nil or blank.");
@@ -98,12 +104,6 @@
         if ([NSString msidIsStringNilOrBlank:redirectUri])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: redirectURI is nil or blank.");
-            return nil;
-        }
-        
-        if ([NSString msidIsStringNilOrBlank:endpoint.absoluteString])
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: authorityEndpoint is nil.");
             return nil;
         }
         
@@ -200,10 +200,11 @@
             return;
             
         }
+        NSError *deviceTokenError;
         MSIDDeviceTokenResponseHandler *tokenResponseHandler = (MSIDDeviceTokenResponseHandler *)self.tokenResponseHandler;
         [tokenResponseHandler handleTokenResponse:tokenJsonResponse
                                           context:self.requestParameters
-                                            error:nil
+                                            error:deviceTokenError
                                   completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
             completionBlock(result, error);
         }];
