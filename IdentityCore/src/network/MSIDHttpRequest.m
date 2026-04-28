@@ -36,6 +36,9 @@
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
 #import "MSIDOAuth2Constants.h"
+#import "MSIDHttpRequestInterceptorProtocol.h"
+#import "MSIDHttpRequestHeaderValidator.h"
+#import "MSIDHttpRequestHeaderValidating.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -62,6 +65,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
         _requestTimeoutInterval = s_requestTimeoutInterval;
         _cache = [NSURLCache sharedURLCache];
         _shouldCacheResponse = NO;
+        _headerValidator = [MSIDHttpRequestHeaderValidator new];
     }
 
     return self;
@@ -78,6 +82,46 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     [requestConfigurator configure:self];
 
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
+
+    if (self.requestInterceptor)
+    {
+        __weak typeof(self) weakSelf = self;
+        [self.requestInterceptor addAdditionalHeaderFieldsForUrl:self.urlRequest.URL withBlock:^(NSDictionary<NSString *, NSString *> * _Nullable additionalHeaders)
+        {
+            __typeof__(self) strongSelf = weakSelf;
+            if (!strongSelf)
+            {
+                if (completionBlock)
+                {
+                    NSError *deallocError = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey : @"HTTP request object was deallocated before completion."}];
+                    completionBlock(nil, deallocError);
+                }
+                return;
+            }
+
+            if (additionalHeaders.count)
+            {
+                NSMutableURLRequest *mutableRequest = [strongSelf.urlRequest mutableCopy];
+                
+                NSDictionary<NSString *, NSString *> *validHeaders = [strongSelf.headerValidator validHeadersFromHeaders:additionalHeaders];
+                for (NSString *field in validHeaders)
+                {
+                    [mutableRequest setValue:validHeaders[field] forHTTPHeaderField:field];
+                }
+
+                strongSelf.urlRequest = mutableRequest;
+            }
+
+            [strongSelf sendRequestWithCompletionBlock:completionBlock];
+        }];
+        return;
+    }
+
+    [self sendRequestWithCompletionBlock:completionBlock];
+}
+
+- (void)sendRequestWithCompletionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
+{
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
     {

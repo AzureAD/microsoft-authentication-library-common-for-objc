@@ -152,14 +152,12 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     // Step 1: Read from the userDefaults cache to find the correct XPC configuration based on the active SsoExtension.
         // Step 1.1: If the XPC configuration is found, validate the existence of the corresponding XPC component based on the configuration.
             // Step 1.1.1: If the XPC component no longer exists on the device, return false (this is unlikely to happen in a short time period).
-            // Step 1.1.2: If the XPC component exists on the device, proceed to Step 2.
+            // Step 1.1.2: If the XPC component exists on the device, return true.
         // Step 1.2: If the cache is not found, perform a handshake with the SsoExtension (canPerformRequest -> getDeviceInfo).
             // Step 1.2.1: If the handshake succeeds, update the XPC provider cache and configuration, then go to Step 1.1.
             // Step 1.2.2: If the handshake fails because canPerformRequest returns NO, use predefined logic to decide the XPC provider/configuration (use the XPC component from the MacBrokerApp first, then from the CompanyPortal App).
-                // Step 1.2.2.1: If using the XPC provider from the MacBroker App, proceed to Step 2.
-                // Step 1.2.2.2: If using the XPC provider from the CompanyPortal App, proceed to Step 2.
-    // Step 2: Check canPerformRequest from the XPC service.
-        // XPC status caching logic: https://microsoft-my.sharepoint-df.com/:w:/p/kasong/EeTyTIf6TbNIvquOtT80q6kBr38-nRx1Q_ssIxDzVXg88w?e=tG63sP
+                // Step 1.2.2.1: If using the XPC provider from the MacBroker App, return true.
+                // Step 1.2.2.2: If using the XPC provider from the CompanyPortal App, return true.
     
     /* Step 0 Start*/
     if (!xpcProviderCache.isXpcProviderInstalledOnDevice)
@@ -228,46 +226,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     
     /* Step 1 Finish */
     
-    /* Step 2 Start: Check Xpc status */
-    if ([xpcProviderCache shouldReturnCachedXpcStatus])
-    {
-        return xpcProviderCache.cachedCanPerformRequestsStatus;
-    }
-    
-    dispatch_group_t xpcGroup = dispatch_group_create();
-    dispatch_group_enter(xpcGroup);
-    
-    __block BOOL result = NO;
-    MSIDXpcSingleSignOnProvider *xpcSingleSignOnProvider = [MSIDXpcSingleSignOnProvider new];
-    
-    // Check canPerformAuthorization through real broker Xpc service
-    [xpcSingleSignOnProvider getXpcService:xpcProviderCache withContinueBlock:^(id<MSIDXpcBrokerInstanceProtocol> __unused xpcService, NSXPCConnection *directConnection, NSError *error)
-     {
-        if (!xpcService || error)
-        {
-            dispatch_group_leave(xpcGroup);
-            return;
-        }
-        
-        // For now, we are intentionally pass an empty dictionary.
-        // We can expand the param for Xpc service for further validation. e.g. (Authority url, tenant_id/upn)
-        [xpcService canPerformWithMetadata:@{} completionBlock:^(BOOL canPerformRequest) {
-            [directConnection suspend];
-            [directConnection invalidate];
-            
-            result = canPerformRequest;
-            xpcProviderCache.cachedCanPerformRequestsStatus = result;
-            dispatch_group_leave(xpcGroup);
-        }];
-    }];
-    
-    // waiting expired in 1 sec
-    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
-    dispatch_group_wait(xpcGroup, timeout);
-    
-    return result;
-    
-    /* Step 2 End */
+    return YES;
 }
 
 #pragma mark - Helpers
