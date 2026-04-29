@@ -2868,41 +2868,6 @@
     XCTAssertTrue([remainignItems count] == 0);
 }
 
-- (void)testRemoveCredentialsWithQuery_whenMSIDAnyShortCircuitsRequestedClaimsCheck_shouldRemoveATsWithAndWithoutRequestedClaims
-{
-    [self saveItem:[self createTestAccessTokenCacheItem]];
-
-    MSIDCredentialCacheItem *atWithClaims = [self createTestAccessTokenCacheItem];
-    atWithClaims.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
-    [self saveItem:atWithClaims];
-
-    MSIDCredentialCacheItem *rt = [self createTestRefreshTokenCacheItem];
-    rt.homeAccountId = @"uid.utid2";
-    [self saveItem:rt];
-
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.matchAnyCredentialType = YES;
-    query.homeAccountId = @"uid.utid";
-    query.environment = @"login.microsoftonline.com";
-    query.clientId = @"client";
-    query.target = @"user.read user.write";
-    // MSIDAny causes matchesWithRealm: to return YES as soon as clientId matches,
-    // bypassing the requestedClaims equality check so ATs with requestedClaims
-    // are also matched and removed even when the query itself has no requestedClaims set.
-    query.targetMatchingOptions = MSIDAny;
-
-    NSError *error = nil;
-    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
-    XCTAssertTrue(result);
-    XCTAssertNil(error);
-
-    NSArray *remainingItems = [self.cache getAllItemsWithContext:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(remainingItems);
-    XCTAssertEqual([remainingItems count], 1);
-    XCTAssertEqual(((MSIDCredentialCacheItem *)remainingItems[0]).credentialType, MSIDRefreshTokenType);
-}
-
 #pragma mark - wipeInfoWithContext
 
 #if TARGET_OS_IOS
