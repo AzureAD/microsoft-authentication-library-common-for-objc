@@ -162,7 +162,7 @@ static NSURL * _Nonnull MSIDTestURL(NSString *urlString)
     XCTAssertEqualObjects(storedHeaders, @{@"x-test-header" : @"value-1"});
 }
 
-- (void)testStartWithCompletionHandler_whenAuthSessionUsedAndAdditionalHeadersPassed_shouldPropagateHeadersToFactory
+- (void)testInit_whenAdditionalHeadersProvided_shouldStoreHeaders
 {
     NSDictionary<NSString *, NSString *> *expectedHeaders = @{@"x-test-header" : @"value-1"};
 
@@ -180,7 +180,7 @@ static NSURL * _Nonnull MSIDTestURL(NSString *urlString)
     XCTAssertEqualObjects(storedHeaders, expectedHeaders);
 }
 
-- (void)testStartWithCompletionHandler_whenAuthSessionUsedAndAdditionalHeadersEmpty_shouldPropagateEmptyHeadersToFactory
+- (void)testInit_whenAdditionalHeadersProvided_shouldStoreEmptyHeaders
 {
     NSDictionary<NSString *, NSString *> *expectedHeaders = @{};
 

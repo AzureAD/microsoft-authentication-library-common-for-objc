@@ -52,7 +52,13 @@
 
 - (BOOL)isSessionInProgress
 {
-    return self.webviewController != nil;
+    __block BOOL result = NO;
+
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        result = (self.webviewController != nil);
+    }];
+
+    return result;
 }
 
 #pragma mark - Launch
@@ -111,7 +117,7 @@
                                                                              ephemeralWebBrowserSession:useEphemeralSession
                                                                                       additionalHeaders:additionalHeaders
                                                                                                 context:context];
-        if (!self.webviewController)
+        if (!controller)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[MSIDSystemWebviewManager] Failed to create system webview controller");
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
