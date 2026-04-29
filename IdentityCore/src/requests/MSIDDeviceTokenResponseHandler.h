@@ -37,13 +37,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
+- (void)handleTokenResponse:(nullable MSIDTokenResponse *)tokenResponse
+          requestParameters:(MSIDRequestParameters *)requestParameters
+              homeAccountId:(nullable NSString *)homeAccountId
+     tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
+               oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                 tokenCache:(id<MSIDCacheAccessor>)tokenCache
+       accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+            validateAccount:(BOOL)validateAccount
+           saveSSOStateOnly:(BOOL)saveSSOStateOnly
+           brokerAppVersion:(nullable NSString *)brokerAppVersion
+brokerResponseGenerationTimeStamp:(nullable NSDate *)responseGenerationTimeStamp
+brokerRequestReceivedTimeStamp:(nullable NSDate *)brokerRequestReceivedTimeStamp
+                      error:(nullable NSError *)error
+            completionBlock:(MSIDRequestCompletionBlock)completionBlock NS_UNAVAILABLE;
+
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory NS_DESIGNATED_INITIALIZER;
 
-- (void)handleTokenResponse:(NSDictionary *)tokenJsonResponse
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError *)error
-            completionBlock:(MSIDRequestCompletionBlock)completionBlock;
+-(void)handleTokenResponse:(NSDictionary *)tokenJsonresponse
+                   context:(id<MSIDRequestContext>)context
+                     error:(nullable NSError *)error
+           completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock;
 
 @end
 

@@ -69,6 +69,13 @@
 {
     if (!registrationInformation)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: registration information is nil.");
+        return nil;
+    }
+    
+    if (registrationInformation.certificateData == nil || registrationInformation.privateKeyRef == nil)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: registration information is missing certificate data or private key.");
         return nil;
     }
     
@@ -170,13 +177,13 @@
 {
     NSError *jwtError;
     NSString *jwt = [self getTokenRedemptionJwtForResource:self.resource
-                                                  scopes:self.scopesSet
-                                              redirectUri:self.redirectUri
-                                                 audience:self.urlRequest.URL.absoluteString
-                                                 clientId:self.clientId
-                                       extraPayloadClaims:nil
-                                                  context:self.context
-                                                    error:&jwtError];
+                                                    scopes:self.scopesSet
+                                               redirectUri:self.redirectUri
+                                                  audience:self.urlRequest.URL.absoluteString
+                                                  clientId:self.clientId
+                                        extraPayloadClaims:nil
+                                                   context:self.context
+                                                     error:&jwtError];
 
     if ([NSString msidIsStringNilOrBlank:jwt])
     {
@@ -217,11 +224,11 @@
             completionBlock(nil, tokenError);
             return;
         }
-        NSError *deviceTokenError;
-        MSIDDeviceTokenResponseHandler *tokenResponseHandler = (MSIDDeviceTokenResponseHandler *)self.tokenResponseHandler;
+
+        MSIDDeviceTokenResponseHandler *tokenResponseHandler = (MSIDDeviceTokenResponseHandler *)strongSelf.tokenResponseHandler;
         [tokenResponseHandler handleTokenResponse:tokenJsonResponse
-                                          context:self.requestParameters
-                                            error:deviceTokenError
+                                          context:strongSelf.requestParameters
+                                            error:tokenError
                                   completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
             completionBlock(result, error);
         }];
