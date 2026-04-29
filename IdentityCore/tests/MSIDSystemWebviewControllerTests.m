@@ -42,13 +42,6 @@
 
 @end
 
-static NSURL * _Nonnull MSIDTestURL(NSString *urlString)
-{
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSCAssert(url != nil, @"Invalid test URL: %@", urlString);
-    return (NSURL * _Nonnull)url;
-}
-
 @interface MSIDSystemWebviewControllerTests : XCTestCase
 
 @end
@@ -82,7 +75,7 @@ static NSURL * _Nonnull MSIDTestURL(NSString *urlString)
 
 - (void)testInitWithStartURL_whenRediectUriisNil_shouldFail
 {
-    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:MSIDTestURL(@"https://contoso.com/oauth/authorize")
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                                                    redirectURI:nil
                                                                               parentController:nil
                                                                       useAuthenticationSession:YES
@@ -97,7 +90,7 @@ static NSURL * _Nonnull MSIDTestURL(NSString *urlString)
 
 - (void)testInitWithStartURL_whenStartURLandCallbackURLSchemeValid_shouldSucceed
 {
-    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:MSIDTestURL(@"https://contoso.com/oauth/authorize")
+    MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                                                    redirectURI:@"some://redirecturi"
                                                                               parentController:nil
                                                                       useAuthenticationSession:YES
@@ -112,34 +105,34 @@ static NSURL * _Nonnull MSIDTestURL(NSString *urlString)
 - (void)testHandleURLResponse_whenRedirectSchemeMismatch_shouldReturnNo
 {
     MSIDSystemWebviewController *webVC = [MSIDSystemWebviewController new];
-    [webVC setValue:MSIDTestURL(@"scheme://host") forKey:@"redirectURL"];
+    [webVC setValue:[NSURL URLWithString:@"scheme://host"] forKey:@"redirectURL"];
     [webVC setValue:[MSIDTestSession new] forKey:@"_session"];
     
-    XCTAssertFalse([webVC handleURLResponse:MSIDTestURL(@"schemenotmatch://host")]);
+    XCTAssertFalse([webVC handleURLResponse:[NSURL URLWithString:@"schemenotmatch://host"]]);
 }
 
 - (void)testHandleURLResponse_whenRedirectHostMismatch_shouldReturnNo
 {
     MSIDSystemWebviewController *webVC = [MSIDSystemWebviewController new];
-    [webVC setValue:MSIDTestURL(@"scheme://host") forKey:@"redirectURL"];
+    [webVC setValue:[NSURL URLWithString:@"scheme://host"] forKey:@"redirectURL"];
     [webVC setValue:[MSIDTestSession new] forKey:@"_session"];
     
-    XCTAssertFalse([webVC handleURLResponse:MSIDTestURL(@"scheme://hostnotmatch")]);
+    XCTAssertFalse([webVC handleURLResponse:[NSURL URLWithString:@"scheme://hostnotmatch"]]);
 }
 
 - (void)testHandleURLResponse_whenRedirectHostAndSchemeMatch_shouldReturnYes
 {
-    __auto_type embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:MSIDTestURL(@"https://contoso.com")
-                                                                                                   endURL:MSIDTestURL(@"https://contoso.com/done")
+    __auto_type embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com"]
+                                                                                                   endURL:[NSURL URLWithString:@"https://contoso.com/done"]
                                                                                                   webview:nil
                                                                                             customHeaders:nil
                                                                                            platfromParams:nil
                                                                                                   context:nil];
     MSIDSystemWebviewController *webVC = [MSIDSystemWebviewController new];
     [webVC setValue:embeddedWebviewController forKey:@"session"];
-    [webVC setValue:MSIDTestURL(@"scheme://host") forKey:@"redirectURL"];
+    [webVC setValue:[NSURL URLWithString:@"scheme://host"] forKey:@"redirectURL"];
     
-    XCTAssertTrue([webVC handleURLResponse:MSIDTestURL(@"scheme://host")]);
+    XCTAssertTrue([webVC handleURLResponse:[NSURL URLWithString:@"scheme://host"]]);
 }
 
 - (void)testInitWithAdditionalHeaders_whenInputMutableDictionaryChanges_shouldKeepCopiedHeaders
@@ -147,7 +140,7 @@ static NSURL * _Nonnull MSIDTestURL(NSString *urlString)
     NSMutableDictionary *mutableHeaders = [@{@"x-test-header" : @"value-1"} mutableCopy];
 
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc]
-                                          initWithStartURL:MSIDTestURL(@"https://contoso.com/oauth/authorize")
+                                          initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                redirectURI:@"some://redirecturi"
                                           parentController:nil
                                   useAuthenticationSession:YES
@@ -167,7 +160,7 @@ static NSURL * _Nonnull MSIDTestURL(NSString *urlString)
     NSDictionary<NSString *, NSString *> *expectedHeaders = @{@"x-test-header" : @"value-1"};
 
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc]
-                                          initWithStartURL:MSIDTestURL(@"https://contoso.com/oauth/authorize")
+                                          initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                redirectURI:@"some://redirecturi"
                                           parentController:nil
                                   useAuthenticationSession:YES
@@ -185,7 +178,7 @@ static NSURL * _Nonnull MSIDTestURL(NSString *urlString)
     NSDictionary<NSString *, NSString *> *expectedHeaders = @{};
 
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc]
-                                          initWithStartURL:MSIDTestURL(@"https://contoso.com/oauth/authorize")
+                                          initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                redirectURI:@"some://redirecturi"
                                           parentController:nil
                                   useAuthenticationSession:YES
