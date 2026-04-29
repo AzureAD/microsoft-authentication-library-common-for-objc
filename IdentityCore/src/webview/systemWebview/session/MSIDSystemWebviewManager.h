@@ -28,7 +28,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Manages launching and lifecycle of system webviews (ASWebAuthenticationSession, SFSafariViewController, etc.)
+ * Manages the lifecycle of system web authentication sessions (ASWebAuthenticationSession, SFSafariViewController, etc.)
+ * and ensures only one active session is executed at a time per application process.
  *
  * Singleton - enforces that only one system webview is active app-wide at a time,
  * since iOS only allows one active system webview session at any given time.
@@ -43,10 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
 #if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
 
 /**
- * Whether a system webview session is currently in progress.
- * Atomic - safe to read from any thread.
+ * Returns YES if a system webview session is currently active.
  */
-@property (atomic, readonly) BOOL isSessionInProgress;
+@property (nonatomic, readonly) BOOL isSessionInProgress;
 
 /**
  * Launches a system webview session for the given URL.

@@ -28,10 +28,7 @@
 @interface MSIDSystemWebviewManager()
 
 // Strong reference to keep the session alive until completion.
-@property (nonatomic) MSIDSystemWebviewController *webviewController;
-
-// Atomic flag - safe to read from any thread.
-@property (atomic) BOOL isSessionInProgress;
+@property (nonatomic, strong, nullable) MSIDSystemWebviewController *webviewController;
 
 @end
 
@@ -50,6 +47,13 @@
 }
 
 #if (TARGET_OS_IPHONE || TARGET_OS_OSX) && !MSID_EXCLUDE_SYSTEMWV
+
+#pragma mark - Session state
+
+- (BOOL)isSessionInProgress
+{
+    return self.webviewController != nil;
+}
 
 #pragma mark - Launch
 
@@ -71,7 +75,7 @@
 
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         
-        if (self.isSessionInProgress)
+        if (self.webviewController)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"[MSIDSystemWebviewManager] Session already in progress, ignoring new request");
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning,
@@ -99,40 +103,45 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"[MSIDSystemWebviewManager] Additional headers provided: %lu", (unsigned long)additionalHeaders.count);
         }
 
-        // Mark session as in progress before creating the controller so the guard blocks any concurrent launches.
-        self.isSessionInProgress = YES;
-
-        self.webviewController = [[MSIDSystemWebviewController alloc] initWithStartURL:URL
-                                                                           redirectURI:redirectURL
-                                                                      parentController:parentController
-                                                              useAuthenticationSession:useAuthenticationSession
-                                                             allowSafariViewController:allowSafariViewController
-                                                            ephemeralWebBrowserSession:useEphemeralSession
-                                                                     additionalHeaders:additionalHeaders
-                                                                               context:context];
+        MSIDSystemWebviewController *controller = [[MSIDSystemWebviewController alloc] initWithStartURL:URL
+                                                                                            redirectURI:redirectURL
+                                                                                       parentController:parentController
+                                                                               useAuthenticationSession:useAuthenticationSession
+                                                                              allowSafariViewController:allowSafariViewController
+                                                                             ephemeralWebBrowserSession:useEphemeralSession
+                                                                                      additionalHeaders:additionalHeaders
+                                                                                                context:context];
         if (!self.webviewController)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[MSIDSystemWebviewManager] Failed to create system webview controller");
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
                                              @"Failed to create system webview controller",
                                              nil, nil, nil, context.correlationId, nil, YES);
-            self.isSessionInProgress = NO;
             completionBlock(nil, error);
             return;
         }
+        
+        self.webviewController = controller;
         
         [self.webviewController startWithCompletionHandler:^(NSURL *callbackURL, NSError *error)
          {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"[MSIDSystemWebviewManager] Session completed with callback: %@, error: %@",
                                   MSID_PII_LOG_MASKABLE(callbackURL), error);
             
-            // Nil out to release session and mark isSessionInProgress as NO
-            self.webviewController = nil;
-            self.isSessionInProgress = NO;
+            // clean up session state
+            [self clearSessionState];
             
-            if (completionBlock) completionBlock(callbackURL, error);
+            completionBlock(callbackURL, error);
         }];
     }];
+}
+
+#pragma mark - Cleanup (NEW)
+
+- (void)clearSessionState
+{
+    self.webviewController = nil;
+    
 }
 
 #endif
