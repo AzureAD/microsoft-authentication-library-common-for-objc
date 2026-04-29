@@ -89,7 +89,10 @@
     {
 
         NSMutableDictionary *parameters = [_parameters mutableCopy];
-        [parameters addEntriesFromDictionary:extraParameters];
+        if (extraParameters)
+        {
+            [parameters addEntriesFromDictionary:extraParameters];
+        }
 
         NSSet *scopesSet = parameters[MSID_OAUTH2_SCOPE] ? [NSSet setWithArray:[parameters[MSID_OAUTH2_SCOPE] componentsSeparatedByString:@" "]] : [NSSet set];
 
