@@ -39,6 +39,8 @@
 #import "MSIDMainThreadUtil.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDFlightManager.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -63,6 +65,12 @@
     MSIDTelemetryUIEvent *_telemetryEvent;
 #endif
 }
+
+// Backed by readonly properties declared in the public header.
+@synthesize onboardingStrongAuthSetupStarted = _onboardingStrongAuthSetupStarted;
+@synthesize onboardingMdmEnrollmentStarted = _onboardingMdmEnrollmentStarted;
+@synthesize onboardingDeviceRegistrationStarted = _onboardingDeviceRegistrationStarted;
+@synthesize onboardingRemediationStarted = _onboardingRemediationStarted;
 
 #if AD_BROKER
 NSString *const SSO_EXTENSION_USER_DEFAULTS_KEY = @"group.com.microsoft.azureauthenticator.sso";
@@ -356,15 +364,18 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
-    if (self.navigationResponseBlock && navigationResponse && navigationResponse.response)
+    if (navigationResponse && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
     {
         NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
-        if (response)
+
+        [self processOnboardingTelemetryForResponse:response];
+
+        if (self.navigationResponseBlock)
         {
             self.navigationResponseBlock(response);
         }
     }
-    
+
     decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
@@ -637,6 +648,79 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Onboarding telemetry
+
+- (void)processOnboardingTelemetryForResponse:(NSHTTPURLResponse *)response
+{
+    MSIDOnboardingBlobBuilder *builder = self.onboardingBlobBuilder;
+    if (!builder || !response)
+    {
+        return;
+    }
+
+    NSString *host = response.URL.host;
+    if (host.length > 0)
+    {
+        [builder setLastLoadedDomain:host];
+    }
+
+    NSString *cliTelem = response.allHeaderFields[@"x-ms-clitelem"];
+    if ([NSString msidIsStringNilOrBlank:cliTelem])
+    {
+        return;
+    }
+
+    // Format: <version>,<error_code>,<suberror_code>,<rt_age>,<spe_info>
+    NSArray *components = [cliTelem componentsSeparatedByString:@","];
+    if (components.count < 2)
+    {
+        return;
+    }
+
+    NSString *errorCode = [components[1] msidTrimmedString];
+    if (errorCode.length == 0 || [errorCode isEqualToString:@"0"])
+    {
+        return;
+    }
+
+    [builder addBlockingError:errorCode];
+    [builder setRemediationNeeded:YES];
+    [self recordOnboardingRemediationStepForErrorCode:errorCode builder:builder];
+}
+
+- (void)recordOnboardingRemediationStepForErrorCode:(NSString *)errorCode
+                                            builder:(MSIDOnboardingBlobBuilder *)builder
+{
+    NSDate *now = [NSDate date];
+
+    // 50079: Strong auth enrollment needed (MFA setup, not MFA fulfillment like 50076/50078)
+    if ([errorCode isEqualToString:@"50079"] && !_onboardingStrongAuthSetupStarted)
+    {
+        [builder addStep:MSIDOnboardingBlobStepStrongAuthSetupStarted timestamp:now];
+        _onboardingStrongAuthSetupStarted = YES;
+    }
+    // 53000 (DeviceNotCompliant), 53008 (DeviceIsNotWorkplaceJoined): Device registration needed
+    else if (([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"53008"])
+             && !_onboardingDeviceRegistrationStarted)
+    {
+        [builder addStep:MSIDOnboardingBlobStepDeviceRegistrationStarted timestamp:now];
+        _onboardingDeviceRegistrationStarted = YES;
+    }
+    // 530003: MDM enrollment required
+    else if ([errorCode isEqualToString:@"530003"] && !_onboardingMdmEnrollmentStarted)
+    {
+        [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:now];
+        _onboardingMdmEnrollmentStarted = YES;
+    }
+    // 530002: Device compliance / remediation required
+    else if ([errorCode isEqualToString:@"530002"] && !_onboardingRemediationStarted)
+    {
+        [builder addStep:MSIDOnboardingBlobStepRemediationStarted timestamp:now];
+        _onboardingRemediationStarted = YES;
+    }
+    // All other error codes (50076, 50078, 53005, 53003, etc.): blocking error only, no step
 }
 
 @end

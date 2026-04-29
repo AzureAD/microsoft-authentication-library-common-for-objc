@@ -35,6 +35,8 @@
 #import "MSIDWebViewPlatformParams.h"
 #import "MSIDCustomHeaderProviding.h"
 
+@class MSIDOnboardingBlobBuilder;
+
 typedef void (^MSIDNavigationResponseBlock)(NSHTTPURLResponse *response);
 
 @interface MSIDOAuth2EmbeddedWebviewController :
@@ -62,6 +64,19 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
 @property (nonatomic) id<MSIDCustomHeaderProviding> customHeaderProvider;
+// When set, the controller automatically extracts onboarding telemetry signals
+// (last loaded domain, blocking errors from x-ms-clitelem header, and remediation
+// steps for known error codes) from each navigation response and forwards them
+// to the builder. Reused by both non-brokered and brokered flows.
+@property (nonatomic, weak) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
+
+// Readonly flags exposing whether each remediation step has been recorded against
+// the current onboarding blob builder. Subclasses use these to decide whether to
+// emit matching completion steps when the flow ends successfully.
+@property (nonatomic, readonly) BOOL onboardingStrongAuthSetupStarted;
+@property (nonatomic, readonly) BOOL onboardingMdmEnrollmentStarted;
+@property (nonatomic, readonly) BOOL onboardingDeviceRegistrationStarted;
+@property (nonatomic, readonly) BOOL onboardingRemediationStarted;
 #if MSAL_JS_AUTOMATION
 @property (nonatomic) NSString *clientAutomationScript;
 #endif
