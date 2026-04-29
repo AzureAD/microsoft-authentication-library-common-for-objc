@@ -72,6 +72,23 @@ NSString *const MSID_TOKEN_RESULT_CLIENT_DATA = @"client_data";
     [self.brokerMetaData setObject:obj forKey:key];
 }
 
+- (void)setBrokerMetaDataWithAppVersion:(nullable NSString *)appVersion
+                        responseLatency:(double)responseLatencyMs
+                     brokerHandlingTime:(double)brokerHandlingTimeMs
+{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:3];
+
+    if (appVersion)
+    {
+        dict[MSID_TOKEN_RESULT_BROKER_APP_VERSION] = appVersion;
+    }
+
+    dict[MSID_TOKEN_RESULT_BROKER_APP_RESPONSE_LATENCY] = @(responseLatencyMs);
+    dict[MSID_TOKEN_RESULT_BROKER_APP_BROKER_HANDLING_TIME_INTERVAL] = @(brokerHandlingTimeMs);
+
+    _brokerMetaData = [[MSIDCache alloc] initWithDictionary:dict];
+}
+
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"MSIDTokenResult: access token %@, refresh token %@, raw ID token %@, authority %@, correlationID %@, token response %@, account %@", _PII_NULLIFY(_accessToken), _PII_NULLIFY(_refreshToken), _PII_NULLIFY(_rawIdToken), _authority, _correlationId, _PII_NULLIFY(_tokenResponse), _account];
