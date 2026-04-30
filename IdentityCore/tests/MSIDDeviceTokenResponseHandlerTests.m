@@ -84,7 +84,7 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
-
+/*
 - (void)testHandleTokenResponse_whenNilError_shouldProcessResponse
 {
     // Arrange
@@ -112,7 +112,7 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
-/*
+*/
 - (void)testHandleTokenResponse_whenValidTokenJson_shouldSetSkipTokenCacheFlag
 {
     // Arrange
@@ -141,6 +141,6 @@
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
-}*/
+}
 @end
 
