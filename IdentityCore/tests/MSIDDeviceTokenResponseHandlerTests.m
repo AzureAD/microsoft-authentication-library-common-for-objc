@@ -84,7 +84,7 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
-/*
+
 - (void)testHandleTokenResponse_whenNilError_shouldProcessResponse
 {
     // Arrange
@@ -99,11 +99,11 @@
     NSDictionary *emptyTokenResponse = @{};
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
-    NSError *nilError;
+
     // Act
     [handler handleTokenResponse:emptyTokenResponse
                          context:requestParameters
-                           error:nilError
+                           error:nil
                  completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
         // Assert - empty response should result in either nil result or error from validator
         // We verify the handler processes the response without crashing
@@ -130,12 +130,10 @@
                                         @"expires_in": @"3600"};
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
-
-    NSError *nilError;
     // Act
     [handler handleTokenResponse:tokenJsonResponse
                          context:requestParameters
-                           error:nilError
+                           error:nil
                  completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
         // Assert - verify skipTokenCacheFromSsoExtensionResponse is set to YES
         XCTAssertTrue(requestParameters.skipTokenCacheFromSsoExtensionResponse);
@@ -144,6 +142,5 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
- */
 @end
 
