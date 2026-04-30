@@ -24,11 +24,18 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDCustomHeaderProviding.h"
 
+@class MSIDOnboardingBlobBuilder;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDInteractiveTokenRequestParameters : MSIDInteractiveRequestParameters
 
 @property (nonatomic) MSIDUIBehaviorType uiBehaviorType;
+
+// Optional onboarding telemetry blob builder. When set, the webview factory
+// propagates it onto the request configuration which then passes it to the
+// embedded webview controller for auto-recording of domain + blocking errors.
+@property (nonatomic, weak, nullable) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 @property (nonatomic) NSString *loginHint;
 @property (nonatomic) NSString *extraScopesToConsent;
 @property (nonatomic) MSIDPromptType promptType;

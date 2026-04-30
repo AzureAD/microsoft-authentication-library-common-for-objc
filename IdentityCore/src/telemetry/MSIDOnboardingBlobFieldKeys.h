@@ -28,6 +28,10 @@
 // EntityStore dynamically iterates the blob JSON for fan-out.
 // Seed creation + aggregation keys come from OnboardingBlobConstants (Djinni-generated).
 
+// IPC envelope key under which the blob (seed on request, finalized on response)
+// travels between MSAL/OneAuth and the broker. Both sides reference this constant.
+extern NSString * const MSIDOnboardingBlobIPCKey;
+
 // Field keys for populated blob
 extern NSString * const MSIDOnboardingBlobFieldBlockingErrors;
 extern NSString * const MSIDOnboardingBlobFieldLastBlockingError;

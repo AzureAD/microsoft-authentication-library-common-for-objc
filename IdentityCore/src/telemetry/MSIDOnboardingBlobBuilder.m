@@ -34,6 +34,50 @@ static NSString *const MSID_FIELD_STEPS_LIST = @"stepsList";
 static NSString *const MSID_FIELD_STEP_ID = @"stepId";
 static NSString *const MSID_FIELD_TS = @"ts";
 
+// The schema version this platform builder understands. Anything else is treated
+// as forward-compat passthrough by callers.
+static NSString *const MSID_SUPPORTED_SCHEMA_VERSION = @"1.0.0";
+
+// Process-wide serial queue that gates load/mutate/save against the shared
+// NSUserDefaults-backed session correlation cache. Multiple concurrent builders
+// would otherwise race in `persistSessionCorrelation` and lose entries.
+static dispatch_queue_t MSIDOnboardingPersistQueue(void)
+{
+    static dispatch_queue_t queue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        queue = dispatch_queue_create("com.microsoft.identitycore.onboardingblob.persist", DISPATCH_QUEUE_SERIAL);
+    });
+    return queue;
+}
+
+// Parses `json` into an NSDictionary if and only if the input represents a JSON object.
+// Returns nil for nil/empty/non-JSON/non-dictionary inputs.
+static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nullable json)
+{
+    if ([NSString msidIsStringNilOrBlank:json])
+    {
+        return nil;
+    }
+
+    NSData *data = [json dataUsingEncoding:NSUTF8StringEncoding];
+
+    if (!data)
+    {
+        return nil;
+    }
+
+    NSError *parseError = nil;
+    id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
+
+    if (parseError || ![parsed isKindOfClass:[NSDictionary class]])
+    {
+        return nil;
+    }
+
+    return (NSDictionary *)parsed;
+}
+
 @interface MSIDOnboardingBlobBuilder ()
 
 @property (nonatomic, copy) NSString *schemaVersion;
@@ -54,6 +98,35 @@ static NSString *const MSID_FIELD_TS = @"ts";
 @end
 
 @implementation MSIDOnboardingBlobBuilder
+
+#pragma mark - Public class API
+
++ (MSIDOnboardingSeedClassification)classifySeedJson:(NSString *)json
+{
+    NSDictionary *seed = MSIDOnboardingParseSeedDictionary(json);
+
+    if (!seed)
+    {
+        return MSIDOnboardingSeedClassificationMalformed;
+    }
+
+    NSString *schemaVersion = [seed[MSID_FIELD_SCHEMA_VERSION] isKindOfClass:[NSString class]]
+                              ? seed[MSID_FIELD_SCHEMA_VERSION] : nil;
+
+    if (schemaVersion.length == 0)
+    {
+        // schema_version missing or non-string is treated as malformed; we cannot honor a
+        // forward-compat passthrough without at least a version tag. The caller should drop.
+        return MSIDOnboardingSeedClassificationMalformed;
+    }
+
+    if (![schemaVersion isEqualToString:MSID_SUPPORTED_SCHEMA_VERSION])
+    {
+        return MSIDOnboardingSeedClassificationUnknownVersion;
+    }
+
+    return MSIDOnboardingSeedClassificationSupported;
+}
 
 #pragma mark - Init
 
@@ -77,26 +150,16 @@ static NSString *const MSID_FIELD_TS = @"ts";
         NSString *sessionCorrelationId = @"";
         NSString *onboardingMode = @"";
 
-        if (![NSString msidIsStringNilOrBlank:json])
+        NSDictionary *seed = MSIDOnboardingParseSeedDictionary(json);
+
+        if (seed)
         {
-            NSData *data = [json dataUsingEncoding:NSUTF8StringEncoding];
-
-            if (data)
-            {
-                NSError *parseError = nil;
-                id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
-
-                if (!parseError && [parsed isKindOfClass:[NSDictionary class]])
-                {
-                    NSDictionary *seed = (NSDictionary *)parsed;
-                    schemaVersion = [seed[MSID_FIELD_SCHEMA_VERSION] isKindOfClass:[NSString class]]
-                                    ? seed[MSID_FIELD_SCHEMA_VERSION] : @"";
-                    sessionCorrelationId = [seed[MSID_FIELD_SESSION_CORRELATION_ID] isKindOfClass:[NSString class]]
-                                           ? seed[MSID_FIELD_SESSION_CORRELATION_ID] : @"";
-                    onboardingMode = [seed[MSID_FIELD_ONBOARDING_MODE] isKindOfClass:[NSString class]]
-                                     ? seed[MSID_FIELD_ONBOARDING_MODE] : @"";
-                }
-            }
+            schemaVersion = [seed[MSID_FIELD_SCHEMA_VERSION] isKindOfClass:[NSString class]]
+                            ? seed[MSID_FIELD_SCHEMA_VERSION] : @"";
+            sessionCorrelationId = [seed[MSID_FIELD_SESSION_CORRELATION_ID] isKindOfClass:[NSString class]]
+                                   ? seed[MSID_FIELD_SESSION_CORRELATION_ID] : @"";
+            onboardingMode = [seed[MSID_FIELD_ONBOARDING_MODE] isKindOfClass:[NSString class]]
+                             ? seed[MSID_FIELD_ONBOARDING_MODE] : @"";
         }
 
         _schemaVersion = schemaVersion;
@@ -199,39 +262,50 @@ static NSString *const MSID_FIELD_TS = @"ts";
 
 - (void)persistSessionCorrelation
 {
-    NSString *existing = [self.sessionCachePersistence load];
-    NSMutableDictionary *cache = [NSMutableDictionary dictionary];
+    // Snapshot mutable state on the calling thread, then apply load/mutate/save under
+    // a process-wide serial queue. Without this, two concurrent flows recording a
+    // blocking error on different (clientId|target) pairs can read the cache, each
+    // mutate their own copy, and the second write loses the first.
+    NSString *clientId = self.clientId ?: @"";
+    NSString *target = self.target ?: @"";
+    NSString *sessionCorrelationId = self.sessionCorrelationId ?: @"";
+    MSIDSessionCachePersistence *persistence = self.sessionCachePersistence;
 
-    if (![NSString msidIsStringNilOrBlank:existing])
-    {
-        NSData *data = [existing dataUsingEncoding:NSUTF8StringEncoding];
+    dispatch_sync(MSIDOnboardingPersistQueue(), ^{
+        NSString *existing = [persistence load];
+        NSMutableDictionary *cache = [NSMutableDictionary dictionary];
 
-        if (data)
+        if (![NSString msidIsStringNilOrBlank:existing])
         {
-            NSError *error = nil;
-            id parsed = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+            NSData *data = [existing dataUsingEncoding:NSUTF8StringEncoding];
 
-            if (!error && [parsed isKindOfClass:[NSDictionary class]])
+            if (data)
             {
-                [cache addEntriesFromDictionary:parsed];
+                NSError *error = nil;
+                id parsed = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
+
+                if (!error && [parsed isKindOfClass:[NSDictionary class]])
+                {
+                    [cache addEntriesFromDictionary:parsed];
+                }
             }
         }
-    }
 
-    NSString *key = [NSString stringWithFormat:@"%@|%@", self.clientId, self.target];
-    cache[key] = @{
-        @"id" : self.sessionCorrelationId ?: @"",
-        @"ts" : @((long)([[NSDate date] timeIntervalSince1970]))
-    };
+        NSString *key = [NSString stringWithFormat:@"%@|%@", clientId, target];
+        cache[key] = @{
+            @"id" : sessionCorrelationId,
+            @"ts" : @((long)([[NSDate date] timeIntervalSince1970]))
+        };
 
-    NSError *serializationError = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:cache options:0 error:&serializationError];
+        NSError *serializationError = nil;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:cache options:0 error:&serializationError];
 
-    if (!serializationError && jsonData)
-    {
-        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        [self.sessionCachePersistence save:jsonString];
-    }
+        if (!serializationError && jsonData)
+        {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            [persistence save:jsonString];
+        }
+    });
 }
 
 @end

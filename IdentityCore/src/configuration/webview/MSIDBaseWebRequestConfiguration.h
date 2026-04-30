@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDWebviewResponse;
 @class MSIDWebviewFactory;
 @class MSIDExternalSSOContext;
+@class MSIDOnboardingBlobBuilder;
 
 @interface MSIDBaseWebRequestConfiguration : NSObject
 
@@ -50,6 +51,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak) MSIDViewController *parentController;
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
+
+// Optional onboarding telemetry blob builder. When present, the embedded webview
+// controller created from this configuration will record domain + blocking error
+// telemetry into the builder.
+@property (nonatomic, weak, nullable) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 
 #if TARGET_OS_IPHONE
 @property (nonatomic, readwrite) UIModalPresentationStyle presentationType;

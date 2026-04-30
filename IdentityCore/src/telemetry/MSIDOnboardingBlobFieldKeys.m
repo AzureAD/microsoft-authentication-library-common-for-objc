@@ -24,6 +24,9 @@
 
 #import "MSIDOnboardingBlobFieldKeys.h"
 
+// IPC envelope key (kept in sync with broker IPC contract).
+NSString * const MSIDOnboardingBlobIPCKey = @"onboardingBlob";
+
 // Field keys for populated blob
 NSString * const MSIDOnboardingBlobFieldBlockingErrors = @"blockingErrors";
 NSString * const MSIDOnboardingBlobFieldLastBlockingError = @"lastBlockingError";
