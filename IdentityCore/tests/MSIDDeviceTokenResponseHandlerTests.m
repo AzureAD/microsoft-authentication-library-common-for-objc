@@ -53,7 +53,7 @@
     // Assert
     XCTAssertNotNil(handler);
 }
-/*
+
 #pragma mark - handleTokenResponse: error path
 
 - (void)testHandleTokenResponse_whenErrorProvided_shouldReturnErrorInCompletionBlock
@@ -84,7 +84,7 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
-
+/*
 - (void)testHandleTokenResponse_whenNilError_shouldProcessResponse
 {
     // Arrange
