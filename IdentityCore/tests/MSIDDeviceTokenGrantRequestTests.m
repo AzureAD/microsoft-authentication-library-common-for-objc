@@ -31,6 +31,8 @@
 #import "MSIDOAuth2Constants.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAADV2Oauth2Factory.h"
+#import "NSData+MSIDExtensions.h"
+#import "MSIDTestSecureEnclaveKeyPairGenerator.h"
 
 @interface MSIDDeviceTokenGrantRequestTests : XCTestCase
 
@@ -38,6 +40,7 @@
 @property (nonatomic) MSIDRequestParameters *defaultRequestParameters;
 @property (nonatomic) MSIDWPJKeyPairWithCertMock *mockRegistrationInfo;
 @property (nonatomic) MSIDDeviceTokenResponseHandler *defaultResponseHandler;
+@property (nonatomic) SecKeyRef eccPrivateKey;
 
 @end
 
@@ -54,8 +57,11 @@
     self.defaultRequestParameters.redirectUri = @"msauth.com.test://auth";
     self.defaultRequestParameters.authScheme = [MSIDAuthenticationScheme new];
     self.defaultRequestParameters.correlationId = [NSUUID UUID];
-
-    self.mockRegistrationInfo = [MSIDWPJKeyPairWithCertMock new];
+    NSData *mockCertData = [NSData msidDataFromBase64UrlEncodedString:[self dummyEccCertificate]];
+    MSIDTestSecureEnclaveKeyPairGenerator *keyGen = [[MSIDTestSecureEnclaveKeyPairGenerator alloc] initWithSharedAccessGroup:@"test" useSecureEnclave:NO applicationTag:@"test"];
+    SecCertificateRef mockCert = SecCertificateCreateWithData(NULL, (__bridge CFDataRef)mockCertData);
+    self.eccPrivateKey = keyGen.eccPrivateKey;
+    self.mockRegistrationInfo = [[MSIDWPJKeyPairWithCertMock alloc] initWithPrivateKey:self.eccPrivateKey certificate:mockCert certificateIssuer:@"some-issuer"];
 
     __auto_type factory = [MSIDAADV2Oauth2Factory new];
     self.defaultResponseHandler = [[MSIDDeviceTokenResponseHandler alloc] initWithRequestParameters:self.defaultRequestParameters
@@ -334,6 +340,11 @@
 
     // Assert
     XCTAssertNotNil(request);
+}
+
+- (NSString *)dummyEccCertificate
+{
+    return  @"MIIDNzCCAh-gAwIBAgIQKBcXojifRIxLIuut33ZknzANBgkqhkiG9w0BAQsFADB4MXYwEQYKCZImiZPyLGQBGRYDbmV0MBUGCgmSJomT8ixkARkWB3dpbmRvd3MwHQYDVQQDExZNUy1Pcmdhbml6YXRpb24tQWNjZXNzMCsGA1UECxMkODJkYmFjYTQtM2U4MS00NmNhLTljNzMtMDk1MGMxZWFjYTk3MB4XDTIzMDMxMzIxMjk0OFoXDTMzMDMxMzIxNTk0OFowLzEtMCsGA1UEAxMkOWVlNWYzM2ItOTc0OS00M2U3LTk1NjctODMxOGVhNDEyNTRiMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEl-xbT_nXgQkkzQOX7NPrvh9vPMt7yrzLqBthSpZXuIjV77izK_GW91qHTzZImhwbvXG6AcVH9Qs7ilN-VIb9xaOB0DCBzTAMBgNVHRMBAf8EAjAAMBYGA1UdJQEB_wQMMAoGCCsGAQUFBwMCMA4GA1UdDwEB_wQEAwIHgDAiBgsqhkiG9xQBBYIcAgQTBIEQo8MK5pvg9k-6UZTxtj7IITAiBgsqhkiG9xQBBYIcAwQTBIEQj-LgHz1F-kSyqt3J40Sn7zAiBgsqhkiG9xQBBYIcBQQTBIEQkq1F9o3jGk21ENGwmnSoyjAUBgsqhkiG9xQBBYIcCAQFBIECTkEwEwYLKoZIhvcUAQWCHAcEBASBATAwDQYJKoZIhvcNAQELBQADggEBAFYbeUHpPcZj6Z8BcPhQ59dOi3-aGSYKX6Ub6GBv1CgiqU9EJ-P6VOipCL5dR458nMXJ4j97_pOXwPT0sS1rSTJ8_x3YpGLIJXpvkqDEHIoUvX1sR1tOlvXhUiP0O6l35-sil1itUZAKqS7RZtd8TWnMIgw3rCHbDHA9OlagunL6o75YC5Y74VdedZbCUjTy-IuU_VKM5gpa3c6uf_QleYgdQFlDjMH9w4TkqaWNONNoYulLZI8AykT9QtYB0iAsFr4KRL58ot1svOhqMil9vKDTkDrixEyThCcHmyyHeNoBjmXtaubOAiE3cMoJs7bV7I1uOS9aAI-Hm0W9NV-CkeE";
 }
 
 @end
