@@ -21,7 +21,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-/*
+
 #import <XCTest/XCTest.h>
 #import "MSIDDeviceTokenResponseHandler.h"
 #import "MSIDRequestParameters.h"
@@ -53,7 +53,7 @@
     // Assert
     XCTAssertNotNil(handler);
 }
-
+/*
 #pragma mark - handleTokenResponse: error path
 
 - (void)testHandleTokenResponse_whenErrorProvided_shouldReturnErrorInCompletionBlock
@@ -144,6 +144,6 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
-
+ */
 @end
-*/
+
