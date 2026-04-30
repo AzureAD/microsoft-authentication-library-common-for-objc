@@ -63,15 +63,15 @@
         completionBlock(nil, error);
         return;
     }
-
+    NSError *serializationError;
     MSIDTokenResponse *serializedTokenResponse = [self.oauthFactory tokenResponseFromJSON:tokenJsonResponse
                                                                                    context:context
-                                                                                     error:&error];
+                                                                                     error:&serializationError];
     
     if (!serializedTokenResponse)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to deserialize device token response.");
-        completionBlock(nil, error);
+        completionBlock(nil, serializationError);
         return;
     }
     
