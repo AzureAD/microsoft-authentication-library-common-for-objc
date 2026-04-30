@@ -28,6 +28,8 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDTokenResult.h"
+#import "MSIDDeviceTokenResponseHandler.h"
 
 @interface MSIDDeviceTokenResponseHandlerTests : XCTestCase
 
@@ -46,7 +48,7 @@
 
     // Act
     MSIDDeviceTokenResponseHandler *handler = [[MSIDDeviceTokenResponseHandler alloc] initWithRequestParameters:requestParameters
-                                                                                                  oauthFactory:factory];
+                                                                                                   oauthFactory:factory];
 
     // Assert
     XCTAssertNotNil(handler);
@@ -61,7 +63,7 @@
     requestParameters.clientId = @"test-client-id";
     MSIDOauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     MSIDDeviceTokenResponseHandler *handler = [[MSIDDeviceTokenResponseHandler alloc] initWithRequestParameters:requestParameters
-                                                                                                  oauthFactory:factory];
+                                                                                                   oauthFactory:factory];
 
     NSError *inputError = [NSError errorWithDomain:@"TestDomain" code:42 userInfo:@{NSLocalizedDescriptionKey: @"Test error"}];
 
@@ -91,7 +93,7 @@
     requestParameters.authScheme = [MSIDAuthenticationScheme new];
     MSIDOauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     MSIDDeviceTokenResponseHandler *handler = [[MSIDDeviceTokenResponseHandler alloc] initWithRequestParameters:requestParameters
-                                                                                                  oauthFactory:factory];
+                                                                                                   oauthFactory:factory];
 
     // Empty JSON response will cause validation to fail, but no crash
     NSDictionary *emptyTokenResponse = @{};
@@ -121,7 +123,7 @@
 
     MSIDOauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     MSIDDeviceTokenResponseHandler *handler = [[MSIDDeviceTokenResponseHandler alloc] initWithRequestParameters:requestParameters
-                                                                                                  oauthFactory:factory];
+                                                                                                   oauthFactory:factory];
 
     NSDictionary *tokenJsonResponse = @{@"access_token": @"fake-access-token",
                                         @"token_type": @"Bearer",
