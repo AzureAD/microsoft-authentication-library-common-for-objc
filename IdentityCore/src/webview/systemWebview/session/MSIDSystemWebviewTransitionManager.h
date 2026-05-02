@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) BOOL isSessionInProgress;
 
 /**
- * Starts a system web authentication session for the given URL.
+ * Transitions to a system webview (ASWebAuthenticationSession or SFSafariViewController) with provided URL and parameters, and handles callback via completion block.
  *
  * If a session is already in progress, the completion block is invoked with an error.
  *
