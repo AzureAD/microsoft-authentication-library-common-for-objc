@@ -416,7 +416,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
     NSDictionary *result = [metadata serializeWithFormat:YES];
 
-    XCTAssertEqualObjects(result[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY], @"test-oid-123");
+    XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_USER_OBJECT_ID], @"test-oid-123");
     XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT], @"thumbprint");
     XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_CLOUD], @"login.microsoftonline.com");
     XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_DEVICE_ID], @"device-id");
@@ -436,7 +436,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
     NSDictionary *result = [metadata serializeWithFormat:NO];
 
-    XCTAssertEqualObjects(result[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY], @"test-oid-123");
+    XCTAssertEqualObjects(result[MSID_PRIMARY_REGISTRATION_USER_OBJECT_ID], @"test-oid-123");
     XCTAssertEqualObjects(result[@"aadDeviceIdentifier"], @"device-id");
     XCTAssertEqualObjects(result[@"userPrincipalName"], @"user@contoso.com");
     XCTAssertEqualObjects(result[@"aadTenantIdentifier"], @"tenant-id");
@@ -453,10 +453,10 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     metadata.userObjectId = nil;
 
     NSDictionary *primaryResult = [metadata serializeWithFormat:YES];
-    XCTAssertNil(primaryResult[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY]);
+    XCTAssertNil(primaryResult[MSID_PRIMARY_REGISTRATION_USER_OBJECT_ID]);
 
     NSDictionary *nonPrimaryResult = [metadata serializeWithFormat:NO];
-    XCTAssertNil(nonPrimaryResult[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY]);
+    XCTAssertNil(nonPrimaryResult[MSID_PRIMARY_REGISTRATION_USER_OBJECT_ID]);
 }
 
 - (void)testGetRegisteredDeviceMetadataInformation_withUserObjectId_shouldReturnInResult
@@ -492,7 +492,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
     NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
     XCTAssertNotNil(deviceRegMetaDataInfo);
-    XCTAssertEqualObjects(deviceRegMetaDataInfo[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY], @"test-oid-456");
+    XCTAssertEqualObjects(deviceRegMetaDataInfo[MSID_PRIMARY_REGISTRATION_USER_OBJECT_ID], @"test-oid-456");
 }
 
 #pragma mark - iOS WPJ tests

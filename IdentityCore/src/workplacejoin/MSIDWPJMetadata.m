@@ -43,7 +43,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         
         if (self.userObjectId)
         {
-            result[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY] = self.userObjectId;
+            result[MSID_PRIMARY_REGISTRATION_USER_OBJECT_ID] = self.userObjectId;
         }
     }
     else
@@ -54,7 +54,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
         
         if (self.userObjectId)
         {
-            result[MSID_WPJ_REGISTERED_USER_OBJECT_ID_KEY] = self.userObjectId;
+            result[MSID_PRIMARY_REGISTRATION_USER_OBJECT_ID] = self.userObjectId;
         }
     }
     
