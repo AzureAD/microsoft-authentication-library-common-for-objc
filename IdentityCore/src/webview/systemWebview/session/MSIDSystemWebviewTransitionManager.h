@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param useAuthenticationSession  Whether to use ASWebAuthenticationSession
  * @param allowSafariViewController Whether SFSafariViewController fallback is allowed
  * @param useEphemeralSession       Whether to use an ephemeral session (ASWebAuthenticationSession only)
- * @param additionalHeaders         Optional HTTP headers (iOS 18+ and maOS 15+)
+ * @param additionalHeaders         Optional HTTP headers (iOS 18+ and macOS 15+)
  * @param context                   Request context for logging and telemetry
  * @param completionBlock          Completion with callback URL or error (failure/cancellation)
  */
