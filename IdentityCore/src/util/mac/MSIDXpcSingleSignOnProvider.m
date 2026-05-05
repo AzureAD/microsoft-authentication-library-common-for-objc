@@ -85,7 +85,26 @@
 
 typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstanceProtocol> _Nullable xpcService, NSXPCConnection  * _Nullable directConnection, NSError *error);
 
+@interface MSIDXpcSingleSignOnProvider ()
+
+// Returns whether the cached XPC instance endpoint should be used for this request.
+// In DEBUG builds we default to YES so local developers don't need to configure the flight.
+// Tests swizzle this to honor the flight regardless of build configuration so that
+// flight-controlled behavior can be verified deterministically.
+- (BOOL)isXpcInstanceCacheEnabled;
+
+@end
+
 @implementation MSIDXpcSingleSignOnProvider
+
+- (BOOL)isXpcInstanceCacheEnabled
+{
+#if DEBUG
+    return YES;
+#else
+    return [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED];
+#endif
+}
 
 - (void)handleRequestParam:(NSDictionary *)requestParam
  assertKindOfResponseClass:(Class)aClass
@@ -108,10 +127,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
-    BOOL cacheEnabled = YES;
-#if !DEBUG
-    cacheEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED];
-#endif
+    BOOL cacheEnabled = [self isXpcInstanceCacheEnabled];
     [self attemptBrokerRequest:requestParam
                parentViewFrame:frame
      assertKindOfResponseClass:aClass
@@ -468,10 +484,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     // (provider switch), the CAS in setCachedBrokerInstanceEndpoint:forProviderType: will reject
     // the write and we will not pollute the cache.
     MSIDSsoProviderType capturedProviderType = xpcProviderCache.cachedXpcProviderType;
-    BOOL cacheEnabled = YES;
-#if !DEBUG
-    cacheEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED];
-#endif
+    BOOL cacheEnabled = [self isXpcInstanceCacheEnabled];
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - started establishing connection to %@", xpcProviderCache.xpcConfiguration.xpcMachServiceName);
     NSXPCConnection *connection = [[NSXPCConnection alloc] initWithMachServiceName:xpcProviderCache.xpcConfiguration.xpcMachServiceName options:0];

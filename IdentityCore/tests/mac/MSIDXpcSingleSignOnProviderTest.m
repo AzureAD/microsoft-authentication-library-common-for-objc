@@ -47,6 +47,17 @@
     self.flightProvider = [MSIDFlightManagerMockProvider new];
     self.flightProvider.boolForKeyContainer = @{};
     [MSIDFlightManager sharedInstance].flightProvider = self.flightProvider;
+
+    // Production code defaults the XPC instance cache to ON in DEBUG builds so local
+    // developers don't have to configure the flight. Tests run in DEBUG, so without this
+    // swizzle the flight-OFF code paths would never be exercised. Route the decision
+    // purely through the flight here so flight-controlled behavior is deterministic.
+    [MSIDTestSwizzle instanceMethod:NSSelectorFromString(@"isXpcInstanceCacheEnabled")
+                              class:[MSIDXpcSingleSignOnProvider class]
+                              block:^BOOL(__unused id selfRef)
+    {
+        return [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED];
+    }];
 }
 
 - (void)tearDown
