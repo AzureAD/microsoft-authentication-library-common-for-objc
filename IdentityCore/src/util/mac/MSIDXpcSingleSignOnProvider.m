@@ -108,7 +108,10 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
-    BOOL cacheEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED];
+    BOOL cacheEnabled = YES;
+#if !DEBUG
+    cacheEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED];
+#endif
     [self attemptBrokerRequest:requestParam
                parentViewFrame:frame
      assertKindOfResponseClass:aClass
