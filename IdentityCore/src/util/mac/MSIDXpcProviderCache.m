@@ -106,7 +106,7 @@ NSString *const MSID_XPC_PROVIDER_TYPE_KEY = @"xpc_provider_type";
     });
 }
 
-- (NSXPCListenerEndpoint *)cachedBrokerInstanceEndpoint
+- (nullable NSXPCListenerEndpoint *)cachedBrokerInstanceEndpoint
 {
     __block NSXPCListenerEndpoint *endpoint = nil;
     dispatch_sync(self.synchronizationQueue, ^{
@@ -116,7 +116,7 @@ NSString *const MSID_XPC_PROVIDER_TYPE_KEY = @"xpc_provider_type";
     return endpoint;
 }
 
-- (BOOL)setCachedBrokerInstanceEndpoint:(NSXPCListenerEndpoint *)endpoint
+- (BOOL)setCachedBrokerInstanceEndpoint:(nullable NSXPCListenerEndpoint *)endpoint
                         forProviderType:(MSIDSsoProviderType)providerType
 {
     __block BOOL stored = NO;

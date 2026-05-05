@@ -43,6 +43,7 @@
 
 - (void)setUp
 {
+    [super setUp];
     self.flightProvider = [MSIDFlightManagerMockProvider new];
     self.flightProvider.boolForKeyContainer = @{};
     [MSIDFlightManager sharedInstance].flightProvider = self.flightProvider;
@@ -53,6 +54,7 @@
     [MSIDTestSwizzle reset];
     [MSIDFlightManager sharedInstance].flightProvider = nil;
     self.flightProvider = nil;
+    [super tearDown];
 }
 
 #pragma mark - Helpers (XPC instance cache wave 3)

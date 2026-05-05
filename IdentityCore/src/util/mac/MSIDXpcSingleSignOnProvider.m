@@ -146,7 +146,39 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     __block BOOL requestReplyReceived = NO;
     __block BOOL outerCompleted = NO;
     __block BOOL fromCache = NO;
+    NSObject *stateLock = [NSObject new];
     __weak typeof(self) weakSelf = self;
+
+    // Atomically claims the "completion" slot. Returns YES on the first call, NO thereafter.
+    // All read-and-set on `outerCompleted` MUST go through this gate to prevent racing
+    // callbacks (interruption/invalidation handler vs. reply block vs. retry path) from
+    // delivering `continueBlock` more than once.
+    BOOL (^claimCompletion)(void) = ^BOOL {
+        @synchronized (stateLock)
+        {
+            if (outerCompleted) return NO;
+            outerCompleted = YES;
+            return YES;
+        }
+    };
+
+    // Marks the request reply as received. Returns the previous value so callers can
+    // distinguish "this is the reply" from "the reply already arrived".
+    BOOL (^markReplyReceived)(void) = ^BOOL {
+        @synchronized (stateLock)
+        {
+            BOOL prev = requestReplyReceived;
+            requestReplyReceived = YES;
+            return prev;
+        }
+    };
+
+    BOOL (^isReplyReceived)(void) = ^BOOL {
+        @synchronized (stateLock)
+        {
+            return requestReplyReceived;
+        }
+    };
 
     NSXPCListenerEndpointCompletionBlock continueBlockInternal = ^(id<MSIDXpcBrokerInstanceProtocol> xpcService, NSXPCConnection *directConnection, NSError *error)
     {
@@ -155,22 +187,32 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             // Connection-establishment / connection-handler failure path.
             // If the request reply already came in, this is just our own [directConnection invalidate]
             // firing — ignore.
-            if (requestReplyReceived) return;
-            if (outerCompleted) return;
-            outerCompleted = YES;
+            if (isReplyReceived()) return;
+            if (!claimCompletion()) return;
 
             if (fromCache && allowRetry)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"[Entra broker] CLIENT - cached XPC endpoint failed (%@), clearing cache and retrying via dispatcher", error);
                 [xpcProviderCache clearCachedBrokerInstanceEndpoint];
-                [weakSelf attemptBrokerRequest:requestParam
-                               parentViewFrame:frame
-                     assertKindOfResponseClass:aClass
-                              xpcProviderCache:xpcProviderCache
-                                      useCache:NO
-                                    allowRetry:NO
-                                       context:context
-                                 continueBlock:continueBlock];
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                if (!strongSelf)
+                {
+                    // Provider deallocated mid-flight — we still owe the caller a callback.
+                    if (continueBlock) continueBlock(nil, error);
+                    return;
+                }
+                // Note: the recursive call has its own __block completion state, so the outer
+                // frame's outerCompleted=YES claim correctly stays latched — any late-firing
+                // outer-frame callback (e.g. invalidation handler from the cache-hit connection)
+                // will be ignored.
+                [strongSelf attemptBrokerRequest:requestParam
+                                 parentViewFrame:frame
+                       assertKindOfResponseClass:aClass
+                                xpcProviderCache:xpcProviderCache
+                                        useCache:NO
+                                      allowRetry:NO
+                                         context:context
+                                   continueBlock:continueBlock];
                 return;
             }
 
@@ -181,14 +223,13 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         [xpcService handleXpcWithRequestParams:requestParam parentViewFrame:frame completionBlock:^(NSDictionary<NSString *,id> * _Nullable replyParam, NSDate * _Nonnull __unused xpcStartDate, NSString * _Nonnull __unused processId, NSError * _Nullable callbackError) {
             // Mark synchronously so the connection's invalidation handler (which fires as a side
             // effect of our own invalidate below) does not treat this as a transport failure.
-            requestReplyReceived = YES;
+            (void)markReplyReceived();
             [directConnection suspend];
             [directConnection invalidate];
 
             BOOL forceRunOnBackgroundQueue = [[replyParam objectForKey:MSID_BROKER_OPERATION_KEY] isEqualToString:@"refresh"];
             [self forceRunOnBackgroundQueue:forceRunOnBackgroundQueue dispatchBlock:^{
-                if (outerCompleted) return;
-                outerCompleted = YES;
+                if (!claimCompletion()) return;
 
                 if (callbackError)
                 {
@@ -495,7 +536,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             BOOL stored = [xpcProviderCache setCachedBrokerInstanceEndpoint:listenerEndpoint forProviderType:capturedProviderType];
             if (!stored)
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - provider type changed during dispatcher round-trip; not caching endpoint", nil, nil);
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - provider type changed during dispatcher round-trip; not caching endpoint");
             }
         }
 
