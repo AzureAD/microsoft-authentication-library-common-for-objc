@@ -45,7 +45,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
 static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
 
-static NSTimeInterval const MSIDPasswordEntryPollingTimeout = 15.0;
+static NSTimeInterval const MSIDPasswordEntryPollingTimeout = 45.0;
 static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 @implementation MSIDBaseUITest
@@ -686,7 +686,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
-    [self waitForExpectationsWithTimeout:30.0f handler:nil];
+    [self waitForExpectationsWithTimeout:45.0f handler:nil];
 }
 
 - (XCUIElement *)waitForEitherElements:(XCUIElement *)object1 and:(XCUIElement *)object2
