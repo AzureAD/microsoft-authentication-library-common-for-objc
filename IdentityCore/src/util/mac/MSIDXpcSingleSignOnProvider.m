@@ -465,7 +465,10 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     // (provider switch), the CAS in setCachedBrokerInstanceEndpoint:forProviderType: will reject
     // the write and we will not pollute the cache.
     MSIDSsoProviderType capturedProviderType = xpcProviderCache.cachedXpcProviderType;
-    BOOL cacheEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED];
+    BOOL cacheEnabled = YES;
+#if !DEBUG
+    cacheEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED];
+#endif
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - started establishing connection to %@", xpcProviderCache.xpcConfiguration.xpcMachServiceName);
     NSXPCConnection *connection = [[NSXPCConnection alloc] initWithMachServiceName:xpcProviderCache.xpcConfiguration.xpcMachServiceName options:0];
