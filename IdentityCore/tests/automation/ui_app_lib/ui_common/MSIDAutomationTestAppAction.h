@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,24 +20,15 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
 #import <Foundation/Foundation.h>
-#import "MSIDAutomation.h"
-
-@class MSIDAutomationMainViewController;
-@class MSIDAutomationTestRequest;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDAutomationTestAction <NSObject>
+@protocol MSIDAutomationTestAppAction <NSObject>
 
-@property (nonatomic, readonly) NSString *actionIdentifier;
-@property (nonatomic, readonly) BOOL needsRequestParameters;
-
-- (void)performActionWithParameters:(nullable MSIDAutomationTestRequest *)parameters
-                containerController:(MSIDAutomationMainViewController *)containerController
-                    completionBlock:(MSIDAutoCompletionBlock)completionBlock;
+- (void)performAction;
 
 @end
 
