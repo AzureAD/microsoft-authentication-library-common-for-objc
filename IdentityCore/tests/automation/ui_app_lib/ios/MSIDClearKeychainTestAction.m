@@ -47,22 +47,6 @@
                 containerController:(__unused UIViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
-    [self performAction];
-
-    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
-                                                                                    success:YES
-                                                                             additionalInfo:nil];
-
-    if (completionBlock)
-    {
-        completionBlock(testResult);
-    }
-}
-
-#pragma mark - MSIDAutomationTestAppAction
-
-- (void)performAction
-{
     NSArray *secItemClasses = @[(__bridge id)kSecClassGenericPassword,
                                 (__bridge id)kSecClassInternetPassword,
                                 (__bridge id)kSecClassCertificate,
@@ -73,6 +57,15 @@
     {
         NSDictionary *clearQuery = @{(id)kSecClass : (id)itemClass};
         SecItemDelete((CFDictionaryRef)clearQuery);
+    }
+
+    MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
+                                                                                    success:YES
+                                                                             additionalInfo:nil];
+
+    if (completionBlock)
+    {
+        completionBlock(testResult);
     }
 }
 

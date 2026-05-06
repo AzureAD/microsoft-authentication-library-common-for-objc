@@ -32,7 +32,6 @@
 #import "MSIDAutomationActionConstants.h"
 #import "MSIDAutomationRequestViewController.h"
 #import "MSIDAutomationResultViewController.h"
-//#import "MSIDAutomationTestAppAction.h"
 
 @interface MSIDAutomationMainViewController ()
 
