@@ -188,7 +188,7 @@
         return;
     }
 
-    [self performTestAppActionWithIdentifier:arguments[index] completionBlock:^(__unused MSIDAutomationTestResult *result) {
+    [self performTestAppActionWithIdentifier:arguments[index] completionBlock:^() {
         [self processActionArguments:arguments index:index + 1 spinner:spinner];
     }];
 }
@@ -245,23 +245,25 @@ static NSMutableString *s_resultLogs = nil;
     [self performActionWithIdentifier:sender.titleLabel.text];
 }
 
-- (void)performTestAppActionWithIdentifier:(NSString *)identifier completionBlock:(void (^)(MSIDAutomationTestResult *result))completionBlock
+- (void)performTestAppActionWithIdentifier:(NSString *)identifier completionBlock:(void (^)(void))completionBlock
 {
     id<MSIDAutomationTestAction> action = [[MSIDAutomationActionManager sharedInstance] actionForIdentifier:identifier];
     NSLog(@"Performing action: %@", identifier);
     
-    if (!action)
+    if (action)
     {
-        NSLog(@"Couldn't find action for identifier %@", identifier);
+        [action performActionWithParameters:nil
+                        containerController:self
+                            completionBlock:^(MSIDAutomationTestResult *result) {
+            NSLog(@"action result: %d", result.success);
+            if (completionBlock) completionBlock();
+        }];
+        
         return;
     }
     
-    [action performActionWithParameters:nil
-                    containerController:self
-                        completionBlock:^(MSIDAutomationTestResult *result) {
-        NSLog(@"action result: %d", result.success);
-        if (completionBlock) completionBlock(result);
-    }];
+    NSLog(@"Couldn't find action for identifier %@", identifier);
+    if (completionBlock) completionBlock();
 }
 
 - (void)performActionWithIdentifier:(NSString *)identifier
