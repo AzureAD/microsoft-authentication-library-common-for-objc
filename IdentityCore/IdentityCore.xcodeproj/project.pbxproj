@@ -561,6 +561,12 @@
 		2A366B782D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A366B772D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m */; };
 		2A366B7B2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */; };
 		2A366B7C2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A366B7A2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m */; };
+		A1B2C3D4E5F60718293A4B5E /* MSIDFakeWPJUtilProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* MSIDFakeWPJUtilProvider.h */; };
+		A1B2C3D4E5F60718293A4B5F /* MSIDFakeWPJUtilProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* MSIDFakeWPJUtilProvider.m */; };
+		A1B2C3D4E5F60718293A4B60 /* MSIDFakeWPJUtilProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* MSIDFakeWPJUtilProvider.m */; };
+		A1B2C3D4E5F60718293A4B63 /* MSIDFakeThrottlingRefresher.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B61 /* MSIDFakeThrottlingRefresher.h */; };
+		A1B2C3D4E5F60718293A4B64 /* MSIDFakeThrottlingRefresher.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B62 /* MSIDFakeThrottlingRefresher.m */; };
+		A1B2C3D4E5F60718293A4B65 /* MSIDFakeThrottlingRefresher.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B62 /* MSIDFakeThrottlingRefresher.m */; };
 		2A465DC72F0C5314006E7571 /* MSIDExecutionFlowBlob.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DC62F0C5314006E7571 /* MSIDExecutionFlowBlob.m */; };
 		2A465DC82F0C5314006E7571 /* MSIDExecutionFlowBlob.h in Headers */ = {isa = PBXBuildFile; fileRef = 2A465DC52F0C5314006E7571 /* MSIDExecutionFlowBlob.h */; };
 		2A465DC92F0C5314006E7571 /* MSIDExecutionFlowBlob.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A465DC62F0C5314006E7571 /* MSIDExecutionFlowBlob.m */; };
@@ -2626,6 +2632,10 @@
 		2A366B772D9EF67700774DD4 /* MSIDXpcSingleSignOnProviderTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcSingleSignOnProviderTest.m; sourceTree = "<group>"; };
 		2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDXpcProviderCacheMock.h; sourceTree = "<group>"; };
 		2A366B7A2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDXpcProviderCacheMock.m; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* MSIDFakeWPJUtilProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFakeWPJUtilProvider.h; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5D /* MSIDFakeWPJUtilProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFakeWPJUtilProvider.m; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B61 /* MSIDFakeThrottlingRefresher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFakeThrottlingRefresher.h; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B62 /* MSIDFakeThrottlingRefresher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFakeThrottlingRefresher.m; sourceTree = "<group>"; };
 		2A465DC52F0C5314006E7571 /* MSIDExecutionFlowBlob.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDExecutionFlowBlob.h; sourceTree = "<group>"; };
 		2A465DC62F0C5314006E7571 /* MSIDExecutionFlowBlob.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExecutionFlowBlob.m; sourceTree = "<group>"; };
 		2A465DCA2F0C57AC006E7571 /* MSIDExecutionFlow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDExecutionFlow.h; sourceTree = "<group>"; };
@@ -4083,6 +4093,10 @@
 				23D4DEE52D92537D005A77E4 /* MSIDFlightManagerMockProvider.m */,
 				2A366B792D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h */,
 				2A366B7A2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m */,
+				A1B2C3D4E5F60718293A4B5C /* MSIDFakeWPJUtilProvider.h */,
+				A1B2C3D4E5F60718293A4B5D /* MSIDFakeWPJUtilProvider.m */,
+				A1B2C3D4E5F60718293A4B61 /* MSIDFakeThrottlingRefresher.h */,
+				A1B2C3D4E5F60718293A4B62 /* MSIDFakeThrottlingRefresher.m */,
 			);
 			path = mocks;
 			sourceTree = "<group>";
@@ -6865,6 +6879,8 @@
 				B2E4A07524DDE578007CE642 /* MSIDTestTelemetryEventsObserver.h in Headers */,
 				B2968CA722F67B48005AFC33 /* MSIDTestLocalInteractiveController.h in Headers */,
 				2A366B7B2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.h in Headers */,
+				A1B2C3D4E5F60718293A4B5E /* MSIDFakeWPJUtilProvider.h in Headers */,
+				A1B2C3D4E5F60718293A4B63 /* MSIDFakeThrottlingRefresher.h in Headers */,
 				B4C8501829E79E250055B0D3 /* MSIDTestURLSessionUploadTask.h in Headers */,
 				D626FFF91FBD200A00EE4487 /* MSIDTestURLSession.h in Headers */,
 				729357ED2DDBCBA60001D03C /* MSIDNonceTokenRequestMock.h in Headers */,
@@ -8334,6 +8350,8 @@
 				B28AC66A21A0C07A00A1FC4A /* MSIDTestBrokerKeyProviderHelper.m in Sources */,
 				B4C8501629E79E220055B0D3 /* MSIDTestURLSessionUploadTask.m in Sources */,
 				E75DD08B25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */,
+				A1B2C3D4E5F60718293A4B60 /* MSIDFakeWPJUtilProvider.m in Sources */,
+				A1B2C3D4E5F60718293A4B65 /* MSIDFakeThrottlingRefresher.m in Sources */,
 				B2BE925921A24CB000F5AB8C /* MSIDTestSilentTokenRequest.m in Sources */,
 				722AC51A2F0EF277005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m in Sources */,
 				B2BE925E21A2529E00F5AB8C /* MSIDTestInteractiveTokenRequest.m in Sources */,
@@ -8351,6 +8369,8 @@
 				583BFCB724D908980035B901 /* MSIDTestBundle.m in Sources */,
 				B2BE925F21A2529E00F5AB8C /* MSIDTestInteractiveTokenRequest.m in Sources */,
 				2A366B7C2D9EF78600774DD4 /* MSIDXpcProviderCacheMock.m in Sources */,
+				A1B2C3D4E5F60718293A4B5F /* MSIDFakeWPJUtilProvider.m in Sources */,
+				A1B2C3D4E5F60718293A4B64 /* MSIDFakeThrottlingRefresher.m in Sources */,
 				E75DD08C25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */,
 				B2BE925A21A24CB000F5AB8C /* MSIDTestSilentTokenRequest.m in Sources */,
 				B217863023A58A0E00839CE8 /* ASAuthorizationSingleSignOnCredentialMock.m in Sources */,

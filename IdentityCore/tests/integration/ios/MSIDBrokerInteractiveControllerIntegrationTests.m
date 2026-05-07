@@ -59,29 +59,7 @@
 #import "MSIDDefaultTokenRequestProvider.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
-
-#pragma mark - Throttling-refresh fake
-
-@interface MSIDFakeThrottlingRefresher : NSObject <MSIDThrottlingRefreshing>
-@property (class, nonatomic, assign) NSInteger callCount;
-@end
-
-@implementation MSIDFakeThrottlingRefresher
-
-static NSInteger gFakeThrottlingCallCount = 0;
-
-+ (NSInteger)callCount { return gFakeThrottlingCallCount; }
-+ (void)setCallCount:(NSInteger)value { gFakeThrottlingCallCount = value; }
-
-+ (BOOL)updateLastRefreshTimeDatasource:(__unused id<MSIDExtendedTokenCacheDataSource>)datasource
-                                context:(__unused id<MSIDRequestContext>)context
-                                  error:(__unused NSError *__autoreleasing *)error
-{
-    gFakeThrottlingCallCount++;
-    return YES;
-}
-
-@end
+#import "MSIDFakeThrottlingRefresher.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 

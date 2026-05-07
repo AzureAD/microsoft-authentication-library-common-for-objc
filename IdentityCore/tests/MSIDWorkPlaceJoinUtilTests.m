@@ -38,67 +38,7 @@
 #import "MSIDConstants.h"
 #import "MSIDDIContainer.h"
 #import "MSIDWorkPlaceJoinUtilProviding.h"
-
-#pragma mark - Fake WorkplaceJoin provider
-
-typedef MSIDWPJMetadata * _Nullable (^MSIDFakeWPJMetadataBlock)(NSError *_Nullable *_Nullable error);
-
-@interface MSIDFakeWPJUtilProvider : NSObject <MSIDWorkPlaceJoinUtilProviding>
-@property (class, nonatomic, copy, nullable) NSString *primaryEccTenantId;
-@property (class, nonatomic, copy, nullable) MSIDFakeWPJMetadataBlock metadataBlock;
-@property (class, nonatomic, strong, nullable) MSIDWPJKeyPairWithCert *wpjKeys;
-+ (void)reset;
-@end
-
-@implementation MSIDFakeWPJUtilProvider
-
-static NSString *gFakePrimaryEccTenantId = nil;
-static MSIDFakeWPJMetadataBlock gFakeMetadataBlock = nil;
-static MSIDWPJKeyPairWithCert *gFakeWPJKeys = nil;
-
-+ (NSString *)primaryEccTenantId { return gFakePrimaryEccTenantId; }
-+ (void)setPrimaryEccTenantId:(NSString *)v { gFakePrimaryEccTenantId = [v copy]; }
-
-+ (MSIDFakeWPJMetadataBlock)metadataBlock { return gFakeMetadataBlock; }
-+ (void)setMetadataBlock:(MSIDFakeWPJMetadataBlock)v { gFakeMetadataBlock = [v copy]; }
-
-+ (MSIDWPJKeyPairWithCert *)wpjKeys { return gFakeWPJKeys; }
-+ (void)setWpjKeys:(MSIDWPJKeyPairWithCert *)v { gFakeWPJKeys = v; }
-
-+ (void)reset
-{
-    gFakePrimaryEccTenantId = nil;
-    gFakeMetadataBlock = nil;
-    gFakeWPJKeys = nil;
-}
-
-+ (NSString *)getPrimaryEccTenantWithSharedAccessGroup:(__unused NSString *)sharedAccessGroup
-                                                context:(__unused id<MSIDRequestContext>)context
-                                                  error:(__unused NSError *__autoreleasing *)error
-{
-    return gFakePrimaryEccTenantId;
-}
-
-+ (MSIDWPJMetadata *)readWPJMetadataWithSharedAccessGroup:(__unused NSString *)sharedAccessGroup
-                                          tenantIdentifier:(__unused NSString *)tenantIdentifier
-                                                domainName:(__unused NSString *)domainName
-                                                   context:(__unused id<MSIDRequestContext>)context
-                                                     error:(NSError *__autoreleasing *)error
-{
-    if (gFakeMetadataBlock)
-    {
-        return gFakeMetadataBlock(error);
-    }
-    return nil;
-}
-
-+ (MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(__unused NSString *)tenantId
-                                            context:(__unused id<MSIDRequestContext>)context
-{
-    return gFakeWPJKeys;
-}
-
-@end
+#import "MSIDFakeWPJUtilProvider.h"
 
 @interface MSIDWorkPlaceJoinUtilTests : XCTestCase
 @property (nonatomic) MSIDTestSecureEnclaveKeyPairGenerator *eccKeyGenerator;
