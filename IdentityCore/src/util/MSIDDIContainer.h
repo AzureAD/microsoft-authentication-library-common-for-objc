@@ -115,6 +115,43 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
  */
 - (id)resolveProtocol:(Protocol *)proto;
 
+/**
+ * Resolve an instance for the given class key, falling back to a default
+ * provider when nothing is registered.
+ *
+ * Resolution order: override > cached singleton > registered factory >
+ * @c defaultProvider.
+ *
+ * Use this overload to make a class's existing @c +sharedInstance funnel
+ * through the container without requiring an explicit registration step.
+ * Tests can still install overrides via @c setOverrideForClass:instance: to
+ * inject mocks; production callers fall through to @c defaultProvider, which
+ * typically returns the class's pre-existing default instance.
+ *
+ * The result of @c defaultProvider is intentionally @b not cached by the
+ * container — the caller is expected to own its own singleton storage (e.g.,
+ * a @c dispatch_once inside @c +sharedInstance). This keeps lifetime
+ * semantics predictable and avoids the container silently upgrading a
+ * non-singleton default into a cached one.
+ *
+ * @param cls              The class key to resolve.
+ * @param defaultProvider  Block invoked only when no override or factory is
+ *                         registered. Must not return @c nil.
+ *
+ * @return The resolved instance. Never @c nil.
+ */
+- (id)resolveClass:(Class)cls
+         orDefault:(id _Nonnull (^)(void))defaultProvider;
+
+/**
+ * Resolve an instance for the given protocol key, falling back to a default
+ * provider when nothing is registered.
+ *
+ * @see resolveClass:orDefault:
+ */
+- (id)resolveProtocol:(Protocol *)proto
+            orDefault:(id _Nonnull (^)(void))defaultProvider;
+
 #pragma mark - Test overrides
 
 /**

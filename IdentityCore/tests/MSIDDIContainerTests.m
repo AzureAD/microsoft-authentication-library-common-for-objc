@@ -222,6 +222,94 @@
                                  NSInternalInconsistencyException);
 }
 
+#pragma mark - resolveClass:orDefault: / resolveProtocol:orDefault:
+
+- (void)testResolveClassOrDefault_whenNothingRegistered_shouldReturnDefault
+{
+    MSIDDIContainerTestService *expected = [MSIDDIContainerTestService new];
+
+    __block NSInteger calls = 0;
+    id resolved = [self.container resolveClass:[MSIDDIContainerTestService class]
+                                     orDefault:^id {
+                                         calls++;
+                                         return expected;
+                                     }];
+
+    XCTAssertEqual(resolved, expected);
+    XCTAssertEqual(calls, 1);
+}
+
+- (void)testResolveClassOrDefault_whenFactoryRegistered_shouldNotInvokeDefault
+{
+    MSIDDIContainerTestService *factoryInstance = [MSIDDIContainerTestService new];
+    [self.container registerClass:[MSIDDIContainerTestService class]
+                         lifetime:MSIDDIContainerLifetimeSingleton
+                          factory:^id { return factoryInstance; }];
+
+    __block NSInteger defaultCalls = 0;
+    id resolved = [self.container resolveClass:[MSIDDIContainerTestService class]
+                                     orDefault:^id {
+                                         defaultCalls++;
+                                         return [MSIDDIContainerTestService new];
+                                     }];
+
+    XCTAssertEqual(resolved, factoryInstance);
+    XCTAssertEqual(defaultCalls, 0);
+}
+
+- (void)testResolveClassOrDefault_whenOverrideInstalled_shouldNotInvokeDefault
+{
+    MSIDDIContainerTestMockService *override = [MSIDDIContainerTestMockService new];
+    [self.container setOverrideForClass:[MSIDDIContainerTestService class] instance:override];
+
+    __block NSInteger defaultCalls = 0;
+    id resolved = [self.container resolveClass:[MSIDDIContainerTestService class]
+                                     orDefault:^id {
+                                         defaultCalls++;
+                                         return [MSIDDIContainerTestService new];
+                                     }];
+
+    XCTAssertEqual(resolved, override);
+    XCTAssertEqual(defaultCalls, 0);
+}
+
+- (void)testResolveClassOrDefault_whenDefaultProviderReturnsNil_shouldThrow
+{
+    XCTAssertThrowsSpecificNamed([self.container resolveClass:[MSIDDIContainerTestService class]
+                                                    orDefault:^id { return nil; }],
+                                 NSException,
+                                 NSInternalInconsistencyException);
+}
+
+- (void)testResolveClassOrDefault_whenCalledTwice_shouldInvokeDefaultEachTime
+{
+    // The container intentionally does NOT cache the default-provider result;
+    // callers own their own singleton storage. This test pins that contract.
+    __block NSInteger calls = 0;
+    [self.container resolveClass:[MSIDDIContainerTestService class]
+                       orDefault:^id {
+                           calls++;
+                           return [MSIDDIContainerTestService new];
+                       }];
+    [self.container resolveClass:[MSIDDIContainerTestService class]
+                       orDefault:^id {
+                           calls++;
+                           return [MSIDDIContainerTestService new];
+                       }];
+
+    XCTAssertEqual(calls, 2);
+}
+
+- (void)testResolveProtocolOrDefault_whenNothingRegistered_shouldReturnDefault
+{
+    id<MSIDDIContainerTestProtocol> expected = [MSIDDIContainerTestService new];
+
+    id resolved = [self.container resolveProtocol:@protocol(MSIDDIContainerTestProtocol)
+                                        orDefault:^id { return expected; }];
+
+    XCTAssertEqual(resolved, expected);
+}
+
 - (void)testSharedInstance_whenCalledTwice_shouldReturnSameContainer
 {
     XCTAssertTrue([MSIDDIContainer sharedInstance] == [MSIDDIContainer sharedInstance]);

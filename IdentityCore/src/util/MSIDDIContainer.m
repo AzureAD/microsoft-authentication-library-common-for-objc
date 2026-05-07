@@ -115,16 +115,42 @@
 - (id)resolveClass:(Class)cls
 {
     NSParameterAssert(cls);
-    return [self resolveKey:[self keyForClass:cls] description:NSStringFromClass(cls)];
+    return [self resolveKey:[self keyForClass:cls]
+                description:NSStringFromClass(cls)
+            defaultProvider:nil];
 }
 
 - (id)resolveProtocol:(Protocol *)proto
 {
     NSParameterAssert(proto);
-    return [self resolveKey:[self keyForProtocol:proto] description:NSStringFromProtocol(proto)];
+    return [self resolveKey:[self keyForProtocol:proto]
+                description:NSStringFromProtocol(proto)
+            defaultProvider:nil];
 }
 
-- (id)resolveKey:(NSString *)key description:(NSString *)description
+- (id)resolveClass:(Class)cls
+         orDefault:(id _Nonnull (^)(void))defaultProvider
+{
+    NSParameterAssert(cls);
+    NSParameterAssert(defaultProvider);
+    return [self resolveKey:[self keyForClass:cls]
+                description:NSStringFromClass(cls)
+            defaultProvider:defaultProvider];
+}
+
+- (id)resolveProtocol:(Protocol *)proto
+            orDefault:(id _Nonnull (^)(void))defaultProvider
+{
+    NSParameterAssert(proto);
+    NSParameterAssert(defaultProvider);
+    return [self resolveKey:[self keyForProtocol:proto]
+                description:NSStringFromProtocol(proto)
+            defaultProvider:defaultProvider];
+}
+
+- (id)resolveKey:(NSString *)key
+     description:(NSString *)description
+ defaultProvider:(id _Nullable (^)(void))defaultProvider
 {
     [_lock lock];
 
@@ -146,6 +172,25 @@
     if (!entry)
     {
         [_lock unlock];
+
+        if (defaultProvider)
+        {
+            // No registration and no override: the caller has supplied its
+            // own default. Invoke it outside the lock — defaults often
+            // re-enter via the caller's existing +sharedInstance and must
+            // not deadlock the container. Result is intentionally not
+            // cached here; the caller owns its own singleton storage.
+            id defaultInstance = defaultProvider();
+            if (!defaultInstance)
+            {
+                NSAssert(NO, @"MSIDDIContainer: default provider returned nil for '%@'", description);
+                @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                               reason:[NSString stringWithFormat:@"MSIDDIContainer: default provider returned nil for '%@'", description]
+                                             userInfo:nil];
+            }
+            return defaultInstance;
+        }
+
         NSAssert(NO, @"MSIDDIContainer: no factory or override registered for '%@'", description);
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                        reason:[NSString stringWithFormat:@"MSIDDIContainer: no factory or override registered for '%@'", description]
