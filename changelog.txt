@@ -3,6 +3,9 @@ TBD
 * Add device token grant request/response handlers. (#1801)
 * Improve UI tests performance #1805
 
+Version 1.23.1
+* Support saving and removing requestedClaims for ATs in mac legacy (ACL) cache (#1783)
+
 Version 1.23.0
 * Clean up the experiment bag for HTTP requests and attempt to resolve the reported crash. (#1757)
 * Remove 4-hour XPC canPerform status cache and XPC roundtrip (#1771)
@@ -16,7 +19,6 @@ Version 1.22.0
 * Strip eqp from CIAM authority #1714
 * Add French sovereign cloud authority as a trusted authority (#1731)
 * Serialize `is_sso_account` as NSString instead of NSNumber in MSIDAccount
-* Support saving and removing requestedClaims for ATs in mac legacy (ACL) cache (#1783)
 
 Version 1.21.0
 * Import the right bridging header when common-core is consumed as submodule  (#1678)
