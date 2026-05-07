@@ -152,29 +152,39 @@
                                      userInfo:nil];
     }
 
-    id _Nonnull (^factory)(void) = entry.factory;
-    MSIDDIContainerLifetime lifetime = entry.lifetime;
-
-    [_lock unlock];
-
-    id instance = factory();
-    NSAssert(instance, @"MSIDDIContainer: factory returned nil for '%@'", description);
-
-    if (lifetime == MSIDDIContainerLifetimeSingleton)
+    if (entry.lifetime == MSIDDIContainerLifetimeSingleton)
     {
-        [_lock lock];
-
-        id raced = _overrideByKey[key] ?: _singletonCache[key];
-        if (raced)
+        // Invoke the factory while holding the lock so concurrent resolves
+        // observe the cached singleton instead of racing parallel factory
+        // invocations. Factories registered with this lifetime are expected
+        // to be cheap, side-effect free, and free of re-entrant calls back
+        // into the container for the same key (which would deadlock).
+        id instance = entry.factory();
+        if (!instance)
         {
             [_lock unlock];
-            return raced;
+            NSAssert(NO, @"MSIDDIContainer: factory returned nil for '%@'", description);
+            @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                           reason:[NSString stringWithFormat:@"MSIDDIContainer: factory returned nil for '%@'", description]
+                                         userInfo:nil];
         }
 
         _singletonCache[key] = instance;
         [_lock unlock];
+        return instance;
     }
 
+    id _Nonnull (^factory)(void) = entry.factory;
+    [_lock unlock];
+
+    id instance = factory();
+    if (!instance)
+    {
+        NSAssert(NO, @"MSIDDIContainer: factory returned nil for '%@'", description);
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:[NSString stringWithFormat:@"MSIDDIContainer: factory returned nil for '%@'", description]
+                                     userInfo:nil];
+    }
     return instance;
 }
 

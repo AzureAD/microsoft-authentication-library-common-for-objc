@@ -35,20 +35,36 @@
 @end
 
 @implementation MSIDDIContainerTestService
+
 - (instancetype)init
 {
     self = [super init];
-    if (self) _identifier = [[NSUUID UUID] UUIDString];
+
+    if (self)
+    {
+        _identifier = [[NSUUID UUID] UUIDString];
+    }
+
     return self;
 }
-- (NSString *)greeting { return @"hello"; }
+
+- (NSString *)greeting
+{
+    return @"hello";
+}
+
 @end
 
 @interface MSIDDIContainerTestMockService : NSObject <MSIDDIContainerTestProtocol>
 @end
 
 @implementation MSIDDIContainerTestMockService
-- (NSString *)greeting { return @"mocked"; }
+
+- (NSString *)greeting
+{
+    return @"mocked";
+}
+
 @end
 
 #pragma mark - Tests
@@ -192,7 +208,18 @@
     id first = results.firstObject;
     XCTAssertNotNil(first);
     for (id obj in results) XCTAssertTrue(obj == first);
-    XCTAssertGreaterThanOrEqual(factoryInvocations, 1);
+    XCTAssertEqual(factoryInvocations, 1, @"Singleton factory must be invoked exactly once even under contention");
+}
+
+- (void)testResolveClass_whenFactoryReturnsNil_shouldThrow
+{
+    [self.container registerClass:[MSIDDIContainerTestService class]
+                         lifetime:MSIDDIContainerLifetimeSingleton
+                          factory:^id { return nil; }];
+
+    XCTAssertThrowsSpecificNamed([self.container resolveClass:[MSIDDIContainerTestService class]],
+                                 NSException,
+                                 NSInternalInconsistencyException);
 }
 
 - (void)testSharedInstance_whenCalledTwice_shouldReturnSameContainer

@@ -28,8 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Lifetime semantics for services registered with @c MSIDDIContainer.
  *
- * - @c MSIDDIContainerLifetimeSingleton: factory is invoked at most once;
- *   subsequent resolutions return the cached instance.
+ * - @c MSIDDIContainerLifetimeSingleton: factory is invoked exactly once for
+ *   the lifetime of the registration; subsequent resolutions return the
+ *   cached instance. The container serializes the first invocation across
+ *   concurrent callers.
  * - @c MSIDDIContainerLifetimeTransient: factory is invoked on every resolve
  *   call and a fresh instance is returned each time.
  */
