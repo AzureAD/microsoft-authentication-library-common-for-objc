@@ -25,10 +25,11 @@
 #define MSIDWorkPlaceJoinUtilBase_Internal_h
 
 #import <Foundation/Foundation.h>
+#import "MSIDWorkPlaceJoinUtilProviding.h"
 
 @class MSIDWPJMetadata;
 
-@interface MSIDWorkPlaceJoinUtilBase()
+@interface MSIDWorkPlaceJoinUtilBase () <MSIDWorkPlaceJoinUtilProviding>
 
 + (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                          accessGroup:(nullable NSString *)accessGroup
@@ -52,6 +53,17 @@
                                                         domainName:(NSString *_Nullable)domainName
                                                            context:(id <MSIDRequestContext> _Nullable)context
                                                              error:(NSError *_Nullable *_Nullable)error;
+
+/**
+ Resolve the WorkplaceJoin provider class registered with @c MSIDDIContainer,
+ falling back to @c MSIDWorkPlaceJoinUtil when no override or registration
+ is installed.
+
+ Internal call sites in @c MSIDWorkPlaceJoinUtilBase route through this
+ resolver so that tests can install a fake conforming class via
+ @c -[MSIDDIContainer setImplClassOverride:forProtocol:] without swizzling.
+ */
++ (nonnull Class<MSIDWorkPlaceJoinUtilProviding>)resolvedProvider;
 
 @end
 
