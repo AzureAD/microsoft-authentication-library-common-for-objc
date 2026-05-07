@@ -67,6 +67,36 @@
 
 @end
 
+#pragma mark - Class-method protocol fixtures
+
+@protocol MSIDDIContainerTestClassMethodProtocol <NSObject>
++ (NSString *)greeting;
+@end
+
+@interface MSIDDIContainerTestClassMethodService : NSObject <MSIDDIContainerTestClassMethodProtocol>
+@end
+
+@implementation MSIDDIContainerTestClassMethodService
+
++ (NSString *)greeting
+{
+    return @"hello-class";
+}
+
+@end
+
+@interface MSIDDIContainerTestClassMethodMockService : NSObject <MSIDDIContainerTestClassMethodProtocol>
+@end
+
+@implementation MSIDDIContainerTestClassMethodMockService
+
++ (NSString *)greeting
+{
+    return @"mocked-class";
+}
+
+@end
+
 #pragma mark - Tests
 
 @interface MSIDDIContainerTests : XCTestCase
@@ -313,6 +343,86 @@
 - (void)testSharedInstance_whenCalledTwice_shouldReturnSameContainer
 {
     XCTAssertTrue([MSIDDIContainer sharedInstance] == [MSIDDIContainer sharedInstance]);
+}
+
+#pragma mark - Class-method seam
+
+- (void)testResolveImplClassForProtocol_whenNothingRegistered_shouldReturnDefaultClass
+{
+    Class<MSIDDIContainerTestClassMethodProtocol> impl =
+        (Class<MSIDDIContainerTestClassMethodProtocol>)[self.container
+            resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                              orDefault:^Class {
+                                  return [MSIDDIContainerTestClassMethodService class];
+                              }];
+
+    XCTAssertEqualObjects([impl greeting], @"hello-class");
+}
+
+- (void)testResolveImplClassForProtocol_whenOverrideInstalled_shouldReturnOverrideClass
+{
+    [self.container setImplClassOverride:[MSIDDIContainerTestClassMethodMockService class]
+                             forProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)];
+
+    Class<MSIDDIContainerTestClassMethodProtocol> impl =
+        (Class<MSIDDIContainerTestClassMethodProtocol>)[self.container
+            resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                              orDefault:^Class {
+                                  XCTFail(@"default should not be invoked when override installed");
+                                  return [MSIDDIContainerTestClassMethodService class];
+                              }];
+
+    XCTAssertEqualObjects([impl greeting], @"mocked-class");
+}
+
+- (void)testResolveImplClassForProtocol_whenDefaultProviderReturnsNil_shouldThrow
+{
+    XCTAssertThrowsSpecificNamed(([self.container
+        resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                          orDefault:^Class { return Nil; }]),
+        NSException, NSInternalInconsistencyException);
+}
+
+- (void)testResolveImplClassForClass_whenNothingRegistered_shouldReturnDefaultClass
+{
+    Class impl = [self.container
+        resolveImplClassForClass:[MSIDDIContainerTestClassMethodService class]
+                       orDefault:^Class {
+                           return [MSIDDIContainerTestClassMethodService class];
+                       }];
+
+    XCTAssertEqual(impl, [MSIDDIContainerTestClassMethodService class]);
+}
+
+- (void)testResolveImplClassForClass_whenOverrideInstalled_shouldReturnOverrideClass
+{
+    [self.container setImplClassOverride:[MSIDDIContainerTestClassMethodMockService class]
+                                forClass:[MSIDDIContainerTestClassMethodService class]];
+
+    Class impl = [self.container
+        resolveImplClassForClass:[MSIDDIContainerTestClassMethodService class]
+                       orDefault:^Class {
+                           XCTFail(@"default should not be invoked when override installed");
+                           return [MSIDDIContainerTestClassMethodService class];
+                       }];
+
+    XCTAssertEqual(impl, [MSIDDIContainerTestClassMethodMockService class]);
+}
+
+- (void)testSetImplClassOverrideForProtocol_afterResetAllOverrides_shouldRestoreDefault
+{
+    [self.container setImplClassOverride:[MSIDDIContainerTestClassMethodMockService class]
+                             forProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)];
+    [self.container resetAllOverrides];
+
+    Class<MSIDDIContainerTestClassMethodProtocol> impl =
+        (Class<MSIDDIContainerTestClassMethodProtocol>)[self.container
+            resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                              orDefault:^Class {
+                                  return [MSIDDIContainerTestClassMethodService class];
+                              }];
+
+    XCTAssertEqualObjects([impl greeting], @"hello-class");
 }
 
 @end

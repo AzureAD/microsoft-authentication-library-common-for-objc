@@ -152,6 +152,65 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
 - (id)resolveProtocol:(Protocol *)proto
             orDefault:(id _Nonnull (^)(void))defaultProvider;
 
+#pragma mark - Class-method seams
+
+/**
+ * Resolve a @c Class implementation registered against the given protocol,
+ * falling back to a default class when nothing is overridden or registered.
+ *
+ * Use this overload when the seam being virtualized is a @b class method
+ * (e.g., a utility @c +classMethod that tests previously stubbed via
+ * @c MSIDTestSwizzle). Declare the seam as a protocol that uses the @c +
+ * marker for class methods, have the production class conform to that
+ * protocol, and resolve the implementing class through this method:
+ *
+ * @code
+ * @protocol MSIDWPJKeysProviding <NSObject>
+ * + (nullable MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(NSString *)t
+ *                                                     context:(id)c;
+ * @end
+ *
+ * Class<MSIDWPJKeysProviding> impl =
+ *     [[MSIDDIContainer sharedInstance]
+ *         resolveImplClassForProtocol:@protocol(MSIDWPJKeysProviding)
+ *                           orDefault:^Class { return self; }];
+ * return [impl getWPJKeysWithTenantId:tenantId context:context];
+ * @endcode
+ *
+ * Tests register a fake class that conforms to the same protocol via
+ * @c setImplClassOverride:forProtocol:. Because the resolved value is
+ * statically typed as @c Class<Protocol>, the compiler verifies the override
+ * actually implements every class method declared by the protocol.
+ *
+ * Internally this shares the same storage as @c resolveProtocol:orDefault:
+ * — a @c Class object is itself an @c id — so an instance registered via
+ * @c setOverrideForProtocol:instance: would also be returned here. Pick one
+ * style (instance methods @b or class methods) per protocol to keep the
+ * intent unambiguous at the call site.
+ *
+ * @param proto             The protocol key to resolve.
+ * @param defaultProvider   Block invoked only when no override or factory is
+ *                          registered. Must not return @c Nil.
+ *
+ * @return The resolved class. Never @c Nil.
+ */
+- (Class)resolveImplClassForProtocol:(Protocol *)proto
+                           orDefault:(Class _Nonnull (^)(void))defaultProvider;
+
+/**
+ * Resolve a @c Class implementation registered against the given class key,
+ * falling back to a default class when nothing is overridden or registered.
+ *
+ * Class-keyed sibling of @c resolveImplClassForProtocol:orDefault:. Useful
+ * when the seam is a class method on a concrete utility class and you do
+ * not want to introduce a separate protocol — the override class need only
+ * supply matching @c + selectors at runtime.
+ *
+ * @see resolveImplClassForProtocol:orDefault:
+ */
+- (Class)resolveImplClassForClass:(Class)cls
+                        orDefault:(Class _Nonnull (^)(void))defaultProvider;
+
 #pragma mark - Test overrides
 
 /**
@@ -173,6 +232,31 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
  * @param instance  The instance to return on subsequent resolves.
  */
 - (void)setOverrideForProtocol:(Protocol *)proto instance:(id)instance;
+
+/**
+ * Install a @c Class as the implementation override for the given protocol.
+ *
+ * Typed sibling of @c setOverrideForProtocol:instance: for the class-method
+ * seam pattern documented on @c resolveImplClassForProtocol:orDefault:. The
+ * @c implClass parameter is statically constrained to conform to @c proto,
+ * so the compiler verifies that the override class implements every class
+ * method declared by the protocol.
+ *
+ * @param implClass  A class that conforms to @c proto.
+ * @param proto      The protocol key to override.
+ */
+- (void)setImplClassOverride:(Class)implClass
+                 forProtocol:(Protocol *)proto;
+
+/**
+ * Install a @c Class as the implementation override for the given class key.
+ *
+ * Typed sibling of @c setOverrideForClass:instance: for class-method seams.
+ *
+ * @see setImplClassOverride:forProtocol:
+ */
+- (void)setImplClassOverride:(Class)implClass
+                    forClass:(Class)cls;
 
 /**
  * Remove a previously-installed override for the given class key.

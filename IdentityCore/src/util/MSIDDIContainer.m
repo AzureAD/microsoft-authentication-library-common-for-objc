@@ -148,6 +148,39 @@
             defaultProvider:defaultProvider];
 }
 
+#pragma mark - Class-method seams
+
+- (Class)resolveImplClassForProtocol:(Protocol *)proto
+                           orDefault:(Class _Nonnull (^)(void))defaultProvider
+{
+    NSParameterAssert(proto);
+    NSParameterAssert(defaultProvider);
+
+    id resolved = [self resolveKey:[self keyForProtocol:proto]
+                       description:NSStringFromProtocol(proto)
+                   defaultProvider:^id _Nonnull {
+                       Class defaultClass = defaultProvider();
+                       // Cast Class -> id; +resolveKey: validates non-nil.
+                       return (id)defaultClass;
+                   }];
+    return (Class)resolved;
+}
+
+- (Class)resolveImplClassForClass:(Class)cls
+                        orDefault:(Class _Nonnull (^)(void))defaultProvider
+{
+    NSParameterAssert(cls);
+    NSParameterAssert(defaultProvider);
+
+    id resolved = [self resolveKey:[self keyForClass:cls]
+                       description:NSStringFromClass(cls)
+                   defaultProvider:^id _Nonnull {
+                       Class defaultClass = defaultProvider();
+                       return (id)defaultClass;
+                   }];
+    return (Class)resolved;
+}
+
 - (id)resolveKey:(NSString *)key
      description:(NSString *)description
  defaultProvider:(id _Nullable (^)(void))defaultProvider
@@ -252,6 +285,26 @@
 
     [_lock lock];
     _overrideByKey[[self keyForProtocol:proto]] = instance;
+    [_lock unlock];
+}
+
+- (void)setImplClassOverride:(Class)implClass forProtocol:(Protocol *)proto
+{
+    NSParameterAssert(implClass);
+    NSParameterAssert(proto);
+
+    [_lock lock];
+    _overrideByKey[[self keyForProtocol:proto]] = (id)implClass;
+    [_lock unlock];
+}
+
+- (void)setImplClassOverride:(Class)implClass forClass:(Class)cls
+{
+    NSParameterAssert(implClass);
+    NSParameterAssert(cls);
+
+    [_lock lock];
+    _overrideByKey[[self keyForClass:cls]] = (id)implClass;
     [_lock unlock];
 }
 
