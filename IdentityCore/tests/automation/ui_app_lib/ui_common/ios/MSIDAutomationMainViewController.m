@@ -140,10 +140,57 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [UIView setAnimationsEnabled:NO];
 
     self.webView = [[WKWebView alloc] init];
     self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self setupActions];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ [self processLaunchArguments]; });
+}
+
+- (void)processLaunchArguments
+{
+    NSArray<NSString *> *allArguments = NSProcessInfo.processInfo.arguments;
+    NSMutableArray<NSString *> *actionArguments = [NSMutableArray new];
+    for (NSString *argument in allArguments)
+    {
+        // Skip binary path and flag-style arguments
+        if ([argument hasPrefix:@"/"] || [argument hasPrefix:@"-"]) continue;
+        [actionArguments addObject:argument];
+    }
+
+    if (actionArguments.count == 0) return;
+
+    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+    spinner.center = self.view.center;
+    spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin |
+                               UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+    [self.view addSubview:spinner];
+    [spinner startAnimating];
+
+    [self processActionArguments:actionArguments index:0 spinner:spinner];
+}
+
+- (void)processActionArguments:(NSArray<NSString *> *)arguments index:(NSUInteger)index spinner:(UIActivityIndicatorView *)spinner
+{
+    if (index >= arguments.count)
+    {
+        [spinner stopAnimating];
+        [spinner removeFromSuperview];
+        return;
+    }
+
+    [self performTestAppActionWithIdentifier:arguments[index] completionBlock:^() {
+        [self processActionArguments:arguments index:index + 1 spinner:spinner];
+    }];
 }
 
 #pragma mark - Logger
@@ -195,13 +242,39 @@ static NSMutableString *s_resultLogs = nil;
 
 - (void)performAction:(UIButton *)sender
 {
+    [self performActionWithIdentifier:sender.titleLabel.text];
+}
+
+- (void)performTestAppActionWithIdentifier:(NSString *)identifier completionBlock:(void (^)(void))completionBlock
+{
+    id<MSIDAutomationTestAction> action = [[MSIDAutomationActionManager sharedInstance] actionForIdentifier:identifier];
+    NSLog(@"Performing action: %@", identifier);
+    
+    if (action)
+    {
+        [action performActionWithParameters:nil
+                        containerController:self
+                            completionBlock:^(MSIDAutomationTestResult *result) {
+            NSLog(@"action result: %d", result.success);
+            if (completionBlock) completionBlock();
+        }];
+        
+        return;
+    }
+    
+    NSLog(@"Couldn't find action for identifier %@", identifier);
+    if (completionBlock) completionBlock();
+}
+
+- (void)performActionWithIdentifier:(NSString *)identifier
+{
     self.class.resultLogs = [NSMutableString new];
 
-    id<MSIDAutomationTestAction> action = [[MSIDAutomationActionManager sharedInstance] actionForIdentifier:sender.titleLabel.text];
+    id<MSIDAutomationTestAction> action = [[MSIDAutomationActionManager sharedInstance] actionForIdentifier:identifier];
 
     if (!action)
     {
-        NSLog(@"Couldn't find action for identifier %@", sender.titleLabel.text);
+        NSLog(@"Couldn't find action for identifier %@", identifier);
         return;
     }
 
@@ -222,7 +295,7 @@ static NSMutableString *s_resultLogs = nil;
 
         [self performAction:action parameters:requestParams];
     };
-    
+
 #if TARGET_OS_SIMULATOR
     NSString *jsonString = [self getConfigJsonString];
     NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
@@ -234,7 +307,7 @@ static NSMutableString *s_resultLogs = nil;
 
     MSIDAutomationTestRequest *request = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
     request.parentController = self;
-    
+
     completionBlock(request);
 #else
     [self performSegueWithIdentifier:MSID_SHOW_REQUEST_SEGUE sender:@{MSID_COMPLETION_BLOCK_SEGUE_KEY : completionBlock}];
