@@ -178,7 +178,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
             if ([self.tokenRequestProvider isKindOfClass:[MSIDDefaultTokenRequestProvider class]])
             {
                 id<MSIDExtendedTokenCacheDataSource> cache = ((MSIDDefaultTokenRequestProvider *)self.tokenRequestProvider).tokenCache.accountCredentialCache.dataSource;
-                [MSIDThrottlingService updateLastRefreshTimeDatasource:cache context:self.interactiveParameters error:nil];
+                [[MSIDThrottlingService resolvedRefresher] updateLastRefreshTimeDatasource:cache context:self.interactiveParameters error:nil];
             }
         }
 

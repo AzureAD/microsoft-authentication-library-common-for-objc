@@ -27,12 +27,13 @@
 #import "MSIDThrottlingCacheRecord.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDExtendedTokenCacheDataSource.h"
+#import "MSIDThrottlingRefreshing.h"
 
 typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable errorResponse);
 
 
 NS_ASSUME_NONNULL_BEGIN
-@interface MSIDThrottlingService : NSObject
+@interface MSIDThrottlingService : NSObject <MSIDThrottlingRefreshing>
 
 @property (nonatomic, nullable, readonly) id<MSIDRequestContext> context;
 @property (nonatomic, nullable, readonly) NSString *accessGroup;
@@ -54,5 +55,24 @@ NS_ASSUME_NONNULL_BEGIN
  Throttling disable decision based on the AD_THROTTLING_DISABLED macro define in application.
  */
 + (BOOL)isThrottlingEnabled;
+
+/**
+ Resolve the throttling-refresh implementation registered with @c MSIDDIContainer,
+ falling back to @c MSIDThrottlingService itself when no override or registration
+ is installed.
+
+ Production callers should send class messages through the resolved class, e.g.:
+ @code
+ [[MSIDThrottlingService resolvedRefresher] updateLastRefreshTimeDatasource:cache
+                                                                    context:ctx
+                                                                      error:nil];
+ @endcode
+
+ Unit tests can install a fake conforming to @c MSIDThrottlingRefreshing via
+ @c -[MSIDDIContainer setImplClassOverride:forProtocol:] without runtime
+ swizzling.
+ */
++ (Class<MSIDThrottlingRefreshing>)resolvedRefresher;
+
 @end
 NS_ASSUME_NONNULL_END

@@ -54,9 +54,34 @@
 #import "MSIDTestSwizzle.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDThrottlingService.h"
+#import "MSIDThrottlingRefreshing.h"
+#import "MSIDDIContainer.h"
 #import "MSIDDefaultTokenRequestProvider.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+
+#pragma mark - Throttling-refresh fake
+
+@interface MSIDFakeThrottlingRefresher : NSObject <MSIDThrottlingRefreshing>
+@property (class, nonatomic, assign) NSInteger callCount;
+@end
+
+@implementation MSIDFakeThrottlingRefresher
+
+static NSInteger gFakeThrottlingCallCount = 0;
+
++ (NSInteger)callCount { return gFakeThrottlingCallCount; }
++ (void)setCallCount:(NSInteger)value { gFakeThrottlingCallCount = value; }
+
++ (BOOL)updateLastRefreshTimeDatasource:(__unused id<MSIDExtendedTokenCacheDataSource>)datasource
+                                context:(__unused id<MSIDRequestContext>)context
+                                  error:(__unused NSError *__autoreleasing *)error
+{
+    gFakeThrottlingCallCount++;
+    return YES;
+}
+
+@end
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
@@ -75,6 +100,7 @@
 - (void)tearDown
 {
     [MSIDTestSwizzle reset];
+    [[MSIDDIContainer sharedInstance] resetAllOverrides];
     // Clear keychain
     NSDictionary *query = @{(id)kSecClass : (id)kSecClassKey,
                             (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric};
@@ -288,22 +314,20 @@
     
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
     [MSIDTestURLSession addResponse:discoveryResponse];
-    __block int count = 0;
-    [MSIDTestSwizzle classMethod:@selector(updateLastRefreshTimeDatasource:context:error:)
-                           class:[MSIDThrottlingService class]
-                           block:(id)^(__unused id obj)
-     {
-        count++;
-        return YES;
-    }];
+
+    MSIDFakeThrottlingRefresher.callCount = 0;
+    [[MSIDDIContainer sharedInstance]
+        setImplClassOverride:[MSIDFakeThrottlingRefresher class]
+                 forProtocol:@protocol(MSIDThrottlingRefreshing)];
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
     [brokerController acquireToken:^(__unused MSIDTokenResult * _Nullable result, __unused NSError * _Nullable acquireTokenError) {
-        
-        XCTAssertEqual(count, 1);
+
+        XCTAssertEqual(MSIDFakeThrottlingRefresher.callCount, 1);
         [expectation fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
