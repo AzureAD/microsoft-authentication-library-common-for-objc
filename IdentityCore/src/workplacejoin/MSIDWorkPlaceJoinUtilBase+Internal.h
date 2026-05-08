@@ -61,7 +61,7 @@
 
  Internal call sites in @c MSIDWorkPlaceJoinUtilBase route through this
  resolver so that tests can install a fake conforming class via
- @c -[MSIDDIContainer setImplClassOverride:forProtocol:] without swizzling.
+ @c -[MSIDDIContainer registerProtocol:lifetime:factory:] without swizzling.
  */
 + (nonnull Class<MSIDWorkPlaceJoinUtilProviding>)resolvedProvider;
 

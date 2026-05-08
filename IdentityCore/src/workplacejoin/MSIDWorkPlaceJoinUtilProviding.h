@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  Narrow seam protocol covering the WorkplaceJoin keychain class methods that
  production code routes through @c MSIDDIContainer. Tests can install a fake
  class conforming to this protocol via
- @c -[MSIDDIContainer setImplClassOverride:forProtocol:] instead of swizzling.
+ @c -[MSIDDIContainer registerProtocol:lifetime:factory:] instead of swizzling.
 
  Production default conformer: @c MSIDWorkPlaceJoinUtil (and its base
  @c MSIDWorkPlaceJoinUtilBase). Resolve via
