@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
  @endcode
 
  Unit tests can install a fake conforming to @c MSIDThrottlingRefreshing via
- @c -[MSIDDIContainer setImplClassOverride:forProtocol:] without runtime
+ @c -[MSIDDIContainer registerProtocol:lifetime:factory:] without runtime
  swizzling.
  */
 + (Class<MSIDThrottlingRefreshing>)resolvedRefresher;
