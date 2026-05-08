@@ -271,7 +271,7 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     NSString *sessionCorrelationId = self.sessionCorrelationId ?: @"";
     MSIDSessionCachePersistence *persistence = self.sessionCachePersistence;
 
-    dispatch_sync(MSIDOnboardingPersistQueue(), ^{
+    dispatch_async(MSIDOnboardingPersistQueue(), ^{
         NSString *existing = [persistence load];
         NSMutableDictionary *cache = [NSMutableDictionary dictionary];
 
