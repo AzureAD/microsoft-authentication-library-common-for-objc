@@ -28,12 +28,12 @@
 NSString * const MSIDOnboardingBlobIPCKey = @"onboardingBlob";
 
 // Field keys for populated blob
-NSString * const MSIDOnboardingBlobFieldBlockingErrors = @"blockingErrors";
-NSString * const MSIDOnboardingBlobFieldLastBlockingError = @"lastBlockingError";
-NSString * const MSIDOnboardingBlobFieldLastLoadedDomain = @"lastLoadedDomain";
-NSString * const MSIDOnboardingBlobFieldLastCompletedStep = @"lastCompletedStep";
-NSString * const MSIDOnboardingBlobFieldRemediationNeeded = @"remediationNeeded";
-NSString * const MSIDOnboardingBlobFieldUxFlowUsed = @"uxFlowUsed";
+NSString * const MSAIMSIDOnboardingBlobFieldBlockingErrors = @"blocking_errors";
+NSString * const MSAIMSIDOnboardingBlobFieldLastBlockingError = @"last_blocking_error";
+NSString * const MSAIMSIDOnboardingBlobFieldLastLoadedDomain = @"last_loaded_domain";
+NSString * const MSAIMSIDOnboardingBlobFieldLastCompletedStep = @"last_completed_step";
+NSString * const MSAIMSIDOnboardingBlobFieldRemediationNeeded = @"remediation_needed";
+NSString * const MSAIMSIDOnboardingBlobFieldUxFlowUsed = @"ux_flow_used";
 
 // Step ID values not used in C++ aggregation
 NSString * const MSIDOnboardingBlobStepAuthenticationStarted = @"AuthenticationStarted";
