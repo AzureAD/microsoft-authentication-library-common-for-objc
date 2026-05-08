@@ -37,7 +37,6 @@ extern NSString * const MSIDOnboardingBlobFieldBlockingErrors;
 extern NSString * const MSIDOnboardingBlobFieldLastBlockingError;
 extern NSString * const MSIDOnboardingBlobFieldLastLoadedDomain;
 extern NSString * const MSIDOnboardingBlobFieldLastCompletedStep;
-extern NSString * const MSIDOnboardingBlobFieldRemediationNeeded;
 extern NSString * const MSIDOnboardingBlobFieldUxFlowUsed;
 
 // Step ID values not used in C++ aggregation

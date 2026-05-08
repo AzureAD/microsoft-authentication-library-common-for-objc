@@ -61,8 +61,6 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingSeedClassification)
 
 - (void)setLastLoadedDomain:(NSString *)domain;
 
-- (void)setRemediationNeeded:(BOOL)needed;
-
 - (void)addUxFlowUsed:(NSString *)flowTag;
 
 /// Returns populated blob JSON if blocking errors were recorded, empty string otherwise.

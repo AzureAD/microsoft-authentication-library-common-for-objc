@@ -286,34 +286,6 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertNil(parsed[@"last_loaded_domain"]);
 }
 
-#pragma mark - setRemediationNeeded
-
-- (void)testSetRemediationNeeded_whenTrue_shouldAppearInBlob
-{
-    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
-
-    [builder setRemediationNeeded:YES];
-    [builder addBlockingError:@"65001"];
-
-    NSString *result = [builder finalizeBlob];
-    NSDictionary *parsed = [self parsedJsonFromBlob:result];
-
-    XCTAssertEqualObjects(parsed[@"remediation_needed"], @(YES));
-}
-
-- (void)testSetRemediationNeeded_whenFalse_shouldBeAbsentFromBlob
-{
-    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
-
-    [builder setRemediationNeeded:NO];
-    [builder addBlockingError:@"65001"];
-
-    NSString *result = [builder finalizeBlob];
-    NSDictionary *parsed = [self parsedJsonFromBlob:result];
-
-    XCTAssertNil(parsed[@"remediation_needed"]);
-}
-
 #pragma mark - addUxFlowUsed
 
 - (void)testAddUxFlowUsed_whenCalled_shouldAppearInBlob
@@ -367,7 +339,6 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     [builder addStep:@"BrokerInstallPrompted" timestamp:ts2];
     [builder addBlockingError:@"BROKER_INSTALLATION_TRIGGERED"];
     [builder setLastLoadedDomain:@"login.microsoftonline.com"];
-    [builder setRemediationNeeded:YES];
     [builder addUxFlowUsed:@"MobileOnboardingPhase1"];
 
     NSString *result = [builder finalizeBlob];
@@ -396,9 +367,6 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
     // Last completed step
     XCTAssertEqualObjects(parsed[@"last_completed_step"], @"BrokerInstallPrompted");
-
-    // Remediation needed
-    XCTAssertEqualObjects(parsed[@"remediation_needed"], @(YES));
 
     // UX flow used
     NSArray *flows = parsed[@"ux_flow_used"];
