@@ -36,7 +36,6 @@
 @interface MSIDDIContainer ()
 {
     NSMutableDictionary<NSString *, MSIDDIContainerEntry *> *_entryByKey;
-    NSMutableDictionary<NSString *, id> *_overrideByKey;
     NSMutableDictionary<NSString *, id> *_singletonCache;
     dispatch_queue_t _synchronizationQueue;
 }
@@ -66,7 +65,6 @@
     if (self)
     {
         _entryByKey = [NSMutableDictionary new];
-        _overrideByKey = [NSMutableDictionary new];
         _singletonCache = [NSMutableDictionary new];
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msiddicontainer-%@", [NSUUID UUID].UUIDString];
         _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
@@ -186,32 +184,28 @@
      description:(NSString *)description
  defaultProvider:(id _Nullable (^)(void))defaultProvider
 {
-    __block id override = nil;
     __block id cached = nil;
     __block MSIDDIContainerEntry *entry = nil;
 
     // Concurrent read: many resolves can run in parallel; only writes
-    // (registration / override / singleton install) take the barrier.
+    // (registration / singleton install / reset) take the barrier.
     dispatch_sync(_synchronizationQueue, ^{
-        override = self->_overrideByKey[key];
-        if (override) return;
         cached = self->_singletonCache[key];
         if (cached) return;
         entry = self->_entryByKey[key];
     });
 
-    if (override) return override;
     if (cached) return cached;
 
     if (!entry)
     {
         if (defaultProvider)
         {
-            // No registration and no override: the caller has supplied its
-            // own default. Invoke it outside the queue — defaults often
-            // re-enter via the caller's existing +sharedInstance and must
-            // not deadlock the container. Result is intentionally not
-            // cached here; the caller owns its own singleton storage.
+            // No registration: the caller has supplied its own default.
+            // Invoke it outside the queue — defaults often re-enter via
+            // the caller's existing +sharedInstance and must not deadlock
+            // the container. Result is intentionally not cached here; the
+            // caller owns its own singleton storage.
             id defaultInstance = defaultProvider();
             if (!defaultInstance)
             {
@@ -223,9 +217,9 @@
             return defaultInstance;
         }
 
-        NSAssert(NO, @"MSIDDIContainer: no factory or override registered for '%@'", description);
+        NSAssert(NO, @"MSIDDIContainer: no factory registered for '%@'", description);
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:[NSString stringWithFormat:@"MSIDDIContainer: no factory or override registered for '%@'", description]
+                                       reason:[NSString stringWithFormat:@"MSIDDIContainer: no factory registered for '%@'", description]
                                      userInfo:nil];
     }
 
@@ -238,12 +232,6 @@
         // into the container for the same key (which would deadlock).
         __block id resolvedInstance = nil;
         dispatch_barrier_sync(_synchronizationQueue, ^{
-            id raceOverride = self->_overrideByKey[key];
-            if (raceOverride)
-            {
-                resolvedInstance = raceOverride;
-                return;
-            }
             id existing = self->_singletonCache[key];
             if (existing)
             {
@@ -283,70 +271,13 @@
     return instance;
 }
 
-#pragma mark - Test overrides
+#pragma mark - Reset
 
-- (void)setOverrideForClass:(Class)cls instance:(id)instance
-{
-    NSParameterAssert(cls);
-    NSParameterAssert(instance);
-
-    dispatch_barrier_sync(_synchronizationQueue, ^{
-        self->_overrideByKey[[self keyForClass:cls]] = instance;
-    });
-}
-
-- (void)setOverrideForProtocol:(Protocol *)proto instance:(id)instance
-{
-    NSParameterAssert(proto);
-    NSParameterAssert(instance);
-
-    dispatch_barrier_sync(_synchronizationQueue, ^{
-        self->_overrideByKey[[self keyForProtocol:proto]] = instance;
-    });
-}
-
-- (void)setImplClassOverride:(Class)implClass forProtocol:(Protocol *)proto
-{
-    NSParameterAssert(implClass);
-    NSParameterAssert(proto);
-
-    dispatch_barrier_sync(_synchronizationQueue, ^{
-        self->_overrideByKey[[self keyForProtocol:proto]] = (id)implClass;
-    });
-}
-
-- (void)setImplClassOverride:(Class)implClass forClass:(Class)cls
-{
-    NSParameterAssert(implClass);
-    NSParameterAssert(cls);
-
-    dispatch_barrier_sync(_synchronizationQueue, ^{
-        self->_overrideByKey[[self keyForClass:cls]] = (id)implClass;
-    });
-}
-
-- (void)removeOverrideForClass:(Class)cls
-{
-    NSParameterAssert(cls);
-
-    dispatch_barrier_sync(_synchronizationQueue, ^{
-        [self->_overrideByKey removeObjectForKey:[self keyForClass:cls]];
-    });
-}
-
-- (void)removeOverrideForProtocol:(Protocol *)proto
-{
-    NSParameterAssert(proto);
-
-    dispatch_barrier_sync(_synchronizationQueue, ^{
-        [self->_overrideByKey removeObjectForKey:[self keyForProtocol:proto]];
-    });
-}
-
-- (void)resetAllOverrides
+- (void)reset
 {
     dispatch_barrier_sync(_synchronizationQueue, ^{
-        [self->_overrideByKey removeAllObjects];
+        [self->_entryByKey removeAllObjects];
+        [self->_singletonCache removeAllObjects];
     });
 }
 

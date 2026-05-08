@@ -149,65 +149,55 @@
     XCTAssertEqualObjects([resolved greeting], @"hello");
 }
 
-- (void)testResolveClass_whenOverrideInstalled_shouldReturnOverrideOverFactory
+- (void)testRegisterClass_whenReregistered_shouldReplaceFactoryAndClearCache
 {
     [self.container registerClass:[MSIDDIContainerTestService class]
                          lifetime:MSIDDIContainerLifetimeSingleton
                           factory:^id { return [MSIDDIContainerTestService new]; }];
+    id first = [self.container resolveClass:[MSIDDIContainerTestService class]];
 
     MSIDDIContainerTestMockService *mock = [MSIDDIContainerTestMockService new];
-    [self.container setOverrideForClass:[MSIDDIContainerTestService class] instance:mock];
+    [self.container registerClass:[MSIDDIContainerTestService class]
+                         lifetime:MSIDDIContainerLifetimeSingleton
+                          factory:^id { return mock; }];
 
-    id resolved = [self.container resolveClass:[MSIDDIContainerTestService class]];
+    id second = [self.container resolveClass:[MSIDDIContainerTestService class]];
 
-    XCTAssertTrue(resolved == mock);
+    XCTAssertFalse(first == second);
+    XCTAssertTrue(second == mock);
 }
 
-- (void)testResolveProtocol_whenOverrideInstalled_shouldReturnOverride
+- (void)testRegisterProtocol_whenReregistered_shouldReplaceFactory
 {
     [self.container registerProtocol:@protocol(MSIDDIContainerTestProtocol)
                             lifetime:MSIDDIContainerLifetimeSingleton
                              factory:^id { return [MSIDDIContainerTestService new]; }];
 
     MSIDDIContainerTestMockService *mock = [MSIDDIContainerTestMockService new];
-    [self.container setOverrideForProtocol:@protocol(MSIDDIContainerTestProtocol) instance:mock];
+    [self.container registerProtocol:@protocol(MSIDDIContainerTestProtocol)
+                            lifetime:MSIDDIContainerLifetimeSingleton
+                             factory:^id { return mock; }];
 
     id<MSIDDIContainerTestProtocol> resolved = [self.container resolveProtocol:@protocol(MSIDDIContainerTestProtocol)];
 
     XCTAssertEqualObjects([resolved greeting], @"mocked");
 }
 
-- (void)testResetAllOverrides_whenCalled_shouldRestoreFactoryBehavior
+- (void)testReset_whenCalled_shouldClearRegistrationsAndCache
 {
     [self.container registerClass:[MSIDDIContainerTestService class]
                          lifetime:MSIDDIContainerLifetimeSingleton
                           factory:^id { return [MSIDDIContainerTestService new]; }];
-    MSIDDIContainerTestMockService *mock = [MSIDDIContainerTestMockService new];
-    [self.container setOverrideForClass:[MSIDDIContainerTestService class] instance:mock];
+    [self.container resolveClass:[MSIDDIContainerTestService class]];
 
-    [self.container resetAllOverrides];
-    id resolved = [self.container resolveClass:[MSIDDIContainerTestService class]];
+    [self.container reset];
 
-    XCTAssertFalse(resolved == mock);
-    XCTAssertTrue([resolved isKindOfClass:[MSIDDIContainerTestService class]]);
+    XCTAssertThrowsSpecificNamed([self.container resolveClass:[MSIDDIContainerTestService class]],
+                                 NSException,
+                                 NSInternalInconsistencyException);
 }
 
-- (void)testRemoveOverrideForClass_whenCalled_shouldClearOnlyThatOverride
-{
-    [self.container registerClass:[MSIDDIContainerTestService class]
-                         lifetime:MSIDDIContainerLifetimeSingleton
-                          factory:^id { return [MSIDDIContainerTestService new]; }];
-    MSIDDIContainerTestMockService *mock = [MSIDDIContainerTestMockService new];
-    [self.container setOverrideForClass:[MSIDDIContainerTestService class] instance:mock];
-
-    [self.container removeOverrideForClass:[MSIDDIContainerTestService class]];
-    id resolved = [self.container resolveClass:[MSIDDIContainerTestService class]];
-
-    XCTAssertTrue([resolved isKindOfClass:[MSIDDIContainerTestService class]]);
-    XCTAssertFalse(resolved == mock);
-}
-
-- (void)testResolveClass_whenUnregisteredAndNoOverride_shouldThrow
+- (void)testResolveClass_whenUnregistered_shouldThrow
 {
     XCTAssertThrowsSpecificNamed([self.container resolveClass:[MSIDDIContainerTestService class]],
                                  NSException,
@@ -287,22 +277,6 @@
     XCTAssertEqual(defaultCalls, 0);
 }
 
-- (void)testResolveClassOrDefault_whenOverrideInstalled_shouldNotInvokeDefault
-{
-    MSIDDIContainerTestMockService *override = [MSIDDIContainerTestMockService new];
-    [self.container setOverrideForClass:[MSIDDIContainerTestService class] instance:override];
-
-    __block NSInteger defaultCalls = 0;
-    id resolved = [self.container resolveClass:[MSIDDIContainerTestService class]
-                                     orDefault:^id {
-                                         defaultCalls++;
-                                         return [MSIDDIContainerTestService new];
-                                     }];
-
-    XCTAssertEqual(resolved, override);
-    XCTAssertEqual(defaultCalls, 0);
-}
-
 - (void)testResolveClassOrDefault_whenDefaultProviderReturnsNil_shouldThrow
 {
     XCTAssertThrowsSpecificNamed([self.container resolveClass:[MSIDDIContainerTestService class]
@@ -359,16 +333,17 @@
     XCTAssertEqualObjects([impl greeting], @"hello-class");
 }
 
-- (void)testResolveImplClassForProtocol_whenOverrideInstalled_shouldReturnOverrideClass
+- (void)testResolveImplClassForProtocol_whenClassFactoryRegistered_shouldReturnRegisteredClass
 {
-    [self.container setImplClassOverride:[MSIDDIContainerTestClassMethodMockService class]
-                             forProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)];
+    [self.container registerProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                            lifetime:MSIDDIContainerLifetimeSingleton
+                             factory:^id { return (id)[MSIDDIContainerTestClassMethodMockService class]; }];
 
     Class<MSIDDIContainerTestClassMethodProtocol> impl =
         (Class<MSIDDIContainerTestClassMethodProtocol>)[self.container
             resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
                               orDefault:^Class {
-                                  XCTFail(@"default should not be invoked when override installed");
+                                  XCTFail(@"default should not be invoked when factory registered");
                                   return [MSIDDIContainerTestClassMethodService class];
                               }];
 
@@ -394,26 +369,28 @@
     XCTAssertEqual(impl, [MSIDDIContainerTestClassMethodService class]);
 }
 
-- (void)testResolveImplClassForClass_whenOverrideInstalled_shouldReturnOverrideClass
+- (void)testResolveImplClassForClass_whenClassFactoryRegistered_shouldReturnRegisteredClass
 {
-    [self.container setImplClassOverride:[MSIDDIContainerTestClassMethodMockService class]
-                                forClass:[MSIDDIContainerTestClassMethodService class]];
+    [self.container registerClass:[MSIDDIContainerTestClassMethodService class]
+                         lifetime:MSIDDIContainerLifetimeSingleton
+                          factory:^id { return (id)[MSIDDIContainerTestClassMethodMockService class]; }];
 
     Class impl = [self.container
         resolveImplClassForClass:[MSIDDIContainerTestClassMethodService class]
                        orDefault:^Class {
-                           XCTFail(@"default should not be invoked when override installed");
+                           XCTFail(@"default should not be invoked when factory registered");
                            return [MSIDDIContainerTestClassMethodService class];
                        }];
 
     XCTAssertEqual(impl, [MSIDDIContainerTestClassMethodMockService class]);
 }
 
-- (void)testSetImplClassOverrideForProtocol_afterResetAllOverrides_shouldRestoreDefault
+- (void)testReset_whenAfterClassFactoryRegistered_shouldFallBackToDefault
 {
-    [self.container setImplClassOverride:[MSIDDIContainerTestClassMethodMockService class]
-                             forProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)];
-    [self.container resetAllOverrides];
+    [self.container registerProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                            lifetime:MSIDDIContainerLifetimeSingleton
+                             factory:^id { return (id)[MSIDDIContainerTestClassMethodMockService class]; }];
+    [self.container reset];
 
     Class<MSIDDIContainerTestClassMethodProtocol> impl =
         (Class<MSIDDIContainerTestClassMethodProtocol>)[self.container

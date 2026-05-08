@@ -46,14 +46,17 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
  *
  * @c MSIDDIContainer lets producers register a factory keyed by a class or
  * protocol, and lets consumers resolve a concrete instance for that key
- * without taking a direct dependency on the producer. Tests can install
- * per-key overrides to inject mocks without swizzling.
+ * without taking a direct dependency on the producer. Tests inject mocks by
+ * calling the same registration APIs (typically from a base test class's
+ * @c -setUp), and call @c reset from @c -tearDown to leave the container
+ * clean for the next test.
  *
- * Resolution order for a given key is: override (if any) > cached singleton
- * (if applicable) > registered factory.
+ * Resolution order for a given key is: cached singleton (if applicable) >
+ * registered factory.
  *
- * Resolving a key that has neither an override nor a registered factory is a
- * programmer error and triggers an assertion.
+ * Resolving a key that has no registered factory is a programmer error and
+ * triggers an assertion (or, for the @c orDefault overloads, falls through
+ * to the supplied default).
  */
 @interface MSIDDIContainer : NSObject
 
@@ -73,9 +76,8 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
  * @param factory   Block invoked to produce a new instance. Must not return
  *                  @c nil.
  *
- * If a factory was previously registered for the same key it is replaced.
- * Registration does not clear an existing override; callers that need a
- * clean slate should call @c resetAllOverrides separately.
+ * If a factory was previously registered for the same key it is replaced
+ * and the cached singleton (if any) is cleared.
  */
 - (void)registerClass:(Class)cls
              lifetime:(MSIDDIContainerLifetime)lifetime
@@ -98,20 +100,20 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
 /**
  * Resolve an instance for the given class key.
  *
- * @param cls  The class previously registered (or overridden).
+ * @param cls  The class previously registered.
  *
  * @return The resolved instance. Never @c nil. Triggers an assertion if no
- *         factory or override exists for @c cls.
+ *         factory exists for @c cls.
  */
 - (id)resolveClass:(Class)cls;
 
 /**
  * Resolve an instance for the given protocol key.
  *
- * @param proto  The protocol previously registered (or overridden).
+ * @param proto  The protocol previously registered.
  *
  * @return The resolved instance. Never @c nil. Triggers an assertion if no
- *         factory or override exists for @c proto.
+ *         factory exists for @c proto.
  */
 - (id)resolveProtocol:(Protocol *)proto;
 
@@ -119,14 +121,14 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
  * Resolve an instance for the given class key, falling back to a default
  * provider when nothing is registered.
  *
- * Resolution order: override > cached singleton > registered factory >
- * @c defaultProvider.
+ * Resolution order: cached singleton > registered factory > @c defaultProvider.
  *
  * Use this overload to make a class's existing @c +sharedInstance funnel
  * through the container without requiring an explicit registration step.
- * Tests can still install overrides via @c setOverrideForClass:instance: to
- * inject mocks; production callers fall through to @c defaultProvider, which
- * typically returns the class's pre-existing default instance.
+ * Tests inject mocks by calling @c registerClass:lifetime:factory: with a
+ * factory that returns the mock; production callers fall through to
+ * @c defaultProvider, which typically returns the class's pre-existing
+ * default instance.
  *
  * The result of @c defaultProvider is intentionally @b not cached by the
  * container — the caller is expected to own its own singleton storage (e.g.,
@@ -135,7 +137,7 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
  * non-singleton default into a cached one.
  *
  * @param cls              The class key to resolve.
- * @param defaultProvider  Block invoked only when no override or factory is
+ * @param defaultProvider  Block invoked only when no factory is
  *                         registered. Must not return @c nil.
  *
  * @return The resolved instance. Never @c nil.
@@ -178,19 +180,14 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
  * @endcode
  *
  * Tests register a fake class that conforms to the same protocol via
- * @c setImplClassOverride:forProtocol:. Because the resolved value is
- * statically typed as @c Class<Protocol>, the compiler verifies the override
- * actually implements every class method declared by the protocol.
- *
- * Internally this shares the same storage as @c resolveProtocol:orDefault:
- * — a @c Class object is itself an @c id — so an instance registered via
- * @c setOverrideForProtocol:instance: would also be returned here. Pick one
- * style (instance methods @b or class methods) per protocol to keep the
- * intent unambiguous at the call site.
+ * @c registerProtocol:lifetime:factory: with a factory that returns
+ * @c (id)[FakeClass class]. Because the resolved value is statically typed
+ * as @c Class<Protocol>, the compiler verifies the fake class implements
+ * every class method declared by the protocol.
  *
  * @param proto             The protocol key to resolve.
- * @param defaultProvider   Block invoked only when no override or factory is
- *                          registered. Must not return @c Nil.
+ * @param defaultProvider   Block invoked only when no factory is registered.
+ *                          Must not return @c Nil.
  *
  * @return The resolved class. Never @c Nil.
  */
@@ -203,7 +200,7 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
  *
  * Class-keyed sibling of @c resolveImplClassForProtocol:orDefault:. Useful
  * when the seam is a class method on a concrete utility class and you do
- * not want to introduce a separate protocol — the override class need only
+ * not want to introduce a separate protocol — the registered class need only
  * supply matching @c + selectors at runtime.
  *
  * @see resolveImplClassForProtocol:orDefault:
@@ -211,74 +208,16 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
 - (Class)resolveImplClassForClass:(Class)cls
                         orDefault:(Class _Nonnull (^)(void))defaultProvider;
 
-#pragma mark - Test overrides
+#pragma mark - Reset
 
 /**
- * Install a per-key override that takes precedence over any registered
- * factory and any cached singleton for the given class.
+ * Clear every registration and cached singleton on the container.
  *
- * @param cls       The class key to override.
- * @param instance  The instance to return on subsequent resolves.
- *
- * Intended for unit tests. Production code should use the registration APIs.
+ * Tests should call this from @c -tearDown (typically from a shared base
+ * test class) to leave the container in a predictable state for subsequent
+ * tests.
  */
-- (void)setOverrideForClass:(Class)cls instance:(id)instance;
-
-/**
- * Install a per-key override that takes precedence over any registered
- * factory for the given protocol.
- *
- * @param proto     The protocol key to override.
- * @param instance  The instance to return on subsequent resolves.
- */
-- (void)setOverrideForProtocol:(Protocol *)proto instance:(id)instance;
-
-/**
- * Install a @c Class as the implementation override for the given protocol.
- *
- * Typed sibling of @c setOverrideForProtocol:instance: for the class-method
- * seam pattern documented on @c resolveImplClassForProtocol:orDefault:. The
- * @c implClass parameter is statically constrained to conform to @c proto,
- * so the compiler verifies that the override class implements every class
- * method declared by the protocol.
- *
- * @param implClass  A class that conforms to @c proto.
- * @param proto      The protocol key to override.
- */
-- (void)setImplClassOverride:(Class)implClass
-                 forProtocol:(Protocol *)proto;
-
-/**
- * Install a @c Class as the implementation override for the given class key.
- *
- * Typed sibling of @c setOverrideForClass:instance: for class-method seams.
- *
- * @see setImplClassOverride:forProtocol:
- */
-- (void)setImplClassOverride:(Class)implClass
-                    forClass:(Class)cls;
-
-/**
- * Remove a previously-installed override for the given class key.
- *
- * If no override is installed, this is a no-op. Cached singletons are
- * preserved.
- */
-- (void)removeOverrideForClass:(Class)cls;
-
-/**
- * Remove a previously-installed override for the given protocol key.
- */
-- (void)removeOverrideForProtocol:(Protocol *)proto;
-
-/**
- * Clear every override on the container. Cached singletons and registered
- * factories are preserved.
- *
- * Tests should call this from @c -tearDown to leave the container in a
- * predictable state for subsequent tests.
- */
-- (void)resetAllOverrides;
+- (void)reset;
 
 @end
 
