@@ -100,7 +100,7 @@ static NSInteger gFakeThrottlingCallCount = 0;
 - (void)tearDown
 {
     [MSIDTestSwizzle reset];
-    [[MSIDDIContainer sharedInstance] resetAllOverrides];
+    [[MSIDDIContainer sharedInstance] reset];
     // Clear keychain
     NSDictionary *query = @{(id)kSecClass : (id)kSecClassKey,
                             (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric};
@@ -317,8 +317,9 @@ static NSInteger gFakeThrottlingCallCount = 0;
 
     MSIDFakeThrottlingRefresher.callCount = 0;
     [[MSIDDIContainer sharedInstance]
-        setImplClassOverride:[MSIDFakeThrottlingRefresher class]
-                 forProtocol:@protocol(MSIDThrottlingRefreshing)];
+        registerProtocol:@protocol(MSIDThrottlingRefreshing)
+                lifetime:MSIDDIContainerLifetimeSingleton
+                 factory:^id { return (id)[MSIDFakeThrottlingRefresher class]; }];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
