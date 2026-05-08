@@ -24,7 +24,10 @@
 
 #import "MSIDWebResponseBaseOperation.h"
 
-extern NSString * _Nonnull const MSID_INSTALL_BROKER_OPERATION;
-extern NSString * _Nonnull const MSID_OPEN_BROSWER_OPERATION;
-extern NSString * _Nonnull const MSID_UPGRADE_REGISTRATION_BROKER_OPERATION;
-extern NSString * _Nonnull const MSID_MDM_ENROLLMENT_COMPLETION_OPERATION;
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDWebMDMEnrollmentCompletionOperation : MSIDWebResponseBaseOperation
+
+@end
+
+NS_ASSUME_NONNULL_END
