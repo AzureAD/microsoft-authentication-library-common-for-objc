@@ -148,7 +148,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     }
     [MSIDTestSwizzle reset];
     [MSIDFakeWPJUtilProvider reset];
-    [[MSIDDIContainer sharedInstance] resetAllOverrides];
+    [[MSIDDIContainer sharedInstance] reset];
 }
 
 #pragma mark Fetch Legacy and default registration tests
@@ -376,8 +376,9 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     MSIDFakeWPJUtilProvider.wpjKeys = nil;
 
     [[MSIDDIContainer sharedInstance]
-        setImplClassOverride:[MSIDFakeWPJUtilProvider class]
-                 forProtocol:@protocol(MSIDWorkPlaceJoinUtilProviding)];
+        registerProtocol:@protocol(MSIDWorkPlaceJoinUtilProviding)
+                lifetime:MSIDDIContainerLifetimeSingleton
+                 factory:^id { return (id)[MSIDFakeWPJUtilProvider class]; }];
 
     NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
     XCTAssertNil(deviceRegMetaDataInfo);
@@ -404,8 +405,9 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     MSIDFakeWPJUtilProvider.wpjKeys = keyPairWithCert;
 
     [[MSIDDIContainer sharedInstance]
-        setImplClassOverride:[MSIDFakeWPJUtilProvider class]
-                 forProtocol:@protocol(MSIDWorkPlaceJoinUtilProviding)];
+        registerProtocol:@protocol(MSIDWorkPlaceJoinUtilProviding)
+                lifetime:MSIDDIContainerLifetimeSingleton
+                 factory:^id { return (id)[MSIDFakeWPJUtilProvider class]; }];
 
     NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
     XCTAssertNil(deviceRegMetaDataInfo);
@@ -421,8 +423,9 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     MSIDFakeWPJUtilProvider.wpjKeys = nil;
 
     [[MSIDDIContainer sharedInstance]
-        setImplClassOverride:[MSIDFakeWPJUtilProvider class]
-                 forProtocol:@protocol(MSIDWorkPlaceJoinUtilProviding)];
+        registerProtocol:@protocol(MSIDWorkPlaceJoinUtilProviding)
+                lifetime:MSIDDIContainerLifetimeSingleton
+                 factory:^id { return (id)[MSIDFakeWPJUtilProvider class]; }];
 
     NSDictionary *deviceRegMetaDataInfo = [MSIDWorkPlaceJoinUtil getRegisteredDeviceMetadataInformation:requestParams tenantId:nil usePrimaryFormat:YES];
     XCTAssertNil(deviceRegMetaDataInfo);
