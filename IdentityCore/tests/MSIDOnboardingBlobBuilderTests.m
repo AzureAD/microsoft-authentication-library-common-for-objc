@@ -71,8 +71,8 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 {
     NSDictionary *seed = @{
         @"schema_version" : version,
-        @"sessionCorrelationId" : correlationId,
-        @"onboardingMode" : mode
+        @"session_correlation_id" : correlationId,
+        @"onboarding_mode" : mode
     };
     NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -93,7 +93,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
 - (MSIDOnboardingBlobBuilder *)builderWithTestDefaults
 {
-    NSString *seed = [self seedJsonWithVersion:@"1.0" correlationId:@"abc-123" mode:@"brokered"];
+    NSString *seed = [self seedJsonWithVersion:@"1.0.0" correlationId:@"abc-123" mode:@"brokered"];
     MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed clientId:@"clientA" target:@"resource1"];
     builder.sessionCachePersistence = [[MSIDSessionCachePersistence alloc] initWithUserDefaults:self.testDefaults];
     return builder;
@@ -103,7 +103,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
 - (void)testInit_whenValidSeedJson_shouldParseSeedFields
 {
-    NSString *seed = [self seedJsonWithVersion:@"1.0" correlationId:@"abc-123" mode:@"non_brokered"];
+    NSString *seed = [self seedJsonWithVersion:@"1.0.0" correlationId:@"abc-123" mode:@"non_brokered"];
     MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed clientId:@"client1" target:@"user.read"];
 
     XCTAssertNotNil(builder);
@@ -130,8 +130,8 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
     XCTAssertEqualObjects(parsed[@"schema_version"], @"");
-    XCTAssertEqualObjects(parsed[@"sessionCorrelationId"], @"");
-    XCTAssertEqualObjects(parsed[@"onboardingMode"], @"");
+    XCTAssertEqualObjects(parsed[@"session_correlation_id"], @"");
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"");
 }
 
 #pragma mark - addStep
@@ -146,10 +146,10 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
-    NSArray *steps = parsed[@"stepsList"];
+    NSArray *steps = parsed[@"steps_list"];
 
     XCTAssertEqual(steps.count, 1);
-    XCTAssertEqualObjects(steps[0][@"stepId"], @"AuthenticationStarted");
+    XCTAssertEqualObjects(steps[0][@"step_id"], @"AuthenticationStarted");
     XCTAssertEqualObjects(steps[0][@"ts"], @"2025-10-29T15:03:17.270Z");
 }
 
@@ -169,16 +169,16 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
-    NSArray *steps = parsed[@"stepsList"];
+    NSArray *steps = parsed[@"steps_list"];
 
     XCTAssertEqual(steps.count, 4);
-    XCTAssertEqualObjects(steps[0][@"stepId"], @"BrokerInstallPromptedForMDM");
+    XCTAssertEqualObjects(steps[0][@"step_id"], @"BrokerInstallPromptedForMDM");
     XCTAssertEqualObjects(steps[0][@"ts"], @"2025-10-29T15:03:17.270Z");
-    XCTAssertEqualObjects(steps[1][@"stepId"], @"DeviceRegistrationStarted");
+    XCTAssertEqualObjects(steps[1][@"step_id"], @"DeviceRegistrationStarted");
     XCTAssertEqualObjects(steps[1][@"ts"], @"2025-10-29T15:03:17.520Z");
-    XCTAssertEqualObjects(steps[2][@"stepId"], @"DeviceRegistrationCompleted");
+    XCTAssertEqualObjects(steps[2][@"step_id"], @"DeviceRegistrationCompleted");
     XCTAssertEqualObjects(steps[2][@"ts"], @"2025-10-29T15:03:17.770Z");
-    XCTAssertEqualObjects(steps[3][@"stepId"], @"MDMEnrollmentStarted");
+    XCTAssertEqualObjects(steps[3][@"step_id"], @"MDMEnrollmentStarted");
     XCTAssertEqualObjects(steps[3][@"ts"], @"2025-10-29T15:03:18.190Z");
 }
 
@@ -196,7 +196,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
-    NSArray *steps = parsed[@"stepsList"];
+    NSArray *steps = parsed[@"steps_list"];
 
     XCTAssertEqual(steps.count, 3);
     XCTAssertEqualObjects(steps[0][@"ts"], @"2025-10-29T15:03:17.123Z");
@@ -215,10 +215,10 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
-    NSArray *errors = parsed[@"blockingErrors"];
+    NSArray *errors = parsed[@"blocking_errors"];
     XCTAssertEqual(errors.count, 1);
     XCTAssertEqualObjects(errors[0], @"BROKER_INSTALLATION_TRIGGERED");
-    XCTAssertEqualObjects(parsed[@"lastBlockingError"], @"BROKER_INSTALLATION_TRIGGERED");
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"BROKER_INSTALLATION_TRIGGERED");
 }
 
 - (void)testAddBlockingError_whenMultipleErrors_shouldTrackLastError
@@ -231,9 +231,9 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
-    NSArray *errors = parsed[@"blockingErrors"];
+    NSArray *errors = parsed[@"blocking_errors"];
     XCTAssertEqual(errors.count, 2);
-    XCTAssertEqualObjects(parsed[@"lastBlockingError"], @"MDM_FLOW");
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"MDM_FLOW");
 }
 
 - (void)testAddBlockingError_whenCalled_shouldPersistSessionCorrelation
@@ -241,6 +241,13 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
 
     [builder addBlockingError:@"65001"];
+
+    // Persistence happens asynchronously on a serial queue; wait briefly for it to complete.
+    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        return [self.testDefaults stringForKey:kCacheKey] != nil;
+    }];
+    [self expectationForPredicate:predicate evaluatedWithObject:nil handler:nil];
+    [self waitForExpectationsWithTimeout:2.0 handler:nil];
 
     NSString *persisted = [self.testDefaults stringForKey:kCacheKey];
     XCTAssertNotNil(persisted);
@@ -264,7 +271,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
-    XCTAssertEqualObjects(parsed[@"lastLoadedDomain"], @"login.microsoftonline.com");
+    XCTAssertEqualObjects(parsed[@"last_loaded_domain"], @"login.microsoftonline.com");
 }
 
 - (void)testSetLastLoadedDomain_whenNotSet_shouldBeAbsentFromBlob
@@ -276,7 +283,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
-    XCTAssertNil(parsed[@"lastLoadedDomain"]);
+    XCTAssertNil(parsed[@"last_loaded_domain"]);
 }
 
 #pragma mark - setRemediationNeeded
@@ -291,7 +298,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
-    XCTAssertEqualObjects(parsed[@"remediationNeeded"], @(YES));
+    XCTAssertEqualObjects(parsed[@"remediation_needed"], @(YES));
 }
 
 - (void)testSetRemediationNeeded_whenFalse_shouldBeAbsentFromBlob
@@ -304,7 +311,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
-    XCTAssertNil(parsed[@"remediationNeeded"]);
+    XCTAssertNil(parsed[@"remediation_needed"]);
 }
 
 #pragma mark - addUxFlowUsed
@@ -319,7 +326,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
-    NSArray *flows = parsed[@"uxFlowUsed"];
+    NSArray *flows = parsed[@"ux_flow_used"];
     XCTAssertEqual(flows.count, 1);
     XCTAssertEqualObjects(flows[0], @"MobileOnboardingPhase1");
 }
@@ -333,7 +340,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
-    XCTAssertNil(parsed[@"uxFlowUsed"]);
+    XCTAssertNil(parsed[@"ux_flow_used"]);
 }
 
 #pragma mark - finalizeBlob
@@ -350,7 +357,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
 - (void)testFinalizeBlob_whenBlockingErrorsPresent_shouldReturnPopulatedJson
 {
-    NSString *seed = [self seedJsonWithVersion:@"1.0" correlationId:@"abc-123" mode:@"non_brokered"];
+    NSString *seed = [self seedJsonWithVersion:@"1.0.0" correlationId:@"abc-123" mode:@"non_brokered"];
     MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seed clientId:@"c" target:@"t"];
     builder.sessionCachePersistence = [[MSIDSessionCachePersistence alloc] initWithUserDefaults:self.testDefaults];
 
@@ -370,31 +377,31 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertNotNil(parsed);
 
     // Seed fields
-    XCTAssertEqualObjects(parsed[@"schema_version"], @"1.0");
-    XCTAssertEqualObjects(parsed[@"sessionCorrelationId"], @"abc-123");
-    XCTAssertEqualObjects(parsed[@"onboardingMode"], @"non_brokered");
+    XCTAssertEqualObjects(parsed[@"schema_version"], @"1.0.0");
+    XCTAssertEqualObjects(parsed[@"session_correlation_id"], @"abc-123");
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"non_brokered");
 
     // Steps
-    NSArray *steps = parsed[@"stepsList"];
+    NSArray *steps = parsed[@"steps_list"];
     XCTAssertEqual(steps.count, 2);
 
     // Blocking errors
-    NSArray *errors = parsed[@"blockingErrors"];
+    NSArray *errors = parsed[@"blocking_errors"];
     XCTAssertEqual(errors.count, 1);
     XCTAssertEqualObjects(errors[0], @"BROKER_INSTALLATION_TRIGGERED");
-    XCTAssertEqualObjects(parsed[@"lastBlockingError"], @"BROKER_INSTALLATION_TRIGGERED");
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"BROKER_INSTALLATION_TRIGGERED");
 
     // Domain
-    XCTAssertEqualObjects(parsed[@"lastLoadedDomain"], @"login.microsoftonline.com");
+    XCTAssertEqualObjects(parsed[@"last_loaded_domain"], @"login.microsoftonline.com");
 
     // Last completed step
-    XCTAssertEqualObjects(parsed[@"lastCompletedStep"], @"BrokerInstallPrompted");
+    XCTAssertEqualObjects(parsed[@"last_completed_step"], @"BrokerInstallPrompted");
 
     // Remediation needed
-    XCTAssertEqualObjects(parsed[@"remediationNeeded"], @(YES));
+    XCTAssertEqualObjects(parsed[@"remediation_needed"], @(YES));
 
     // UX flow used
-    NSArray *flows = parsed[@"uxFlowUsed"];
+    NSArray *flows = parsed[@"ux_flow_used"];
     XCTAssertEqual(flows.count, 1);
     XCTAssertEqualObjects(flows[0], @"MobileOnboardingPhase1");
 }
@@ -408,9 +415,9 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSString *result = [builder finalizeBlob];
     NSDictionary *parsed = [self parsedJsonFromBlob:result];
 
-    XCTAssertNil(parsed[@"lastCompletedStep"]);
-    XCTAssertNotNil(parsed[@"stepsList"]);
-    XCTAssertEqual([parsed[@"stepsList"] count], 0);
+    XCTAssertNil(parsed[@"last_completed_step"]);
+    XCTAssertNotNil(parsed[@"steps_list"]);
+    XCTAssertEqual([parsed[@"steps_list"] count], 0);
 }
 
 @end
