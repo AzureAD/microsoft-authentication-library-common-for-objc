@@ -22,45 +22,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import "MSIDWebResponseBaseOperation.h"
 
-#import "MSIDXpcProviderCacheMock.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDXpcProviderCacheMock()
-
-@property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
-@property (nonatomic) BOOL isXpcValidated;
+@interface MSIDWebMDMEnrollmentCompletionOperation : MSIDWebResponseBaseOperation
 
 @end
 
-@implementation MSIDXpcProviderCacheMock
-
-@synthesize xpcConfiguration, cachedXpcProviderType;
-
-- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
-                               isXpcValidated:(BOOL)isXpcValidated
-{
-    self = [super init];
-    if (self)
-    {
-        self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
-        self.isXpcValidated = isXpcValidated;
-        
-        return self;
-    }
-    
-    return nil;
-}
-
-- (BOOL)validateCacheXpcProvider
-{
-    return _isXpcValidated;
-}
-
-- (BOOL)isXpcProviderInstalledOnDevice
-{
-    return _isXpcProviderInstalledOnDevice;
-}
-
-@end
-
-
+NS_ASSUME_NONNULL_END

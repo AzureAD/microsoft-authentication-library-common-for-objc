@@ -1,3 +1,15 @@
+TBD
+* Add device token grant request/response handlers. (#1801)
+* Improve UI tests performance #1805
+
+Version 1.23.1
+* Support saving and removing requestedClaims for ATs in mac legacy (ACL) cache (#1783)
+
+Version 1.23.0
+* Clean up the experiment bag for HTTP requests and attempt to resolve the reported crash. (#1757)
+* Remove 4-hour XPC canPerform status cache and XPC roundtrip (#1771)
+* Add HttpRequest interceptor (#1759)
+
 Version 1.22.0
 * Import the right bridging header when common-core is consumed as submodule 
 * Add retry logic when bound app refresh token redemption fails.

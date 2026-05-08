@@ -30,8 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDXpcProviderCacheMock : NSObject <MSIDXpcProviderCaching>
 
 - (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
-                               isXpcValidated:(BOOL)isXpcValidated
-                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus;
+                               isXpcValidated:(BOOL)isXpcValidated;
 
 @end
 
