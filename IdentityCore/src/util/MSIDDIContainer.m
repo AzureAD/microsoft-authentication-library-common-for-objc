@@ -38,7 +38,7 @@
     NSMutableDictionary<NSString *, MSIDDIContainerEntry *> *_entryByKey;
     NSMutableDictionary<NSString *, id> *_overrideByKey;
     NSMutableDictionary<NSString *, id> *_singletonCache;
-    NSLock *_lock;
+    dispatch_queue_t _synchronizationQueue;
 }
 
 @end
@@ -68,7 +68,8 @@
         _entryByKey = [NSMutableDictionary new];
         _overrideByKey = [NSMutableDictionary new];
         _singletonCache = [NSMutableDictionary new];
-        _lock = [NSLock new];
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msiddicontainer-%@", [NSUUID UUID].UUIDString];
+        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     }
 
     return self;
@@ -104,10 +105,10 @@
     entry.lifetime = lifetime;
     entry.factory = factory;
 
-    [_lock lock];
-    _entryByKey[key] = entry;
-    [_singletonCache removeObjectForKey:key];
-    [_lock unlock];
+    dispatch_barrier_sync(_synchronizationQueue, ^{
+        self->_entryByKey[key] = entry;
+        [self->_singletonCache removeObjectForKey:key];
+    });
 }
 
 #pragma mark - Resolution
@@ -185,31 +186,29 @@
      description:(NSString *)description
  defaultProvider:(id _Nullable (^)(void))defaultProvider
 {
-    [_lock lock];
+    __block id override = nil;
+    __block id cached = nil;
+    __block MSIDDIContainerEntry *entry = nil;
 
-    id override = _overrideByKey[key];
-    if (override)
-    {
-        [_lock unlock];
-        return override;
-    }
+    // Concurrent read: many resolves can run in parallel; only writes
+    // (registration / override / singleton install) take the barrier.
+    dispatch_sync(_synchronizationQueue, ^{
+        override = self->_overrideByKey[key];
+        if (override) return;
+        cached = self->_singletonCache[key];
+        if (cached) return;
+        entry = self->_entryByKey[key];
+    });
 
-    id cached = _singletonCache[key];
-    if (cached)
-    {
-        [_lock unlock];
-        return cached;
-    }
+    if (override) return override;
+    if (cached) return cached;
 
-    MSIDDIContainerEntry *entry = _entryByKey[key];
     if (!entry)
     {
-        [_lock unlock];
-
         if (defaultProvider)
         {
             // No registration and no override: the caller has supplied its
-            // own default. Invoke it outside the lock — defaults often
+            // own default. Invoke it outside the queue — defaults often
             // re-enter via the caller's existing +sharedInstance and must
             // not deadlock the container. Result is intentionally not
             // cached here; the caller owns its own singleton storage.
@@ -232,30 +231,48 @@
 
     if (entry.lifetime == MSIDDIContainerLifetimeSingleton)
     {
-        // Invoke the factory while holding the lock so concurrent resolves
+        // Double-checked install under a barrier so concurrent resolves
         // observe the cached singleton instead of racing parallel factory
         // invocations. Factories registered with this lifetime are expected
         // to be cheap, side-effect free, and free of re-entrant calls back
         // into the container for the same key (which would deadlock).
-        id instance = entry.factory();
-        if (!instance)
+        __block id resolvedInstance = nil;
+        dispatch_barrier_sync(_synchronizationQueue, ^{
+            id raceOverride = self->_overrideByKey[key];
+            if (raceOverride)
+            {
+                resolvedInstance = raceOverride;
+                return;
+            }
+            id existing = self->_singletonCache[key];
+            if (existing)
+            {
+                resolvedInstance = existing;
+                return;
+            }
+            id newInstance = entry.factory();
+            if (!newInstance)
+            {
+                // Leave resolvedInstance nil; caller throws below.
+                return;
+            }
+            self->_singletonCache[key] = newInstance;
+            resolvedInstance = newInstance;
+        });
+
+        if (!resolvedInstance)
         {
-            [_lock unlock];
             NSAssert(NO, @"MSIDDIContainer: factory returned nil for '%@'", description);
             @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                            reason:[NSString stringWithFormat:@"MSIDDIContainer: factory returned nil for '%@'", description]
                                          userInfo:nil];
         }
-
-        _singletonCache[key] = instance;
-        [_lock unlock];
-        return instance;
+        return resolvedInstance;
     }
 
-    id _Nonnull (^factory)(void) = entry.factory;
-    [_lock unlock];
-
-    id instance = factory();
+    // Transient: invoke the factory outside the queue. Each resolve
+    // produces a fresh instance and never touches the singleton cache.
+    id instance = entry.factory();
     if (!instance)
     {
         NSAssert(NO, @"MSIDDIContainer: factory returned nil for '%@'", description);
@@ -273,9 +290,9 @@
     NSParameterAssert(cls);
     NSParameterAssert(instance);
 
-    [_lock lock];
-    _overrideByKey[[self keyForClass:cls]] = instance;
-    [_lock unlock];
+    dispatch_barrier_sync(_synchronizationQueue, ^{
+        self->_overrideByKey[[self keyForClass:cls]] = instance;
+    });
 }
 
 - (void)setOverrideForProtocol:(Protocol *)proto instance:(id)instance
@@ -283,9 +300,9 @@
     NSParameterAssert(proto);
     NSParameterAssert(instance);
 
-    [_lock lock];
-    _overrideByKey[[self keyForProtocol:proto]] = instance;
-    [_lock unlock];
+    dispatch_barrier_sync(_synchronizationQueue, ^{
+        self->_overrideByKey[[self keyForProtocol:proto]] = instance;
+    });
 }
 
 - (void)setImplClassOverride:(Class)implClass forProtocol:(Protocol *)proto
@@ -293,9 +310,9 @@
     NSParameterAssert(implClass);
     NSParameterAssert(proto);
 
-    [_lock lock];
-    _overrideByKey[[self keyForProtocol:proto]] = (id)implClass;
-    [_lock unlock];
+    dispatch_barrier_sync(_synchronizationQueue, ^{
+        self->_overrideByKey[[self keyForProtocol:proto]] = (id)implClass;
+    });
 }
 
 - (void)setImplClassOverride:(Class)implClass forClass:(Class)cls
@@ -303,34 +320,34 @@
     NSParameterAssert(implClass);
     NSParameterAssert(cls);
 
-    [_lock lock];
-    _overrideByKey[[self keyForClass:cls]] = (id)implClass;
-    [_lock unlock];
+    dispatch_barrier_sync(_synchronizationQueue, ^{
+        self->_overrideByKey[[self keyForClass:cls]] = (id)implClass;
+    });
 }
 
 - (void)removeOverrideForClass:(Class)cls
 {
     NSParameterAssert(cls);
 
-    [_lock lock];
-    [_overrideByKey removeObjectForKey:[self keyForClass:cls]];
-    [_lock unlock];
+    dispatch_barrier_sync(_synchronizationQueue, ^{
+        [self->_overrideByKey removeObjectForKey:[self keyForClass:cls]];
+    });
 }
 
 - (void)removeOverrideForProtocol:(Protocol *)proto
 {
     NSParameterAssert(proto);
 
-    [_lock lock];
-    [_overrideByKey removeObjectForKey:[self keyForProtocol:proto]];
-    [_lock unlock];
+    dispatch_barrier_sync(_synchronizationQueue, ^{
+        [self->_overrideByKey removeObjectForKey:[self keyForProtocol:proto]];
+    });
 }
 
 - (void)resetAllOverrides
 {
-    [_lock lock];
-    [_overrideByKey removeAllObjects];
-    [_lock unlock];
+    dispatch_barrier_sync(_synchronizationQueue, ^{
+        [self->_overrideByKey removeAllObjects];
+    });
 }
 
 #pragma mark - Private
