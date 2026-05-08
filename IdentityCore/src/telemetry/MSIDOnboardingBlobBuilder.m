@@ -28,10 +28,10 @@
 
 // Seed field keys — must match xplat core (Djinni-generated constants).
 static NSString *const MSID_FIELD_SCHEMA_VERSION = @"schema_version";
-static NSString *const MSID_FIELD_SESSION_CORRELATION_ID = @"sessionCorrelationId";
-static NSString *const MSID_FIELD_ONBOARDING_MODE = @"onboardingMode";
-static NSString *const MSID_FIELD_STEPS_LIST = @"stepsList";
-static NSString *const MSID_FIELD_STEP_ID = @"stepId";
+static NSString *const MSID_FIELD_SESSION_CORRELATION_ID = @"session_correlation_id";
+static NSString *const MSID_FIELD_ONBOARDING_MODE = @"onboarding_mode";
+static NSString *const MSID_FIELD_STEPS_LIST = @"steps_list";
+static NSString *const MSID_FIELD_STEP_ID = @"step_id";
 static NSString *const MSID_FIELD_TS = @"ts";
 
 // The schema version this platform builder understands. Anything else is treated
