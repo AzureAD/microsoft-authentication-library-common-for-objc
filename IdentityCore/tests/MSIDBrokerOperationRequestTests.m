@@ -66,6 +66,69 @@
 
 #endif
 
+#if TARGET_OS_OSX
+- (void)testFillRequest_whenClientBrokerKeyCapabilityNotSupported_shouldSkipBrokerKeyLookup
+{
+    // In the unit test host on macOS, the process is not entitled for the broker
+    // keychain access group, so -shouldIgnoreBrokerKey returns YES when
+    // clientBrokerKeyCapabilityNotSupported is YES. This must short-circuit the
+    // MSIDBrokerKeyProvider lookup/create that would otherwise log -34018/-51808.
+    __auto_type request = [MSIDBrokerOperationRequest new];
+
+    BOOL filled = [MSIDBrokerOperationRequest fillRequest:request
+                                      keychainAccessGroup:nil
+                                           clientMetadata:nil
+                    clientBrokerKeyCapabilityNotSupported:YES
+                                                  context:nil];
+
+    XCTAssertTrue(filled);
+    XCTAssertNil(request.brokerKey);
+    XCTAssertTrue(request.clientBrokerKeyCapabilityNotSupported);
+
+    // jsonDictionary must succeed in this state, mirroring runtime behavior.
+    NSDictionary *json = [request jsonDictionary];
+    XCTAssertNotNil(json);
+    XCTAssertNil(json[@"broker_key"]);
+}
+
+- (void)testFillRequest_whenClientBrokerKeyCapabilitySupported_shouldNotSkipBrokerKeyLookup
+{
+    // When the client supports a broker key, the existing behavior must be
+    // preserved: clientBrokerKeyCapabilityNotSupported is NO. The actual broker
+    // key value depends on keychain availability in the test host, so we only
+    // assert that the capability flag is propagated and not short-circuited.
+    __auto_type request = [MSIDBrokerOperationRequest new];
+
+    BOOL filled = [MSIDBrokerOperationRequest fillRequest:request
+                                      keychainAccessGroup:nil
+                                           clientMetadata:nil
+                    clientBrokerKeyCapabilityNotSupported:NO
+                                                  context:nil];
+
+    XCTAssertTrue(filled);
+    XCTAssertFalse(request.clientBrokerKeyCapabilityNotSupported);
+}
+#else
+- (void)testFillRequest_oniOS_whenClientBrokerKeyCapabilityNotSupported_shouldStillAttemptBrokerKeyLookup
+{
+    // -shouldIgnoreBrokerKey is hard-wired to NO on iOS, so the broker key
+    // lookup must always run regardless of clientBrokerKeyCapabilityNotSupported.
+    __auto_type request = [MSIDBrokerOperationRequest new];
+
+    BOOL filled = [MSIDBrokerOperationRequest fillRequest:request
+                                      keychainAccessGroup:nil
+                                           clientMetadata:nil
+                    clientBrokerKeyCapabilityNotSupported:YES
+                                                  context:nil];
+
+    XCTAssertTrue(filled);
+    XCTAssertTrue(request.clientBrokerKeyCapabilityNotSupported);
+    // On iOS, even with the capability flag set, the broker key lookup is still
+    // attempted. We do not assert on brokerKey content because it depends on
+    // the keychain state of the test host.
+}
+#endif
+
 - (void)testInitWithJSONDictionary_whenNoBrokerKey_shouldReturnError
 {
     NSDictionary *json = @{
