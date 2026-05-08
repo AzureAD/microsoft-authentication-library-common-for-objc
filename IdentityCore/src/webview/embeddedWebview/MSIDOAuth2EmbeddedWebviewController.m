@@ -686,7 +686,6 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
 
     [builder addBlockingError:errorCode];
-    [builder setRemediationNeeded:YES];
     [self recordOnboardingRemediationStepForErrorCode:errorCode builder:builder];
 }
 

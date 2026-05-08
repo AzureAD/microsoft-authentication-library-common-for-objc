@@ -91,7 +91,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 @property (nonatomic) NSMutableArray<NSString *> *blockingErrors;
 @property (nonatomic) NSMutableArray<NSString *> *uxFlowUsed;
 @property (nonatomic, copy, nullable) NSString *lastLoadedDomain;
-@property (nonatomic) BOOL remediationNeeded;
 
 @property (nonatomic) MSIDSessionCachePersistence *sessionCachePersistence;
 
@@ -192,11 +191,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     _lastLoadedDomain = [domain copy];
 }
 
-- (void)setRemediationNeeded:(BOOL)needed
-{
-    _remediationNeeded = needed;
-}
-
 - (void)addUxFlowUsed:(NSString *)flowTag
 {
     [self.uxFlowUsed addObject:flowTag];
@@ -233,12 +227,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     if (self.stepsList.count > 0)
     {
         blob[MSIDOnboardingBlobFieldLastCompletedStep] = self.stepsList.lastObject[MSID_FIELD_STEP_ID];
-    }
-
-    // Remediation needed
-    if (self.remediationNeeded)
-    {
-        blob[MSIDOnboardingBlobFieldRemediationNeeded] = @(YES);
     }
 
     // UX flow used
