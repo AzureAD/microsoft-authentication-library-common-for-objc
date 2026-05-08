@@ -53,10 +53,11 @@ clientBrokerKeyCapabilityNotSupported:(BOOL)clientBrokerKeyCapabilityNotSupporte
     // keychain, fall back to creating one via SecItemAdd, and emit OSStatus
     // -34018 / MSIDErrorBrokerKeyFailedToCreate (-51808) error logs even though
     // the resulting brokerKey is then deliberately omitted from the JSON
-    // payload by -shouldIgnoreBrokerKey.
+    // payload by -shouldIgnoreBrokerKey. -jsonDictionary already emits an
+    // Info-level log for this skip path, so no log is emitted here.
     if ([request shouldIgnoreBrokerKey])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Skipping broker key lookup/create because the client cannot persist a broker key in the keychain in this runtime context.");
+        request.brokerKey = nil;
         return YES;
     }
 

@@ -1,3 +1,6 @@
+Version 1.23.1
+* Skip broker key keychain lookup when the client cannot persist a broker key, avoiding noisy -34018/-51808 errors on macOS runtime/unentitled contexts. (#1812)
+
 Version 1.23.0
 * Clean up the experiment bag for HTTP requests and attempt to resolve the reported crash. (#1757)
 * Remove 4-hour XPC canPerform status cache and XPC roundtrip (#1771)
