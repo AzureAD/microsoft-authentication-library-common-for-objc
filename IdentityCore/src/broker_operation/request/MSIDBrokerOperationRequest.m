@@ -40,17 +40,31 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
 clientBrokerKeyCapabilityNotSupported:(BOOL)clientBrokerKeyCapabilityNotSupported
             context:(id<MSIDRequestContext>)context
 {
-    NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
-    __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
-    request.brokerKey = [brokerKeyProvider base64BrokerKeyWithContext:context
-                                                           error:nil];
     request.clientVersion = [MSIDVersion sdkVersion];
     request.protocolVersion = MSID_BROKER_PROTOCOL_VERSION_4;
     request.clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
     request.clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     request.correlationId = context.correlationId;
     request.clientBrokerKeyCapabilityNotSupported = clientBrokerKeyCapabilityNotSupported;
-    
+
+    // When the request runs in an unentitled (e.g. runtime) context that does not
+    // support a broker key, skip the keychain lookup/create entirely. Otherwise
+    // MSIDBrokerKeyProvider would attempt to read the symmetric key from the
+    // keychain, fall back to creating one via SecItemAdd, and emit OSStatus
+    // -34018 / MSIDErrorBrokerKeyFailedToCreate (-51808) error logs even though
+    // the resulting brokerKey is then deliberately omitted from the JSON
+    // payload by -shouldIgnoreBrokerKey.
+    if ([request shouldIgnoreBrokerKey])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Skipping broker key lookup/create because the client cannot persist a broker key in the keychain in this runtime context.");
+        return YES;
+    }
+
+    NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
+    __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
+    request.brokerKey = [brokerKeyProvider base64BrokerKeyWithContext:context
+                                                                error:nil];
+
     return YES;
 }
 
