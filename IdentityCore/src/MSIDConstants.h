@@ -147,6 +147,8 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityChina;
 extern NSString * _Nonnull const MSIDTrustedAuthorityChina2;
 extern NSString * _Nonnull const MSIDTrustedAuthorityGermany;
 extern NSString * _Nonnull const MSIDTrustedAuthorityFrance;
+extern NSString * _Nonnull const MSIDTrustedAuthorityDelos;
+extern NSString * _Nonnull const MSIDTrustedAuthorityGovSG;
 extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUSGovernment;
 extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
