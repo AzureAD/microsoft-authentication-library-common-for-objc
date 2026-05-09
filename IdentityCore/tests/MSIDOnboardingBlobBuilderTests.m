@@ -115,8 +115,15 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
     XCTAssertNotNil(builder);
 
+    // With no blocking errors, finalizeBlob still returns a blob with empty seed fields
     NSString *result = [builder finalizeBlob];
-    XCTAssertEqualObjects(result, @"");
+    XCTAssertTrue(result.length > 0);
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+    XCTAssertEqualObjects(parsed[@"schema_version"], @"");
+    XCTAssertEqualObjects(parsed[@"session_correlation_id"], @"");
+    XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"");
+    XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
 }
 
 - (void)testInit_whenInvalidJson_shouldUseEmptyDefaults
@@ -317,14 +324,21 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
 #pragma mark - finalizeBlob
 
-- (void)testFinalizeBlob_whenNoBlockingErrors_shouldReturnEmptyString
+- (void)testFinalizeBlob_whenNoBlockingErrors_shouldReturnBlobWithEmptyErrors
 {
     MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
 
     [builder addStep:@"AuthenticationStarted" timestamp:[NSDate date]];
 
     NSString *result = [builder finalizeBlob];
-    XCTAssertEqualObjects(result, @"");
+    XCTAssertTrue(result.length > 0);
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+    XCTAssertNotNil(parsed);
+    XCTAssertEqualObjects(parsed[@"schema_version"], @"1.0.0");
+    XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
+    XCTAssertEqual([parsed[@"steps_list"] count], 1);
+    XCTAssertEqualObjects(parsed[@"last_completed_step"], @"AuthenticationStarted");
 }
 
 - (void)testFinalizeBlob_whenBlockingErrorsPresent_shouldReturnPopulatedJson
