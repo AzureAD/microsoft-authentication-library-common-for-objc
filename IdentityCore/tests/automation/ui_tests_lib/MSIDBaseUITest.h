@@ -98,6 +98,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)waitForElement:(id)object;
 - (XCUIElement *)waitForEitherElements:(XCUIElement *)object1 and:(XCUIElement *)object2;
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object;
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object timeout:(NSTimeInterval)timeout;
+
+#pragma mark - System Dialog
+
+- (void)dismissCookieSharingDialogIfNecessary;
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element;
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(XCUIApplication *)application;
