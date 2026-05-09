@@ -243,7 +243,7 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     [builder addBlockingError:@"65001"];
 
     // Persistence happens asynchronously on a serial queue; wait briefly for it to complete.
-    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(__unused id evaluatedObject, __unused NSDictionary<NSString *,id> *bindings) {
         return [self.testDefaults stringForKey:kCacheKey] != nil;
     }];
     [self expectationForPredicate:predicate evaluatedWithObject:nil handler:nil];
