@@ -43,8 +43,9 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingSeedClassification)
 
 /// Builds the onboarding telemetry blob from a seed JSON provided by the xplat core.
 /// Records steps with timestamps, blocking errors, and domain tracking.
-/// `finalizeBlob` returns populated JSON only if blocking errors were recorded
-/// (empty string otherwise).
+/// `finalizeBlob` always returns a populated JSON blob carrying whatever has been
+/// accumulated (seed fields, steps, blocking errors, ux flow, last loaded domain) so
+/// the broker can round-trip its added telemetry on both the success and failure paths.
 @interface MSIDOnboardingBlobBuilder : NSObject
 
 /// Inspects the candidate seed JSON without producing a builder. Use to decide between
@@ -63,7 +64,9 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingSeedClassification)
 
 - (void)addUxFlowUsed:(NSString *)flowTag;
 
-/// Returns populated blob JSON if blocking errors were recorded, empty string otherwise.
+/// Returns the accumulated blob serialized as JSON. Always populated when the builder
+/// was constructed (carries the seed fields plus any recorded steps, blocking errors,
+/// ux flow, and last loaded domain). Returns @"" only if JSON serialization fails.
 - (NSString *)finalizeBlob;
 
 @end

@@ -198,11 +198,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
 - (NSString *)finalizeBlob
 {
-    if (self.blockingErrors.count == 0)
-    {
-        return @"";
-    }
-
     NSMutableDictionary *blob = [NSMutableDictionary dictionary];
 
     // Seed fields

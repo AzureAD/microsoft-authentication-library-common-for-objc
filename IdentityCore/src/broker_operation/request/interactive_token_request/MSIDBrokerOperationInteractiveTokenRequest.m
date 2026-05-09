@@ -57,7 +57,8 @@
     request.extraQueryParameters = [parameters allAuthorizeRequestExtraParametersWithMetadata:NO];
     request.extraScopesToConsent = parameters.extraScopesToConsent;
     request.userFederatedIdentityToken = parameters.userFederatedIdentityToken;
-    
+    request.onboardingBlob = parameters.onboardingBlobJson;
+
     return request;
 }
 
