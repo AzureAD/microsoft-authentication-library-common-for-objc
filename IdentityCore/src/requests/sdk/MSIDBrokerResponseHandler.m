@@ -26,6 +26,8 @@
 #import "MSIDTokenResult.h"
 #import "MSIDConstants.h"
 #import "MSIDBrokerResponse.h"
+#import "MSIDAADV2BrokerResponse.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDBrokerCryptoProvider.h"
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDCacheAccessor.h"
@@ -168,17 +170,31 @@
         }
     }
     
-    return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
-                                                            oidcScope:oidcScope
-                                                     requestAuthority:self.providedAuthority
-                                                        instanceAware:self.instanceAware
-                                                         oauthFactory:self.oauthFactory
-                                                           tokenCache:self.tokenCache
-                                                 accountMetadataCache:self.accountMetadataCacheAccessor
-                                                        correlationID:correlationId
-                                                     saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
-                                                           authScheme:authScheme
-                                                                error:error];
+    MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
+                                                                                    oidcScope:oidcScope
+                                                                             requestAuthority:self.providedAuthority
+                                                                                instanceAware:self.instanceAware
+                                                                                 oauthFactory:self.oauthFactory
+                                                                                   tokenCache:self.tokenCache
+                                                                         accountMetadataCache:self.accountMetadataCacheAccessor
+                                                                                correlationID:correlationId
+                                                                             saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
+                                                                                   authScheme:authScheme
+                                                                                        error:error];
+    
+    // Round-trip the onboarding telemetry blob (URL-scheme broker contract) onto the
+    // result's brokerMetaData so consumers can forward it.
+    if ([brokerResponse isKindOfClass:[MSIDAADV2BrokerResponse class]])
+    {
+        NSString *onboardingBlob = ((MSIDAADV2BrokerResponse *)brokerResponse).onboardingBlob;
+        if (![NSString msidIsStringNilOrBlank:onboardingBlob])
+        {
+            [tokenResult insertBrokerMetaData:onboardingBlob forKey:MSIDOnboardingBlobIPCKey];
+        }
+    }
+
+    return tokenResult;
+
 }
 
 - (MSIDAuthenticationScheme *)authSchemeFromResumeState:(NSDictionary *)resumeState
