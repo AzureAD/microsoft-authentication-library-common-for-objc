@@ -1,4 +1,5 @@
 TBD
+* Add Delos and GovSG sovereign cloud authorities as trusted hosts. (#1813)
 * Add device token grant request/response handlers. (#1801)
 * Improve UI tests performance #1805
 
