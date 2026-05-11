@@ -169,6 +169,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
             metadata.tenantIdentifier = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
             metadata.certificateThumbprint = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDWPJThumbprintIdentifier context:context error:nil];
             metadata.cloudHost = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDWPJCloudEnvironmentIdentifier context:context error:nil];
+            metadata.userObjectId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDWPJUserObjectIdIdentifier context:context error:nil];
             metadata.deviceID = wpjCerts.certificateSubject;
         }
         else //v2
@@ -491,6 +492,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         metadata.certificateThumbprint = decodedDataDict[kMSIDWPJThumbprintIdentifier];
         metadata.cloudHost = attributeDictionary[(__bridge id) kSecAttrDescription];
         metadata.deviceID = decodedDataDict[kMSIDWPJCertificateCommonNameIdentifier];
+        metadata.userObjectId = decodedDataDict[kMSIDWPJUserObjectIdIdentifier];
         metadata.upn = attributeDictionary[(__bridge id) kSecAttrLabel];
         metadata.tenantIdentifier = tenantIdentifier;
         return metadata;
