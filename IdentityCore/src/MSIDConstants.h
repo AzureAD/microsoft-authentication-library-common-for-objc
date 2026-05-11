@@ -267,4 +267,7 @@ extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
 /// Owner: josephpab
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 
+/// When enabled, validates that the SubmitUrl host in PKeyAuth challenges is a trusted Microsoft host.
+extern NSString * _Nonnull const MSID_FLIGHT_VALIDATE_PKEYAUTH_SUBMIT_HOST;
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

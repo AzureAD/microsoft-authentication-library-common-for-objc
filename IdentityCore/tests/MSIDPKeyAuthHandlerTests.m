@@ -31,6 +31,9 @@
 #import "MSIDBasicContext.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 
 @interface MSIDPKeyAuthHandlerTests : XCTestCase
 
@@ -46,6 +49,7 @@
 - (void)tearDown
 {
     [MSIDTestSwizzle reset];
+    [MSIDFlightManager sharedInstance].flightProvider = nil;
 }
 
 #pragma mark - Tests
@@ -196,6 +200,101 @@
     }];
     XCTAssertTrue(callback);
     XCTAssertTrue(handleResult);
+}
+
+- (void)testHandleChallenge_whenSubmitUrlIsUntrustedHost_shouldReturnError
+{
+    [self enableSubmitUrlValidationFlight];
+
+    __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2fevil.contoso.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+
+    __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
+    __block BOOL callback = NO;
+    BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
+                                                     context:context
+                                               customHeaders:nil
+                                          externalSSOContext:nil
+                                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
+        XCTAssertNil(challengeResponse);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
+        XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:@"not a trusted Microsoft host"]);
+        callback = YES;
+    }];
+    XCTAssertTrue(callback);
+    XCTAssertTrue(handleResult);
+}
+
+- (void)testHandleChallenge_whenSubmitUrlIsTrustedHost_shouldSucceed
+{
+    [self enableSubmitUrlValidationFlight];
+    [self makeAppV2GroupEntitled:YES];
+
+    __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.microsoftonline.us%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+
+    __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
+    __block BOOL callback = NO;
+    BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
+                                                     context:context
+                                               customHeaders:nil
+                                          externalSSOContext:nil
+                                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
+        XCTAssertNotNil(challengeResponse);
+        XCTAssertNil(error);
+        callback = YES;
+    }];
+    XCTAssertTrue(callback);
+    XCTAssertTrue(handleResult);
+}
+
+- (void)testHandleChallenge_whenSubmitUrlIsChinaCloud_shouldSucceed
+{
+    [self enableSubmitUrlValidationFlight];
+    [self makeAppV2GroupEntitled:YES];
+
+    __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2flogin.chinacloudapi.cn%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+
+    __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
+    __block BOOL callback = NO;
+    BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
+                                                     context:context
+                                               customHeaders:nil
+                                          externalSSOContext:nil
+                                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
+        XCTAssertNotNil(challengeResponse);
+        XCTAssertNil(error);
+        callback = YES;
+    }];
+    XCTAssertTrue(callback);
+    XCTAssertTrue(handleResult);
+}
+
+- (void)testHandleChallenge_whenFlightDisabledAndUntrustedHost_shouldSucceed
+{
+    [self makeAppV2GroupEntitled:YES];
+
+    __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2fevil.contoso.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+
+    __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
+    __block BOOL callback = NO;
+    BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
+                                                     context:context
+                                               customHeaders:nil
+                                          externalSSOContext:nil
+                                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
+        XCTAssertNotNil(challengeResponse);
+        XCTAssertNil(error);
+        callback = YES;
+    }];
+    XCTAssertTrue(callback);
+    XCTAssertTrue(handleResult);
+}
+
+- (void)enableSubmitUrlValidationFlight
+{
+    MSIDFlightManagerMockProvider *mockProvider = [MSIDFlightManagerMockProvider new];
+    mockProvider.boolForKeyContainer = @{ MSID_FLIGHT_VALIDATE_PKEYAUTH_SUBMIT_HOST : @YES };
+    [MSIDFlightManager sharedInstance].flightProvider = mockProvider;
 }
 
 - (void)makeAppV2GroupEntitled:(BOOL)entitled

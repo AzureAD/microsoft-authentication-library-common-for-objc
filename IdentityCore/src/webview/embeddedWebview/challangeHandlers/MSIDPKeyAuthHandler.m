@@ -35,6 +35,8 @@
 #import "MSIDRequestTelemetryConstants.h"
 #endif
 #import "MSIDWorkPlaceJoinUtil.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDFlightManager.h"
 
 @implementation MSIDPKeyAuthHandler
 
@@ -58,6 +60,20 @@
         error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerOauth, @"Incomplete PKeyAuth challenge received.", nil, nil, nil, context.correlationId, nil, YES);
         completionHandler(nil, error);
         return YES;
+    }
+    
+    // Validate that the SubmitUrl host is a trusted Microsoft host
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_VALIDATE_PKEYAUTH_SUBMIT_HOST])
+    {
+        NSURL *submitURL = [NSURL URLWithString:submitUrl];
+        NSString *submitUrlHost = submitURL.host.lowercaseString;
+        if (!submitUrlHost || ![[MSIDAADNetworkConfiguration defaultConfiguration].trustedHosts containsObject:submitUrlHost])
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"PKeyAuth challenge SubmitUrl host is not a trusted Microsoft host: %@", MSID_EUII_ONLY_LOG_MASKABLE(submitUrlHost));
+            error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerOauth, @"PKeyAuth challenge SubmitUrl is not a trusted Microsoft host.", nil, nil, nil, context.correlationId, nil, YES);
+            completionHandler(nil, error);
+            return YES;
+        }
     }
     
     // Extract authority from submit url    

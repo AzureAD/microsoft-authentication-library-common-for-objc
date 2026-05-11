@@ -121,4 +121,6 @@ NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 
 NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_new_window_in_browser";
 
+NSString *const MSID_FLIGHT_VALIDATE_PKEYAUTH_SUBMIT_HOST = @"validate_pkeyauth_submit_host";
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
