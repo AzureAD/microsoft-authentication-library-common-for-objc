@@ -141,6 +141,71 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"");
 }
 
+- (void)testInit_whenSeedContainsUxFlowUsed_shouldCarryThroughToBlob
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"ux_flow_used" : @[@"FlowFromSeedA", @"FlowFromSeedB"]
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+    [builder addUxFlowUsed:@"FlowAddedAtRuntime"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    NSArray *flows = parsed[@"ux_flow_used"];
+    XCTAssertEqual(flows.count, 3);
+    XCTAssertEqualObjects(flows[0], @"FlowFromSeedA");
+    XCTAssertEqualObjects(flows[1], @"FlowFromSeedB");
+    XCTAssertEqualObjects(flows[2], @"FlowAddedAtRuntime");
+}
+
+- (void)testInit_whenSeedUxFlowUsedIsNotArray_shouldIgnoreIt
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"ux_flow_used" : @"not-an-array"
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    XCTAssertNil(parsed[@"ux_flow_used"]);
+}
+
+- (void)testInit_whenSeedUxFlowUsedHasNonStringEntries_shouldIncludeOnlyStrings
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"ux_flow_used" : @[@"ValidFlow", @42, [NSNull null], @"AnotherValidFlow"]
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    NSArray *flows = parsed[@"ux_flow_used"];
+    XCTAssertEqual(flows.count, 2);
+    XCTAssertEqualObjects(flows[0], @"ValidFlow");
+    XCTAssertEqualObjects(flows[1], @"AnotherValidFlow");
+}
+
 #pragma mark - addStep
 
 - (void)testAddStep_whenCalled_shouldRecordStepEntry
