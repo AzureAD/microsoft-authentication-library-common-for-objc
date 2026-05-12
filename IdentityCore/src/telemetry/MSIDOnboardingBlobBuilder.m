@@ -30,6 +30,7 @@
 static NSString *const MSID_FIELD_SCHEMA_VERSION = @"schema_version";
 static NSString *const MSID_FIELD_SESSION_CORRELATION_ID = @"session_correlation_id";
 static NSString *const MSID_FIELD_ONBOARDING_MODE = @"onboarding_mode";
+static NSString *const MSID_FIELD_UX_FLOW_USED = @"ux_flow_used";
 static NSString *const MSID_FIELD_STEPS_LIST = @"steps_list";
 static NSString *const MSID_FIELD_STEP_ID = @"step_id";
 static NSString *const MSID_FIELD_TS = @"ts";
@@ -159,6 +160,19 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
                                    ? seed[MSID_FIELD_SESSION_CORRELATION_ID] : @"";
             onboardingMode = [seed[MSID_FIELD_ONBOARDING_MODE] isKindOfClass:[NSString class]]
                              ? seed[MSID_FIELD_ONBOARDING_MODE] : @"";
+
+            id seedUxFlowUsed = seed[MSID_FIELD_UX_FLOW_USED];
+
+            if ([seedUxFlowUsed isKindOfClass:[NSArray class]])
+            {
+                for (id flowTag in (NSArray *)seedUxFlowUsed)
+                {
+                    if ([flowTag isKindOfClass:[NSString class]])
+                    {
+                        [_uxFlowUsed addObject:flowTag];
+                    }
+                }
+            }
         }
 
         _schemaVersion = schemaVersion;
