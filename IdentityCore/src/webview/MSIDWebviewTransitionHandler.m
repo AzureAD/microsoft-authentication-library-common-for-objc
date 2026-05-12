@@ -37,7 +37,8 @@
 - (void)launchASWebAuthenticationSessionWithUrl:(NSURL *)url
                                parentController:(MSIDViewController *)parentController
                               additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
-                       MSIDSystemWebviewPurpose:(MSIDSystemWebviewPurpose)systemWebViewPurpose
+                             useEphemeralSession:(BOOL)useEphemeralSession
+                       MSIDSystemWebviewPurpose:(MSIDSystemWebviewPurpose)systemWebviewPurpose
                                         context:(id<MSIDRequestContext>)context
                                      completion:(void (^)(MSIDWebviewNavigationAction *action, NSError *error))completion
 {
@@ -51,11 +52,13 @@
         return;
     }
     
-    if ((systemWebViewPurpose == MSIDSystemWebviewPurposeInstallProfile) && !additionalHeaders)
+    if ((systemWebviewPurpose == MSIDSystemWebviewPurposeInstallProfile) && !additionalHeaders)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"AsWebAuthentication transition for mdm profile install called with no additional headers, proceeding without it, users may see additional prompts ");
     }
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionHandler] Launching ASWebAuthentication session with URL: %@", MSID_PII_LOG_MASKABLE(url));
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionHandler] Launching ASWebAuthentication session with URL: %@, ephemeral: %@",
+                          MSID_PII_LOG_MASKABLE(url), useEphemeralSession ? @"YES" : @"NO");
     
     if (additionalHeaders && additionalHeaders.count > 0)
     {
@@ -64,7 +67,7 @@
     
     NSString *callbackScheme = nil;
     
-    switch(systemWebViewPurpose)
+    switch(systemWebviewPurpose)
     {
         case MSIDSystemWebviewPurposeInstallProfile:
             callbackScheme = @"msauth";
@@ -80,16 +83,16 @@
         self.aSWebAuthenticationSessionHandler = [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
                                                                                                      startURL:url
                                                                                                callbackScheme:callbackScheme
-                                                                                           useEmpheralSession:YES
+                                                                                           useEmpheralSession:useEphemeralSession
                                                                                             additionalHeaders:additionalHeaders];
     }
     else
     {
-        // Fallback for older OS versions (shouldn't happen since minimum is iOS 18 ?)
+        // Fallback for older OS versions
         self.aSWebAuthenticationSessionHandler = [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
                                                                                                      startURL:url
                                                                                                callbackScheme:callbackScheme
-                                                                                           useEmpheralSession:YES];
+                                                                                           useEmpheralSession:useEphemeralSession];
         
         if (additionalHeaders && additionalHeaders.count > 0)
         {
@@ -114,7 +117,7 @@
         
         MSIDWebviewNavigationAction *action =  [self handleASWebAuthnSessionCompletion:callbackURL
                                                                                  error:error
-                                                              MSIDSystemWebviewPurpose:systemWebViewPurpose
+                                                              MSIDSystemWebviewPurpose:systemWebviewPurpose
                                                                                context:context];
         completion(action, nil);
         return;
@@ -122,52 +125,6 @@
 }
 
 #pragma mark - Suspend/Resume/Dismiss Webview
-
-- (void)suspendEmbeddedWebview:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebview
-{
-    if (!embeddedWebview)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[MSIDWebviewTransitionHandler] Cannot suspend nil webview");
-        return;
-    }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionHandler] Suspending embedded webview");
-    
-    // Store reference to keep webview alive
-    self.suspendedEmbeddedWebview = embeddedWebview;
-    
-    // Hide the webview UI without dismissing it
-    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        MSIDViewController *parentController = embeddedWebview.parentController;
-        if (parentController && parentController.view)
-        {
-            parentController.view.hidden = YES;
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"[MSIDWebviewTransitionHandler] Webview UI hidden");
-        }
-    }];
-}
-
-- (void)resumeSuspendedEmbeddedWebview
-{
-    if (!self.suspendedEmbeddedWebview)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[MSIDWebviewTransitionHandler] No suspended webview to resume");
-                return;
-    }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionHandler] Resuming suspended embedded webview");
-    
-    
-    // Show the webview UI again
-    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        MSIDViewController *parentController = self.suspendedEmbeddedWebview.parentController;
-        if (parentController && parentController.view)
-        {
-            parentController.view.hidden = NO;
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"[MSIDWebviewTransitionHandler] Webview UI shown");
-        }
-    }];
-}
 
 - (void)dismissASWebAuthenticationSession
 {
@@ -181,49 +138,11 @@
     }
 }
 
-- (void)dismissSuspendedEmbeddedWebview
-{
-    if (!self.suspendedEmbeddedWebview)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[MSIDWebviewTransitionHandler] No suspended webview to dismiss");
-        return;
-    }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionHandler] Dismissing suspended embedded webview");
-    
-    // Cancel the suspended webview to properly clean it up
-    [self.suspendedEmbeddedWebview cancelProgrammatically];
-    
-    // Release the reference
-    self.suspendedEmbeddedWebview = nil;
-}
-
-#pragma mark - Cleanup
-
-- (void)cleanup
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDWebviewTransitionHandler] Cleaning up coordinator state");
-    
-    self.suspendedEmbeddedWebview = nil;
-    
-    if (self.aSWebAuthenticationSessionHandler)
-    {
-        [self.aSWebAuthenticationSessionHandler dismiss];
-        self.aSWebAuthenticationSessionHandler = nil;
-    }
-    // Dismiss suspended webview if exists
-    if (self.suspendedEmbeddedWebview)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"[MSIDWebviewTransitionHandler] Dismissing suspended webview during cleanup");
-        [self dismissSuspendedEmbeddedWebview];
-    }
-}
-
 #pragma mark - Private Helper Methods
 
 - (MSIDWebviewNavigationAction *)handleASWebAuthnSessionCompletion:(NSURL *)callbackURL
                                     error:(NSError *)error
-                 MSIDSystemWebviewPurpose:(MSIDSystemWebviewPurpose)systemWebViewPurpose
+                 MSIDSystemWebviewPurpose:(MSIDSystemWebviewPurpose)systemWebviewPurpose
                                   context:(id<MSIDRequestContext>)context
 {
     if (error)
@@ -239,7 +158,7 @@
     
     // Currently only implemented for MSIDSystemWebviewPurposeInstallProfile purpose, can be extended for future cases
     // Check if callback is msauth://in_app_enrollment_complete
-    if (systemWebViewPurpose == MSIDSystemWebviewPurposeInstallProfile)
+    if (systemWebviewPurpose == MSIDSystemWebviewPurposeInstallProfile)
     {
         if (callbackURL &&
             [callbackURL.scheme caseInsensitiveCompare:@"msauth"] == NSOrderedSame &&
@@ -250,14 +169,8 @@
             
             self.aSWebAuthenticationSessionHandler = nil;
             
-            // TODO: check
-            // Option 1: cancel ASWebAuthN , load callback URL in WKWebview and let WKWebView handle the response
-            // 2. Resume embedded webview UI
-            [self resumeSuspendedEmbeddedWebview];
-            
-            
             // 4. Load callback URL
-            return [MSIDWebviewNavigationAction loadRequestAction:[NSURLRequest requestWithURL:callbackURL]];
+            return [MSIDWebviewNavigationAction completeWebAuthWithURLAction:callbackURL];
         }
         else
         {
@@ -265,7 +178,7 @@
                               @"Unexpected callback URL from mdm profile installation: %@", callbackURL);
             
             // Clean up
-            [self cleanup];
+            [self dismissASWebAuthenticationSession];
             
             // Create error for unexpected callback
             NSError *callbackError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
@@ -278,11 +191,6 @@
     {
         // for now in other cases we will transition the control back to Embedded webview
         self.aSWebAuthenticationSessionHandler = nil;
-        
-        // TODO: check
-        // Option 1: cancel ASWebAuthN , load callback URL in WKWebview and let WKWebView handle the response
-        // 2. Resume embedded webview UI
-        [self resumeSuspendedEmbeddedWebview];
         
         // 4. Load callback URL
         return [MSIDWebviewNavigationAction loadRequestAction:[NSURLRequest requestWithURL:callbackURL]];

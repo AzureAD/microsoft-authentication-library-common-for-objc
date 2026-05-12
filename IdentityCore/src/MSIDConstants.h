@@ -251,4 +251,29 @@ extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
+
+#pragma mark - ASWebAuthenticationSession Handoff Headers
+
+// ASWebAuthenticationSession handoff header keys
+extern NSString * _Nonnull const MSID_ASWEBAUTH_HANDOFF_URL_KEY;                    // x-ms-aswebauth-handoff-url
+extern NSString * _Nonnull const MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY;          // x-ms-aswebauth-handoff-use-ephemeral-session
+extern NSString * _Nonnull const MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY;        // x-ms-aswebauth-handoff-include-headers
+extern NSString * _Nonnull const MSID_ASWEBAUTH_HANDOFF_ATTACH_HEADERS_KEY;         // x-ms-aswebauth-handoff-attach-headers
+extern NSString * _Nonnull const MSID_ASWEBAUTH_HANDOFF_INTUNE_AUTH_TOKEN_KEY;      // x-ms-aswebauth-handoff-intune-auth-token
+extern NSString * _Nonnull const MSID_ASWEBAUTH_HANDOFF_SESSION_CORRELATION_ID_KEY; // x-ms-aswebauth-handoff-session-correlation-id
+extern NSString * _Nonnull const MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX;              // x-ms-aswebauth-handoff-
+
+// ASWebAuthenticationSession handoff header values
+extern NSString * _Nonnull const MSID_ASWEBAUTH_HANDOFF_VALUE_TRUE;                 // "true"
+extern NSString * _Nonnull const MSID_ASWEBAUTH_HANDOFF_VALUE_FALSE;                // "false"
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
+
+#pragma mark - MSIDConstants Class
+
+// Trusted Microsoft domain configurations for ASWebAuthenticationSession
+@interface MSIDConstants : NSObject
+
+@property (class, nonatomic, readonly) NSSet<NSString *> * _Nonnull asWebAuthAllowedDomains;
+
+@end

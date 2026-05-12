@@ -108,13 +108,13 @@
     NSString *path = requestURL.path;
     if (isBrowserUrl)
     {
-        NSDictionary *queryParams = [requestURL msidQueryParameters];
-        NSString *linkId = queryParams[@"LinkId"];
+        //NSDictionary *queryParams = [requestURL msidQueryParameters];
+        //NSString *linkId = queryParams[@"LinkId"];
         // Check for enrollment URL (path could be /fwlink or /fwlink/)
         BOOL isEnrollmentPath = [path isEqualToString:@"/fwlink"] || [path isEqualToString:@"/fwlink/"];
         if ([host isEqualToString:@"go.microsoft.com"] &&
-            isEnrollmentPath &&
-            ([linkId isEqualToString:@"396941"] || [linkId isEqual:@"399153"]))
+            isEnrollmentPath)
+            //&& ([linkId isEqualToString:@"396941"] || [linkId isEqual:@"399153"]))
         {
             // Construct proper https URL with all query parameters
             NSString *cpurlValue;

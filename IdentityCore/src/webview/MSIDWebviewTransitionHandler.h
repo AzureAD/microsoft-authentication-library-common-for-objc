@@ -52,29 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDWebviewTransitionHandler : NSObject
 
 /**
- * Reference to the suspended embedded webview kept alive during the transition
- */
-@property (nonatomic, nullable) MSIDOAuth2EmbeddedWebviewController *suspendedEmbeddedWebview;
-
-/**
  * Handler for ASWebAuthenticationSession lifecycle.
  * Manages the system webview instance.
  */
 @property (nonatomic, nullable) id aSWebAuthenticationSessionHandler;
-
-/**
- * Indicates whether a transition is currently in progress.
- * Returns YES if either a suspended webview exists or ASWebAuthenticationSession is active.
- */
-@property (nonatomic, readonly) BOOL isTransitioning;
-
-/**
- * Suspends the embedded webview by hiding it while keeping it alive in memory.
- * The webview can be resumed later with resumeSuspendedEmbeddedWebview.
- *
- * @param embeddedWebview The webview to suspend
- */
-- (void)suspendEmbeddedWebview:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebview;
 
 /**
  * Launches ASWebAuthenticationSession and returns navigation action.
@@ -83,6 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param url The URL to load in ASWebAuthenticationSession
  * @param parentController The parent view controller to present from (iOS only)
  * @param additionalHeaders Optional headers to pass (e.g., x-ms-intune-token)
+ * @param useEphemeralSession Whether to use ephemeral web browser session (no cookies/cache)
  * @param purpose The purpose of the system webview (e.g., install profile)
  * @param context Request context for logging and telemetry
  * @param completion Completion handler with navigation action or error
@@ -90,33 +72,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)launchASWebAuthenticationSessionWithUrl:(NSURL *)url
                                parentController:(MSIDViewController *)parentController
                               additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+                             useEphemeralSession:(BOOL)useEphemeralSession
                        MSIDSystemWebviewPurpose:(MSIDSystemWebviewPurpose)purpose
                                         context:(id<MSIDRequestContext>)context
                                      completion:(void (^)(MSIDWebviewNavigationAction * _Nonnull action, NSError * _Nonnull error))completion;
-
-/**
- * Resumes the previously suspended embedded webview.
- * Makes it visible again and restores its state.
- */
-- (void)resumeSuspendedEmbeddedWebview;
 
 /**
  * Dismisses the ASWebAuthenticationSession if it is currently active.
  * This will cancel the session and clean up the session handler reference.
  */
 - (void)dismissASWebAuthenticationSession;
-
-/**
- * Dismisses the suspended embedded webview by canceling it and releasing the reference.
- * Use this when you need to completely abandon the embedded webview and switch to a different flow.
- */
-- (void)dismissSuspendedEmbeddedWebview;
-
-/**
- * Cleans up resources.
- * Dismisses ASWebAuthenticationSession if active and releases suspended webview reference.
- */
-- (void)cleanup;
 
 @end
 

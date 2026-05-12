@@ -57,12 +57,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDWebviewNavigationDelegateHelper : NSObject
 
 /**
- * Request context for logging and correlation ID.
- * Kept as weak reference to avoid retain cycles.
- */
-@property (nonatomic, weak, readonly) id<MSIDRequestContext> context;
-
-/**
  * Last received HTTP response headers.
  * Used for telemetry extraction and URL action resolution.
  */
@@ -115,34 +109,23 @@ NS_ASSUME_NONNULL_BEGIN
             externalNavigationBlock:(nullable id)externalNavigationBlock;
 
 /**
- * Processes HTTP response headers for telemetry extraction.
+ * Processes HTTP response headers and handles ASWebAuthentication handoff.
+ * This method examines response headers for ASWebAuth handoff instructions and launches
+ * ASWebAuthenticationSession if required.
+ *
+ * Supports flowchart logic for:
+ * - Header-based URL handoff (x-ms-aswebauth-handoff-url)
+ * - Ephemeral session configuration (x-ms-aswebauth-handoff-use-ephemeral-session)
+ * - Conditional header attachment (x-ms-aswebauth-handoff-include-headers, x-ms-aswebauth-handoff-attach-headers)
+ * - Domain allowlist validation for security
  *
  * @param headers Response headers to process
+ * @param parentController Parent view controller for presenting ASWebAuth
+ * @param completion Completion handler with navigation action or error
  */
 - (void)processResponseHeaders:(NSDictionary<NSString *, NSString *> *)headers
-             transitionHandler:(MSIDWebviewTransitionHandler *)transitionHandler
               parentController:(MSIDViewController *)parentController
                     completion:(void (^_Nonnull)(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error))completion;
-
-/**
- * Handles transition from embedded webview to ASWebAuthenticationSession.
- * Suspends the embedded webview and launches system webview.
- *
- * @param url URL to open in ASWebAuthenticationSession
- * @param embeddedWebview The embedded webview to suspend
- * @param additionalHeaders Optional headers to pass to system webview
- * @param purpose Purpose of the system webview (e.g., profile installation)
- * @param handler Coordinator managing the transition
- * @param parentController Parent view controller for presenting system webview
- * @param completion Completion block with navigation action or error
- */
-- (void)handleASWebAuthenticationTransition:(nullable NSURL *)url
-                           embeddedWebview:(nullable MSIDAADOAuthEmbeddedWebviewController *)embeddedWebview
-                         additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
-                                   purpose:(MSIDSystemWebviewPurpose)purpose
-                         transitionHandler:(MSIDWebviewTransitionHandler *)handler
-                          parentController:(MSIDViewController *)parentController
-                                completion:(nullable void (^)(MSIDWebviewNavigationAction * _Nullable action, NSError * _Nullable error))completion;
 
 @end
 

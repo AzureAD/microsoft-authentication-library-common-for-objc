@@ -68,13 +68,6 @@
                                      params:params
                             responseHeaders:responseHeaders];
     }
-    else if ([host isEqualToString:@"installprofile"])
-    {
-        return [self actionForInstallProfileURL:url
-                                         params:params
-                                responseHeaders:responseHeaders
-                                intuneAuthToken:intuneAuthToken];
-    }
     else if ([host isEqualToString:@"in_app_enrollment_complete"])
     {
         // Profile installation completed - complete auth with this URL
@@ -224,67 +217,6 @@
     
     return [MSIDWebviewNavigationAction loadRequestAction:request];
 }
-
-- (MSIDWebviewNavigationAction *)actionForInstallProfileURL:(NSURL *)url
-                                                     params:(NSDictionary *)params
-                                            responseHeaders:(nullable NSDictionary *)responseHeaders
-                                            intuneAuthToken:(NSString * _Nullable)intuneAuthToken
-{
-    // Extract install URL from response header
-    NSString *installURLString = params[@"profileUrl"]; //@"https://portal.manage-beta.microsoft.com/enrollment/webenrollment/installprofile?platform=iPhone";
-    NSURL *profileURL = nil;
-    
-    if (installURLString)
-    {
-        profileURL = [NSURL URLWithString:installURLString];
-    }
-    
-    if (!profileURL)
-    {
-        // Missing url - just complete with original URL
-        return [MSIDWebviewNavigationAction completeWebAuthWithURLAction:url];;
-    }
-        
-    // Check if ASWebAuthenticationSession is required
-    NSString *requireASWebAuthString = params[@"requireASWebAuthenticationSession"];
-    BOOL requireASWebAuth = [requireASWebAuthString.lowercaseString isEqualToString:@"true"];
-        
-    if (requireASWebAuth)
-    {
-        // Extract X-Intune-AuthToken for passing to ASWebAuthenticationSession
-        // Note: X-Install-Url is used for the URL, not passed in additionalHeaders
-        NSDictionary<NSString *, NSString *> *authHeaders = nil;
-        NSString *intuneAuthTokenInResponseHeaders = responseHeaders[@"x-ms-intune-token"];
-        if (intuneAuthTokenInResponseHeaders)
-        {
-            authHeaders = @{@"x-ms-intune-token": intuneAuthTokenInResponseHeaders};
-        }
-        else if (intuneAuthToken)
-        {
-            authHeaders = @{@"x-ms-intune-token": intuneAuthToken};
-        }
-        
-        // Open in ASWebAuthenticationSession with InstallProfile purpose
-        // URL: from X-Install-Url header
-        // Headers: X-Intune-AuthToken only
-        // Note: Ephemeral session behavior is implied by purpose and will be
-        // enforced by the system webview handoff handler
-        return [MSIDWebviewNavigationAction openInASWebAuthSessionAction:profileURL
-                                                                 purpose:MSIDSystemWebviewPurposeInstallProfile
-                                                       additionalHeaders:authHeaders];
-    }
-    else
-    {
-        // TODO: Check if we need to load in external browser or embedded webview based on other parameters or headers.
-        // Open in external browser
-        //return [MSIDWebviewNavigationAction openInExternalBrowserAction:profileURL];
-        
-        // Load in embedded webview
-        NSURLRequest *request = [NSURLRequest requestWithURL:profileURL];
-        return [MSIDWebviewNavigationAction loadRequestAction:request];
-    }
-}
-
 #pragma mark - Helper Methods
 
 - (nullable NSURLRequest *)buildRequestForCpurl:(NSString *)cpurl
@@ -346,53 +278,6 @@
         }
     }
     return result;
-}
-
-
-- (NSString *)extractCpurlFromMSAuthURL:(NSURL *)url
-{
-    if (!url)
-    {
-        //MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"URL is nil, cannot extract cpurl from msauth URL.");
-        return nil;
-    }
-    
-    // Manually extract cpurl parameter since it contains & characters that would be incorrectly parsed
-    // URL format: msauth://enroll?cpurl=https://go.microsoft.com/fwlink?LinkId=396941&userid=...
-    NSString *query = url.query;
-    if (!query || query.length == 0)
-    {
-        //MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.context, @"No query string found in URL: %@", MSID_PII_LOG_MASKABLE(url.absoluteString));
-        return nil;
-    }
-    
-    // Look for "cpurl=" in the query string
-    NSString *cpurlPrefix = @"cpurl=";
-    NSRange cpurlRange = [query rangeOfString:cpurlPrefix];
-    
-    if (cpurlRange.location == NSNotFound)
-    {
-        //MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.context, @"cpurl parameter not found in URL: %@", MSID_PII_LOG_MASKABLE(url.absoluteString));
-        return nil;
-    }
-    
-    // Extract everything after "cpurl="
-    // The cpurl value extends to the end of the query string (or until the next top-level parameter if any)
-    NSUInteger startIndex = cpurlRange.location + cpurlRange.length;
-    NSString *cpurlValue = [query substringFromIndex:startIndex];
-    
-    // Decode the percent-encoded URL
-    NSString *decodedCpurl = [cpurlValue stringByRemovingPercentEncoding];
-    
-    if (!decodedCpurl)
-    {
-        //MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.context, @"Failed to decode cpurl value: %@", MSID_PII_LOG_MASKABLE(cpurlValue));
-        return cpurlValue; // Return the encoded version if decoding fails
-    }
-    
-    //MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Successfully extracted cpurl: %@", MSID_PII_LOG_MASKABLE(decodedCpurl));
-    
-    return decodedCpurl;
 }
 
 @end

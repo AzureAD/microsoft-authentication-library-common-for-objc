@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -17,7 +16,7 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
@@ -661,26 +660,6 @@ initiatedByFrame:(WKFrameInfo *)frame
                                  @"Loading request: %@",
                                  MSID_PII_LOG_MASKABLE(action.request.URL));
             [self loadRequest:action.request];
-            break;
-        }
-            // TODO: Check for more actions
-        case MSIDWebviewNavigationActionTypeOpenInExternalBrowser:
-        {
-            /*MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
-                                 @"Opening in external browser: %@",
-                                 MSID_PII_LOG_MASKABLE(action.url));
-#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
-            #if !defined(MSID_EXCLUDE_SHARED_APPLICATION)
-            if ([[UIApplication class] respondsToSelector:@selector(sharedApplication)])
-            {
-                [[UIApplication sharedApplication] openURL:action.url
-                                                   options:@{}
-                                         completionHandler:nil];
-            }
-            #endif
-#elif TARGET_OS_OSX
-            [[NSWorkspace sharedWorkspace] openURL:action.url];
-#endif*/
             break;
         }
             

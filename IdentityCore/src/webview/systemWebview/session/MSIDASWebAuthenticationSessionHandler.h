@@ -33,6 +33,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Purpose for launching an ASWebAuthenticationSession.
+ * Defines the intent/flow and determines the expected callback pattern.
+ */
+typedef NS_ENUM(NSInteger, MSIDASWebAuthenticationSessionPurpose)
+{
+    /// Unknown or unspecified purpose
+    MSIDASWebAuthenticationSessionPurposeUnknown = 0,
+    
+    /// MDM/Intune profile installation flow
+    /// Expected callback: msauth://in_app_enrollment_complete
+    MSIDASWebAuthenticationSessionPurposeMDMEnrollment = 1,
+    
+};
+
 @interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
 
 - (instancetype)initWithParentController:(MSIDViewController *)parentController

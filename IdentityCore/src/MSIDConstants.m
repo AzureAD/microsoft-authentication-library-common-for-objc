@@ -114,4 +114,41 @@ NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 
 NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 
+#pragma mark - ASWebAuth Handoff Headers
+
+// ASWebAuthenticationSession handoff header keys
+NSString *const MSID_ASWEBAUTH_HANDOFF_URL_KEY                    = @"x-ms-aswebauth-handoff-url";
+NSString *const MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY          = @"x-ms-aswebauth-handoff-use-ephemeral-session";
+NSString *const MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY        = @"x-ms-aswebauth-handoff-include-headers";
+NSString *const MSID_ASWEBAUTH_HANDOFF_ATTACH_HEADERS_KEY         = @"x-ms-aswebauth-handoff-attach-headers";
+NSString *const MSID_ASWEBAUTH_HANDOFF_INTUNE_AUTH_TOKEN_KEY      = @"x-ms-aswebauth-handoff-intune-auth-token";
+NSString *const MSID_ASWEBAUTH_HANDOFF_SESSION_CORRELATION_ID_KEY = @"x-ms-aswebauth-handoff-session-correlation-id";
+NSString *const MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX              = @"x-ms-aswebauth-handoff-";
+
+// ASWebAuthenticationSession handoff header values
+NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_TRUE                 = @"true";
+NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_FALSE                = @"false";
+
+#pragma mark - ASWebAuthenticationSession Allowed Domains
+
+@implementation MSIDConstants
+
++ (NSSet<NSString *> *)asWebAuthAllowedDomains
+{
+    static NSSet<NSString *> *allowedDomains = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        allowedDomains = [[NSSet alloc] initWithArray:@[@"portal.manage.microsoft.com",
+                                                        @"portal.manage-beta.microsoft.com",
+                                                        @"portal.manage.microsoft.us",
+                                                        @"portal.manage.microsoft.cn",
+                                                        @"portal.manage.microsoftonline.de"
+                                                      ]];
+    });
+    
+    return allowedDomains;
+}
+
+@end
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

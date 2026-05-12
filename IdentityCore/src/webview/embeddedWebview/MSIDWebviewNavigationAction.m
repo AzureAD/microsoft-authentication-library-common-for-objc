@@ -31,9 +31,7 @@
 - (instancetype)initWithType:(MSIDWebviewNavigationActionType)type
                      request:(NSURLRequest *)request
                          url:(NSURL *)url
-                     purpose:(MSIDSystemWebviewPurpose)purpose
                        error:(NSError *)error
-           additionalHeaders:(NSDictionary<NSString *, NSString *> *)additionalHeaders
 {
     self = [super init];
     if (self)
@@ -41,9 +39,7 @@
         _type = type;
         _request = request;
         _url = url;
-        _purpose = purpose;
         _error = error;
-        _additionalHeaders = additionalHeaders;
     }
     return self;
 }
@@ -55,9 +51,7 @@
     return [[self alloc] initWithType:MSIDWebviewNavigationActionTypeContinueDefault
                               request:nil
                                   url:nil
-                              purpose:MSIDSystemWebviewPurposeUnknown
-                                error:nil
-                    additionalHeaders:nil];
+                                error:nil];
 }
 
 + (instancetype)loadRequestAction:(NSURLRequest *)request
@@ -65,31 +59,7 @@
     return [[self alloc] initWithType:MSIDWebviewNavigationActionTypeLoadRequestInWebview
                               request:request
                                   url:nil
-                              purpose:MSIDSystemWebviewPurposeUnknown
-                                error:nil
-                    additionalHeaders:nil];
-}
-
-+ (instancetype)openInASWebAuthSessionAction:(NSURL *)url
-                                     purpose:(MSIDSystemWebviewPurpose)purpose
-                           additionalHeaders:(NSDictionary<NSString *, NSString *> *)headers
-{
-    return [[self alloc] initWithType:MSIDWebviewNavigationActionTypeOpenInASWebAuthenticationSession
-                              request:nil
-                                  url:url
-                              purpose:purpose
-                                error:nil
-                    additionalHeaders:headers];
-}
-
-+ (instancetype)openInExternalBrowserAction:(NSURL *)url
-{
-    return [[self alloc] initWithType:MSIDWebviewNavigationActionTypeOpenInExternalBrowser
-                              request:nil
-                                  url:url
-                              purpose:MSIDSystemWebviewPurposeUnknown
-                                error:nil
-                    additionalHeaders:nil];
+                                error:nil];
 }
 
 + (instancetype)completeWebAuthWithURLAction:(NSURL *)url
@@ -97,9 +67,7 @@
     return [[self alloc] initWithType:MSIDWebviewNavigationActionTypeCompleteWebAuthWithURL
                               request:nil
                                   url:url
-                              purpose:MSIDSystemWebviewPurposeUnknown
-                                error:nil
-                    additionalHeaders:nil];
+                                error:nil];
 }
 
 + (instancetype)failWebAuthWithErrorAction:(NSError *)error
@@ -107,9 +75,7 @@
     return [[self alloc] initWithType:MSIDWebviewNavigationActionTypeFailWithError
                               request:nil
                                   url:nil
-                              purpose:MSIDSystemWebviewPurposeUnknown
-                                error:error
-                    additionalHeaders:nil];
+                                error:error];
 }
 
 #pragma mark - Validation
@@ -122,8 +88,6 @@
             // Must have a request to load
             return self.request != nil;
             
-        case MSIDWebviewNavigationActionTypeOpenInASWebAuthenticationSession:
-        case MSIDWebviewNavigationActionTypeOpenInExternalBrowser:
         case MSIDWebviewNavigationActionTypeCompleteWebAuthWithURL:
             // Must have a URL
             return self.url != nil;

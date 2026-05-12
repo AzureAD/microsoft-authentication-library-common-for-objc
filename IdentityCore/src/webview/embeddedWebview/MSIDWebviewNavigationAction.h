@@ -38,12 +38,6 @@ typedef NS_ENUM(NSInteger, MSIDWebviewNavigationActionType)
     /// Load the specified request in the embedded webview
     MSIDWebviewNavigationActionTypeLoadRequestInWebview,
     
-    /// Open the URL in ASWebAuthenticationSession (system webview)
-    MSIDWebviewNavigationActionTypeOpenInASWebAuthenticationSession,
-    
-    /// Open the URL in an external browser
-    MSIDWebviewNavigationActionTypeOpenInExternalBrowser,
-    
     /// Complete authentication with the provided URL
     MSIDWebviewNavigationActionTypeCompleteWebAuthWithURL,
     
@@ -85,19 +79,6 @@ typedef NS_ENUM(NSInteger, MSIDSystemWebviewPurpose)
 /// The error to fail with (used with FailWithError)
 @property (nonatomic, nullable) NSError *error;
 
-/// The purpose for system webview (used with OpenASWebAuthenticationSession)
-@property (nonatomic) MSIDSystemWebviewPurpose purpose;
-
-/*!
- Additional HTTP headers to include when executing the action.
- 
- For OpenASWebAuthenticationSession actions, these headers (e.g., X-Intune-AuthToken)
- should be made available to the system webview handler for inclusion in subsequent
- requests or for other processing needs.
- 
- */
-@property (nonatomic, readonly, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
-
 #pragma mark - Factory Methods
 
 /**
@@ -108,27 +89,6 @@ typedef NS_ENUM(NSInteger, MSIDSystemWebviewPurpose)
  * @return Action object with type LoadRequestInWebview
  */
 + (instancetype)loadRequestAction:(NSURLRequest *)request;
-
-/**
- * Create an action to open a URL in ASWebAuthenticationSession.
- * Used for profile installation that requires system webview.
- *
- * @param url The URL to open in system webview
- * @param purpose The purpose/context for opening system webview
- * @param headers Additional HTTP headers (e.g., X-Intune-AuthToken) to pass to the handler
- * @return Action object with type OpenASWebAuthenticationSession
- */
-+ (instancetype)openInASWebAuthSessionAction:(NSURL *)url
-                                     purpose:(MSIDSystemWebviewPurpose)purpose
-                           additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)headers;
-/**
- * Create an action to open a URL in the external browser.
- * Used for profile installation in the external browser.
- *
- * @param url The URL to open in external browser
- * @return Action object with type OpenExternalBrowser
- */
-+ (instancetype)openInExternalBrowserAction:(NSURL *)url;
 
 /**
  * Create an action to complete webview authentication with a URL.
