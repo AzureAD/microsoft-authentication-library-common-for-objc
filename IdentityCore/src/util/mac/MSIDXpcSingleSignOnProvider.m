@@ -127,25 +127,24 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
-    BOOL cacheEnabled = [self isXpcInstanceCacheEnabled];
     [self attemptBrokerRequest:requestParam
                parentViewFrame:frame
      assertKindOfResponseClass:aClass
               xpcProviderCache:xpcProviderCache
-                      useCache:cacheEnabled
-                    allowRetry:cacheEnabled
+            useCachedEndpoint:[self isXpcInstanceCacheEnabled]
                        context:context
                  continueBlock:continueBlock];
 }
 
-// Single attempt at a broker request. When useCache=YES and a cached endpoint is available,
-// builds the instance NSXPCConnection directly from the cached endpoint and skips the dispatcher
-// round-trip. On any transport-level failure of the cached attempt (proxy error, connection
-// interruption/invalidation BEFORE the request reply), if allowRetry=YES we clear the cache and
-// recurse once with useCache=NO/allowRetry=NO so the retry goes through the dispatcher.
+// Single attempt at a broker request. When useCachedEndpoint=YES and a cached endpoint is
+// available, builds the instance NSXPCConnection directly from the cached endpoint and skips
+// the dispatcher round-trip; on any transport-level failure of that cached attempt (proxy
+// error, connection interruption/invalidation BEFORE the request reply), the cache is cleared
+// and we recurse exactly once with useCachedEndpoint=NO so the retry goes through the
+// dispatcher.
 //
-// allowRetry MUST be NO on the recursive (dispatcher-fallback) attempt — otherwise an infinite
-// loop is possible if the dispatcher path itself transports through a stale endpoint.
+// useCachedEndpoint MUST be NO on the recursive (dispatcher-fallback) attempt — otherwise an
+// infinite loop is possible if the dispatcher path itself transports through a stale endpoint.
 //
 // A two-flag completion gate is used:
 //   - requestReplyReceived: set synchronously inside handleXpcWithRequestParams: callback so the
@@ -157,8 +156,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
              parentViewFrame:(NSRect)frame
    assertKindOfResponseClass:(Class)aClass
             xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
-                    useCache:(BOOL)useCache
-                  allowRetry:(BOOL)allowRetry
+           useCachedEndpoint:(BOOL)useCachedEndpoint
                      context:(id<MSIDRequestContext>)context
                continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
@@ -209,9 +207,9 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             if (isReplyReceived()) return;
             if (!claimCompletion()) return;
 
-            if (fromCache && allowRetry)
+            if (fromCache && useCachedEndpoint)
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"[Entra broker] CLIENT - cached XPC endpoint failed (%@), clearing cache and retrying via dispatcher", error);
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Entra broker] CLIENT - cached XPC endpoint failed (%@), clearing cache and retrying via dispatcher", error);
                 [xpcProviderCache clearCachedBrokerInstanceEndpoint];
                 __strong typeof(weakSelf) strongSelf = weakSelf;
                 if (!strongSelf)
@@ -228,8 +226,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                                  parentViewFrame:frame
                        assertKindOfResponseClass:aClass
                                 xpcProviderCache:xpcProviderCache
-                                        useCache:NO
-                                      allowRetry:NO
+                               useCachedEndpoint:NO
                                          context:context
                                    continueBlock:continueBlock];
                 return;
@@ -274,7 +271,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         }];
     };
 
-    NSXPCListenerEndpoint *cachedEndpoint = useCache ? xpcProviderCache.cachedBrokerInstanceEndpoint : nil;
+    NSXPCListenerEndpoint *cachedEndpoint = useCachedEndpoint ? xpcProviderCache.cachedBrokerInstanceEndpoint : nil;
     if (cachedEndpoint)
     {
         fromCache = YES;
