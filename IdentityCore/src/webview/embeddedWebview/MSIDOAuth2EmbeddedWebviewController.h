@@ -34,6 +34,7 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDWebViewPlatformParams.h"
 #import "MSIDCustomHeaderProviding.h"
+#import "MSIDWebviewNavigationDelegate.h"
 
 typedef void (^MSIDNavigationResponseBlock)(NSHTTPURLResponse *response);
 
@@ -57,10 +58,25 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
 
+/**
+ Executes the navigation action returned by the delegate.
+ 
+ @param action The navigation action to execute
+ @param requestURL The URL of the original request that triggered the navigation action
+ @param error An error from the delegate, if any
+ 
+ @note This method automatically ensures execution on the main thread. If called from a background thread,
+       it will dispatch to the main queue automatically.
+ */
+- (void)executeWebviewNavigationAction:(MSIDWebviewNavigationAction *)action
+                            requestURL:(NSURL *)requestURL
+                                 error:(NSError *)error;
+
 @property (atomic, readonly) NSURL *startURL;
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
+@property (nonatomic, weak) id<MSIDWebviewNavigationDelegate> navigationDelegate;
 @property (nonatomic) id<MSIDCustomHeaderProviding> customHeaderProvider;
 #if MSAL_JS_AUTOMATION
 @property (nonatomic) NSString *clientAutomationScript;
