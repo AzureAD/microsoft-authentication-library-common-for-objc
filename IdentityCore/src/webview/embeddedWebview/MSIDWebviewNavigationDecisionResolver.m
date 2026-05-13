@@ -312,13 +312,6 @@
     if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"SSO extension available, completing web auth with enrollment completion URL");
-        
-        // If enrollment completed successfully, drop the cached intuneDeviceId so it is not
-        // accidentally attach a stale value to a future enroll request.
-        [[MSIDIntuneDeviceIdCache sharedCache] clear];
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Cleared cached intuneDeviceId after successful enrollment.");
-        
         return [MSIDWebviewNavigationDecision completeWithURL:URL];
     }
     
