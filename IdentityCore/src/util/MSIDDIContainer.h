@@ -66,6 +66,61 @@ typedef NS_ENUM(NSInteger, MSIDDIContainerLifetime)
  */
 @property (class, nonatomic, readonly) MSIDDIContainer *sharedInstance;
 
+#pragma mark - Parameterized construction
+
+/**
+ * Registered factories take no arguments, so call-site parameters (URLs,
+ * tenant IDs, request contexts, ...) need one of three patterns. Pick the
+ * one that matches where the parameter actually comes from.
+ *
+ * @b 1. @b Captured-config @b factory — parameters known at registration time.
+ * The factory closes over them, callers resolve with no arguments.
+ *
+ * @code
+ * NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
+ * [container registerClass:[MSIDAADAuthority class]
+ *                 lifetime:MSIDDIContainerLifetimeSingleton
+ *                  factory:^id {
+ *                      return [[MSIDAADAuthority alloc] initWithURL:url
+ *                                                           context:nil
+ *                                                             error:nil];
+ *                  }];
+ * @endcode
+ *
+ * @b 2. @b Class-method @b seam — caller still owns @c alloc/init, container
+ * just picks the class. Use @c resolveImplClassForClass: /
+ * @c resolveImplClassForProtocol: when only the @e type needs to be
+ * swappable (e.g., production @c MSIDAADAuthority vs. a test double):
+ *
+ * @code
+ * Class cls = [container resolveImplClassForClass:[MSIDAADAuthority class]
+ *                                       orDefault:^Class { return [MSIDAADAuthority class]; }];
+ * MSIDAADAuthority *authority = [[cls alloc] initWithURL:url context:ctx error:&err];
+ * @endcode
+ *
+ * @b 3. @b Factory-as-dependency — parameters only known at the call site.
+ * Register a typedef'd block as the dependency; resolve the block, then
+ * invoke it with the per-call arguments:
+ *
+ * @code
+ * typedef MSIDAADAuthority * _Nullable (^MSIDAADAuthorityFactory)(NSURL *url,
+ *                                                                id<MSIDRequestContext> _Nullable ctx,
+ *                                                                NSError **error);
+ *
+ * [container registerProtocol:@protocol(MSIDAADAuthorityFactoryProviding)
+ *                    lifetime:MSIDDIContainerLifetimeSingleton
+ *                     factory:^id {
+ *                         return (MSIDAADAuthorityFactory)^(NSURL *u, id ctx, NSError **e) {
+ *                             return [[MSIDAADAuthority alloc] initWithURL:u context:ctx error:e];
+ *                         };
+ *                     }];
+ *
+ * MSIDAADAuthorityFactory make =
+ *     [container resolveProtocol:@protocol(MSIDAADAuthorityFactoryProviding)];
+ * MSIDAADAuthority *authority = make(url, ctx, &err);
+ * @endcode
+ */
+
 #pragma mark - Registration
 
 /**

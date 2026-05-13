@@ -34,11 +34,10 @@
 @end
 
 @interface MSIDDIContainer ()
-{
-    NSMutableDictionary<NSString *, MSIDDIContainerEntry *> *_entryByKey;
-    NSMutableDictionary<NSString *, id> *_singletonCache;
-    dispatch_queue_t _synchronizationQueue;
-}
+
+@property (nonatomic) NSMutableDictionary<NSString *, MSIDDIContainerEntry *> *entryByKey;
+@property (nonatomic) NSMutableDictionary<NSString *, id> *singletonCache;
+@property (nonatomic) dispatch_queue_t synchronizationQueue;
 
 @end
 
@@ -102,10 +101,9 @@
     MSIDDIContainerEntry *entry = [MSIDDIContainerEntry new];
     entry.lifetime = lifetime;
     entry.factory = factory;
-
-    dispatch_barrier_sync(_synchronizationQueue, ^{
-        self->_entryByKey[key] = entry;
-        [self->_singletonCache removeObjectForKey:key];
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        self.entryByKey[key] = entry;
+        [self.singletonCache removeObjectForKey:key];
     });
 }
 
@@ -189,10 +187,10 @@
 
     // Concurrent read: many resolves can run in parallel; only writes
     // (registration / singleton install / reset) take the barrier.
-    dispatch_sync(_synchronizationQueue, ^{
-        cached = self->_singletonCache[key];
+    dispatch_sync(self.synchronizationQueue, ^{
+        cached = self.singletonCache[key];
         if (cached) return;
-        entry = self->_entryByKey[key];
+        entry = self.entryByKey[key];
     });
 
     if (cached) return cached;
@@ -231,8 +229,8 @@
         // to be cheap, side-effect free, and free of re-entrant calls back
         // into the container for the same key (which would deadlock).
         __block id resolvedInstance = nil;
-        dispatch_barrier_sync(_synchronizationQueue, ^{
-            id existing = self->_singletonCache[key];
+        dispatch_barrier_sync(self.synchronizationQueue, ^{
+            id existing = self.singletonCache[key];
             if (existing)
             {
                 resolvedInstance = existing;
@@ -244,7 +242,7 @@
                 // Leave resolvedInstance nil; caller throws below.
                 return;
             }
-            self->_singletonCache[key] = newInstance;
+            self.singletonCache[key] = newInstance;
             resolvedInstance = newInstance;
         });
 
@@ -275,9 +273,9 @@
 
 - (void)reset
 {
-    dispatch_barrier_sync(_synchronizationQueue, ^{
-        [self->_entryByKey removeAllObjects];
-        [self->_singletonCache removeAllObjects];
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        [self.entryByKey removeAllObjects];
+        [self.singletonCache removeAllObjects];
     });
 }
 
