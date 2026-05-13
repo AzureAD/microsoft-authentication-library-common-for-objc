@@ -38,6 +38,7 @@ NSString * const MSIDOnboardingBlobFieldUxFlowUsed = @"ux_flow_used";
 NSString * const MSIDOnboardingBlobStepAuthenticationStarted = @"AuthenticationStarted";
 NSString * const MSIDOnboardingBlobStepCredentialEntryCompleted = @"CredentialEntryCompleted";
 NSString * const MSIDOnboardingBlobStepBrokerInstallPrompted = @"BrokerInstallPrompted";
+NSString * const MSIDOnboardingBlobStepBrokerAppInstall = @"BrokerAppInstall";
 NSString * const MSIDOnboardingBlobStepBrokerInstallPromptedForMDM = @"BrokerInstallPromptedForMDM";
 NSString * const MSIDOnboardingBlobStepDeviceRegistrationStarted = @"DeviceRegistrationStarted";
 NSString * const MSIDOnboardingBlobStepDeviceRegistrationCompleted = @"DeviceRegistrationCompleted";
@@ -45,5 +46,9 @@ NSString * const MSIDOnboardingBlobStepFlowCompleted = @"FlowCompleted";
 
 // Step ID values used in C++ aggregation (must match MSAIOnboardingBlobConstants)
 NSString * const MSIDOnboardingBlobStepStrongAuthSetupStarted = @"StrongAuthSetupStarted";
+NSString * const MSIDOnboardingBlobStepStrongAuthSetupCompleted = @"StrongAuthSetupCompleted";
+NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequired = @"MDMEnrollmentRequired";
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentStarted = @"MDMEnrollmentStarted";
+NSString * const MSIDOnboardingBlobStepMdmEnrollmentFinished = @"MDMEnrollmentFinished";
 NSString * const MSIDOnboardingBlobStepRemediationStarted = @"RemediationStarted";
+NSString * const MSIDOnboardingBlobStepRemediationFinished = @"RemediationFinished";

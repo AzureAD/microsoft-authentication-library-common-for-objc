@@ -43,6 +43,7 @@ extern NSString * const MSIDOnboardingBlobFieldUxFlowUsed;
 extern NSString * const MSIDOnboardingBlobStepAuthenticationStarted;
 extern NSString * const MSIDOnboardingBlobStepCredentialEntryCompleted;
 extern NSString * const MSIDOnboardingBlobStepBrokerInstallPrompted;
+extern NSString * const MSIDOnboardingBlobStepBrokerAppInstall;
 extern NSString * const MSIDOnboardingBlobStepBrokerInstallPromptedForMDM;
 extern NSString * const MSIDOnboardingBlobStepDeviceRegistrationStarted;
 extern NSString * const MSIDOnboardingBlobStepDeviceRegistrationCompleted;
@@ -51,5 +52,9 @@ extern NSString * const MSIDOnboardingBlobStepFlowCompleted;
 // Step ID values used in C++ aggregation. Values must match
 // MSAIOnboardingBlobConstants (Djinni-generated) byte-for-byte.
 extern NSString * const MSIDOnboardingBlobStepStrongAuthSetupStarted;
+extern NSString * const MSIDOnboardingBlobStepStrongAuthSetupCompleted;
+extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequired;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentStarted;
+extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentFinished;
 extern NSString * const MSIDOnboardingBlobStepRemediationStarted;
+extern NSString * const MSIDOnboardingBlobStepRemediationFinished;

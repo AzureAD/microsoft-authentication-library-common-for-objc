@@ -77,6 +77,7 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
 @property (nonatomic, readonly) BOOL onboardingMdmEnrollmentStarted;
 @property (nonatomic, readonly) BOOL onboardingDeviceRegistrationStarted;
 @property (nonatomic, readonly) BOOL onboardingRemediationStarted;
+
 #if MSAL_JS_AUTOMATION
 @property (nonatomic) NSString *clientAutomationScript;
 #endif
