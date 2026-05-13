@@ -185,6 +185,8 @@ NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE       = @"ccs-request-sequenc
 NSString *const MSID_CLIENT_DATA_HEADER_KEY              = @"x-ms-clientdata";
 NSString *const MSID_CLIENT_DATA_RESPONSE                = @"client_data";
 
+NSString *const MSID_BROKER_EXECUTION_FLOW_RESPONSE      = @"broker_execution_flow";
+
 NSString *const MSID_REFRESH_TOKEN_TYPE                  = @"refresh_token_type";
 NSString *const MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT     = @"bound_app_rt";
 
