@@ -42,12 +42,12 @@
 }
 
 #if !MSID_EXCLUDE_WEBKIT
-- (MSIDWebviewNavigationDecision *)resolveDecisionForURL:(NSURL *)URL
-                                       webviewController:(id<MSIDWebviewInteracting>)webviewController
+- (MSIDWebviewNavigationDecision *)resolveDecisionForURL:(NSURL * _Nullable)URL
+                                       webviewController:(nullable id<MSIDWebviewInteracting>)webviewController
                                          responseHeaders:(NSDictionary<NSString *,NSString *> * _Nullable)responseHeaders
                                                  appName:(NSString *)appName
                                               appVersion:(NSString *)appVersion
-                                 externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
+                                 externalNavigationBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
 {
     // Validate required parameters
     if (!URL)
@@ -290,7 +290,7 @@
     // TODO: Add any additional headers or parameters needed for profile installation request
     
     NSURL *profileURL = [NSURL URLWithString:decodedProfileInstallURL];
-    if (!profileURL)
+    if (!profileURL || !profileURL.scheme.length || !profileURL.host.length)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create valid NSURL from profile install URL string");
         NSError *error = MSIDCreateError(MSIDErrorDomain,

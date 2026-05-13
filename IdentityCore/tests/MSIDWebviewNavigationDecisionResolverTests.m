@@ -26,15 +26,19 @@
 #import "MSIDWebviewNavigationDecisionResolver.h"
 #import "MSIDWebviewNavigationDecision.h"
 #import "MSIDWebviewConstants.h"
+#import "MSIDWebviewInteracting.h"
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDIntuneDeviceIdCache.h"
+#import "MSIDTestCacheDataSource.h"
 #import "MSIDTestSwizzle.h"
+#import "MSIDTestWebviewInteractingViewController.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
 @interface MSIDWebviewNavigationDecisionResolverTests : XCTestCase
 
 @property (nonatomic) MSIDWebviewNavigationDecisionResolver *resolver;
+@property (nonatomic) MSIDTestCacheDataSource *dataSource;
 @property (nonatomic) MSIDIntuneDeviceIdCache *deviceIdCache;
 
 @end
@@ -46,15 +50,17 @@
     [super setUp];
     self.resolver = [MSIDWebviewNavigationDecisionResolver sharedInstance];
 
-    // Inject a fresh in-memory device-id cache for each test
-    self.deviceIdCache = [[MSIDIntuneDeviceIdCache alloc] init];
+    // Inject a fresh in-memory device-id cache (backed by a mock data source) for each test.
+    // Mirrors the approach used in MSIDIntuneDeviceIdCacheTests so the keychain is never touched.
+    self.dataSource = [MSIDTestCacheDataSource new];
+    self.deviceIdCache = [[MSIDIntuneDeviceIdCache alloc] initWithDataSource:self.dataSource];
     [MSIDIntuneDeviceIdCache setSharedCache:self.deviceIdCache];
 }
 
 - (void)tearDown
 {
     [MSIDTestSwizzle reset];
-    [self.deviceIdCache clear];
+    [self.dataSource reset];
     [super tearDown];
 }
 
@@ -166,7 +172,8 @@
 - (void)testEnrollURL_attachesCachedDeviceId_whenPresent
 {
     NSError *cacheError = nil;
-    [self.deviceIdCache setIntuneDeviceId:@"device-abc" context:nil error:&cacheError];
+    XCTAssertTrue([self.deviceIdCache setIntuneDeviceId:@"device-abc" context:nil error:&cacheError]);
+    XCTAssertNil(cacheError);
 
     NSString *targetURL = @"https://manage.microsoft.com/enroll";
     NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
@@ -301,14 +308,9 @@
 
 - (void)testProfileDownloadComplete_malformedProfileURL_returnsFailWithError
 {
-    // A clearly un-parseable URL string
-    NSString *badURL = @"not a url at all ☃";
-    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123&%@=%@",
-                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
-                           MSID_INTUNE_DEVICE_ID_KEY,
-                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
-                           badURL];
-    // Build via NSURLComponents so the msauth URL itself is valid
+    // A value with no scheme/host. NSURL may parse it as a relative URL on newer SDKs,
+    // but the resolver explicitly rejects URLs missing a scheme or host.
+    NSString *badURL = @"not a url at all";
     NSURLComponents *comps = [NSURLComponents new];
     comps.scheme = @"msauth";
     comps.host = MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST;
@@ -316,6 +318,7 @@
     NSURLQueryItem *pu = [NSURLQueryItem queryItemWithName:MSID_INTUNE_PROFILE_INSTALL_URL_KEY value:badURL];
     comps.queryItems = @[di, pu];
     NSURL *url = comps.URL;
+    XCTAssertNotNil(url, @"Test input msauth URL should itself be valid");
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
                                                                  webviewController:nil
@@ -409,8 +412,9 @@
     };
 
     // Compliance block is only called when the controller is non-nil
+    MSIDTestWebviewInteractingViewController *fakeWebview = [MSIDTestWebviewInteractingViewController new];
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:(id<MSIDWebviewInteracting>)[NSObject new]
+                                                                 webviewController:fakeWebview
                                                                    responseHeaders:nil
                                                                            appName:@"App"
                                                                         appVersion:@"1.0"
@@ -427,7 +431,7 @@
 
 - (void)testEnrollmentCompletion_ssoExtensionAvailable_returnsCompleteWithURL
 {
-    [MSIDTestSwizzle classMethod:NSSelectorFromString(@"canPerformRequest")
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
                            class:[MSIDSSOExtensionInteractiveTokenRequestController class]
                            block:(id)^(void)
     {
@@ -450,7 +454,7 @@
 
 - (void)testEnrollmentCompletion_ssoExtensionAvailable_clearsCachedDeviceId
 {
-    [MSIDTestSwizzle classMethod:NSSelectorFromString(@"canPerformRequest")
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
                            class:[MSIDSSOExtensionInteractiveTokenRequestController class]
                            block:(id)^(void)
     {
@@ -458,7 +462,8 @@
     }];
 
     NSError *err = nil;
-    [self.deviceIdCache setIntuneDeviceId:@"device-to-clear" context:nil error:&err];
+    XCTAssertTrue([self.deviceIdCache setIntuneDeviceId:@"device-to-clear" context:nil error:&err]);
+    XCTAssertNil(err);
 
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
     NSURL *url = [NSURL URLWithString:urlString];
@@ -476,7 +481,7 @@
 
 - (void)testEnrollmentCompletion_ssoExtensionUnavailable_noErrorURL_returnsFailWithError
 {
-    [MSIDTestSwizzle classMethod:NSSelectorFromString(@"canPerformRequest")
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
                            class:[MSIDSSOExtensionInteractiveTokenRequestController class]
                            block:(id)^(void)
     {
@@ -499,7 +504,7 @@
 
 - (void)testEnrollmentCompletion_ssoExtensionUnavailable_withErrorURL_returnsLoadRequest
 {
-    [MSIDTestSwizzle classMethod:NSSelectorFromString(@"canPerformRequest")
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
                            class:[MSIDSSOExtensionInteractiveTokenRequestController class]
                            block:(id)^(void)
     {

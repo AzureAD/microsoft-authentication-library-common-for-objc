@@ -62,20 +62,20 @@ NS_ASSUME_NONNULL_BEGIN
  * - profile_download_complete: Profile download completion flow
  * - in_app_enrollment_complete: In-app enrollment completion flow
  *
- * @param URL The special redirect URL to resolve (msauth://, browser://, etc.)
- * @param webviewController The webview controller handling the navigation
+ * @param URL The special redirect URL to resolve (msauth://, browser://, etc.). If nil, returns nil.
+ * @param webviewController The webview controller handling the navigation. May be nil for flows that do not require it.
  * @param responseHeaders HTTP response headers for additional context
  * @param appName Name of the client app
  * @param appVersion The version of the client app
- * @param externalNavigationBlock Callback for controller-specific navigation logic
+ * @param externalNavigationBlock Callback for controller-specific navigation logic. May be nil.
  * @return Navigation decision to apply, or nil if the URL cannot be processed
  */
-- (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL *)URL
-                                                 webviewController:(id<MSIDWebviewInteracting>)webviewController
+- (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
+                                                 webviewController:(nullable id<MSIDWebviewInteracting>)webviewController
                                                    responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders
                                                            appName:(NSString *)appName
                                                         appVersion:(NSString *)appVersion
-                                           externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock;
+                                           externalNavigationBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock;
 #endif // !MSID_EXCLUDE_WEBKIT
 
 @end
