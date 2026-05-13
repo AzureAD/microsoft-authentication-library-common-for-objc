@@ -1,0 +1,530 @@
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+#import <XCTest/XCTest.h>
+#import "MSIDWebviewNavigationDecisionResolver.h"
+#import "MSIDWebviewNavigationDecision.h"
+#import "MSIDWebviewConstants.h"
+#import "MSIDSSOExtensionInteractiveTokenRequestController.h"
+#import "MSIDIntuneDeviceIdCache.h"
+#import "MSIDTestSwizzle.h"
+
+#if !MSID_EXCLUDE_WEBKIT
+
+@interface MSIDWebviewNavigationDecisionResolverTests : XCTestCase
+
+@property (nonatomic) MSIDWebviewNavigationDecisionResolver *resolver;
+@property (nonatomic) MSIDIntuneDeviceIdCache *deviceIdCache;
+
+@end
+
+@implementation MSIDWebviewNavigationDecisionResolverTests
+
+- (void)setUp
+{
+    [super setUp];
+    self.resolver = [MSIDWebviewNavigationDecisionResolver sharedInstance];
+
+    // Inject a fresh in-memory device-id cache for each test
+    self.deviceIdCache = [[MSIDIntuneDeviceIdCache alloc] init];
+    [MSIDIntuneDeviceIdCache setSharedCache:self.deviceIdCache];
+}
+
+- (void)tearDown
+{
+    [MSIDTestSwizzle reset];
+    [self.deviceIdCache clear];
+    [super tearDown];
+}
+
+#pragma mark - Nil / empty URL
+
+- (void)testResolveDecision_nilURL_returnsNil
+{
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:nil
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNil(decision);
+}
+
+#pragma mark - Scheme routing
+
+- (void)testResolveDecision_browserScheme_returnsContinueDefault
+{
+    NSURL *url = [NSURL URLWithString:@"browser://some.host/path"];
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionContinueDefault);
+}
+
+- (void)testResolveDecision_unknownScheme_returnsContinueDefault
+{
+    NSURL *url = [NSURL URLWithString:@"foobar://some.host"];
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionContinueDefault);
+}
+
+#pragma mark - msauth:// host routing
+
+- (void)testResolveDecision_msauthEmptyHost_returnsNil
+{
+    // msauth:/// has no host
+    NSURL *url = [NSURL URLWithString:@"msauth:///path"];
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNil(decision);
+}
+
+- (void)testResolveDecision_msauthUnknownHost_returnsContinueDefault
+{
+    NSURL *url = [NSURL URLWithString:@"msauth://unknownhost"];
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionContinueDefault);
+}
+
+#pragma mark - Enroll host
+
+- (void)testEnrollURL_missingIntuneURL_returnsFailWithError
+{
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLL_HOST]];
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertNotNil(decision.error);
+}
+
+- (void)testEnrollURL_validIntuneURL_returnsLoadRequest
+{
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"TestApp"
+                                                                        appVersion:@"2.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertNotNil(decision.request);
+    XCTAssertTrue([decision.request.URL.host isEqualToString:@"manage.microsoft.com"]);
+}
+
+- (void)testEnrollURL_attachesCachedDeviceId_whenPresent
+{
+    NSError *cacheError = nil;
+    [self.deviceIdCache setIntuneDeviceId:@"device-abc" context:nil error:&cacheError];
+
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:decision.request.URL resolvingAgainstBaseURL:NO];
+    NSString *deviceId = nil;
+    for (NSURLQueryItem *item in components.queryItems)
+    {
+        if ([item.name isEqualToString:MSID_INTUNE_DEVICE_ID_KEY])
+        {
+            deviceId = item.value;
+            break;
+        }
+    }
+    XCTAssertEqualObjects(deviceId, @"device-abc");
+}
+
+- (void)testEnrollURL_appNameHeader_isAttachedToRequest
+{
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"MyApp"
+                                                                        appVersion:@"3.1"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_APP_NAME_KEY], @"MyApp");
+    XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_APP_VER_KEY], @"3.1");
+}
+
+#pragma mark - Profile download complete host
+
+- (void)testProfileDownloadComplete_missingDeviceId_returnsFailWithError
+{
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=https%%3A%%2F%%2Fmanage.microsoft.com%%2Fprofile",
+                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST, MSID_INTUNE_PROFILE_INSTALL_URL_KEY];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertNotNil(decision.error);
+}
+
+- (void)testProfileDownloadComplete_missingProfileInstallURL_returnsFailWithError
+{
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123",
+                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST, MSID_INTUNE_DEVICE_ID_KEY];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertNotNil(decision.error);
+}
+
+- (void)testProfileDownloadComplete_validParams_returnsLoadRequest
+{
+    NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
+    NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123&%@=%@",
+                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
+                           MSID_INTUNE_DEVICE_ID_KEY,
+                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
+                           encodedURL];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertNotNil(decision.request);
+    XCTAssertEqualObjects(decision.request.URL.absoluteString, profileURL);
+}
+
+- (void)testProfileDownloadComplete_cachesDeviceId
+{
+    NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
+    NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=myDeviceXYZ&%@=%@",
+                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
+                           MSID_INTUNE_DEVICE_ID_KEY,
+                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
+                           encodedURL];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    [self.resolver resolveDecisionForURL:url
+                       webviewController:nil
+                         responseHeaders:nil
+                                 appName:@"App"
+                              appVersion:@"1.0"
+                 externalNavigationBlock:nil];
+
+    NSError *readError = nil;
+    NSString *cached = [self.deviceIdCache intuneDeviceIdWithContext:nil error:&readError];
+    XCTAssertNil(readError);
+    XCTAssertEqualObjects(cached, @"myDeviceXYZ");
+}
+
+- (void)testProfileDownloadComplete_malformedProfileURL_returnsFailWithError
+{
+    // A clearly un-parseable URL string
+    NSString *badURL = @"not a url at all ☃";
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123&%@=%@",
+                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
+                           MSID_INTUNE_DEVICE_ID_KEY,
+                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
+                           badURL];
+    // Build via NSURLComponents so the msauth URL itself is valid
+    NSURLComponents *comps = [NSURLComponents new];
+    comps.scheme = @"msauth";
+    comps.host = MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST;
+    NSURLQueryItem *di = [NSURLQueryItem queryItemWithName:MSID_INTUNE_DEVICE_ID_KEY value:@"device123"];
+    NSURLQueryItem *pu = [NSURLQueryItem queryItemWithName:MSID_INTUNE_PROFILE_INSTALL_URL_KEY value:badURL];
+    comps.queryItems = @[di, pu];
+    NSURL *url = comps.URL;
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertNotNil(decision.error);
+}
+
+#pragma mark - Compliance host
+
+- (void)testComplianceURL_missingIntuneURL_returnsFailWithError
+{
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_COMPLIANCE_HOST]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertNotNil(decision.error);
+}
+
+- (void)testComplianceURL_validParams_noExternalBlock_returnsLoadRequest
+{
+    NSString *targetURL = @"https://compliance.microsoft.com/check";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_COMPLIANCE_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertNotNil(decision.request);
+    XCTAssertEqualObjects(decision.request.URL.host, @"compliance.microsoft.com");
+}
+
+- (void)testComplianceURL_withExternalBlock_blockReturnsNil_returnsLoadRequest
+{
+    NSString *targetURL = @"https://compliance.microsoft.com/check";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_COMPLIANCE_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    // Block that returns nil simulates "no override"
+    MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController *wv, NSURL *u)
+    {
+        return nil;
+    };
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:block];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertEqualObjects(decision.request.URL.host, @"compliance.microsoft.com");
+}
+
+- (void)testComplianceURL_withExternalBlock_blockReturnsRequest_usesUpdatedRequest
+{
+    NSString *targetURL = @"https://compliance.microsoft.com/check";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_COMPLIANCE_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    NSURL *overrideURL = [NSURL URLWithString:@"https://override.example.com/path"];
+    NSURLRequest *overrideRequest = [NSURLRequest requestWithURL:overrideURL];
+
+    __block NSURL *receivedURL = nil;
+    MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController *wv, NSURL *u)
+    {
+        receivedURL = u;
+        return overrideRequest;
+    };
+
+    // Compliance block is only called when the controller is non-nil
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:(id<MSIDWebviewInteracting>)[NSObject new]
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:block];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertEqualObjects(decision.request.URL.absoluteString, @"https://override.example.com/path");
+
+    // The URL passed to the block should use the browser:// scheme
+    XCTAssertEqualObjects(receivedURL.scheme, @"browser");
+}
+
+#pragma mark - Enrollment completion host
+
+- (void)testEnrollmentCompletion_ssoExtensionAvailable_returnsCompleteWithURL
+{
+    [MSIDTestSwizzle classMethod:NSSelectorFromString(@"canPerformRequest")
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionCompleteWithURL);
+    XCTAssertEqualObjects(decision.URL, url);
+}
+
+- (void)testEnrollmentCompletion_ssoExtensionAvailable_clearsCachedDeviceId
+{
+    [MSIDTestSwizzle classMethod:NSSelectorFromString(@"canPerformRequest")
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+
+    NSError *err = nil;
+    [self.deviceIdCache setIntuneDeviceId:@"device-to-clear" context:nil error:&err];
+
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    [self.resolver resolveDecisionForURL:url
+                       webviewController:nil
+                         responseHeaders:nil
+                                 appName:@"App"
+                              appVersion:@"1.0"
+                 externalNavigationBlock:nil];
+
+    NSString *cached = [self.deviceIdCache intuneDeviceIdWithContext:nil error:nil];
+    XCTAssertNil(cached);
+}
+
+- (void)testEnrollmentCompletion_ssoExtensionUnavailable_noErrorURL_returnsFailWithError
+{
+    [MSIDTestSwizzle classMethod:NSSelectorFromString(@"canPerformRequest")
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return NO;
+    }];
+
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertNotNil(decision.error);
+}
+
+- (void)testEnrollmentCompletion_ssoExtensionUnavailable_withErrorURL_returnsLoadRequest
+{
+    [MSIDTestSwizzle classMethod:NSSelectorFromString(@"canPerformRequest")
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return NO;
+    }];
+
+    NSString *errorURL = @"https://enroll.microsoft.com/error";
+    NSString *encoded = [errorURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLLMENT_COMPLETION_HOST,
+                           MSID_MDM_ENROLLMENT_COMPLETION_ERROR_URL_KEY,
+                           encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 webviewController:nil
+                                                                   responseHeaders:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"
+                                                           externalNavigationBlock:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertEqualObjects(decision.request.URL.absoluteString, errorURL);
+}
+
+@end
+
+#endif // !MSID_EXCLUDE_WEBKIT

@@ -22,6 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
@@ -73,3 +75,5 @@ NS_ASSUME_NONNULL_BEGIN
                                            externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock;
 @end
 NS_ASSUME_NONNULL_END
+
+#endif // !MSID_EXCLUDE_WEBKIT

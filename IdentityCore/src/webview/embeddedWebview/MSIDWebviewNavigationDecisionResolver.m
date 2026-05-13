@@ -22,6 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #import "MSIDWebviewNavigationDecisionResolver.h"
 #import "MSIDWebviewNavigationDecision.h"
 #import "MSIDWebviewConstants.h"
@@ -515,3 +517,5 @@
 }
 
 @end
+
+#endif // !MSID_EXCLUDE_WEBKIT
