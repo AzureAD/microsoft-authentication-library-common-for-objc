@@ -736,23 +736,30 @@ initiatedByFrame:(WKFrameInfo *)frame
         [builder addStep:MSIDOnboardingBlobStepStrongAuthSetupStarted timestamp:now];
         _onboardingStrongAuthSetupStarted = YES;
     }
-    // 53000 (DeviceNotCompliant), 53008 (DeviceIsNotWorkplaceJoined): Device registration needed
-    else if (([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"53008"])
+    // 53000 (DeviceNotCompliant),
+    // 53008 (DeviceIsNotWorkplaceJoined): Device registration needed,
+    // 501291 (DeviceIsNotWorkplaceJoinedForMamApp): Device registration needed for MAM app
+    else if (([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"53008"] || [errorCode isEqualToString:@"501291"])
              && !_onboardingDeviceRegistrationStarted)
     {
         [builder addStep:MSIDOnboardingBlobStepDeviceRegistrationStarted timestamp:now];
         _onboardingDeviceRegistrationStarted = YES;
     }
     // 530003: MDM enrollment required
-    else if ([errorCode isEqualToString:@"530003"] && !_onboardingMdmEnrollmentStarted)
+    else if ([errorCode isEqualToString:@"530003"])
     {
-        [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:now];
-        _onboardingMdmEnrollmentStarted = YES;
+        [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentRequired timestamp:now];
     }
     // 530002: Device compliance / remediation required
     else if ([errorCode isEqualToString:@"530002"] && !_onboardingRemediationStarted)
     {
         [builder addStep:MSIDOnboardingBlobStepRemediationStarted timestamp:now];
+        _onboardingRemediationStarted = YES;
+    }
+    // 50127: Client app is a MAM app and device is not registered
+    else if ([errorCode isEqualToString:@"50127"] && !_onboardingRemediationStarted)
+    {
+        [builder addStep:MSIDOnboardingBlobStepBrokerInstallPrompted timestamp:now];
         _onboardingRemediationStarted = YES;
     }
     // All other error codes (50076, 50078, 53005, 53003, etc.): blocking error only, no step
