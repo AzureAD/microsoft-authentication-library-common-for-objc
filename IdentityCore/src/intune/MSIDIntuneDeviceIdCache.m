@@ -35,7 +35,25 @@
 static NSString *const kIntuneDeviceIdJsonKey = @"intune_device_id";
 static MSIDIntuneDeviceIdCache *s_sharedCache;
 
+@interface MSIDIntuneDeviceIdCache()
+
+@property (nonatomic) id<MSIDExtendedTokenCacheDataSource> dataSource;
+
+@end
+
 @implementation MSIDIntuneDeviceIdCache
+
+#pragma mark - Init
+
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource
+{
+    self = [super init];
+    if (self)
+    {
+        _dataSource = dataSource;
+    }
+    return self;
+}
 
 #pragma mark - Shared instance
 
@@ -54,7 +72,7 @@ static MSIDIntuneDeviceIdCache *s_sharedCache;
     {
         if (!s_sharedCache)
         {
-            s_sharedCache = [MSIDIntuneDeviceIdCache new];
+            s_sharedCache = [[MSIDIntuneDeviceIdCache alloc] initWithDataSource:[MSIDKeychainTokenCache defaultKeychainCache]];
         }
         return s_sharedCache;
     }
@@ -63,17 +81,28 @@ static MSIDIntuneDeviceIdCache *s_sharedCache;
 #pragma mark - Public API
 
 - (BOOL)setIntuneDeviceId:(NSString *)intuneDeviceId
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError *__autoreleasing *)error
+                  context:(nullable id<MSIDRequestContext>)context
+                    error:(NSError *_Nullable *_Nullable)error
 {
     if (!intuneDeviceId.length)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                     @"intuneDeviceId must be a non-empty string.",
+                                     nil, nil, nil, context.correlationId, nil, NO);
+        }
         return NO;
     }
 
-    id<MSIDExtendedTokenCacheDataSource> datasource = [MSIDKeychainTokenCache defaultKeychainCache];
-    if (!datasource)
+    if (!self.dataSource)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                     @"No keychain data source available.",
+                                     nil, nil, nil, context.correlationId, nil, NO);
+        }
         return NO;
     }
 
@@ -85,23 +114,22 @@ static MSIDIntuneDeviceIdCache *s_sharedCache;
         return NO;
     }
 
-    return [datasource saveJsonObject:jsonObject
-                           serializer:[MSIDCacheItemJsonSerializer new]
-                                  key:[self.class cacheKey]
-                              context:context
-                                error:error];
+    return [self.dataSource saveJsonObject:jsonObject
+                                serializer:[MSIDCacheItemJsonSerializer new]
+                                       key:[self.class cacheKey]
+                                   context:context
+                                     error:error];
 }
 
-- (NSString *)intuneDeviceIdWithContext:(id<MSIDRequestContext>)context
-                                  error:(NSError *__autoreleasing *)error
+- (nullable NSString *)intuneDeviceIdWithContext:(nullable id<MSIDRequestContext>)context
+                                           error:(NSError *_Nullable *_Nullable)error
 {
-    id<MSIDExtendedTokenCacheDataSource> datasource = [MSIDKeychainTokenCache defaultKeychainCache];
-    if (!datasource) return nil;
+    if (!self.dataSource) return nil;
 
-    NSArray<MSIDJsonObject *> *jsonObjects = [datasource jsonObjectsWithKey:[self.class cacheKey]
-                                                                serializer:[MSIDCacheItemJsonSerializer new]
-                                                                   context:context
-                                                                     error:error];
+    NSArray<MSIDJsonObject *> *jsonObjects = [self.dataSource jsonObjectsWithKey:[self.class cacheKey]
+                                                                      serializer:[MSIDCacheItemJsonSerializer new]
+                                                                         context:context
+                                                                           error:error];
     if (!jsonObjects.count) return nil;
 
     NSDictionary *json = [jsonObjects.firstObject jsonDictionary];
@@ -111,8 +139,7 @@ static MSIDIntuneDeviceIdCache *s_sharedCache;
 
 - (void)clear
 {
-    id<MSIDExtendedTokenCacheDataSource> datasource = [MSIDKeychainTokenCache defaultKeychainCache];
-    [datasource removeTokensWithKey:[self.class cacheKey] context:nil error:nil];
+    [self.dataSource removeTokensWithKey:[self.class cacheKey] context:nil error:nil];
 }
 
 #pragma mark - Private

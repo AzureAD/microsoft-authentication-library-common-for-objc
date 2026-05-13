@@ -447,6 +447,8 @@
 		23B3A4562187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B3A4542187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m */; };
 		23B3A4582187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B3A4572187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m */; };
 		23B3A4592187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B3A4572187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m */; };
+		B41DD0A92FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */; };
+		B41DD0AA2FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */; };
 		23B4CC6F2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B4CC6D2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.h */; };
 		23B4CC702181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B4CC6E2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m */; };
 		23B4CC712181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B4CC6E2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m */; };
@@ -2536,6 +2538,7 @@
 		23B3A4502187AFD3009070B2 /* MSIDJsonSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializer.m; sourceTree = "<group>"; };
 		23B3A4542187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneEnrollmentIdsCacheTests.m; sourceTree = "<group>"; };
 		23B3A4572187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneMAMResourcesCacheTests.m; sourceTree = "<group>"; };
+		B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneDeviceIdCacheTests.m; sourceTree = "<group>"; };
 		23B4CC6D2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneEnrollmentIdsCache.h; sourceTree = "<group>"; };
 		23B4CC6E2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneEnrollmentIdsCache.m; sourceTree = "<group>"; };
 		23B5DF74234030B2002C530F /* MSIDRequestParameters+Broker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDRequestParameters+Broker.h"; sourceTree = "<group>"; };
@@ -6173,6 +6176,7 @@
 				B274DEC621FC002300DB7757 /* MSIDInteractiveTokenRequestParametersTests.m */,
 				23B3A4542187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m */,
 				23B3A4572187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m */,
+				B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */,
 				B41163B129BAB45800E64619 /* MSIDJITTroubleshootingResponseTests.m */,
 				B210F42C1FDDE6A4005A8F76 /* MSIDJsonObjectTests.m */,
 				239FE698236A593300D846AC /* MSIDJsonSerializableFactoryTests.m */,
@@ -7620,6 +7624,7 @@
 				23D00DA82ABD0805006D7F16 /* MSIDBrowserNativeMessageGetTokenRequestTests.m in Sources */,
 				B27893732470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m in Sources */,
 				23B3A4552187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m in Sources */,
+				B41DD0A92FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m in Sources */,
 				B2936F7420ABEFC10050C585 /* MSIDAccessTokenTests.m in Sources */,
 				A0410E1A25E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */,
 				B20657CF1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
@@ -8236,6 +8241,7 @@
 				96DAC2CE21431DE30001FBF5 /* NSString+MSIDTestUtil.m in Sources */,
 				A08D0A3824A85C9900C9193D /* MSIDAuthenticationSchemePopTest.m in Sources */,
 				23B3A4562187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m in Sources */,
+				B41DD0AA2FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m in Sources */,
 				23D00DA92ABD0805006D7F16 /* MSIDBrowserNativeMessageGetTokenRequestTests.m in Sources */,
 				B431B5452AF1E5050020CD3D /* MSIDSSOExtensionPasskeyCredentialRequestTests.m in Sources */,
 				2361DE8C2048B6F8005FD48A /* MSIDAccountTests.m in Sources */,

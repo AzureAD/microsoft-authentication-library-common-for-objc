@@ -23,6 +23,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDExtendedTokenCacheDataSource.h"
 
 @protocol MSIDRequestContext;
 
@@ -36,27 +37,34 @@ NS_ASSUME_NONNULL_BEGIN
  @c msauth://enroll request so it can be attached as a query parameter,
  and cleared once enrollment completes successfully.
 
- Persisted via @c [MSIDKeychainTokenCache defaultKeychainCache], so the
- entry lives in the same keychain access group that the host app has
- configured for the SDK (defaults to @c MSIDAdalKeychainGroup unless the
- host calls @c +[MSIDKeychainTokenCache setDefaultKeychainGroup:]).
+ Persisted via the keychain data source provided at initialization (defaults
+ to @c [MSIDKeychainTokenCache defaultKeychainCache] when created via
+ @c +sharedCache).
  */
 @interface MSIDIntuneDeviceIdCache : NSObject
 
 @property (class, strong) MSIDIntuneDeviceIdCache *sharedCache;
 
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource;
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
+
 /*!
  Persist the Intune device id. Single-slot; overwrites any existing value.
 
- @return YES on success. On failure @c error is populated and the cache is
-         left untouched.
+ @param intuneDeviceId The device id string to persist. Must be non-empty.
+ @param context        Optional request context used for logging/correlation.
+ @param error          On failure, set to an NSError describing the problem.
+ @return YES on success; NO on failure with @c error populated.
  */
 - (BOOL)setIntuneDeviceId:(NSString *)intuneDeviceId
                   context:(nullable id<MSIDRequestContext>)context
                     error:(NSError *_Nullable *_Nullable)error;
 
 /*!
- @return The cached Intune device id, or nil if none has been persisted.
+ @param context Optional request context used for logging/correlation.
+ @param error   On failure, set to an NSError describing the problem.
+ @return The cached Intune device id, or nil if none has been persisted or on error.
  */
 - (nullable NSString *)intuneDeviceIdWithContext:(nullable id<MSIDRequestContext>)context
                                            error:(NSError *_Nullable *_Nullable)error;
