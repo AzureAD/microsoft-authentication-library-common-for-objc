@@ -218,6 +218,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
 
     // Workplacejoin device upgrade registration required for device.
     MSIDErrorInsufficientDeviceStrength = -51732,
+
+    /*! MDM enrollment completed successfully and the request should be retried. */
+    MSIDErrorMDMEnrollmentCompletedNeedsRetry = -51733,
     /*!
      =========================================================
      Broker flow errors    (518xx and 519xx) - MSIDErrorDomain
