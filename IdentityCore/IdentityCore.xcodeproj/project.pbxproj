@@ -4824,10 +4824,10 @@
 		96F94A22208169380034676C /* embeddedWebview */ = {
 			isa = PBXGroup;
 			children = (
-				B4FDC6F82F3EFFD800091B6C /* MSIDWebviewNavigationDecisionResolver.m */,
-				B4FDC6F62F3EFFB600091B6C /* MSIDWebviewNavigationDecisionResolver.h */,
 				B46F3B6C2F3C325800CDD8F7 /* MSIDWebviewNavigationDecision.m */,
 				B46F3B6A2F3C323500CDD8F7 /* MSIDWebviewNavigationDecision.h */,
+				B4FDC6F82F3EFFD800091B6C /* MSIDWebviewNavigationDecisionResolver.m */,
+				B4FDC6F62F3EFFB600091B6C /* MSIDWebviewNavigationDecisionResolver.h */,
 				96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */,
 				96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */,
 				6057EE8E20B5FCF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.h */,
