@@ -111,9 +111,13 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)closeResultPipeline:(XCUIApplication *)application
 {
+    [self closeResultPipeline:application wait:10];
+}
+
+- (void)closeResultPipeline:(XCUIApplication *)application wait:(int)count
+{
 #if TARGET_OS_SIMULATOR
-    int count = 10;
-    double interval = 1;
+    double interval = 1.0f;
     __auto_type resultPipelineExpectation = [[XCTestExpectation alloc] initWithDescription:@"Wait for result pipeline."];
     
     // Wait till file appears.
@@ -126,7 +130,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
             break;
         }
         
-        [NSThread sleepForTimeInterval:0.5f];
+        [NSThread sleepForTimeInterval:interval];
         i++;
     }
     

@@ -53,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)cleanPipelines;
 - (void)closeResultPipeline:(XCUIApplication *)application;
+- (void)closeResultPipeline:(XCUIApplication *)application wait:(int)wait;
 - (NSDictionary *)automationResultDictionary:(XCUIApplication *)application;
 - (MSIDAutomationErrorResult *)automationErrorResult:(XCUIApplication *)application;
 - (MSIDAutomationSuccessResult *)automationSuccessResult:(XCUIApplication *)application;
