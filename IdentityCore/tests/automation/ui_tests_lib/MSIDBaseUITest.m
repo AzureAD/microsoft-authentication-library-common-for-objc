@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 
 #import "MSIDBaseUITest.h"
@@ -44,6 +44,9 @@
 static MSIDTestConfigurationProvider *s_confProvider;
 static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
 static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
+
+static NSTimeInterval const MSIDPasswordEntryPollingTimeout = 45.0;
+static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 @implementation MSIDBaseUITest
 
@@ -309,7 +312,7 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
 
 - (void)setupPassword:(NSString *)password app:(XCUIApplication *)application isMainApp:(BOOL)isMainApp
 {
-    sleep(3);
+    sleep(1);
     if (application.secureTextFields.count > 1)
     {
         // New password flow
@@ -331,88 +334,54 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
         [self tapElementAndWaitForKeyboardToAppear:confirmPasswordSecureTextField app:application];
         passwordString = [NSString stringWithFormat:@"%@apple\n", password];
         [self enterText:confirmPasswordSecureTextField isMainApp:isMainApp text:passwordString];
-    
     }
 }
 
+- (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
+{
+    NSArray<NSString *> *passwordButtonTitles = @[
+        @"Use my password",
+        @"Use your password",
+        @"Use your password instead",
+        @"Other ways to sign in"
+    ];
+
+    for (NSString *buttonTitle in passwordButtonTitles)
+    {
+        XCUIElement *button = application.buttons[buttonTitle];
+        if (!button.exists)
+        {
+            continue;
+        }
+
+        [button msidTap];
+        return YES;
+    }
+
+    return NO;
+}
 
 - (void)enterPassword:(NSString *)password app:(XCUIApplication *)application isMainApp:(BOOL)isMainApp
 {
-    // Enter password
-    XCUIElement *passwordSecureTextField = [application.secureTextFields elementBoundByIndex:0];
-    // This is explicitly to check the new screen where to ask user to signin with the following 2 options. This caused several automation failures
-    
-    XCTWaiterResult result = [self waitForElementsAndContinueIfNotAppear:passwordSecureTextField];
-    if (result == XCTWaiterResultCompleted)
+    XCUIElement *passwordSecureTextField = application.secureTextFields.firstMatch;
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MSIDPasswordEntryPollingTimeout];
+
+    while (deadline.timeIntervalSinceNow > 0)
     {
-        [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
-        NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
-        [self enterText:passwordSecureTextField isMainApp:isMainApp text:passwordString];
+        if (passwordSecureTextField.exists)
+        {
+            [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
+            NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
+            [self enterText:passwordSecureTextField isMainApp:isMainApp text:passwordString];
+            return;
+        }
+
+        [self tapPasswordSelectionButtonIfPresentInApp:application];
+
+        [NSThread sleepForTimeInterval:MSIDPasswordEntryPollingInterval];
     }
-    else
-    {
-        // 1. Use my password
-        // 2. Sign in to an orgnization
-        XCUIElement *useMyPasswordButton = application.buttons[@"Use my password"];
-        result = [self waitForElementsAndContinueIfNotAppear:useMyPasswordButton];
-        if (result == XCTWaiterResultCompleted)
-        {
-            [useMyPasswordButton tap];
-            [self enterPassword:password
-                            app:application
-                      isMainApp:isMainApp];
-            return;
-        }
-        
-        useMyPasswordButton = application.buttons[@"Use your password"];
-        if (useMyPasswordButton.exists)
-        {
-            [useMyPasswordButton tap];
-            [self enterPassword:password
-                            app:application
-                      isMainApp:isMainApp];
-            return;
-        }
-        
-        useMyPasswordButton = application.buttons[@"Use your password instead"];
-        if (useMyPasswordButton.exists)
-        {
-            [useMyPasswordButton tap];
-            [self enterPassword:password
-                            app:application
-                      isMainApp:isMainApp];
-            return;
-        }
-        
-        useMyPasswordButton = application.buttons[@"Other ways to sign in"];
-        if (useMyPasswordButton.exists)
-        {
-            [useMyPasswordButton tap];
-            
-            useMyPasswordButton = application.buttons[@"Use your password"];
-            result = [self waitForElementsAndContinueIfNotAppear:useMyPasswordButton];
-            if (result == XCTWaiterResultCompleted)
-            {
-                [useMyPasswordButton tap];
-                [self enterPassword:password
-                                app:application
-                          isMainApp:isMainApp];
-                
-                return;
-            }
-            
-            useMyPasswordButton = application.buttons[@"Use my password"];
-            if (useMyPasswordButton.exists)
-            {
-                [useMyPasswordButton tap];
-                [self enterPassword:password
-                                app:application
-                          isMainApp:isMainApp];
-                return;
-            }
-        }
-    }
-    
+
+    XCTFail(@"Timed out waiting for the password field or a password selection button to appear.");
 }
 
 - (void)adfsEnterPassword:(XCUIApplication *)application
@@ -717,7 +686,7 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
-    [self waitForExpectationsWithTimeout:30.0f handler:nil];
+    [self waitForExpectationsWithTimeout:60.0f handler:nil];
 }
 
 - (XCUIElement *)waitForEitherElements:(XCUIElement *)object1 and:(XCUIElement *)object2
@@ -730,10 +699,35 @@ static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
 
 - (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object
 {
+    return [self waitForElementsAndContinueIfNotAppear:object timeout:30.0f];
+}
+
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object timeout:(NSTimeInterval)timeout
+{
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"%@.exists == 1" argumentArray:@[object]];
 
     XCTestExpectation *expectation = [[XCTNSPredicateExpectation alloc] initWithPredicate:existsPredicate object:object];
-    return [XCTWaiter waitForExpectations:@[expectation] timeout:30.0f enforceOrder:YES];
+    return [XCTWaiter waitForExpectations:@[expectation] timeout:timeout enforceOrder:YES];
+}
+
+- (void)dismissCookieSharingDialogIfNecessary
+{
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    XCUIElement *allowButton = springBoardApp.alerts.buttons[@"Allow"];
+
+    XCTWaiterResult waitResult = [self waitForElementsAndContinueIfNotAppear:allowButton timeout:5.0f];
+
+    if (waitResult == XCTWaiterResultCompleted)
+    {
+        XCUIElement *alert = springBoardApp.alerts.element;
+        BOOL isCookieAlert = [alert.label containsString:@"cookies"]
+                             || [alert.label containsString:@"website data"];
+
+        if (isCookieAlert)
+        {
+            [allowButton msidTap];
+        }
+    }
 }
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element
