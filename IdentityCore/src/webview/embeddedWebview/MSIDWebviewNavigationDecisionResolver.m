@@ -286,8 +286,19 @@
     
     // TODO: Add any additional headers or parameters needed for profile installation request
     
+    NSURL *profileURL = [NSURL URLWithString:decodedProfileInstallURL];
+    if (!profileURL)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create valid NSURL from profile install URL string");
+        NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                         MSIDErrorInvalidInternalParameter,
+                                         @"Invalid profile install URL: could not parse URL string",
+                                         nil, nil, nil, nil, nil, YES);
+        return [MSIDWebviewNavigationDecision failWithError:error];
+    }
+    
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Created enrollment request for URL: %@", decodedProfileInstallURL);
-    return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:decodedProfileInstallURL]]];
+    return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:profileURL]];
 }
 
 
