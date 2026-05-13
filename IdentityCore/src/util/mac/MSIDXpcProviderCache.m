@@ -43,6 +43,9 @@ NSString *const MSID_XPC_PROVIDER_TYPE_KEY = @"xpc_provider_type";
 @end
 
 @implementation MSIDXpcProviderCache
+{
+    NSXPCListenerEndpoint *_cachedBrokerInstanceEndpoint;
+}
 
 @synthesize xpcConfiguration = _xpcConfiguration;
 
@@ -84,7 +87,57 @@ NSString *const MSID_XPC_PROVIDER_TYPE_KEY = @"xpc_provider_type";
 {
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         [self.userDefaults setInteger:cachedXpcProvider forKey:MSID_XPC_PROVIDER_TYPE_KEY];
-        self.xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:cachedXpcProvider];
+        // Write the configuration ivar directly to avoid re-entering the barrier through the
+        // public setXpcConfiguration: setter.
+        self->_xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:cachedXpcProvider];
+        // Provider type changed (or was rewritten) - any cached instance endpoint may belong to the
+        // previous provider and must not be reused. Clear via ivar to avoid re-entering the barrier.
+        self->_cachedBrokerInstanceEndpoint = nil;
+    });
+}
+
+- (void)setXpcConfiguration:(MSIDXpcConfiguration *)xpcConfiguration
+{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        self->_xpcConfiguration = xpcConfiguration;
+        // External mutation of the configuration changes the broker binding - any cached endpoint
+        // is now of unknown provenance and must be discarded.
+        self->_cachedBrokerInstanceEndpoint = nil;
+    });
+}
+
+- (nullable NSXPCListenerEndpoint *)cachedBrokerInstanceEndpoint
+{
+    __block NSXPCListenerEndpoint *endpoint = nil;
+    dispatch_sync(self.synchronizationQueue, ^{
+        endpoint = self->_cachedBrokerInstanceEndpoint;
+    });
+    
+    return endpoint;
+}
+
+- (BOOL)setCachedBrokerInstanceEndpoint:(nullable NSXPCListenerEndpoint *)endpoint
+                        forProviderType:(MSIDSsoProviderType)providerType
+{
+    __block BOOL stored = NO;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        // CAS: only store if the current provider type still matches the provider that produced
+        // this endpoint. This guards against a provider-switch racing a slow dispatcher reply.
+        MSIDSsoProviderType current = (MSIDSsoProviderType)[self.userDefaults integerForKey:MSID_XPC_PROVIDER_TYPE_KEY];
+        if (current == providerType)
+        {
+            self->_cachedBrokerInstanceEndpoint = endpoint;
+            stored = YES;
+        }
+    });
+    
+    return stored;
+}
+
+- (void)clearCachedBrokerInstanceEndpoint
+{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        self->_cachedBrokerInstanceEndpoint = nil;
     });
 }
 

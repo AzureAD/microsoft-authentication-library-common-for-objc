@@ -117,6 +117,9 @@ NSString *const MSID_FLIGHT_ENABLE_THREAD_STARVATION = @"ts_en";
 // This is SsoExt flow only flight
 NSString *const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE = @"skip_brk_cache";
 
+// Enables caching and reuse of the Broker XPC instance endpoint (macOS only).
+NSString *const MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED = @"broker_xpc_instance_cache_enabled";
+
 NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 
 NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
