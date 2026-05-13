@@ -218,6 +218,10 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     }
     self.complete = YES;
     
+    // Finalize the onboarding blob exactly once. Runs for both non-brokered
+    // (OneAuth) and brokered flows.
+    [self finalizeOnboardingTelemetry:endURL error:error];
+
     BOOL enableSpinnerFix = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SPINNER_FIX];
     
     if (enableSpinnerFix)
@@ -651,6 +655,38 @@ initiatedByFrame:(WKFrameInfo *)frame
 }
 
 #pragma mark - Onboarding telemetry
+
+- (void)finalizeOnboardingTelemetry:(NSURL *)endURL
+                              error:(NSError *)error
+{
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.onboardingBlobBuilder;
+    if (onboardingBlobBuilder)
+    {
+        BOOL flowSucceeded = (endURL != nil && error == nil);
+        if (flowSucceeded)
+        {
+            NSDate *now = [NSDate date];
+            if (_onboardingStrongAuthSetupStarted)
+            {
+                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepStrongAuthSetupCompleted timestamp:now];
+            }
+            if (_onboardingMdmEnrollmentStarted)
+            {
+                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFinished timestamp:now];
+            }
+            if (_onboardingDeviceRegistrationStarted)
+            {
+                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepDeviceRegistrationCompleted timestamp:now];
+            }
+            if (_onboardingRemediationStarted)
+            {
+                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepRemediationFinished timestamp:now];
+            }
+        }
+        
+        self.onboardingBlobBuilder = nil;
+    }
+}
 
 - (void)processOnboardingTelemetryForResponse:(NSHTTPURLResponse *)response
 {
