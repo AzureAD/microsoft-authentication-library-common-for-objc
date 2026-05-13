@@ -721,8 +721,30 @@ initiatedByFrame:(WKFrameInfo *)frame
         return;
     }
 
+    // Check list of expected errors to ignore as part of normal sign-in flow.
+    if ([[self.class nonBlockingOnboardingErrorCodes] containsObject:errorCode])
+    {
+        return;
+    }
+
     [builder addBlockingError:errorCode];
     [self recordOnboardingRemediationStepForErrorCode:errorCode builder:builder];
+}
+
+// Error codes that are returned during normal sign-in flow and should not be
+// treated as blocking onboarding errors (e.g. user not signed in, wrong password,
+// device auth interrupt). This list will be extended over time.
+//   50058  UserInformationNotProvided      - User not signed in / no valid SSO session found
+//   50097  DeviceAuthenticationRequired    - Device auth interrupt triggered by CA policy
+//   50126  InvalidUserNameOrPassword       - Wrong username or password
++ (NSSet<NSString *> *)nonBlockingOnboardingErrorCodes
+{
+    static NSSet<NSString *> *codes = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        codes = [NSSet setWithObjects:@"50058", @"50097", @"50126", nil];
+    });
+    return codes;
 }
 
 - (void)recordOnboardingRemediationStepForErrorCode:(NSString *)errorCode
