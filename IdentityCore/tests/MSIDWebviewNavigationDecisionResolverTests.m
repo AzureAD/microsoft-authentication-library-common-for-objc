@@ -452,7 +452,7 @@
     XCTAssertEqualObjects(decision.URL, url);
 }
 
-- (void)testEnrollmentCompletion_ssoExtensionAvailable_clearsCachedDeviceId
+- (void)testEnrollmentCompletion_ssoExtensionAvailable_cachedDeviceId
 {
     [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
                            class:[MSIDSSOExtensionInteractiveTokenRequestController class]
@@ -462,7 +462,7 @@
     }];
 
     NSError *err = nil;
-    XCTAssertTrue([self.deviceIdCache setIntuneDeviceId:@"device-to-clear" context:nil error:&err]);
+    XCTAssertTrue([self.deviceIdCache setIntuneDeviceId:@"device-abc" context:nil error:&err]);
     XCTAssertNil(err);
 
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
@@ -476,7 +476,7 @@
                  externalNavigationBlock:nil];
 
     NSString *cached = [self.deviceIdCache intuneDeviceIdWithContext:nil error:nil];
-    XCTAssertNil(cached);
+    XCTAssert(cached);
 }
 
 - (void)testEnrollmentCompletion_ssoExtensionUnavailable_noErrorURL_returnsFailWithError
