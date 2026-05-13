@@ -82,7 +82,7 @@ static MSIDIntuneDeviceIdCache *s_sharedCache;
 
 - (BOOL)setIntuneDeviceId:(NSString *)intuneDeviceId
                   context:(nullable id<MSIDRequestContext>)context
-                    error:(NSError *_Nullable *_Nullable)error
+                    error:(NSError *_Nullable __autoreleasing *_Nullable)error
 {
     if (!intuneDeviceId.length)
     {
@@ -122,7 +122,7 @@ static MSIDIntuneDeviceIdCache *s_sharedCache;
 }
 
 - (nullable NSString *)intuneDeviceIdWithContext:(nullable id<MSIDRequestContext>)context
-                                           error:(NSError *_Nullable *_Nullable)error
+                                           error:(NSError *_Nullable __autoreleasing *_Nullable)error
 {
     if (!self.dataSource) return nil;
 

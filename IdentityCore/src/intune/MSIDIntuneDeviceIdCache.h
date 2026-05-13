@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)setIntuneDeviceId:(NSString *)intuneDeviceId
                   context:(nullable id<MSIDRequestContext>)context
-                    error:(NSError *_Nullable *_Nullable)error;
+                    error:(NSError *_Nullable __autoreleasing *_Nullable)error;
 
 /*!
  @param context Optional request context used for logging/correlation.
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
  @return The cached Intune device id, or nil if none has been persisted or on error.
  */
 - (nullable NSString *)intuneDeviceIdWithContext:(nullable id<MSIDRequestContext>)context
-                                           error:(NSError *_Nullable *_Nullable)error;
+                                           error:(NSError *_Nullable __autoreleasing *_Nullable)error;
 
 /*!
  Removes the cached Intune device id. No-op when nothing is cached.

@@ -50,7 +50,8 @@
 - (void)testSetIntuneDeviceId_whenDeviceIdIsNil_shouldReturnNOAndError
 {
     NSError *error;
-    BOOL result = [self.cache setIntuneDeviceId:nil context:nil error:&error];
+    NSString *deviceId = nil;
+    BOOL result = [self.cache setIntuneDeviceId:deviceId context:nil error:&error];
 
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
