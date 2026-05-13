@@ -22,11 +22,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !MSID_EXCLUDE_WEBKIT
-
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
+
+#if !MSID_EXCLUDE_WEBKIT
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#endif
 
 @class MSIDWebviewNavigationDecision;
 
@@ -46,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)sharedInstance;
 
+#if !MSID_EXCLUDE_WEBKIT
 /**
  * Resolves a navigation decision for a special redirect URL.
  *
@@ -73,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                            appName:(NSString *)appName
                                                         appVersion:(NSString *)appVersion
                                            externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock;
+#endif // !MSID_EXCLUDE_WEBKIT
+
 @end
 NS_ASSUME_NONNULL_END
-
-#endif // !MSID_EXCLUDE_WEBKIT

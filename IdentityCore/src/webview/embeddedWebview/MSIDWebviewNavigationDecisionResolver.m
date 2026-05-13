@@ -22,8 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !MSID_EXCLUDE_WEBKIT
-
 #import "MSIDWebviewNavigationDecisionResolver.h"
 #import "MSIDWebviewNavigationDecision.h"
 #import "MSIDWebviewConstants.h"
@@ -43,6 +41,7 @@
     return sharedInstance;
 }
 
+#if !MSID_EXCLUDE_WEBKIT
 - (MSIDWebviewNavigationDecision *)resolveDecisionForURL:(NSURL *)URL
                                        webviewController:(id<MSIDWebviewInteracting>)webviewController
                                          responseHeaders:(NSDictionary<NSString *,NSString *> * _Nullable)responseHeaders
@@ -145,6 +144,8 @@
         return [MSIDWebviewNavigationDecision continueDefault];
     }
 }
+
+#endif // !MSID_EXCLUDE_WEBKIT
 
 #pragma mark - URL Action Resolvers
 
@@ -356,6 +357,7 @@
     return [MSIDWebviewNavigationDecision failWithError:error];
 }
 
+#if !MSID_EXCLUDE_WEBKIT
 - (MSIDWebviewNavigationDecision *)actionForComplianceURL:(id<MSIDWebviewInteracting>)webviewController
                                                    params:(NSDictionary *)params
                                   externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
@@ -444,6 +446,8 @@
     return [MSIDWebviewNavigationDecision loadRequest:request];
 }
 
+#endif // !MSID_EXCLUDE_WEBKIT
+
 #pragma mark - Helper Methods
 
 - (nullable NSURLRequest *)buildRequestForURL:(NSString *)URLString
@@ -517,5 +521,3 @@
 }
 
 @end
-
-#endif // !MSID_EXCLUDE_WEBKIT
