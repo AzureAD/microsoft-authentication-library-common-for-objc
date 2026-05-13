@@ -109,7 +109,6 @@
     }
     
     // Parse query parameters
-    NSDictionary<NSString *, NSString *> *params1 = [self queryParamsFromURL:URL];
     NSDictionary<NSString *, NSString *> *params = [URL msidQueryParameters];
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Resolving action for msauth URL with host: %@", host);
@@ -117,7 +116,7 @@
     // Route based on host
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
-        return [self actionForEnrollURL:params1
+        return [self actionForEnrollURL:params
                                 appName:appName
                              appVersion:appVersion];
     }
@@ -502,46 +501,6 @@
     }
     
     return request;
-}
-
-- (NSDictionary<NSString *, NSString *> *)queryParamsFromURL:(NSURL *)URL
-{
-    if (!URL)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: URL is nil");
-        return @{};
-    }
-    
-    NSURLComponents *components = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
-    if (!components)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: Failed to parse URL components for URL: %@", URL);
-        return @{};
-    }
-    
-    NSMutableDictionary<NSString *, NSString *> *result = [NSMutableDictionary new];
-    
-    NSArray<NSURLQueryItem *> *queryItems = components.queryItems;
-    if (!queryItems || queryItems.count == 0)
-    {
-        return @{};
-    }
-    
-    for (NSURLQueryItem *item in queryItems)
-    {
-        // Only add items with both name and value present
-        if (item.name && item.value)
-        {
-            result[item.name] = item.value;
-        }
-        else if (item.name)
-        {
-            // Query parameter with no value - log as warning
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Query parameter '%@' has no value", item.name);
-        }
-    }
-    
-    return [result copy];
 }
 
 @end
