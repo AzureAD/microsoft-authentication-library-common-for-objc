@@ -52,14 +52,15 @@ NS_ASSUME_NONNULL_BEGIN
  * Resolves a navigation decision for a special redirect URL.
  *
  * Supported schemes:
- * - msauth:// - Handles enrollment, compliance, and enrollment completion flows
+ * - msauth:// - Handles enrollment, compliance, profile download, and in-app enrollment completion flows
  * - browser:// - Returns continueDefault for legacy browser flow
  * - other - Returns continueDefault for unknown schemes
  *
  * Supported msauth:// hosts:
  * - enroll: MDM enrollment flow
  * - compliance: Compliance check flow
- * - in_app_enrollment_complete: Profile installation completion
+ * - profile_download_complete: Profile download completion flow
+ * - in_app_enrollment_complete: In-app enrollment completion flow
  *
  * @param URL The special redirect URL to resolve (msauth://, browser://, etc.)
  * @param webviewController The webview controller handling the navigation

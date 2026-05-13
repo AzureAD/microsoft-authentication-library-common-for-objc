@@ -247,16 +247,16 @@
     NSString *intuneDeviceId = params[MSID_INTUNE_DEVICE_ID_KEY];
     if (!intuneDeviceId || intuneDeviceId.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Intune deviceId is missing required parameter: %@", MSID_INTUNE_URL_KEY);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Intune deviceId is missing required parameter: %@", MSID_INTUNE_DEVICE_ID_KEY);
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
-                                         @"Missing intuneDeviceId parameter in enrollment URL",
+                                         [NSString stringWithFormat:@"Missing required parameter in enrollment URL: %@", MSID_INTUNE_DEVICE_ID_KEY],
                                          nil, nil, nil, nil, nil, YES);
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
 
     // Persist intuneDeviceId in keychain so it can be re-attached to the
-    // subsequent enrollment request if the MDM profile installation interrupted
+    // subsequent enrollment request if the MDM profile installation is interrupted.
     NSError *cacheError = nil;
     if (![[MSIDIntuneDeviceIdCache sharedCache] setIntuneDeviceId:intuneDeviceId
                                                           context:nil
@@ -271,10 +271,10 @@
     NSString *profileInstallURL = params[MSID_INTUNE_PROFILE_INSTALL_URL_KEY];
     if (!profileInstallURL || profileInstallURL.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Profile install URL is missing required parameter: %@", MSID_INTUNE_URL_KEY);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Profile install URL is missing required parameter: %@", MSID_INTUNE_PROFILE_INSTALL_URL_KEY);
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
-                                         @"Missing profileInstallUrl parameter in enrollment URL",
+                                         [NSString stringWithFormat:@"Missing %@ parameter in enrollment URL", MSID_INTUNE_PROFILE_INSTALL_URL_KEY],
                                          nil, nil, nil, nil, nil, YES);
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
