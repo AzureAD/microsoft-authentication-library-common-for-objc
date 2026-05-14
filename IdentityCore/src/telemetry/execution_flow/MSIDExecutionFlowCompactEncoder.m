@@ -25,6 +25,7 @@
 #import "MSIDExecutionFlowCompactEncoder.h"
 #import "MSIDExecutionFlow.h"
 #import "MSIDExecutionFlowConstants.h"
+#import "NSString+MSIDExtensions.h"
 
 NSString *const MSID_EXECUTION_FLOW_COMPACT_SCHEMA_VERSION = @"1.0.0";
 
@@ -32,7 +33,7 @@ NSString *const MSID_EXECUTION_FLOW_AUTH_OUTCOME_SUCCEEDED = @"succeeded";
 NSString *const MSID_EXECUTION_FLOW_AUTH_OUTCOME_FAILED    = @"failed";
 NSString *const MSID_EXECUTION_FLOW_AUTH_OUTCOME_CANCELLED = @"cancelled";
 
-NSString *const MSID_EXECUTION_FLOW_TRUNCATION_SENTINEL_TAG = @"…trunc";
+NSString *const MSID_EXECUTION_FLOW_TRUNCATION_SENTINEL_TAG = @"\u2026trunc";
 
 // Envelope keys
 static NSString *const kCompactKeyVersion        = @"v";
@@ -69,15 +70,17 @@ static NSString *const kEventOptionalKeyRef        = @"ref";
         return nil;
     }
 
+    NSParameterAssert(authOutcome.length > 0);
+    if (authOutcome.length == 0)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"authOutcome is required; refusing to encode execution flow envelope", nil);
+        return nil;
+    }
+
     NSSet<NSString *> *queryKeys = [NSSet setWithArray:@[kEventOptionalKeyDiagnostic,
                                                          kEventOptionalKeyErrorCode,
                                                          kEventOptionalKeyRef]];
     NSArray<NSDictionary<NSString *, id> *> *events = [flow executionFlowDictionariesWithKeys:queryKeys];
-    if (!events)
-    {
-        events = @[];
-    }
-
     NSMutableArray<NSDictionary<NSString *, id> *> *workingEvents = [events mutableCopy];
 
     NSString *encoded = [self encodeWithCorrelationId:correlationId
@@ -90,7 +93,12 @@ static NSString *const kEventOptionalKeyRef        = @"ref";
                                                events:workingEvents
                                             truncated:NO];
 
-    if (maxBytes == 0 || encoded.length == 0)
+    if (!encoded)
+    {
+        return nil;
+    }
+
+    if (maxBytes == 0)
     {
         return encoded;
     }
@@ -115,6 +123,11 @@ static NSString *const kEventOptionalKeyRef        = @"ref";
                                                  durationMs:durationMs
                                                      events:workingEvents
                                                   truncated:YES];
+
+        if (!candidate)
+        {
+            return nil;
+        }
 
         NSUInteger candidateLength = [candidate lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
         if (candidateLength <= maxBytes)
@@ -188,7 +201,10 @@ static NSString *const kEventOptionalKeyRef        = @"ref";
                                                      error:&jsonError];
     if (!data)
     {
-        return @"";
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil,
+                              @"Failed to encode execution flow envelope: %@",
+                              MSID_PII_LOG_MASKABLE(jsonError.localizedDescription));
+        return nil;
     }
 
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];

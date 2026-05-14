@@ -310,8 +310,6 @@
     XCTAssertNotEqualObjects(first[@"t"], @"tag0", @"Oldest event should be dropped first");
 
     // Final encoded length must be <= maxBytes.
-    NSData *encoded = [NSJSONSerialization dataWithJSONObject:envelope options:0 error:nil];
-    // Re-encode through the encoder for a true byte-length comparison.
     NSString *encodedString = [MSIDExecutionFlowCompactEncoder encodeExecutionFlow:flow
                                                                      correlationId:nil
                                                                         brokerName:nil
@@ -323,7 +321,6 @@
                                                                           maxBytes:budget];
     NSUInteger encodedBytes = [encodedString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     XCTAssertLessThanOrEqual(encodedBytes, budget);
-    XCTAssertNotNil(encoded);
 }
 
 - (void)testEncode_whenMaxBytesTooSmallForAnyEvent_shouldStillEmitSentinel
@@ -385,6 +382,80 @@
     XCTAssertNil(envelope[@"n"]);
     XCTAssertNil(envelope[@"av"]);
     XCTAssertNil(envelope[@"ec"]);
+}
+
+#pragma mark - Helper API direct coverage
+
+- (void)testBlobToDictionaryWithKeys_nilQueryKeys_returnsCopyDistinctFromInternalStorage
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    [flow insertTag:@"helpertag"
+     triggeringTime:[NSDate dateWithTimeIntervalSince1970:1700000000]
+           threadId:@(99)
+          extraInfo:@{ @"d": @(1), @"e": @(2), @"ref": @"R" }];
+
+    NSArray<NSDictionary<NSString *, id> *> *firstCall  = [flow executionFlowDictionariesWithKeys:nil];
+    NSArray<NSDictionary<NSString *, id> *> *secondCall = [flow executionFlowDictionariesWithKeys:nil];
+    XCTAssertEqual(firstCall.count, 1u);
+    XCTAssertEqual(secondCall.count, 1u);
+
+    // Returned dict must be a defensive copy: callers should not be able to mutate it.
+    NSDictionary *dict = firstCall.firstObject;
+    XCTAssertFalse([dict isKindOfClass:[NSMutableDictionary class]],
+                   @"nil-queryKeys path must return an immutable copy, not internal mutable storage");
+
+    // Round-trip: every mandatory + optional key is present.
+    XCTAssertEqualObjects(dict[@"t"], @"helpertag");
+    XCTAssertNotNil(dict[@"ts"]);
+    XCTAssertEqualObjects(dict[@"tid"], @(99));
+    XCTAssertEqualObjects(dict[@"d"], @(1));
+    XCTAssertEqualObjects(dict[@"e"], @(2));
+    XCTAssertEqualObjects(dict[@"ref"], @"R");
+
+    // A second retrieval should observe the same underlying values (no leakage from
+    // either retrieval into the next).
+    XCTAssertEqualObjects(secondCall.firstObject[@"d"], @(1));
+}
+
+- (void)testBlobToDictionaryWithKeys_emptyQueryKeys_returnsAllFields
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    [flow insertTag:@"emptyq"
+     triggeringTime:[NSDate dateWithTimeIntervalSince1970:1700000000]
+           threadId:@(1)
+          extraInfo:@{ @"d": @(7) }];
+
+    NSArray<NSDictionary<NSString *, id> *> *blobs = [flow executionFlowDictionariesWithKeys:[NSSet set]];
+    XCTAssertEqual(blobs.count, 1u);
+    XCTAssertEqualObjects(blobs.firstObject[@"d"], @(7),
+                          @"Empty queryKeys set should behave like nil and include all keys");
+}
+
+- (void)testBlobToDictionaryWithKeys_filtersToRequestedKeysPlusReserved
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    [flow insertTag:@"filtertag"
+     triggeringTime:[NSDate dateWithTimeIntervalSince1970:1700000000]
+           threadId:@(1)
+          extraInfo:@{ @"d": @(1), @"e": @(2), @"ref": @"R" }];
+
+    NSArray<NSDictionary<NSString *, id> *> *blobs = [flow executionFlowDictionariesWithKeys:[NSSet setWithObject:@"d"]];
+    XCTAssertEqual(blobs.count, 1u);
+    NSDictionary *dict = blobs.firstObject;
+    XCTAssertEqualObjects(dict[@"t"], @"filtertag", @"Mandatory key always present");
+    XCTAssertNotNil(dict[@"ts"], @"Mandatory key always present");
+    XCTAssertEqualObjects(dict[@"tid"], @(1), @"Mandatory key always present");
+    XCTAssertEqualObjects(dict[@"d"], @(1));
+    XCTAssertNil(dict[@"e"], @"Filtered out");
+    XCTAssertNil(dict[@"ref"], @"Filtered out");
+}
+
+- (void)testExecutionFlowDictionariesWithKeys_emptyFlow_returnsEmptyArray
+{
+    MSIDExecutionFlow *flow = [[MSIDExecutionFlow alloc] init];
+    NSArray *result = [flow executionFlowDictionariesWithKeys:nil];
+    XCTAssertNotNil(result);
+    XCTAssertEqual(result.count, 0u);
 }
 
 @end

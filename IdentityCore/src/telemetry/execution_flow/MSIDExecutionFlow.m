@@ -150,7 +150,7 @@
 
 - (NSArray<NSDictionary<NSString *, id> *> *)executionFlowDictionariesWithKeys:(NSSet<NSString *> *)queryKeys
 {
-    __block NSMutableArray<NSDictionary<NSString *, id> *> *result = [NSMutableArray new];
+    NSMutableArray<NSDictionary<NSString *, id> *> *result = [NSMutableArray new];
 
     dispatch_sync(self.executionFlowWritingQueue, ^{
         for (MSIDExecutionFlowBlob *blob in self.executionFlow)

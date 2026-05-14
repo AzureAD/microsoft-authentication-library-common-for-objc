@@ -96,7 +96,9 @@
     NSDictionary *full = self.blob.toDictionary;
     if (queryKeys.count == 0)
     {
-        return full;
+        // Always return a defensive copy so callers cannot mutate (or observe mutations to)
+        // the underlying blob storage.
+        return [full copy];
     }
 
     NSMutableDictionary *result = [NSMutableDictionary new];
