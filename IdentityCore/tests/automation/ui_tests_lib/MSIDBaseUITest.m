@@ -368,7 +368,14 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
     while (deadline.timeIntervalSinceNow > 0)
     {
-        if (passwordSecureTextField.exists)
+        // Require .isHittable in addition to .exists so we don't tap and type
+        // into a stale SecureTextField that's still in the view hierarchy from
+        // a previous sign-in step. Without this, a second acquireToken call
+        // (e.g. prompt=force with a login_hint after a prior sign-in) can find
+        // the previous step's password field, send keystrokes that go nowhere,
+        // and leave the broker waiting on an empty password — the test then
+        // times out in waitForRedirectToClientApp.
+        if (passwordSecureTextField.exists && passwordSecureTextField.isHittable)
         {
             [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
             NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
