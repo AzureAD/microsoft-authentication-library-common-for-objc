@@ -69,7 +69,6 @@
 // Backed by readonly properties declared in the public header.
 @synthesize onboardingStrongAuthSetupStarted = _onboardingStrongAuthSetupStarted;
 @synthesize onboardingMdmEnrollmentStarted = _onboardingMdmEnrollmentStarted;
-@synthesize onboardingDeviceRegistrationStarted = _onboardingDeviceRegistrationStarted;
 @synthesize onboardingRemediationStarted = _onboardingRemediationStarted;
 
 #if AD_BROKER
@@ -670,10 +669,6 @@ initiatedByFrame:(WKFrameInfo *)frame
             {
                 [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFinished timestamp:now];
             }
-            if (_onboardingDeviceRegistrationStarted)
-            {
-                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepDeviceRegistrationCompleted timestamp:now];
-            }
             if (_onboardingRemediationStarted)
             {
                 [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepRemediationFinished timestamp:now];
@@ -832,11 +827,9 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     // 50129 (DeviceIsNotWorkplaceJoined): Device registration needed,
     // 501291 (DeviceIsNotWorkplaceJoinedForMamApp): Device registration needed for MAM app
-    else if (([errorCode isEqualToString:@"50129"] || [errorCode isEqualToString:@"501291"])
-             && !_onboardingDeviceRegistrationStarted)
+    else if ([errorCode isEqualToString:@"50129"] || [errorCode isEqualToString:@"501291"])
     {
-        [builder addStep:MSIDOnboardingBlobStepDeviceRegistrationStarted timestamp:now];
-        _onboardingDeviceRegistrationStarted = YES;
+        [builder addStep:MSIDOnboardingBlobStepDeviceRegistrationRequired timestamp:now];
     }
     // 530001 (DeviceNotCompliantBrowserNotSupported): Browser not supported,
     // 530002: (DeviceNotCompliantDeviceCompliantRequired): The device is required to be compliant to access this resource
