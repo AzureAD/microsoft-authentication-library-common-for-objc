@@ -54,8 +54,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Optional onboarding telemetry blob builder. When present, the embedded webview
 // controller created from this configuration will record domain + blocking error
-// telemetry into the builder.
-@property (nonatomic, weak, nullable) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
+// telemetry into the builder. Held strongly so the builder remains valid for the
+// duration of the request, independent of any external strong reference.
+@property (nonatomic, strong, nullable) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 
 #if TARGET_OS_IPHONE
 @property (nonatomic, readwrite) UIModalPresentationStyle presentationType;
