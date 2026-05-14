@@ -121,7 +121,7 @@
                                   appName:appName
                                appVersion:appVersion];
     }
-    if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
+    else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
         return [self decisionForProfileDownloadComplete:params];
     }
