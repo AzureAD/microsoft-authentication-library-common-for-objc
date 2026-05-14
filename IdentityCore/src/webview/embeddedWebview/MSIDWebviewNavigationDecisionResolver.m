@@ -52,7 +52,7 @@
     // Validate required parameters
     if (!URL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot resolve navigation decision: URL is nil");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve: URL is nil.");
         return nil;
     }
     
@@ -60,11 +60,11 @@
     
     if (!scheme || scheme.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot resolve navigation decision: URL scheme is nil or empty");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve: URL scheme is missing or empty. URL: %@", MSID_PII_LOG_MASKABLE(URL));
         return nil;
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Resolving navigation decision for special redirect URL with scheme: %@", scheme);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Resolving decision for scheme '%@'.", scheme);
     
     // Route based on scheme
     if ([scheme isEqualToString:MSID_SCHEME_MSAUTH])
@@ -79,14 +79,14 @@
     }
     else if ([scheme isEqualToString:MSID_SCHEME_BROWSER])
     {
-        // Handle browser:// URLs - use default action for legacy browser flow
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Browser scheme detected, continuing with default action");
+        // Handle browser:// URLs - use default decision for legacy browser flow
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] 'browser' scheme detected; continuing with default decision.");
         return [MSIDWebviewNavigationDecision continueDefault];
     }
     else
     {
-        // Unknown scheme - continue with default behavior
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Unknown special redirect scheme: %@, continuing with default action", scheme);
+        // Unknown scheme - continue with default decision
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Unhandled scheme '%@'; continuing with default decision.", scheme);
         return [MSIDWebviewNavigationDecision continueDefault];
     }
 }
@@ -105,62 +105,63 @@
     // Validate host
     if (!host || host.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to resolve navigation decision: 'msauth' URL has empty or missing host. URL: %@", URL);
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve 'msauth' URL: host is missing or empty. URL: %@", MSID_PII_LOG_MASKABLE(URL));
         return nil;
     }
     
     // Parse query parameters
     NSDictionary<NSString *, NSString *> *params = [URL msidQueryParameters];
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Resolving action for msauth URL with host: %@", host);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Resolving decision for msauth host '%@'.", host);
     
     // Route based on host
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
-        return [self actionForEnrollURL:params
-                                appName:appName
-                             appVersion:appVersion];
+        return [self decisionForEnrollURL:params
+                                  appName:appName
+                               appVersion:appVersion];
     }
     if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
-        return [self actionForProfileDownloadComplete:params
-        ];
+        return [self decisionForProfileDownloadComplete:params];
     }
     else if ([host isEqualToString:MSID_COMPLIANCE_HOST])
     {
-        return [self actionForComplianceURL:webviewController
-                                     params:params
-                    externalNavigationBlock:externalNavigationBlock];
+        return [self decisionForComplianceURL:webviewController
+                                       params:params
+                      externalNavigationBlock:externalNavigationBlock];
     }
     else if ([host isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_HOST])
     {
-        return [self actionForEnrollmentCompletionURL:URL
-                                               params:params];
+        return [self decisionForEnrollmentCompletionURL:URL
+                                                 params:params];
     }
     else
     {
-        // Unknown host - continue with default behavior
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Unknown msauth host: %@, continuing with default action", host);
+        // Unknown host - continue with default decision
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Unhandled msauth host '%@'; continuing with default decision.", host);
         return [MSIDWebviewNavigationDecision continueDefault];
     }
 }
 
 #endif // !MSID_EXCLUDE_WEBKIT
 
-#pragma mark - URL Action Resolvers
+#pragma mark - URL Decision Resolvers
 
-- (MSIDWebviewNavigationDecision *)actionForEnrollURL:(NSDictionary *)params
-                                              appName:(NSString *)appName
-                                           appVersion:(NSString *)appVersion
+- (MSIDWebviewNavigationDecision *)decisionForEnrollURL:(NSDictionary *)params
+                                                appName:(NSString *)appName
+                                             appVersion:(NSString *)appVersion
 {
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
+
     // Extract intuneUrl from query parameters
     NSString *intuneURLString = params[MSID_INTUNE_URL_KEY];
     if (!intuneURLString || intuneURLString.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Enroll URL missing required parameter: %@", MSID_INTUNE_URL_KEY);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Enroll] Missing required parameter '%@' in msauth enrollment URL.", MSID_INTUNE_URL_KEY);
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
-                                         @"Missing intuneRedirectUrl parameter in enrollment URL",
+                                         [NSString stringWithFormat:@"Missing required parameter '%@' in enrollment URL", MSID_INTUNE_URL_KEY],
                                          nil, nil, nil, nil, nil, YES);
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
@@ -169,7 +170,7 @@
     NSString *decodedIntuneURL = [intuneURLString stringByRemovingPercentEncoding];
     if (!decodedIntuneURL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to decode intuneUrl, using original value");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Enroll] Failed to percent-decode '%@'; falling back to raw value.", MSID_INTUNE_URL_KEY);
         decodedIntuneURL = intuneURLString;
     }
     
@@ -199,12 +200,17 @@
         if (cacheReadError)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil,
-                              @"Failed to read cached intuneDeviceId: %@", MSID_PII_LOG_MASKABLE(cacheReadError));
+                              @"[Enroll] Failed to read cached intuneDeviceId; proceeding without it. Error: %@",
+                              MSID_PII_LOG_MASKABLE(cacheReadError));
         }
         if (cachedDeviceId.length > 0)
         {
             allQueryParams[MSID_INTUNE_DEVICE_ID_KEY] = cachedDeviceId;
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Attached cached intuneDeviceId to enroll request.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Attached cached intuneDeviceId to enrollment request.");
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] No cached intuneDeviceId available; proceeding without it.");
         }
     }
 
@@ -229,7 +235,7 @@
     
     if (!request)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to build enrollment request for URL: %@", decodedIntuneURL);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Enroll] Failed to build enrollment request from intuneUrl: %@", MSID_PII_LOG_MASKABLE(decodedIntuneURL));
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
                                          @"Failed to construct enrollment request URL",
@@ -237,22 +243,19 @@
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Created enrollment request for URL: %@", request.URL);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Built enrollment request for host '%@'.", request.URL.host);
     return [MSIDWebviewNavigationDecision loadRequest:request];
 }
 
-- (MSIDWebviewNavigationDecision *)actionForProfileDownloadComplete:(NSDictionary *)params
+- (MSIDWebviewNavigationDecision *)decisionForProfileDownloadComplete:(NSDictionary *)params
 {
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Processing MDM profile download completion redirect.");
+
     // Extract intuneDeviceId from query parameters
     NSString *intuneDeviceId = params[MSID_INTUNE_DEVICE_ID_KEY];
     if (!intuneDeviceId || intuneDeviceId.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Intune deviceId is missing required parameter: %@", MSID_INTUNE_DEVICE_ID_KEY);
-        NSError *error = MSIDCreateError(MSIDErrorDomain,
-                                         MSIDErrorInvalidInternalParameter,
-                                         [NSString stringWithFormat:@"Missing required parameter in enrollment URL: %@", MSID_INTUNE_DEVICE_ID_KEY],
-                                         nil, nil, nil, nil, nil, YES);
-        return [MSIDWebviewNavigationDecision failWithError:error];
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[ProfileDownload] Missing Intune device ID '%@' in profile download completion redirect.", MSID_INTUNE_DEVICE_ID_KEY);
     }
 
     // Persist intuneDeviceId in keychain so it can be re-attached to the
@@ -263,27 +266,31 @@
                                                             error:&cacheError])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil,
-                          @"Failed to cache intuneDeviceId: %@", MSID_PII_LOG_MASKABLE(cacheError));
-        // continue with profile download.
+                          @"[ProfileDownload] Failed to cache intuneDeviceId; continuing with profile download. Error: %@",
+                          MSID_PII_LOG_MASKABLE(cacheError));
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Cached intuneDeviceId for subsequent enrollment.");
     }
 
     // Extract profileInstallUrl from query parameters
     NSString *profileInstallURL = params[MSID_INTUNE_PROFILE_INSTALL_URL_KEY];
     if (!profileInstallURL || profileInstallURL.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Profile install URL is missing required parameter: %@", MSID_INTUNE_PROFILE_INSTALL_URL_KEY);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[ProfileDownload] Missing required parameter '%@' profile download completion redirect.", MSID_INTUNE_PROFILE_INSTALL_URL_KEY);
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
-                                         [NSString stringWithFormat:@"Missing %@ parameter in enrollment URL", MSID_INTUNE_PROFILE_INSTALL_URL_KEY],
+                                         [NSString stringWithFormat:@"Missing required parameter '%@' in profile download completion redirect.", MSID_INTUNE_PROFILE_INSTALL_URL_KEY],
                                          nil, nil, nil, nil, nil, YES);
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
     
-    // URL decode the intuneUrl in case it's percent-encoded
+    // URL decode the profile install URL in case it's percent-encoded
     NSString *decodedProfileInstallURL = [profileInstallURL stringByRemovingPercentEncoding];
     if (!decodedProfileInstallURL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to decode intuneURL, using original value");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[ProfileDownload] Failed to percent-decode '%@'; falling back to raw value.", MSID_INTUNE_PROFILE_INSTALL_URL_KEY);
         decodedProfileInstallURL = profileInstallURL;
     }
     
@@ -292,31 +299,33 @@
     NSURL *profileURL = [NSURL URLWithString:decodedProfileInstallURL];
     if (!profileURL || !profileURL.scheme.length || !profileURL.host.length)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create valid NSURL from profile install URL string");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[ProfileDownload] Profile install URL is malformed (missing scheme or host). URL: %@", MSID_PII_LOG_MASKABLE(decodedProfileInstallURL));
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
-                                         @"Invalid profile install URL: could not parse URL string",
+                                         @"Invalid profile install URL: missing scheme or host",
                                          nil, nil, nil, nil, nil, YES);
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Created enrollment request for URL: %@", decodedProfileInstallURL);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Built profile install request for host '%@'.", profileURL.host);
     return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:profileURL]];
 }
 
 
-- (MSIDWebviewNavigationDecision *)actionForEnrollmentCompletionURL:(NSURL *)URL
-                                                             params:(NSDictionary *)params
+- (MSIDWebviewNavigationDecision *)decisionForEnrollmentCompletionURL:(NSURL *)URL
+                                                               params:(NSDictionary *)params
 {
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] Processing enrollment completion redirect.");
+
     // Check if SSO extension can perform request
     if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"SSO extension available, completing web auth with enrollment completion URL");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] SSO extension available; completing web auth with enrollment completion URL.");
         return [MSIDWebviewNavigationDecision completeWithURL:URL];
     }
     
     // SSO extension not available - load error URL if provided
-    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"SSO extension not available for enrollment completion");
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[EnrollmentCompletion] SSO extension is not available; attempting fallback error URL.");
     
     NSString *errorUrlString = params[MSID_MDM_ENROLLMENT_COMPLETION_ERROR_URL_KEY];
     
@@ -326,43 +335,49 @@
         NSString *decodedErrorUrlString = [errorUrlString stringByRemovingPercentEncoding];
         if (!decodedErrorUrlString)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to decode error URL, using original value");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[EnrollmentCompletion] Failed to percent-decode '%@'; falling back to raw value.", MSID_MDM_ENROLLMENT_COMPLETION_ERROR_URL_KEY);
             decodedErrorUrlString = errorUrlString;
         }
         
         NSURL *errorURL = [NSURL URLWithString:decodedErrorUrlString];
         if (errorURL)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Loading error URL in webview: %@", errorURL);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] Loading fallback error URL in webview (host: '%@').", errorURL.host);
             return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:errorURL]];
         }
         else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Invalid error URL format: %@", decodedErrorUrlString);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[EnrollmentCompletion] Fallback error URL is not parseable: %@", MSID_PII_LOG_MASKABLE(decodedErrorUrlString));
         }
     }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[EnrollmentCompletion] No fallback error URL ('%@') provided in redirect.", MSID_MDM_ENROLLMENT_COMPLETION_ERROR_URL_KEY);
+    }
     
-    // No valid error URL - return error action
+    // No valid error URL - return error decision
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInternal,
-                                     @"SSO extension is not available and no valid error URL provided for enrollment completion",
+                                     @"SSO extension is not available and no valid fallback error URL was provided for enrollment completion",
                                      nil, nil, nil, nil, nil, YES);
     return [MSIDWebviewNavigationDecision failWithError:error];
 }
 
 #if !MSID_EXCLUDE_WEBKIT
-- (MSIDWebviewNavigationDecision *)actionForComplianceURL:(id<MSIDWebviewInteracting>)webviewController
-                                                   params:(NSDictionary *)params
-                                  externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
+- (MSIDWebviewNavigationDecision *)decisionForComplianceURL:(id<MSIDWebviewInteracting>)webviewController
+                                                     params:(NSDictionary *)params
+                                    externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
 {
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Building compliance request from msauth redirect.");
+
     // Extract intuneUrl from query parameters
     NSString *intuneURLString = params[MSID_INTUNE_URL_KEY];
     if (!intuneURLString || intuneURLString.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Compliance URL missing required parameter: %@", MSID_INTUNE_URL_KEY);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Compliance] Missing required parameter '%@' in msauth compliance URL.", MSID_INTUNE_URL_KEY);
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
-                                         @"Missing intuneRedirectUrl parameter in compliance URL",
+                                         [NSString stringWithFormat:@"Missing required parameter '%@' in compliance URL", MSID_INTUNE_URL_KEY],
                                          nil, nil, nil, nil, nil, YES);
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
@@ -371,7 +386,7 @@
     NSString *decodedIntuneURL = [intuneURLString stringByRemovingPercentEncoding];
     if (!decodedIntuneURL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to decode compliance intuneUrl, using original value");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Compliance] Failed to percent-decode '%@'; falling back to raw value.", MSID_INTUNE_URL_KEY);
         decodedIntuneURL = intuneURLString;
     }
     
@@ -394,7 +409,7 @@
     
     if (!request)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to build compliance request for URL: %@", decodedIntuneURL);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Compliance] Failed to build compliance request from intuneUrl: %@", MSID_PII_LOG_MASKABLE(decodedIntuneURL));
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
                                          @"Failed to construct compliance request URL",
@@ -417,25 +432,25 @@
             
             if (legacyFlowUrl)
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Attempting external navigation with browser scheme: %@", legacyFlowUrl);
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Invoking external navigation block with 'browser' scheme (host: '%@').", legacyFlowUrl.host);
                 
                 // Call external navigation block with legacy flow URL
                 // Note: The block is responsible for type checking and casting
                 NSURLRequest *updatedRequest = externalNavigationBlock((MSIDOAuth2EmbeddedWebviewController *)webviewController, legacyFlowUrl);
                 if (updatedRequest)
                 {
-                    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Using updated request from external navigation block");
+                    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] External navigation block returned overridden request (host: '%@').", updatedRequest.URL.host);
                     return [MSIDWebviewNavigationDecision loadRequest:updatedRequest];
                 }
             }
             else
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to create legacy flow URL with browser scheme");
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Compliance] Failed to build legacy 'browser' scheme URL; skipping external navigation.");
             }
         }
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Loading compliance request: %@", request.URL);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Built compliance request for host '%@'.", request.URL.host);
     return [MSIDWebviewNavigationDecision loadRequest:request];
 }
 
@@ -450,7 +465,7 @@
     // Validate input URL string
     if (!URLString || URLString.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot build request: URL string is empty");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[NavDecision] buildRequestForURL: URL string is nil or empty.");
         return nil;
     }
     
@@ -458,7 +473,7 @@
     
     if (!components)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot build request: Failed to parse URL components from string: %@", URLString);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[NavDecision] buildRequestForURL: failed to parse URL components from string: %@", MSID_PII_LOG_MASKABLE(URLString));
         return nil;
     }
     
@@ -491,7 +506,7 @@
     NSURL *finalURL = components.URL;
     if (!finalURL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot build request: Failed to create URL from components");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[NavDecision] buildRequestForURL: failed to assemble final URL from components.");
         return nil;
     }
     
