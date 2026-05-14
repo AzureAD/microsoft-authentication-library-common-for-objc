@@ -84,19 +84,19 @@
 {
     switch (self.type)
     {
-        case     MSIDWebviewNavigationDecisionLoadRequest:
+        case MSIDWebviewNavigationDecisionLoadRequest:
             // Must have a request to load
             return self.request != nil;
             
-        case     MSIDWebviewNavigationDecisionCompleteWithURL:
+        case MSIDWebviewNavigationDecisionCompleteWithURL:
             // Must have a URL
             return self.URL != nil;
             
-        case     MSIDWebviewNavigationDecisionFailWithError:
+        case MSIDWebviewNavigationDecisionFailWithError:
             // Must have an error
             return self.error != nil;
             
-        case     MSIDWebviewNavigationDecisionContinueDefault:
+        case MSIDWebviewNavigationDecisionContinueDefault:
             // Always valid - no required properties
             return YES;
             

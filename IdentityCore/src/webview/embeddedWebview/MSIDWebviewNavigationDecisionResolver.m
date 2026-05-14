@@ -278,7 +278,7 @@
     NSString *profileInstallURL = params[MSID_INTUNE_PROFILE_INSTALL_URL_KEY];
     if (!profileInstallURL || profileInstallURL.length == 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[ProfileDownload] Missing required parameter '%@' profile download completion redirect.", MSID_INTUNE_PROFILE_INSTALL_URL_KEY);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[ProfileDownload] Missing required parameter '%@' in profile download completion redirect.", MSID_INTUNE_PROFILE_INSTALL_URL_KEY);
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
                                          [NSString stringWithFormat:@"Missing required parameter '%@' in profile download completion redirect.", MSID_INTUNE_PROFILE_INSTALL_URL_KEY],
