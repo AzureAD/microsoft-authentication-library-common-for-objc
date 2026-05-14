@@ -111,10 +111,10 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)closeResultPipeline:(XCUIApplication *)application
 {
-    [self closeResultPipeline:application wait:10];
+    [self closeResultPipeline:application waitInMs:10];
 }
 
-- (void)closeResultPipeline:(XCUIApplication *)application wait:(int)count
+- (void)closeResultPipeline:(XCUIApplication *)application waitInMs:(int)count
 {
 #if TARGET_OS_SIMULATOR
     double interval = 1;
