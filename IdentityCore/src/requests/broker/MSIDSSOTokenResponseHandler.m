@@ -23,7 +23,6 @@
 
 #import "MSIDSSOTokenResponseHandler.h"
 #import "MSIDBrokerOperationTokenResponse.h"
-#import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDTokenResponseValidator.h"
@@ -95,7 +94,7 @@ brokerRequestReceivedTimeStamp:operationResponse.requestReceivedTimeStamp
 }
 
 // Round-trip the onboarding telemetry blob from MSIDBrokerOperationTokenResponse
-// onto the resulting MSIDTokenResult.brokerMetaData so consumers
+// onto the resulting MSIDTokenResult.onboardingBlob so consumers
 // can forward it.
 - (MSIDRequestCompletionBlock)wrapCompletionBlock:(MSIDRequestCompletionBlock)completionBlock
                                withOnboardingBlob:(NSString *)onboardingBlob
@@ -108,7 +107,7 @@ brokerRequestReceivedTimeStamp:operationResponse.requestReceivedTimeStamp
     return ^(MSIDTokenResult * _Nullable result, NSError * _Nullable wrappedError) {
         if (result)
         {
-            [result insertBrokerMetaData:capturedBlob forKey:MSIDOnboardingBlobIPCKey];
+            result.onboardingBlob = capturedBlob;
         }
         completionBlock(result, wrappedError);
     };

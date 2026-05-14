@@ -702,7 +702,7 @@ initiatedByFrame:(WKFrameInfo *)frame
         [builder setLastLoadedDomain:host];
     }
 
-    NSString *cliTelem = response.allHeaderFields[@"x-ms-clitelem"];
+    NSString *cliTelem = response.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
     if ([NSString msidIsStringNilOrBlank:cliTelem])
     {
         return;
@@ -758,32 +758,39 @@ initiatedByFrame:(WKFrameInfo *)frame
         [builder addStep:MSIDOnboardingBlobStepStrongAuthSetupStarted timestamp:now];
         _onboardingStrongAuthSetupStarted = YES;
     }
-    // 53000 (DeviceNotCompliant),
-    // 53008 (DeviceIsNotWorkplaceJoined): Device registration needed,
+    // 50129 (DeviceIsNotWorkplaceJoined): Device registration needed,
     // 501291 (DeviceIsNotWorkplaceJoinedForMamApp): Device registration needed for MAM app
-    else if (([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"53008"] || [errorCode isEqualToString:@"501291"])
+    else if (([errorCode isEqualToString:@"50129"] || [errorCode isEqualToString:@"501291"])
              && !_onboardingDeviceRegistrationStarted)
     {
         [builder addStep:MSIDOnboardingBlobStepDeviceRegistrationStarted timestamp:now];
         _onboardingDeviceRegistrationStarted = YES;
     }
-    // 530003: MDM enrollment required
-    else if ([errorCode isEqualToString:@"530003"])
+    // 530001 (DeviceNotCompliantBrowserNotSupported): Browser not supported,
+    // 530002: (DeviceNotCompliantDeviceCompliantRequired): The device is required to be compliant to access this resource
+    else if (([errorCode isEqualToString:@"530001"] || [errorCode isEqualToString:@"530002"])
+             && !_onboardingDeviceRegistrationStarted)
+    {
+        [builder addStep:MSIDOnboardingBlobStepDeviceNotCompliant timestamp:now];
+        _onboardingRemediationStarted = YES;
+    }
+    // 53000 (DeviceNotCompliant): The user must enroll their device with an approved MDM provider like Intune,
+    // 530003 (DeviceNotCompliantDeviceManagementRequired): MDM enrollment required
+    else if ([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"530003"])
     {
         [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentRequired timestamp:now];
     }
-    // 530002: Device compliance / remediation required
-    else if ([errorCode isEqualToString:@"530002"] && !_onboardingRemediationStarted)
-    {
-        [builder addStep:MSIDOnboardingBlobStepRemediationStarted timestamp:now];
-        _onboardingRemediationStarted = YES;
-    }
     // 50127: Client app is a MAM app and device is not registered
-    else if ([errorCode isEqualToString:@"50127"] && !_onboardingRemediationStarted)
+    else if ([errorCode isEqualToString:@"50127"])
+    {
+        [builder addStep:MSIDOnboardingBlobStepBrokerInstallPromptedForMAM timestamp:now];
+    }
+    // 501271: Broker app needs to be installed for device authentication to succeed.
+    else if ([errorCode isEqualToString:@"501271"])
     {
         [builder addStep:MSIDOnboardingBlobStepBrokerInstallPrompted timestamp:now];
-        _onboardingRemediationStarted = YES;
     }
+    
     // All other error codes (50076, 50078, 53005, 53003, etc.): blocking error only, no step
 }
 

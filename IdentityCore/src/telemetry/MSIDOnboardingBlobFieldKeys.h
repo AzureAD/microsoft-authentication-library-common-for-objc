@@ -41,10 +41,11 @@ extern NSString * const MSIDOnboardingBlobFieldUxFlowUsed;
 
 // Step ID values not used in C++ aggregation
 extern NSString * const MSIDOnboardingBlobStepAuthenticationStarted;
+extern NSString * const MSIDOnboardingBlobStepDeviceNotCompliant;
 extern NSString * const MSIDOnboardingBlobStepCredentialEntryCompleted;
 extern NSString * const MSIDOnboardingBlobStepBrokerInstallPrompted;
 extern NSString * const MSIDOnboardingBlobStepBrokerAppInstall;
-extern NSString * const MSIDOnboardingBlobStepBrokerInstallPromptedForMDM;
+extern NSString * const MSIDOnboardingBlobStepBrokerInstallPromptedForMAM;
 extern NSString * const MSIDOnboardingBlobStepDeviceRegistrationStarted;
 extern NSString * const MSIDOnboardingBlobStepDeviceRegistrationCompleted;
 extern NSString * const MSIDOnboardingBlobStepFlowCompleted;

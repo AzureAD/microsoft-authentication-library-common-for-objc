@@ -27,7 +27,6 @@
 #import "MSIDConstants.h"
 #import "MSIDBrokerResponse.h"
 #import "MSIDAADV2BrokerResponse.h"
-#import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDBrokerCryptoProvider.h"
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDCacheAccessor.h"
@@ -182,14 +181,14 @@
                                                                                    authScheme:authScheme
                                                                                         error:error];
     
-    // Round-trip the onboarding telemetry blob (URL-scheme broker contract) onto the
-    // result's brokerMetaData so consumers can forward it.
+    // Round-trip the onboarding telemetry blob (URL-scheme broker contract) onto
+    // the result's onboardingBlob property so consumers can forward it.
     if ([brokerResponse isKindOfClass:[MSIDAADV2BrokerResponse class]])
     {
         NSString *onboardingBlob = ((MSIDAADV2BrokerResponse *)brokerResponse).onboardingBlob;
         if (![NSString msidIsStringNilOrBlank:onboardingBlob])
         {
-            [tokenResult insertBrokerMetaData:onboardingBlob forKey:MSIDOnboardingBlobIPCKey];
+            tokenResult.onboardingBlob = onboardingBlob;
         }
     }
 

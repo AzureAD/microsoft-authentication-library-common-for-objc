@@ -36,10 +36,11 @@ NSString * const MSIDOnboardingBlobFieldUxFlowUsed = @"ux_flow_used";
 
 // Step ID values not used in C++ aggregation
 NSString * const MSIDOnboardingBlobStepAuthenticationStarted = @"AuthenticationStarted";
+NSString * const MSIDOnboardingBlobStepDeviceNotCompliant = @"DeviceNotCompliant";
 NSString * const MSIDOnboardingBlobStepCredentialEntryCompleted = @"CredentialEntryCompleted";
 NSString * const MSIDOnboardingBlobStepBrokerInstallPrompted = @"BrokerInstallPrompted";
 NSString * const MSIDOnboardingBlobStepBrokerAppInstall = @"BrokerAppInstall";
-NSString * const MSIDOnboardingBlobStepBrokerInstallPromptedForMDM = @"BrokerInstallPromptedForMDM";
+NSString * const MSIDOnboardingBlobStepBrokerInstallPromptedForMAM = @"BrokerInstallPromptedForMAM";
 NSString * const MSIDOnboardingBlobStepDeviceRegistrationStarted = @"DeviceRegistrationStarted";
 NSString * const MSIDOnboardingBlobStepDeviceRegistrationCompleted = @"DeviceRegistrationCompleted";
 NSString * const MSIDOnboardingBlobStepFlowCompleted = @"FlowCompleted";

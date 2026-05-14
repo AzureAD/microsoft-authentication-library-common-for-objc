@@ -32,7 +32,7 @@
 @implementation MSIDAADV2BrokerResponse
 
 MSID_FORM_ACCESSOR(@"scope", scope);
-MSID_FORM_ACCESSOR(@"onboardingBlob", onboardingBlob);
+MSID_FORM_ACCESSOR(MSIDOnboardingBlobIPCKey, onboardingBlob);
 
 - (instancetype)initWithDictionary:(NSDictionary *)form
                              error:(NSError *__autoreleasing*)error
