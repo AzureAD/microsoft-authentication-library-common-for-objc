@@ -225,7 +225,7 @@
 
 #pragma mark - Profile download complete host
 
-- (void)testProfileDownloadComplete_missingDeviceId_returnsFailWithError
+- (void)testProfileDownloadComplete_missingDeviceId_returnsLoadRequest
 {
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=https%%3A%%2F%%2Fmanage.microsoft.com%%2Fprofile",
                            MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST, MSID_INTUNE_PROFILE_INSTALL_URL_KEY];
@@ -238,8 +238,8 @@
                                                                         appVersion:@"1.0"
                                                            externalNavigationBlock:nil];
     XCTAssertNotNil(decision);
-    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
-    XCTAssertNotNil(decision.error);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertNotNil(decision.request);
 }
 
 - (void)testProfileDownloadComplete_missingProfileInstallURL_returnsFailWithError
