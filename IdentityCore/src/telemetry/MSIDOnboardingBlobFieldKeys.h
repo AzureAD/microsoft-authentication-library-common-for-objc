@@ -32,6 +32,10 @@
 // travels between MSAL/OneAuth and the broker. Both sides reference this constant.
 extern NSString * const MSIDOnboardingBlobIPCKey;
 
+// Onboarding mode values (seed `onboarding_mode` field). Used by builders/consumers to
+// decide whether a session is brokered before finalizing the blob.
+extern NSString * const MSIDOnboardingModeBrokered;
+
 // Field keys for populated blob
 extern NSString * const MSIDOnboardingBlobFieldBlockingErrors;
 extern NSString * const MSIDOnboardingBlobFieldLastBlockingError;

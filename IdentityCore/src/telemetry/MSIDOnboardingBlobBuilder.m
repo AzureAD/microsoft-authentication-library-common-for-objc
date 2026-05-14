@@ -210,6 +210,14 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     [self.uxFlowUsed addObject:flowTag];
 }
 
+- (void)ensureBrokeredOnboardingMode
+{
+    if (![self.onboardingMode isEqualToString:MSIDOnboardingModeBrokered])
+    {
+        self.onboardingMode = MSIDOnboardingModeBrokered;
+    }
+}
+
 - (NSString *)finalizeBlob
 {
     NSMutableDictionary *blob = [NSMutableDictionary dictionary];

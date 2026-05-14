@@ -64,6 +64,13 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingSeedClassification)
 
 - (void)addUxFlowUsed:(NSString *)flowTag;
 
+/// Stamps `onboarding_mode` as `brokered` if and only if it is currently set to anything
+/// other than `brokered` (including empty/missing). Idempotent — invoking again when the
+/// mode is already `brokered` is a no-op. Used by the broker to take ownership of the blob
+/// just before finalizing the response: the fact that the seed reached the broker is, by
+/// itself, sufficient evidence that this session is brokered.
+- (void)ensureBrokeredOnboardingMode;
+
 /// Returns the accumulated blob serialized as JSON. Always populated when the builder
 /// was constructed (carries the seed fields plus any recorded steps, blocking errors,
 /// ux flow, and last loaded domain). Returns @"" only if JSON serialization fails.

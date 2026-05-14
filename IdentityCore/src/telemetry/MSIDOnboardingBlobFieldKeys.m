@@ -27,6 +27,9 @@
 // IPC envelope key (kept in sync with broker IPC contract).
 NSString * const MSIDOnboardingBlobIPCKey = @"onboardingBlob";
 
+// Onboarding mode values (must match xplat core / Djinni-generated constants).
+NSString * const MSIDOnboardingModeBrokered = @"brokered";
+
 // Field keys for populated blob
 NSString * const MSIDOnboardingBlobFieldBlockingErrors = @"blocking_errors";
 NSString * const MSIDOnboardingBlobFieldLastBlockingError = @"last_blocking_error";
