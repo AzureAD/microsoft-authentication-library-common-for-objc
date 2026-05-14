@@ -41,8 +41,17 @@ NSString * const MSIDOnboardingBlobStepCredentialEntryCompleted = @"CredentialEn
 NSString * const MSIDOnboardingBlobStepBrokerInstallPrompted = @"BrokerInstallPrompted";
 NSString * const MSIDOnboardingBlobStepBrokerAppInstall = @"BrokerAppInstall";
 NSString * const MSIDOnboardingBlobStepBrokerInstallPromptedForMAM = @"BrokerInstallPromptedForMAM";
+NSString * const MSIDOnboardingBlobStepDeviceRegistrationRequired = @"DeviceRegistrationRequired";
 NSString * const MSIDOnboardingBlobStepDeviceRegistrationStarted = @"DeviceRegistrationStarted";
 NSString * const MSIDOnboardingBlobStepDeviceRegistrationCompleted = @"DeviceRegistrationCompleted";
+NSString * const MSIDOnboardingBlobStepJITRegistrationStarted = @"JITRegistrationStarted";
+NSString * const MSIDOnboardingBlobStepJITRegistrationCompleted = @"JITRegistrationCompleted";
+NSString * const MSIDOnboardingBlobStepJITLinkingStarted = @"JITLinkingStarted";
+NSString * const MSIDOnboardingBlobStepJITLinkingCompleted = @"JITLinkingCompleted";
+NSString * const MSIDOnboardingBlobStepJITRemediationStarted = @"JITRemediationStarted";
+NSString * const MSIDOnboardingBlobStepJITRemediationCompleted = @"JITRemediationCompleted";
+NSString * const MSIDOnboardingBlobStepJITComplianceBitSetStarted = @"JITComplianceBitSetStarted";
+NSString * const MSIDOnboardingBlobStepJITComplianceBitSetCompleted = @"JITComplianceBitSetCompleted";
 NSString * const MSIDOnboardingBlobStepTokenIssued = @"TokenIssued";
 
 // Step ID values used in C++ aggregation (must match MSAIOnboardingBlobConstants)

@@ -46,8 +46,17 @@ extern NSString * const MSIDOnboardingBlobStepCredentialEntryCompleted;
 extern NSString * const MSIDOnboardingBlobStepBrokerInstallPrompted;
 extern NSString * const MSIDOnboardingBlobStepBrokerAppInstall;
 extern NSString * const MSIDOnboardingBlobStepBrokerInstallPromptedForMAM;
+extern NSString * const MSIDOnboardingBlobStepDeviceRegistrationRequired;
 extern NSString * const MSIDOnboardingBlobStepDeviceRegistrationStarted;
 extern NSString * const MSIDOnboardingBlobStepDeviceRegistrationCompleted;
+extern NSString * const MSIDOnboardingBlobStepJITRegistrationStarted;
+extern NSString * const MSIDOnboardingBlobStepJITRegistrationCompleted;
+extern NSString * const MSIDOnboardingBlobStepJITLinkingStarted;
+extern NSString * const MSIDOnboardingBlobStepJITLinkingCompleted;
+extern NSString * const MSIDOnboardingBlobStepJITRemediationStarted;
+extern NSString * const MSIDOnboardingBlobStepJITRemediationCompleted;
+extern NSString * const MSIDOnboardingBlobStepJITComplianceBitSetStarted;
+extern NSString * const MSIDOnboardingBlobStepJITComplianceBitSetCompleted;
 extern NSString * const MSIDOnboardingBlobStepTokenIssued;
 
 // Step ID values used in C++ aggregation. Values must match
