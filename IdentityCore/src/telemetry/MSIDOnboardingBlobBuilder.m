@@ -27,17 +27,17 @@
 #import "MSIDSessionCachePersistence.h"
 
 // Seed field keys — must match xplat core (Djinni-generated constants).
-static NSString *const MSID_FIELD_SCHEMA_VERSION = @"schema_version";
-static NSString *const MSID_FIELD_SESSION_CORRELATION_ID = @"session_correlation_id";
-static NSString *const MSID_FIELD_ONBOARDING_MODE = @"onboarding_mode";
-static NSString *const MSID_FIELD_UX_FLOW_USED = @"ux_flow_used";
-static NSString *const MSID_FIELD_STEPS_LIST = @"steps_list";
-static NSString *const MSID_FIELD_STEP_ID = @"step_id";
-static NSString *const MSID_FIELD_TS = @"ts";
+static NSString *const MSID_ONBOARDING_FIELD_SCHEMA_VERSION = @"schema_version";
+static NSString *const MSID_ONBOARDING_FIELD_SESSION_CORRELATION_ID = @"session_correlation_id";
+static NSString *const MSID_ONBOARDING_FIELD_ONBOARDING_MODE = @"onboarding_mode";
+static NSString *const MSID_ONBOARDING_FIELD_UX_FLOW_USED = @"ux_flow_used";
+static NSString *const MSID_ONBOARDING_FIELD_STEPS_LIST = @"steps_list";
+static NSString *const MSID_ONBOARDING_FIELD_STEP_ID = @"step_id";
+static NSString *const MSID_ONBOARDING_FIELD_TS = @"ts";
 
 // The schema version this platform builder understands. Anything else is treated
 // as forward-compat passthrough by callers.
-static NSString *const MSID_SUPPORTED_SCHEMA_VERSION = @"1.0.0";
+static NSString *const MSID_ONBOARDING_SUPPORTED_SCHEMA_VERSION = @"1.0.0";
 
 // Process-wide serial queue that gates load/mutate/save against the shared
 // NSUserDefaults-backed session correlation cache. Multiple concurrent builders
@@ -110,8 +110,8 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
         return MSIDOnboardingSeedClassificationMalformed;
     }
 
-    NSString *schemaVersion = [seed[MSID_FIELD_SCHEMA_VERSION] isKindOfClass:[NSString class]]
-                              ? seed[MSID_FIELD_SCHEMA_VERSION] : nil;
+    NSString *schemaVersion = [seed[MSID_ONBOARDING_FIELD_SCHEMA_VERSION] isKindOfClass:[NSString class]]
+                              ? seed[MSID_ONBOARDING_FIELD_SCHEMA_VERSION] : nil;
 
     if (schemaVersion.length == 0)
     {
@@ -120,7 +120,7 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
         return MSIDOnboardingSeedClassificationMalformed;
     }
 
-    if (![schemaVersion isEqualToString:MSID_SUPPORTED_SCHEMA_VERSION])
+    if (![schemaVersion isEqualToString:MSID_ONBOARDING_SUPPORTED_SCHEMA_VERSION])
     {
         return MSIDOnboardingSeedClassificationUnknownVersion;
     }
@@ -154,14 +154,14 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
         if (seed)
         {
-            schemaVersion = [seed[MSID_FIELD_SCHEMA_VERSION] isKindOfClass:[NSString class]]
-                            ? seed[MSID_FIELD_SCHEMA_VERSION] : @"";
-            sessionCorrelationId = [seed[MSID_FIELD_SESSION_CORRELATION_ID] isKindOfClass:[NSString class]]
-                                   ? seed[MSID_FIELD_SESSION_CORRELATION_ID] : @"";
-            onboardingMode = [seed[MSID_FIELD_ONBOARDING_MODE] isKindOfClass:[NSString class]]
-                             ? seed[MSID_FIELD_ONBOARDING_MODE] : @"";
+            schemaVersion = [seed[MSID_ONBOARDING_FIELD_SCHEMA_VERSION] isKindOfClass:[NSString class]]
+                            ? seed[MSID_ONBOARDING_FIELD_SCHEMA_VERSION] : @"";
+            sessionCorrelationId = [seed[MSID_ONBOARDING_FIELD_SESSION_CORRELATION_ID] isKindOfClass:[NSString class]]
+                                   ? seed[MSID_ONBOARDING_FIELD_SESSION_CORRELATION_ID] : @"";
+            onboardingMode = [seed[MSID_ONBOARDING_FIELD_ONBOARDING_MODE] isKindOfClass:[NSString class]]
+                             ? seed[MSID_ONBOARDING_FIELD_ONBOARDING_MODE] : @"";
 
-            id seedUxFlowUsed = seed[MSID_FIELD_UX_FLOW_USED];
+            id seedUxFlowUsed = seed[MSID_ONBOARDING_FIELD_UX_FLOW_USED];
 
             if ([seedUxFlowUsed isKindOfClass:[NSArray class]])
             {
@@ -191,7 +191,7 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     formatter.formatOptions = NSISO8601DateFormatWithInternetDateTime | NSISO8601DateFormatWithFractionalSeconds;
     NSString *ts = [formatter stringFromDate:timestamp];
 
-    [self.stepsList addObject:@{MSID_FIELD_STEP_ID : stepId, MSID_FIELD_TS : ts}];
+    [self.stepsList addObject:@{MSID_ONBOARDING_FIELD_STEP_ID : stepId, MSID_ONBOARDING_FIELD_TS : ts}];
 }
 
 - (void)addBlockingError:(NSString *)errorCode
@@ -215,12 +215,12 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     NSMutableDictionary *blob = [NSMutableDictionary dictionary];
 
     // Seed fields
-    blob[MSID_FIELD_SCHEMA_VERSION] = self.schemaVersion;
-    blob[MSID_FIELD_SESSION_CORRELATION_ID] = self.sessionCorrelationId;
-    blob[MSID_FIELD_ONBOARDING_MODE] = self.onboardingMode;
+    blob[MSID_ONBOARDING_FIELD_SCHEMA_VERSION] = self.schemaVersion;
+    blob[MSID_ONBOARDING_FIELD_SESSION_CORRELATION_ID] = self.sessionCorrelationId;
+    blob[MSID_ONBOARDING_FIELD_ONBOARDING_MODE] = self.onboardingMode;
 
     // Steps list
-    blob[MSID_FIELD_STEPS_LIST] = [self.stepsList copy];
+    blob[MSID_ONBOARDING_FIELD_STEPS_LIST] = [self.stepsList copy];
 
     // Blocking errors
     blob[MSIDOnboardingBlobFieldBlockingErrors] = [self.blockingErrors copy];
@@ -235,7 +235,7 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     // Last completed step
     if (self.stepsList.count > 0)
     {
-        blob[MSIDOnboardingBlobFieldLastCompletedStep] = self.stepsList.lastObject[MSID_FIELD_STEP_ID];
+        blob[MSIDOnboardingBlobFieldLastCompletedStep] = self.stepsList.lastObject[MSID_ONBOARDING_FIELD_STEP_ID];
     }
 
     // UX flow used

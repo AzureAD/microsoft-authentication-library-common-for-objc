@@ -48,7 +48,7 @@ extern NSString * const MSIDOnboardingBlobStepBrokerAppInstall;
 extern NSString * const MSIDOnboardingBlobStepBrokerInstallPromptedForMAM;
 extern NSString * const MSIDOnboardingBlobStepDeviceRegistrationStarted;
 extern NSString * const MSIDOnboardingBlobStepDeviceRegistrationCompleted;
-extern NSString * const MSIDOnboardingBlobStepFlowCompleted;
+extern NSString * const MSIDOnboardingBlobStepTokenIssued;
 
 // Step ID values used in C++ aggregation. Values must match
 // MSAIOnboardingBlobConstants (Djinni-generated) byte-for-byte.
