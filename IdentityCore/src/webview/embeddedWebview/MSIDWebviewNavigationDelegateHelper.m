@@ -128,9 +128,10 @@
     NSString *handoffURLString = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
     if ([handoffURLString isKindOfClass:NSString.class] && handoffURLString.length > 0)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, @"ASWebAuth handoff URL found, continuing with ASWebAuth session");
         NSURL *handoffURL = [NSURL URLWithString:handoffURLString];
 
+#if !MSID_EXCLUDE_SYSTEMWV
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, @"ASWebAuth handoff URL found, continuing with ASWebAuth session");
         [self handleASWebAuthenticationHandoffWithURL:handoffURL
                                      parentController:parentController
                                            completion:^(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error)
@@ -138,6 +139,12 @@
             if (completion) { completion(navigationDecision, error); }
         }];
         return YES;
+#else
+        (void)handoffURL;
+        (void)parentController;
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"ASWebAuthentication handoff not supported: system webview excluded from this build");
+        return NO;
+#endif
     }
 
     // TODO: Add telemetry for response headers
@@ -145,6 +152,8 @@
 }
 
 #pragma mark - ASWebAuthentication Handoff Handling
+
+#if !MSID_EXCLUDE_SYSTEMWV
 
 - (void)handleASWebAuthenticationHandoffWithURL:(NSURL *)handoffURL
                                parentController:(MSIDViewController *)parentController
@@ -242,6 +251,8 @@
         completion(navigationDecision, nil);
     }];
 }
+
+#endif // !MSID_EXCLUDE_SYSTEMWV
 
 #pragma mark - Private: ASWebAuthentication Handoff Helpers
 

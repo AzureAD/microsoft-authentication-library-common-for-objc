@@ -495,9 +495,11 @@
 - (void)testProcessResponseHeaders_whenHandoffHeaderIsMixedCase_shouldStillBeDetected
 {
     // Server may send the header in any casing; normalization must catch it.
+    // Use a domain that is not in the allowlist so the validation step short-circuits
+    // before reaching the system webview transition manager, keeping the test self-contained.
     __block BOOL completionInvoked = NO;
     NSString *uppercaseKey = MSID_ASWEBAUTH_HANDOFF_URL_KEY.uppercaseString;
-    NSDictionary *headers = @{uppercaseKey: @"https://portal.manage.microsoft.com/handoff"};
+    NSDictionary *headers = @{uppercaseKey: @"https://www.example.com/handoff"};
     MSIDViewController *parent = [MSIDViewController new];
 
     BOOL didHandoff = [self.helper processResponseHeaders:headers
@@ -509,13 +511,13 @@
         completionInvoked = YES;
     }];
 
-    // Returns YES because the header was detected; we do not assert on completion timing
-    // here — the handoff path dispatches asynchronously into the system webview manager.
+    // Returns YES because the header was detected (domain validation fires synchronously
+    // and the completion is invoked with an error, so no real session is launched).
     XCTAssertTrue(didHandoff);
-    (void)completionInvoked;
+    XCTAssertTrue(completionInvoked);
     // The normalized headers should expose the lowercased key for later use.
     XCTAssertEqualObjects(self.helper.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY],
-                          @"https://portal.manage.microsoft.com/handoff");
+                          @"https://www.example.com/handoff");
 }
 
 - (void)testProcessResponseHeaders_whenCompletionIsNil_shouldNotCrash
