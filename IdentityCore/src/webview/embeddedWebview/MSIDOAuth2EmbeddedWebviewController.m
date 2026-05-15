@@ -41,6 +41,7 @@
 #import "MSIDFlightManager.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDWebAuthNUtil.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -69,7 +70,6 @@
 // Backed by readonly properties declared in the public header.
 @synthesize onboardingStrongAuthSetupStarted = _onboardingStrongAuthSetupStarted;
 @synthesize onboardingMdmEnrollmentStarted = _onboardingMdmEnrollmentStarted;
-@synthesize onboardingRemediationStarted = _onboardingRemediationStarted;
 
 #if AD_BROKER
 NSString *const SSO_EXTENSION_USER_DEFAULTS_KEY = @"group.com.microsoft.azureauthenticator.sso";
@@ -216,6 +216,13 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         return;
     }
     self.complete = YES;
+    
+    // Record the terminal onboarding step on the shared builder
+    if (_onboardingBlobBuilder && [MSIDWebAuthNUtil amIRunningInExtension])
+    {
+        [self finalizeOnboardingTelemetry:endURL error:error];
+        _onboardingBlobBuilder = nil;
+    }
 
     BOOL enableSpinnerFix = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SPINNER_FIX];
     
@@ -669,18 +676,12 @@ initiatedByFrame:(WKFrameInfo *)frame
             {
                 [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFinished timestamp:now];
             }
-            if (_onboardingRemediationStarted)
-            {
-                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepRemediationFinished timestamp:now];
-            }
         }
-        else
+        
+        NSString *endUrlStep = [self onboardingStepForEndURL:endURL];
+        if (endUrlStep)
         {
-            NSString *endUrlStep = [self onboardingStepForEndURL:endURL];
-            if (endUrlStep)
-            {
-                [onboardingBlobBuilder addStep:endUrlStep timestamp:[NSDate date]];
-            }
+            [onboardingBlobBuilder addStep:endUrlStep timestamp:[NSDate date]];
         }
     }
 }
@@ -833,11 +834,9 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     // 530001 (DeviceNotCompliantBrowserNotSupported): Browser not supported,
     // 530002: (DeviceNotCompliantDeviceCompliantRequired): The device is required to be compliant to access this resource
-    else if (([errorCode isEqualToString:@"530001"] || [errorCode isEqualToString:@"530002"])
-             && !_onboardingRemediationStarted)
+    else if ([errorCode isEqualToString:@"530001"] || [errorCode isEqualToString:@"530002"])
     {
         [builder addStep:MSIDOnboardingBlobStepDeviceNotCompliant timestamp:now];
-        _onboardingRemediationStarted = YES;
     }
     // 53000 (DeviceNotCompliant): The user must enroll their device with an approved MDM provider like Intune,
     // 530003 (DeviceNotCompliantDeviceManagementRequired): MDM enrollment required
