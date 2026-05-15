@@ -69,7 +69,7 @@
         return nil;
     }
 
-    NSDictionary *decryptedResponse;
+    NSDictionary *decryptedResponse = nil;
     /*  JWE response decryption relies on CryptoKit which is a swift dependency.
         Certain macOS partners do not support swift in their build system.
         Hence excluding the decryption logic for macOS platform until they upgrade their build system.
@@ -89,6 +89,15 @@
         }
 
         decryptedResponse = [mutableDecryptedResponse copy];
+    }
+#else
+    __auto_type localError = MSIDCreateError(MSIDErrorDomain,
+                                             MSIDErrorInternal,
+                                             @"JWE decryption is unsupported on macOS.",
+                                             nil, nil, nil, context.correlationId, nil, YES);
+    if (error)
+    {
+        *error = localError;
     }
 #endif
     return decryptedResponse;
