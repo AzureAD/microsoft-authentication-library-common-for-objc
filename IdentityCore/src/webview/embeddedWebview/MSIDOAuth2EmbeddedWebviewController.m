@@ -372,7 +372,9 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     if (self.isMobileOnboardingEnabled)
     {
         id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
-        if ((strongNavigationDelegate) && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:completion:)] && navigationResponse.response)
+        if ((strongNavigationDelegate)
+            && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:completion:)]
+            && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
         {
             NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
             if (response)
