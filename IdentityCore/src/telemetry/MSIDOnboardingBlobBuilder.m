@@ -173,6 +173,50 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
                     }
                 }
             }
+
+            id seedStepsList = seed[MSID_ONBOARDING_FIELD_STEPS_LIST];
+
+            if ([seedStepsList isKindOfClass:[NSArray class]])
+            {
+                for (id entry in (NSArray *)seedStepsList)
+                {
+                    if (![entry isKindOfClass:[NSDictionary class]])
+                    {
+                        continue;
+                    }
+
+                    id stepId = ((NSDictionary *)entry)[MSID_ONBOARDING_FIELD_STEP_ID];
+                    id ts = ((NSDictionary *)entry)[MSID_ONBOARDING_FIELD_TS];
+
+                    if ([stepId isKindOfClass:[NSString class]] && [ts isKindOfClass:[NSString class]])
+                    {
+                        [_stepsList addObject:@{MSID_ONBOARDING_FIELD_STEP_ID : stepId, MSID_ONBOARDING_FIELD_TS : ts}];
+                    }
+                }
+            }
+
+            id seedBlockingErrors = seed[MSIDOnboardingBlobFieldBlockingErrors];
+
+            if ([seedBlockingErrors isKindOfClass:[NSArray class]])
+            {
+                for (id errorCode in (NSArray *)seedBlockingErrors)
+                {
+                    if ([errorCode isKindOfClass:[NSString class]])
+                    {
+                        // Populate _blockingErrors directly rather than calling addBlockingError:
+                        // so init does not trigger persistSessionCorrelation — the seed already
+                        // represents prior persisted state.
+                        [_blockingErrors addObject:errorCode];
+                    }
+                }
+            }
+
+            id seedLastLoadedDomain = seed[MSIDOnboardingBlobFieldLastLoadedDomain];
+
+            if ([seedLastLoadedDomain isKindOfClass:[NSString class]] && [(NSString *)seedLastLoadedDomain length] > 0)
+            {
+                _lastLoadedDomain = [(NSString *)seedLastLoadedDomain copy];
+            }
         }
 
         _schemaVersion = schemaVersion;

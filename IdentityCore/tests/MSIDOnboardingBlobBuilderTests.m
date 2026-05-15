@@ -206,6 +206,238 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqualObjects(flows[1], @"AnotherValidFlow");
 }
 
+- (void)testInit_whenSeedContainsStepsList_shouldCarryThroughToBlob
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"steps_list" : @[
+            @{@"step_id" : @"AuthenticationStarted", @"ts" : @"2025-10-29T15:03:17.270Z"},
+            @{@"step_id" : @"CredentialEntryCompleted", @"ts" : @"2025-10-29T15:03:17.520Z"}
+        ]
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+    NSDate *runtimeTs = [self dateFromISO8601String:@"2025-10-29T15:03:17.770Z"];
+    [builder addStep:@"BrokerInstallPrompted" timestamp:runtimeTs];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    NSArray *steps = parsed[@"steps_list"];
+    XCTAssertEqual(steps.count, 3);
+    XCTAssertEqualObjects(steps[0][@"step_id"], @"AuthenticationStarted");
+    XCTAssertEqualObjects(steps[0][@"ts"], @"2025-10-29T15:03:17.270Z");
+    XCTAssertEqualObjects(steps[1][@"step_id"], @"CredentialEntryCompleted");
+    XCTAssertEqualObjects(steps[1][@"ts"], @"2025-10-29T15:03:17.520Z");
+    XCTAssertEqualObjects(steps[2][@"step_id"], @"BrokerInstallPrompted");
+    XCTAssertEqualObjects(steps[2][@"ts"], @"2025-10-29T15:03:17.770Z");
+    XCTAssertEqualObjects(parsed[@"last_completed_step"], @"BrokerInstallPrompted");
+}
+
+- (void)testInit_whenSeedStepsListIsNotArray_shouldIgnoreIt
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"steps_list" : @"not-an-array"
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    XCTAssertNotNil(parsed[@"steps_list"]);
+    XCTAssertEqual([parsed[@"steps_list"] count], 0);
+    XCTAssertNil(parsed[@"last_completed_step"]);
+}
+
+- (void)testInit_whenSeedStepsListHasMalformedEntries_shouldIncludeOnlyValid
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"steps_list" : @[
+            @{@"step_id" : @"ValidStepA", @"ts" : @"2025-10-29T15:03:17.270Z"},
+            @{@"step_id" : @"MissingTs"},
+            @{@"ts" : @"2025-10-29T15:03:17.300Z"},
+            @{@"step_id" : @"NonStringTs", @"ts" : @42},
+            @"not-a-dict",
+            @{@"step_id" : @"ValidStepB", @"ts" : @"2025-10-29T15:03:17.520Z"}
+        ]
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    NSArray *steps = parsed[@"steps_list"];
+    XCTAssertEqual(steps.count, 2);
+    XCTAssertEqualObjects(steps[0][@"step_id"], @"ValidStepA");
+    XCTAssertEqualObjects(steps[0][@"ts"], @"2025-10-29T15:03:17.270Z");
+    XCTAssertEqualObjects(steps[1][@"step_id"], @"ValidStepB");
+    XCTAssertEqualObjects(steps[1][@"ts"], @"2025-10-29T15:03:17.520Z");
+    XCTAssertEqualObjects(parsed[@"last_completed_step"], @"ValidStepB");
+}
+
+- (void)testInit_whenSeedContainsBlockingErrors_shouldCarryThroughToBlob
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"blocking_errors" : @[@"SEED_ERROR_A", @"SEED_ERROR_B"]
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+    builder.sessionCachePersistence = [[MSIDSessionCachePersistence alloc] initWithUserDefaults:self.testDefaults];
+    [builder addBlockingError:@"RUNTIME_ERROR"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    NSArray *errors = parsed[@"blocking_errors"];
+    XCTAssertEqual(errors.count, 3);
+    XCTAssertEqualObjects(errors[0], @"SEED_ERROR_A");
+    XCTAssertEqualObjects(errors[1], @"SEED_ERROR_B");
+    XCTAssertEqualObjects(errors[2], @"RUNTIME_ERROR");
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"RUNTIME_ERROR");
+}
+
+- (void)testInit_whenSeedBlockingErrorsIsNotArray_shouldIgnoreIt
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"blocking_errors" : @{@"unexpected" : @"object"}
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    XCTAssertNotNil(parsed[@"blocking_errors"]);
+    XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
+    XCTAssertNil(parsed[@"last_blocking_error"]);
+}
+
+- (void)testInit_whenSeedBlockingErrorsHasNonStringEntries_shouldIncludeOnlyStrings
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"blocking_errors" : @[@"VALID_ERROR_A", @42, [NSNull null], @"VALID_ERROR_B"]
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    NSArray *errors = parsed[@"blocking_errors"];
+    XCTAssertEqual(errors.count, 2);
+    XCTAssertEqualObjects(errors[0], @"VALID_ERROR_A");
+    XCTAssertEqualObjects(errors[1], @"VALID_ERROR_B");
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"VALID_ERROR_B");
+}
+
+- (void)testInit_whenSeedContainsLastLoadedDomain_shouldCarryThroughToBlob
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"last_loaded_domain" : @"login.microsoftonline.com"
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    XCTAssertEqualObjects(parsed[@"last_loaded_domain"], @"login.microsoftonline.com");
+}
+
+- (void)testInit_whenSeedLastLoadedDomainIsNotString_shouldIgnoreIt
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"last_loaded_domain" : @42
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    XCTAssertNil(parsed[@"last_loaded_domain"]);
+}
+
+- (void)testInit_whenSeedLastLoadedDomainEmpty_shouldIgnoreIt
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"last_loaded_domain" : @""
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    XCTAssertNil(parsed[@"last_loaded_domain"]);
+}
+
+- (void)testInit_whenSeedHasLastLoadedDomain_runtimeSetLastLoadedDomainOverrides
+{
+    NSDictionary *seed = @{
+        @"schema_version" : @"1.0.0",
+        @"session_correlation_id" : @"abc-123",
+        @"onboarding_mode" : @"brokered",
+        @"last_loaded_domain" : @"seed.microsoftonline.com"
+    };
+    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
+    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+    MSIDOnboardingBlobBuilder *builder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"client1" target:@"user.read"];
+    [builder setLastLoadedDomain:@"runtime.microsoftonline.com"];
+
+    NSString *result = [builder finalizeBlob];
+    NSDictionary *parsed = [self parsedJsonFromBlob:result];
+
+    XCTAssertEqualObjects(parsed[@"last_loaded_domain"], @"runtime.microsoftonline.com");
+}
+
 #pragma mark - addStep
 
 - (void)testAddStep_whenCalled_shouldRecordStepEntry
