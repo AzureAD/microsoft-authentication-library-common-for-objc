@@ -834,7 +834,7 @@ initiatedByFrame:(WKFrameInfo *)frame
     // 530001 (DeviceNotCompliantBrowserNotSupported): Browser not supported,
     // 530002: (DeviceNotCompliantDeviceCompliantRequired): The device is required to be compliant to access this resource
     else if (([errorCode isEqualToString:@"530001"] || [errorCode isEqualToString:@"530002"])
-             && !_onboardingDeviceRegistrationStarted)
+             && !_onboardingRemediationStarted)
     {
         [builder addStep:MSIDOnboardingBlobStepDeviceNotCompliant timestamp:now];
         _onboardingRemediationStarted = YES;

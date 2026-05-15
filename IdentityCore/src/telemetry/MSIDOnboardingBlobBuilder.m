@@ -301,6 +301,9 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 
     if (serializationError || !jsonData)
     {
+        // Log serialization error
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to serialize onboarding blob: %@", serializationError);
+        
         return @"";
     }
 

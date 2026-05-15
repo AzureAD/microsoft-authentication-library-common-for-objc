@@ -68,8 +68,6 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
 // (last loaded domain, blocking errors from x-ms-clitelem header, and remediation
 // steps for known error codes) from each navigation response and forwards them
 // to the builder. Reused by both non-brokered and brokered flows.
-// Held strongly so the builder survives for the entire webview session; the
-// reference is released in -finalizeOnboardingTelemetry:error: at end-of-flow.
 @property (nonatomic, strong) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 
 // Readonly flags exposing whether each remediation step has been recorded against
