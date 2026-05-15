@@ -26,17 +26,17 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
-#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 @protocol MSIDRequestContext;
+@protocol MSIDWebviewInteracting;
 @protocol MSIDWebviewNavigationDelegate;
 @class MSIDWebviewNavigationDecision;
+@class MSIDOAuth2EmbeddedWebviewController;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Helper class that encapsulates common webview navigation delegate logic shared between
- * MSIDLocalInteractiveController and MSIDBrokerInteractiveController.
+ * Helper class that encapsulates common webview navigation delegate logic
  *
  * This helper reduces code duplication by providing reusable implementations for:
  * - Webview configuration (setting the navigation delegate)
@@ -63,13 +63,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Webview Configuration
 
 /**
- * Configures webview controller by setting the calling controller as the special navigation delegate.
- * This is typically called from the webview configuration block.
+ * Wires @c delegate as the navigation delegate of @c webviewController when the latter
+ * is an @c MSIDOAuth2EmbeddedWebviewController (or subclass). For any other concrete
+ * @c MSIDWebviewInteracting type (Safari, ASWebAuth, etc.) the call is a no-op.
  *
- * @param embeddedWebviewController The webview controller to configure
- * @param delegate The controller that will handle navigation events (typically self)
+ * @param webviewController The webview produced by the configuration block.
+ * @param delegate          The controller that will receive navigation events.
  */
-- (void)configureWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
+- (void)configureWebviewController:(nullable NSObject<MSIDWebviewInteracting> *)webviewController
                           delegate:(id<MSIDWebviewNavigationDelegate>)delegate;
 
 #pragma mark - Navigation Delegate Methods
@@ -79,22 +80,20 @@ NS_ASSUME_NONNULL_BEGIN
  * Routes to appropriate handler based on URL scheme.
  * This is the full method signature used by controllers.
  *
- * @param url The special redirect URL
+ * @param URL The special redirect URL
  * @param embeddedWebviewController The embedded webview controller instance
- * @param brtEvaluator Optional block to determine if BRT acquisition is needed (Local controller only)
- * @param brtHandler Optional block to perform BRT acquisition (Local controller only)
+ * @param brtEvaluator Optional block to determine if BRT acquisition is needed
+ * @param brtHandler Optional block to perform BRT acquisition
  * @param appName The name of the sdk
  * @param appVersion The version of the sdk
- * @param externalNavigationBlock Optional external navigation handler for browser URLs
  * @param completion Completion block with the navigation decision or error
  */
-- (void)handleSpecialRedirectUrl:(NSURL *)url
-       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
+- (void)handleSpecialRedirectURL:(NSURL *)URL
+       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
                     brtEvaluator:(nullable BOOL(^)(void))brtEvaluator
                       brtHandler:(nullable void(^)(void(^)(BOOL success, NSError * _Nullable error)))brtHandler
                          appName:(NSString *)appName
                       appVersion:(NSString *)appVersion
-         externalNavigationBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**
@@ -104,12 +103,15 @@ NS_ASSUME_NONNULL_BEGIN
  * is launched in its place.
  *
  * @param headers Response headers to process
- * @param embeddedWebviewController The embedded webview controller instance
  * @param parentController The parent view controller that presents the webview
+ * @param completion Invoked once when the hand-off resolves (only when YES is returned).
+ * @return YES if a handoff was initiated (caller should cancel the WKWebView navigation),
+ *         NO otherwise.
  */
-- (void)processResponseHeaders:(NSDictionary *)headers
-     embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
-              parentController:(nonnull MSIDViewController *)parentController;
+- (BOOL)processResponseHeaders:(NSDictionary *)headers
+              parentController:(MSIDViewController *)parentController
+                    completion:(nullable void (^)(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                  NSError * _Nullable error))completion;
 
 @end
 

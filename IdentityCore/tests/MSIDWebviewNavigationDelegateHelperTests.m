@@ -29,6 +29,16 @@
 #import "MSIDWebviewConstants.h"
 #import "MSIDError.h"
 #import "MSIDTestContext.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDTestWebviewInteractingViewController.h"
+#import "MSIDWebviewNavigationDelegate.h"
+
+// Stub conforming to MSIDWebviewNavigationDelegate for delegate-wiring assertions.
+@interface MSIDTestNavigationDelegateStub : NSObject <MSIDWebviewNavigationDelegate>
+@end
+
+@implementation MSIDTestNavigationDelegateStub
+@end
 
 // Expose private methods and properties for testing
 @interface MSIDWebviewNavigationDelegateHelper (Testing)
@@ -377,6 +387,159 @@
     // The normalised dictionary should have stored the value under the lowercased key
     XCTAssertEqualObjects(normalised[lowerCaseHeader], @"tok123");
     XCTAssertNil(normalised[upperCaseHeader]);
+}
+
+
+#pragma mark - configureWebviewController:delegate:
+
+- (void)testConfigureWebviewController_whenWebviewIsNil_shouldBeNoop
+{
+    // Nil parameter is explicitly allowed by the @c nullable annotation; the helper
+    // must skip silently without throwing or asserting.
+    XCTAssertNoThrow([self.helper configureWebviewController:nil
+                                                    delegate:[MSIDTestNavigationDelegateStub new]]);
+}
+
+- (void)testConfigureWebviewController_whenWebviewIsNotEmbeddedKind_shouldNotSetDelegate
+{
+    // Non-embedded MSIDWebviewInteracting implementors (e.g. Safari / ASWebAuth hosts)
+    // must NOT be cast/assigned to. Using the test mock here as a stand-in.
+    MSIDTestWebviewInteractingViewController *fakeSafari = [MSIDTestWebviewInteractingViewController new];
+    fakeSafari.actAsSafariViewController = YES;
+
+    XCTAssertNoThrow([self.helper configureWebviewController:fakeSafari
+                                                    delegate:[MSIDTestNavigationDelegateStub new]]);
+    // The mock does not declare a navigationDelegate property; the only contract here
+    // is that nothing crashes and the helper does not perform an unsafe cast. The
+    // absence of an exception above is the assertion.
+}
+
+- (void)testConfigureWebviewController_whenWebviewIsEmbedded_shouldSetNavigationDelegate
+{
+    MSIDOAuth2EmbeddedWebviewController *embedded =
+        [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                                               endURL:[NSURL URLWithString:@"endurl://host"]
+                                                              webview:nil
+                                                        customHeaders:nil
+                                                       platfromParams:nil
+                                                              context:nil];
+    MSIDTestNavigationDelegateStub *delegate = [MSIDTestNavigationDelegateStub new];
+
+    [self.helper configureWebviewController:embedded delegate:delegate];
+
+    // navigationDelegate is weak; keep `delegate` alive via the local variable above.
+    XCTAssertEqual(embedded.navigationDelegate, delegate);
+}
+
+#pragma mark - processResponseHeaders:parentController:completion:
+
+- (void)testProcessResponseHeaders_whenNoHandoffHeader_shouldReturnNOAndNotInvokeCompletion
+{
+    __block BOOL completionInvoked = NO;
+    NSDictionary *headers = @{@"Content-Type": @"application/json"};
+    MSIDViewController *parent = [MSIDViewController new];
+
+    BOOL didHandoff = [self.helper processResponseHeaders:headers
+                                         parentController:parent
+                                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                            NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        completionInvoked = YES;
+    }];
+
+    XCTAssertFalse(didHandoff);
+    XCTAssertFalse(completionInvoked, @"Completion must NOT be invoked when no hand-off was initiated.");
+    // Side effect: headers are still normalized into lastResponseHeaders for later use.
+    XCTAssertEqualObjects(self.helper.lastResponseHeaders[@"content-type"], @"application/json");
+}
+
+- (void)testProcessResponseHeaders_whenHandoffHeaderIsEmptyString_shouldReturnNO
+{
+    __block BOOL completionInvoked = NO;
+    NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @""};
+    MSIDViewController *parent = [MSIDViewController new];
+
+    BOOL didHandoff = [self.helper processResponseHeaders:headers
+                                         parentController:parent
+                                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                            NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        completionInvoked = YES;
+    }];
+
+    XCTAssertFalse(didHandoff);
+    XCTAssertFalse(completionInvoked);
+}
+
+- (void)testProcessResponseHeaders_whenHandoffHeaderIsNonString_shouldReturnNO
+{
+    __block BOOL completionInvoked = NO;
+    NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @42};
+    MSIDViewController *parent = [MSIDViewController new];
+
+    BOOL didHandoff = [self.helper processResponseHeaders:headers
+                                         parentController:parent
+                                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                            NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        completionInvoked = YES;
+    }];
+
+    XCTAssertFalse(didHandoff);
+    XCTAssertFalse(completionInvoked);
+}
+
+- (void)testProcessResponseHeaders_whenHandoffHeaderIsMixedCase_shouldStillBeDetected
+{
+    // Server may send the header in any casing; normalization must catch it.
+    __block BOOL completionInvoked = NO;
+    NSString *uppercaseKey = MSID_ASWEBAUTH_HANDOFF_URL_KEY.uppercaseString;
+    NSDictionary *headers = @{uppercaseKey: @"https://portal.manage.microsoft.com/handoff"};
+    MSIDViewController *parent = [MSIDViewController new];
+
+    BOOL didHandoff = [self.helper processResponseHeaders:headers
+                                         parentController:parent
+                                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                            NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        completionInvoked = YES;
+    }];
+
+    // Returns YES because the header was detected; we do not assert on completion timing
+    // here — the handoff path dispatches asynchronously into the system webview manager.
+    XCTAssertTrue(didHandoff);
+    (void)completionInvoked;
+    // The normalized headers should expose the lowercased key for later use.
+    XCTAssertEqualObjects(self.helper.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY],
+                          @"https://portal.manage.microsoft.com/handoff");
+}
+
+- (void)testProcessResponseHeaders_whenCompletionIsNil_shouldNotCrash
+{
+    NSDictionary *headers = @{@"Content-Type": @"application/json"};
+    MSIDViewController *parent = [MSIDViewController new];
+    XCTAssertNoThrow([self.helper processResponseHeaders:headers
+                                        parentController:parent
+                                              completion:nil]);
+}
+
+- (void)testProcessResponseHeaders_alwaysUpdatesLastResponseHeadersToNormalizedForm
+{
+    self.helper.lastResponseHeaders = @{@"stale": @"value"};
+
+    NSDictionary *headers = @{@"X-Custom": @"v1", @"Other-Header": @"v2"};
+    MSIDViewController *parent = [MSIDViewController new];
+    (void)[self.helper processResponseHeaders:headers
+                             parentController:parent
+                                   completion:nil];
+
+    XCTAssertEqualObjects(self.helper.lastResponseHeaders[@"x-custom"], @"v1");
+    XCTAssertEqualObjects(self.helper.lastResponseHeaders[@"other-header"], @"v2");
+    XCTAssertNil(self.helper.lastResponseHeaders[@"stale"], @"Previous headers must be replaced, not merged.");
 }
 
 @end

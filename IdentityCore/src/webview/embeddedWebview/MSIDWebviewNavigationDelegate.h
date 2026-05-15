@@ -39,13 +39,26 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Called when webview encounters a special redirect scheme (msauth://, browser://)
  *
- * @param url The redirect URL (e.g., msauth://enroll?url=...)
+ * @param URL The redirect URL (e.g., msauth://enroll?url=...)
  * @param completion Completion block - MUST be called exactly once
  */
-- (void)handleSpecialRedirectUrl:(NSURL *)url
+- (void)handleSpecialRedirectURL:(NSURL *)URL
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
-- (void)processResponseHeaders:(NSDictionary *)headers;
+/**
+ * Inspects HTTP response headers and, if a hand-off (e.g. ASWebAuthenticationSession)
+ * is initiated, returns YES so the caller cancels the current WKWebView navigation.
+ *
+ * The asynchronous result of the hand-off is delivered via @c completion. If no
+ * hand-off is initiated, returns NO and @c completion is NOT invoked.
+ *
+ * @param headers    HTTP response headers (raw `allHeaderFields`).
+ * @param completion Invoked once when the hand-off resolves (only when YES is returned).
+ * @return YES if a hand-off was initiated; NO otherwise.
+ */
+- (BOOL)processResponseHeaders:(NSDictionary *)headers
+                    completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable decision,
+                                         NSError * _Nullable error))completion;
 
 @end
 
