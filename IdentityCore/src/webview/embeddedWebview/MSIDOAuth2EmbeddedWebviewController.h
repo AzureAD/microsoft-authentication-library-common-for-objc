@@ -34,6 +34,10 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDWebViewPlatformParams.h"
 #import "MSIDCustomHeaderProviding.h"
+<<<<<<< Updated upstream
+=======
+#import "MSIDWebviewNavigationDelegate.h"
+>>>>>>> Stashed changes
 
 typedef void (^MSIDNavigationResponseBlock)(NSHTTPURLResponse *response);
 
@@ -41,6 +45,8 @@ typedef void (^MSIDNavigationResponseBlock)(NSHTTPURLResponse *response);
 MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate, WKUIDelegate>
 
 typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth2EmbeddedWebviewController *webView, NSURL *url);
+
+@property (nonatomic, assign) BOOL isMobileOnboardingEnabled;
 
 - (id)init NS_UNAVAILABLE;
 - (id)initWithStartURL:(NSURL *)startURL

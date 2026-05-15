@@ -104,6 +104,8 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         _context = context;
         
         _complete = NO;
+        
+        _isMobileOnboardingEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_MOBILE_ONBOARDING];
     }
     
     return self;
@@ -364,8 +366,36 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
             self.navigationResponseBlock(response);
         }
     }
-    
-    decisionHandler(WKNavigationResponsePolicyAllow);
+
+    WKNavigationResponsePolicy responsePolicy = WKNavigationResponsePolicyAllow;
+
+    if (self.isMobileOnboardingEnabled)
+    {
+        id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+        if ((strongNavigationDelegate) && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:completion:)] && navigationResponse.response)
+        {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
+            if (response)
+            {
+                NSURL *responseURL = response.URL;
+                // Delegate inspects headers; if it initiates a hand-off, cancel the current
+                // WK navigation. Hand-off result is delivered via completion below.
+                BOOL didHandoff = [strongNavigationDelegate processResponseHeaders:response.allHeaderFields
+                                                                        completion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+                {
+                    [self performNavigationDecision:decision
+                                         requestURL:responseURL
+                                              error:error];
+                }];
+                if (didHandoff)
+                {
+                    responsePolicy = WKNavigationResponsePolicyCancel;
+                }
+            }
+        }
+    }
+
+    decisionHandler(responsePolicy);
 }
 
 - (void)completeWebAuthWithURL:(NSURL *)endURL

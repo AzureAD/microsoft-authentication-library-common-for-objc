@@ -70,10 +70,7 @@
      webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
    authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock
 {
-    if (webviewResponseCompletionBlock)
-    {
-        webviewResponseCompletionBlock(self.response, nil);
-    }
+    if (authorizationCodeCompletionBlock) authorizationCodeCompletionBlock(nil, nil, self.response);
 }
 @end
 
