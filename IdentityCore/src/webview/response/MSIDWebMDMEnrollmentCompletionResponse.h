@@ -20,24 +20,38 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
-
-#import "MSIDXpcProviderCaching.h"
+#import "MSIDWebviewResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDXpcProviderCacheMock : NSObject <MSIDXpcProviderCaching>
+/**
+ * Response object representing MDM enrollment completion callback.
+ *
+ * This response is triggered when user returns from MDM profile installation
+ */
+@interface MSIDWebMDMEnrollmentCompletionResponse : MSIDWebviewResponse
 
-// Counters for assertions in unit tests.
-@property (nonatomic, readonly) NSUInteger cachedBrokerInstanceEndpointGetCount;
-@property (nonatomic, readonly) NSUInteger cachedBrokerInstanceEndpointSetCount;
-@property (nonatomic, readonly) NSUInteger setCachedBrokerInstanceEndpointRejectedCount;
-@property (nonatomic, readonly) NSUInteger clearCachedBrokerInstanceEndpointCallCount;
+/**
+ * Status of the MDM enrollment operation.
+ * Possible values: "success", "check_in_timed_out"
+ * Extracted from "status" query parameter.
+ */
+@property (nonatomic, readonly, nullable) NSString *status;
 
-- (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
-                               isXpcValidated:(BOOL)isXpcValidated;
 
+/**
+ * Error URL if SSO extension is missing
+ * Extracted from "errorUrl" query parameter.
+ */
+@property (nonatomic, readonly, nullable) NSString *errorUrl;
+
+/**
+ * Convenience property to check if enrollment completed successfully.
+ * Returns YES if status is "success" or "check_in_timed_out" (case-insensitive), NO otherwise.
+ */
+@property (nonatomic, readonly) BOOL isSuccess;
 @end
 
 NS_ASSUME_NONNULL_END
