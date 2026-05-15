@@ -40,7 +40,7 @@
 
 /*  Concat KDF key derivation & AESGCM decryption relies on CryptoKit which is a swift dependency.
     Certain macOS partners do not support swift in their build system.
-    Hence excluding swift bridging headder generation for macOS platform until they upgrade their build system.
+    Hence excluding swift bridging header generation for macOS platform until they upgrade their build system.
 */
 #if !TARGET_OS_OSX
 #if defined(MSAL_COCOAPOD)
