@@ -377,22 +377,19 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
             && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
         {
             NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
-            if (response)
+            NSURL *responseURL = response.URL;
+            // Delegate inspects headers; if it initiates a hand-off, cancel the current
+            // WK navigation. Hand-off result is delivered via completion below.
+            BOOL didHandoff = [strongNavigationDelegate processResponseHeaders:response.allHeaderFields
+                                                                    completion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
             {
-                NSURL *responseURL = response.URL;
-                // Delegate inspects headers; if it initiates a hand-off, cancel the current
-                // WK navigation. Hand-off result is delivered via completion below.
-                BOOL didHandoff = [strongNavigationDelegate processResponseHeaders:response.allHeaderFields
-                                                                        completion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
-                {
-                    [self performNavigationDecision:decision
-                                         requestURL:responseURL
-                                              error:error];
-                }];
-                if (didHandoff)
-                {
-                    responsePolicy = WKNavigationResponsePolicyCancel;
-                }
+                [self performNavigationDecision:decision
+                                     requestURL:responseURL
+                                          error:error];
+            }];
+            if (didHandoff)
+            {
+                responsePolicy = WKNavigationResponsePolicyCancel;
             }
         }
     }
