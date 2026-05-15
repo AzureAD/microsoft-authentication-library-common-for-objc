@@ -39,6 +39,7 @@
 #import "MSIDMainThreadUtil.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDFlightManager.h"
+#import "MSIDWebviewNavigationDecision.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -637,6 +638,95 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Navigation Decision
+
+- (void)performNavigationDecision:(MSIDWebviewNavigationDecision *)navigationDecision
+                       requestURL:(NSURL *)requestURL
+                            error:(NSError *)error
+{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        if (error)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                              @"Navigation delegate returned error: %@", error);
+            [self endWebAuthWithURL:nil error:error];
+            return;
+        }
+        
+        // Explicit error for nil action
+        if (!navigationDecision)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                              @"Navigation delegate returned nil action");
+            NSError *localError = MSIDCreateError(MSIDErrorDomain,
+                                                  MSIDErrorInternal,
+                                                  @"Navigation decision is nil",
+                                                  nil, nil, nil,
+                                                  self.context.correlationId,
+                                                  nil, NO);
+            [self endWebAuthWithURL:nil error:localError];
+            return;
+        }
+        
+        // Check validity
+        if (![navigationDecision isValid])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                              @"Navigation validation failed, using fallback");
+            [self completeWebAuthWithURL:requestURL];
+            return;
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                          @"Applying navigation decision type: %ld", (long)navigationDecision.type);
+        
+        switch (navigationDecision.type)
+        {
+            case MSIDWebviewNavigationDecisionLoadRequest:
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                      @"Loading request: %@",
+                                      MSID_PII_LOG_MASKABLE(navigationDecision.request.URL));
+                [self loadRequest:navigationDecision.request];
+                break;
+            }
+                
+            case MSIDWebviewNavigationDecisionCompleteWithURL:
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                      @"Completing webauth with URL: %@",
+                                      MSID_PII_LOG_MASKABLE(navigationDecision.URL));
+                [self completeWebAuthWithURL:navigationDecision.URL];
+                break;
+            }
+                
+            case MSIDWebviewNavigationDecisionFailWithError:
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                                  @"Failing webauth with error: %@", navigationDecision.error);
+                [self endWebAuthWithURL:nil error:navigationDecision.error];
+                break;
+            }
+                
+            case MSIDWebviewNavigationDecisionContinueDefault:
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                                  @"Continuing with default behavior");
+                [self completeWebAuthWithURL:requestURL];
+                break;
+            }
+                
+            default:
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                                  @"Unknown decision type: %ld, using fallback", (long)navigationDecision.type);
+                [self completeWebAuthWithURL:requestURL];
+                break;
+            }
+        }
+    }];
 }
 
 @end

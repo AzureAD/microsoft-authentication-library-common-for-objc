@@ -221,6 +221,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
 
     /*! MDM enrollment completed successfully and the request should be retried. */
     MSIDErrorMDMEnrollmentCompletedNeedsRetry = -51733,
+    
+    // Invalid URL for ASWebAuthenticationSession
+    MSIDErrorInvalidASWebAuthenticationURL = -51734,
     /*!
      =========================================================
      Broker flow errors    (518xx and 519xx) - MSIDErrorDomain
