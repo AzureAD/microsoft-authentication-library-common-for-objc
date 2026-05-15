@@ -26,12 +26,11 @@
 #import "MSIDWebviewNavigationDecisionResolver.h"
 #import "MSIDWebviewNavigationDecision.h"
 #import "MSIDWebviewConstants.h"
-#import "MSIDWebviewInteracting.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDIntuneDeviceIdCache.h"
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDTestSwizzle.h"
-#import "MSIDTestWebviewInteractingViewController.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -64,16 +63,31 @@
     [super tearDown];
 }
 
+#pragma mark - Helpers
+
+// Builds a controller wired with the supplied external browser-action block.
+- (MSIDOAuth2EmbeddedWebviewController *)createWebviewControllerWithExternalBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)block
+{
+    MSIDOAuth2EmbeddedWebviewController *controller =
+        [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                                                               endURL:[NSURL URLWithString:@"endurl://host"]
+                                                              webview:nil
+                                                        customHeaders:nil
+                                                       platfromParams:nil
+                                                              context:nil];
+    controller.externalDecidePolicyForBrowserAction = block;
+    return controller;
+}
+
 #pragma mark - Nil / empty URL
 
 - (void)testResolveDecision_nilURL_returnsNil
 {
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:nil
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNil(decision);
 }
 
@@ -83,11 +97,10 @@
 {
     NSURL *url = [NSURL URLWithString:@"browser://some.host/path"];
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionContinueDefault);
 }
@@ -96,11 +109,10 @@
 {
     NSURL *url = [NSURL URLWithString:@"foobar://some.host"];
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionContinueDefault);
 }
@@ -112,11 +124,10 @@
     // msauth:/// has no host
     NSURL *url = [NSURL URLWithString:@"msauth:///path"];
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNil(decision);
 }
 
@@ -124,11 +135,10 @@
 {
     NSURL *url = [NSURL URLWithString:@"msauth://unknownhost"];
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionContinueDefault);
 }
@@ -139,11 +149,10 @@
 {
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLL_HOST]];
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertNotNil(decision.error);
@@ -158,11 +167,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"TestApp"
-                                                                        appVersion:@"2.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"2.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertNotNil(decision.request);
@@ -182,11 +190,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
 
@@ -212,11 +219,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"MyApp"
-                                                                        appVersion:@"3.1"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"3.1"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_APP_NAME_KEY], @"MyApp");
@@ -232,11 +238,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertNotNil(decision.request);
@@ -249,11 +254,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertNotNil(decision.error);
@@ -271,11 +275,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertNotNil(decision.request);
@@ -294,11 +297,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     [self.resolver resolveDecisionForURL:url
-                       webviewController:nil
+                       embeddedWebviewController:nil
                          responseHeaders:nil
                                  appName:@"App"
-                              appVersion:@"1.0"
-                 externalNavigationBlock:nil];
+                              appVersion:@"1.0"];
 
     NSError *readError = nil;
     NSString *cached = [self.deviceIdCache intuneDeviceIdWithContext:nil error:&readError];
@@ -321,11 +323,10 @@
     XCTAssertNotNil(url, @"Test input msauth URL should itself be valid");
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertNotNil(decision.error);
@@ -338,11 +339,10 @@
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_COMPLIANCE_HOST]];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertNotNil(decision.error);
@@ -357,11 +357,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertNotNil(decision.request);
@@ -376,8 +375,8 @@
                            MSID_COMPLIANCE_HOST, MSID_INTUNE_URL_KEY, encoded];
     NSURL *url = [NSURL URLWithString:urlString];
 
-    // Block that returns nil simulates "no override"; we must pass a non-nil
-    // controller so the resolver actually invokes the block
+    // Block that returns nil simulates "no override". The resolver invokes the block
+    // only when the controller exposes a non-nil externalDecidePolicyForBrowserAction.
     __block BOOL invoked = NO;
     MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController *wv, NSURL *u)
     {
@@ -385,13 +384,12 @@
         return nil;
     };
 
-    MSIDTestWebviewInteractingViewController *fakeWebview = [MSIDTestWebviewInteractingViewController new];
+    MSIDOAuth2EmbeddedWebviewController *webviewController = [self createWebviewControllerWithExternalBlock:block];
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:fakeWebview
+                                                         embeddedWebviewController:webviewController
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:block];
+                                                                        appVersion:@"1.0"];
     XCTAssertTrue(invoked, @"External block must be invoked when a webview controller is provided.");
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
@@ -416,14 +414,14 @@
         return overrideRequest;
     };
 
-    // Compliance block is only called when the controller is non-nil
-    MSIDTestWebviewInteractingViewController *fakeWebview = [MSIDTestWebviewInteractingViewController new];
+    // The compliance external block is only invoked when the controller's
+    // externalDecidePolicyForBrowserAction is non-nil.
+    MSIDOAuth2EmbeddedWebviewController *webviewController = [self createWebviewControllerWithExternalBlock:block];
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:fakeWebview
+                                                         embeddedWebviewController:webviewController
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:block];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertEqualObjects(decision.request.URL.absoluteString, @"https://override.example.com/path");
@@ -447,11 +445,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionCompleteWithURL);
     XCTAssertEqualObjects(decision.URL, url);
@@ -470,11 +467,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertNotNil(decision.error);
@@ -498,11 +494,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertEqualObjects(decision.request.URL.absoluteString, errorURL);
@@ -518,11 +513,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertNotNil(decision.error);
@@ -535,11 +529,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertNotNil(decision.error);
@@ -556,11 +549,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
 
@@ -578,11 +570,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertNotNil(decision.error);
@@ -603,11 +594,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertNotNil(decision.error);
@@ -624,11 +614,10 @@
     NSURL *url = [NSURL URLWithString:urlString];
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                                 embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@""
-                                                                        appVersion:@""
-                                                           externalNavigationBlock:nil];
+                                                                        appVersion:@""];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_APP_NAME_KEY]);
@@ -656,13 +645,12 @@
         return nil;
     };
 
-    MSIDTestWebviewInteractingViewController *fakeWebview = [MSIDTestWebviewInteractingViewController new];
+    MSIDOAuth2EmbeddedWebviewController *webviewController = [self createWebviewControllerWithExternalBlock:block];
     [self.resolver resolveDecisionForURL:url
-                       webviewController:fakeWebview
+               embeddedWebviewController:webviewController
                          responseHeaders:nil
                                  appName:@"App"
-                              appVersion:@"1.0"
-                 externalNavigationBlock:block];
+                              appVersion:@"1.0"];
 
     XCTAssertNotNil(receivedURL);
     XCTAssertEqualObjects(receivedURL.scheme, @"browser");
@@ -680,19 +668,20 @@
                            MSID_COMPLIANCE_HOST, MSID_INTUNE_URL_KEY, encoded];
     NSURL *url = [NSURL URLWithString:urlString];
 
+    // Even with the block defined locally, passing a nil controller means the resolver
+    // has no externalDecidePolicyForBrowserAction to invoke.
     __block BOOL invoked = NO;
-    MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController *wv, NSURL *u)
+    MSIDExternalDecidePolicyForBrowserActionBlock block __unused = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController *wv, NSURL *u)
     {
         invoked = YES;
         return nil;
     };
 
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
-                                                                 webviewController:nil
+                                                         embeddedWebviewController:nil
                                                                    responseHeaders:nil
                                                                            appName:@"App"
-                                                                        appVersion:@"1.0"
-                                                           externalNavigationBlock:block];
+                                                                        appVersion:@"1.0"];
     XCTAssertNotNil(decision);
     XCTAssertFalse(invoked, @"External block must not be invoked when no webview controller is provided.");
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);

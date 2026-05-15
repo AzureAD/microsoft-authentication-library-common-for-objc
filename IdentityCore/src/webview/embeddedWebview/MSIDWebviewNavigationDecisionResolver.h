@@ -63,19 +63,17 @@ NS_ASSUME_NONNULL_BEGIN
  * - in_app_enrollment_complete: In-app enrollment completion flow
  *
  * @param URL The special redirect URL to resolve (msauth://, browser://, etc.). If nil, returns nil.
- * @param webviewController The webview controller handling the navigation. May be nil for flows that do not require it.
+ * @param embeddedWebviewController The webview controller handling the navigation. May be nil for flows that do not require it.
  * @param responseHeaders HTTP response headers for additional context
  * @param appName Name of the client app
  * @param appVersion The version of the client app
- * @param externalNavigationBlock Callback for controller-specific navigation logic. May be nil.
  * @return Navigation decision to apply, or nil if the URL cannot be processed
  */
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
-                                                 webviewController:(nullable id<MSIDWebviewInteracting>)webviewController
+                                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
                                                    responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders
                                                            appName:(NSString *)appName
-                                                        appVersion:(NSString *)appVersion
-                                           externalNavigationBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock;
+                                                        appVersion:(NSString *)appVersion;
 #endif // !MSID_EXCLUDE_WEBKIT
 
 @end

@@ -42,12 +42,11 @@
 }
 
 #if !MSID_EXCLUDE_WEBKIT
-- (MSIDWebviewNavigationDecision *)resolveDecisionForURL:(NSURL * _Nullable)URL
-                                       webviewController:(nullable id<MSIDWebviewInteracting>)webviewController
-                                         responseHeaders:(NSDictionary<NSString *,NSString *> * _Nullable)responseHeaders
-                                                 appName:(NSString *)appName
-                                              appVersion:(NSString *)appVersion
-                                 externalNavigationBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
+- (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
+                                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                                   responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders
+                                                           appName:(NSString *)appName
+                                                        appVersion:(NSString *)appVersion
 {
     // Validate required parameters
     if (!URL)
@@ -71,11 +70,10 @@
     {
         // Handle msauth:// URLs
         return [self handleMSAuthURL:URL
-                   webviewController:webviewController
+           embeddedWebviewController:embeddedWebviewController
                      responseHeaders:responseHeaders
                              appName:appName
-                          appVersion:appVersion
-             externalNavigationBlock:externalNavigationBlock];
+                          appVersion:appVersion];
     }
     else if ([scheme isEqualToString:MSID_SCHEME_BROWSER])
     {
@@ -94,11 +92,10 @@
 #pragma mark - Scheme Handlers
 
 - (MSIDWebviewNavigationDecision *)handleMSAuthURL:(NSURL *)URL
-                                 webviewController:(id<MSIDWebviewInteracting>)webviewController
+                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
                                    responseHeaders:(NSDictionary<NSString *,NSString *> * _Nullable)responseHeaders
                                            appName:(NSString *)appName
                                         appVersion:(NSString *)appVersion
-                           externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
 {
     NSString *host = URL.host.lowercaseString;
 
@@ -127,9 +124,8 @@
     }
     else if ([host isEqualToString:MSID_COMPLIANCE_HOST])
     {
-        return [self decisionForComplianceURL:webviewController
-                                       params:params
-                      externalNavigationBlock:externalNavigationBlock];
+        return [self decisionForComplianceURL:params
+                    embeddedWebviewController:embeddedWebviewController];
     }
     else if ([host isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_HOST])
     {
@@ -372,9 +368,8 @@
 }
 
 #if !MSID_EXCLUDE_WEBKIT
-- (MSIDWebviewNavigationDecision *)decisionForComplianceURL:(id<MSIDWebviewInteracting>)webviewController
-                                                     params:(NSDictionary *)params
-                                    externalNavigationBlock:(MSIDExternalDecidePolicyForBrowserActionBlock)externalNavigationBlock
+- (MSIDWebviewNavigationDecision *)decisionForComplianceURL:(NSDictionary *)params
+                                  embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Building compliance request from msauth redirect.");
 
@@ -427,7 +422,7 @@
 
     // For legacy flows we rewrite the request URL's `https` scheme to `browser`
     // and let the external navigation block decide whether to override the request.
-    if (externalNavigationBlock && webviewController &&
+    if (embeddedWebviewController && embeddedWebviewController.externalDecidePolicyForBrowserAction &&
         [request.URL.scheme.lowercaseString isEqualToString:@"https"])
     {
         NSURLComponents *legacyComponents = [NSURLComponents componentsWithURL:request.URL
@@ -440,7 +435,7 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Invoking external navigation block with 'browser' scheme (host: '%@').", legacyFlowUrl.host);
 
             // The block is responsible for type checking and casting the controller.
-            NSURLRequest *updatedRequest = externalNavigationBlock((MSIDOAuth2EmbeddedWebviewController *)webviewController, legacyFlowUrl);
+            NSURLRequest *updatedRequest = embeddedWebviewController.externalDecidePolicyForBrowserAction(embeddedWebviewController, legacyFlowUrl);
             if (updatedRequest)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] External navigation block returned overridden request (host: '%@').", updatedRequest.URL.host);
