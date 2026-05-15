@@ -34,10 +34,7 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDWebViewPlatformParams.h"
 #import "MSIDCustomHeaderProviding.h"
-<<<<<<< Updated upstream
-=======
 #import "MSIDWebviewNavigationDelegate.h"
->>>>>>> Stashed changes
 
 typedef void (^MSIDNavigationResponseBlock)(NSHTTPURLResponse *response);
 

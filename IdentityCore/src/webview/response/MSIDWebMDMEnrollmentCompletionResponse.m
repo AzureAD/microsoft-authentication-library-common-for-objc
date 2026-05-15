@@ -53,7 +53,7 @@
     {
         // Extract status from query parameters
         // URL format: msauth://in_app_enrollment_complete?status=success&errorUrl=
-        _status = @"success";//self.parameters[MSID_MDM_ENROLLMENT_COMPLETION_STATUS_KEY];
+        _status = self.parameters[MSID_MDM_ENROLLMENT_COMPLETION_STATUS_KEY];
         
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
                          @"Created MDM enrollment completion response - status: %@", _status);

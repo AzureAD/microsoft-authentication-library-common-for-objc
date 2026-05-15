@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) MSIDInteractiveTokenRequestParameters *requestParameters;
 @property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
-@property (nonatomic) NSObject<MSIDWebviewInteracting> *currentWebview;
+@property (nonatomic, nullable) NSObject<MSIDWebviewInteracting> *currentWebview;
 
 - (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory;
