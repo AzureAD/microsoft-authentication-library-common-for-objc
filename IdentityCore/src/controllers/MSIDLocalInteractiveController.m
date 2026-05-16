@@ -223,20 +223,21 @@
 
     self.currentRequest = request;
     
-    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *msauthResponse)
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebviewResponse *msauthResponse)
     {
-        if (msauthResponse)
+        self.currentRequest = nil;
+        
+        if ([response isKindOfClass:[MSIDWebWPJResponse class]])
         {
-            self.currentRequest = nil;
-            [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
+            [self handleWebMSAuthResponse:(MSIDWebWPJResponse *)response completion:completionBlock];
             return;
         }
+        
 #if !EXCLUDE_FROM_MSALCPP
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:result.account];
         [self stopTelemetryEvent:telemetryEvent error:error];
 #endif
-        self.currentRequest = nil;
         
         completionBlock(result, error);
     }];

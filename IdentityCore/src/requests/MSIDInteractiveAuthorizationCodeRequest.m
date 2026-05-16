@@ -42,6 +42,7 @@
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBaseOperation.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
