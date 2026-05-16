@@ -22,6 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if !MSID_EXCLUDE_WEBKIT
+
 #import <XCTest/XCTest.h>
 #import "MSIDWebviewNavigationDecisionResolver.h"
 #import "MSIDWebviewNavigationDecision.h"
@@ -31,8 +33,6 @@
 #import "MSIDIntuneDeviceIdCache.h"
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDTestSwizzle.h"
-
-#if !MSID_EXCLUDE_WEBKIT
 
 @interface MSIDWebviewNavigationDecisionResolverTests : XCTestCase
 

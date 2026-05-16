@@ -6061,7 +6061,6 @@
 		D6DA89731FBA6A4E004C56C7 /* tests */ = {
 			isa = PBXGroup;
 			children = (
-				B47844F52FB7DF180059EFCD /* MSIDWebviewNavigationDecisionResolverTests.m */,
 				B2C758FE207EE58200C1FE74 /* automation */,
 				1EE8FF6424F4C0E600CA1445 /* File.swift */,
 				1EE8FF6224F4C0E600CA1445 /* IdentityCoreTests-Bridging-Header.h */,
@@ -6218,6 +6217,7 @@
 				B223B0A222ADEE4500FB8713 /* MSIDMaskedUsernameLogParameterTests.m */,
 				B434A1382F8E475700CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m */,
 				729357F22DDBD3F60001D03C /* MSIDNonceTokenRequestTest.m */,
+				B47844F52FB7DF180059EFCD /* MSIDWebviewNavigationDecisionResolverTests.m */,
 				606B108D20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m */,
 				B26A0B8F2072B562006BD95A /* MSIDOauth2FactoryTests.m */,
 				B281B337226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m */,
