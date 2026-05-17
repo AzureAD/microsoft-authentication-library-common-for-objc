@@ -46,16 +46,12 @@
     SecIdentityRef identity = NULL;
     if ([self isIdentityPersistenceEnabled])
     {
-        // Check if a preferred identity is set for this host
+        // Check if a preferred identity is set for this host.
+        // Note: The URL-string fallback (SecIdentityCopyPreferred with webview.URL.absoluteString)
+        // was removed to close an origin confusion vulnerability (MSRC-42fca33e).
+        // SecIdentityCopyPreferred(host) is the sole automatic lookup; if no preferred identity
+        // exists for this host, the handler falls through to promptUserForIdentity:.
         identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
-        
-        if (!identity)
-        {
-            // If there was no identity matched for the exact host, try to match by URL
-            // URL matching is more flexible, as it's doing a wildcard matching for different subdomains
-            // However, we need to do both, because if there's an entry by hostname, matching by URL won't find it
-            identity = SecIdentityCopyPreferred((CFStringRef)webview.URL.absoluteString, NULL, (CFArrayRef)distinguishedNames);
-        }
         isIdentityValid  = [self isIdentityValid:identity context:context];
     }
       
