@@ -34,8 +34,10 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
+#import "MSIDOAuth2Constants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
 #import "MSIDRequestParameters.h"
+#import "MSIDTokenResponse.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -198,6 +200,14 @@
     {
         NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:errorResponse.httpHeaders];
         userInfo[MSIDHTTPHeadersKey] = httpHeaders;
+    }
+
+    // Propagate client_data (STS diagnostic header) from the V1 unencrypted error response
+    // into the NSError userInfo so callers can surface it even on failure.
+    NSString *clientData = errorResponse.tokenResponse.clientData;
+    if (![NSString msidIsStringNilOrBlank:clientData])
+    {
+        userInfo[MSID_CLIENT_DATA_RESPONSE] = clientData;
     }
     
     MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Broker returned error with domain %@, code %@, oauth error %@, suberror %@, broker version %@, description %@", errorDomain, errorCodeString, oauthErrorCode, errorResponse.subError, errorResponse.brokerAppVer, MSID_PII_LOG_MASKABLE(errorDescription));

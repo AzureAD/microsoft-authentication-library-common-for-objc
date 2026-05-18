@@ -33,6 +33,7 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDConstants.h"
+#import "MSIDOAuth2Constants.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
@@ -343,6 +344,74 @@
     XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], correlationId);
     XCTAssertEqualObjects(error.userInfo[MSIDBrokerVersionKey], @"1.0.0");
     XCTAssertNil(error.userInfo[MSIDUserDisplayableIdkey]);
+    XCTAssertNil(error.userInfo[MSID_CLIENT_DATA_RESPONSE]);
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_andClientDataPresent_shouldPropagateClientDataIntoErrorUserInfo
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    NSString *clientDataValue = @"sts-diagnostic-blob-12345";
+
+    NSDictionary *brokerResponseParams =
+    @{
+      @"protocol_code": @"invalid_grant",
+      @"error_domain": @"ADAuthenticationErrorDomain",
+      @"error_code": @"213",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"error_description": @"Error occured",
+      @"suberror": @"consent_required",
+      @"broker_nonce" : @"nonce",
+      @"client_data" : clientDataValue
+      };
+
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
+                                                                                 redirectUri:@"x-msauth-test://com.microsoft.testapp"];
+
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 213);
+    XCTAssertEqualObjects(error.userInfo[MSID_CLIENT_DATA_RESPONSE], clientDataValue);
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_andClientDataBlank_shouldNotInsertClientDataIntoErrorUserInfo
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+
+    NSDictionary *brokerResponseParams =
+    @{
+      @"protocol_code": @"invalid_grant",
+      @"error_domain": @"ADAuthenticationErrorDomain",
+      @"error_code": @"213",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"error_description": @"Error occured",
+      @"suberror": @"consent_required",
+      @"broker_nonce" : @"nonce",
+      @"client_data" : @"   "
+      };
+
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
+                                                                                 redirectUri:@"x-msauth-test://com.microsoft.testapp"];
+
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 213);
+    XCTAssertNil(error.userInfo[MSID_CLIENT_DATA_RESPONSE]);
 }
 
 - (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_andSourceApplicationNonNil_andNonceMissingInResponse_shouldReturnNilResultAndError
