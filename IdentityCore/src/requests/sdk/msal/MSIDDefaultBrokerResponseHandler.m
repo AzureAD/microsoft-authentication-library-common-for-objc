@@ -37,6 +37,7 @@
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthScheme.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDDefaultBrokerResponseHandler
@@ -60,6 +61,7 @@
                                 @"declined_scopes" : MSIDDeclinedScopesKey,
                                 @"granted_scopes" : MSIDGrantedScopesKey,
                                 @"client_data" : MSID_CLIENT_DATA_RESPONSE,
+                                MSIDOnboardingBlobIPCKey : MSIDOnboardingBlobIPCKey,
                                 };
     }
     
