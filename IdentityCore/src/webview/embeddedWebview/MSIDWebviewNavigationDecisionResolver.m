@@ -22,14 +22,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !MSID_EXCLUDE_WEBKIT
-
 #import "MSIDWebviewNavigationDecisionResolver.h"
 #import "MSIDWebviewNavigationDecision.h"
 #import "MSIDWebviewConstants.h"
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDConstants.h"
 #import "MSIDIntuneDeviceIdCache.h"
+
+#if !MSID_EXCLUDE_WEBKIT
 
 @implementation MSIDWebviewNavigationDecisionResolver
 
@@ -47,7 +47,6 @@
 
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                                   responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders
                                                            appName:(NSString *)appName
                                                         appVersion:(NSString *)appVersion
 {
@@ -74,7 +73,6 @@
         // Handle msauth:// URLs
         return [self handleMSAuthURL:URL
            embeddedWebviewController:embeddedWebviewController
-                     responseHeaders:responseHeaders
                              appName:appName
                           appVersion:appVersion];
     }
@@ -96,7 +94,6 @@
 
 - (MSIDWebviewNavigationDecision *)handleMSAuthURL:(NSURL *)URL
                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                   responseHeaders:(NSDictionary<NSString *,NSString *> * _Nullable)responseHeaders
                                            appName:(NSString *)appName
                                         appVersion:(NSString *)appVersion
 {

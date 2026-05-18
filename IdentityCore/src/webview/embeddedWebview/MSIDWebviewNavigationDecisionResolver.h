@@ -62,14 +62,12 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param URL The special redirect URL to resolve (msauth://, browser://, etc.). If nil, returns nil.
  * @param embeddedWebviewController The webview controller handling the navigation. May be nil for flows that do not require it.
- * @param responseHeaders HTTP response headers for additional context
  * @param appName Name of the client app
  * @param appVersion The version of the client app
  * @return Navigation decision to apply, or nil if the URL cannot be processed
  */
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                                   responseHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)responseHeaders
                                                            appName:(NSString *)appName
                                                         appVersion:(NSString *)appVersion;
 
