@@ -91,4 +91,28 @@
     return result;
 }
 
+- (NSDictionary<NSString *, id> *)blobToDictionaryWithKeys:(NSSet<NSString *>*)queryKeys
+{
+    NSDictionary *full = self.blob.toDictionary;
+    if (queryKeys.count == 0)
+    {
+        // Always return a defensive copy so callers cannot mutate (or observe mutations to)
+        // the underlying blob storage.
+        return [full copy];
+    }
+
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    for (NSString *key in full)
+    {
+        if ([key isEqualToString:MSID_EXECUTION_FLOW_TAG]
+            || [key isEqualToString:MSID_EXECUTION_FLOW_TIME_SPENT]
+            || [key isEqualToString:MSID_EXECUTION_FLOW_THREAD_ID]
+            || [queryKeys containsObject:key])
+        {
+            result[key] = full[key];
+        }
+    }
+    return result;
+}
+
 @end
