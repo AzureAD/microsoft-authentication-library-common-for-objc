@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,27 +22,57 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+#import "MSIDSessionCachePersistence.h"
 
-@class MSIDTokenResponse;
-@class MSIDAuthority;
+static NSString * const MSIDSessionCorrelationCacheKey = @"com.microsoft.oneauth.session_correlation_cache";
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDSessionCachePersistence ()
 
-@interface MSIDBrokerOperationTokenResponse : MSIDBrokerNativeAppOperationResponse
-
-@property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
-
-@property (nonatomic, nullable) MSIDAuthority *authority;
-
-@property (nonatomic, nullable) MSIDTokenResponse *additionalTokenResponse;
-
-/// Optional onboarding telemetry blob populated by the broker during the interactive
-/// flow. Empty/nil when no blocking error was recorded; populated JSON otherwise.
-/// Mirrors the same field key as the request (`MSIDOnboardingBlobIPCKey`).
-@property (nonatomic, copy, nullable) NSString *onboardingBlob;
+@property (nonatomic, readonly) NSUserDefaults *userDefaults;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDSessionCachePersistence
+
+#pragma mark - Init
+
+- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
+{
+    self = [super init];
+
+    if (self)
+    {
+        _userDefaults = userDefaults;
+    }
+
+    return self;
+}
+
+- (instancetype)init
+{
+    return [self initWithUserDefaults:[NSUserDefaults standardUserDefaults]];
+}
+
+#pragma mark - Public
+
+- (nullable NSString *)load
+{
+    return [self.userDefaults stringForKey:MSIDSessionCorrelationCacheKey];
+}
+
+- (void)save:(nullable NSString *)value
+{
+    if (value)
+    {
+        [self.userDefaults setObject:value forKey:MSIDSessionCorrelationCacheKey];
+    }
+    else
+    {
+        [self.userDefaults removeObjectForKey:MSIDSessionCorrelationCacheKey];
+    }
+}
+
+@end
