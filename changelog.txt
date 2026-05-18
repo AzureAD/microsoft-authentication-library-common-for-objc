@@ -1,6 +1,7 @@
 TBD
 * Add MSIDDIContainer dependency-injection container for swizzle-free test seams. (#1807)
 * Add Delos and GovSG sovereign cloud authorities as trusted hosts. (#1813)
+* Add onboarding telemetry support for broker and 1p apps. (#1811)
 * Add device token grant request/response handlers. (#1801)
 * Improve UI tests performance #1805
 * Close cookies popup in automation tests #1814
