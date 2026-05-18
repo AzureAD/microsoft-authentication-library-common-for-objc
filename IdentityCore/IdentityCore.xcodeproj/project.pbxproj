@@ -447,8 +447,6 @@
 		23B3A4562187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B3A4542187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m */; };
 		23B3A4582187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B3A4572187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m */; };
 		23B3A4592187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B3A4572187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m */; };
-		B41DD0A92FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */; };
-		B41DD0AA2FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */; };
 		23B4CC6F2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B4CC6D2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.h */; };
 		23B4CC702181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B4CC6E2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m */; };
 		23B4CC712181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B4CC6E2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m */; };
@@ -824,7 +822,6 @@
 		724C9E0E2E6F9F2A0039BAA0 /* NSData+MSIDEccSecKeyRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 724C9E0D2E6F9F030039BAA0 /* NSData+MSIDEccSecKeyRef.h */; };
 		724C9E102E6F9F430039BAA0 /* NSData+MSIDEccSecKeyRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E0F2E6F9F410039BAA0 /* NSData+MSIDEccSecKeyRef.m */; };
 		724C9E112E6F9F430039BAA0 /* NSData+MSIDEccSecKeyRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E0F2E6F9F410039BAA0 /* NSData+MSIDEccSecKeyRef.m */; };
-		724C9E322E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
 		724C9E332E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E312E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift */; };
 		724C9E592E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */; };
 		724C9E5A2E6FE6310039BAA0 /* MSIDJweResponseDecryptionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 724C9E582E6FE6300039BAA0 /* MSIDJweResponseDecryptionTests.m */; };
@@ -1936,6 +1933,8 @@
 		B41DD0A22FB4187500F81A9A /* MSIDIntuneDeviceIdCache.h in Headers */ = {isa = PBXBuildFile; fileRef = B41DD0A12FB4187200F81A9A /* MSIDIntuneDeviceIdCache.h */; };
 		B41DD0A42FB4187B00F81A9A /* MSIDIntuneDeviceIdCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A32FB4187900F81A9A /* MSIDIntuneDeviceIdCache.m */; };
 		B41DD0A52FB4187B00F81A9A /* MSIDIntuneDeviceIdCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A32FB4187900F81A9A /* MSIDIntuneDeviceIdCache.m */; };
+		B41DD0A92FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */; };
+		B41DD0AA2FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */; };
 		B41F0CD62F871F260029E631 /* MSIDWebMDMEnrollmentCompletionResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = B41F0CD52F871F230029E631 /* MSIDWebMDMEnrollmentCompletionResponse.h */; };
 		B41F0CD82F871F320029E631 /* MSIDWebMDMEnrollmentCompletionResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B41F0CD72F871F2E0029E631 /* MSIDWebMDMEnrollmentCompletionResponse.m */; };
 		B41F0CD92F871F320029E631 /* MSIDWebMDMEnrollmentCompletionResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B41F0CD72F871F2E0029E631 /* MSIDWebMDMEnrollmentCompletionResponse.m */; };
@@ -2023,7 +2022,6 @@
 		B4EC850E2EF65C58005567DA /* MSIDAesGcmDecryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC850A2EF65C58005567DA /* MSIDAesGcmDecryptor.swift */; };
 		B4EC850F2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m in Sources */ = {isa = PBXBuildFile; fileRef = B4EC850C2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m */; };
 		B4EC85102EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.h in Headers */ = {isa = PBXBuildFile; fileRef = B4EC850B2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.h */; };
-		B4EC85112EF65C58005567DA /* MSIDAesGcmDecryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EC850A2EF65C58005567DA /* MSIDAesGcmDecryptor.swift */; };
 		B4EC85122EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m in Sources */ = {isa = PBXBuildFile; fileRef = B4EC850C2EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m */; };
 		B500F7322F1144A900E64911 /* MSIDBrokerOperationGetDefaultAccountRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B500F7302F1144A900E64911 /* MSIDBrokerOperationGetDefaultAccountRequestTests.m */; };
 		B500F7332F1144A900E64911 /* MSIDBrokerOperationGetDefaultAccountResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B500F7312F1144A900E64911 /* MSIDBrokerOperationGetDefaultAccountResponseTests.m */; };
@@ -2550,7 +2548,6 @@
 		23B3A4502187AFD3009070B2 /* MSIDJsonSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializer.m; sourceTree = "<group>"; };
 		23B3A4542187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneEnrollmentIdsCacheTests.m; sourceTree = "<group>"; };
 		23B3A4572187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneMAMResourcesCacheTests.m; sourceTree = "<group>"; };
-		B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneDeviceIdCacheTests.m; sourceTree = "<group>"; };
 		23B4CC6D2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneEnrollmentIdsCache.h; sourceTree = "<group>"; };
 		23B4CC6E2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneEnrollmentIdsCache.m; sourceTree = "<group>"; };
 		23B5DF74234030B2002C530F /* MSIDRequestParameters+Broker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDRequestParameters+Broker.h"; sourceTree = "<group>"; };
@@ -3560,6 +3557,7 @@
 		B41163BB29BAC9DE00E64619 /* MSIDWKNavigationActionMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWKNavigationActionMock.h; sourceTree = "<group>"; };
 		B41DD0A12FB4187200F81A9A /* MSIDIntuneDeviceIdCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneDeviceIdCache.h; sourceTree = "<group>"; };
 		B41DD0A32FB4187900F81A9A /* MSIDIntuneDeviceIdCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneDeviceIdCache.m; sourceTree = "<group>"; };
+		B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneDeviceIdCacheTests.m; sourceTree = "<group>"; };
 		B41F0CD52F871F230029E631 /* MSIDWebMDMEnrollmentCompletionResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebMDMEnrollmentCompletionResponse.h; sourceTree = "<group>"; };
 		B41F0CD72F871F2E0029E631 /* MSIDWebMDMEnrollmentCompletionResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebMDMEnrollmentCompletionResponse.m; sourceTree = "<group>"; };
 		B42558B52F57A65A0024523D /* MSIDOnboardingBlobBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDOnboardingBlobBuilder.h; sourceTree = "<group>"; };
@@ -7878,7 +7876,6 @@
 				B2AF1D42218BD10A0080C1A0 /* MSIDRequestParameters.m in Sources */,
 				B41F0CD92F871F320029E631 /* MSIDWebMDMEnrollmentCompletionResponse.m in Sources */,
 				04D32CB31FD62141000B123E /* MSIDError.m in Sources */,
-				B4EC85112EF65C58005567DA /* MSIDAesGcmDecryptor.swift in Sources */,
 				B4EC85122EF65C58005567DA /* MSIDJweResponse+EcdhAesGcm.m in Sources */,
 				05566D112204BB8A002DBA40 /* MSIDMacKeychainTokenCache.m in Sources */,
 				23D2049021D1B499009B5975 /* MSIDAADJsonResponsePreprocessor.m in Sources */,
