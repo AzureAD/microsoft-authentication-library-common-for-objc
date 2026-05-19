@@ -390,24 +390,29 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     {
         id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
         if ((strongNavigationDelegate)
-            && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:completion:)]
+            && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:)]
             && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
         {
             NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
-            NSURL *responseURL = response.URL;
-            // Delegate inspects headers; if it initiates a hand-off, cancel the current
-            // WK navigation. Hand-off result is delivered via completion below.
-            BOOL didHandoff = [strongNavigationDelegate processResponseHeaders:response.allHeaderFields
-                                                                    completion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+
+            // Process the response headers and determine if a hand-off to ASWebAuthenticationSession is signaled in the headers.
+            BOOL didHandoff = [strongNavigationDelegate processResponseHeaders:response.allHeaderFields];
+
+#if !MSID_EXCLUDE_SYSTEMWV
+            // If a hand-off is signaled, and the navigation delegate implements the hand-off method, perform the hand-off to ASWebAuthenticationSession and cancel the current navigation.
+            if (didHandoff
+                && [strongNavigationDelegate respondsToSelector:@selector(performASWebAuthenticationHandoffWithCompletion:)])
             {
-                [self performNavigationDecision:decision
-                                     requestURL:responseURL
-                                          error:error];
-            }];
-            if (didHandoff)
-            {
+                NSURL *responseURL = response.URL;
                 responsePolicy = WKNavigationResponsePolicyCancel;
+                [strongNavigationDelegate performASWebAuthenticationHandoffWithCompletion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+                {
+                    [self performNavigationDecision:decision
+                                         requestURL:responseURL
+                                              error:error];
+                }];
             }
+#endif // !MSID_EXCLUDE_SYSTEMWV
         }
     }
 

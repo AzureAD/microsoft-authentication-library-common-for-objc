@@ -25,13 +25,14 @@
 #import "MSIDCustomHeaderProviding.h"
 
 @class MSIDOnboardingBlobBuilder;
+@protocol MSIDWebviewInteracting;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Block type for configuring webview controller after creation
  */
-typedef void (^MSIDWebviewConfigurationBlock)(id webviewController);
+typedef void (^MSIDWebviewConfigurationBlock)(id<MSIDWebviewInteracting> webviewController);
 
 @interface MSIDInteractiveTokenRequestParameters : MSIDInteractiveRequestParameters
 

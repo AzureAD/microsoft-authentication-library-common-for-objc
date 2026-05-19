@@ -225,11 +225,10 @@
     
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebviewResponse *msauthResponse)
     {
-        self.currentRequest = nil;
-        
-        if ([response isKindOfClass:[MSIDWebWPJResponse class]])
+        if (msauthResponse && [msauthResponse isKindOfClass:[MSIDWebWPJResponse class]])
         {
-            [self handleWebMSAuthResponse:(MSIDWebWPJResponse *)response completion:completionBlock];
+            self.currentRequest = nil;
+            [self handleWebMSAuthResponse:(MSIDWebWPJResponse *)msauthResponse completion:completionBlock];
             return;
         }
         
@@ -238,6 +237,7 @@
         [telemetryEvent setUserInformation:result.account];
         [self stopTelemetryEvent:telemetryEvent error:error];
 #endif
+        self.currentRequest = nil;
         
         completionBlock(result, error);
     }];
