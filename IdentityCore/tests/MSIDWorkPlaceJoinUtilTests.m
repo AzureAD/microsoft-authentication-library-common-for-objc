@@ -30,7 +30,6 @@
 #import "MSIDTestSecureEnclaveKeyPairGenerator.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTestParametersProvider.h"
-#import "MSIDTestSwizzle.h"
 #import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 #import "MSIDWPJMetadata.h"
 #import "MSIDFlightManager.h"
@@ -146,7 +145,6 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
         [self cleanWPJ:[self keychainGroup:YES]];
         [self cleanWPJ:[self keychainGroup:NO]];
     }
-    [MSIDTestSwizzle reset];
     [MSIDFakeWPJUtilProvider reset];
     [[MSIDDIContainer sharedInstance] reset];
 }
