@@ -1,4 +1,4 @@
-TBD
+Version 1.24.0
 * Add MSIDDIContainer dependency-injection container for swizzle-free test seams. (#1807)
 * Add Delos and GovSG sovereign cloud authorities as trusted hosts. (#1813)
 * Add onboarding telemetry support for broker and 1p apps. (#1811)
