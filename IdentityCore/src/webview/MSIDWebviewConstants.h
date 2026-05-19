@@ -36,11 +36,14 @@ extern NSString * const MSID_SCHEME_BROWSER;
 extern NSString * const MSID_MDM_ENROLL_HOST;
 extern NSString * const MSID_COMPLIANCE_HOST;
 extern NSString * const MSID_MDM_ENROLLMENT_COMPLETION_HOST;
+extern NSString * const MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST;
 
 #pragma mark - Enrollment Query Parameters
 
 extern NSString * const MSID_INTUNE_URL_KEY;
 extern NSString * const MSID_IN_APP_KEY;
+extern NSString * const MSID_INTUNE_DEVICE_ID_KEY;
+extern NSString * const MSID_INTUNE_PROFILE_INSTALL_URL_KEY;
 
 #pragma mark - Enrollment Completion Query Parameters
 

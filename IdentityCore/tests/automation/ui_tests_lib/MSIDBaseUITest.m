@@ -111,8 +111,12 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)closeResultPipeline:(XCUIApplication *)application
 {
+    [self closeResultPipeline:application waitInMs:10];
+}
+
+- (void)closeResultPipeline:(XCUIApplication *)application waitInMs:(int)count
+{
 #if TARGET_OS_SIMULATOR
-    int count = 10;
     double interval = 1;
     __auto_type resultPipelineExpectation = [[XCTestExpectation alloc] initWithDescription:@"Wait for result pipeline."];
     

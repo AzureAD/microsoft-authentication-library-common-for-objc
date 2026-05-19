@@ -164,6 +164,9 @@ extern NSString * _Nonnull const MSID_POP_TOKEN_KEY_LABEL;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION;
 
+extern NSString * _Nonnull const MSID_INTUNE_DEVICE_ID_KEYCHAIN;
+extern NSString * _Nonnull const MSID_INTUNE_DEVICE_ID_KEYCHAIN_VERSION;
+
 extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEYCHAIN;
 extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEY;
 
