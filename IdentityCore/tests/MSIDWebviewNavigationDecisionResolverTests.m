@@ -380,7 +380,7 @@
     // Block that returns nil simulates "no override". The resolver invokes the block
     // only when the controller exposes a non-nil externalDecidePolicyForBrowserAction.
     __block BOOL invoked = NO;
-    MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController *wv, NSURL *u)
+    MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController * __unused wv, NSURL * __unused u)
     {
         invoked = YES;
         return nil;
@@ -409,7 +409,7 @@
     NSURLRequest *overrideRequest = [NSURLRequest requestWithURL:overrideURL];
 
     __block NSURL *receivedURL = nil;
-    MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController *wv, NSURL *u)
+    MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController * __unused wv, NSURL *u)
     {
         receivedURL = u;
         return overrideRequest;
@@ -630,7 +630,7 @@
     XCTAssertNotNil(url);
 
     __block NSURL *receivedURL = nil;
-    MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController *wv, NSURL *u)
+    MSIDExternalDecidePolicyForBrowserActionBlock block = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController * __unused wv, NSURL *u)
     {
         receivedURL = u;
         return nil;
@@ -661,7 +661,7 @@
     // Even with the block defined locally, passing a nil controller means the resolver
     // has no externalDecidePolicyForBrowserAction to invoke.
     __block BOOL invoked = NO;
-    MSIDExternalDecidePolicyForBrowserActionBlock block __unused = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController *wv, NSURL *u)
+    MSIDExternalDecidePolicyForBrowserActionBlock block __unused = ^NSURLRequest * _Nullable(MSIDOAuth2EmbeddedWebviewController * __unused wv, NSURL * __unused u)
     {
         invoked = YES;
         return nil;
