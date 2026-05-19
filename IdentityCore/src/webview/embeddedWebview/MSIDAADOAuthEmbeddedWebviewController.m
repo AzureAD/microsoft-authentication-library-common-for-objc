@@ -123,7 +123,7 @@
     id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
     if (self.isMobileOnboardingEnabled
         && (isBrokerUrl || isBrowserUrl)
-        && [strongNavigationDelegate respondsToSelector:@selector(handleSpecialRedirectURL:completion:)])
+        && [strongNavigationDelegate respondsToSelector:@selector(handleSpecialRedirectURL:embeddedWebviewController:completion:)])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                           @"Delegating special redirect %@ to navigationDelegate",
@@ -135,6 +135,7 @@
         // Already on main per WKNavigationDelegate contract; util keeps consistency.
         [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
             [strongNavigationDelegate handleSpecialRedirectURL:requestURL
+                                     embeddedWebviewController:self
                                                     completion:^(MSIDWebviewNavigationDecision *action, NSError *error)
             {
                 [self performNavigationDecision:action

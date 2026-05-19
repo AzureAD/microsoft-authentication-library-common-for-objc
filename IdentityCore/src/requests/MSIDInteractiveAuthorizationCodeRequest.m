@@ -143,9 +143,6 @@
         return;
     }
     
-    // Store reference to current webview
-    self.currentWebview = webView;
-    
     // Call webview configuration block if provided
     if (self.requestParameters.webviewConfigurationBlock)
     {
