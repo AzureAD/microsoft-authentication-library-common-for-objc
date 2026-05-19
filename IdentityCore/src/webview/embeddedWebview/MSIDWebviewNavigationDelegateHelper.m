@@ -56,10 +56,10 @@
 
 #pragma mark - Webview Configuration
 
-- (void)configureWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
+- (void)configureWebviewController:(id<MSIDWebviewInteracting>)webviewController
                           delegate:(id<MSIDWebviewNavigationDelegate>)delegate
 {
-    if (![webviewController isKindOfClass:MSIDOAuth2EmbeddedWebviewController.class])
+    if (![(id)webviewController isKindOfClass:MSIDOAuth2EmbeddedWebviewController.class])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context,
                           @"Skipping navigation delegate setup: webview is not MSIDOAuth2EmbeddedWebviewController.");

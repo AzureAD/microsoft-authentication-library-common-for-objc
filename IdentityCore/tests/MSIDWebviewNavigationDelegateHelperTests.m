@@ -432,6 +432,96 @@
     XCTAssertEqual(embedded.navigationDelegate, delegate);
 }
 
+#pragma mark - handleSpecialRedirectURL:embeddedWebviewController:appName:appVersion:completion:
+
+- (void)testHandleSpecialRedirectURL_whenURLIsNil_shouldCompleteWithFailWithError
+{
+    // The resolver returns a failWithError decision (not nil) for a nil URL; the
+    // helper must propagate that decision and invoke the completion exactly once.
+    // Routed through a typed local to suppress the call-site -Wnonnull warning.
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    NSURL *nilURL = nil;
+
+    [self.helper handleSpecialRedirectURL:nilURL
+                embeddedWebviewController:nil
+                                  appName:@"App"
+                               appVersion:@"1.0"
+                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
+    {
+        XCTAssertNotNil(decision);
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+        XCTAssertNotNil(decision.error);
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testHandleSpecialRedirectURL_whenBrowserScheme_shouldCompleteWithContinueDefault
+{
+    // browser:// URLs are routed to "continue default" by the resolver; the helper
+    // must hand that decision back through completion with a nil error.
+    NSURL *URL = [NSURL URLWithString:@"browser://some.host/path"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+
+    [self.helper handleSpecialRedirectURL:URL
+                embeddedWebviewController:nil
+                                  appName:@"App"
+                               appVersion:@"1.0"
+                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
+    {
+        XCTAssertNotNil(decision);
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionContinueDefault);
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testHandleSpecialRedirectURL_whenEmbeddedControllerIsNil_shouldNotCrashAndStillComplete
+{
+    // The embeddedWebviewController argument is nullable; passing nil must not crash
+    // and the completion still has to fire exactly once. Use a benign URL so the
+    // resolver path doesn't depend on a real controller.
+    NSURL *URL = [NSURL URLWithString:@"browser://some.host"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+
+    XCTAssertNoThrow([self.helper handleSpecialRedirectURL:URL
+                                 embeddedWebviewController:nil
+                                                   appName:@"App"
+                                                appVersion:@"1.0"
+                                                completion:^(MSIDWebviewNavigationDecision * _Nullable decision, __unused NSError * _Nullable error)
+    {
+        XCTAssertNotNil(decision);
+        [expectation fulfill];
+    }]);
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testHandleSpecialRedirectURL_shouldInvokeCompletionExactlyOnce
+{
+    // Guard the "completion fires exactly once" contract — accidental double-call
+    // would cause downstream completion handlers to be invoked twice with stale state.
+    NSURL *URL = [NSURL URLWithString:@"browser://some.host"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    expectation.assertForOverFulfill = YES;
+
+    [self.helper handleSpecialRedirectURL:URL
+                embeddedWebviewController:nil
+                                  appName:@"App"
+                               appVersion:@"1.0"
+                               completion:^(__unused MSIDWebviewNavigationDecision * _Nullable decision,
+                                            __unused NSError * _Nullable error)
+    {
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
 #pragma mark - processResponseHeaders: (synchronous)
 
 - (void)testProcessResponseHeaders_whenNoHandoffHeader_shouldReturnNO

@@ -25,6 +25,7 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDWebviewNavigationDecision;
+@class MSIDOAuth2EmbeddedWebviewController;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,9 +41,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Called when webview encounters a special redirect scheme (msauth://, browser://)
  *
  * @param URL The redirect URL (e.g., msauth://enroll?url=...)
+ * @param embeddedWebviewController The controller that drove the navigation, passed
+ *        explicitly so the delegate does not have to reach back through shared state
+ *        (which can race with session-completion cleanup).
  * @param completion Completion block - MUST be called exactly once
  */
 - (void)handleSpecialRedirectURL:(NSURL *)URL
+       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**

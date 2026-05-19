@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param webviewController The webview produced by the configuration block.
  * @param delegate          The controller that will receive navigation events.
  */
-- (void)configureWebviewController:(nullable NSObject<MSIDWebviewInteracting> *)webviewController
+- (void)configureWebviewController:(nullable id<MSIDWebviewInteracting>)webviewController
                           delegate:(id<MSIDWebviewNavigationDelegate>)delegate;
 
 #pragma mark - Navigation Delegate Methods
