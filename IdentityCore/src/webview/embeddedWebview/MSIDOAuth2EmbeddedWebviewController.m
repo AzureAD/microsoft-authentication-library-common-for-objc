@@ -111,6 +111,8 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         _context = context;
         
         _complete = NO;
+        
+        _isMobileOnboardingEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_MOBILE_ONBOARDING];
     }
     
     return self;
@@ -381,8 +383,40 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
             self.navigationResponseBlock(response);
         }
     }
+    
+    WKNavigationResponsePolicy responsePolicy = WKNavigationResponsePolicyAllow;
 
-    decisionHandler(WKNavigationResponsePolicyAllow);
+    if (self.isMobileOnboardingEnabled)
+    {
+        id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+        if ((strongNavigationDelegate)
+            && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:)]
+            && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
+        {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
+
+            // Process the response headers and determine if a hand-off to ASWebAuthenticationSession is signaled in the headers.
+            BOOL didHandoff = [strongNavigationDelegate processResponseHeaders:response.allHeaderFields];
+
+#if !MSID_EXCLUDE_SYSTEMWV
+            // If a hand-off is signaled, and the navigation delegate implements the hand-off method, perform the hand-off to ASWebAuthenticationSession and cancel the current navigation.
+            if (didHandoff
+                && [strongNavigationDelegate respondsToSelector:@selector(performASWebAuthenticationHandoffWithCompletion:)])
+            {
+                NSURL *responseURL = response.URL;
+                responsePolicy = WKNavigationResponsePolicyCancel;
+                [strongNavigationDelegate performASWebAuthenticationHandoffWithCompletion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+                {
+                    [self performNavigationDecision:decision
+                                         requestURL:responseURL
+                                              error:error];
+                }];
+            }
+#endif // !MSID_EXCLUDE_SYSTEMWV
+        }
+    }
+
+    decisionHandler(responsePolicy);
 }
 
 - (void)completeWebAuthWithURL:(NSURL *)endURL

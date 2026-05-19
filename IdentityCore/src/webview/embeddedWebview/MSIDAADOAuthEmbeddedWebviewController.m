@@ -33,6 +33,7 @@
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDMainThreadUtil.h"
 #import "MSIDBrokerConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
@@ -84,6 +85,8 @@
     return isAADHost && isActivationPath;
 }
 
+#pragma mark - Navigation Action Decision
+
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
                            decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
@@ -115,6 +118,35 @@
             }
         }
     }
+
+    // Hand off broker and browser URLs to the delegate when mobile onboarding is enabled.
+    id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+    if (self.isMobileOnboardingEnabled
+        && (isBrokerUrl || isBrowserUrl)
+        && [strongNavigationDelegate respondsToSelector:@selector(handleSpecialRedirectURL:embeddedWebviewController:completion:)])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                          @"Delegating special redirect %@ to navigationDelegate",
+                          requestURL.scheme);
+
+        // Cancel WKWebView navigation; delegate drives the next decision.
+        decisionHandler(WKNavigationActionPolicyCancel);
+
+        // Already on main per WKNavigationDelegate contract; util keeps consistency.
+        [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+            [strongNavigationDelegate handleSpecialRedirectURL:requestURL
+                                     embeddedWebviewController:self
+                                                    completion:^(MSIDWebviewNavigationDecision *action, NSError *error)
+            {
+                [self performNavigationDecision:action
+                                     requestURL:requestURL
+                                          error:error];
+            }];
+        }];
+
+        return YES;
+    }
+
     
     if (isBrokerUrl || isBrowserUrl)
     {

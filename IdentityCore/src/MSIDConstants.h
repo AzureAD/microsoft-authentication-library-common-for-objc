@@ -282,4 +282,8 @@ extern NSString * _Nonnull const MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED;
 /// Owner: josephpab
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 
+/// Flight to enable mobile onboarding flow.
+/// Default: OFF
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_MOBILE_ONBOARDING;
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
