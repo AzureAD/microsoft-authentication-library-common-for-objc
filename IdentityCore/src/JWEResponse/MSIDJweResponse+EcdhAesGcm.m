@@ -40,6 +40,12 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
 
 @implementation MSIDJweResponse (EcdhAesGcm)
 
+/*  JWE response decryption relies on CryptoKit which is a swift dependency.
+    Certain macOS partners do not support swift in their build system.
+    Hence excluding the decryption logic for macOS platform until they upgrade their build system.
+*/
+
+#if !TARGET_OS_OSX
 - (nullable NSDictionary *)decryptJweResponseWithPrivateStk:(nonnull SecKeyRef)privateStkRef
                                                   jweCrypto:(nonnull MSIDJWECrypto *)jweCrypto
                                                       error:(NSError * _Nullable __autoreleasing * _Nullable)error
@@ -263,4 +269,5 @@ MSIDJWECryptoKeyResponseEncryptionAlgorithm const MSID_RESPONSE_ENCRYPTION_ALGOR
     
     return YES;
 }
+#endif
 @end

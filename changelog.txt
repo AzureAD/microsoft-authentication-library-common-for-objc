@@ -1,9 +1,12 @@
 TBD
 * Add MSIDDIContainer dependency-injection container for swizzle-free test seams. (#1807)
 * Add Delos and GovSG sovereign cloud authorities as trusted hosts. (#1813)
+* Add onboarding telemetry support for broker and 1p apps. (#1811)
 * Add device token grant request/response handlers. (#1801)
 * Improve UI tests performance #1805
 * Close cookies popup in automation tests #1814
+* Exclude swift files from macOS targets #1827
+* Propagate client_data from broker error response for legacy broker support (#1834)
 
 Version 1.23.1
 * Support saving and removing requestedClaims for ATs in mac legacy (ACL) cache (#1783)

@@ -171,6 +171,7 @@
     
     embeddedWebviewController.externalDecidePolicyForBrowserAction = externalDecidePolicyForBrowserAction;
     embeddedWebviewController.customHeaderProvider = configuration.customHeaderProvider;
+    embeddedWebviewController.onboardingBlobBuilder = configuration.onboardingBlobBuilder;
 
     return embeddedWebviewController;
 }

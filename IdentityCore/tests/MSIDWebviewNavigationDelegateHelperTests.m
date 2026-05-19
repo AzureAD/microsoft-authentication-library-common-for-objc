@@ -26,6 +26,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDWebviewNavigationDelegateHelper.h"
+#import "MSIDWebviewNavigationDecision.h"
 #import "MSIDWebviewConstants.h"
 #import "MSIDError.h"
 #import "MSIDTestContext.h"
@@ -431,102 +432,49 @@
     XCTAssertEqual(embedded.navigationDelegate, delegate);
 }
 
-#pragma mark - processResponseHeaders:parentController:completion:
+#pragma mark - processResponseHeaders: (synchronous)
 
-- (void)testProcessResponseHeaders_whenNoHandoffHeader_shouldReturnNOAndNotInvokeCompletion
+- (void)testProcessResponseHeaders_whenNoHandoffHeader_shouldReturnNO
 {
-    __block BOOL completionInvoked = NO;
     NSDictionary *headers = @{@"Content-Type": @"application/json"};
-    MSIDViewController *parent = [MSIDViewController new];
 
-    BOOL didHandoff = [self.helper processResponseHeaders:headers
-                                         parentController:parent
-                                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
-                                                            NSError * _Nullable error)
-    {
-        (void)decision; (void)error;
-        completionInvoked = YES;
-    }];
+    BOOL hasHandoff = [self.helper processResponseHeaders:headers];
 
-    XCTAssertFalse(didHandoff);
-    XCTAssertFalse(completionInvoked, @"Completion must NOT be invoked when no hand-off was initiated.");
+    XCTAssertFalse(hasHandoff);
     // Side effect: headers are still normalized into lastResponseHeaders for later use.
     XCTAssertEqualObjects(self.helper.lastResponseHeaders[@"content-type"], @"application/json");
 }
 
 - (void)testProcessResponseHeaders_whenHandoffHeaderIsEmptyString_shouldReturnNO
 {
-    __block BOOL completionInvoked = NO;
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @""};
-    MSIDViewController *parent = [MSIDViewController new];
 
-    BOOL didHandoff = [self.helper processResponseHeaders:headers
-                                         parentController:parent
-                                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
-                                                            NSError * _Nullable error)
-    {
-        (void)decision; (void)error;
-        completionInvoked = YES;
-    }];
+    BOOL hasHandoff = [self.helper processResponseHeaders:headers];
 
-    XCTAssertFalse(didHandoff);
-    XCTAssertFalse(completionInvoked);
+    XCTAssertFalse(hasHandoff);
 }
 
 - (void)testProcessResponseHeaders_whenHandoffHeaderIsNonString_shouldReturnNO
 {
-    __block BOOL completionInvoked = NO;
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @42};
-    MSIDViewController *parent = [MSIDViewController new];
 
-    BOOL didHandoff = [self.helper processResponseHeaders:headers
-                                         parentController:parent
-                                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
-                                                            NSError * _Nullable error)
-    {
-        (void)decision; (void)error;
-        completionInvoked = YES;
-    }];
+    BOOL hasHandoff = [self.helper processResponseHeaders:headers];
 
-    XCTAssertFalse(didHandoff);
-    XCTAssertFalse(completionInvoked);
+    XCTAssertFalse(hasHandoff);
 }
 
 - (void)testProcessResponseHeaders_whenHandoffHeaderIsMixedCase_shouldStillBeDetected
 {
     // Server may send the header in any casing; normalization must catch it.
-    // Use a domain that is not in the allowlist so the validation step short-circuits
-    // before reaching the system webview transition manager, keeping the test self-contained.
-    __block BOOL completionInvoked = NO;
     NSString *uppercaseKey = MSID_ASWEBAUTH_HANDOFF_URL_KEY.uppercaseString;
     NSDictionary *headers = @{uppercaseKey: @"https://www.example.com/handoff"};
-    MSIDViewController *parent = [MSIDViewController new];
 
-    BOOL didHandoff = [self.helper processResponseHeaders:headers
-                                         parentController:parent
-                                               completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
-                                                            NSError * _Nullable error)
-    {
-        (void)decision; (void)error;
-        completionInvoked = YES;
-    }];
+    BOOL hasHandoff = [self.helper processResponseHeaders:headers];
 
-    // Returns YES because the header was detected (domain validation fires synchronously
-    // and the completion is invoked with an error, so no real session is launched).
-    XCTAssertTrue(didHandoff);
-    XCTAssertTrue(completionInvoked);
+    XCTAssertTrue(hasHandoff);
     // The normalized headers should expose the lowercased key for later use.
     XCTAssertEqualObjects(self.helper.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY],
                           @"https://www.example.com/handoff");
-}
-
-- (void)testProcessResponseHeaders_whenCompletionIsNil_shouldNotCrash
-{
-    NSDictionary *headers = @{@"Content-Type": @"application/json"};
-    MSIDViewController *parent = [MSIDViewController new];
-    XCTAssertNoThrow([self.helper processResponseHeaders:headers
-                                        parentController:parent
-                                              completion:nil]);
 }
 
 - (void)testProcessResponseHeaders_alwaysUpdatesLastResponseHeadersToNormalizedForm
@@ -534,15 +482,72 @@
     self.helper.lastResponseHeaders = @{@"stale": @"value"};
 
     NSDictionary *headers = @{@"X-Custom": @"v1", @"Other-Header": @"v2"};
-    MSIDViewController *parent = [MSIDViewController new];
-    (void)[self.helper processResponseHeaders:headers
-                             parentController:parent
-                                   completion:nil];
+    (void)[self.helper processResponseHeaders:headers];
 
     XCTAssertEqualObjects(self.helper.lastResponseHeaders[@"x-custom"], @"v1");
     XCTAssertEqualObjects(self.helper.lastResponseHeaders[@"other-header"], @"v2");
     XCTAssertNil(self.helper.lastResponseHeaders[@"stale"], @"Previous headers must be replaced, not merged.");
 }
+
+#if !MSID_EXCLUDE_SYSTEMWV
+
+#pragma mark - performASWebAuthenticationHandoffWithParentController:completion:
+
+- (void)testPerformASWebAuthHandoff_whenCompletionIsNil_shouldNotCrash
+{
+    // The method is documented to require a non-nil completion, but defensively
+    // returns early (with a log) instead of crashing if one is passed.
+    MSIDViewController *parent = [MSIDViewController new];
+    XCTAssertNoThrow([self.helper performASWebAuthenticationHandoffWithParentController:parent
+                                                                             completion:nil]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenNoHandoffURLCaptured_shouldCompleteWithFailWithError
+{
+    // No prior processResponseHeaders: call captured a hand-off URL.
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+
+    [self.helper performASWebAuthenticationHandoffWithParentController:parent
+                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         NSError * _Nullable error)
+    {
+        XCTAssertNotNil(decision);
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+        XCTAssertNotNil(decision.error);
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testPerformASWebAuthHandoff_whenHandoffURLFailsValidation_shouldCompleteWithFailWithError
+{
+    // Capture a hand-off URL whose domain is not in the allowlist so validation
+    // short-circuits before reaching the system webview transition manager.
+    NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://www.example.com/handoff"};
+    BOOL hasHandoff = [self.helper processResponseHeaders:headers];
+    XCTAssertTrue(hasHandoff);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+
+    [self.helper performASWebAuthenticationHandoffWithParentController:parent
+                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         NSError * _Nullable error)
+    {
+        XCTAssertNotNil(decision);
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+        XCTAssertNotNil(decision.error);
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+#endif // !MSID_EXCLUDE_SYSTEMWV
 
 @end
 

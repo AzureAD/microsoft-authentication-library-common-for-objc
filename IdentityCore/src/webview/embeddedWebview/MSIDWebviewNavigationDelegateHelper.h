@@ -82,36 +82,36 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param URL The special redirect URL
  * @param embeddedWebviewController The embedded webview controller instance
- * @param brtEvaluator Optional block to determine if BRT acquisition is needed
- * @param brtHandler Optional block to perform BRT acquisition
  * @param appName The name of the sdk
  * @param appVersion The version of the sdk
  * @param completion Completion block with the navigation decision or error
  */
 - (void)handleSpecialRedirectURL:(NSURL *)URL
        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                    brtEvaluator:(nullable BOOL(^)(void))brtEvaluator
-                      brtHandler:(nullable void(^)(void(^)(BOOL success, NSError * _Nullable error)))brtHandler
                          appName:(NSString *)appName
                       appVersion:(NSString *)appVersion
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**
- * Processes HTTP response headers to determine whether an ASWebAuthenticationSession
- * handoff should be initiated. When the handoff header is present and the target URL
- * passes validation, the embedded webview is suspended and an ASWebAuthenticationSession
- * is launched in its place.
+ * Caches response headers and detects an ASWebAuthenticationSession hand-off signal.
+ * On YES, caller should cancel the WKWebView navigation and invoke the hand-off method below.
  *
- * @param headers Response headers to process
- * @param parentController The parent view controller that presents the webview
- * @param completion Invoked once when the hand-off resolves (only when YES is returned).
- * @return YES if a handoff was initiated (caller should cancel the WKWebView navigation),
- *         NO otherwise.
+ * @param headers HTTP response headers (raw `allHeaderFields`)
+ * @return YES if @c headers signal a hand-off; NO otherwise
  */
-- (BOOL)processResponseHeaders:(NSDictionary *)headers
-              parentController:(MSIDViewController *)parentController
-                    completion:(nullable void (^)(MSIDWebviewNavigationDecision * _Nullable decision,
-                                                  NSError * _Nullable error))completion;
+- (BOOL)processResponseHeaders:(NSDictionary *)headers;
+
+#if !MSID_EXCLUDE_SYSTEMWV
+/**
+ * Performs the hand-off using the headers cached by the last @c processResponseHeaders: call.
+ *
+ * @param parentController The view controller that presents the webview
+ * @param completion Completion block - MUST be called exactly once; failures surface as a @c failWithError decision
+ */
+- (void)performASWebAuthenticationHandoffWithParentController:(MSIDViewController *)parentController
+                                                   completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                        NSError * _Nullable error))completion;
+#endif // !MSID_EXCLUDE_SYSTEMWV
 
 @end
 

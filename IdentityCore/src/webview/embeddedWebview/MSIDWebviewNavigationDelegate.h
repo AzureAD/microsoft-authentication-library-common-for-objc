@@ -46,19 +46,24 @@ NS_ASSUME_NONNULL_BEGIN
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**
- * Inspects HTTP response headers and, if a hand-off (e.g. ASWebAuthenticationSession)
- * is initiated, returns YES so the caller cancels the current WKWebView navigation.
+ * Caches response headers and detects an ASWebAuthenticationSession hand-off signal.
+ * On YES, caller should cancel the WKWebView navigation and invoke the hand-off method below.
  *
- * The asynchronous result of the hand-off is delivered via @c completion. If no
- * hand-off is initiated, returns NO and @c completion is NOT invoked.
- *
- * @param headers    HTTP response headers (raw `allHeaderFields`).
- * @param completion Invoked once when the hand-off resolves (only when YES is returned).
- * @return YES if a hand-off was initiated; NO otherwise.
+ * @param headers HTTP response headers (raw `allHeaderFields`)
+ * @return YES if @c headers signal a hand-off; NO otherwise
  */
-- (BOOL)processResponseHeaders:(NSDictionary *)headers
-                    completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable decision,
-                                         NSError * _Nullable error))completion;
+- (BOOL)processResponseHeaders:(NSDictionary *)headers;
+
+#if !MSID_EXCLUDE_SYSTEMWV
+
+/**
+ * Performs the hand-off using the headers cached by the last @c processResponseHeaders: call.
+ *
+ * @param completion Completion block - MUST be called exactly once; failures surface as a @c failWithError decision
+ */
+- (void)performASWebAuthenticationHandoffWithCompletion:(void (^)(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                  NSError * _Nullable error))completion;
+#endif // !MSID_EXCLUDE_SYSTEMWV
 
 @end
 

@@ -74,86 +74,77 @@
 
 - (void)handleSpecialRedirectURL:(NSURL *)URL
        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                    brtEvaluator:(nullable BOOL(^)(void))brtEvaluator
-                      brtHandler:(nullable void(^)(void(^)(BOOL success, NSError * _Nullable error)))brtHandler
                          appName:(NSString *)appName
                       appVersion:(NSString *)appVersion
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                       @"Helper handling special redirect: %@", _PII_NULLIFY(URL));
-    
-    if (!URL)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"Special redirect URL is nil");
-        completion(nil, nil);
-        return;
-    }
-    
-    // Define the action resolution block - delegate all URL handling to util
-    MSIDWebviewNavigationDecision * (^resolveNavigationDecision)(void) = ^MSIDWebviewNavigationDecision * {
-        MSIDWebviewNavigationDecisionResolver *util = [MSIDWebviewNavigationDecisionResolver sharedInstance];
-        return [util resolveDecisionForURL:URL
-                 embeddedWebviewController:embeddedWebviewController
-                           responseHeaders:self.lastResponseHeaders
-                                   appName:appName
-                                appVersion:appVersion];
-    };
-    
-    // Execute with or without BRT based on evaluator
-    if (brtEvaluator && brtEvaluator() && brtHandler)
-    {
-        // BRT needed - acquire it first, then resolve action in both success and failure cases
-        brtHandler(^(__unused BOOL brtSuccess, __unused NSError *brtError) {
-            MSIDWebviewNavigationDecision *navigationDecision = resolveNavigationDecision();
-            completion(navigationDecision, nil);
-        });
-    }
-    else
-    {
-        // No BRT needed - resolve action directly
-        MSIDWebviewNavigationDecision *navigationDecision = resolveNavigationDecision();
-        completion(navigationDecision, nil);
-    }
+
+    MSIDWebviewNavigationDecisionResolver *util = [MSIDWebviewNavigationDecisionResolver sharedInstance];
+    MSIDWebviewNavigationDecision *navigationDecision = [util resolveDecisionForURL:URL
+                                                          embeddedWebviewController:embeddedWebviewController
+                                                                            appName:appName
+                                                                         appVersion:appVersion];
+    completion(navigationDecision, nil);
 }
 
 - (BOOL)processResponseHeaders:(NSDictionary *)headers
-              parentController:(MSIDViewController *)parentController
-                    completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable, NSError * _Nullable))completion
 {
-    // Normalize ALL headers (lowercase keys) and store in lastResponseHeaders
+    // Normalize and capture headers for later use. This also allows for case-insensitive lookup of header values.
     self.lastResponseHeaders = [self normalizeHeaders:headers];
 
-    // Check if ASWebAuth handoff URL is present
-    NSString *handoffURLString = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
-    if ([handoffURLString isKindOfClass:NSString.class] && handoffURLString.length > 0)
-    {
-        NSURL *handoffURL = [NSURL URLWithString:handoffURLString];
+    // TODO: Add telemetry for response headers
 
-#if !MSID_EXCLUDE_SYSTEMWV
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, @"ASWebAuth handoff URL found, continuing with ASWebAuth session");
-        [self handleASWebAuthenticationHandoffWithURL:handoffURL
-                                     parentController:parentController
-                                           completion:^(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error)
-         {
-            if (completion) { completion(navigationDecision, error); }
-        }];
-        return YES;
-#else
-        (void)handoffURL;
-        (void)parentController;
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"ASWebAuthentication handoff not supported: system webview excluded from this build");
-        return NO;
-#endif
+    NSString *handoffURLString = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
+    BOOL hasHandoff = [handoffURLString isKindOfClass:NSString.class] && ((NSString *)handoffURLString).length > 0;
+
+    if (hasHandoff)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context,
+                          @"ASWebAuth hand-off URL detected in response headers.");
     }
 
-    // TODO: Add telemetry for response headers
-    return NO;
+    return hasHandoff;
+}
+
+#if !MSID_EXCLUDE_SYSTEMWV
+
+- (void)performASWebAuthenticationHandoffWithParentController:(MSIDViewController *)parentController
+                                                   completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable, NSError * _Nullable))completion
+{
+    if (!completion)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                          @"performASWebAuthenticationHandoff called with nil completion; ignoring.");
+        return;
+    }
+
+    // Retrieve the hand-off URL captured by the most recent processResponseHeaders: call.
+    id rawHandoffURL = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
+    NSString *handoffURLString = [rawHandoffURL isKindOfClass:NSString.class] ? (NSString *)rawHandoffURL : nil;
+    NSURL *handoffURL = handoffURLString.length > 0 ? [NSURL URLWithString:handoffURLString] : nil;
+
+    if (!handoffURL)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                          @"performASWebAuthenticationHandoff called but no valid hand-off URL is available in response headers.");
+        NSError *missingURLError = MSIDCreateError(MSIDErrorDomain,
+                                                   MSIDErrorInternal,
+                                                   @"ASWebAuthentication hand-off requested without a valid hand-off URL.",
+                                                   nil, nil, nil, self.context.correlationId, nil, YES);
+        completion([MSIDWebviewNavigationDecision failWithError:missingURLError], nil);
+        return;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context,
+                      @"ASWebAuth hand-off URL found, continuing with ASWebAuth session.");
+    [self handleASWebAuthenticationHandoffWithURL:handoffURL
+                                 parentController:parentController
+                                       completion:completion];
 }
 
 #pragma mark - ASWebAuthentication Handoff Handling
-
-#if !MSID_EXCLUDE_SYSTEMWV
 
 - (void)handleASWebAuthenticationHandoffWithURL:(NSURL *)handoffURL
                                parentController:(MSIDViewController *)parentController
