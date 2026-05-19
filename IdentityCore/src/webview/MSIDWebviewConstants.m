@@ -34,11 +34,14 @@ NSString * const MSID_SCHEME_BROWSER  = @"browser";
 NSString * const MSID_MDM_ENROLL_HOST = @"enroll";
 NSString * const MSID_COMPLIANCE_HOST = @"compliance";
 NSString * const MSID_MDM_ENROLLMENT_COMPLETION_HOST = @"in_app_enrollment_complete";
+NSString * const MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST = @"profile_download_complete";
 
 #pragma mark - Enrollment Query Parameters
 
 NSString * const MSID_INTUNE_URL_KEY = @"intuneRedirectUrl";
 NSString * const MSID_IN_APP_KEY = @"in-app";
+NSString * const MSID_INTUNE_DEVICE_ID_KEY = @"intuneDeviceId";
+NSString * const MSID_INTUNE_PROFILE_INSTALL_URL_KEY = @"continueUrl";
 
 #pragma mark - Enrollment Completion Query Parameters
 
