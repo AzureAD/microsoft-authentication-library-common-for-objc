@@ -495,11 +495,12 @@
 
 - (void)testPerformASWebAuthHandoff_whenCompletionIsNil_shouldNotCrash
 {
-    // The method is documented to require a non-nil completion, but defensively
-    // returns early (with a log) instead of crashing if one is passed.
+    // Nil completion should be handled defensively (early return, no crash).
+    // Routed through a typed local to suppress the call-site -Wnonnull warning.
     MSIDViewController *parent = [MSIDViewController new];
+    void (^nilCompletion)(MSIDWebviewNavigationDecision * _Nullable, NSError * _Nullable) = nil;
     XCTAssertNoThrow([self.helper performASWebAuthenticationHandoffWithParentController:parent
-                                                                             completion:nil]);
+                                                                             completion:nilCompletion]);
 }
 
 - (void)testPerformASWebAuthHandoff_whenNoHandoffURLCaptured_shouldCompleteWithFailWithError

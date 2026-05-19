@@ -677,12 +677,6 @@ initiatedByFrame:(WKFrameInfo *)frame
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
                               @"Navigation delegate returned nil action");
-            NSError *localError = MSIDCreateError(MSIDErrorDomain,
-                                                  MSIDErrorInternal,
-                                                  @"Navigation decision is nil",
-                                                  nil, nil, nil,
-                                                  self.context.correlationId,
-                                                  nil, NO);
             [self completeWebAuthWithURL:requestURL];
             return;
         }
