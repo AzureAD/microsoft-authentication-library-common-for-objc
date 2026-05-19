@@ -81,13 +81,29 @@
 
 #pragma mark - Nil / empty URL
 
-- (void)testResolveDecision_nilURL_returnsNil
+- (void)testResolveDecision_nilURL_returnsFailWithError
 {
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:nil
                                                                  embeddedWebviewController:nil
                                                                            appName:@"App"
                                                                         appVersion:@"1.0"];
-    XCTAssertNil(decision);
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertNotNil(decision.error);
+}
+
+- (void)testResolveDecision_URLMissingScheme_returnsFailWithError
+{
+    // A URL without a scheme (e.g. "//host/path") must surface a failWithError decision
+    // rather than nil so the caller always receives an actionable navigation outcome.
+    NSURL *url = [NSURL URLWithString:@"//host/path"];
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 embeddedWebviewController:nil
+                                                                           appName:@"App"
+                                                                        appVersion:@"1.0"];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertNotNil(decision.error);
 }
 
 #pragma mark - Scheme routing
@@ -116,7 +132,7 @@
 
 #pragma mark - msauth:// host routing
 
-- (void)testResolveDecision_msauthEmptyHost_returnsNil
+- (void)testResolveDecision_msauthEmptyHost_returnsFailWithError
 {
     // msauth:/// has no host
     NSURL *url = [NSURL URLWithString:@"msauth:///path"];
@@ -124,7 +140,9 @@
                                                                  embeddedWebviewController:nil
                                                                            appName:@"App"
                                                                         appVersion:@"1.0"];
-    XCTAssertNil(decision);
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertNotNil(decision.error);
 }
 
 - (void)testResolveDecision_msauthUnknownHost_returnsContinueDefault
