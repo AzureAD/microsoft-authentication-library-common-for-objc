@@ -413,12 +413,11 @@
 
 #pragma mark - Conformance validation (Task 3612208)
 
-- (void)testResolveImplClassForProtocol_whenRegisteredClassDoesNotConform_shouldAssertInDebug
+- (void)testResolveImplClassForProtocol_whenRegisteredClassDoesNotConform_shouldAssert
 {
     // Misregistration: a class that does NOT conform to the protocol is
-    // installed via an (id)-cast. In debug builds (NSAssert active), this
-    // MUST fire an assertion when resolved.
-#if DEBUG
+    // installed via an (id)-cast. Unit tests run in Debug, so this MUST fire
+    // an assertion when resolved.
     [self.container registerProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
                             lifetime:MSIDDIContainerLifetimeSingleton
                              factory:^id { return (id)[MSIDDIContainerTestNonConformingService class]; }];
@@ -428,14 +427,10 @@
                           orDefault:^Class {
                               return [MSIDDIContainerTestClassMethodService class];
                           }]));
-#else
-    XCTSkip(@"NSAssert is compiled out in release; see fallback-path test");
-#endif
 }
 
-- (void)testResolveImplClassForClass_whenRegisteredClassIsNotSubclass_shouldAssertInDebug
+- (void)testResolveImplClassForClass_whenRegisteredClassIsNotSubclass_shouldResolveWithoutThrow
 {
-#if DEBUG
     // resolveImplClassForClass: is intentionally duck-typed (see header) — no
     // subclass relationship is enforced. This test pins that contract: a
     // non-subclass resolves without throwing, so callers must still rely on
@@ -448,9 +443,6 @@
         resolveImplClassForClass:[MSIDDIContainerTestClassMethodService class]
                        orDefault:^Class { return [MSIDDIContainerTestClassMethodService class]; }];
     XCTAssertEqual(resolved, [MSIDDIContainerTestNonConformingService class]);
-#else
-    XCTSkip(@"DEBUG-only contract test");
-#endif
 }
 
 - (void)testResolveImplClassForProtocol_whenDefaultProviderUsed_shouldNotValidateAgainAfterFallback
