@@ -66,6 +66,9 @@ NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN = @"com.microsoft.identity.throttling.metadata";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";
 
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN = @"com.microsoft.identity.intune.deviceid";
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN_VERSION = @"Ver1";
+
 NSString *const MSID_USE_SINGLE_FRT_KEYCHAIN          = @"useSingleFRT";
 NSString *const MSID_USE_SINGLE_FRT_KEY               = @"use_single_frt";
 NSString *const MSID_FRT_STATUS_ENABLED               = @"on";
