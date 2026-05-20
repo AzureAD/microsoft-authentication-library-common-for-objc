@@ -471,6 +471,12 @@
     // crash or yield a torn class reference.
     NSInteger iterations = 100;
 
+    // XCTest assertions are not guaranteed to be thread-safe, so we collect any
+    // unexpected greetings into a synchronized array from the worker blocks and
+    // assert on the test thread once dispatch_apply has completed.
+    NSMutableArray<NSString *> *unexpectedGreetings = [NSMutableArray array];
+    NSLock *unexpectedGreetingsLock = [NSLock new];
+
     dispatch_apply(iterations, dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^(size_t i) {
         if ((i % 2) == 0)
         {
@@ -488,9 +494,18 @@
                                       }];
             // impl is either the registered mock or the default — both conform.
             NSString *greeting = [impl greeting];
-            XCTAssertTrue([greeting isEqualToString:@"mocked-class"] || [greeting isEqualToString:@"hello-class"]);
+            if (![greeting isEqualToString:@"mocked-class"] && ![greeting isEqualToString:@"hello-class"])
+            {
+                [unexpectedGreetingsLock lock];
+                [unexpectedGreetings addObject:greeting ?: @"<nil>"];
+                [unexpectedGreetingsLock unlock];
+            }
         }
     });
+
+    XCTAssertEqual(unexpectedGreetings.count, 0u,
+                   @"Unexpected greetings observed during concurrent resolution: %@",
+                   unexpectedGreetings);
 
     // Deterministic final state: register one last time, resolve, expect mock.
     [self.container registerProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
