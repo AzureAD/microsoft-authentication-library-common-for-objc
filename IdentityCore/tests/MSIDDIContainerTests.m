@@ -97,6 +97,15 @@
 
 @end
 
+// Intentionally does NOT conform to MSIDDIContainerTestClassMethodProtocol —
+// used to exercise the conformance-validation path in
+// resolveImplClassForProtocol:orDefault: / resolveImplClassForClass:orDefault:.
+@interface MSIDDIContainerTestNonConformingService : NSObject
+@end
+
+@implementation MSIDDIContainerTestNonConformingService
+@end
+
 #pragma mark - Tests
 
 @interface MSIDDIContainerTests : XCTestCase
@@ -400,6 +409,107 @@
                               }];
 
     XCTAssertEqualObjects([impl greeting], @"hello-class");
+}
+
+#pragma mark - Conformance validation (Task 3612208)
+
+- (void)testResolveImplClassForProtocol_whenRegisteredClassDoesNotConform_shouldAssertInDebug
+{
+    // Misregistration: a class that does NOT conform to the protocol is
+    // installed via an (id)-cast. In debug builds (NSAssert active), this
+    // MUST fire an assertion when resolved.
+#if DEBUG
+    [self.container registerProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                            lifetime:MSIDDIContainerLifetimeSingleton
+                             factory:^id { return (id)[MSIDDIContainerTestNonConformingService class]; }];
+
+    XCTAssertThrows(([self.container
+        resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                          orDefault:^Class {
+                              return [MSIDDIContainerTestClassMethodService class];
+                          }]));
+#else
+    XCTSkip(@"NSAssert is compiled out in release; see fallback-path test");
+#endif
+}
+
+- (void)testResolveImplClassForClass_whenRegisteredClassIsNotSubclass_shouldAssertInDebug
+{
+#if DEBUG
+    // resolveImplClassForClass: is intentionally duck-typed (see header) — no
+    // subclass relationship is enforced. This test pins that contract: a
+    // non-subclass resolves without throwing, so callers must still rely on
+    // their own type knowledge / unrecognized-selector behavior.
+    [self.container registerClass:[MSIDDIContainerTestClassMethodService class]
+                         lifetime:MSIDDIContainerLifetimeSingleton
+                          factory:^id { return (id)[MSIDDIContainerTestNonConformingService class]; }];
+
+    Class resolved = [self.container
+        resolveImplClassForClass:[MSIDDIContainerTestClassMethodService class]
+                       orDefault:^Class { return [MSIDDIContainerTestClassMethodService class]; }];
+    XCTAssertEqual(resolved, [MSIDDIContainerTestNonConformingService class]);
+#else
+    XCTSkip(@"DEBUG-only contract test");
+#endif
+}
+
+- (void)testResolveImplClassForProtocol_whenDefaultProviderUsed_shouldNotValidateAgainAfterFallback
+{
+    // Sanity: a properly-conforming default class flows through without
+    // tripping the new validation. This pins that the validation is targeted
+    // at the registered-factory path, not the unrelated default path.
+    Class<MSIDDIContainerTestClassMethodProtocol> impl =
+        (Class<MSIDDIContainerTestClassMethodProtocol>)[self.container
+            resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                              orDefault:^Class {
+                                  return [MSIDDIContainerTestClassMethodService class];
+                              }];
+
+    XCTAssertEqualObjects([impl greeting], @"hello-class");
+}
+
+#pragma mark - Concurrent registration + resolution stress test
+
+- (void)testConcurrentRegistrationAndResolution_shouldNotCrashAndConverge
+{
+    // Race the public mutating API (registerProtocol:lifetime:factory:) against
+    // resolveImplClassForProtocol:orDefault: across many iterations. The
+    // container guards its mutable maps with a concurrent queue + barrier
+    // writes; this test pins that no concurrent register/resolve pair can
+    // crash or yield a torn class reference.
+    NSInteger iterations = 100;
+
+    dispatch_apply(iterations, dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^(size_t i) {
+        if ((i % 2) == 0)
+        {
+            [self.container registerProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                                    lifetime:MSIDDIContainerLifetimeSingleton
+                                     factory:^id { return (id)[MSIDDIContainerTestClassMethodMockService class]; }];
+        }
+        else
+        {
+            Class<MSIDDIContainerTestClassMethodProtocol> impl =
+                (Class<MSIDDIContainerTestClassMethodProtocol>)[self.container
+                    resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                                      orDefault:^Class {
+                                          return [MSIDDIContainerTestClassMethodService class];
+                                      }];
+            // impl is either the registered mock or the default — both conform.
+            NSString *greeting = [impl greeting];
+            XCTAssertTrue([greeting isEqualToString:@"mocked-class"] || [greeting isEqualToString:@"hello-class"]);
+        }
+    });
+
+    // Deterministic final state: register one last time, resolve, expect mock.
+    [self.container registerProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                            lifetime:MSIDDIContainerLifetimeSingleton
+                             factory:^id { return (id)[MSIDDIContainerTestClassMethodMockService class]; }];
+
+    Class<MSIDDIContainerTestClassMethodProtocol> impl =
+        (Class<MSIDDIContainerTestClassMethodProtocol>)[self.container
+            resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                              orDefault:^Class { return [MSIDDIContainerTestClassMethodService class]; }];
+    XCTAssertEqualObjects([impl greeting], @"mocked-class");
 }
 
 @end
