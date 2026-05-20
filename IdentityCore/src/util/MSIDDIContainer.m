@@ -101,7 +101,6 @@
     MSIDDIContainerEntry *entry = [MSIDDIContainerEntry new];
     entry.lifetime = lifetime;
     entry.factory = factory;
-
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         self.entryByKey[key] = entry;
         [self.singletonCache removeObjectForKey:key];
