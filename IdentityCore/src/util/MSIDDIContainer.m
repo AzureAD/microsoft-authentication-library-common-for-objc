@@ -177,6 +177,22 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil,
                           @"MSIDDIContainer: class '%@' resolved for protocol '%@' does not conform to it; falling back to default",
                           NSStringFromClass(resolvedClass), NSStringFromProtocol(proto));
+
+        // Self-heal: evict the bad cached entry under a barrier write so
+        // subsequent resolves return the default cleanly instead of
+        // repeatedly hitting the cached non-conforming class (which would
+        // re-trip the assert in Debug and spam logs + re-call the default
+        // provider in Release). removeObjectForKey: is a safe no-op for
+        // missing keys, so we evict from both maps unconditionally — the
+        // singleton cache is only populated for singleton-lifetime
+        // registrations, but transient registrations simply skip that
+        // dictionary without needing a lifetime branch here.
+        NSString *key = [self keyForProtocol:proto];
+        dispatch_barrier_sync(self.synchronizationQueue, ^{
+            [self.singletonCache removeObjectForKey:key];
+            [self.entryByKey removeObjectForKey:key];
+        });
+
         return defaultProvider();
     }
 

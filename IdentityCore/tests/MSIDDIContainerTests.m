@@ -106,6 +106,54 @@
 @implementation MSIDDIContainerTestNonConformingService
 @end
 
+// NSAssertionHandler subclass that records failures into an array instead of
+// raising. Used by the release-mode fallback test to exercise the post-assert
+// path (log + cache eviction + defaultProvider() return) under a DEBUG build.
+@interface MSIDDIContainerRecordingAssertionHandler : NSAssertionHandler
+@property (nonatomic, readonly) NSMutableArray<NSString *> *failures;
+@end
+
+@implementation MSIDDIContainerRecordingAssertionHandler
+
+- (instancetype)init
+{
+    self = [super init];
+
+    if (self)
+    {
+        _failures = [NSMutableArray new];
+    }
+
+    return self;
+}
+
+- (void)handleFailureInMethod:(SEL)selector
+                       object:(id)object
+                         file:(NSString *)fileName
+                   lineNumber:(NSInteger)line
+                  description:(NSString *)format, ...
+{
+    va_list args;
+    va_start(args, format);
+    NSString *message = format ? [[NSString alloc] initWithFormat:format arguments:args] : @"";
+    va_end(args);
+    [self.failures addObject:message];
+}
+
+- (void)handleFailureInFunction:(NSString *)functionName
+                           file:(NSString *)fileName
+                     lineNumber:(NSInteger)line
+                    description:(NSString *)format, ...
+{
+    va_list args;
+    va_start(args, format);
+    NSString *message = format ? [[NSString alloc] initWithFormat:format arguments:args] : @"";
+    va_end(args);
+    [self.failures addObject:message];
+}
+
+@end
+
 #pragma mark - Tests
 
 @interface MSIDDIContainerTests : XCTestCase
@@ -427,6 +475,66 @@
                           orDefault:^Class {
                               return [MSIDDIContainerTestClassMethodService class];
                           }]));
+}
+
+- (void)testResolveImplClassForProtocol_whenRegisteredClassDoesNotConformAndAssertSuppressed_shouldReturnDefaultAndEvictCache
+{
+    // Release-mode behavior: when NSAssert is suppressed (simulated here by
+    // swapping in a recording NSAssertionHandler), the conformance-failure
+    // branch must (1) fall back to the caller's default, and (2) evict the
+    // bad cached entry so subsequent resolves return the default cleanly
+    // without re-invoking the broken factory. This pins the self-heal
+    // behavior added alongside the conformance check.
+    __block NSInteger factoryInvocations = 0;
+    [self.container registerProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                            lifetime:MSIDDIContainerLifetimeSingleton
+                             factory:^id {
+                                 factoryInvocations++;
+                                 return (id)[MSIDDIContainerTestNonConformingService class];
+                             }];
+
+    MSIDDIContainerRecordingAssertionHandler *handler = [MSIDDIContainerRecordingAssertionHandler new];
+    NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+    id previousHandler = threadDict[NSAssertionHandlerKey];
+    threadDict[NSAssertionHandlerKey] = handler;
+
+    @try
+    {
+        Class first = [self.container
+            resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                              orDefault:^Class {
+                                  return [MSIDDIContainerTestClassMethodService class];
+                              }];
+
+        // After the first resolve, the bad entry should have been evicted from
+        // both _singletonCache and _entryByKey. The second resolve therefore
+        // finds no registration, takes the "no entry + defaultProvider" branch
+        // in -resolveKey:description:defaultProvider:, and returns the default
+        // without re-invoking the (broken) factory.
+        Class second = [self.container
+            resolveImplClassForProtocol:@protocol(MSIDDIContainerTestClassMethodProtocol)
+                              orDefault:^Class {
+                                  return [MSIDDIContainerTestClassMethodService class];
+                              }];
+
+        XCTAssertEqual(first, [MSIDDIContainerTestClassMethodService class]);
+        XCTAssertEqual(second, [MSIDDIContainerTestClassMethodService class]);
+        XCTAssertGreaterThan(handler.failures.count, 0u,
+                             @"NSAssert should have recorded at least one conformance failure");
+        XCTAssertEqual(factoryInvocations, 1,
+                       @"Cache eviction should prevent the bad factory from being re-invoked on subsequent resolves");
+    }
+    @finally
+    {
+        if (previousHandler)
+        {
+            threadDict[NSAssertionHandlerKey] = previousHandler;
+        }
+        else
+        {
+            [threadDict removeObjectForKey:NSAssertionHandlerKey];
+        }
+    }
 }
 
 - (void)testResolveImplClassForClass_whenRegisteredClassIsNotSubclass_shouldResolveWithoutThrow

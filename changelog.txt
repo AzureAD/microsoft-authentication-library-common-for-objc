@@ -1,5 +1,5 @@
 TBD
-* Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release.
+* Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release. Self-heal cache eviction on conformance failure; release-mode fallback test via NSAssertionHandler swap.
 * Add MSIDDIContainer dependency-injection container for swizzle-free test seams. (#1807)
 * Add Delos and GovSG sovereign cloud authorities as trusted hosts. (#1813)
 * Add onboarding telemetry support for broker and 1p apps. (#1811)
