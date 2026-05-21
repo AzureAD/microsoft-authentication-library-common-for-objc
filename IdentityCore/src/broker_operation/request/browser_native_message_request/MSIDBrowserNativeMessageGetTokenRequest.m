@@ -222,6 +222,15 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
         
         if (MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
         {
+            
+            if ([NSString msidIsStringNilOrBlank:reqCnf])
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDBrowserNativeMessageGetTokenRequest: 'reqCnf' is required when token_type is Pop but was missing or empty.");
+                
+                if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"'reqCnf' is required when token_type is Pop.", nil, nil, nil, nil, nil, YES);
+                return nil;
+            }
+            
             NSMutableDictionary *schemeParams = [NSMutableDictionary new];
             schemeParams[MSID_OAUTH2_TOKEN_TYPE] = tokenType;
             schemeParams[MSID_OAUTH2_REQUEST_CONFIRMATION] = reqCnf;

@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDDIContainer.h"
+#import "MSIDLogger+Internal.h"
 
 @interface MSIDDIContainerEntry : NSObject
 
@@ -160,7 +161,42 @@
                        // Cast Class -> id; +resolveKey: validates non-nil.
                        return (id)defaultClass;
                    }];
-    return (Class)resolved;
+
+    Class resolvedClass = (Class)resolved;
+
+    // Validate that the resolved class conforms to the requested protocol.
+    // A misregistered fake class would otherwise return successfully and the
+    // failure would surface as an unrecognized-selector crash at the call
+    // site, far from the registration mistake. Debug: assert so the test
+    // fails loudly. Release: log + fall back to the caller's default so a
+    // broken registration cannot brick the production code path.
+    if (![resolvedClass conformsToProtocol:proto])
+    {
+        NSAssert(NO, @"MSIDDIContainer: class '%@' resolved for protocol '%@' does not conform to it",
+                 NSStringFromClass(resolvedClass), NSStringFromProtocol(proto));
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil,
+                          @"MSIDDIContainer: class '%@' resolved for protocol '%@' does not conform to it; falling back to default",
+                          NSStringFromClass(resolvedClass), NSStringFromProtocol(proto));
+
+        // Self-heal: evict the bad cached entry under a barrier write so
+        // subsequent resolves return the default cleanly instead of
+        // repeatedly hitting the cached non-conforming class (which would
+        // re-trip the assert in Debug and spam logs + re-call the default
+        // provider in Release). removeObjectForKey: is a safe no-op for
+        // missing keys, so we evict from both maps unconditionally — the
+        // singleton cache is only populated for singleton-lifetime
+        // registrations, but transient registrations simply skip that
+        // dictionary without needing a lifetime branch here.
+        NSString *key = [self keyForProtocol:proto];
+        dispatch_barrier_sync(self.synchronizationQueue, ^{
+            [self.singletonCache removeObjectForKey:key];
+            [self.entryByKey removeObjectForKey:key];
+        });
+
+        return defaultProvider();
+    }
+
+    return resolvedClass;
 }
 
 - (Class)resolveImplClassForClass:(Class)cls
@@ -175,6 +211,11 @@
                        Class defaultClass = defaultProvider();
                        return (id)defaultClass;
                    }];
+    // No conformance check here: the class-keyed seam is intentionally
+    // duck-typed (see header) — the registered class need only supply
+    // matching +selectors at runtime, not a subclass relationship. Misuse
+    // surfaces as an unrecognized-selector exception at the call site,
+    // which is the documented contract.
     return (Class)resolved;
 }
 
