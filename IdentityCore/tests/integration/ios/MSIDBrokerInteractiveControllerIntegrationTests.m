@@ -80,6 +80,7 @@
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
 @property (nonatomic) MSIDTestCacheDataSource *testCacheDataSource;
+@property (nonatomic) id<MSIDExtendedTokenCacheDataSource> originalOnboardingDataSource;
 
 @end
 
@@ -93,7 +94,8 @@
     [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:MSID_BROKER_SYMMETRIC_KEY_TAG];
     
     self.testCacheDataSource = [MSIDTestCacheDataSource new];
-    [MSIDOnboardingStatusCache sharedInstance].dataSource = self.testCacheDataSource;
+    self.originalOnboardingDataSource = MSIDOnboardingStatusCache.sharedInstance.dataSource;
+    MSIDOnboardingStatusCache.sharedInstance.dataSource = self.testCacheDataSource;
 }
 
 - (void)tearDown
@@ -112,6 +114,7 @@
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     [MSIDApplicationTestUtil reset];
     [self.testCacheDataSource reset];
+    MSIDOnboardingStatusCache.sharedInstance.dataSource = self.originalOnboardingDataSource;
     [MSIDBrokerInteractiveController setCurrentBrokerController:nil];
     [MSIDBrokerInteractiveController setCurrentBrokerRequest:nil];
     [super tearDown];
@@ -1243,7 +1246,12 @@
 
     MSIDTokenResult *testResult = [self resultWithParameters:parameters];
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        MSIDOnboardingStatus *inFlightStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        XCTAssertNotNil(inFlightStatus);
+        XCTAssertEqual(inFlightStatus.phase, MSIDOnboardingPhaseBrokerInteractiveInProgress);
+        XCTAssertNotNil(inFlightStatus.correlationId);
+
         MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
         [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
                                             sourceApplication:MSID_BROKER_APP_BUNDLE_ID
@@ -1260,9 +1268,44 @@
         XCTAssertNotNil(result);
         XCTAssertNil(acquireTokenError);
 
-        // Verify onboarding status was written to cache during acquireToken flow
         MSIDOnboardingStatus *cachedStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
         XCTAssertNotNil(cachedStatus);
+        XCTAssertEqual(cachedStatus.phase, MSIDOnboardingPhaseNone);
+        XCTAssertNil(cachedStatus.correlationId);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)test_acquireToken_whenOpenURLFails_clearsOnboardingStatusFromCache
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=onboarding2"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        return NO;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token open URL failure"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+
+        MSIDOnboardingStatus *cachedStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
         XCTAssertEqual(cachedStatus.phase, MSIDOnboardingPhaseNone);
         XCTAssertNil(cachedStatus.correlationId);
 
