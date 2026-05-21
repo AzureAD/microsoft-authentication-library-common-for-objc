@@ -27,12 +27,15 @@
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDCacheKey.h"
+#import "MSIDJsonObject.h"
 
 @interface MSIDOnboardingStatusCache ()
 
 @property (nonatomic) id<MSIDExtendedTokenCacheDataSource> dataSource;
 @property (nonatomic) MSIDCacheItemJsonSerializer *serializer;
 
+- (MSIDCacheKey *)cacheKey;
 - (BOOL)isOwnerOverride:(MSIDOnboardingStatus *)status;
 
 @end
@@ -41,6 +44,7 @@
 
 @property (nonatomic) MSIDOnboardingStatusCache *cache;
 @property (nonatomic) MSIDTestCacheDataSource *testDataSource;
+@property (nonatomic) id<MSIDExtendedTokenCacheDataSource> originalDataSource;
 
 @end
 
@@ -50,6 +54,7 @@
 {
     [super setUp];
     self.cache = MSIDOnboardingStatusCache.sharedInstance;
+    self.originalDataSource = MSIDOnboardingStatusCache.sharedInstance.dataSource;
     self.testDataSource = [MSIDTestCacheDataSource new];
     self.cache.dataSource = self.testDataSource;
 }
@@ -58,6 +63,7 @@
 {
     // Reset to clean state
     [self.testDataSource reset];
+    MSIDOnboardingStatusCache.sharedInstance.dataSource = self.originalDataSource;
     [super tearDown];
 }
 
@@ -103,8 +109,63 @@
     
     NSError *error = nil;
     MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:json error:&error];
-    NSAssert(status != nil, @"Failed to create status: %@", error);
+    XCTAssertNotNil(status, @"Failed to create status: %@", error);
     return status;
+}
+
+- (NSString *)isoStringFromDate:(NSDate *)date
+{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    formatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
+    return [formatter stringFromDate:date];
+}
+
+- (NSMutableDictionary *)statusJSONWithPhase:(MSIDOnboardingPhase)phase
+                               correlationId:(NSString *)correlationId
+                                    startedAt:(NSDate *)startedAt
+{
+    NSMutableDictionary *json = [NSMutableDictionary dictionary];
+    json[@"version"] = @1;
+    json[@"phase"] = [MSIDOnboardingStatus stringFromPhase:phase];
+    json[@"context"] = [MSIDOnboardingStatus stringFromContext:MSIDOnboardingContextBroker];
+    json[@"originatingDisplayName"] = @"Teams";
+    json[@"correlationId"] = correlationId;
+    json[@"ttlSeconds"] = @900;
+    json[@"reason"] = @{@"code": @"none", @"message": @""};
+
+    if (startedAt)
+    {
+        json[@"startedAt"] = [self isoStringFromDate:startedAt];
+    }
+
+    return json;
+}
+
+- (BOOL)writeStatusJSONDirectly:(NSDictionary *)json
+{
+    NSError *error = nil;
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:&error];
+    XCTAssertNotNil(jsonObject, @"Failed to create JSON object: %@", error);
+
+    BOOL result = [self.testDataSource saveJsonObject:jsonObject
+                                           serializer:self.cache.serializer
+                                                  key:[self.cache cacheKey]
+                                              context:nil
+                                                error:&error];
+    XCTAssertTrue(result, @"Failed to write status JSON directly: %@", error);
+    return result;
+}
+
+- (NSArray<MSIDJsonObject *> *)readStatusJSONDirectly
+{
+    NSError *error = nil;
+    NSArray<MSIDJsonObject *> *jsonObjects = [self.testDataSource jsonObjectsWithKey:[self.cache cacheKey]
+                                                                          serializer:self.cache.serializer
+                                                                             context:nil
+                                                                               error:&error];
+    XCTAssertNotNil(jsonObjects, @"Failed to read status JSON directly: %@", error);
+    return jsonObjects;
 }
 
 #pragma mark - getOnboardingStatus
@@ -470,6 +531,106 @@
     XCTAssertNotNil(retrieved.reason);
     XCTAssertEqual(retrieved.reason.code, MSIDOnboardingReasonCodeNetwork);
     XCTAssertEqualObjects(retrieved.reason.message, @"Network error");
+}
+
+- (void)test_setWithStatus_whenCurrentStatusHasNilOriginatingBundleId_rejectsOverwriteFromDifferentApp
+{
+    NSString *originalCorrelationId = @"11111111-1111-1111-1111-111111111111";
+    NSMutableDictionary *json = [self statusJSONWithPhase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                            correlationId:originalCorrelationId
+                                                startedAt:[NSDate date]];
+    XCTAssertTrue([self writeStatusJSONDirectly:json]);
+
+    MSIDOnboardingStatus *newStatus = [self statusWithOwner:@"com.different.owner"
+                                                originating:@"com.different.app"
+                                                      phase:MSIDOnboardingPhaseMdmEnrollmentInProgress
+                                                 ttlSeconds:900
+                                                  startedAt:[NSDate date]];
+
+    BOOL result = [self.cache setWithStatus:newStatus];
+
+    XCTAssertFalse(result);
+
+    MSIDOnboardingStatus *retrieved = [self.cache getOnboardingStatus];
+    XCTAssertEqual(retrieved.phase, MSIDOnboardingPhaseBrokerInteractiveInProgress);
+    XCTAssertEqualObjects(retrieved.correlationId, [[NSUUID alloc] initWithUUIDString:originalCorrelationId]);
+}
+
+- (void)test_clear_whenCurrentStatusHasNilBundleIds_returnsNo
+{
+    NSMutableDictionary *json = [self statusJSONWithPhase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                            correlationId:@"22222222-2222-2222-2222-222222222222"
+                                                startedAt:[NSDate date]];
+    XCTAssertTrue([self writeStatusJSONDirectly:json]);
+
+    BOOL result = [self.cache clear:@"com.any.bundle"];
+
+    XCTAssertFalse(result);
+    XCTAssertEqual([self readStatusJSONDirectly].count, 1);
+
+    MSIDOnboardingStatus *retrieved = [self.cache getOnboardingStatus];
+    XCTAssertEqual(retrieved.phase, MSIDOnboardingPhaseBrokerInteractiveInProgress);
+}
+
+- (void)test_getOnboardingStatus_whenStartedAtMissing_treatsAsExpiredAndPurges
+{
+    NSMutableDictionary *json = [self statusJSONWithPhase:MSIDOnboardingPhaseFailed
+                                            correlationId:@"33333333-3333-3333-3333-333333333333"
+                                                startedAt:nil];
+    json[@"ownerBundleId"] = @"com.microsoft.azureauthenticator";
+    json[@"originatingBundleId"] = @"com.microsoft.teams";
+    XCTAssertTrue([self writeStatusJSONDirectly:json]);
+
+    MSIDOnboardingStatus *retrieved = [self.cache getOnboardingStatus];
+
+    XCTAssertEqual(retrieved.phase, MSIDOnboardingPhaseNone);
+    XCTAssertEqual([self readStatusJSONDirectly].count, 0);
+
+    MSIDOnboardingStatus *secondRetrieved = [self.cache getOnboardingStatus];
+    XCTAssertEqual(secondRetrieved.phase, MSIDOnboardingPhaseNone);
+}
+
+- (void)test_setWithStatus_concurrent_serializesAndDoesNotCorrupt
+{
+    NSMutableDictionary *jsonA = [self statusJSONWithPhase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                             correlationId:@"44444444-4444-4444-4444-444444444444"
+                                                 startedAt:[NSDate date]];
+    jsonA[@"ownerBundleId"] = @"com.microsoft.azureauthenticator";
+    jsonA[@"originatingBundleId"] = @"com.microsoft.teams";
+
+    NSMutableDictionary *jsonB = [self statusJSONWithPhase:MSIDOnboardingPhaseMdmEnrollmentInProgress
+                                             correlationId:@"55555555-5555-5555-5555-555555555555"
+                                                 startedAt:[NSDate date]];
+    jsonB[@"ownerBundleId"] = @"com.microsoft.azureauthenticator";
+    jsonB[@"originatingBundleId"] = @"com.microsoft.teams";
+
+    NSError *error = nil;
+    MSIDOnboardingStatus *statusA = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:jsonA error:&error];
+    XCTAssertNotNil(statusA, @"Failed to create status A: %@", error);
+
+    error = nil;
+    MSIDOnboardingStatus *statusB = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:jsonB error:&error];
+    XCTAssertNotNil(statusB, @"Failed to create status B: %@", error);
+
+    dispatch_queue_t concurrentQueue = dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0);
+    dispatch_group_t group = dispatch_group_create();
+    __block BOOL resultA = NO;
+    __block BOOL resultB = NO;
+
+    dispatch_group_async(group, concurrentQueue, ^{
+        resultA = [self.cache setWithStatus:statusA];
+    });
+    dispatch_group_async(group, concurrentQueue, ^{
+        resultB = [self.cache setWithStatus:statusB];
+    });
+
+    long waitResult = dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)));
+    XCTAssertEqual(waitResult, 0);
+    XCTAssertTrue(resultA);
+    XCTAssertTrue(resultB);
+
+    MSIDOnboardingStatus *retrieved = [self.cache getOnboardingStatus];
+    XCTAssertTrue([retrieved.correlationId isEqual:statusA.correlationId] || [retrieved.correlationId isEqual:statusB.correlationId]);
 }
 
 @end
