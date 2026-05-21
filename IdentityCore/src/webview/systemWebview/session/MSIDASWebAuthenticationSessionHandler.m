@@ -83,7 +83,7 @@
                                 startURL:(NSURL *)startURL
                           callbackScheme:(NSString *)callbackURLScheme
                      useEphemeralSession:(BOOL)useEphemeralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders API_AVAILABLE(ios(18.0), macos(15.0))
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders API_AVAILABLE(ios(18.0), macos(15.0), visionos(2.0))
 {
     return [self initCommonWithParentController:parentController
                                        startURL:startURL
@@ -125,7 +125,7 @@
     self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
     
     // Set additional headers if available (iOS 18+)
-    if (@available(iOS 18.0, macOS 15.0, *))
+    if (@available(iOS 18.0, macOS 15.0, visionOS 2.0, *))
     {
         if (self.additionalHeaders && self.additionalHeaders.count > 0)
         {

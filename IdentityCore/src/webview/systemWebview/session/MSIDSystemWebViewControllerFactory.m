@@ -65,7 +65,7 @@
                                                       context:(__unused id<MSIDRequestContext>)context
 {
     // Only pass headers to ASWebAuthN on iOS 18+, but method itself is available on all versions
-    if (@available(iOS 18.0, macOS 15.0, *))
+    if (@available(iOS 18.0, macOS 15.0, visionOS 2.0, *))
     {
         if (additionalHeaders && additionalHeaders.count > 0)
         {
