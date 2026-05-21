@@ -29,24 +29,29 @@
 
 @property (nonatomic) BOOL isXpcProviderInstalledOnDevice;
 @property (nonatomic) BOOL isXpcValidated;
-@property (nonatomic) BOOL shouldReturnCachedXpcStatus;
+@property (nonatomic, readwrite) NSUInteger cachedBrokerInstanceEndpointGetCount;
+@property (nonatomic, readwrite) NSUInteger cachedBrokerInstanceEndpointSetCount;
+@property (nonatomic, readwrite) NSUInteger setCachedBrokerInstanceEndpointRejectedCount;
+@property (nonatomic, readwrite) NSUInteger clearCachedBrokerInstanceEndpointCallCount;
 
 @end
 
 @implementation MSIDXpcProviderCacheMock
+{
+    NSXPCListenerEndpoint *_cachedBrokerInstanceEndpoint;
+    MSIDSsoProviderType _cachedXpcProviderType;
+}
 
-@synthesize cachedCanPerformRequestsStatus, xpcConfiguration, cachedXpcProviderType;
+@synthesize xpcConfiguration;
 
 - (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
                                isXpcValidated:(BOOL)isXpcValidated
-                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus
 {
     self = [super init];
     if (self)
     {
         self.isXpcProviderInstalledOnDevice = xpcInstallationStatus;
         self.isXpcValidated = isXpcValidated;
-        self.shouldReturnCachedXpcStatus = shouldReturnCachedXpcStatus;
         
         return self;
     }
@@ -64,9 +69,42 @@
     return _isXpcProviderInstalledOnDevice;
 }
 
-- (BOOL)shouldReturnCachedXpcStatus
+- (MSIDSsoProviderType)cachedXpcProviderType
 {
-    return _shouldReturnCachedXpcStatus;
+    return _cachedXpcProviderType;
+}
+
+- (void)setCachedXpcProviderType:(MSIDSsoProviderType)cachedXpcProviderType
+{
+    _cachedXpcProviderType = cachedXpcProviderType;
+    // Mirror production behavior: provider-type change drops the cached endpoint.
+    _cachedBrokerInstanceEndpoint = nil;
+}
+
+- (NSXPCListenerEndpoint *)cachedBrokerInstanceEndpoint
+{
+    self.cachedBrokerInstanceEndpointGetCount += 1;
+    return _cachedBrokerInstanceEndpoint;
+}
+
+- (BOOL)setCachedBrokerInstanceEndpoint:(NSXPCListenerEndpoint *)endpoint
+                        forProviderType:(MSIDSsoProviderType)providerType
+{
+    if (_cachedXpcProviderType != providerType)
+    {
+        self.setCachedBrokerInstanceEndpointRejectedCount += 1;
+        return NO;
+    }
+    
+    self.cachedBrokerInstanceEndpointSetCount += 1;
+    _cachedBrokerInstanceEndpoint = endpoint;
+    return YES;
+}
+
+- (void)clearCachedBrokerInstanceEndpoint
+{
+    self.clearCachedBrokerInstanceEndpointCallCount += 1;
+    _cachedBrokerInstanceEndpoint = nil;
 }
 
 @end

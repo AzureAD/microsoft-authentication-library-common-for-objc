@@ -50,6 +50,7 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
 
@@ -189,9 +190,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             if (accessToken.cachedAt)
             {
                 NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:accessToken.expiresOn];
-                [[MSIDExecutionFlowLogger sharedInstance] insertTag:MSIDTokenRequestTagToString(MSIDTokenRequestAtExpirationElapsedTag)
-                                                          extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@((int64_t)elapsed)}
-                                                  withCorrelationId:self.requestParameters.correlationId];
+                MSIDExecutionFlowInsertTag(MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag),
+                                               @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@((int64_t)elapsed)},
+                                               self.requestParameters.correlationId);
             }
         }
         
@@ -398,6 +399,26 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         }
         else
         {
+            if (refreshToken.credentialType == MSIDBoundRefreshTokenType)
+            {
+                // BART redemption failed for some reason, log it and retry with normal RT if available
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Bound refresh token redemption failed with error %@, trying to redeem normal refresh token if available", error);
+                
+                // Create error object to log BART redemption failure
+                NSError *bartRedemptionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBoundAppRefreshTokenRedemptionError, @"Bound refresh token redemption failed", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
+                
+                self.shouldSkipBoundAppRefreshTokenUsage = YES;
+#if !EXCLUDE_FROM_MSALCPP
+                MSIDAADTokenRequestServerTelemetry *serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+                NSString *telemetryMessage = [NSString stringWithFormat:@"BART-RED-FAIL(%ld)", (long)error.code];
+                
+                [serverTelemetry handleError:error
+                                 errorString:telemetryMessage
+                                     context:self.requestParameters];
+#endif
+                completionBlock(nil, bartRedemptionError);
+                return;
+            }
             completionBlock(nil, error);
         }
         
@@ -498,6 +519,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 - (void)redeemAccessTokenWith:(MSIDBaseToken<MSIDRefreshableToken> *) __unused refreshToken
               completionBlock:(MSIDRequestCompletionBlock) __unused completionBlock
 {
+    self.shouldSkipBoundAppRefreshTokenUsage = NO;
 #if !EXCLUDE_FROM_MSALCPP
     if (!refreshToken)
     {

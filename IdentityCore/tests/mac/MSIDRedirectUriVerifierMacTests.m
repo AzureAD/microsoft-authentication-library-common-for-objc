@@ -80,7 +80,7 @@
     XCTAssertFalse(redirectUri.brokerCapable);
 }
 
-- (void)testMsidRedirectUriCreation_whenCustomRedirectUriInvalid_andByPassFladEnabled_shouldReturnBrokeredURL
+- (void)testMsidRedirectUriCreation_whenCustomRedirectUriInvalid_andByPassFlagEnabled_shouldReturnNonBrokeredURL
 {
     NSError *error = nil;
     MSIDRedirectUri *redirectUri = [MSIDRedirectUriVerifier msidRedirectUriWithCustomUri:@"invalid_redirect"
@@ -90,7 +90,7 @@
     
     XCTAssertNotNil(redirectUri);
     XCTAssertNotNil(error);
-    XCTAssertTrue(redirectUri.brokerCapable);
+    XCTAssertFalse(redirectUri.brokerCapable);
 }
 
 - (void)testMsidRedirectUriCreation_whenNoCustomRedirectUriProvided_shouldReturnDefaultBrokeredURL
@@ -107,7 +107,7 @@
     XCTAssertEqualObjects(redirectUri.url.absoluteString, @"msauth.test.bundle.identifier://auth");
 }
 
-- (void)testMsidRedirectUriCreation_whenCustomRedirectUriProvided_andRedirectUriNotBrokerCapable_butByPassFlagEnabled_shouldReturnBrokeredURL
+- (void)testMsidRedirectUriCreation_whenCustomRedirectUriProvided_andRedirectUriNotBrokerCapable_butByPassFlagEnabled_shouldReturnNonBrokeredURL
 {
     NSError *error = nil;
     MSIDRedirectUri *redirectUri = [MSIDRedirectUriVerifier msidRedirectUriWithCustomUri:@"msauth.test.bundle.identifier2://auth"
@@ -117,7 +117,7 @@
     
     XCTAssertNotNil(redirectUri);
     XCTAssertNotNil(error);
-    XCTAssertTrue(redirectUri.brokerCapable);
+    XCTAssertFalse(redirectUri.brokerCapable);
 }
 
 @end

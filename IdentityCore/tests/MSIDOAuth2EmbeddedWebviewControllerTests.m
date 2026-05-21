@@ -27,8 +27,18 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
+
+// Expose private methods for testing
+@interface MSIDOAuth2EmbeddedWebviewController (Testing)
+- (BOOL)shouldOpenURLInSystemBrowser:(NSURL *)url targetFrame:(WKFrameInfo *)targetFrame;
+- (NSString *)onboardingStepForEndURL:(NSURL *)endURL;
+@end
 
 @interface MSIDOAuth2EmbeddedWebviewControllerTests : XCTestCase
 
@@ -38,12 +48,26 @@
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER: @NO};
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
     [super tearDown];
+}
+
+- (MSIDOAuth2EmbeddedWebviewController *)createTestWebviewController
+{
+    return [[MSIDOAuth2EmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
 }
 
 
@@ -86,6 +110,165 @@
                                                            context:nil];
     XCTAssertNotNil(webVC);
     
+}
+
+#pragma mark - shouldOpenURLInSystemBrowser tests
+
+- (void)testShouldOpenURL_whenHttpsURLWithNilTargetFrame_shouldReturnYes
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURL *url = [NSURL URLWithString:@"https://support.microsoft.com/help"];
+    XCTAssertTrue([webVC shouldOpenURLInSystemBrowser:url targetFrame:nil]);
+}
+
+- (void)testShouldOpenURL_whenHttpURL_shouldReturnNo
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURL *url = [NSURL URLWithString:@"http://insecure.example.com"];
+    XCTAssertFalse([webVC shouldOpenURLInSystemBrowser:url targetFrame:nil]);
+}
+
+- (void)testShouldOpenURL_whenCustomScheme_shouldReturnYes
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURL *url = [NSURL URLWithString:@"msauth://com.contoso.app/callback"];
+    XCTAssertTrue([webVC shouldOpenURLInSystemBrowser:url targetFrame:nil]);
+}
+
+- (void)testShouldOpenURL_whenSchemelessURL_shouldReturnNo
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    NSURL *url = [NSURL URLWithString:@"/relative/path"];
+    XCTAssertFalse([webVC shouldOpenURLInSystemBrowser:url targetFrame:nil]);
+}
+
+- (void)testShouldOpenURL_whenNilURL_shouldReturnNo
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    XCTAssertFalse([webVC shouldOpenURLInSystemBrowser:nil targetFrame:nil]);
+}
+
+#pragma mark - onboardingStepForFwlinkEndURL tests
+
+- (void)testOnboardingStepForFwlinkEndURL_whenLinkId396941_shouldReturnMdmEnrollmentStarted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?LinkId=396941"];
+    XCTAssertEqualObjects([webVC onboardingStepForEndURL:url], MSIDOnboardingBlobStepMdmEnrollmentStarted);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenLinkId2132314Lowercase_shouldReturnMdmEnrollmentStarted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?linkid=2132314"];
+    XCTAssertEqualObjects([webVC onboardingStepForEndURL:url], MSIDOnboardingBlobStepMdmEnrollmentStarted);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenLinkId2114747Lowercase_shouldReturnMdmEnrollmentStarted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?linkid=2114747"];
+    XCTAssertEqualObjects([webVC onboardingStepForEndURL:url], MSIDOnboardingBlobStepMdmEnrollmentStarted);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenLinkId399153_shouldReturnMdmEnrollmentStarted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?LinkId=399153"];
+    XCTAssertEqualObjects([webVC onboardingStepForEndURL:url], MSIDOnboardingBlobStepMdmEnrollmentStarted);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenNoTrailingSlash_shouldReturnMdmEnrollmentStarted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink?LinkId=396941"];
+    XCTAssertEqualObjects([webVC onboardingStepForEndURL:url], MSIDOnboardingBlobStepMdmEnrollmentStarted);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenLinkIdKeyUpperCase_shouldReturnMdmEnrollmentStarted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?LINKID=396941"];
+    XCTAssertEqualObjects([webVC onboardingStepForEndURL:url], MSIDOnboardingBlobStepMdmEnrollmentStarted);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenExtraQueryParamsAndReorder_shouldReturnMdmEnrollmentStarted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?clcid=0x409&LinkId=396941&foo=bar"];
+    XCTAssertEqualObjects([webVC onboardingStepForEndURL:url], MSIDOnboardingBlobStepMdmEnrollmentStarted);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenSchemeAndHostMixedCase_shouldReturnMdmEnrollmentStarted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"BROWSER://Go.Microsoft.com/FwLink/?LinkId=396941"];
+    XCTAssertEqualObjects([webVC onboardingStepForEndURL:url], MSIDOnboardingBlobStepMdmEnrollmentStarted);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenNilURL_shouldReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNil([webVC onboardingStepForEndURL:nil]);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenHttpsScheme_shouldReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"https://go.microsoft.com/fwlink/?LinkId=396941"];
+    XCTAssertNil([webVC onboardingStepForEndURL:url]);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenWrongHost_shouldReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.example.com/fwlink/?LinkId=396941"];
+    XCTAssertNil([webVC onboardingStepForEndURL:url]);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenPathHasSuffix_shouldReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink2/?LinkId=396941"];
+    XCTAssertNil([webVC onboardingStepForEndURL:url]);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenPathHasPrefix_shouldReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/foo/fwlink?LinkId=396941"];
+    XCTAssertNil([webVC onboardingStepForEndURL:url]);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenUnknownLinkIdValue_shouldReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?LinkId=12345"];
+    XCTAssertNil([webVC onboardingStepForEndURL:url]);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenLinkIdMissing_shouldReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?foo=bar"];
+    XCTAssertNil([webVC onboardingStepForEndURL:url]);
+}
+
+- (void)testOnboardingStepForFwlinkEndURL_whenLinkIdValueEmpty_shouldReturnNil
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?LinkId="];
+    XCTAssertNil([webVC onboardingStepForEndURL:url]);
 }
 
 @end

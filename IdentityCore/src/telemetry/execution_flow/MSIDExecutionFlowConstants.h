@@ -25,8 +25,8 @@
 #import <Foundation/Foundation.h>
 
 /**
- Each enum tag must be unique within the codebase—you cannot reuse the same tag in different locations,
- although different execution‑flow blobs may share a tsame ag in the final flow.
+ Each enum tag must be unique within the codebase. Reuse is allowed only when two flows are mutually exclusive for a single token request (i.e., flow A or flow B can occur, but never both in the same request).
+ Although different execution‑flow blobs may share the same tag in the final flow.
 
  To generate a new tag, follow these steps:
    1. Add a meaningful enum and Insert the corresponding string placeholder "UNTAGGED" in MSIDExecutionFlowConstants.m where you need the new tag.
@@ -60,14 +60,14 @@ FOUNDATION_EXPORT NSString * _Nonnull const MSID_EXECUTION_FLOW_JSON_EMPTY_ARRAY
 /// A enum of MSIDExecutionFlowNetworkT@"e"ag.
 typedef NS_ENUM(NSInteger, MSIDExecutionFlowNetworkTag)
 {
-    MSIDExecutionFlowPrepareNetworkRequestTag = 0,
-    MSIDExecutionFlowCacheResponseFailedObjectTag,
-    MSIDExecutionFlowCacheResponseSucceededObjectTag,
-    MSIDExecutionFlowReceiveNetworkResponseTag,
-    MSIDExecutionFlowRetryOnNetworkFailureTag,
-    MSIDExecutionFlowStartToRetryOnNetworkFailureTag,
-    MSIDExecutionFlowParseNetworkResponseTag,
-    MSIDExecutionFlowOtherHttpNetworkStatusCodeTag,
+    MSIDPrepareNetworkRequestTag = 0,
+    MSIDCacheResponseFailedObjectTag,
+    MSIDCacheResponseSucceededObjectTag,
+    MSIDReceiveNetworkResponseTag,
+    MSIDRetryOnNetworkFailureTag,
+    MSIDStartToRetryOnNetworkFailureTag,
+    MSIDParseNetworkResponseTag,
+    MSIDOtherHttpNetworkStatusCodeTag,
 };
 
 /// Returns the string representation for each MSIDExecutionFlowNetworkTag value.
@@ -76,8 +76,50 @@ FOUNDATION_EXPORT NSString * _Nonnull MSIDExecutionFlowNetworkTagToString(MSIDEx
 /// A enum of MSIDTokenRequestTag.
 typedef NS_ENUM(NSInteger, MSIDTokenRequestTag)
 {
-    MSIDTokenRequestAtExpirationElapsedTag = 0,
+    MSIDAtExpirationElapsedTag = 0,
 };
 
 /// Returns the string representation for each MSIDTokenRequestTag value.
 FOUNDATION_EXPORT NSString * _Nonnull MSIDTokenRequestTagToString(MSIDTokenRequestTag state);
+
+/// An enum of MSIDRequestControllerFactoryTag.
+typedef NS_ENUM(NSInteger, MSIDRequestControllerFactoryTag)
+{
+    MSIDSilentControllerForParametersTag = 0,
+    MSIDSilentControllerShouldUseBrokerTag,
+    MSIDSilentControllerCanPerformSsoExtTag,
+    MSIDSilentControllerCanPerformBrokerXpcTag,
+    MSIDSilentControllerNoBrokerFallbackTag,
+    MSIDSilentControllerFinishTag,
+    MSIDInteractiveControllerForParametersTag,
+    MSIDInteractiveControllerShouldUseBrokerTag,
+    MSIDInteractiveControllerCanPerformSsoExtTag,
+    MSIDInteractiveControllerCanPerformBrokerXpcTag,
+    MSIDInteractiveControllerNoBrokerFallbackTag,
+    MSIDInteractiveControllerFinishTag
+};
+
+/// Returns the string representation for each MSIDRequestControllerFactoryTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryTag state);
+
+/// An enum of MSIDSSORemoteInteractiveTokenRequestTag.
+typedef NS_ENUM(NSInteger, MSIDSSORemoteInteractiveTokenRequestTag)
+{
+    MSIDInteractiveResolveAuthorityTag = 0,
+    MSIDInteractiveHandleOperationResponseTag,
+    MSIDInteractiveCompletionTag,
+    MSIDLegacyBrokerInteractiveCompletionTag
+};
+
+/// Returns the string representation for each MSIDSSORemoteInteractiveTokenRequestTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestTag state);
+
+/// An enum of MSIDSSORemoteSilentTokenRequestTag.
+typedef NS_ENUM(NSInteger, MSIDSSORemoteSilentTokenRequestTag)
+{
+    MSIDSilentResolveAuthorityTag = 0,
+    MSIDSilentHandleOperationResponseTag,
+    MSIDSilentCompletionTag
+};
+/// Returns the string representation for each MSIDSSORemoteSilentTokenRequestTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestTag state);

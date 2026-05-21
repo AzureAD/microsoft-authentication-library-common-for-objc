@@ -183,6 +183,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorAttemptToOpenURLFromExtension),
                       @(MSIDErrorUINotSupportedInExtension),
                       @(MSIDErrorInsufficientDeviceStrength),
+                      @(MSIDErrorMDMEnrollmentCompletedNeedsRetry),
                       // Broker errors
                       @(MSIDErrorBrokerResponseNotReceived),
                       @(MSIDErrorBrokerNoResumeStateFound),
@@ -349,6 +350,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorUINotSupportedInExtension";
         case MSIDErrorInsufficientDeviceStrength:
             return @"MSIDErrorInsufficientDeviceStrength";
+        case MSIDErrorMDMEnrollmentCompletedNeedsRetry:
+            return @"MSIDErrorMDMEnrollmentCompletedNeedsRetry";
             // Broker flow errors
         case MSIDErrorBrokerResponseNotReceived:
             return @"MSIDErrorBrokerResponseNotReceived";
@@ -467,6 +470,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             // Broker Xpc internal error
         case MSIDErrorBrokerXpcUnexpectedError:
             return @"MSIDErrorBrokerXpcUnexpectedError";
+        case MSIDErrorBoundAppRefreshTokenRedemptionError:
+            return @"MSIDErrorBoundAppRefreshTokenRedemptionError";
     }
     
     return [NSString stringWithFormat:@"Unknown: %@", @(errorCode)];

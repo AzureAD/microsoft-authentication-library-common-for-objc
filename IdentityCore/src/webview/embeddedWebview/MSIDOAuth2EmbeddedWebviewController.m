@@ -39,6 +39,9 @@
 #import "MSIDMainThreadUtil.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDFlightManager.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDWebAuthNUtil.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -63,6 +66,10 @@
     MSIDTelemetryUIEvent *_telemetryEvent;
 #endif
 }
+
+// Backed by readonly properties declared in the public header.
+@synthesize onboardingStrongAuthSetupStarted = _onboardingStrongAuthSetupStarted;
+@synthesize onboardingMdmEnrollmentStarted = _onboardingMdmEnrollmentStarted;
 
 #if AD_BROKER
 NSString *const SSO_EXTENSION_USER_DEFAULTS_KEY = @"group.com.microsoft.azureauthenticator.sso";
@@ -210,6 +217,13 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     }
     self.complete = YES;
     
+    // Record the terminal onboarding step on the shared builder
+    if (_onboardingBlobBuilder && [MSIDWebAuthNUtil amIRunningInExtension])
+    {
+        [self finalizeOnboardingTelemetry:endURL error:error];
+        _onboardingBlobBuilder = nil;
+    }
+
     BOOL enableSpinnerFix = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SPINNER_FIX];
     
     if (enableSpinnerFix)
@@ -219,6 +233,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     
     if (error)
     {
+        // TODO: https://identitydivision.visualstudio.com/Engineering/_workitems/edit/3539094
         [MSIDNotifications notifyWebAuthDidFailWithError:error];
     }
     else
@@ -355,15 +370,18 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
-    if (self.navigationResponseBlock && navigationResponse && navigationResponse.response)
+    if (navigationResponse && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
     {
         NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
-        if (response)
+
+        [self processOnboardingTelemetryForResponse:response];
+
+        if (self.navigationResponseBlock)
         {
             self.navigationResponseBlock(response);
         }
     }
-    
+
     decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
@@ -403,6 +421,21 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     [self endWebAuthWithURL:nil error:error];
 }
 
+#pragma mark - URL scheme helpers
+
+- (BOOL)shouldOpenURLInSystemBrowser:(NSURL *)url targetFrame:(WKFrameInfo *)targetFrame
+{
+    NSString *scheme = url.scheme.lowercaseString;
+
+    if (!scheme.length)
+    {
+        return NO;
+    }
+
+    // Open https links targeting a new window (targetFrame == nil) or non-http(s) scheme URLs
+    return ([scheme isEqualToString:@"https"] && !targetFrame) || ![scheme hasPrefix:@"http"];
+}
+
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(__unused WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
@@ -430,7 +463,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     {
         //Open secure web links with target=new window in default browser or non-web links with URL schemes that can be opened by the application
         // If the target of the navigation is a new window, navigationAction.targetFrame is nil. (See discussions in : https://developer.apple.com/documentation/webkit/wknavigationaction/1401918-targetframe?language=objc)
-        if (([requestURL.scheme.lowercaseString isEqualToString:@"https"] && !navigationAction.targetFrame) || ![requestURL.scheme.lowercaseString hasPrefix:@"http"])
+        if ([self shouldOpenURLInSystemBrowser:requestURL targetFrame:navigationAction.targetFrame])
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening URL outside embedded webview with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
             [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
@@ -498,6 +531,40 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     {
         [self completeWebAuthWithURL:url];
     }
+}
+
+#pragma mark - WKUIDelegate Protocol
+
+- (WKWebView *)webView:(WKWebView *)webView
+createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
+   forNavigationAction:(WKNavigationAction *)navigationAction
+        windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+    if ([[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER])
+    {
+        return nil;
+    }
+
+    NSURL *requestURL = navigationAction.request.URL;
+
+    // Skip link-activated navigations — decidePolicyForNavigationAction: already handles
+    // target="_blank" anchor clicks by opening them in the system browser.
+    if (navigationAction.navigationType == WKNavigationTypeLinkActivated)
+    {
+        return nil;
+    }
+
+    // For other new-window requests (e.g. window.open()), use the same scheme gating
+    // as decidePolicyForNavigationAction:. targetFrame is nil for new-window requests.
+    if ([self shouldOpenURLInSystemBrowser:requestURL targetFrame:nil])
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening new window URL in system browser with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
+        [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
+        [self notifyFinishedNavigation:requestURL webView:webView];
+    }
+
+    // Return nil to prevent WKWebView from creating a new web view
+    return nil;
 }
 
 #if AD_BROKER
@@ -587,6 +654,208 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Onboarding telemetry
+
+- (void)finalizeOnboardingTelemetry:(NSURL *)endURL
+                              error:(NSError *)error
+{
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.onboardingBlobBuilder;
+    if (onboardingBlobBuilder)
+    {
+        BOOL flowSucceeded = (endURL != nil && error == nil);
+        if (flowSucceeded)
+        {
+            NSDate *now = [NSDate date];
+            if (_onboardingStrongAuthSetupStarted)
+            {
+                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepStrongAuthSetupCompleted timestamp:now];
+            }
+            if (_onboardingMdmEnrollmentStarted)
+            {
+                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFinished timestamp:now];
+            }
+        }
+        
+        NSString *endUrlStep = [self onboardingStepForEndURL:endURL];
+        if (endUrlStep)
+        {
+            [onboardingBlobBuilder addStep:endUrlStep timestamp:[NSDate date]];
+        }
+    }
+}
+
+// Maps a terminal endURL that points at a well-known go.microsoft.com fwlink
+// (browser://go.microsoft.com/fwlink[/]?...LinkId=<id>...) to the onboarding
+// step that should be recorded against the current blob. The LinkId-to-step
+// map is the single extension point: new LinkIds (potentially mapping to a
+// different step) just add entries here.
+- (NSString *)onboardingStepForEndURL:(NSURL *)endURL
+{
+    if (!endURL)
+    {
+        return nil;
+    }
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:endURL resolvingAgainstBaseURL:NO];
+    if (!components)
+    {
+        return nil;
+    }
+
+    if ([components.scheme caseInsensitiveCompare:@"browser"] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    if ([components.host caseInsensitiveCompare:@"go.microsoft.com"] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    NSString *path = components.path;
+    if ([path caseInsensitiveCompare:@"/fwlink"] != NSOrderedSame
+        && [path caseInsensitiveCompare:@"/fwlink/"] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    NSString *linkIdValue = nil;
+    for (NSURLQueryItem *item in components.queryItems)
+    {
+        if ([item.name caseInsensitiveCompare:@"LinkId"] == NSOrderedSame)
+        {
+            linkIdValue = item.value;
+            break;
+        }
+    }
+
+    if (linkIdValue.length == 0)
+    {
+        return nil;
+    }
+
+    return [[self.class onboardingStepsByFwlinkLinkId] objectForKey:linkIdValue];
+}
+
+// LinkId value -> onboarding step constant. Extension point: future LinkIds
+// (which may map to a different onboarding step) are added here.
++ (NSDictionary<NSString *, NSString *> *)onboardingStepsByFwlinkLinkId
+{
+    static NSDictionary<NSString *, NSString *> *map = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        map = @{
+            @"396941"  : MSIDOnboardingBlobStepMdmEnrollmentStarted, // Public
+            @"2132314" : MSIDOnboardingBlobStepMdmEnrollmentStarted, // China
+            @"2114747" : MSIDOnboardingBlobStepMdmEnrollmentStarted, // GOV
+            @"399153"  : MSIDOnboardingBlobStepMdmEnrollmentStarted, // PPE
+        };
+    });
+    return map;
+}
+
+- (void)processOnboardingTelemetryForResponse:(NSHTTPURLResponse *)response
+{
+    MSIDOnboardingBlobBuilder *builder = self.onboardingBlobBuilder;
+    if (!builder || !response)
+    {
+        return;
+    }
+
+    NSString *host = response.URL.host;
+    if (host.length > 0)
+    {
+        [builder setLastLoadedDomain:host];
+    }
+
+    NSString *cliTelem = response.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
+    if ([NSString msidIsStringNilOrBlank:cliTelem])
+    {
+        return;
+    }
+
+    // Format: <version>,<error_code>,<suberror_code>,<rt_age>,<spe_info>
+    NSArray *components = [cliTelem componentsSeparatedByString:@","];
+    if (components.count < 2)
+    {
+        return;
+    }
+
+    NSString *errorCode = [components[1] msidTrimmedString];
+    if (errorCode.length == 0 || [errorCode isEqualToString:@"0"])
+    {
+        return;
+    }
+
+    // Check list of expected errors to ignore as part of normal sign-in flow.
+    if ([[self.class nonBlockingOnboardingErrorCodes] containsObject:errorCode])
+    {
+        return;
+    }
+
+    [builder addBlockingError:errorCode];
+    [self recordOnboardingRemediationStepForErrorCode:errorCode builder:builder];
+}
+
+// Error codes that are returned during normal sign-in flow and should not be
+// treated as blocking onboarding errors (e.g. user not signed in, wrong password,
+// device auth interrupt). This list will be extended over time.
+//   50058  UserInformationNotProvided      - User not signed in / no valid SSO session found
+//   50097  DeviceAuthenticationRequired    - Device auth interrupt triggered by CA policy
+//   50126  InvalidUserNameOrPassword       - Wrong username or password
++ (NSSet<NSString *> *)nonBlockingOnboardingErrorCodes
+{
+    static NSSet<NSString *> *codes = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        codes = [NSSet setWithObjects:@"50058", @"50097", @"50126", nil];
+    });
+    return codes;
+}
+
+- (void)recordOnboardingRemediationStepForErrorCode:(NSString *)errorCode
+                                            builder:(MSIDOnboardingBlobBuilder *)builder
+{
+    NSDate *now = [NSDate date];
+
+    // 50079: Strong auth enrollment needed (MFA setup, not MFA fulfillment like 50076/50078)
+    if ([errorCode isEqualToString:@"50079"] && !_onboardingStrongAuthSetupStarted)
+    {
+        [builder addStep:MSIDOnboardingBlobStepStrongAuthSetupStarted timestamp:now];
+        _onboardingStrongAuthSetupStarted = YES;
+    }
+    // 50129 (DeviceIsNotWorkplaceJoined): Device registration needed,
+    // 501291 (DeviceIsNotWorkplaceJoinedForMamApp): Device registration needed for MAM app
+    else if ([errorCode isEqualToString:@"50129"] || [errorCode isEqualToString:@"501291"])
+    {
+        [builder addStep:MSIDOnboardingBlobStepDeviceRegistrationRequired timestamp:now];
+    }
+    // 530001 (DeviceNotCompliantBrowserNotSupported): Browser not supported,
+    // 530002: (DeviceNotCompliantDeviceCompliantRequired): The device is required to be compliant to access this resource
+    else if ([errorCode isEqualToString:@"530001"] || [errorCode isEqualToString:@"530002"])
+    {
+        [builder addStep:MSIDOnboardingBlobStepDeviceNotCompliant timestamp:now];
+    }
+    // 53000 (DeviceNotCompliant): The user must enroll their device with an approved MDM provider like Intune,
+    // 530003 (DeviceNotCompliantDeviceManagementRequired): MDM enrollment required
+    else if ([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"530003"])
+    {
+        [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentRequired timestamp:now];
+    }
+    // 50127: Client app is a MAM app and device is not registered
+    else if ([errorCode isEqualToString:@"50127"])
+    {
+        [builder addStep:MSIDOnboardingBlobStepBrokerInstallPromptedForMAM timestamp:now];
+    }
+    // 501271: Broker app needs to be installed for device authentication to succeed.
+    else if ([errorCode isEqualToString:@"501271"])
+    {
+        [builder addStep:MSIDOnboardingBlobStepBrokerInstallPrompted timestamp:now];
+    }
+    
+    // All other error codes (50076, 50078, 53005, 53003, etc.): blocking error only, no step
 }
 
 @end

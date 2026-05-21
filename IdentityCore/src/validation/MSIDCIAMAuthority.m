@@ -90,8 +90,9 @@
         //If we have the URL https://tenant.ciamlogin.com or https://tenant.ciamlogin.com/
         if (url.pathComponents.count == 0 || ((url.pathComponents.count == 1) && [[url lastPathComponent] isEqual:@"/"]))
         {
-            url = [url URLByAppendingPathComponent:hostComponents[0]];
-            url = [NSURL URLWithString:[url.absoluteString stringByAppendingString:@".onmicrosoft.com"]];
+            NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+            components.path = [NSString stringWithFormat:@"/%@.onmicrosoft.com", hostComponents[0]];
+            url = components.URL;
         }
     }
     
@@ -99,7 +100,6 @@
     {
         _url = [self.class normalizedAuthorityUrl:url formatValidated:validateFormat context:context error:error];
         if (!_url) return nil;
-        self.url = url;
     }
     
     return self;

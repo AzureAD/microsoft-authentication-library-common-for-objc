@@ -121,6 +121,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorRedirectSchemeNotRegistered = -51118,
     
     MSIDErrorInvalidRedirectURI         = -51119,
+    
+    // General catch-all error for bound refresh token redemption failures. Use to retry with regular RT when encountered.
+    MSIDErrorBoundAppRefreshTokenRedemptionError = -51120,
 
     /*!
     =========================================================
@@ -215,6 +218,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
 
     // Workplacejoin device upgrade registration required for device.
     MSIDErrorInsufficientDeviceStrength = -51732,
+
+    /*! MDM enrollment completed successfully and the request should be retried. */
+    MSIDErrorMDMEnrollmentCompletedNeedsRetry = -51733,
     /*!
      =========================================================
      Broker flow errors    (518xx and 519xx) - MSIDErrorDomain

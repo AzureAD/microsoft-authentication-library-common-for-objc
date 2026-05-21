@@ -39,6 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                     useEmpheralSession:(BOOL)useEmpheralSession
                                                                context:(id<MSIDRequestContext>)context;
 
++ (nullable id<MSIDWebviewInteracting>)authSessionWithParentController:(MSIDViewController *)parentController
+                                                              startURL:(NSURL *)startURL
+                                                        callbackScheme:(NSString *)callbackURLScheme
+                                                   useEphemeralSession:(BOOL)useEphemeralSession
+                                                     additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+                                                               context:(id<MSIDRequestContext>)context;
+
 #if TARGET_OS_IPHONE
 
 + (id<MSIDWebviewInteracting>)systemWebviewControllerWithParentController:(MSIDViewController *)parentController

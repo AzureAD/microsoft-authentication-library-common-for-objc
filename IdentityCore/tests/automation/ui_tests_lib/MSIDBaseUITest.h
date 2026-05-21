@@ -35,11 +35,15 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDAutomationAccountsResult;
 @class MSIDIdTokenClaims;
 @class MSIDTestAutomationAccount;
+@class MSIDKeyVaultAccountProvider;
+@class MSIDKeyVaultAppConfigProvider;
 
 @interface MSIDBaseUITest : XCTestCase
 
 @property (nonatomic) MSIDTestAutomationAccount *primaryAccount;
 @property (nonatomic, class) MSIDTestConfigurationProvider *confProvider;
+@property (nonatomic, class, nullable) MSIDKeyVaultAccountProvider *keyVaultAccountProvider;
+@property (nonatomic, class, nullable) MSIDKeyVaultAppConfigProvider *keyVaultAppConfigProvider;
 @property (nonatomic) NSArray *testAccounts;
 @property (nonatomic) MSIDTestAutomationApplication *testApplication;
 @property (nonatomic) NSArray *testApplications;
@@ -49,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)cleanPipelines;
 - (void)closeResultPipeline:(XCUIApplication *)application;
+- (void)closeResultPipeline:(XCUIApplication *)application waitInMs:(int)waitInMs;
 - (NSDictionary *)automationResultDictionary:(XCUIApplication *)application;
 - (MSIDAutomationErrorResult *)automationErrorResult:(XCUIApplication *)application;
 - (MSIDAutomationSuccessResult *)automationSuccessResult:(XCUIApplication *)application;
@@ -94,6 +99,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)waitForElement:(id)object;
 - (XCUIElement *)waitForEitherElements:(XCUIElement *)object1 and:(XCUIElement *)object2;
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object;
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object timeout:(NSTimeInterval)timeout;
+
+#pragma mark - System Dialog
+
+- (void)dismissCookieSharingDialogIfNecessary;
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element;
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(XCUIApplication *)application;

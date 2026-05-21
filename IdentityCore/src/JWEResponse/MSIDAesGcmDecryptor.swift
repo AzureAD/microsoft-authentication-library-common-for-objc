@@ -22,16 +22,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
+#if !os(macOS)
 import Foundation
 import CryptoKit
 
+@objc(MSIDAesGcmDecryptor)
 public class MSIDAesGcmDecryptor: NSObject {
     
-    @objc public func decryptWithAES256GCMHandler(message ciphertext: Data, iv nonce: Data, key keyData: Data, tag: Data, aad: Data) throws -> Data
+    @objc(decryptWithAES256GMCiphertext:nonce:key:tag:aad:error:)
+    public func decryptWithAES256GCMHandler(message ciphertext: Data, iv nonce: Data, key keyData: Data, tag: Data, aad: Data) throws -> Data
     {
         let sealedBox = try AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: nonce), ciphertext: ciphertext, tag: tag)
         let key = SymmetricKey(data: keyData)
         return try AES.GCM.open(sealedBox, using: key, authenticating: aad)
     }
 }
+#endif

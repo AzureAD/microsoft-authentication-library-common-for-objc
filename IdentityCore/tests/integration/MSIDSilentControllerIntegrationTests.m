@@ -38,6 +38,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDAADRequestErrorHandler.h"
+#import "MSIDTestBoundAppRefreshTokenRequest.h"
 
 @interface MSIDSilentControllerIntegrationTests : XCTestCase
 
@@ -556,6 +557,44 @@
     }];
     
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireTokenUsingBoundAppRefreshTokenFails_ShouldRetryUsingRegularRefreshToken
+{
+    // Setup test request parameters
+    MSIDRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"bart_redemption_error_test";
+
+    // Bart redemption error returned by MSIDSilentRequest
+    NSError *bartRedemptionError = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorBoundAppRefreshTokenRedemptionError userInfo:nil];
+
+    // Configure the token request provider to simulate a network failure
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:bartRedemptionError testWebMSAuthResponse:nil];
+
+    MSIDTestBoundAppRefreshTokenRequest *request = [[MSIDTestBoundAppRefreshTokenRequest alloc] initWithTestResponse:nil testError:bartRedemptionError];
+    request.resultAfterRetry = [[MSIDTokenResult alloc] init];
+    request.errorAfterRetry = nil;
+    request.shouldSkipBoundAppRefreshTokenUsage = NO;
+    provider.silentRequest = request;
+    
+    NSError *error = nil;
+    MSIDSilentController *silentController = [[MSIDSilentController alloc] initWithRequestParameters:parameters forceRefresh:NO tokenRequestProvider:provider error:&error];
+
+    XCTAssertNotNil(silentController);
+    XCTAssertNil(error);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    [silentController acquireToken:^(__unused MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError)
+    {
+        XCTAssertNotNil(result);
+        XCTAssertNil(acquireTokenError);
+        XCTAssertEqualObjects(result, request.resultAfterRetry);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    
 }
 
 @end

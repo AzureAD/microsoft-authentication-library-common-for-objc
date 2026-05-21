@@ -48,22 +48,3 @@
 
 #define STRING_CASE(_CASE) case _CASE: return @#_CASE
 #define MSID_ENABLE_SSO_EXTENSION (!MSID_EXCLUDE_WEBKIT)
-
-// Check if IdentityCore-Swift.h is available (generated at build time)
-// This macro evaluates to 1 if the Swift bridging header is available, 0 otherwise.
-// Use this macro to conditionally compile code that depends on Swift implementations.
-//
-// Note: JWE decryption functionality relies on Swift implementations. When
-// MSID_IDENTITYCORE_SWIFT_AVAILABLE evaluates to 0, JWE decryption will not
-// be available and operations that require JWE decryption are expected to fail.
-//
-// Example usage:
-//   #if MSID_IDENTITYCORE_SWIFT_AVAILABLE
-//   #import "IdentityCore-Swift.h"
-//   // Use Swift classes here (including JWE decryption functionality)
-//   #endif
-#if __has_include("IdentityCore-Swift.h")
-    #define MSID_IDENTITYCORE_SWIFT_AVAILABLE 1
-#else
-    #define MSID_IDENTITYCORE_SWIFT_AVAILABLE 0
-#endif

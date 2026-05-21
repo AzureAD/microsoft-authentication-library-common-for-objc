@@ -77,4 +77,33 @@
     XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
 }
 
+- (void)testResponseObjectForResponse_whenClientDataHeaderPresent_shouldExtractClientData
+{
+    __auto_type jsonData = @{@"p" : @"v"};
+    __auto_type data = [NSJSONSerialization dataWithJSONObject:jsonData options:0 error:nil];
+    __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type headers = @{MSID_CLIENT_DATA_HEADER_KEY : @"test_client_data_value"};
+    __auto_type response = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:0 HTTPVersion:nil headerFields:headers];
+
+    id serializedResponse = [self.preprocessor responseObjectForResponse:response data:data context:nil error:nil];
+
+    XCTAssertNotNil(serializedResponse);
+    XCTAssertEqualObjects(serializedResponse[MSID_CLIENT_DATA_RESPONSE], @"test_client_data_value");
+    XCTAssertEqualObjects(serializedResponse[@"p"], @"v");
+}
+
+- (void)testResponseObjectForResponse_whenClientDataHeaderAbsent_shouldNotContainClientDataKey
+{
+    __auto_type jsonData = @{@"p" : @"v"};
+    __auto_type data = [NSJSONSerialization dataWithJSONObject:jsonData options:0 error:nil];
+    __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type headers = @{MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : @"correlation_id_value"};
+    __auto_type response = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:0 HTTPVersion:nil headerFields:headers];
+
+    id serializedResponse = [self.preprocessor responseObjectForResponse:response data:data context:nil error:nil];
+
+    XCTAssertNotNil(serializedResponse);
+    XCTAssertNil(serializedResponse[MSID_CLIENT_DATA_RESPONSE]);
+}
+
 @end

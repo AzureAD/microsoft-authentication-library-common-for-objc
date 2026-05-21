@@ -29,13 +29,20 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDExecutionFlowLogger : NSObject
-
 /*!
  Returns the shared singleton instance of MSIDExecutionFlowLogger.
 
  @return A singleton MSIDExecutionFlowLogger for registering and tracking execution flows.
  */
 + (MSIDExecutionFlowLogger *)sharedInstance;
+
+/*!
+ Enables or disables execution flow logging. When disabled, all stored flows are flushed
+ and subsequent calls to register, insert, retrieve, or flush are ignored.
+
+ @param enabled YES to enable logging; NO to disable it.
+ */
+- (void)setEnabled:(BOOL)enabled;
 
 /*!
  Begins tracking a new execution flow under the specified correlation identifier.
@@ -55,17 +62,53 @@ NS_ASSUME_NONNULL_BEGIN
         extraInfo:(nullable NSDictionary *)info
 withCorrelationId:(NSUUID *)correlationId;
 
-/*!
- Retrieves and flushes the execution flow for the specified correlation identifier asynchronously.
-
- @param correlationId The unique identifier of the execution flow to retrieve and flush.
- @param queryKeys  An optional set of keys to filter which tags or entries are included. Pass nil to include all entries.
- @param completion A block invoked with the string representation of the execution flow matching the query keys, or nil if no flow exists for the given identifier.
- */
-- (void)retrieveAndFlushExecutionFlowWithCorrelationId:(NSUUID *)correlationId
-                                            queryKeys:(nullable NSSet<NSString *> *)queryKeys
-                                           completion:(void (^)(NSString * _Nullable executionFlow))completion;
+/// Retrieves the execution flow for the specified correlation identifier and optionally flushes it.
+///
+/// - Parameters:
+///   - correlationId: The unique identifier of the execution flow to retrieve.
+///   - queryKeys: An optional set of keys to filter which tags or entries are included. Pass `nil` to include all entries.
+///   - shouldFlush: `YES` to flush the stored flow after retrieval; otherwise `NO`. It is importat to make sure the flow is flushed somewhere!
+///   - completion: A block invoked with the string representation of the execution flow matching the query keys,
+///     or `nil` if no flow exists for the given identifier.
+- (void)retrieveExecutionFlowWithCorrelationId:(NSUUID *)correlationId
+                                             queryKeys:(nullable NSSet<NSString *> *)queryKeys
+                                           shouldFlush:(BOOL)shouldFlush
+                                            completion:(void (^)(NSString * _Nullable executionFlow))completion;
 
 @end
+
+// Convenience inline functions to avoid repeated sharedInstance calls.
+NS_INLINE void MSIDExecutionFlowInsertTag(NSString *tag,
+                                          NSDictionary * _Nullable info,
+                                          NSUUID *correlationId) __attribute__((unused));
+NS_INLINE void MSIDExecutionFlowInsertTag(NSString *tag,
+                                          NSDictionary * _Nullable info,
+                                          NSUUID *correlationId)
+{
+    [[MSIDExecutionFlowLogger sharedInstance] insertTag:tag
+                                              extraInfo:info
+                                      withCorrelationId:correlationId];
+}
+
+NS_INLINE void MSIDExecutionFlowRegister(NSUUID *correlationId) __attribute__((unused));
+NS_INLINE void MSIDExecutionFlowRegister(NSUUID *correlationId)
+{
+    [[MSIDExecutionFlowLogger sharedInstance] registerExecutionFlowWithCorrelationId:correlationId];
+}
+
+NS_INLINE void MSIDExecutionFlowRetrieve(NSUUID *correlationId,
+                                         NSSet<NSString *> * _Nullable queryKeys,
+                                         BOOL shouldFlush,
+                                         void (^completion)(NSString * _Nullable executionFlow)) __attribute__((unused));
+NS_INLINE void MSIDExecutionFlowRetrieve(NSUUID *correlationId,
+                                         NSSet<NSString *> * _Nullable queryKeys,
+                                         BOOL shouldFlush,
+                                         void (^completion)(NSString * _Nullable executionFlow))
+{
+    [[MSIDExecutionFlowLogger sharedInstance] retrieveExecutionFlowWithCorrelationId:correlationId
+                                                                           queryKeys:queryKeys
+                                                                         shouldFlush:shouldFlush
+                                                                          completion:completion];
+}
 
 NS_ASSUME_NONNULL_END

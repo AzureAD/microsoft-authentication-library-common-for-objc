@@ -52,6 +52,8 @@
 #import "MSIDOnboardingStatus.h"
 #import "MSIDOnboardingStatusCache.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 
 static MSIDBrokerInteractiveController *s_currentExecutingController;
 static MSIDBrokerTokenRequest *s_currentBrokerRequest;
@@ -476,6 +478,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
 {
     // TODO: vt handling for older broker (not necessary for MSAL, so can come later)
 
+    MSIDExecutionFlowInsertTag(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDLegacyBrokerInteractiveCompletionTag), error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil, self.requestParameters.correlationId);
     [self.class stopTrackingAppState];
 
 #if !EXCLUDE_FROM_MSALCPP

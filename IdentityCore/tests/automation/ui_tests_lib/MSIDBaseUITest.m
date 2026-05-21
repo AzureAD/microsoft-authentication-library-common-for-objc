@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 
 #import "MSIDBaseUITest.h"
@@ -35,8 +35,18 @@
 #import "MSIDTestAutomationAccount.h"
 #import "MSIDAutomationOperationResponseHandler.h"
 #import "MSIDTestAutomationApplication.h"
+#import "MSIDKeyVaultAccountProvider.h"
+#import "MSIDKeyVaultAppConfigProvider.h"
+#import "MSIDKeyVaultCredentialProvider.h"
+#import "MSIDTestAutomationAccountConfigurationRequest.h"
+#import "MSIDTestAutomationAppConfigurationRequest.h"
 
 static MSIDTestConfigurationProvider *s_confProvider;
+static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
+static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
+
+static NSTimeInterval const MSIDPasswordEntryPollingTimeout = 45.0;
+static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 @implementation MSIDBaseUITest
 
@@ -48,6 +58,26 @@ static MSIDTestConfigurationProvider *s_confProvider;
 + (void)setConfProvider:(MSIDTestConfigurationProvider *)accountsProvider
 {
     s_confProvider = accountsProvider;
+}
+
++ (MSIDKeyVaultAccountProvider *)keyVaultAccountProvider
+{
+    return s_keyVaultAccountProvider;
+}
+
++ (void)setKeyVaultAccountProvider:(MSIDKeyVaultAccountProvider *)provider
+{
+    s_keyVaultAccountProvider = provider;
+}
+
++ (MSIDKeyVaultAppConfigProvider *)keyVaultAppConfigProvider
+{
+    return s_keyVaultAppConfigProvider;
+}
+
++ (void)setKeyVaultAppConfigProvider:(MSIDKeyVaultAppConfigProvider *)provider
+{
+    s_keyVaultAppConfigProvider = provider;
 }
 
 #pragma mark - Pipelines
@@ -81,8 +111,12 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)closeResultPipeline:(XCUIApplication *)application
 {
+    [self closeResultPipeline:application waitInMs:10];
+}
+
+- (void)closeResultPipeline:(XCUIApplication *)application waitInMs:(int)count
+{
 #if TARGET_OS_SIMULATOR
-    int count = 10;
     double interval = 1;
     __auto_type resultPipelineExpectation = [[XCTestExpectation alloc] initWithDescription:@"Wait for result pipeline."];
     
@@ -282,7 +316,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)setupPassword:(NSString *)password app:(XCUIApplication *)application isMainApp:(BOOL)isMainApp
 {
-    sleep(3);
+    sleep(1);
     if (application.secureTextFields.count > 1)
     {
         // New password flow
@@ -304,88 +338,54 @@ static MSIDTestConfigurationProvider *s_confProvider;
         [self tapElementAndWaitForKeyboardToAppear:confirmPasswordSecureTextField app:application];
         passwordString = [NSString stringWithFormat:@"%@apple\n", password];
         [self enterText:confirmPasswordSecureTextField isMainApp:isMainApp text:passwordString];
-    
     }
 }
 
+- (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
+{
+    NSArray<NSString *> *passwordButtonTitles = @[
+        @"Use my password",
+        @"Use your password",
+        @"Use your password instead",
+        @"Other ways to sign in"
+    ];
+
+    for (NSString *buttonTitle in passwordButtonTitles)
+    {
+        XCUIElement *button = application.buttons[buttonTitle];
+        if (!button.exists)
+        {
+            continue;
+        }
+
+        [button msidTap];
+        return YES;
+    }
+
+    return NO;
+}
 
 - (void)enterPassword:(NSString *)password app:(XCUIApplication *)application isMainApp:(BOOL)isMainApp
 {
-    // Enter password
-    XCUIElement *passwordSecureTextField = [application.secureTextFields elementBoundByIndex:0];
-    // This is explicitly to check the new screen where to ask user to signin with the following 2 options. This caused several automation failures
-    
-    XCTWaiterResult result = [self waitForElementsAndContinueIfNotAppear:passwordSecureTextField];
-    if (result == XCTWaiterResultCompleted)
+    XCUIElement *passwordSecureTextField = application.secureTextFields.firstMatch;
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MSIDPasswordEntryPollingTimeout];
+
+    while (deadline.timeIntervalSinceNow > 0)
     {
-        [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
-        NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
-        [self enterText:passwordSecureTextField isMainApp:isMainApp text:passwordString];
+        if (passwordSecureTextField.exists)
+        {
+            [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
+            NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
+            [self enterText:passwordSecureTextField isMainApp:isMainApp text:passwordString];
+            return;
+        }
+
+        [self tapPasswordSelectionButtonIfPresentInApp:application];
+
+        [NSThread sleepForTimeInterval:MSIDPasswordEntryPollingInterval];
     }
-    else
-    {
-        // 1. Use my password
-        // 2. Sign in to an orgnization
-        XCUIElement *useMyPasswordButton = application.buttons[@"Use my password"];
-        result = [self waitForElementsAndContinueIfNotAppear:useMyPasswordButton];
-        if (result == XCTWaiterResultCompleted)
-        {
-            [useMyPasswordButton tap];
-            [self enterPassword:password
-                            app:application
-                      isMainApp:isMainApp];
-            return;
-        }
-        
-        useMyPasswordButton = application.buttons[@"Use your password"];
-        if (useMyPasswordButton.exists)
-        {
-            [useMyPasswordButton tap];
-            [self enterPassword:password
-                            app:application
-                      isMainApp:isMainApp];
-            return;
-        }
-        
-        useMyPasswordButton = application.buttons[@"Use your password instead"];
-        if (useMyPasswordButton.exists)
-        {
-            [useMyPasswordButton tap];
-            [self enterPassword:password
-                            app:application
-                      isMainApp:isMainApp];
-            return;
-        }
-        
-        useMyPasswordButton = application.buttons[@"Other ways to sign in"];
-        if (useMyPasswordButton.exists)
-        {
-            [useMyPasswordButton tap];
-            
-            useMyPasswordButton = application.buttons[@"Use your password"];
-            result = [self waitForElementsAndContinueIfNotAppear:useMyPasswordButton];
-            if (result == XCTWaiterResultCompleted)
-            {
-                [useMyPasswordButton tap];
-                [self enterPassword:password
-                                app:application
-                          isMainApp:isMainApp];
-                
-                return;
-            }
-            
-            useMyPasswordButton = application.buttons[@"Use my password"];
-            if (useMyPasswordButton.exists)
-            {
-                [useMyPasswordButton tap];
-                [self enterPassword:password
-                                app:application
-                          isMainApp:isMainApp];
-                return;
-            }
-        }
-    }
-    
+
+    XCTFail(@"Timed out waiting for the password field or a password selection button to appear.");
 }
 
 - (void)adfsEnterPassword:(XCUIApplication *)application
@@ -405,6 +405,29 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)loadTestApp:(MSIDTestAutomationAppConfigurationRequest *)appRequest
 {
+    // Try Key Vault JSON first if available
+    if (s_keyVaultAppConfigProvider && s_keyVaultAppConfigProvider.hasCachedAppConfigs)
+    {
+        NSString *appConfigKey = [MSIDTestAutomationAppConfigurationRequest keyForAppConfigurationRequest:appRequest];
+
+        NSError *error = nil;
+        MSIDTestAutomationApplication *app = [s_keyVaultAppConfigProvider appConfigForKey:appConfigKey error:&error];
+
+        if (app)
+        {
+            NSLog(@"[MSIDBaseUITest] Loaded app config from Key Vault JSON with key: %@, appId: %@", appConfigKey, app.appId);
+            app.redirectUriPrefix = self.redirectUriPrefix;
+            self.testApplication = app;
+            self.testApplications = @[app];
+            return;
+        }
+        else
+        {
+            NSLog(@"[MSIDBaseUITest] App config key '%@' not found in Key Vault JSON, falling back to API. Error: %@", appConfigKey, error.localizedDescription);
+        }
+    }
+
+    // Fall back to Lab API / in-memory cache
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
     
     MSIDAutomationOperationResponseHandler *responseHandler = [[MSIDAutomationOperationResponseHandler alloc] initWithClass:MSIDTestAutomationApplication.class];
@@ -458,7 +481,142 @@ static MSIDTestConfigurationProvider *s_confProvider;
     self.testAccounts = allAccounts;
 }
 
+#pragma mark - Key Vault compound key
+
+/// Build a compound lookup key from a configuration request.
+/// Format: <accountType>[_<protectionPolicy>][_<mfa>][_<federationProvider>]
+///                      [_<b2cProvider>][_<environment>][_<userRole>]
+/// Only non-default values are appended.
++ (NSString *)keyForAccountConfigurationRequest:(MSIDTestAutomationAccountConfigurationRequest *)request
+{
+    NSMutableString *key = [NSMutableString stringWithString:request.accountType ?: @"unknown"];
+    
+    // Protection policy (default: "none")
+    if (request.protectionPolicyType
+        && ![request.protectionPolicyType isEqualToString:MSIDTestAccountProtectionPolicyTypeNone])
+    {
+        [key appendFormat:@"_%@", request.protectionPolicyType];
+    }
+    
+    // MFA (default: "none")
+    if (request.mfaType
+        && ![request.mfaType isEqualToString:MSIDTestAccountMFATypeNone])
+    {
+        [key appendFormat:@"_%@", request.mfaType];
+    }
+    
+    // Federation provider (default: "none")
+    if (request.federationProviderType
+        && ![request.federationProviderType isEqualToString:MSIDTestAccountFederationProviderTypeNone])
+    {
+        [key appendFormat:@"_%@", request.federationProviderType];
+    }
+    
+    // B2C provider (default: "none")
+    if (request.b2cProviderType
+        && ![request.b2cProviderType isEqualToString:MSIDTestAccountB2CProviderTypeNone])
+    {
+        [key appendFormat:@"_%@", request.b2cProviderType];
+    }
+    
+    // Environment (default: "azurecloud")
+    if (request.environmentType
+        && ![request.environmentType isEqualToString:MSIDTestAccountEnvironmentTypeWWCloud])
+    {
+        [key appendFormat:@"_%@", request.environmentType];
+    }
+    
+    // User role (default: nil/empty)
+    if (request.userRole.length > 0)
+    {
+        [key appendFormat:@"_%@", request.userRole.lowercaseString];
+    }
+    
+    // Guest home azure environment from additional query params (disambiguates cross-cloud guest accounts)
+    NSString *guestHomeEnv = request.additionalQueryParameters[@"guesthomeazureenvironment"];
+    if (guestHomeEnv.length > 0)
+    {
+        [key appendFormat:@"_%@", guestHomeEnv];
+    }
+    
+    return [key copy];
+}
+
+#pragma mark - Account loading
+
 - (NSArray *)loadTestAccountRequest:(MSIDAutomationBaseApiRequest *)accountRequest
+{
+    // Try Key Vault JSON first if available
+    if (s_keyVaultAccountProvider && s_keyVaultAccountProvider.hasCachedAccounts)
+    {
+        // Check if this is an account configuration request we can use
+        if ([accountRequest isKindOfClass:[MSIDTestAutomationAccountConfigurationRequest class]])
+        {
+            MSIDTestAutomationAccountConfigurationRequest *configRequest = (MSIDTestAutomationAccountConfigurationRequest *)accountRequest;
+            
+            // Build compound key from all request properties
+            NSString *accountType = [self.class keyForAccountConfigurationRequest:configRequest];
+            
+            NSError *error = nil;
+            NSArray<MSIDTestAutomationAccount *> *kvAccounts = [s_keyVaultAccountProvider accountsForType:accountType error:&error];
+            if (kvAccounts.count > 0)
+            {
+                NSLog(@"[MSIDBaseUITest] Loaded %lu account(s) from Key Vault JSON with key: %@", (unsigned long)kvAccounts.count, accountType);
+                
+                // Load passwords for all accounts
+                XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
+                passwordExpectation.expectedFulfillmentCount = kvAccounts.count;
+                
+                for (MSIDTestAutomationAccount *account in kvAccounts)
+                {
+                    [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
+                                                                             completionHandler:^(NSString *password, NSError *pwdError)
+                     {
+                        if (password)
+                        {
+                            NSLog(@"[MSIDBaseUITest] Password loaded successfully for Key Vault account: %@", account.upn);
+                        }
+                        else
+                        {
+                            NSLog(@"[MSIDBaseUITest] Failed to load password for Key Vault account %@: %@", account.upn, pwdError.localizedDescription);
+                        }
+                        [passwordExpectation fulfill];
+                    }];
+                }
+                
+                [self waitForExpectations:@[passwordExpectation] timeout:60];
+                
+                // Filter to accounts that have passwords
+                NSMutableArray *accountsWithPasswords = [NSMutableArray array];
+                for (MSIDTestAutomationAccount *account in kvAccounts)
+                {
+                    if (account.password)
+                    {
+                        [accountsWithPasswords addObject:account];
+                    }
+                }
+                
+                if (accountsWithPasswords.count > 0)
+                {
+                    return [accountsWithPasswords copy];
+                }
+                else
+                {
+                    NSLog(@"[MSIDBaseUITest] No Key Vault accounts have passwords, falling back to Lab API");
+                }
+            }
+            else
+            {
+                NSLog(@"[MSIDBaseUITest] Account key '%@' not found in Key Vault JSON, falling back to Lab API. Error: %@", accountType, error.localizedDescription);
+            }
+        }
+    }
+    
+    // Fall back to Lab API
+    return [self loadTestAccountRequestFromLabAPI:accountRequest];
+}
+
+- (NSArray *)loadTestAccountRequestFromLabAPI:(MSIDAutomationBaseApiRequest *)accountRequest
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get account"];
     
@@ -475,7 +633,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
         
         results = (NSArray *)result;
         
-        if (!results.count) 
+        if (!results.count)
         {
             // Try again because Lab API is sometimes flaky
             [self.class.confProvider.operationAPIRequestHandler executeAPIRequest:accountRequest
@@ -532,7 +690,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
-    [self waitForExpectationsWithTimeout:30.0f handler:nil];
+    [self waitForExpectationsWithTimeout:60.0f handler:nil];
 }
 
 - (XCUIElement *)waitForEitherElements:(XCUIElement *)object1 and:(XCUIElement *)object2
@@ -545,10 +703,35 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object
 {
+    return [self waitForElementsAndContinueIfNotAppear:object timeout:30.0f];
+}
+
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object timeout:(NSTimeInterval)timeout
+{
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"%@.exists == 1" argumentArray:@[object]];
 
     XCTestExpectation *expectation = [[XCTNSPredicateExpectation alloc] initWithPredicate:existsPredicate object:object];
-    return [XCTWaiter waitForExpectations:@[expectation] timeout:30.0f enforceOrder:YES];
+    return [XCTWaiter waitForExpectations:@[expectation] timeout:timeout enforceOrder:YES];
+}
+
+- (void)dismissCookieSharingDialogIfNecessary
+{
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    XCUIElement *allowButton = springBoardApp.alerts.buttons[@"Allow"];
+
+    XCTWaiterResult waitResult = [self waitForElementsAndContinueIfNotAppear:allowButton timeout:5.0f];
+
+    if (waitResult == XCTWaiterResultCompleted)
+    {
+        XCUIElement *alert = springBoardApp.alerts.element;
+        BOOL isCookieAlert = [alert.label containsString:@"cookies"]
+                             || [alert.label containsString:@"website data"];
+
+        if (isCookieAlert)
+        {
+            [allowButton msidTap];
+        }
+    }
 }
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element

@@ -26,6 +26,7 @@
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDBoundRefreshTokenCacheItem.h"
+#import "MSIDDefaultCredentialCacheKey.h"
 
 @interface MSIDCredentialCacheItemTests : XCTestCase
 
@@ -448,6 +449,82 @@
     XCTAssertEqualObjects(decodedItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqual(decodedItem.credentialType, MSIDBoundRefreshTokenType);
     XCTAssertEqualObjects(decodedItem.boundRefreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+}
+
+#pragma mark - generateCacheKey
+
+- (void)testGenerateCacheKey_whenAccessToken_andAllFieldsSet_shouldPropagateAllFields
+{
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
+    cacheItem.realm = @"contoso.com";
+    cacheItem.target = DEFAULT_TEST_RESOURCE;
+    cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.applicationIdentifier = @"app.bundle.id";
+    cacheItem.tokenType = @"Bearer";
+    cacheItem.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
+
+    MSIDCacheKey *key = [cacheItem generateCacheKey];
+    XCTAssertNotNil(key);
+    XCTAssertTrue([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]]);
+
+    MSIDDefaultCredentialCacheKey *defaultKey = (MSIDDefaultCredentialCacheKey *)key;
+    XCTAssertEqualObjects(defaultKey.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(defaultKey.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(defaultKey.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqual(defaultKey.credentialType, MSIDAccessTokenType);
+    XCTAssertEqualObjects(defaultKey.familyId, DEFAULT_TEST_FAMILY_ID);
+    XCTAssertEqualObjects(defaultKey.realm, @"contoso.com");
+    XCTAssertEqualObjects(defaultKey.target, DEFAULT_TEST_RESOURCE);
+    XCTAssertEqualObjects(defaultKey.applicationIdentifier, @"app.bundle.id");
+    XCTAssertEqualObjects(defaultKey.tokenType, @"Bearer");
+    XCTAssertEqualObjects(defaultKey.requestedClaims, @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}");
+}
+
+- (void)testGenerateCacheKey_whenRequestedClaimsNil_shouldHaveNilRequestedClaims
+{
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem.realm = @"contoso.com";
+    cacheItem.target = DEFAULT_TEST_RESOURCE;
+    cacheItem.homeAccountId = @"uid.utid";
+
+    MSIDDefaultCredentialCacheKey *defaultKey = (MSIDDefaultCredentialCacheKey *)[cacheItem generateCacheKey];
+    XCTAssertNotNil(defaultKey);
+    XCTAssertNil(defaultKey.requestedClaims);
+}
+
+- (void)testGenerateCacheKey_whenRequestedClaimsDiffer_shouldProduceDifferentServiceStrings
+{
+    MSIDCredentialCacheItem *baseItem = [MSIDCredentialCacheItem new];
+    baseItem.environment = @"login.microsoftonline.com";
+    baseItem.credentialType = MSIDAccessTokenType;
+    baseItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    baseItem.realm = @"contoso.com";
+    baseItem.target = DEFAULT_TEST_RESOURCE;
+    baseItem.homeAccountId = @"uid.utid";
+
+    MSIDCredentialCacheItem *itemWithClaims = [MSIDCredentialCacheItem new];
+    itemWithClaims.environment = baseItem.environment;
+    itemWithClaims.credentialType = baseItem.credentialType;
+    itemWithClaims.clientId = baseItem.clientId;
+    itemWithClaims.realm = baseItem.realm;
+    itemWithClaims.target = baseItem.target;
+    itemWithClaims.homeAccountId = baseItem.homeAccountId;
+    itemWithClaims.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
+
+    MSIDDefaultCredentialCacheKey *baseKey = (MSIDDefaultCredentialCacheKey *)[baseItem generateCacheKey];
+    MSIDDefaultCredentialCacheKey *claimsKey = (MSIDDefaultCredentialCacheKey *)[itemWithClaims generateCacheKey];
+
+    XCTAssertNotNil(baseKey.service);
+    XCTAssertNotNil(claimsKey.service);
+    XCTAssertNotEqualObjects(baseKey.service, claimsKey.service);
+    XCTAssertEqualObjects(baseKey.account, claimsKey.account);
 }
 
 @end

@@ -37,6 +37,8 @@
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDSSOTokenResponseHandler.h"
 #import "MSIDLogger+Internal.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
 #endif
@@ -99,6 +101,9 @@
                                                  context:self.requestParameters
                                          completionBlock:^(__unused NSURL *openIdConfigurationEndpoint, __unused BOOL validated, NSError *error)
      {
+        MSIDExecutionFlowInsertTag(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDInteractiveResolveAuthorityTag),
+                                       error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
+                                       self.requestParameters.correlationId);
          if (error)
          {
              completionBlock(nil, error, nil);
@@ -140,6 +145,9 @@
     #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
             strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
     #endif
+            MSIDExecutionFlowInsertTag(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDInteractiveHandleOperationResponseTag),
+                                           error ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(error.code)} : nil,
+                                           strongSelf.requestParameters.correlationId);
             __typeof__(strongSelf) __weak weakStrongSelf = strongSelf;
             [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                                       requestParameters:strongSelf.requestParameters
@@ -154,6 +162,9 @@
                 __strong __typeof__(weakStrongSelf) innerStrongSelf = weakStrongSelf;
                 if (!innerStrongSelf) return;
                 
+                MSIDExecutionFlowInsertTag(MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDInteractiveCompletionTag),
+                                               localError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(localError.code)} : nil,
+                                               innerStrongSelf.requestParameters.correlationId);
                 MSIDInteractiveRequestCompletionBlock completionBlock = innerStrongSelf.requestCompletionBlock;
                 innerStrongSelf.requestCompletionBlock = nil;
                 if (completionBlock) completionBlock(result, localError, nil);

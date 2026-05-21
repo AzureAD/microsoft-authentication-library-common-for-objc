@@ -26,8 +26,11 @@
 
 @class MSIDTokenResult;
 @class MSIDWebWPJResponse;
+@class MSIDTestSilentTokenRequest;
 
 @interface MSIDTestTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
+
+@property (nonatomic) MSIDTestSilentTokenRequest *silentRequest;
 
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error

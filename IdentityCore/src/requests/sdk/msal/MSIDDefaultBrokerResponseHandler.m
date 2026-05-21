@@ -37,6 +37,7 @@
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthScheme.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDDefaultBrokerResponseHandler
@@ -59,6 +60,8 @@
                                 @"home_account_id" : MSIDHomeAccountIdkey,
                                 @"declined_scopes" : MSIDDeclinedScopesKey,
                                 @"granted_scopes" : MSIDGrantedScopesKey,
+                                @"client_data" : MSID_CLIENT_DATA_RESPONSE,
+                                MSIDOnboardingBlobIPCKey : MSIDOnboardingBlobIPCKey,
                                 };
     }
     
@@ -275,6 +278,12 @@
     if (![NSString msidIsStringNilOrBlank:decryptedResponse[MSIDDeclinedScopesKey]])
     {
         userInfo[MSIDDeclinedScopesKey] = [[NSOrderedSet msidOrderedSetFromString:decryptedResponse[MSIDDeclinedScopesKey]] array];
+    }
+    
+    // optional: MSID_CLIENT_DATA_RESPONSE
+    if (![NSString msidIsStringNilOrBlank:decryptedResponse[MSID_CLIENT_DATA_RESPONSE]])
+    {
+        userInfo[MSID_CLIENT_DATA_RESPONSE] = decryptedResponse[MSID_CLIENT_DATA_RESPONSE];
     }
     
     MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Broker failed with error domain %@, error code %@, oauth error %@, sub error %@, description %@", errorDomain, errorCodeString, oauthErrorCode, subError, MSID_PII_LOG_MASKABLE(errorDescription));

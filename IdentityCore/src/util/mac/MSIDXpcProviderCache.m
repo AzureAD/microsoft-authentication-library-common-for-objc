@@ -25,17 +25,12 @@
 
 #import "MSIDXpcProviderCache.h"
 #import "NSString+MSIDExtensions.h"
-#import "NSDate+MSIDExtensions.h"
 #import "MSIDDeviceInfo.h"
 #import "MSIDXpcConfiguration.h"
 #import "MSIDLogger+Internal.h"
 
 NSString *const MSID_XPC_CACHE_QUEUE_NAME = @"com.microsoft.msidxpcprovidercache";
 NSString *const MSID_XPC_PROVIDER_TYPE_KEY = @"xpc_provider_type";
-NSString *const MSID_XPC_LAST_UPDATE_TIME = @"last_update_time";
-NSString *const MSID_XPC_LAST_UPDATE_TIME_DESCRIPTION = @"last_update_time_description";
-NSString *const MSID_XPC_STATUS = @"xpc_status";
-NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 
 @interface MSIDXpcProviderCache ()
 
@@ -48,6 +43,9 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 @end
 
 @implementation MSIDXpcProviderCache
+{
+    NSXPCListenerEndpoint *_cachedBrokerInstanceEndpoint;
+}
 
 @synthesize xpcConfiguration = _xpcConfiguration;
 
@@ -89,7 +87,57 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
 {
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         [self.userDefaults setInteger:cachedXpcProvider forKey:MSID_XPC_PROVIDER_TYPE_KEY];
-        self.xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:cachedXpcProvider];
+        // Write the configuration ivar directly to avoid re-entering the barrier through the
+        // public setXpcConfiguration: setter.
+        self->_xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:cachedXpcProvider];
+        // Provider type changed (or was rewritten) - any cached instance endpoint may belong to the
+        // previous provider and must not be reused. Clear via ivar to avoid re-entering the barrier.
+        self->_cachedBrokerInstanceEndpoint = nil;
+    });
+}
+
+- (void)setXpcConfiguration:(MSIDXpcConfiguration *)xpcConfiguration
+{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        self->_xpcConfiguration = xpcConfiguration;
+        // External mutation of the configuration changes the broker binding - any cached endpoint
+        // is now of unknown provenance and must be discarded.
+        self->_cachedBrokerInstanceEndpoint = nil;
+    });
+}
+
+- (nullable NSXPCListenerEndpoint *)cachedBrokerInstanceEndpoint
+{
+    __block NSXPCListenerEndpoint *endpoint = nil;
+    dispatch_sync(self.synchronizationQueue, ^{
+        endpoint = self->_cachedBrokerInstanceEndpoint;
+    });
+    
+    return endpoint;
+}
+
+- (BOOL)setCachedBrokerInstanceEndpoint:(nullable NSXPCListenerEndpoint *)endpoint
+                        forProviderType:(MSIDSsoProviderType)providerType
+{
+    __block BOOL stored = NO;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        // CAS: only store if the current provider type still matches the provider that produced
+        // this endpoint. This guards against a provider-switch racing a slow dispatcher reply.
+        MSIDSsoProviderType current = (MSIDSsoProviderType)[self.userDefaults integerForKey:MSID_XPC_PROVIDER_TYPE_KEY];
+        if (current == providerType)
+        {
+            self->_cachedBrokerInstanceEndpoint = endpoint;
+            stored = YES;
+        }
+    });
+    
+    return stored;
+}
+
+- (void)clearCachedBrokerInstanceEndpoint
+{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        self->_cachedBrokerInstanceEndpoint = nil;
     });
 }
 
@@ -178,84 +226,19 @@ NSTimeInterval const MSID_XPC_STATUS_EXPIRATION_TIME = 14400.0;
     return NO;
 }
 
-- (BOOL)shouldReturnCachedXpcStatus
-{
-    __block BOOL result = YES;
-    dispatch_sync(self.synchronizationQueue, ^{
-        
-        if (!self.xpcConfiguration)
-        {
-            result = NO;
-        }
-        else
-        {
-            NSDictionary *xpcInfo = [[NSUserDefaults standardUserDefaults] dictionaryForKey:self.xpcConfiguration.xpcMachServiceName];
-            if (!xpcInfo)
-            {
-                result = NO;
-            }
-            else
-            {
-                NSDate *lastUpdatedTime = [NSDate msidDateFromTimeStamp:xpcInfo[MSID_XPC_LAST_UPDATE_TIME]];
-                NSTimeInterval timeDifference = [[NSDate date] timeIntervalSinceDate:lastUpdatedTime];
-
-                // cached Broker Xpc status expired after 4 hours
-                if (!lastUpdatedTime || timeDifference > MSID_XPC_STATUS_EXPIRATION_TIME)
-                {
-                    result = NO;
-                }
-            }
-        }
-    });
-    
-    return result;
-}
-
-- (BOOL)cachedCanPerformRequestsStatus
-{
-    __block BOOL result = NO;
-    dispatch_sync(self.synchronizationQueue, ^{
-        if (!self.xpcConfiguration)
-        {
-            result = NO;
-        }
-        else
-        {
-            NSDictionary *xpcInfo = [[NSUserDefaults standardUserDefaults] dictionaryForKey:self.xpcConfiguration.xpcMachServiceName];
-            if ([xpcInfo[MSID_XPC_STATUS] respondsToSelector:@selector(boolValue)])
-            {
-                result = [xpcInfo[MSID_XPC_STATUS] boolValue];
-            }
-        }
-    });
-    
-    return result;
-}
-
-- (void)setCachedCanPerformRequestsStatus:(BOOL)cachedCanPerformRequestsStatus
-{
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
-        if (!self.xpcConfiguration)
-        {
-            return;
-        }
-        
-        NSDate *currentTime = [NSDate date];
-        NSDictionary *xpcInfo = @{MSID_XPC_LAST_UPDATE_TIME:[currentTime msidDateToTimestamp], MSID_XPC_LAST_UPDATE_TIME_DESCRIPTION:[currentTime msidToString], MSID_XPC_STATUS:@(cachedCanPerformRequestsStatus)};
-        [self.userDefaults setObject:xpcInfo forKey:self.xpcConfiguration.xpcMachServiceName];
-    });
-}
-
 - (MSIDXpcConfiguration *)xpcConfiguration
 {
-    @synchronized (self) {
+    __block MSIDXpcConfiguration *config = nil;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         if (!_xpcConfiguration)
         {
-            _xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:self.cachedXpcProviderType];
+            NSInteger providerType = [self.userDefaults integerForKey:MSID_XPC_PROVIDER_TYPE_KEY];
+            _xpcConfiguration = [[MSIDXpcConfiguration alloc] initWithXpcProviderType:providerType];
         }
-        
-        return _xpcConfiguration;
-    }
+        config = _xpcConfiguration;
+    });
+    
+    return config;
 }
 
 @end

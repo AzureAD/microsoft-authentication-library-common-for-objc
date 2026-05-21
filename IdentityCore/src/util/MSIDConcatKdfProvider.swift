@@ -22,11 +22,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
+/*  Concat KDF key derivation relies on CryptoKit which is a swift dependency.
+    Certain macOS partners do not support swift in their build system.
+    Hence excluding the key derivation logic for macOS platform until they upgrade their build system.
+*/
+#if !os(macOS)
 import Foundation
 import CommonCrypto
 import CryptoKit
 
+@objc(MSIDConcatKdfProvider)
 public class MSIDConcatKdfProvider: NSObject {
     
     internal func intToData<T>(value: T) -> Data where T: FixedWidthInteger {
@@ -102,3 +107,4 @@ public class MSIDConcatKdfProvider: NSObject {
         return derivedKeyingMaterial
     }
 }
+#endif

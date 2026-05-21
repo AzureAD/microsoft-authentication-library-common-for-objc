@@ -50,21 +50,21 @@ NSString *MSIDExecutionFlowNetworkTagToString(MSIDExecutionFlowNetworkTag state)
 {
     switch (state)
     {
-        case MSIDExecutionFlowPrepareNetworkRequestTag:
+        case MSIDPrepareNetworkRequestTag:
             return @"iq24n";
-        case MSIDExecutionFlowCacheResponseFailedObjectTag:
+        case MSIDCacheResponseFailedObjectTag:
             return @"twoty";
-        case MSIDExecutionFlowCacheResponseSucceededObjectTag:
+        case MSIDCacheResponseSucceededObjectTag:
             return @"n3416";
-        case MSIDExecutionFlowReceiveNetworkResponseTag:
+        case MSIDReceiveNetworkResponseTag:
             return @"xfx8w";
-        case MSIDExecutionFlowRetryOnNetworkFailureTag:
+        case MSIDRetryOnNetworkFailureTag:
             return @"rz95n";
-        case MSIDExecutionFlowStartToRetryOnNetworkFailureTag:
+        case MSIDStartToRetryOnNetworkFailureTag:
             return @"6f7qc";
-        case MSIDExecutionFlowParseNetworkResponseTag:
+        case MSIDParseNetworkResponseTag:
             return @"fxjo7";
-        case MSIDExecutionFlowOtherHttpNetworkStatusCodeTag:
+        case MSIDOtherHttpNetworkStatusCodeTag:
             return @"5kbvm";
     }
 
@@ -76,10 +76,77 @@ NSString *MSIDTokenRequestTagToString(MSIDTokenRequestTag state)
 {
     switch (state)
     {
-        case MSIDTokenRequestAtExpirationElapsedTag:
+        case MSIDAtExpirationElapsedTag:
             return @"xilux";
     }
 
     // Fallback for any future enum values
     return [NSString stringWithFormat:@"MSIDTokenRequestTag(%ld)", (long)state];
 }
+
+NSString *MSIDRequestControllerFactoryTagToString(MSIDRequestControllerFactoryTag state)
+{
+    switch (state)
+    {
+        case MSIDSilentControllerForParametersTag:
+            return @"9jwnp";
+        case MSIDSilentControllerShouldUseBrokerTag:
+            return @"fi9bq";
+        case MSIDSilentControllerCanPerformSsoExtTag:
+            return @"e1r45";
+        case MSIDSilentControllerCanPerformBrokerXpcTag:
+            return @"ahpij";
+        case MSIDSilentControllerNoBrokerFallbackTag:
+            return @"e3qe8";
+        case MSIDSilentControllerFinishTag:
+            return @"0vik0";
+        case MSIDInteractiveControllerForParametersTag:
+            return @"go2o4";
+        case MSIDInteractiveControllerShouldUseBrokerTag:
+            return @"wj1z1";
+        case MSIDInteractiveControllerCanPerformSsoExtTag:
+            return @"vfl3d";
+        case MSIDInteractiveControllerCanPerformBrokerXpcTag:
+            return @"wyxmu";
+        case MSIDInteractiveControllerNoBrokerFallbackTag:
+            return @"beb43";
+        case MSIDInteractiveControllerFinishTag:
+            return @"29h5q";
+    }
+
+    // Fallback for any future enum values
+    return [NSString stringWithFormat:@"MSIDRequestControllerFactoryTag(%ld)", (long)state];
+}
+NSString *MSIDSSORemoteInteractiveTokenRequestTagToString(MSIDSSORemoteInteractiveTokenRequestTag state)
+{
+    switch (state)
+    {
+        case MSIDInteractiveResolveAuthorityTag:
+            return @"ea0zm";
+        case MSIDInteractiveHandleOperationResponseTag:
+            return @"7iqlk";
+        case MSIDInteractiveCompletionTag:
+            return @"vy42f";
+        case MSIDLegacyBrokerInteractiveCompletionTag:
+            return @"xbxa9";
+    }
+
+    // Fallback for any future enum values
+    return [NSString stringWithFormat:@"MSIDSSORemoteInteractiveTokenRequestTag(%ld)", (long)state];
+}
+
+NSString *MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestTag state)
+{
+    switch (state)
+    {
+        case MSIDSilentResolveAuthorityTag:
+            return @"n3rpu";
+        case MSIDSilentHandleOperationResponseTag:
+            return @"u46x0";
+        case MSIDSilentCompletionTag:
+            return @"x8cgg";
+    }
+    // Fallback for any future enum values
+    return [NSString stringWithFormat:@"MSIDSSORemoteSilentTokenRequestTag(%ld)", (long)state];
+}
+

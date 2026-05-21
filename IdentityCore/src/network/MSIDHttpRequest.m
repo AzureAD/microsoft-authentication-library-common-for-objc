@@ -35,11 +35,14 @@
 #import "MSIDBrokerConstants.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
+#import "MSIDOAuth2Constants.h"
+#import "MSIDHttpRequestInterceptorProtocol.h"
+#import "MSIDHttpRequestHeaderValidator.h"
+#import "MSIDHttpRequestHeaderValidating.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
 static NSTimeInterval s_requestTimeoutInterval = 300;
-static NSDictionary *s_experimentBag = nil;
 
 @implementation MSIDHttpRequest
 
@@ -49,15 +52,7 @@ static NSDictionary *s_experimentBag = nil;
 
     if (self)
     {
-        _experimentBag = s_experimentBag;
-        if ([self.experimentBag msidBoolObjectForKey:MSID_CREATE_NEW_URL_SESSION])
-        {
-            _sessionManager = MSIDURLSessionManager.instanceManager;
-        }
-        else {
-            _sessionManager = MSIDURLSessionManager.defaultManager;
-        }
-        
+        _sessionManager = MSIDURLSessionManager.defaultManager;
         __auto_type responseSerializer = [MSIDHttpResponseSerializer new];
         responseSerializer.preprocessor = [MSIDJsonResponsePreprocessor new];
         _responseSerializer = responseSerializer;
@@ -70,6 +65,7 @@ static NSDictionary *s_experimentBag = nil;
         _requestTimeoutInterval = s_requestTimeoutInterval;
         _cache = [NSURLCache sharedURLCache];
         _shouldCacheResponse = NO;
+        _headerValidator = [MSIDHttpRequestHeaderValidator new];
     }
 
     return self;
@@ -78,20 +74,54 @@ static NSDictionary *s_experimentBag = nil;
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     NSParameterAssert(self.urlRequest);
-    [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowPrepareNetworkRequestTag]
-                                              extraInfo:nil
-                                      withCorrelationId:self.context.correlationId];
+    MSIDExecutionFlowInsertTag([self toString:MSIDPrepareNetworkRequestTag],
+                                   nil,
+                                   self.context.correlationId);
     __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
-    NSMutableDictionary *localHeaders = nil;
-    if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_ENABLE_CONNECTION_CLOSE])
+
+    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
+
+    if (self.requestInterceptor)
     {
-        localHeaders = self.headers ? [self.headers mutableCopy] : [NSMutableDictionary dictionary];
-        [localHeaders setValue:MSID_HTTP_CONNECTION_VALUE forKey:MSID_HTTP_CONNECTION];
+        __weak typeof(self) weakSelf = self;
+        [self.requestInterceptor addAdditionalHeaderFieldsForUrl:self.urlRequest.URL withBlock:^(NSDictionary<NSString *, NSString *> * _Nullable additionalHeaders)
+        {
+            __typeof__(self) strongSelf = weakSelf;
+            if (!strongSelf)
+            {
+                if (completionBlock)
+                {
+                    NSError *deallocError = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey : @"HTTP request object was deallocated before completion."}];
+                    completionBlock(nil, deallocError);
+                }
+                return;
+            }
+
+            if (additionalHeaders.count)
+            {
+                NSMutableURLRequest *mutableRequest = [strongSelf.urlRequest mutableCopy];
+                
+                NSDictionary<NSString *, NSString *> *validHeaders = [strongSelf.headerValidator validHeadersFromHeaders:additionalHeaders];
+                for (NSString *field in validHeaders)
+                {
+                    [mutableRequest setValue:validHeaders[field] forHTTPHeaderField:field];
+                }
+
+                strongSelf.urlRequest = mutableRequest;
+            }
+
+            [strongSelf sendRequestWithCompletionBlock:completionBlock];
+        }];
+        return;
     }
 
-    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:localHeaders ?: self.headers];
+    [self sendRequestWithCompletionBlock:completionBlock];
+}
+
+- (void)sendRequestWithCompletionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
+{
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
     {
@@ -103,17 +133,17 @@ static NSDictionary *s_experimentBag = nil;
 
         if (!responseObject)
         {
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowCacheResponseFailedObjectTag]
-                                                      extraInfo:nil
-                                              withCorrelationId:self.context.correlationId];
+            MSIDExecutionFlowInsertTag([self toString:MSIDCacheResponseFailedObjectTag],
+                                           nil,
+                                           self.context.correlationId);
             [self.cache removeCachedResponseForRequest:self.urlRequest];
             MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Removing invalid response from cache %@, response: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(response.response));
         }
         else
         {
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowCacheResponseSucceededObjectTag]
-                                                      extraInfo:nil
-                                              withCorrelationId:self.context.correlationId];
+            MSIDExecutionFlowInsertTag([self toString:MSIDCacheResponseSucceededObjectTag],
+                                           nil,
+                                           self.context.correlationId);
             if (completionBlock) { completionBlock(responseObject, error); }
             return;
         }
@@ -127,9 +157,9 @@ static NSDictionary *s_experimentBag = nil;
 
     [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error)
       {
-        [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowReceiveNetworkResponseTag]
-                                                  extraInfo:nil
-                                          withCorrelationId:self.context.correlationId];
+        MSIDExecutionFlowInsertTag([self toString:MSIDReceiveNetworkResponseTag],
+                                       nil,
+                                       self.context.correlationId);
           MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Received network response: %@, error %@", _PII_NULLIFY(urlResponse), _PII_NULLIFY(error));
 
           if (urlResponse) NSAssert([urlResponse isKindOfClass:NSHTTPURLResponse.class], NULL);
@@ -145,9 +175,9 @@ static NSDictionary *s_experimentBag = nil;
 
         void (^completeBlockWrapper)(id, NSError *) = ^(id wrapperResponse, NSError *wrapperError)
         {
-            [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowParseNetworkResponseTag]
-                                                      extraInfo:wrapperError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(wrapperError.code)} : nil
-                                              withCorrelationId:self.context.correlationId];
+            MSIDExecutionFlowInsertTag([self toString:MSIDParseNetworkResponseTag],
+                                           wrapperError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(wrapperError.code)} : nil,
+                                           self.context.correlationId);
             [self.serverTelemetry handleError:wrapperError context:self.context];
 
             if (completionBlock) { completionBlock(wrapperResponse, wrapperError); }
@@ -155,8 +185,17 @@ static NSDictionary *s_experimentBag = nil;
 
           if (error)
           {
-              if ([self.experimentBag msidBoolObjectForKey:MSID_EXP_RETRY_ON_NETWORK])
-              {   
+              NSString *clientData = httpResponse.allHeaderFields[MSID_CLIENT_DATA_HEADER_KEY];
+              if (clientData)
+              {
+                  MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Enriching error userInfo with client data from response header.");
+                  NSMutableDictionary *userInfo = error.userInfo ? [error.userInfo mutableCopy] : [NSMutableDictionary new];
+                  userInfo[MSID_CLIENT_DATA_RESPONSE] = clientData;
+                  error = [NSError errorWithDomain:error.domain code:error.code userInfo:userInfo];
+              }
+
+              if (self.errorHandler)
+              {
                   [self.errorHandler handleError:error
                                     httpResponse:nil
                                             data:nil
@@ -188,9 +227,9 @@ static NSDictionary *s_experimentBag = nil;
           else
           {
               
-              [[MSIDExecutionFlowLogger sharedInstance] insertTag:[self toString:MSIDExecutionFlowOtherHttpNetworkStatusCodeTag]
-                                                        extraInfo:@{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(httpResponse.statusCode)}
-                                                withCorrelationId:self.context.correlationId];
+              MSIDExecutionFlowInsertTag([self toString:MSIDOtherHttpNetworkStatusCodeTag],
+                                             @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(httpResponse.statusCode)},
+                                             self.context.correlationId);
               if (self.errorHandler)
               {
                   id<MSIDResponseSerialization> responseSerializer = self.errorResponseSerializer ? self.errorResponseSerializer : self.responseSerializer;
@@ -220,8 +259,6 @@ static NSDictionary *s_experimentBag = nil;
 + (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
 + (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval { s_requestTimeoutInterval = requestTimeoutInterval; }
 + (NSTimeInterval)requestTimeoutInterval { return s_requestTimeoutInterval; }
-+ (void)setExperimentBagSetting:(NSDictionary *)experimentBagSetting { s_experimentBag = experimentBagSetting; }
-+ (NSDictionary *)experimentBagSetting { return s_experimentBag; }
 
 - (NSCachedURLResponse *)cachedResponse
 {

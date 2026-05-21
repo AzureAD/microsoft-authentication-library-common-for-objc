@@ -115,47 +115,67 @@
     CONDITIONAL_START_EVENT(CONDITIONAL_SHARED_INSTANCE, self.requestParameters.telemetryRequestId, MSID_TELEMETRY_EVENT_API_EVENT);
     self.currentRequest = request;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
-     {
-        if (error && [MSIDAADRequestErrorHandler shouldRetryNetworkingFailure:error.code]) {
-            completionBlock(result, error);
-            return;
-        }
-        
-        if (result || !self.fallbackController)
+    {
+        if (error)
         {
-#if !EXCLUDE_FROM_MSALCPP
-            MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-            [telemetryEvent setUserInformation:result.account];
-            [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
-            if (self.isLocalFallbackMode)
+            if (request.shouldSkipBoundAppRefreshTokenUsage
+                && [error.domain isEqualToString:MSIDErrorDomain]
+                && error.code == MSIDErrorBoundAppRefreshTokenRedemptionError)
             {
-                [telemetryEvent setSsoExtFallBackFlow:1];
+                [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable retryResult, NSError * _Nullable retryError)
+                {
+                    [self processResponse:retryResult error:retryError completionBlock:completionBlock];
+                }];
+                return;
             }
-            
-            [self stopTelemetryEvent:telemetryEvent error:error];
-#endif
-            self.currentRequest = nil;
-            
-            completionBlock(result, error);
-            return;
         }
-        
-        self.currentRequest = nil;
-        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallResult, NSError *fallError)
-        {
-            // We don't have any meaningful information from fallback controller (edge case of SSO/Xpc error) so we use the local controller result earlier
-            if (!fallResult && (fallError.code == MSIDErrorSSOExtensionUnexpectedError || fallError.code == MSIDErrorBrokerXpcUnexpectedError))
-            {
-                completionBlock(result, error);
-            }
-            else
-            {
-                completionBlock(fallResult, fallError);
-            }
-        };
-        
-        [self.fallbackController acquireToken:completionBlockWrapper];
+        [self processResponse:result error:error completionBlock:completionBlock];
     }];
+}
+
+- (void)processResponse:(MSIDTokenResult *)result
+                  error:(NSError *)error
+        completionBlock:(MSIDRequestCompletionBlock)completionBlock
+{
+    if (error && [MSIDAADRequestErrorHandler shouldRetryNetworkingFailure:error.code]) {
+        completionBlock(result, error);
+        return;
+    }
+    
+    if (result || !self.fallbackController)
+    {
+#if !EXCLUDE_FROM_MSALCPP
+        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+        [telemetryEvent setUserInformation:result.account];
+        [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+        if (self.isLocalFallbackMode)
+        {
+            [telemetryEvent setSsoExtFallBackFlow:1];
+        }
+        
+        [self stopTelemetryEvent:telemetryEvent error:error];
+#endif
+        self.currentRequest = nil;
+        
+        completionBlock(result, error);
+        return;
+    }
+    
+    self.currentRequest = nil;
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallResult, NSError *fallError)
+    {
+        // We don't have any meaningful information from fallback controller (edge case of SSO/Xpc error) so we use the local controller result earlier
+        if (!fallResult && (fallError.code == MSIDErrorSSOExtensionUnexpectedError || fallError.code == MSIDErrorBrokerXpcUnexpectedError))
+        {
+            completionBlock(result, error);
+        }
+        else
+        {
+            completionBlock(fallResult, fallError);
+        }
+    };
+    
+    [self.fallbackController acquireToken:completionBlockWrapper];
 }
 
 @end

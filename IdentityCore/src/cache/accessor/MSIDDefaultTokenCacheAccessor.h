@@ -41,6 +41,9 @@
 
 @property (nonatomic, readonly) MSIDAccountCredentialCache *accountCredentialCache;
 
+// Should skip bound app RT lookup for fallback to regular RTs when BART fails.
+@property (nonatomic, readwrite) BOOL shouldSkipBoundAppRefreshTokenLookup;
+
 - (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource
                otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors;
 
