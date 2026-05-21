@@ -27,6 +27,7 @@
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDAuthority.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDDefaultBrokerTokenRequest
 
@@ -58,6 +59,7 @@
     NSString *promptParam = MSIDPromptParamFromType(self.requestParameters.promptType);
     [contents msidSetNonEmptyString:promptParam forKey:MSID_BROKER_PROMPT_KEY];
     [contents setValue:@(MSID_BROKER_PROTOCOL_VERSION_3) forKey:MSID_BROKER_PROTOCOL_VERSION_KEY];
+    [contents msidSetNonEmptyString:self.requestParameters.userFederatedIdentityToken forKey:MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY];
     
     return contents;
 }

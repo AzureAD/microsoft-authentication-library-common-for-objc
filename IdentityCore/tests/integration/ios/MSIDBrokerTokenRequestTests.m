@@ -37,6 +37,7 @@
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthenticationSchemeSshCert.h"
 #import "MSIDBartFeatureUtil.h"
+#import "MSIDDefaultBrokerTokenRequest.h"
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
 @end
@@ -665,6 +666,36 @@
     NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+}
+
+- (void)testInitBrokerRequest_whenUserFederatedIdentityTokenSet_shouldIncludeFICInPayload
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.userFederatedIdentityToken = @"test-fic-token-value";
+
+    NSError *error = nil;
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSURL *actualURL = request.brokerRequestURL;
+    NSDictionary *queryParams = [actualURL msidQueryParameters];
+    XCTAssertEqualObjects(queryParams[@"x-ms-UserFederatedIdentityCredential"], @"test-fic-token-value");
+}
+
+- (void)testInitBrokerRequest_whenUserFederatedIdentityTokenNil_shouldNotIncludeFICInPayload
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.userFederatedIdentityToken = nil;
+
+    NSError *error = nil;
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSURL *actualURL = request.brokerRequestURL;
+    NSDictionary *queryParams = [actualURL msidQueryParameters];
+    XCTAssertNil(queryParams[@"x-ms-UserFederatedIdentityCredential"]);
 }
 
 - (void)setBoundAppRefreshTokenFlight

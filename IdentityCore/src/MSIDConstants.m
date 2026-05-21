@@ -66,6 +66,9 @@ NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN = @"com.microsoft.identity.throttling.metadata";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";
 
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN = @"com.microsoft.identity.intune.deviceid";
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN_VERSION = @"Ver1";
+
 NSString *const MSID_USE_SINGLE_FRT_KEYCHAIN          = @"useSingleFRT";
 NSString *const MSID_USE_SINGLE_FRT_KEY               = @"use_single_frt";
 NSString *const MSID_FRT_STATUS_ENABLED               = @"on";
@@ -116,6 +119,9 @@ NSString *const MSID_FLIGHT_ENABLE_THREAD_STARVATION = @"ts_en";
 
 // This is SsoExt flow only flight
 NSString *const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE = @"skip_brk_cache";
+
+// Enables caching and reuse of the Broker XPC instance endpoint (macOS only).
+NSString *const MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED = @"broker_xpc_instance_cache_enabled";
 
 NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 
