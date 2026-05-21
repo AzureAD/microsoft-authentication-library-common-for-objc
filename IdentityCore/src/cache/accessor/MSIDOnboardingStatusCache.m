@@ -30,18 +30,30 @@
 #import "MSIDJsonObject.h"
 #import "MSIDError.h"
 #import "MSIDLogger+Internal.h"
-#import "MSIDBrokerConstants.h"
 #import "NSString+MSIDExtensions.h"
 
 static NSString *const MSID_ONBOARDING_STATUS_CACHE_SERVICE = @"OnboardingStatus";
 static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.onboardingStatus";
 
 @interface MSIDOnboardingStatusCache ()
+{
+    dispatch_queue_t _accessQueue;
+}
 
 @property (nonatomic) id<MSIDExtendedTokenCacheDataSource> dataSource;
 @property (nonatomic) MSIDCacheItemJsonSerializer *serializer;
 
+- (MSIDOnboardingStatus *)readOnboardingStatusWithCorrelationIdLocked:(NSUUID *)correlationId
+                                                               error:(NSError *__autoreleasing *)error;
+- (BOOL)writeOnboardingStatusLocked:(MSIDOnboardingStatus *)status
+                              error:(NSError *__autoreleasing *)error;
+- (BOOL)removeOnboardingStatusWithContextLocked:(id<MSIDRequestContext>)context
+                                          error:(NSError *__autoreleasing *)error;
+- (BOOL)setWithStatusLocked:(MSIDOnboardingStatus *)status;
+- (MSIDOnboardingStatus *)getOnboardingStatusLocked;
+- (BOOL)clearLocked:(NSString *)bundleId;
 - (BOOL)isOwnerOverride:(MSIDOnboardingStatus *)status;
+- (BOOL)caseInsensitiveString:(NSString *)left matchesString:(NSString *)right;
 
 @end
 
@@ -53,11 +65,11 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 {
     static MSIDOnboardingStatusCache *singleton = nil;
     static dispatch_once_t onceToken;
-    
+
     dispatch_once(&onceToken, ^{
         singleton = [[self alloc] init];
     });
-    
+
     return singleton;
 }
 
@@ -66,13 +78,14 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 - (instancetype)init
 {
     self = [super init];
-    
+
     if (self)
     {
         _dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDKeychainTokenCache.defaultKeychainGroup error:nil];
         _serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+        _accessQueue = dispatch_queue_create("com.microsoft.identity.onboardingStatusCache", DISPATCH_QUEUE_SERIAL);
     }
-    
+
     return self;
 }
 
@@ -91,29 +104,40 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 - (MSIDOnboardingStatus *)readOnboardingStatusWithCorrelationId:(NSUUID *)correlationId
                                                           error:(NSError *__autoreleasing *)error
 {
+    __block MSIDOnboardingStatus *status = nil;
+    dispatch_sync(_accessQueue, ^{
+        status = [self readOnboardingStatusWithCorrelationIdLocked:correlationId error:error];
+    });
+
+    return status;
+}
+
+- (MSIDOnboardingStatus *)readOnboardingStatusWithCorrelationIdLocked:(NSUUID *)correlationId
+                                                               error:(NSError *__autoreleasing *)error
+{
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationId, @"(MSIDOnboardingStatusCache) Reading onboarding status from cache");
-    
+
     MSIDCacheKey *key = [self cacheKey];
-    
+
     NSArray<MSIDJsonObject *> *jsonObjects = [self.dataSource jsonObjectsWithKey:key
                                                                       serializer:self.serializer
                                                                          context:nil
                                                                            error:error];
-    
+
     if (!jsonObjects || jsonObjects.count == 0)
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationId, @"(MSIDOnboardingStatusCache) No onboarding status found in cache");
         return nil;
     }
-    
+
     if (jsonObjects.count > 1)
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelWarning, correlationId, @"(MSIDOnboardingStatusCache) Multiple onboarding status items found in cache, using the first one");
     }
-    
+
     MSIDJsonObject *jsonObject = jsonObjects.firstObject;
     NSDictionary *jsonDictionary = [jsonObject jsonDictionary];
-    
+
     if (!jsonDictionary)
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"(MSIDOnboardingStatusCache) Failed to get JSON dictionary from cached item");
@@ -123,10 +147,10 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
         }
         return nil;
     }
-    
+
     NSError *deserializationError = nil;
     MSIDOnboardingStatus *status = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:jsonDictionary error:&deserializationError];
-    
+
     if (!status)
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"(MSIDOnboardingStatusCache) Failed to deserialize onboarding status: %@", deserializationError);
@@ -136,7 +160,7 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
         }
         return nil;
     }
-    
+
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationId, @"(MSIDOnboardingStatusCache) Successfully read onboarding status from cache");
     return status;
 }
@@ -145,6 +169,17 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 
 - (BOOL)writeOnboardingStatus:(MSIDOnboardingStatus *)status
                         error:(NSError *__autoreleasing *)error
+{
+    __block BOOL success = NO;
+    dispatch_sync(_accessQueue, ^{
+        success = [self writeOnboardingStatusLocked:status error:error];
+    });
+
+    return success;
+}
+
+- (BOOL)writeOnboardingStatusLocked:(MSIDOnboardingStatus *)status
+                              error:(NSError *__autoreleasing *)error
 {
     if (!status)
     {
@@ -155,13 +190,13 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
         }
         return NO;
     }
-    
+
     NSUUID *correlationId = status.correlationId;
-    
+
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationId, @"(MSIDOnboardingStatusCache) Writing onboarding status to cache");
-    
+
     NSDictionary *jsonDictionary = [status jsonDictionary];
-    
+
     if (!jsonDictionary)
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"(MSIDOnboardingStatusCache) Failed to serialize onboarding status to JSON");
@@ -171,10 +206,10 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
         }
         return NO;
     }
-    
+
     NSError *initError = nil;
     MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:jsonDictionary error:&initError];
-    
+
     if (!jsonObject)
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"(MSIDOnboardingStatusCache) Failed to create JSON object: %@", initError);
@@ -184,15 +219,15 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
         }
         return NO;
     }
-    
+
     MSIDCacheKey *key = [self cacheKey];
-    
+
     BOOL success = [self.dataSource saveJsonObject:jsonObject
                                         serializer:self.serializer
                                                key:key
                                            context:nil
                                              error:error];
-    
+
     if (success)
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationId, @"(MSIDOnboardingStatusCache) Successfully wrote onboarding status to cache");
@@ -201,7 +236,7 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"(MSIDOnboardingStatusCache) Failed to write onboarding status to cache");
     }
-    
+
     return success;
 }
 
@@ -210,15 +245,26 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 - (BOOL)removeOnboardingStatusWithContext:(id<MSIDRequestContext>)context
                                     error:(NSError *__autoreleasing *)error
 {
+    __block BOOL success = NO;
+    dispatch_sync(_accessQueue, ^{
+        success = [self removeOnboardingStatusWithContextLocked:context error:error];
+    });
+
+    return success;
+}
+
+- (BOOL)removeOnboardingStatusWithContextLocked:(id<MSIDRequestContext>)context
+                                          error:(NSError *__autoreleasing *)error
+{
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(MSIDOnboardingStatusCache) Removing onboarding status from cache");
-    
+
     MSIDCacheKey *key = [self cacheKey];
-    
+
     // Using removeAccountsWithKey as it internally delegates to removeItemsWithKey
     BOOL success = [self.dataSource removeAccountsWithKey:key
                                                   context:context
                                                     error:error];
-    
+
     if (success)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(MSIDOnboardingStatusCache) Successfully removed onboarding status from cache");
@@ -227,7 +273,7 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"(MSIDOnboardingStatusCache) Failed to remove onboarding status from cache");
     }
-    
+
     return success;
 }
 
@@ -237,97 +283,137 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 {
     // This method checks if the onboarding status is owned by the current running app.
     NSString *currentBundleId = [[NSBundle mainBundle] bundleIdentifier];
-    if ([NSString msidIsStringNilOrBlank:currentBundleId])
-    {
-        currentBundleId = @"unknown";
-    }
-    
-    return [currentBundleId caseInsensitiveCompare:status.ownerBundleId] == NSOrderedSame;
+    return [self caseInsensitiveString:currentBundleId matchesString:status.ownerBundleId];
 }
 
 - (BOOL)setWithStatus:(MSIDOnboardingStatus *)status
+{
+    __block BOOL success = NO;
+    dispatch_sync(_accessQueue, ^{
+        success = [self setWithStatusLocked:status];
+    });
+
+    return success;
+}
+
+- (BOOL)setWithStatusLocked:(MSIDOnboardingStatus *)status
 {
     if (!status)
     {
         return NO;
     }
-    
-    MSIDOnboardingStatus *current = [self getOnboardingStatus];
-    
+
+    MSIDOnboardingStatus *current = [self getOnboardingStatusLocked];
+
     // If there's an existing status with a phase other than none, validate that the new status is either
     // from the same originating bundle or is an owner override. This prevents different apps from overwriting
     // each other's onboarding status.
     if (current && current.phase != MSIDOnboardingPhaseNone)
     {
-        NSString *currentBundleId = current.originatingBundleId;
-        if ([NSString msidIsStringNilOrBlank:currentBundleId])
-        {
-            currentBundleId = @"unknown";
-        }
-        
+        BOOL originatingBundleMatches = [self caseInsensitiveString:current.originatingBundleId matchesString:status.originatingBundleId];
+
         // Validate ownership or self-override
-        if ([currentBundleId caseInsensitiveCompare:status.originatingBundleId] != NSOrderedSame
-            && ![self isOwnerOverride:status])
+        if (!originatingBundleMatches && ![self isOwnerOverride:status])
         {
             return NO;
         }
     }
-    
+
     // Write to Keychain using shared access group
-    return [self writeOnboardingStatus:status error:nil];
+    return [self writeOnboardingStatusLocked:status error:nil];
 }
 
 - (MSIDOnboardingStatus *)getOnboardingStatus
 {
-    MSIDOnboardingStatus *status = [self readOnboardingStatusWithCorrelationId:nil error:nil];
-    
+    __block MSIDOnboardingStatus *status = nil;
+    dispatch_sync(_accessQueue, ^{
+        status = [self getOnboardingStatusLocked];
+    });
+
+    return status;
+}
+
+- (MSIDOnboardingStatus *)getOnboardingStatusLocked
+{
+    MSIDOnboardingStatus *status = [self readOnboardingStatusWithCorrelationIdLocked:nil error:nil];
+
     if (!status)
     {
         // return new status with phase set to none
         return [MSIDOnboardingStatus new];
     }
-    
+
+    if (!status.startedAt)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(MSIDOnboardingStatusCache) Onboarding status is missing startedAt, removing from cache");
+        [self removeOnboardingStatusWithContextLocked:nil error:nil];
+        // return new status with phase set to none
+        return [MSIDOnboardingStatus new];
+    }
+
     // Check TTL and remove if expired (status.startedAt + status.ttlSeconds < now)
     NSDate *expirationDate = [status.startedAt dateByAddingTimeInterval:status.ttlSeconds];
     if ([expirationDate timeIntervalSinceNow] < 0)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(MSIDOnboardingStatusCache) Onboarding status is expired, removing from cache");
-        [self removeOnboardingStatusWithContext:nil error:nil];
+        [self removeOnboardingStatusWithContextLocked:nil error:nil];
         // return new status with phase set to none
         return [MSIDOnboardingStatus new];
     }
-    
+
     return status;
 }
 
 - (BOOL)clear:(NSString *)bundleId
+{
+    __block BOOL success = NO;
+    dispatch_sync(_accessQueue, ^{
+        success = [self clearLocked:bundleId];
+    });
+
+    return success;
+}
+
+- (BOOL)clearLocked:(NSString *)bundleId
 {
     if ([NSString msidIsStringNilOrBlank:bundleId])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"(MSIDOnboardingStatusCache) Cannot clear with nil bundleId");
         return NO;
     }
-    
+
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(MSIDOnboardingStatusCache) Clearing onboarding status for bundleId: %@", bundleId);
-    
-    MSIDOnboardingStatus *current = [self getOnboardingStatus];
-    
+
+    MSIDOnboardingStatus *current = [self getOnboardingStatusLocked];
+
     // If there's no existing status or the phase is none, there's nothing to clear
     if (!current || current.phase == MSIDOnboardingPhaseNone)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(MSIDOnboardingStatusCache) No onboarding status found to clear");
         return YES;
     }
-    
+
+    BOOL ownerBundleMatches = [self caseInsensitiveString:current.ownerBundleId matchesString:bundleId];
+    BOOL originatingBundleMatches = [self caseInsensitiveString:current.originatingBundleId matchesString:bundleId];
+
     // If the current status matches the bundleId (checking ownerBundleId or originatingBundleId), remove it
-    if ([current.ownerBundleId caseInsensitiveCompare:bundleId] != NSOrderedSame &&
-        [current.originatingBundleId caseInsensitiveCompare:bundleId] != NSOrderedSame)
+    if (!ownerBundleMatches && !originatingBundleMatches)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(MSIDOnboardingStatusCache) BundleId does not match current status, nothing to clear");
         return NO;
     }
-    
-    return [self removeOnboardingStatusWithContext:nil error:nil];
+
+    return [self removeOnboardingStatusWithContextLocked:nil error:nil];
+}
+
+- (BOOL)caseInsensitiveString:(NSString *)left matchesString:(NSString *)right
+{
+    if ([NSString msidIsStringNilOrBlank:left] || [NSString msidIsStringNilOrBlank:right])
+    {
+        return NO;
+    }
+
+    return [left caseInsensitiveCompare:right] == NSOrderedSame;
 }
 
 @end
