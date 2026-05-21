@@ -870,6 +870,7 @@
 		72D961B12DE12F30005DED66 /* MSIDCachedNonce.m in Sources */ = {isa = PBXBuildFile; fileRef = 72D961AF2DE12F2E005DED66 /* MSIDCachedNonce.m */; };
 		73D7C94FBD27C5CA3480B739 /* MSIDDIContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 30CDFCBD388F4440556637F9 /* MSIDDIContainer.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		AE6838E26F5648EFAB74A481 /* MSIDThrottlingRefreshing.h in Headers */ = {isa = PBXBuildFile; fileRef = CACE5D66E6234506B9936BC5 /* MSIDThrottlingRefreshing.h */; };
+		B5E8A92C146D4F38B5C92E17 /* MSIDThrottlingMetaDataReading.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A3F1B92D04C45E8A9C16384 /* MSIDThrottlingMetaDataReading.h */; };
 		740340B92460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 740340B72460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h */; };
 		740340BA2460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */; };
 		740340BB2460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */; };
@@ -2057,6 +2058,7 @@
 		B8F16E92245B572C0047457F /* MSIDWebViewPlatformParams.m in Sources */ = {isa = PBXBuildFile; fileRef = B8F16E91245B572C0047457F /* MSIDWebViewPlatformParams.m */; };
 		C2E599251DB14C46D8DD6261 /* MSIDDIContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 30CDFCBD388F4440556637F9 /* MSIDDIContainer.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		131989824FC049AFB96F9E3E /* MSIDThrottlingRefreshing.h in Headers */ = {isa = PBXBuildFile; fileRef = CACE5D66E6234506B9936BC5 /* MSIDThrottlingRefreshing.h */; };
+		2D9C4F18A6B941579F0D8C36 /* MSIDThrottlingMetaDataReading.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A3F1B92D04C45E8A9C16384 /* MSIDThrottlingMetaDataReading.h */; };
 		D11DF760D8901DDC5186BC7A /* MSIDDIContainerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2E356C396133919B12FB4F01 /* MSIDDIContainerTests.m */; };
 		D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
@@ -2682,6 +2684,7 @@
 		305240E0A18733A71978A8A4 /* MSIDOnboardingBlobFieldKeys.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MSIDOnboardingBlobFieldKeys.h; sourceTree = "<group>"; };
 		30CDFCBD388F4440556637F9 /* MSIDDIContainer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = MSIDDIContainer.h; sourceTree = "<group>"; };
 		CACE5D66E6234506B9936BC5 /* MSIDThrottlingRefreshing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingRefreshing.h; sourceTree = "<group>"; };
+		7A3F1B92D04C45E8A9C16384 /* MSIDThrottlingMetaDataReading.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingMetaDataReading.h; sourceTree = "<group>"; };
 		4B6D22252E831AEA00546EC8 /* MSIDFlightManagerQueryKeyDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyDelegate.h; sourceTree = "<group>"; };
 		4B6D222A2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFlightManagerQueryKeyType.h; sourceTree = "<group>"; };
 		4B6D222B2E8342C200546EC8 /* MSIDFlightManagerQueryKeyType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFlightManagerQueryKeyType.m; sourceTree = "<group>"; };
@@ -4903,6 +4906,7 @@
 				A0E541AF25CDC5F10016E167 /* MSIDThrottlingMetaData.m */,
 				A0E541D325CDDAB30016E167 /* MSIDThrottlingMetaDataCache.h */,
 				A0E541ED25CDDAFD0016E167 /* MSIDThrottlingMetaDataCache.m */,
+				7A3F1B92D04C45E8A9C16384 /* MSIDThrottlingMetaDataReading.h */,
 			);
 			path = metadata;
 			sourceTree = "<group>";
@@ -6346,6 +6350,7 @@
 			files = (
 				73D7C94FBD27C5CA3480B739 /* MSIDDIContainer.h in Headers */,
 				AE6838E26F5648EFAB74A481 /* MSIDThrottlingRefreshing.h in Headers */,
+				B5E8A92C146D4F38B5C92E17 /* MSIDThrottlingMetaDataReading.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6898,6 +6903,7 @@
 				F7AB29D8B906BEA5B6EB8F8C /* MSIDWPJMetadata.h in Headers */,
 				C2E599251DB14C46D8DD6261 /* MSIDDIContainer.h in Headers */,
 				131989824FC049AFB96F9E3E /* MSIDThrottlingRefreshing.h in Headers */,
+				2D9C4F18A6B941579F0D8C36 /* MSIDThrottlingMetaDataReading.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
