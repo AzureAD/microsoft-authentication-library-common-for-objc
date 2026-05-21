@@ -44,6 +44,7 @@ extern NSString *const MSID_OAUTH2_REFRESH_ON;
 extern NSString *const MSID_OAUTH2_GRANT_TYPE;
 extern NSString *const MSID_OAUTH2_REDIRECT_URI;
 extern NSString *const MSID_OAUTH2_REFRESH_TOKEN;
+extern NSString *const MSID_OAUTH2_DEVICE_TOKEN;
 extern NSString *const MSID_OAUTH2_RESOURCE;
 extern NSString *const MSID_OAUTH2_RESPONSE_TYPE;
 extern NSString *const MSID_OAUTH2_SCOPE;
@@ -184,6 +185,8 @@ extern NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE;
 
 extern NSString *const MSID_CLIENT_DATA_HEADER_KEY;
 extern NSString *const MSID_CLIENT_DATA_RESPONSE;
+
+extern NSString *const MSID_BROKER_EXECUTION_FLOW_RESPONSE;
 
 extern NSString *const MSID_REFRESH_TOKEN_TYPE;
 extern NSString *const MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT;
