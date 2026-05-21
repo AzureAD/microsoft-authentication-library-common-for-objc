@@ -36,6 +36,7 @@
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDTestSwizzle.h"
 #import "MSIDDIContainer.h"
 #import "MSIDWorkPlaceJoinUtilProviding.h"
 
