@@ -60,7 +60,7 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 @implementation MSIDOnboardingReason
 
 - (instancetype)initWithCode:(MSIDOnboardingReasonCode)code
-                     message:(NSString *)message
+                     message:(nullable NSString *)message
 {
     self = [super init];
     if (self)
@@ -147,7 +147,7 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 - (instancetype)initWithPhase:(MSIDOnboardingPhase)phase
               onboardingContext:(MSIDOnboardingContext)onboardingContext
                   ownerBundleId:(NSString *)ownerBundleId
-                  correlationId:(NSUUID *)correlationId
+                  correlationId:(nullable NSUUID *)correlationId
 {
     self = [super init];
     if (self)

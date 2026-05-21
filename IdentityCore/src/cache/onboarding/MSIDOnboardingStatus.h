@@ -69,8 +69,8 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingReasonCode)
 @property (nonatomic, readonly) NSInteger version;
 @property (nonatomic, readwrite) MSIDOnboardingPhase phase;
 @property (nonatomic, readonly) MSIDOnboardingContext onboardingContext;
-@property (nonatomic, readonly) NSString *ownerBundleId;
-@property (nonatomic, readonly) NSString *originatingBundleId;
+@property (nonatomic, readonly, nullable) NSString *ownerBundleId;
+@property (nonatomic, readonly, nullable) NSString *originatingBundleId;
 @property (nonatomic, readonly, nullable) NSString *originatingDisplayName;
 @property (nonatomic, readonly, nullable) NSUUID *correlationId;
 @property (nonatomic, readonly, nullable) NSDate *startedAt;
