@@ -142,6 +142,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
 
 - (void)tearDown
 {
+    [MSIDTestSwizzle reset];
     if (self.useIosStyleKeychain)
     {
         [self cleanWPJ:[self keychainGroup:YES]];
