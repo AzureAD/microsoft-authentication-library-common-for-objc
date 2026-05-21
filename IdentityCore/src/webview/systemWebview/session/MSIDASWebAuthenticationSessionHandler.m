@@ -124,7 +124,7 @@
     self.webAuthSession.presentationContextProvider = self;
     self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
     
-    // Set additional headers if available (iOS 18+)
+    // Set additional headers if available (iOS 18+, macOS 15+, visionOS 2+)
     if (@available(iOS 18.0, macOS 15.0, visionOS 2.0, *))
     {
         if (self.additionalHeaders && self.additionalHeaders.count > 0)

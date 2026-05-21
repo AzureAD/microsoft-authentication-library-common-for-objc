@@ -64,7 +64,9 @@
                                             additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
                                                       context:(__unused id<MSIDRequestContext>)context
 {
-    // Only pass headers to ASWebAuthN on iOS 18+, but method itself is available on all versions
+    // Only pass headers to ASWebAuthN when the additionalHeaders initializer is available
+    // (iOS 18+, macOS 15+, visionOS 2+). This factory method remains available on older OS
+    // versions and falls back to the initializer without additionalHeaders.
     if (@available(iOS 18.0, macOS 15.0, visionOS 2.0, *))
     {
         if (additionalHeaders && additionalHeaders.count > 0)
