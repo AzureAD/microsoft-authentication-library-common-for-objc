@@ -509,8 +509,11 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     if (error)
     {
         MSIDOnboardingStatus *status = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
-        status.phase = MSIDOnboardingPhaseFailed;
-        [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:status];
+        if (status && status.phase != MSIDOnboardingPhaseNone)
+        {
+            status.phase = MSIDOnboardingPhaseFailed;
+            [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:status];
+        }
     }
     else
     {
@@ -580,6 +583,12 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     
     [self.class setCurrentBrokerController:nil];
     [self.class setCurrentBrokerRequest:nil];
+
+    NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
+    if (![NSString msidIsStringNilOrBlank:bundleId])
+    {
+        [[MSIDOnboardingStatusCache sharedInstance] clear:bundleId];
+    }
     
     MSIDRequestCompletionBlock completionBlock = [self copyAndClearCompletionBlock];
     
