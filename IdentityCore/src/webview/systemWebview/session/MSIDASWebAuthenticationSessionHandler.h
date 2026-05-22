@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
                                 startURL:(NSURL *)startURL
                           callbackScheme:(NSString *)callbackURLScheme
                      useEphemeralSession:(BOOL)useEphemeralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders API_AVAILABLE(ios(18.0), macos(15.0));
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders API_AVAILABLE(ios(18.0), macos(15.0), visionos(2.0));
 
 @end
 
