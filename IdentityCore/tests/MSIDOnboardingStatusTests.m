@@ -42,7 +42,7 @@
         @"originatingDisplayName" : @"Teams",
         @"correlationId" : @"f2b9c6e7-1234-5678-90ab-abcdef123456",
         @"startedAt" : @"2025-10-03T20:15:00Z",
-        @"ttlSeconds" : @900,
+        @"ttlSeconds" : @([MSIDOnboardingStatus defaultTtlSeconds]),
         @"reason" : @{ @"code" : @"none" }
     };
 
@@ -60,7 +60,7 @@
     XCTAssertEqualObjects(status.originatingDisplayName, @"Teams");
     XCTAssertEqualObjects(status.correlationId.UUIDString.lowercaseString, @"f2b9c6e7-1234-5678-90ab-abcdef123456");
     XCTAssertNotNil(status.startedAt);
-    XCTAssertEqual(status.ttlSeconds, 900);
+    XCTAssertEqual(status.ttlSeconds, [MSIDOnboardingStatus defaultTtlSeconds]);
     XCTAssertNotNil(status.reason);
     XCTAssertEqual(status.reason.code, MSIDOnboardingReasonCodeNone);
 }
@@ -83,7 +83,7 @@
     XCTAssertNotNil(json[@"originatingBundleId"]); // Set from main bundle
     XCTAssertEqualObjects(json[@"correlationId"], @"F2B9C6E7-1234-5678-90AB-ABCDEF123456");
     XCTAssertNotNil(json[@"startedAt"]); // Set automatically
-    XCTAssertEqualObjects(json[@"ttlSeconds"], @900);
+    XCTAssertEqualObjects(json[@"ttlSeconds"], @([MSIDOnboardingStatus defaultTtlSeconds]));
 
     NSDictionary *reasonJson = json[@"reason"];
     XCTAssertEqualObjects(reasonJson[@"code"], @"user_cancel");
@@ -102,7 +102,7 @@
 
     XCTAssertNotNil(status);
     XCTAssertNil(error);
-    XCTAssertEqual(status.ttlSeconds, 900);
+    XCTAssertEqual(status.ttlSeconds, [MSIDOnboardingStatus defaultTtlSeconds]);
 }
 
 - (void)testInitWithJSONDictionary_whenPhaseMissing_shouldFail
@@ -177,7 +177,7 @@
     XCTAssertEqual(status.phase, MSIDOnboardingPhaseFailed);
     XCTAssertEqual(status.onboardingContext, MSIDOnboardingContextUnknown);
     XCTAssertEqual(status.version, 1);
-    XCTAssertEqual(status.ttlSeconds, 900);
+    XCTAssertEqual(status.ttlSeconds, [MSIDOnboardingStatus defaultTtlSeconds]);
     XCTAssertNil(status.ownerBundleId);
     XCTAssertNil(status.originatingBundleId);
     XCTAssertNil(status.originatingDisplayName);
@@ -260,7 +260,7 @@
     XCTAssertEqual(status.onboardingContext, MSIDOnboardingContextUnknown);
     XCTAssertNotNil(status.ownerBundleId);
     XCTAssertNotNil(status.startedAt);
-    XCTAssertEqual(status.ttlSeconds, 900);
+    XCTAssertEqual(status.ttlSeconds, [MSIDOnboardingStatus defaultTtlSeconds]);
     XCTAssertNil(status.correlationId);
     XCTAssertNil(status.reason);
 }
@@ -281,7 +281,7 @@
     XCTAssertEqualObjects(status.ownerBundleId, @"com.test");
     XCTAssertEqualObjects(status.correlationId, correlationId);
     XCTAssertNotNil(status.startedAt);
-    XCTAssertEqual(status.ttlSeconds, 900);
+    XCTAssertEqual(status.ttlSeconds, [MSIDOnboardingStatus defaultTtlSeconds]);
 }
 
 - (void)testInitWithPhase_whenCorrelationIdNil_shouldGenerateNew
@@ -306,7 +306,7 @@
     XCTAssertEqualObjects(json[@"version"], @1);
     XCTAssertEqualObjects(json[@"phase"], @"none");
     XCTAssertEqualObjects(json[@"context"], @"unknown");
-    XCTAssertEqualObjects(json[@"ttlSeconds"], @900);
+    XCTAssertEqualObjects(json[@"ttlSeconds"], @([MSIDOnboardingStatus defaultTtlSeconds]));
     XCTAssertNotNil(json[@"startedAt"]);
     XCTAssertNotNil(json[@"ownerBundleId"]);
     XCTAssertNil(json[@"correlationId"]);

@@ -82,6 +82,14 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingReasonCode)
                   ownerBundleId:(NSString *)ownerBundleId
                   correlationId:(nullable NSUUID *)correlationId;
 
+#pragma mark - Defaults
+
+/**
+ The default TTL (in seconds) applied to newly created or deserialized
+ onboarding status entries when no explicit `ttlSeconds` is provided.
+ */
++ (NSInteger)defaultTtlSeconds;
+
 #pragma mark - String/enum helpers
 
 + (MSIDOnboardingPhase)onboardingPhaseFromString:(NSString *)onboardingPhaseString;

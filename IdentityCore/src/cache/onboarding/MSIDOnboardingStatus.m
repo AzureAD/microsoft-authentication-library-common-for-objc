@@ -272,6 +272,11 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 
 #pragma mark - Helpers
 
++ (NSInteger)defaultTtlSeconds
+{
+    return MSID_ONBOARDING_DEFAULT_TTL_SECONDS;
+}
+
 + (MSIDOnboardingPhase)onboardingPhaseFromString:(NSString *)onboardingPhaseString
 {
     if ([NSString msidIsStringNilOrBlank:onboardingPhaseString])
