@@ -252,7 +252,11 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
                                                                            ownerBundleId:MSID_BROKER_APP_BUNDLE_ID
                                                                            correlationId:self.requestParameters.correlationId];
     
-    [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:onboardingStatus];
+    BOOL didPersistOnboardingStatus = [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:onboardingStatus];
+    if (!didPersistOnboardingStatus)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Failed to persist onboarding status for broker interactive request replay.");
+    }
     
     NSDictionary *brokerResumeDictionary = brokerRequest.resumeDictionary;
     [[NSUserDefaults standardUserDefaults] setObject:brokerResumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
@@ -520,10 +524,14 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
         if (!bundleId)
         {
-            bundleId = @"unknown";
+            MSIDOnboardingStatus *status = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+            bundleId = status.originatingBundleId ?: status.ownerBundleId;
         }
         
-        [MSIDOnboardingStatusCache.sharedInstance clear:bundleId];
+        if (bundleId)
+        {
+            [MSIDOnboardingStatusCache.sharedInstance clear:bundleId];
+        }
     }
     
     if (self.requestCompletionBlock)

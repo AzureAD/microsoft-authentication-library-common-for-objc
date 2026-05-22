@@ -1279,7 +1279,7 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)test_acquireToken_whenOpenURLFails_clearsOnboardingStatusFromCache
+- (void)testAcquireToken_whenOpenURLFails_clearsOnboardingStatusFromCache
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
 
