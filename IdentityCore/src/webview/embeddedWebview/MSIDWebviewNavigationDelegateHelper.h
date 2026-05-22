@@ -96,14 +96,19 @@ NS_ASSUME_NONNULL_BEGIN
  * Caches response headers and detects an ASWebAuthenticationSession hand-off signal.
  * On YES, caller should cancel the WKWebView navigation and invoke the hand-off method below.
  *
- * @param headers HTTP response headers (raw `allHeaderFields`)
- * @return YES if @c headers signal a hand-off; NO otherwise
+ * Security: hand-off is honored only when @c responseURL is HTTPS and its host is on the allowlist.
+ *
+ * @param headers     HTTP response headers (raw `allHeaderFields`)
+ * @param responseURL URL of the response that delivered @c headers (@c NSHTTPURLResponse.URL).
+ * @return YES if @c headers signal a hand-off AND @c responseURL is from allowed origin; NO otherwise.
  */
-- (BOOL)processResponseHeaders:(NSDictionary *)headers;
+- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
+                                              responseURL:(nullable NSURL *)responseURL;
 
 #if !MSID_EXCLUDE_SYSTEMWV
 /**
- * Performs the hand-off using the headers cached by the last @c processResponseHeaders: call.
+ * Performs the hand-off using the headers cached by the last
+ * @c processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: call.
  *
  * @param parentController The view controller that presents the webview
  * @param completion Completion block - MUST be called exactly once; failures surface as a @c failWithError decision

@@ -89,7 +89,8 @@
     completion(navigationDecision, nil);
 }
 
-- (BOOL)processResponseHeaders:(NSDictionary *)headers
+- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
+                                              responseURL:(NSURL *)responseURL
 {
     // Normalize and capture headers for later use. This also allows for case-insensitive lookup of header values.
     self.lastResponseHeaders = [self normalizeHeaders:headers];
@@ -97,15 +98,25 @@
     // TODO: Add telemetry for response headers
 
     NSString *handoffURLString = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
-    BOOL hasHandoff = [handoffURLString isKindOfClass:NSString.class] && ((NSString *)handoffURLString).length > 0;
+    BOOL hasHandoffHeader = [handoffURLString isKindOfClass:NSString.class] && ((NSString *)handoffURLString).length > 0;
 
-    if (hasHandoff)
+    if (!hasHandoffHeader)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context,
-                          @"ASWebAuth hand-off URL detected in response headers.");
+        return NO;
     }
 
-    return hasHandoff;
+    // Security gate: validate that the response URL is from an allowed origin before proceeding with the hand-off.
+    if (![self isAllowedHandoffOrigin:responseURL])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                          @"ASWebAuth hand-off header present but response URL host is not allowed; ignoring hand-off.");
+        return NO;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context,
+                      @"ASWebAuth hand-off URL detected in response headers from allowed origin.");
+
+    return YES;
 }
 
 #if !MSID_EXCLUDE_SYSTEMWV
@@ -120,7 +131,8 @@
         return;
     }
 
-    // Retrieve the hand-off URL captured by the most recent processResponseHeaders: call.
+    // Retrieve the hand-off URL captured by the most recent
+    // processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: call.
     id rawHandoffURL = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
     NSString *handoffURLString = [rawHandoffURL isKindOfClass:NSString.class] ? (NSString *)rawHandoffURL : nil;
     NSURL *handoffURL = handoffURLString.length > 0 ? [NSURL URLWithString:handoffURLString] : nil;
@@ -272,6 +284,31 @@
     
     return [normalized copy];
 }
+
+- (BOOL)isAllowedHandoffOrigin:(NSURL *)responseURL
+{
+    id<MSIDRequestContext> context = self.context;
+
+    if (!responseURL)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context,
+                          @"ASWebAuth hand-off rejected: response URL is nil");
+        return NO;
+    }
+
+    if ([responseURL.scheme caseInsensitiveCompare:@"https"] != NSOrderedSame)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context,
+                          @"ASWebAuth hand-off rejected: response URL is not HTTPS (scheme=%@)",
+                          _PII_NULLIFY(responseURL.scheme));
+        return NO;
+    }
+
+    // Reuse the same allowlist that gates the hand-off target so issuer and target are
+    // held to a single, consistent trust boundary.
+    return [self isURLInAllowedDomains:responseURL];
+}
+
 
 - (BOOL)isValidHandoffURL:(NSURL *)URL
                     error:(NSError *__autoreleasing *)error
