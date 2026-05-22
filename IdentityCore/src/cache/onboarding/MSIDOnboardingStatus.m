@@ -27,35 +27,35 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDError.h"
 
-static NSString *const MSID_ONBOARDING_VERSION_JSON_KEY = @"version";
-static NSString *const MSID_ONBOARDING_PHASE_JSON_KEY = @"phase";
-static NSString *const MSID_ONBOARDING_CONTEXT_JSON_KEY = @"context";
-static NSString *const MSID_ONBOARDING_OWNER_BUNDLE_ID_JSON_KEY = @"ownerBundleId";
-static NSString *const MSID_ONBOARDING_ORIGINATING_BUNDLE_ID_JSON_KEY = @"originatingBundleId";
-static NSString *const MSID_ONBOARDING_ORIGINATING_DISPLAY_NAME_JSON_KEY = @"originatingDisplayName";
-static NSString *const MSID_ONBOARDING_CORRELATION_ID_JSON_KEY = @"correlationId";
-static NSString *const MSID_ONBOARDING_STARTED_AT_JSON_KEY = @"startedAt";
-static NSString *const MSID_ONBOARDING_TTL_SECONDS_JSON_KEY = @"ttlSeconds";
-static NSString *const MSID_ONBOARDING_REASON_JSON_KEY = @"reason";
+static NSString *const MSID_ONBOARDING_STATUS_VERSION_JSON_KEY = @"version";
+static NSString *const MSID_ONBOARDING_STATUS_PHASE_JSON_KEY = @"phase";
+static NSString *const MSID_ONBOARDING_STATUS_CONTEXT_JSON_KEY = @"context";
+static NSString *const MSID_ONBOARDING_STATUS_OWNER_BUNDLE_ID_JSON_KEY = @"ownerBundleId";
+static NSString *const MSID_ONBOARDING_STATUS_ORIGINATING_BUNDLE_ID_JSON_KEY = @"originatingBundleId";
+static NSString *const MSID_ONBOARDING_STATUS_ORIGINATING_DISPLAY_NAME_JSON_KEY = @"originatingDisplayName";
+static NSString *const MSID_ONBOARDING_STATUS_CORRELATION_ID_JSON_KEY = @"correlationId";
+static NSString *const MSID_ONBOARDING_STATUS_STARTED_AT_JSON_KEY = @"startedAt";
+static NSString *const MSID_ONBOARDING_STATUS_TTL_SECONDS_JSON_KEY = @"ttlSeconds";
+static NSString *const MSID_ONBOARDING_STATUS_REASON_JSON_KEY = @"reason";
 
-static NSString *const MSID_ONBOARDING_REASON_CODE_JSON_KEY = @"code";
-static NSString *const MSID_ONBOARDING_REASON_MESSAGE_JSON_KEY = @"message";
+static NSString *const MSID_ONBOARDING_STATUS_REASON_CODE_JSON_KEY = @"code";
+static NSString *const MSID_ONBOARDING_STATUS_REASON_MESSAGE_JSON_KEY = @"message";
 
-static NSString *const MSID_ONBOARDING_STRING_NONE = @"none";
-static NSString *const MSID_ONBOARDING_STRING_UNKNOWN = @"unknown";
+static NSString *const MSID_ONBOARDING_STATUS_STRING_NONE = @"none";
+static NSString *const MSID_ONBOARDING_STATUS_STRING_UNKNOWN = @"unknown";
 
-static NSString *const MSID_ONBOARDING_PHASE_BROKER_INTERACTIVE_IN_PROGRESS_STRING = @"broker_interactive_in_progress";
-static NSString *const MSID_ONBOARDING_PHASE_MDM_ENROLLMENT_IN_PROGRESS_STRING = @"mdm_enrollment_in_progress";
-static NSString *const MSID_ONBOARDING_PHASE_FAILED_STRING = @"failed";
+static NSString *const MSID_ONBOARDING_STATUS_PHASE_BROKER_INTERACTIVE_IN_PROGRESS_STRING = @"broker_interactive_in_progress";
+static NSString *const MSID_ONBOARDING_STATUS_PHASE_MDM_ENROLLMENT_IN_PROGRESS_STRING = @"mdm_enrollment_in_progress";
+static NSString *const MSID_ONBOARDING_STATUS_PHASE_FAILED_STRING = @"failed";
 
-static NSString *const MSID_ONBOARDING_CONTEXT_BROKER_STRING = @"broker";
-static NSString *const MSID_ONBOARDING_CONTEXT_IN_APP_WEBVIEW_STRING = @"inAppWebview";
+static NSString *const MSID_ONBOARDING_STATUS_CONTEXT_BROKER_STRING = @"broker";
+static NSString *const MSID_ONBOARDING_STATUS_CONTEXT_IN_APP_WEBVIEW_STRING = @"inAppWebview";
 
-static NSString *const MSID_ONBOARDING_REASON_CODE_USER_CANCEL_STRING = @"user_cancel";
-static NSString *const MSID_ONBOARDING_REASON_CODE_NETWORK_STRING = @"network";
-static NSString *const MSID_ONBOARDING_REASON_CODE_POLICY_STRING = @"policy";
+static NSString *const MSID_ONBOARDING_STATUS_REASON_CODE_USER_CANCEL_STRING = @"user_cancel";
+static NSString *const MSID_ONBOARDING_STATUS_REASON_CODE_NETWORK_STRING = @"network";
+static NSString *const MSID_ONBOARDING_STATUS_REASON_CODE_POLICY_STRING = @"policy";
 
-static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
+static NSInteger const MSID_ONBOARDING_STATUS_DEFAULT_TTL_SECONDS = 900;
 
 @implementation MSIDOnboardingReason
 
@@ -88,15 +88,15 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
     }
 
     NSString *codeString = nil;
-    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_REASON_CODE_JSON_KEY required:YES error:error]) return nil;
-    codeString = json[MSID_ONBOARDING_REASON_CODE_JSON_KEY];
+    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STATUS_REASON_CODE_JSON_KEY required:YES error:error]) return nil;
+    codeString = json[MSID_ONBOARDING_STATUS_REASON_CODE_JSON_KEY];
 
-    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_REASON_MESSAGE_JSON_KEY required:NO error:error])
+    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STATUS_REASON_MESSAGE_JSON_KEY required:NO error:error])
     {
         return nil;
     }
 
-    _message = json[MSID_ONBOARDING_REASON_MESSAGE_JSON_KEY];
+    _message = json[MSID_ONBOARDING_STATUS_REASON_MESSAGE_JSON_KEY];
     _code = [MSIDOnboardingStatus reasonCodeFromString:codeString];
 
     return self;
@@ -105,9 +105,9 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
-    json[MSID_ONBOARDING_REASON_CODE_JSON_KEY] = [MSIDOnboardingStatus stringFromReasonCode:self.code];
+    json[MSID_ONBOARDING_STATUS_REASON_CODE_JSON_KEY] = [MSIDOnboardingStatus stringFromReasonCode:self.code];
 
-    if (self.message) json[MSID_ONBOARDING_REASON_MESSAGE_JSON_KEY] = self.message;
+    if (self.message) json[MSID_ONBOARDING_STATUS_REASON_MESSAGE_JSON_KEY] = self.message;
 
     return json;
 }
@@ -124,21 +124,12 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
         _version = 1;
         _phase = MSIDOnboardingPhaseNone;
         _onboardingContext = MSIDOnboardingContextUnknown;
-        _ownerBundleId = [[NSBundle mainBundle] bundleIdentifier];
-        _originatingBundleId = [[NSBundle mainBundle] bundleIdentifier];
-        NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
-        if (!displayName)
-        {
-            // Fallback to CFBundleName if CFBundleDisplayName is not set
-            displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-        }
-        if (![NSString msidIsStringNilOrBlank:displayName])
-        {
-            _originatingDisplayName = displayName;
-        }
+        _ownerBundleId = [[self class] mainBundleIdentifier];
+        _originatingBundleId = [[self class] mainBundleIdentifier];
+        _originatingDisplayName = [[self class] originatingDisplayNameFromMainBundle];
         _correlationId = nil;
         _startedAt = [NSDate date];
-        _ttlSeconds = MSID_ONBOARDING_DEFAULT_TTL_SECONDS;
+        _ttlSeconds = MSID_ONBOARDING_STATUS_DEFAULT_TTL_SECONDS;
         _reason = nil;
     }
     return self;
@@ -156,20 +147,11 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
         _phase = phase;
         _onboardingContext = onboardingContext;
         _ownerBundleId = ownerBundleId;
-        _originatingBundleId = [[NSBundle mainBundle] bundleIdentifier];
-        NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
-        if (!displayName)
-        {
-            // Fallback to CFBundleName if CFBundleDisplayName is not set
-            displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-        }
-        if (![NSString msidIsStringNilOrBlank:displayName])
-        {
-            _originatingDisplayName = displayName;
-        }
+        _originatingBundleId = [[self class] mainBundleIdentifier];
+        _originatingDisplayName = [[self class] originatingDisplayNameFromMainBundle];
         _correlationId = correlationId ?: [[NSUUID alloc] init];
         _startedAt = [NSDate date];
-        _ttlSeconds = MSID_ONBOARDING_DEFAULT_TTL_SECONDS;
+        _ttlSeconds = MSID_ONBOARDING_STATUS_DEFAULT_TTL_SECONDS;
     }
     return self;
 }
@@ -191,53 +173,71 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
     }
 
     _version = 1;
-    if (json[MSID_ONBOARDING_VERSION_JSON_KEY])
+    if (json[MSID_ONBOARDING_STATUS_VERSION_JSON_KEY])
     {
-        if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_ONBOARDING_VERSION_JSON_KEY required:NO error:error]) return nil;
-        _version = [json[MSID_ONBOARDING_VERSION_JSON_KEY] integerValue];
+        if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_ONBOARDING_STATUS_VERSION_JSON_KEY required:NO error:error]) return nil;
+        _version = [json[MSID_ONBOARDING_STATUS_VERSION_JSON_KEY] integerValue];
     }
 
-    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_PHASE_JSON_KEY required:YES error:error]) return nil;
-    NSString *phaseString = json[MSID_ONBOARDING_PHASE_JSON_KEY];
+    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STATUS_PHASE_JSON_KEY required:YES error:error]) return nil;
+    NSString *phaseString = json[MSID_ONBOARDING_STATUS_PHASE_JSON_KEY];
     
-    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_CONTEXT_JSON_KEY required:YES error:error]) return nil;
-    NSString *contextString = json[MSID_ONBOARDING_CONTEXT_JSON_KEY];
+    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STATUS_CONTEXT_JSON_KEY required:YES error:error]) return nil;
+    NSString *contextString = json[MSID_ONBOARDING_STATUS_CONTEXT_JSON_KEY];
 
     _phase = [MSIDOnboardingStatus onboardingPhaseFromString:phaseString];
     _onboardingContext = [MSIDOnboardingStatus onboardingContextFromString:contextString];
 
-    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_OWNER_BUNDLE_ID_JSON_KEY required:NO error:error]) return nil;
-    _ownerBundleId = json[MSID_ONBOARDING_OWNER_BUNDLE_ID_JSON_KEY];
+    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STATUS_OWNER_BUNDLE_ID_JSON_KEY required:NO error:error]) return nil;
+    _ownerBundleId = json[MSID_ONBOARDING_STATUS_OWNER_BUNDLE_ID_JSON_KEY];
     
-    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_ORIGINATING_BUNDLE_ID_JSON_KEY required:NO error:error]) return nil;
-    _originatingBundleId = json[MSID_ONBOARDING_ORIGINATING_BUNDLE_ID_JSON_KEY];
+    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STATUS_ORIGINATING_BUNDLE_ID_JSON_KEY required:NO error:error]) return nil;
+    _originatingBundleId = json[MSID_ONBOARDING_STATUS_ORIGINATING_BUNDLE_ID_JSON_KEY];
     
-    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_ORIGINATING_DISPLAY_NAME_JSON_KEY required:NO error:error]) return nil;
-    _originatingDisplayName = json[MSID_ONBOARDING_ORIGINATING_DISPLAY_NAME_JSON_KEY];
+    if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STATUS_ORIGINATING_DISPLAY_NAME_JSON_KEY required:NO error:error]) return nil;
+    _originatingDisplayName = json[MSID_ONBOARDING_STATUS_ORIGINATING_DISPLAY_NAME_JSON_KEY];
 
-    if (json[MSID_ONBOARDING_CORRELATION_ID_JSON_KEY])
+    if (json[MSID_ONBOARDING_STATUS_CORRELATION_ID_JSON_KEY])
     {
-        if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_CORRELATION_ID_JSON_KEY required:NO error:error]) return nil;
-        _correlationId = [[NSUUID alloc] initWithUUIDString:json[MSID_ONBOARDING_CORRELATION_ID_JSON_KEY]];
+        if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STATUS_CORRELATION_ID_JSON_KEY required:NO error:error]) return nil;
+        NSString *correlationIdString = json[MSID_ONBOARDING_STATUS_CORRELATION_ID_JSON_KEY];
+        _correlationId = [[NSUUID alloc] initWithUUIDString:correlationIdString];
+        if (!_correlationId)
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Invalid onboarding status: correlationId is not a valid UUID string.", nil, nil, nil, nil, nil, YES);
+            }
+            return nil;
+        }
     }
 
-    if (json[MSID_ONBOARDING_STARTED_AT_JSON_KEY])
+    if (json[MSID_ONBOARDING_STATUS_STARTED_AT_JSON_KEY])
     {
-        if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STARTED_AT_JSON_KEY required:NO error:error]) return nil;
-        _startedAt = [MSIDOnboardingStatus dateFromISOString:json[MSID_ONBOARDING_STARTED_AT_JSON_KEY]];
+        if (![json msidAssertType:NSString.class ofKey:MSID_ONBOARDING_STATUS_STARTED_AT_JSON_KEY required:NO error:error]) return nil;
+        NSString *startedAtString = json[MSID_ONBOARDING_STATUS_STARTED_AT_JSON_KEY];
+        _startedAt = [MSIDOnboardingStatus dateFromISOString:startedAtString];
+        if (!_startedAt)
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Invalid onboarding status: startedAt is not a valid ISO-8601 date string.", nil, nil, nil, nil, nil, YES);
+            }
+            return nil;
+        }
     }
 
-    _ttlSeconds = MSID_ONBOARDING_DEFAULT_TTL_SECONDS;
-    if (json[MSID_ONBOARDING_TTL_SECONDS_JSON_KEY])
+    _ttlSeconds = MSID_ONBOARDING_STATUS_DEFAULT_TTL_SECONDS;
+    if (json[MSID_ONBOARDING_STATUS_TTL_SECONDS_JSON_KEY])
     {
-        if (![json msidAssertType:NSNumber.class ofKey:MSID_ONBOARDING_TTL_SECONDS_JSON_KEY required:NO error:error]) return nil;
-        _ttlSeconds = [json[MSID_ONBOARDING_TTL_SECONDS_JSON_KEY] integerValue];
+        if (![json msidAssertType:NSNumber.class ofKey:MSID_ONBOARDING_STATUS_TTL_SECONDS_JSON_KEY required:NO error:error]) return nil;
+        _ttlSeconds = [json[MSID_ONBOARDING_STATUS_TTL_SECONDS_JSON_KEY] integerValue];
     }
 
-    if (json[MSID_ONBOARDING_REASON_JSON_KEY])
+    if (json[MSID_ONBOARDING_STATUS_REASON_JSON_KEY])
     {
-        if (![json msidAssertType:NSDictionary.class ofKey:MSID_ONBOARDING_REASON_JSON_KEY required:NO error:error]) return nil;
-        _reason = [[MSIDOnboardingReason alloc] initWithJSONDictionary:json[MSID_ONBOARDING_REASON_JSON_KEY] error:error];
+        if (![json msidAssertType:NSDictionary.class ofKey:MSID_ONBOARDING_STATUS_REASON_JSON_KEY required:NO error:error]) return nil;
+        _reason = [[MSIDOnboardingReason alloc] initWithJSONDictionary:json[MSID_ONBOARDING_STATUS_REASON_JSON_KEY] error:error];
         if (!_reason) return nil;
     }
     
@@ -248,23 +248,23 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
 
-    json[MSID_ONBOARDING_VERSION_JSON_KEY] = @(self.version);
-    json[MSID_ONBOARDING_PHASE_JSON_KEY] = [[self class] stringFromPhase:self.phase];
-    json[MSID_ONBOARDING_CONTEXT_JSON_KEY] = [[self class] stringFromContext:self.onboardingContext];
+    json[MSID_ONBOARDING_STATUS_VERSION_JSON_KEY] = @(self.version);
+    json[MSID_ONBOARDING_STATUS_PHASE_JSON_KEY] = [[self class] stringFromPhase:self.phase];
+    json[MSID_ONBOARDING_STATUS_CONTEXT_JSON_KEY] = [[self class] stringFromContext:self.onboardingContext];
 
-    if (self.ownerBundleId) json[MSID_ONBOARDING_OWNER_BUNDLE_ID_JSON_KEY] = self.ownerBundleId;
-    if (self.originatingBundleId) json[MSID_ONBOARDING_ORIGINATING_BUNDLE_ID_JSON_KEY] = self.originatingBundleId;
-    if (self.originatingDisplayName) json[MSID_ONBOARDING_ORIGINATING_DISPLAY_NAME_JSON_KEY] = self.originatingDisplayName;
-    if (self.correlationId) json[MSID_ONBOARDING_CORRELATION_ID_JSON_KEY] = [self.correlationId UUIDString];
-    if (self.startedAt) json[MSID_ONBOARDING_STARTED_AT_JSON_KEY] = [[self class] isoStringFromDate:self.startedAt];
+    if (self.ownerBundleId) json[MSID_ONBOARDING_STATUS_OWNER_BUNDLE_ID_JSON_KEY] = self.ownerBundleId;
+    if (self.originatingBundleId) json[MSID_ONBOARDING_STATUS_ORIGINATING_BUNDLE_ID_JSON_KEY] = self.originatingBundleId;
+    if (self.originatingDisplayName) json[MSID_ONBOARDING_STATUS_ORIGINATING_DISPLAY_NAME_JSON_KEY] = self.originatingDisplayName;
+    if (self.correlationId) json[MSID_ONBOARDING_STATUS_CORRELATION_ID_JSON_KEY] = [self.correlationId UUIDString];
+    if (self.startedAt) json[MSID_ONBOARDING_STATUS_STARTED_AT_JSON_KEY] = [[self class] isoStringFromDate:self.startedAt];
 
-    json[MSID_ONBOARDING_TTL_SECONDS_JSON_KEY] = @(_ttlSeconds);
+    json[MSID_ONBOARDING_STATUS_TTL_SECONDS_JSON_KEY] = @(_ttlSeconds);
 
     if (self.reason)
     {
         NSDictionary *reasonJson = [self.reason jsonDictionary];
         if (!reasonJson) return nil;
-        json[MSID_ONBOARDING_REASON_JSON_KEY] = reasonJson;
+        json[MSID_ONBOARDING_STATUS_REASON_JSON_KEY] = reasonJson;
     }
 
     return json;
@@ -274,7 +274,26 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 
 + (NSInteger)defaultTtlSeconds
 {
-    return MSID_ONBOARDING_DEFAULT_TTL_SECONDS;
+    return MSID_ONBOARDING_STATUS_DEFAULT_TTL_SECONDS;
+}
+
++ (nullable NSString *)mainBundleIdentifier
+{
+    return [[NSBundle mainBundle] bundleIdentifier];
+}
+
++ (nullable NSString *)originatingDisplayNameFromMainBundle
+{
+    NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+    if (!displayName)
+    {
+        displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+    }
+    if ([NSString msidIsStringNilOrBlank:displayName])
+    {
+        return nil;
+    }
+    return displayName;
 }
 
 + (MSIDOnboardingPhase)onboardingPhaseFromString:(NSString *)onboardingPhaseString
@@ -284,10 +303,10 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
         return MSIDOnboardingPhaseNone;
     }
     
-    if ([onboardingPhaseString caseInsensitiveCompare:MSID_ONBOARDING_STRING_NONE] == NSOrderedSame) return MSIDOnboardingPhaseNone;
-    if ([onboardingPhaseString caseInsensitiveCompare:MSID_ONBOARDING_PHASE_BROKER_INTERACTIVE_IN_PROGRESS_STRING] == NSOrderedSame) return MSIDOnboardingPhaseBrokerInteractiveInProgress;
-    if ([onboardingPhaseString caseInsensitiveCompare:MSID_ONBOARDING_PHASE_MDM_ENROLLMENT_IN_PROGRESS_STRING] == NSOrderedSame) return MSIDOnboardingPhaseMdmEnrollmentInProgress;
-    if ([onboardingPhaseString caseInsensitiveCompare:MSID_ONBOARDING_PHASE_FAILED_STRING] == NSOrderedSame) return MSIDOnboardingPhaseFailed;
+    if ([onboardingPhaseString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_STRING_NONE] == NSOrderedSame) return MSIDOnboardingPhaseNone;
+    if ([onboardingPhaseString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_PHASE_BROKER_INTERACTIVE_IN_PROGRESS_STRING] == NSOrderedSame) return MSIDOnboardingPhaseBrokerInteractiveInProgress;
+    if ([onboardingPhaseString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_PHASE_MDM_ENROLLMENT_IN_PROGRESS_STRING] == NSOrderedSame) return MSIDOnboardingPhaseMdmEnrollmentInProgress;
+    if ([onboardingPhaseString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_PHASE_FAILED_STRING] == NSOrderedSame) return MSIDOnboardingPhaseFailed;
 
     return MSIDOnboardingPhaseNone;
 }
@@ -296,12 +315,12 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 {
     switch (phase)
     {
-        case MSIDOnboardingPhaseBrokerInteractiveInProgress: return MSID_ONBOARDING_PHASE_BROKER_INTERACTIVE_IN_PROGRESS_STRING;
-        case MSIDOnboardingPhaseMdmEnrollmentInProgress: return MSID_ONBOARDING_PHASE_MDM_ENROLLMENT_IN_PROGRESS_STRING;
-        case MSIDOnboardingPhaseFailed: return MSID_ONBOARDING_PHASE_FAILED_STRING;
+        case MSIDOnboardingPhaseBrokerInteractiveInProgress: return MSID_ONBOARDING_STATUS_PHASE_BROKER_INTERACTIVE_IN_PROGRESS_STRING;
+        case MSIDOnboardingPhaseMdmEnrollmentInProgress: return MSID_ONBOARDING_STATUS_PHASE_MDM_ENROLLMENT_IN_PROGRESS_STRING;
+        case MSIDOnboardingPhaseFailed: return MSID_ONBOARDING_STATUS_PHASE_FAILED_STRING;
         case MSIDOnboardingPhaseNone:
         default:
-            return MSID_ONBOARDING_STRING_NONE;
+            return MSID_ONBOARDING_STATUS_STRING_NONE;
     }
 }
 
@@ -312,8 +331,8 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
         return MSIDOnboardingContextUnknown;
     }
     
-    if ([onboardingContextString caseInsensitiveCompare:MSID_ONBOARDING_CONTEXT_BROKER_STRING] == NSOrderedSame) return MSIDOnboardingContextBroker;
-    if ([onboardingContextString caseInsensitiveCompare:MSID_ONBOARDING_CONTEXT_IN_APP_WEBVIEW_STRING] == NSOrderedSame) return MSIDOnboardingContextInAppWebview;
+    if ([onboardingContextString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_CONTEXT_BROKER_STRING] == NSOrderedSame) return MSIDOnboardingContextBroker;
+    if ([onboardingContextString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_CONTEXT_IN_APP_WEBVIEW_STRING] == NSOrderedSame) return MSIDOnboardingContextInAppWebview;
 
     return MSIDOnboardingContextUnknown;
 }
@@ -322,11 +341,11 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 {
     switch (context)
     {
-        case MSIDOnboardingContextBroker: return MSID_ONBOARDING_CONTEXT_BROKER_STRING;
-        case MSIDOnboardingContextInAppWebview: return MSID_ONBOARDING_CONTEXT_IN_APP_WEBVIEW_STRING;
+        case MSIDOnboardingContextBroker: return MSID_ONBOARDING_STATUS_CONTEXT_BROKER_STRING;
+        case MSIDOnboardingContextInAppWebview: return MSID_ONBOARDING_STATUS_CONTEXT_IN_APP_WEBVIEW_STRING;
         case MSIDOnboardingContextUnknown:
         default:
-            return MSID_ONBOARDING_STRING_UNKNOWN;
+            return MSID_ONBOARDING_STATUS_STRING_UNKNOWN;
     }
 }
 
@@ -337,11 +356,11 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
         return MSIDOnboardingReasonCodeUnknown;
     }
     
-    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_STRING_NONE] == NSOrderedSame) return MSIDOnboardingReasonCodeNone;
-    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_REASON_CODE_USER_CANCEL_STRING] == NSOrderedSame) return MSIDOnboardingReasonCodeUserCancel;
-    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_REASON_CODE_NETWORK_STRING] == NSOrderedSame) return MSIDOnboardingReasonCodeNetwork;
-    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_REASON_CODE_POLICY_STRING] == NSOrderedSame) return MSIDOnboardingReasonCodePolicy;
-    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_STRING_UNKNOWN] == NSOrderedSame) return MSIDOnboardingReasonCodeUnknown;
+    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_STRING_NONE] == NSOrderedSame) return MSIDOnboardingReasonCodeNone;
+    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_REASON_CODE_USER_CANCEL_STRING] == NSOrderedSame) return MSIDOnboardingReasonCodeUserCancel;
+    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_REASON_CODE_NETWORK_STRING] == NSOrderedSame) return MSIDOnboardingReasonCodeNetwork;
+    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_REASON_CODE_POLICY_STRING] == NSOrderedSame) return MSIDOnboardingReasonCodePolicy;
+    if ([reasonCodeString caseInsensitiveCompare:MSID_ONBOARDING_STATUS_STRING_UNKNOWN] == NSOrderedSame) return MSIDOnboardingReasonCodeUnknown;
 
     return MSIDOnboardingReasonCodeUnknown;
 }
@@ -350,13 +369,13 @@ static NSInteger const MSID_ONBOARDING_DEFAULT_TTL_SECONDS = 900;
 {
     switch (reasonCode)
     {
-        case MSIDOnboardingReasonCodeUserCancel: return MSID_ONBOARDING_REASON_CODE_USER_CANCEL_STRING;
-        case MSIDOnboardingReasonCodeNetwork: return MSID_ONBOARDING_REASON_CODE_NETWORK_STRING;
-        case MSIDOnboardingReasonCodePolicy: return MSID_ONBOARDING_REASON_CODE_POLICY_STRING;
-        case MSIDOnboardingReasonCodeUnknown: return MSID_ONBOARDING_STRING_UNKNOWN;
+        case MSIDOnboardingReasonCodeUserCancel: return MSID_ONBOARDING_STATUS_REASON_CODE_USER_CANCEL_STRING;
+        case MSIDOnboardingReasonCodeNetwork: return MSID_ONBOARDING_STATUS_REASON_CODE_NETWORK_STRING;
+        case MSIDOnboardingReasonCodePolicy: return MSID_ONBOARDING_STATUS_REASON_CODE_POLICY_STRING;
+        case MSIDOnboardingReasonCodeUnknown: return MSID_ONBOARDING_STATUS_STRING_UNKNOWN;
         case MSIDOnboardingReasonCodeNone:
         default:
-            return MSID_ONBOARDING_STRING_NONE;
+            return MSID_ONBOARDING_STATUS_STRING_NONE;
     }
 }
 
