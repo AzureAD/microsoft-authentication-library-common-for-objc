@@ -390,13 +390,16 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     {
         id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
         if ((strongNavigationDelegate)
-            && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeaders:)]
+            && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeadersAndCheckForASWebAuthHandoff:responseURL:)]
             && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
         {
             NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
 
-            // Process the response headers and determine if a hand-off to ASWebAuthenticationSession is signaled in the headers.
-            BOOL didHandoff = [strongNavigationDelegate processResponseHeaders:response.allHeaderFields];
+            // Process the response headers and determine if a hand-off to ASWebAuthenticationSession is signaled.
+            // The response URL is passed so the delegate can verify the issuing origin is allowed (HTTPS + allowlisted host)
+            // before honoring an ASWebAuth header.
+            BOOL didHandoff = [strongNavigationDelegate processResponseHeadersAndCheckForASWebAuthHandoff:response.allHeaderFields
+                                                                                             responseURL:response.URL];
 
 #if !MSID_EXCLUDE_SYSTEMWV
             // If a hand-off is signaled, and the navigation delegate implements the hand-off method, perform the hand-off to ASWebAuthenticationSession and cancel the current navigation.
