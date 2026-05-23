@@ -29,6 +29,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDError.h"
 
 @interface MSIDBrowserNativeMessageGetTokenRequestTests : XCTestCase
 
@@ -913,7 +914,7 @@
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnf_shouldNotFail
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnf_shouldReturnNilWithError
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -944,9 +945,9 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNotNil(request);
-    XCTAssertNil(error);
-    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenType_shouldNotFail
@@ -985,7 +986,7 @@
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnfAsEQP_shouldNotFail
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnfAsEQP_shouldReturnNilWithError
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -1016,9 +1017,9 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNotNil(request);
-    XCTAssertNil(error);
-    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenTypeAsEQP_shouldNotFail
@@ -1055,6 +1056,79 @@
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndNilReqCnf_shouldReturnNilWithError
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndEmptyReqCnf_shouldReturnNilWithError
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+            @"reqCnf": @""
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeInEQPAndNilReqCnf_shouldReturnNilWithError
+{
+    __auto_type extraParameters = @{
+        @"tokenType": @"pop",
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"extraParameters": extraParameters,
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
 @end

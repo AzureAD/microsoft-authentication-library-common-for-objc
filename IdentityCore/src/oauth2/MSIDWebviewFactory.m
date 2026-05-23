@@ -129,6 +129,7 @@
 #endif
 
     embeddedWebviewController.externalDecidePolicyForBrowserAction = externalDecidePolicyForBrowserAction;
+    embeddedWebviewController.onboardingBlobBuilder = configuration.onboardingBlobBuilder;
 
     return embeddedWebviewController;
 }
@@ -304,6 +305,7 @@
     configuration.parentController = parameters.parentViewController;
     configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
     configuration.customHeaderProvider = parameters.prtHeaderProvider;
+    configuration.onboardingBlobBuilder = parameters.onboardingBlobBuilder;
     
 #if TARGET_OS_IPHONE
     configuration.presentationType = parameters.presentationType;

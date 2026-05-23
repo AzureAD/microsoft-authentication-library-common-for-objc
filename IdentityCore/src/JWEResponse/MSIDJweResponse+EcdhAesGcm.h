@@ -36,9 +36,11 @@ extern MSIDJWECryptoKeyResponseEncryptionAlgorithm const _Nonnull MSID_RESPONSE_
 
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDJweResponse (EcdhAesGcm)
+#if !TARGET_OS_OSX
 - (BOOL)IsJweResponseAlgorithmSupported:(NSError * _Nullable __autoreleasing * _Nullable)error;
 - (nullable NSDictionary *)decryptJweResponseWithPrivateStk:(SecKeyRef)privateStk
                                                   jweCrypto:(MSIDJWECrypto *)jweCrypto
                                                       error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+#endif
 @end
 NS_ASSUME_NONNULL_END

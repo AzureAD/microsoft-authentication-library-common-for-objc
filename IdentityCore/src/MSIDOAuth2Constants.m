@@ -44,6 +44,7 @@ NSString *const MSID_OAUTH2_EXPIRES_IN         = @"expires_in";
 NSString *const MSID_OAUTH2_GRANT_TYPE         = @"grant_type";
 NSString *const MSID_OAUTH2_REDIRECT_URI       = @"redirect_uri";
 NSString *const MSID_OAUTH2_REFRESH_TOKEN      = @"refresh_token";
+NSString *const MSID_OAUTH2_DEVICE_TOKEN      = @"device_token";
 NSString *const MSID_OAUTH2_RESOURCE           = @"resource";
 NSString *const MSID_OAUTH2_RESPONSE_TYPE      = @"response_type";
 NSString *const MSID_OAUTH2_SCOPE              = @"scope";
@@ -183,6 +184,8 @@ NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE       = @"ccs-request-sequenc
 
 NSString *const MSID_CLIENT_DATA_HEADER_KEY              = @"x-ms-clientdata";
 NSString *const MSID_CLIENT_DATA_RESPONSE                = @"client_data";
+
+NSString *const MSID_BROKER_EXECUTION_FLOW_RESPONSE      = @"broker_execution_flow";
 
 NSString *const MSID_REFRESH_TOKEN_TYPE                  = @"refresh_token_type";
 NSString *const MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT     = @"bound_app_rt";

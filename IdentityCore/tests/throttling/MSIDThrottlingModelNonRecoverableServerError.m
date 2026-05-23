@@ -29,6 +29,39 @@
 #import "NSError+MSIDExtensions.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDThrottlingMetaDataCache.h"
+#import "MSIDThrottlingMetaDataReading.h"
+#import "MSIDDIContainer.h"
+
+#pragma mark - Throttling metadata-reader fake
+
+@interface MSIDThrottlingModelTestFakeMetaDataReader : NSObject <MSIDThrottlingMetaDataReading>
+@property (class, nonatomic, copy, nullable) NSDate *nextLastRefreshTime;
+@end
+
+@implementation MSIDThrottlingModelTestFakeMetaDataReader
+
+static NSDate *gModelTestFakeLastRefreshTime = nil;
+
++ (NSDate *)nextLastRefreshTime { return gModelTestFakeLastRefreshTime; }
++ (void)setNextLastRefreshTime:(NSDate *)value { gModelTestFakeLastRefreshTime = [value copy]; }
+
++ (NSDate *)getLastRefreshTimeWithDatasource:(__unused id<MSIDExtendedTokenCacheDataSource>)datasource
+                                     context:(__unused id<MSIDRequestContext>)context
+                                       error:(__unused NSError *__autoreleasing *)error
+{
+    return gModelTestFakeLastRefreshTime;
+}
+
+@end
+
+static void MSIDInstallFakeMetaDataReader(NSDate * _Nullable lastRefreshTime)
+{
+    MSIDThrottlingModelTestFakeMetaDataReader.nextLastRefreshTime = lastRefreshTime;
+    [[MSIDDIContainer sharedInstance]
+        registerProtocol:@protocol(MSIDThrottlingMetaDataReading)
+                lifetime:MSIDDIContainerLifetimeSingleton
+                 factory:^id { return (id)[MSIDThrottlingModelTestFakeMetaDataReader class]; }];
+}
 
 @interface MSIDThrottlingModelNonRecoverableServerErrorTest : XCTestCase
 
@@ -43,6 +76,8 @@
 - (void)tearDown
 {
     [MSIDTestSwizzle reset];
+    [[MSIDDIContainer sharedInstance] reset];
+    MSIDThrottlingModelTestFakeMetaDataReader.nextLastRefreshTime = nil;
 }
 
 - (NSError *)createErrorWithDomain:(BOOL)isMSIDError
@@ -120,12 +155,7 @@
         return record;
     }];
 
-    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
-                                                              class:[MSIDThrottlingMetaDataCache class]
-                                                              block:(id)^(void)
-     {
-        return nil;
-    }];
+    MSIDInstallFakeMetaDataReader(nil);
 
     XCTAssertTrue([model shouldThrottleRequest]);
 }
@@ -144,14 +174,7 @@
         return record;
     }];
     
-    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
-                           class:[MSIDThrottlingMetaDataCache class]
-                           block:(id)^(void)
-     {
-        
-        NSDate *lastRefreshTime = [NSDate dateWithTimeIntervalSinceNow:-3];
-        return lastRefreshTime;
-    }];
+    MSIDInstallFakeMetaDataReader([NSDate dateWithTimeIntervalSinceNow:-3]);
 
     XCTAssertTrue([model shouldThrottleRequest]);
 }
@@ -170,14 +193,7 @@
         return record;
     }];
 
-    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
-                           class:[MSIDThrottlingMetaDataCache class]
-                           block:(id)^(void)
-     {
-        
-        NSDate *lastRefreshTime = nil;
-        return lastRefreshTime;
-    }];
+    MSIDInstallFakeMetaDataReader(nil);
 
     XCTAssertFalse([model shouldThrottleRequest]);
 }
@@ -196,14 +212,7 @@
         return record;
     }];
 
-    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
-                           class:[MSIDThrottlingMetaDataCache class]
-                           block:(id)^(void)
-     {
-        
-        NSDate *lastRefreshTime = [NSDate dateWithTimeIntervalSinceNow:3];
-        return lastRefreshTime;
-    }];
+    MSIDInstallFakeMetaDataReader([NSDate dateWithTimeIntervalSinceNow:3]);
 
     XCTAssertFalse([model shouldThrottleRequest]);
 }

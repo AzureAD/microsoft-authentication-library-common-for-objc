@@ -29,6 +29,7 @@
 #import "MSIDPromptType_Internal.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
 
@@ -56,7 +57,8 @@
     request.extraQueryParameters = [parameters allAuthorizeRequestExtraParametersWithMetadata:NO];
     request.extraScopesToConsent = parameters.extraScopesToConsent;
     request.userFederatedIdentityToken = parameters.userFederatedIdentityToken;
-    
+    request.onboardingBlob = parameters.onboardingBlobJson;
+
     return request;
 }
 
@@ -81,6 +83,7 @@
         NSString *promptString = [json msidStringObjectForKey:MSID_BROKER_PROMPT_KEY];
         _promptType = MSIDPromptTypeFromString(promptString);
         _extraScopesToConsent = [json msidStringObjectForKey:MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY];
+        _onboardingBlob = [json msidStringObjectForKey:MSIDOnboardingBlobIPCKey];
     }
     
     return self;
@@ -102,7 +105,12 @@
     {
         json[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY] = self.userFederatedIdentityToken;
     }
-    
+
+    if (self.onboardingBlob.length > 0)
+    {
+        json[MSIDOnboardingBlobIPCKey] = self.onboardingBlob;
+    }
+
     return json;
 }
 

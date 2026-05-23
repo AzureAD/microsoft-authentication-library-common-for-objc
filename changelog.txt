@@ -1,3 +1,23 @@
+TBD
+* Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release. Self-heal cache eviction on conformance failure; release-mode fallback test via NSAssertionHandler swap.
+* Add MSIDDIContainer dependency-injection container for swizzle-free test seams. (#1807)
+* Add Delos and GovSG sovereign cloud authorities as trusted hosts. (#1813)
+* Add onboarding telemetry support for broker and 1p apps. (#1811)
+* Add device token grant request/response handlers. (#1801)
+* Improve UI tests performance #1805
+* Close cookies popup in automation tests #1814
+* Exclude swift files from macOS targets #1827
+* Propagate client_data from broker error response for legacy broker support (#1834)
+
+Version 1.23.1
+* Support saving and removing requestedClaims for ATs in mac legacy (ACL) cache (#1783)
+
+Version 1.23.0
+* Clean up the experiment bag for HTTP requests and attempt to resolve the reported crash. (#1757)
+* Remove 4-hour XPC canPerform status cache and XPC roundtrip (#1771)
+* Add HttpRequest interceptor (#1759)
+* Cache and reuse broker XPC instance endpoint to skip dispatcher round-trip (gated by broker_xpc_instance_cache_enabled flight, default OFF).
+
 Version 1.22.0
 * Import the right bridging header when common-core is consumed as submodule 
 * Add retry logic when bound app refresh token redemption fails.
@@ -6,9 +26,6 @@ Version 1.22.0
 * Strip eqp from CIAM authority #1714
 * Add French sovereign cloud authority as a trusted authority (#1731)
 * Serialize `is_sso_account` as NSString instead of NSNumber in MSIDAccount
-* Clean up the experiment bag for HTTP requests and attempt to resolve the reported crash.
-* Remove 4-hour XPC canPerform status cache and XPC roundtrip (#1771) 
-* Add HttpRequest interceptor #1759 
 
 Version 1.21.0
 * Import the right bridging header when common-core is consumed as submodule  (#1678)
