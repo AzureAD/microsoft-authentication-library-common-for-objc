@@ -1,3 +1,4 @@
+//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -16,16 +17,23 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDWebResponseBaseOperation.h"
+#import <Foundation/Foundation.h>
+#import "MSIDWebviewResponse.h"
 
-extern NSString * _Nonnull const MSID_INSTALL_BROKER_OPERATION;
-extern NSString * _Nonnull const MSID_OPEN_BROSWER_OPERATION;
-extern NSString * _Nonnull const MSID_UPGRADE_REGISTRATION_BROKER_OPERATION;
-extern NSString * _Nonnull const MSID_MDM_ENROLLMENT_COMPLETION_OPERATION;
-extern NSString * _Nonnull const MSID_OPEN_OPENID_VC_OPERATION;
+/// Webview response that recognizes the `openid-vc://` URL scheme used by OpenID for
+/// Verifiable Credentials (OpenID4VC / VID) flows. When an embedded auth webview
+/// navigates to such a URL, the response is created so the higher-level orchestration
+/// layer can hand the URL off to a wallet app via `MSIDWebOpenIdVcResponseOperation`.
+@interface MSIDWebOpenIdVcResponse : MSIDWebviewResponse
+
+@property (atomic, readonly) NSURL *openIdVcURL;
+
+@end

@@ -1,4 +1,3 @@
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,12 +19,17 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 #import "MSIDWebResponseBaseOperation.h"
 
-extern NSString * _Nonnull const MSID_INSTALL_BROKER_OPERATION;
-extern NSString * _Nonnull const MSID_OPEN_BROSWER_OPERATION;
-extern NSString * _Nonnull const MSID_UPGRADE_REGISTRATION_BROKER_OPERATION;
-extern NSString * _Nonnull const MSID_MDM_ENROLLMENT_COMPLETION_OPERATION;
-extern NSString * _Nonnull const MSID_OPEN_OPENID_VC_OPERATION;
+NS_ASSUME_NONNULL_BEGIN
+
+/// Operation that hands an `openid-vc://` URL off to the system so iOS can route it
+/// to a registered wallet app. Mirrors `MSIDWebOpenBrowserResponseOperation` for the
+/// OpenID for Verifiable Credentials (OpenID4VC / VID) flow.
+@interface MSIDWebOpenIdVcResponseOperation : MSIDWebResponseBaseOperation
+
+@end
+
+NS_ASSUME_NONNULL_END

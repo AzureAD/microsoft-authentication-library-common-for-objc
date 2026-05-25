@@ -30,6 +30,8 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDWebOpenBrowserResponseOperation.h"
+#import "MSIDWebOpenIdVcResponse.h"
+#import "MSIDWebOpenIdVcResponseOperation.h"
 
 @interface MSIDWebResponseOperationFactoryTests : XCTestCase
 
@@ -56,6 +58,29 @@
     XCTAssertNil(error);
     XCTAssertNotNil(operation);
     XCTAssertTrue([operation isKindOfClass:MSIDWebOpenBrowserResponseOperation.class]);
+    [MSIDWebResponseOperationFactory unRegisterforResponse:webResponse];
+}
+
+- (void)test_openIdVcResponse_should_return_openIdVcOperation
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    __auto_type webResponse = [factory oAuthResponseWithURL:[NSURL URLWithString:@"openid-vc://credential-offer?credential_issuer=https%3A%2F%2Fexample.com&credential_configuration_ids=VerifiedEmployee"]
+                                               requestState:nil
+                                         ignoreInvalidState:NO
+                                             endRedirectUri:@"openid-vc://credential-offer"
+                                                    context:nil
+                                                      error:nil];
+
+    XCTAssertNotNil(webResponse);
+    XCTAssertTrue([webResponse isKindOfClass:MSIDWebOpenIdVcResponse.class]);
+
+    MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:webResponse
+                                                                                                    error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(operation);
+    XCTAssertTrue([operation isKindOfClass:MSIDWebOpenIdVcResponseOperation.class]);
     [MSIDWebResponseOperationFactory unRegisterforResponse:webResponse];
 }
 

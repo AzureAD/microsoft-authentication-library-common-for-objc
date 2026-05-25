@@ -178,6 +178,58 @@
     XCTAssertTrue(result);
 }
 
+- (void)testDecidePolicyForNavigationAction_whenIsOpenIdVcUrl_shouldCancelActionAndReturnYes
+{
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"openid-vc://credential-offer?credential_issuer=https%3A%2F%2Fexample.com"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(result);
+}
+
+- (void)testDecidePolicyForNavigationAction_whenIsOpenIdVcUrlMixedCase_shouldCancelActionAndReturnYes
+{
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:@"OPENID-VC://mock.com"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(result);
+}
+
 - (void)testDecidePolicyForNavigationAction_whenExternalDecidePolicyForBrowserAction_shouldCancelActionAndReturnYesAndCallExternalMethod
 {
     MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]

@@ -93,6 +93,7 @@
     // Stop at broker or browser
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+    BOOL isOpenIdVcUrl = [@"openid-vc" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     
     if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH])
     {
@@ -116,7 +117,7 @@
         }
     }
     
-    if (isBrokerUrl || isBrowserUrl)
+    if (isBrokerUrl || isBrowserUrl || isOpenIdVcUrl)
     {
         // Let external code decide if browser url is allowed to continue
         if (isBrowserUrl && self.externalDecidePolicyForBrowserAction)

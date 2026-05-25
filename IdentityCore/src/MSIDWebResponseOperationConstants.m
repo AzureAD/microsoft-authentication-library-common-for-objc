@@ -28,3 +28,4 @@ NSString *const MSID_INSTALL_BROKER_OPERATION              = @"install_broker_op
 NSString *const MSID_OPEN_BROSWER_OPERATION                = @"open_broswer_operation";
 NSString *const MSID_UPGRADE_REGISTRATION_BROKER_OPERATION = @"upgrade_registration_broker_operation";
 NSString *const MSID_MDM_ENROLLMENT_COMPLETION_OPERATION   = @"mdm_enrollment_completion_operation";
+NSString *const MSID_OPEN_OPENID_VC_OPERATION              = @"open_openid_vc_operation";
