@@ -1048,7 +1048,7 @@
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndAuthenticationSchemeInEQPOnlyAndReqCnfAsNumber_shouldReturnNilWithError
+- (void)testInitWithJSONDictionary_whenJsonValidAndAuthenticationSchemeInEQPOnlyAndReqCnfAsNumber_shouldDefaultToBearer
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -1080,9 +1080,10 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNil(request);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    // authenticationScheme/tokenType in extraParameters should not be read — defaults to Bearer
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenTypeAsEQP_shouldNotFail
@@ -1169,7 +1170,7 @@
     XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
-- (void)testInitWithJSONDictionary_whenPopTokenTypeInEQPAndNilReqCnf_shouldReturnNilWithError
+- (void)testInitWithJSONDictionary_whenPopTokenTypeInEQPAndNilReqCnf_shouldDefaultToBearer
 {
     __auto_type extraParameters = @{
         @"tokenType": @"pop",
@@ -1190,9 +1191,10 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNil(request);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    // tokenType in extraParameters should not be read — defaults to Bearer
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
 @end
