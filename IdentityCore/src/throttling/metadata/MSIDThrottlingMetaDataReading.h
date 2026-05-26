@@ -1,4 +1,3 @@
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,21 +19,29 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
-#if !os(macOS)
-import Foundation
-import CryptoKit
+#import <Foundation/Foundation.h>
 
-@objc(MSIDAesGcmDecryptor)
-public class MSIDAesGcmDecryptor: NSObject {
-    
-    @objc(decryptWithAES256GMCiphertext:nonce:key:tag:aad:error:)
-    public func decryptWithAES256GCMHandler(message ciphertext: Data, iv nonce: Data, key keyData: Data, tag: Data, aad: Data) throws -> Data
-    {
-        let sealedBox = try AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: nonce), ciphertext: ciphertext, tag: tag)
-        let key = SymmetricKey(data: keyData)
-        return try AES.GCM.open(sealedBox, using: key, authenticating: aad)
-    }
-}
-#endif
+@protocol MSIDExtendedTokenCacheDataSource;
+@protocol MSIDRequestContext;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * Class-method seam for the throttling metadata cache read path.
+ *
+ * Production callers route through @c MSIDDIContainer (resolving a
+ * @c Class<MSIDThrottlingMetaDataReading>) so unit tests can install a fake
+ * implementing class without runtime swizzling. The default implementation
+ * lives on @c MSIDThrottlingMetaDataCache.
+ */
+@protocol MSIDThrottlingMetaDataReading <NSObject>
+
++ (nullable NSDate *)getLastRefreshTimeWithDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
+                                              context:(nullable id<MSIDRequestContext>)context
+                                                error:(NSError *__nullable *__nullable)error;
+
+@end
+
+NS_ASSUME_NONNULL_END
