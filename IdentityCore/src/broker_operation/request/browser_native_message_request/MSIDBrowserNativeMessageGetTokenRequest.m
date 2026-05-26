@@ -50,6 +50,7 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_PLATFORM_SEQUENCE_KEY = @"x-client-x
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CAN_SHOW_UI_KEY = @"canShowUI";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY = @"reqCnf";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY = @"tokenType";
+NSString *const MSID_BROWSER_NATIVE_MESSAGE_AUTHENTICATION_SCHEME_KEY = @"authenticationScheme";
 NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
 
 @implementation MSIDBrowserNativeMessageGetTokenRequest
@@ -217,13 +218,15 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     if (!disablePop)
     {
         NSString *reqCnf = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY];
-        NSString *tokenType = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
-        tokenType = tokenType.capitalizedString;
+        // Read authenticationScheme (MSAL JS contract), fall back to tokenType for backward compatibility
+        NSString *authenticationScheme = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_AUTHENTICATION_SCHEME_KEY]
+            ?: [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
+        authenticationScheme = authenticationScheme.capitalizedString;
         
-        if (MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
+        if (MSIDAuthSchemeTypeFromString(authenticationScheme) == MSIDAuthSchemePop)
         {
             NSMutableDictionary *schemeParams = [NSMutableDictionary new];
-            schemeParams[MSID_OAUTH2_TOKEN_TYPE] = tokenType;
+            schemeParams[MSID_OAUTH2_TOKEN_TYPE] = authenticationScheme;
             schemeParams[MSID_OAUTH2_REQUEST_CONFIRMATION] = reqCnf;
             
             _authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
