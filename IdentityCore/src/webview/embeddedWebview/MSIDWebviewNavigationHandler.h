@@ -36,24 +36,25 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Helper class that encapsulates common webview navigation delegate logic
+ * Handler that owns the shared @c MSIDWebviewNavigationDelegate flow used by
+ * controllers (e.g. @c ADBrokerInteractiveControllerWithPRT, @c MSIDLocalController).
  *
- * This helper reduces code duplication by providing reusable implementations for:
- * - Webview configuration (setting the navigation delegate)
- * - Special URL redirect handling (routing via MSIDWebviewNavigationDecisionResolver)
- * - ASWebAuthenticationSession transitions (handoff from the embedded webview)
- * - HTTP response header processing for ASWebAuth handoff signals
- *
- * Controllers can customize behavior by passing callbacks for controller-specific logic
- * (e.g., BRT acquisition in local controller).
+ * Adopting controllers forward their delegate callbacks to this handler, which:
+ *  - Wires the embedded webview's navigation delegate
+ *  - Routes special URL redirects (@c msauth:// / @c browser://) via @c MSIDWebviewNavigationDecisionResolver
+ *  - Inspects HTTP response headers for an ASWebAuthenticationSession hand-off signal
+ *    and applies the HTTPS + allowlist security gate
+ *  - Drives the hand-off to @c MSIDSystemWebviewTransitionManager (callback scheme,
+ *    ephemeral-session policy, forwarded headers) and maps the result to a
+ *    @c MSIDWebviewNavigationDecision
  */
-@interface MSIDWebviewNavigationDelegateHelper : NSObject
+@interface MSIDWebviewNavigationHandler : NSObject
 
 /**
- * Initialize helper with request context.
+ * Initialize the handler with a request context.
  *
  * @param context Request context for logging and correlation ID
- * @return Initialized helper instance
+ * @return Initialized handler instance
  */
 - (instancetype)initWithContext:(id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 

@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDWebviewNavigationDelegateHelper.h"
+#import "MSIDWebviewNavigationHandler.h"
 #import "MSIDWebviewNavigationDecision.h"
 #import "MSIDWebviewNavigationDecisionResolver.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
@@ -33,14 +33,14 @@
 
 #if !MSID_EXCLUDE_WEBKIT
 
-@interface MSIDWebviewNavigationDelegateHelper()
+@interface MSIDWebviewNavigationHandler()
 
 @property (nonatomic) id<MSIDRequestContext> context;
 @property (nonatomic) NSDictionary<NSString *, id> *lastResponseHeaders;
 
 @end
 
-@implementation MSIDWebviewNavigationDelegateHelper
+@implementation MSIDWebviewNavigationHandler
 
 #pragma mark - Init
 
@@ -79,7 +79,7 @@
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
-                      @"Helper handling special redirect: %@", _PII_NULLIFY(URL));
+                      @"Handling special redirect: %@", _PII_NULLIFY(URL));
 
     MSIDWebviewNavigationDecisionResolver *util = [MSIDWebviewNavigationDecisionResolver sharedInstance];
     MSIDWebviewNavigationDecision *navigationDecision = [util resolveDecisionForURL:URL
@@ -233,18 +233,18 @@
         
         if (error)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"[MSIDWebviewNavigationDelegateHelper] Transition completed with error: %@", error);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"[MSIDWebviewNavigationHandler] Transition completed with error: %@", error);
             navigationDecision = [MSIDWebviewNavigationDecision failWithError:error];
         }
         else if (callbackURL)
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"[MSIDWebviewNavigationDelegateHelper] Transition completed with callback URL: %@", MSID_PII_LOG_MASKABLE(callbackURL));
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"[MSIDWebviewNavigationHandler] Transition completed with callback URL: %@", MSID_PII_LOG_MASKABLE(callbackURL));
             navigationDecision = [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:callbackURL]];
         }
         else
         {
             // Neither URL nor error - unexpected
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"[MSIDWebviewNavigationDelegateHelper] Transition completed with neither URL nor error");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"[MSIDWebviewNavigationHandler] Transition completed with neither URL nor error");
             NSError *unexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
                                                        @"Transition completed with neither URL nor error",
                                                        nil, nil, nil, self.context.correlationId, nil, YES);

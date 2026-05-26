@@ -25,7 +25,7 @@
 #if !MSID_EXCLUDE_WEBKIT
 
 #import <XCTest/XCTest.h>
-#import "MSIDWebviewNavigationDelegateHelper.h"
+#import "MSIDWebviewNavigationHandler.h"
 #import "MSIDWebviewNavigationDecision.h"
 #import "MSIDWebviewConstants.h"
 #import "MSIDError.h"
@@ -42,7 +42,7 @@
 @end
 
 // Expose private methods and properties for testing
-@interface MSIDWebviewNavigationDelegateHelper (Testing)
+@interface MSIDWebviewNavigationHandler (Testing)
 
 // Expose private methods and properties for testing.
 @property (nonatomic) NSDictionary *lastResponseHeaders;
@@ -57,25 +57,25 @@
 
 @end
 
-@interface MSIDWebviewNavigationDelegateHelperTests : XCTestCase
+@interface MSIDWebviewNavigationHandlerTests : XCTestCase
 
-@property (nonatomic) MSIDWebviewNavigationDelegateHelper *helper;
+@property (nonatomic) MSIDWebviewNavigationHandler *handler;
 @property (nonatomic) MSIDTestContext *context;
 
 @end
 
-@implementation MSIDWebviewNavigationDelegateHelperTests
+@implementation MSIDWebviewNavigationHandlerTests
 
 - (void)setUp
 {
     [super setUp];
     self.context = [MSIDTestContext new];
-    self.helper = [[MSIDWebviewNavigationDelegateHelper alloc] initWithContext:self.context];
+    self.handler = [[MSIDWebviewNavigationHandler alloc] initWithContext:self.context];
 }
 
 - (void)tearDown
 {
-    self.helper = nil;
+    self.handler = nil;
     self.context = nil;
     [super tearDown];
 }
@@ -85,7 +85,7 @@
 - (void)testIsValidHandoffURL_whenURLIsNil_shouldReturnNO
 {
     NSError *error = nil;
-    BOOL result = [self.helper isValidHandoffURL:nil error:&error];
+    BOOL result = [self.handler isValidHandoffURL:nil error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -96,7 +96,7 @@
 {
     NSURL *url = [NSURL URLWithString:@"//login.microsoftonline.com/path"];
     NSError *error = nil;
-    BOOL result = [self.helper isValidHandoffURL:url error:&error];
+    BOOL result = [self.handler isValidHandoffURL:url error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -107,7 +107,7 @@
 {
     NSURL *url = [NSURL URLWithString:@"http://portal.manage.microsoft.com/path"];
     NSError *error = nil;
-    BOOL result = [self.helper isValidHandoffURL:url error:&error];
+    BOOL result = [self.handler isValidHandoffURL:url error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -118,7 +118,7 @@
 {
     NSURL *url = [NSURL URLWithString:@"https://evil.example.com/path"];
     NSError *error = nil;
-    BOOL result = [self.helper isValidHandoffURL:url error:&error];
+    BOOL result = [self.handler isValidHandoffURL:url error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -129,7 +129,7 @@
 {
     NSURL *url = [NSURL URLWithString:@"https://portal.manage.microsoft.com/path"];
     NSError *error = nil;
-    BOOL result = [self.helper isValidHandoffURL:url error:&error];
+    BOOL result = [self.handler isValidHandoffURL:url error:&error];
     
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -139,7 +139,7 @@
 {
     NSURL *url = [NSURL URLWithString:@"HTTPS://portal.manage.microsoft.com/path"];
     NSError *error = nil;
-    BOOL result = [self.helper isValidHandoffURL:url error:&error];
+    BOOL result = [self.handler isValidHandoffURL:url error:&error];
     
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -149,43 +149,43 @@
 
 - (void)testIsURLInAllowedDomains_whenURLIsNil_shouldReturnNO
 {
-    XCTAssertFalse([self.helper isURLInAllowedDomains:nil]);
+    XCTAssertFalse([self.handler isURLInAllowedDomains:nil]);
 }
 
 - (void)testIsURLInAllowedDomains_whenHostIsNil_shouldReturnNO
 {
     NSURL *url = [NSURL URLWithString:@"https://"];
-    XCTAssertFalse([self.helper isURLInAllowedDomains:url]);
+    XCTAssertFalse([self.handler isURLInAllowedDomains:url]);
 }
 
 - (void)testIsURLInAllowedDomains_whenDomainIsAllowed_shouldReturnYES
 {
     NSURL *url = [NSURL URLWithString:@"https://portal.manage.microsoft.com/path"];
-    XCTAssertTrue([self.helper isURLInAllowedDomains:url]);
+    XCTAssertTrue([self.handler isURLInAllowedDomains:url]);
 }
 
 - (void)testIsURLInAllowedDomains_whenDomainIsNotAllowed_shouldReturnNO
 {
     NSURL *url = [NSURL URLWithString:@"https://attacker.example.com/path"];
-    XCTAssertFalse([self.helper isURLInAllowedDomains:url]);
+    XCTAssertFalse([self.handler isURLInAllowedDomains:url]);
 }
 
 - (void)testIsURLInAllowedDomains_whenDomainIsAllowedDogfood_shouldReturnYES
 {
     NSURL *url = [NSURL URLWithString:@"https://portal.manage-dogfood.microsoft.com/path"];
-    XCTAssertTrue([self.helper isURLInAllowedDomains:url]);
+    XCTAssertTrue([self.handler isURLInAllowedDomains:url]);
 }
 
 - (void)testIsURLInAllowedDomains_whenAllowedDomainIsSubdomainOfAttackerDomain_shouldReturnNO
 {
     NSURL *url = [NSURL URLWithString:@"https://portal.manage.microsoft.com.attacker.com/path"];
-    XCTAssertFalse([self.helper isURLInAllowedDomains:url]);
+    XCTAssertFalse([self.handler isURLInAllowedDomains:url]);
 }
 
 - (void)testIsURLInAllowedDomains_whenAttackerControlledSubdomainUsesAllowedDomainSuffix_shouldReturnNO
 {
     NSURL *url = [NSURL URLWithString:@"https://evil.portal.manage.microsoft.com/path"];
-    XCTAssertFalse([self.helper isURLInAllowedDomains:url]);
+    XCTAssertFalse([self.handler isURLInAllowedDomains:url]);
 }
 
 
@@ -195,7 +195,7 @@
 {
     NSDictionary *input = @{@"Content-Type": @"application/json",
                             @"X-MS-ASWEBAUTH-HANDOFF-URL": @"https://example.com"};
-    NSDictionary *result = [self.helper normalizeHeaders:input];
+    NSDictionary *result = [self.handler normalizeHeaders:input];
     
     XCTAssertEqualObjects(result[@"content-type"], @"application/json");
     XCTAssertEqualObjects(result[@"x-ms-aswebauth-handoff-url"], @"https://example.com");
@@ -204,7 +204,7 @@
 
 - (void)testNormalizeHeaders_whenEmptyDictionary_shouldReturnEmptyDictionary
 {
-    NSDictionary *result = [self.helper normalizeHeaders:@{}];
+    NSDictionary *result = [self.handler normalizeHeaders:@{}];
     XCTAssertEqual(result.count, 0U);
 }
 
@@ -212,108 +212,108 @@
 
 - (void)testCallbackURLScheme_whenHeaderAbsent_shouldReturnDefaultMsauth
 {
-    self.helper.lastResponseHeaders = @{};
-    XCTAssertEqualObjects([self.helper callbackURLScheme], MSID_SCHEME_MSAUTH);
+    self.handler.lastResponseHeaders = @{};
+    XCTAssertEqualObjects([self.handler callbackURLScheme], MSID_SCHEME_MSAUTH);
 }
 
 - (void)testCallbackURLScheme_whenHeaderIsNonString_shouldReturnDefaultMsauth
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @42};
-    XCTAssertEqualObjects([self.helper callbackURLScheme], MSID_SCHEME_MSAUTH);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @42};
+    XCTAssertEqualObjects([self.handler callbackURLScheme], MSID_SCHEME_MSAUTH);
 }
 
 - (void)testCallbackURLScheme_whenHeaderIsEmptyString_shouldReturnDefaultMsauth
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @""};
-    XCTAssertEqualObjects([self.helper callbackURLScheme], MSID_SCHEME_MSAUTH);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @""};
+    XCTAssertEqualObjects([self.handler callbackURLScheme], MSID_SCHEME_MSAUTH);
 }
 
 - (void)testCallbackURLScheme_whenHeaderIsWhitespaceOnly_shouldReturnDefaultMsauth
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @"   "};
-    XCTAssertEqualObjects([self.helper callbackURLScheme], MSID_SCHEME_MSAUTH);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @"   "};
+    XCTAssertEqualObjects([self.handler callbackURLScheme], MSID_SCHEME_MSAUTH);
 }
 
 - (void)testCallbackURLScheme_whenHeaderHasValidScheme_shouldReturnTrimmedScheme
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @"myapp"};
-    XCTAssertEqualObjects([self.helper callbackURLScheme], @"myapp");
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @"myapp"};
+    XCTAssertEqualObjects([self.handler callbackURLScheme], @"myapp");
 }
 
 - (void)testCallbackURLScheme_whenHeaderHasPaddedScheme_shouldReturnTrimmedScheme
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @"  myapp  "};
-    XCTAssertEqualObjects([self.helper callbackURLScheme], @"myapp");
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY: @"  myapp  "};
+    XCTAssertEqualObjects([self.handler callbackURLScheme], @"myapp");
 }
 
 #pragma mark - shouldUseEphemeralSession tests
 
 - (void)testShouldUseEphemeralSession_whenHeaderAbsent_shouldReturnYES
 {
-    self.helper.lastResponseHeaders = @{};
-    XCTAssertTrue([self.helper shouldUseEphemeralSession]);
+    self.handler.lastResponseHeaders = @{};
+    XCTAssertTrue([self.handler shouldUseEphemeralSession]);
 }
 
 - (void)testShouldUseEphemeralSession_whenHeaderIsNonString_shouldReturnYES
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY: @42};
-    XCTAssertTrue([self.helper shouldUseEphemeralSession]);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY: @42};
+    XCTAssertTrue([self.handler shouldUseEphemeralSession]);
 }
 
 - (void)testShouldUseEphemeralSession_whenHeaderIsFalse_shouldReturnNO
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY: @"false"};
-    XCTAssertFalse([self.helper shouldUseEphemeralSession]);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY: @"false"};
+    XCTAssertFalse([self.handler shouldUseEphemeralSession]);
 }
 
 - (void)testShouldUseEphemeralSession_whenHeaderIsFalseUppercase_shouldReturnNO
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY: @"FALSE"};
-    XCTAssertFalse([self.helper shouldUseEphemeralSession]);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY: @"FALSE"};
+    XCTAssertFalse([self.handler shouldUseEphemeralSession]);
 }
 
 - (void)testShouldUseEphemeralSession_whenHeaderIsTrue_shouldReturnYES
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY: @"true"};
-    XCTAssertTrue([self.helper shouldUseEphemeralSession]);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY: @"true"};
+    XCTAssertTrue([self.handler shouldUseEphemeralSession]);
 }
 
 #pragma mark - extractAdditionalHeadersToForward tests
 
 - (void)testExtractAdditionalHeadersToForward_whenIncludeHeadersAbsent_shouldReturnNil
 {
-    self.helper.lastResponseHeaders = @{};
-    XCTAssertNil([self.helper extractAdditionalHeadersToForward]);
+    self.handler.lastResponseHeaders = @{};
+    XCTAssertNil([self.handler extractAdditionalHeadersToForward]);
 }
 
 - (void)testExtractAdditionalHeadersToForward_whenIncludeHeadersIsFalse_shouldReturnNil
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY: @"false"};
-    XCTAssertNil([self.helper extractAdditionalHeadersToForward]);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY: @"false"};
+    XCTAssertNil([self.handler extractAdditionalHeadersToForward]);
 }
 
 - (void)testExtractAdditionalHeadersToForward_whenIncludeHeadersIsNonString_shouldReturnNil
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY: @42};
-    XCTAssertNil([self.helper extractAdditionalHeadersToForward]);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY: @42};
+    XCTAssertNil([self.handler extractAdditionalHeadersToForward]);
 }
 
 - (void)testExtractAdditionalHeadersToForward_whenIncludeHeadersTrueButAttachHeadersMissing_shouldReturnNil
 {
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY: @"true"};
-    XCTAssertNil([self.helper extractAdditionalHeadersToForward]);
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY: @"true"};
+    XCTAssertNil([self.handler extractAdditionalHeadersToForward]);
 }
 
 - (void)testExtractAdditionalHeadersToForward_whenIncludeHeadersTrueAndHeaderPresent_shouldReturnHeaders
 {
     NSString *customHeader = [NSString stringWithFormat:@"%@custom", MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX];
-    self.helper.lastResponseHeaders = @{
+    self.handler.lastResponseHeaders = @{
         MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY: @"true",
         MSID_ASWEBAUTH_HANDOFF_ATTACH_HEADERS_KEY: customHeader,
         customHeader: @"value123"
     };
     
-    NSDictionary *result = [self.helper extractAdditionalHeadersToForward];
+    NSDictionary *result = [self.handler extractAdditionalHeadersToForward];
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result[customHeader], @"value123");
 }
@@ -323,17 +323,17 @@
 - (void)testBuildAdditionalHeadersFromList_whenHeaderWithAllowedPrefix_shouldInclude
 {
     NSString *headerName = [NSString stringWithFormat:@"%@token", MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX];
-    self.helper.lastResponseHeaders = @{headerName: @"tokenvalue"};
+    self.handler.lastResponseHeaders = @{headerName: @"tokenvalue"};
     
-    NSDictionary *result = [self.helper buildAdditionalHeadersFromList:headerName];
+    NSDictionary *result = [self.handler buildAdditionalHeadersFromList:headerName];
     XCTAssertEqualObjects(result[headerName], @"tokenvalue");
 }
 
 - (void)testBuildAdditionalHeadersFromList_whenHeaderWithoutAllowedPrefix_shouldExclude
 {
-    self.helper.lastResponseHeaders = @{@"authorization": @"Bearer token"};
+    self.handler.lastResponseHeaders = @{@"authorization": @"Bearer token"};
     
-    NSDictionary *result = [self.helper buildAdditionalHeadersFromList:@"authorization"];
+    NSDictionary *result = [self.handler buildAdditionalHeadersFromList:@"authorization"];
     XCTAssertEqual(result.count, 0U);
 }
 
@@ -341,10 +341,10 @@
 {
     NSString *validHeader = [NSString stringWithFormat:@"%@valid", MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX];
     NSString *missingHeader = [NSString stringWithFormat:@"%@missing", MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX];
-    self.helper.lastResponseHeaders = @{validHeader: @"val"};
+    self.handler.lastResponseHeaders = @{validHeader: @"val"};
     
     NSString *list = [NSString stringWithFormat:@"%@,%@,authorization", validHeader, missingHeader];
-    NSDictionary *result = [self.helper buildAdditionalHeadersFromList:list];
+    NSDictionary *result = [self.handler buildAdditionalHeadersFromList:list];
     
     XCTAssertEqualObjects(result[validHeader], @"val");
     XCTAssertNil(result[missingHeader]);
@@ -355,10 +355,10 @@
 - (void)testBuildAdditionalHeadersFromList_whenHeaderNameHasSpaces_shouldTrimAndLookup
 {
     NSString *headerName = [NSString stringWithFormat:@"%@spaced", MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX];
-    self.helper.lastResponseHeaders = @{headerName: @"spacedval"};
+    self.handler.lastResponseHeaders = @{headerName: @"spacedval"};
     
     NSString *list = [NSString stringWithFormat:@"  %@  ", headerName];
-    NSDictionary *result = [self.helper buildAdditionalHeadersFromList:list];
+    NSDictionary *result = [self.handler buildAdditionalHeadersFromList:list];
     
     XCTAssertEqualObjects(result[headerName], @"spacedval");
     XCTAssertEqual(result.count, 1U);
@@ -375,11 +375,11 @@
     
     // Simulate what processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: does: normalize the raw server headers first
     NSDictionary *rawHeaders = @{upperCaseHeader: @"tok123"};
-    NSDictionary *normalised = [self.helper normalizeHeaders:rawHeaders];
-    self.helper.lastResponseHeaders = normalised;
+    NSDictionary *normalised = [self.handler normalizeHeaders:rawHeaders];
+    self.handler.lastResponseHeaders = normalised;
     
     // attach-headers names are delivered in their original (uppercase) casing from the server
-    NSDictionary *result = [self.helper buildAdditionalHeadersFromList:upperCaseHeader];
+    NSDictionary *result = [self.handler buildAdditionalHeadersFromList:upperCaseHeader];
     
     // The value should be found regardless of the key casing in attach-headers
     XCTAssertEqualObjects(result[upperCaseHeader], @"tok123");
@@ -395,9 +395,9 @@
 
 - (void)testConfigureWebviewController_whenWebviewIsNil_shouldBeNoop
 {
-    // Nil parameter is explicitly allowed by the @c nullable annotation; the helper
+    // Nil parameter is explicitly allowed by the @c nullable annotation; the handler
     // must skip silently without throwing or asserting.
-    XCTAssertNoThrow([self.helper configureWebviewController:nil
+    XCTAssertNoThrow([self.handler configureWebviewController:nil
                                                     delegate:[MSIDTestNavigationDelegateStub new]]);
 }
 
@@ -408,10 +408,10 @@
     MSIDTestWebviewInteractingViewController *fakeSafari = [MSIDTestWebviewInteractingViewController new];
     fakeSafari.actAsSafariViewController = YES;
 
-    XCTAssertNoThrow([self.helper configureWebviewController:fakeSafari
+    XCTAssertNoThrow([self.handler configureWebviewController:fakeSafari
                                                     delegate:[MSIDTestNavigationDelegateStub new]]);
     // The mock does not declare a navigationDelegate property; the only contract here
-    // is that nothing crashes and the helper does not perform an unsafe cast. The
+    // is that nothing crashes and the handler does not perform an unsafe cast. The
     // absence of an exception above is the assertion.
 }
 
@@ -426,7 +426,7 @@
                                                               context:nil];
     MSIDTestNavigationDelegateStub *delegate = [MSIDTestNavigationDelegateStub new];
 
-    [self.helper configureWebviewController:embedded delegate:delegate];
+    [self.handler configureWebviewController:embedded delegate:delegate];
 
     // navigationDelegate is weak; keep `delegate` alive via the local variable above.
     XCTAssertEqual(embedded.navigationDelegate, delegate);
@@ -437,12 +437,12 @@
 - (void)testHandleSpecialRedirectURL_whenURLIsNil_shouldCompleteWithFailWithError
 {
     // The resolver returns a failWithError decision (not nil) for a nil URL; the
-    // helper must propagate that decision and invoke the completion exactly once.
+    // handler must propagate that decision and invoke the completion exactly once.
     // Routed through a typed local to suppress the call-site -Wnonnull warning.
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
     NSURL *nilURL = nil;
 
-    [self.helper handleSpecialRedirectURL:nilURL
+    [self.handler handleSpecialRedirectURL:nilURL
                 embeddedWebviewController:nil
                                   appName:@"App"
                                appVersion:@"1.0"
@@ -460,12 +460,12 @@
 
 - (void)testHandleSpecialRedirectURL_whenBrowserScheme_shouldCompleteWithContinueDefault
 {
-    // browser:// URLs are routed to "continue default" by the resolver; the helper
+    // browser:// URLs are routed to "continue default" by the resolver; the handler
     // must hand that decision back through completion with a nil error.
     NSURL *URL = [NSURL URLWithString:@"browser://some.host/path"];
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
 
-    [self.helper handleSpecialRedirectURL:URL
+    [self.handler handleSpecialRedirectURL:URL
                 embeddedWebviewController:nil
                                   appName:@"App"
                                appVersion:@"1.0"
@@ -488,7 +488,7 @@
     NSURL *URL = [NSURL URLWithString:@"browser://some.host"];
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
 
-    XCTAssertNoThrow([self.helper handleSpecialRedirectURL:URL
+    XCTAssertNoThrow([self.handler handleSpecialRedirectURL:URL
                                  embeddedWebviewController:nil
                                                    appName:@"App"
                                                 appVersion:@"1.0"
@@ -509,7 +509,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
     expectation.assertForOverFulfill = YES;
 
-    [self.helper handleSpecialRedirectURL:URL
+    [self.handler handleSpecialRedirectURL:URL
                 embeddedWebviewController:nil
                                   appName:@"App"
                                appVersion:@"1.0"
@@ -535,19 +535,19 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 {
     NSDictionary *headers = @{@"Content-Type": @"application/json"};
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:MSIDTestAllowedResponseURL()];
 
     XCTAssertFalse(hasHandoff);
     // Side effect: headers are still normalized into lastResponseHeaders for later use.
-    XCTAssertEqualObjects(self.helper.lastResponseHeaders[@"content-type"], @"application/json");
+    XCTAssertEqualObjects(self.handler.lastResponseHeaders[@"content-type"], @"application/json");
 }
 
 - (void)testProcessResponseHeaders_whenHandoffHeaderIsEmptyString_shouldReturnNO
 {
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @""};
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:MSIDTestAllowedResponseURL()];
 
     XCTAssertFalse(hasHandoff);
@@ -557,7 +557,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 {
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @42};
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:MSIDTestAllowedResponseURL()];
 
     XCTAssertFalse(hasHandoff);
@@ -569,26 +569,26 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSString *uppercaseKey = MSID_ASWEBAUTH_HANDOFF_URL_KEY.uppercaseString;
     NSDictionary *headers = @{uppercaseKey: @"https://www.example.com/handoff"};
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:MSIDTestAllowedResponseURL()];
 
     XCTAssertTrue(hasHandoff);
     // The normalized headers should expose the lowercased key for later use.
-    XCTAssertEqualObjects(self.helper.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY],
+    XCTAssertEqualObjects(self.handler.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY],
                           @"https://www.example.com/handoff");
 }
 
 - (void)testProcessResponseHeaders_alwaysUpdatesLastResponseHeadersToNormalizedForm
 {
-    self.helper.lastResponseHeaders = @{@"stale": @"value"};
+    self.handler.lastResponseHeaders = @{@"stale": @"value"};
 
     NSDictionary *headers = @{@"X-Custom": @"v1", @"Other-Header": @"v2"};
-    (void)[self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    (void)[self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                              responseURL:MSIDTestAllowedResponseURL()];
 
-    XCTAssertEqualObjects(self.helper.lastResponseHeaders[@"x-custom"], @"v1");
-    XCTAssertEqualObjects(self.helper.lastResponseHeaders[@"other-header"], @"v2");
-    XCTAssertNil(self.helper.lastResponseHeaders[@"stale"], @"Previous headers must be replaced, not merged.");
+    XCTAssertEqualObjects(self.handler.lastResponseHeaders[@"x-custom"], @"v1");
+    XCTAssertEqualObjects(self.handler.lastResponseHeaders[@"other-header"], @"v2");
+    XCTAssertNil(self.handler.lastResponseHeaders[@"stale"], @"Previous headers must be replaced, not merged.");
 }
 
 #pragma mark - processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: (response-URL origin gate)
@@ -599,12 +599,12 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     // must not be able to force a hand-off by injecting only the header.
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:nil];
 
     XCTAssertFalse(hasHandoff);
     // Headers are still cached so downstream consumers see consistent state.
-    XCTAssertEqualObjects(self.helper.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY],
+    XCTAssertEqualObjects(self.handler.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY],
                           @"https://portal.manage.microsoft.com/handoff");
 }
 
@@ -614,7 +614,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
     NSURL *httpResponseURL = [NSURL URLWithString:@"http://portal.manage.microsoft.com/some/path"];
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:httpResponseURL];
 
     XCTAssertFalse(hasHandoff);
@@ -627,7 +627,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
     NSURL *attackerOrigin = [NSURL URLWithString:@"https://evil.example.com/landing"];
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:attackerOrigin];
 
     XCTAssertFalse(hasHandoff);
@@ -639,7 +639,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
     NSURL *spoofedOrigin = [NSURL URLWithString:@"https://portal.manage.microsoft.com.attacker.com/path"];
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:spoofedOrigin];
 
     XCTAssertFalse(hasHandoff);
@@ -649,7 +649,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 {
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:MSIDTestAllowedResponseURL()];
 
     XCTAssertTrue(hasHandoff);
@@ -661,7 +661,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
     NSURL *mixedCaseOrigin = [NSURL URLWithString:@"https://PORTAL.MANAGE.microsoft.com/path"];
 
-    BOOL hasHandoff = [self.helper processResponseHeadersAndCheckForASWebAuthHandoff:headers
+    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
                                                                          responseURL:mixedCaseOrigin];
 
     XCTAssertTrue(hasHandoff);
@@ -677,7 +677,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     // Routed through a typed local to suppress the call-site -Wnonnull warning.
     MSIDViewController *parent = [MSIDViewController new];
     void (^nilCompletion)(MSIDWebviewNavigationDecision * _Nullable, NSError * _Nullable) = nil;
-    XCTAssertNoThrow([self.helper performASWebAuthenticationHandoffWithParentController:parent
+    XCTAssertNoThrow([self.handler performASWebAuthenticationHandoffWithParentController:parent
                                                                              completion:nilCompletion]);
 }
 
@@ -687,7 +687,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
     MSIDViewController *parent = [MSIDViewController new];
 
-    [self.helper performASWebAuthenticationHandoffWithParentController:parent
+    [self.handler performASWebAuthenticationHandoffWithParentController:parent
                                                             completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
                                                                          NSError * _Nullable error)
     {
@@ -707,12 +707,12 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     // short-circuits before reaching the system webview transition manager.
     // Bypass the processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: origin gate by
     // populating lastResponseHeaders directly — this test isolates the perform-side validation.
-    self.helper.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://www.example.com/handoff"};
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://www.example.com/handoff"};
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
     MSIDViewController *parent = [MSIDViewController new];
 
-    [self.helper performASWebAuthenticationHandoffWithParentController:parent
+    [self.handler performASWebAuthenticationHandoffWithParentController:parent
                                                             completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
                                                                          NSError * _Nullable error)
     {
