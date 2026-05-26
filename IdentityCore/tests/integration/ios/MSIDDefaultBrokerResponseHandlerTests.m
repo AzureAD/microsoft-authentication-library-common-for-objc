@@ -1707,8 +1707,6 @@
     XCTAssertNil(error.userInfo[MSID_CLIENT_DATA_RESPONSE]);
 }
 
-<<<<<<< HEAD
-=======
 - (void)testHandleBrokerResponse_whenDecryptedResponseContainsTopLevelClientData_shouldSurfaceClientDataInErrorUserInfo
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
@@ -1837,7 +1835,6 @@
     XCTAssertEqualObjects(error.userInfo[MSID_CLIENT_DATA_RESPONSE], @"top_level_client_data_value");
 }
 
->>>>>>> dev
 - (void)testHandleBrokerResponse_whenErrorMetadataContainsOnboardingBlob_shouldSurfaceOnboardingBlobInErrorUserInfo
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
