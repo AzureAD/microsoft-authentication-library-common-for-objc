@@ -79,7 +79,7 @@
 
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, correlationId, nil, YES);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programmatically.", nil, nil, nil, correlationId, nil, YES);
     }
     return YES;
 #else

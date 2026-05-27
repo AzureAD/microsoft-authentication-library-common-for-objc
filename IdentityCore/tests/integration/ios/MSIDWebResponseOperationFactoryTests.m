@@ -81,7 +81,6 @@
     XCTAssertNil(error);
     XCTAssertNotNil(operation);
     XCTAssertTrue([operation isKindOfClass:MSIDWebOpenIdVcResponseOperation.class]);
-    [MSIDWebResponseOperationFactory unRegisterforResponse:webResponse];
 }
 
 @end

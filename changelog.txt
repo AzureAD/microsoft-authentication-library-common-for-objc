@@ -8,6 +8,7 @@ TBD
 * Close cookies popup in automation tests #1814
 * Exclude swift files from macOS targets #1827
 * Propagate client_data from broker error response for legacy broker support (#1834)
+* Handle openid-vc:// URLs in the AAD embedded webview by handing them off to the system (#1849)
 
 Version 1.23.1
 * Support saving and removing requestedClaims for ATs in mac legacy (ACL) cache (#1783)
