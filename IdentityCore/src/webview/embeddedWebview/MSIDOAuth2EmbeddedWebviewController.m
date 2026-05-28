@@ -112,7 +112,8 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         
         _complete = NO;
         
-        _isMobileOnboardingEnabled = [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_MOBILE_ONBOARDING];
+        // isMobileOnboardingEnabled starts as NO; it is dynamically set to YES
+        // when the server issues msauth://enroll (server-driven enablement).
     }
     
     return self;

@@ -35,6 +35,7 @@
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDMainThreadUtil.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDWebviewConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -96,7 +97,20 @@
     // Stop at broker or browser
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
-    
+
+    // Dynamically enable mobile onboarding when server issues msauth://enroll,
+    // unless the kill switch flight is active. Once enabled, stays on for all
+    // subsequent navigations and response header processing in this session.
+    if (isBrokerUrl
+        && !self.isMobileOnboardingEnabled
+        && [MSID_MDM_ENROLL_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame
+        && ![[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                          @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
+        self.isMobileOnboardingEnabled = YES;
+    }
+
     if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH])
     {
         // When not running in SSO extension, the CA block page will return with "https" scheme instead of "browser"
