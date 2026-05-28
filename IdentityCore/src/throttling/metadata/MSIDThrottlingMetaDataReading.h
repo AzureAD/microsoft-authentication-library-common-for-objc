@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,37 +15,33 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDConstants.h"
 
-#if !MSID_EXCLUDE_WEBKIT
+@protocol MSIDExtendedTokenCacheDataSource;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
+/**
+ * Class-method seam for the throttling metadata cache read path.
+ *
+ * Production callers route through @c MSIDDIContainer (resolving a
+ * @c Class<MSIDThrottlingMetaDataReading>) so unit tests can install a fake
+ * implementing class without runtime swizzling. The default implementation
+ * lives on @c MSIDThrottlingMetaDataCache.
+ */
+@protocol MSIDThrottlingMetaDataReading <NSObject>
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEphemeralSession;
-
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                     useEphemeralSession:(BOOL)useEphemeralSession
-                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders API_AVAILABLE(ios(18.0), macos(15.0), visionos(2.0));
++ (nullable NSDate *)getLastRefreshTimeWithDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
+                                              context:(nullable id<MSIDRequestContext>)context
+                                                error:(NSError *__nullable *__nullable)error;
 
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif

@@ -86,9 +86,9 @@
             /**
              Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
              */
-            [MSIDThrottlingService updateLastRefreshTimeDatasource:request.extendedTokenCache
-                                                               context:self.interactiveRequestParamaters
-                                                                 error:nil];
+            [[MSIDThrottlingService resolvedRefresher] updateLastRefreshTimeDatasource:request.extendedTokenCache
+                                                                              context:self.interactiveRequestParamaters
+                                                                                error:nil];
         }
         
         if (!completionBlock)
