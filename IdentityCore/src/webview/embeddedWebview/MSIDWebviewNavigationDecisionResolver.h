@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  * - profile_download_complete: Profile download completion flow
  * - in_app_enrollment_complete: In-app enrollment completion flow
  *
- * @param URL The special redirect URL to resolve (msauth://, browser://, etc.). If nil, returns nil.
+ * @param URL The special redirect URL to resolve (msauth://, browser://, etc.). If nil or missing a scheme, returns a failWithError decision.
  * @param embeddedWebviewController The webview controller handling the navigation. May be nil for flows that do not require it.
  * @param appName Name of the client app
  * @param appVersion The version of the client app
