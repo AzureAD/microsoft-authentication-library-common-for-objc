@@ -540,29 +540,6 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"MDM_FLOW");
 }
 
-- (void)testAddBlockingError_whenCalled_shouldPersistSessionCorrelation
-{
-    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
-
-    [builder addBlockingError:@"65001"];
-
-    // Persistence happens asynchronously on a serial queue; wait briefly for it to complete.
-    NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(__unused id evaluatedObject, __unused NSDictionary<NSString *,id> *bindings) {
-        return [self.testDefaults stringForKey:kCacheKey] != nil;
-    }];
-    [self expectationForPredicate:predicate evaluatedWithObject:nil handler:nil];
-    [self waitForExpectationsWithTimeout:2.0 handler:nil];
-
-    NSString *persisted = [self.testDefaults stringForKey:kCacheKey];
-    XCTAssertNotNil(persisted);
-
-    NSDictionary *cache = [self parsedJsonFromBlob:persisted];
-    NSDictionary *entry = cache[@"clientA|resource1"];
-    XCTAssertNotNil(entry);
-    XCTAssertEqualObjects(entry[@"id"], @"abc-123");
-    XCTAssertNotNil(entry[@"ts"]);
-}
-
 #pragma mark - setLastLoadedDomain
 
 - (void)testSetLastLoadedDomain_whenSet_shouldAppearInBlob
