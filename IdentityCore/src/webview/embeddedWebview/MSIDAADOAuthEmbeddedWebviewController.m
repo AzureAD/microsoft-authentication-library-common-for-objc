@@ -36,6 +36,7 @@
 #import "MSIDMainThreadUtil.h"
 #import "MSIDBrokerConstants.h"
 #import "MSIDWebviewConstants.h"
+#import "NSURL+MSIDExtensions.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -95,20 +96,58 @@
     NSURL *requestURL = navigationAction.request.URL;
     
     // Stop at broker or browser
-    BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+    BOOL isBrokerUrl  = [@"msauth"  caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
 
-    // Dynamically enable mobile onboarding when server issues msauth://enroll,
-    // unless the kill switch flight is active. Once enabled, stays on for all
-    // subsequent navigations and response header processing in this session.
-    if (isBrokerUrl
-        && !self.isMobileOnboardingEnabled
-        && [MSID_MDM_ENROLL_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame
-        && ![[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING])
+    // Server-side trigger: msauth://enroll means the server opted this
+    // session into the new mobile onboarding flow.
+    BOOL isServerNewOnboardingRedirect =
+           isBrokerUrl
+        && [MSID_MDM_ENROLL_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame;
+
+    if (isServerNewOnboardingRedirect && !self.isMobileOnboardingEnabled)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
-                          @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
-        self.isMobileOnboardingEnabled = YES;
+        BOOL clientOnboardingDisabled =
+            [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING];
+
+        if (!clientOnboardingDisabled)
+        {
+            // Server ON + client ON -> new flow for the rest of the session.
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
+            self.isMobileOnboardingEnabled = YES;
+        }
+        else
+        {
+            // Server ON + client OFF -> legacy fallback.
+            // Pull intuneRedirectUrl (https://...) out of the query params,
+            // rewrite it to browser:// and let the unified broker/browser
+            // handling below open it in the system browser.
+            NSString *intuneURLString =
+                [[requestURL msidQueryParameters][MSID_INTUNE_URL_KEY]
+                    stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+            NSURL *legacyBrowserURL =
+                [self urlBySwappingScheme:[NSURL URLWithString:intuneURLString]
+                                     from:@"https"
+                                       to:MSID_SCHEME_BROWSER];
+
+            if (legacyBrowserURL)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                    @"Mobile onboarding disabled on client; falling back to legacy "
+                    @"flow by opening intuneRedirectUrl via browser:// scheme.");
+                requestURL   = legacyBrowserURL;
+                isBrokerUrl  = NO;
+                isBrowserUrl = YES;
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                    @"Mobile onboarding disabled on client but msauth://enroll URL is "
+                    @"missing a valid https intuneRedirectUrl; continuing with default handling.");
+            }
+        }
     }
 
     if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH])
@@ -134,37 +173,33 @@
     }
 
     // Hand off broker and browser URLs to the delegate when mobile onboarding is enabled.
-    id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
-    if (self.isMobileOnboardingEnabled
-        && (isBrokerUrl || isBrowserUrl)
-        && [strongNavigationDelegate respondsToSelector:@selector(handleSpecialRedirectURL:embeddedWebviewController:completion:)])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
-                          @"Delegating special redirect %@ to navigationDelegate",
-                          requestURL.scheme);
-
-        // Cancel WKWebView navigation; delegate drives the next decision.
-        decisionHandler(WKNavigationActionPolicyCancel);
-
-        // Already on main per WKNavigationDelegate contract; util keeps consistency.
-        [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-            [strongNavigationDelegate handleSpecialRedirectURL:requestURL
-                                     embeddedWebviewController:self
-                                                    completion:^(MSIDWebviewNavigationDecision *action, NSError *error)
-            {
-                [self performNavigationDecision:action
-                                     requestURL:requestURL
-                                          error:error];
-            }];
-        }];
-
-        return YES;
-    }
-
-    
     if (isBrokerUrl || isBrowserUrl)
     {
-        // Let external code decide if browser url is allowed to continue
+        id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+
+        if (self.isMobileOnboardingEnabled
+            && [strongNavigationDelegate respondsToSelector:
+                @selector(handleSpecialRedirectURL:embeddedWebviewController:completion:)])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                              @"Delegating special redirect %@ to navigationDelegate",
+                              requestURL.scheme);
+
+            decisionHandler(WKNavigationActionPolicyCancel);
+
+            [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+                [strongNavigationDelegate handleSpecialRedirectURL:requestURL
+                                         embeddedWebviewController:self
+                                                        completion:^(MSIDWebviewNavigationDecision *action, NSError *error)
+                {
+                    [self performNavigationDecision:action
+                                         requestURL:requestURL
+                                              error:error];
+                }];
+            }];
+            return YES;
+        }
+
         if (isBrowserUrl && self.externalDecidePolicyForBrowserAction)
         {
             NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(self, requestURL);
@@ -173,13 +208,11 @@
             {
                 decisionHandler(WKNavigationActionPolicyCancel);
                 [self loadRequest:challengeResponse];
-
                 return YES;
             }
         }
-        
+
         [self completeWebAuthWithURL:requestURL];
-        
         decisionHandler(WKNavigationActionPolicyCancel);
         return YES;
     }
@@ -245,6 +278,33 @@
     }
 
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
+}
+
+#pragma mark - Private helpers
+
+- (NSURL *)urlBySwappingScheme:(NSURL *)url
+                          from:(NSString *)fromScheme
+                            to:(NSString *)toScheme
+{
+    if (!url || fromScheme.length == 0 || toScheme.length == 0)
+    {
+        return nil;
+    }
+
+    if ([fromScheme caseInsensitiveCompare:url.scheme] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    NSString *absolute = url.absoluteString;
+    if (absolute.length <= fromScheme.length)
+    {
+        return nil;
+    }
+
+    NSString *rewritten = [toScheme stringByAppendingString:
+        [absolute substringFromIndex:fromScheme.length]];
+    return [NSURL URLWithString:rewritten];
 }
 
 @end
