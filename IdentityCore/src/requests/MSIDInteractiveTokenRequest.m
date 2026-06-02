@@ -38,6 +38,8 @@
 #import "MSIDConfiguration.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAccountCredentialCache.h"
+#import "MSIDOpportunisticBRTSeeder.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -85,7 +87,9 @@
 #endif
     
     [self updateCustomHeadersForFRTSupportIfNeeded];
-    
+
+    [self installBRTSeederHook];
+
     [super getAuthCodeWithCompletion:^(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse)
     {
         if (!result)
@@ -99,6 +103,32 @@
         [self acquireTokenWithCodeResult:result completion:completionBlock];
     }];
 #endif
+}
+
+#pragma mark - BRT seeder POC
+
+- (void)installBRTSeederHook
+{
+    MSIDExternalDecidePolicyForBrowserActionBlock previous = self.externalDecidePolicyForBrowserAction;
+    __weak typeof(self) weakSelf = self;
+
+    self.externalDecidePolicyForBrowserAction = ^NSURLRequest *(MSIDOAuth2EmbeddedWebviewController *webViewCtrl, NSURL *url)
+    {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.requestParameters,
+                              @"[BRT seeder POC] Browser navigation intercepted (host=%@). Firing opportunistic BRT seed.", url.host);
+            [MSIDOpportunisticBRTSeeder seedWithParentParameters:strongSelf.requestParameters
+                                                         webView:webViewCtrl.webView
+                                                      tokenCache:strongSelf.tokenCache
+                                            accountMetadataCache:strongSelf.accountMetadataCache
+                                                    oauthFactory:strongSelf.oauthFactory
+                                          tokenResponseValidator:strongSelf.tokenResponseValidator
+                                                         context:strongSelf.requestParameters];
+        }
+        return previous ? previous(webViewCtrl, url) : nil;
+    };
 }
 
 #pragma mark - Helpers

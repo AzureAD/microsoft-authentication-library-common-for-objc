@@ -94,6 +94,29 @@
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     
+    // BRT POC
+    if (isBrokerUrl || isBrowserUrl)
+    {
+        // resued the external policy just for POC
+        if (self.externalDecidePolicyForBrowserAction)
+        {
+            NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(self, requestURL);
+
+            if (challengeResponse)
+            {
+                decisionHandler(WKNavigationActionPolicyCancel);
+                [self loadRequest:challengeResponse];
+
+                return YES;
+            }
+        }
+        
+        [self completeWebAuthWithURL:requestURL];
+        
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return YES;
+    }
+    
     if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH])
     {
         // When not running in SSO extension, the CA block page will return with "https" scheme instead of "browser"
