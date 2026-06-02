@@ -94,10 +94,11 @@
     BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     
-    // BRT POC
     if (isBrokerUrl || isBrowserUrl)
     {
-        // resued the external policy just for POC
+        // Give the host a chance to inspect the redirect URL (e.g. for opportunistic
+        // secondary-token prewarm) via the externalDecidePolicyForBrowserAction chain
+        // before completing the parent web auth.
         if (self.externalDecidePolicyForBrowserAction)
         {
             NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(self, requestURL);

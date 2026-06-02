@@ -38,8 +38,9 @@
 #import "MSIDConfiguration.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDAccountCredentialCache.h"
-#import "MSIDOpportunisticBRTSeeder.h"
+#import "MSIDExternalRedirectContext.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDKeychainUtil.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -88,7 +89,7 @@
     
     [self updateCustomHeadersForFRTSupportIfNeeded];
 
-    [self installBRTSeederHook];
+    [self installExternalRedirectHook];
 
     [super getAuthCodeWithCompletion:^(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse)
     {
@@ -105,27 +106,75 @@
 #endif
 }
 
-#pragma mark - BRT seeder POC
+#pragma mark - External redirect hook
 
-- (void)installBRTSeederHook
+// Microsoft's Apple Developer Team ID — used to sign Microsoft 1P apps
+// (Authenticator, Teams, Outlook, OneDrive, Edge, Office, etc.). The
+// external-redirect notifier is gated to this Team ID because the host
+// block (e.g. OneAuth's BRT seeder) is intended only for Microsoft 1P
+// callers; third-party MSAL consumers MUST NOT receive the parent
+// webview / shared cache handle.
+static NSString * const kMSIDMicrosoft1PTeamId = @"UBF8T346G9";
+
+// Returns YES iff the currently-running process is signed by Microsoft.
+// Result is cached (Team ID does not change during process lifetime).
+static BOOL MSIDIsMicrosoft1PHostProcess(void)
 {
+    static BOOL isMicrosoft1P = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSString *teamId = [MSIDKeychainUtil sharedInstance].teamId;
+        isMicrosoft1P = teamId.length > 0 && [teamId isEqualToString:kMSIDMicrosoft1PTeamId];
+    });
+    return isMicrosoft1P;
+}
+
+// Wraps the existing externalDecidePolicyForBrowserAction chain. When the
+// embedded webview is about to leave for an external redirect (e.g.
+// browser:// or msauth://), build a passive MSIDExternalRedirectContext
+// snapshot and hand it to the host's externalRedirectURLAction block (if
+// configured). IdentityCore does not act on the redirect itself — the host
+// (typically OneAuth) decides whether to mount any secondary flow. Fires
+// at most once per interactive request, and only when the host process is
+// signed by Microsoft (1P apps only).
+- (void)installExternalRedirectHook
+{
+    if (!self.requestParameters.externalRedirectURLAction) return;
+
+    if (!MSIDIsMicrosoft1PHostProcess())
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                          @"[ExternalRedirectHook] Host process is not Microsoft 1P; skipping hook installation.");
+        return;
+    }
+
     MSIDExternalDecidePolicyForBrowserActionBlock previous = self.externalDecidePolicyForBrowserAction;
     __weak typeof(self) weakSelf = self;
+    __block BOOL hostNotified = NO;
 
     self.externalDecidePolicyForBrowserAction = ^NSURLRequest *(MSIDOAuth2EmbeddedWebviewController *webViewCtrl, NSURL *url)
     {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (strongSelf)
+        MSIDExternalRedirectURLActionBlock hostBlock = strongSelf.requestParameters.externalRedirectURLAction;
+
+        if (strongSelf && hostBlock && !hostNotified)
         {
+            hostNotified = YES;
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.requestParameters,
-                              @"[BRT seeder POC] Browser navigation intercepted (host=%@). Firing opportunistic BRT seed.", url.host);
-            [MSIDOpportunisticBRTSeeder seedWithParentParameters:strongSelf.requestParameters
-                                                         webView:webViewCtrl.webView
-                                                      tokenCache:strongSelf.tokenCache
-                                            accountMetadataCache:strongSelf.accountMetadataCache
-                                                    oauthFactory:strongSelf.oauthFactory
-                                          tokenResponseValidator:strongSelf.tokenResponseValidator
-                                                         context:strongSelf.requestParameters];
+                              @"[ExternalRedirectHook] Redirect intercepted (scheme=%@, host=%@). Notifying host.",
+                              url.scheme, url.host);
+
+            MSIDExternalRedirectContext *context =
+                [[MSIDExternalRedirectContext alloc] initWithRedirectURL:url
+                                                        correlationId:strongSelf.requestParameters.correlationId
+                                                            loginHint:strongSelf.requestParameters.loginHint
+                                                      parentAuthority:strongSelf.requestParameters.authority
+                                        parentExtraURLQueryParameters:strongSelf.requestParameters.extraURLQueryParameters
+                                                        parentWebView:webViewCtrl.webView
+                                                           tokenCache:strongSelf.tokenCache
+                                                 accountMetadataCache:strongSelf.accountMetadataCache
+                                                         oauthFactory:strongSelf.oauthFactory];
+            hostBlock(context);
         }
         return previous ? previous(webViewCtrl, url) : nil;
     };

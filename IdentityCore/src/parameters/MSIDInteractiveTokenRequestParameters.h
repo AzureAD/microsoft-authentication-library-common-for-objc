@@ -25,8 +25,26 @@
 #import "MSIDCustomHeaderProviding.h"
 
 @class MSIDOnboardingBlobBuilder;
+@class MSIDExternalRedirectContext;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ Host-supplied block invoked by IdentityCore whenever an embedded webview
+ navigation resolves to an external redirect (e.g. @c browser:// or
+ @c msauth://) URL.
+
+ IdentityCore is a passive notifier: it packages the parent webview, the
+ redirect URL, and the shared cache/factory artifacts into a read-only
+ @c MSIDExternalRedirectContext and hands them to the host. The host (typically
+ OneAuth) is solely responsible for deciding whether to mount any secondary
+ flow (e.g. opportunistic broker refresh-token seed), driving a hidden
+ WKWebView, exchanging the code, and persisting any tokens.
+
+ The block is invoked at most once per interactive request. Hosts may retain
+ the @c info for the duration of their asynchronous secondary flow.
+ */
+typedef void (^MSIDExternalRedirectURLActionBlock)(MSIDExternalRedirectContext *context);
 
 @interface MSIDInteractiveTokenRequestParameters : MSIDInteractiveRequestParameters
 
@@ -54,6 +72,12 @@ NS_ASSUME_NONNULL_BEGIN
 // Additional request parameter that will be utilized by OneAuth during internal automation testing. When available will be passed to web view to be consumed by ESTS as a form of MFA.
 @property (nonatomic, nullable) NSString *userFederatedIdentityToken;
 @property (nullable, nonatomic) id<MSIDCustomHeaderProviding> prtHeaderProvider;
+
+/**
+ Optional host hook fired when the embedded webview is about to leave for a
+ broker or external-browser redirect URL. See @c MSIDExternalRedirectURLActionBlock.
+ */
+@property (nonatomic, copy, nullable) MSIDExternalRedirectURLActionBlock externalRedirectURLAction;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 - (NSDictionary *)allAuthorizeRequestExtraParameters DEPRECATED_MSG_ATTRIBUTE("Use -allAuthorizeRequestExtraParametersWithMetadata: instead");
