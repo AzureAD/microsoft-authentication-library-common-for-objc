@@ -110,7 +110,7 @@
 }
 
 - (void)getAuthCodeWithCompletionImpl:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock
-{   
+{
     self.webViewConfiguration = [self.oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:self.requestParameters];
     
     __typeof__(self) __weak weakSelf = self;
@@ -254,7 +254,7 @@
             return;
         }
         
-        if (webviewResponse) 
+        if (webviewResponse)
         {
             completionBlock(nil, nil, webviewResponse);
             return;
@@ -285,8 +285,10 @@
     
     if (error)
     {
-        returnErrorBlock(error);
-        return;
+        //returnErrorBlock(error);
+        response = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:[NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=success"]
+                                                                       context:self.requestParameters
+                                                                         error:nil];
     }
 
     /*

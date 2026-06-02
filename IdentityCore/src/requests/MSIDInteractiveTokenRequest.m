@@ -127,7 +127,7 @@
                                             tokenCache:self.tokenCache
                                   accountMetadataCache:self.accountMetadataCache
                                        validateAccount:self.requestParameters.shouldValidateResultAccount
-                                      saveSSOStateOnly:NO
+                                      saveSSOStateOnly:self.requestParameters.saveSSOStateOnly
                                       brokerAppVersion:nil
                      brokerResponseGenerationTimeStamp:nil
                         brokerRequestReceivedTimeStamp:nil

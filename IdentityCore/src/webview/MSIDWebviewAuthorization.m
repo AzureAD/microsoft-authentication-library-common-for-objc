@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebviewAuthorization.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #if TARGET_OS_IPHONE
 #import <SafariServices/SafariServices.h>
 #import "MSIDSystemWebviewController.h"
@@ -78,35 +79,55 @@ static MSIDWebviewSession *s_currentSession = nil;
     
     if (![self setCurrentSession:session])
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Only one interactive session is allowed at a time.", nil, nil, nil, context.correlationId, nil, YES);
-        completionHandler(nil, error);
-        return;
+        // Allow concurrent session for background BRT acquisition (uses invisible cloned webview)
+        BOOL allowConcurrent = NO;
+        if ([(NSObject *)context isKindOfClass:[MSIDInteractiveTokenRequestParameters class]])
+        {
+            allowConcurrent = [(MSIDInteractiveTokenRequestParameters *)context allowConcurrentWebviewSession];
+        }
+
+        if (!allowConcurrent)
+        {
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Only one interactive session is allowed at a time.", nil, nil, nil, context.correlationId, nil, YES);
+            completionHandler(nil, error);
+            return;
+        }
+
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Allowing concurrent webview session (BRT acquisition).");
     }
     
+    // Track whether this is a concurrent (non-owning) session
+    BOOL __block isConcurrentSession = (s_currentSession != session);
+
     void (^startCompletionBlock)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *error) {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Result from authorization session callbackURL host: %@ , has error: %@", callbackURL.host, error ? @"YES" : @"NO");
 
         if (error) {
-            [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
+            if (!isConcurrentSession)
+            {
+                [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
+            }
             completionHandler(nil, error);
             return;
         }
         
         NSError *responseError = nil;
         
-        MSIDWebviewResponse *response = [s_currentSession.webViewConfiguration responseWithResultURL:callbackURL
-                                                                                             factory:s_currentSession.factory
-                                                                                             context:context
-                                                                                               error:&responseError];
+        MSIDWebviewResponse *response = [session.webViewConfiguration responseWithResultURL:callbackURL
+                                                                                    factory:session.factory
+                                                                                    context:context
+                                                                                      error:&responseError];
         
-        
-        [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
+        if (!isConcurrentSession)
+        {
+            [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
+        }
         completionHandler(response, responseError);
     };
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Start webview authorization session with webview controller class %@: ", [s_currentSession.webviewController class]);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Start webview authorization session with webview controller class %@: ", [session.webviewController class]);
     
-    [s_currentSession.webviewController startWithCompletionHandler:startCompletionBlock];
+    [session.webviewController startWithCompletionHandler:startCompletionBlock];
 }
 
 + (BOOL)setCurrentSession:(MSIDWebviewSession *)session

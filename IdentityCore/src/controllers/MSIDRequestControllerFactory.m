@@ -486,9 +486,14 @@
     }
 #endif
     
-    return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+    MSIDLocalInteractiveController *controller = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];
+
+    // POC: Enable BRT acquisition for all interactive flows (non-brokered)
+    controller.enableBRTAcquisition = YES;
+
+    return controller;
 }
 
 + (nullable MSIDSignoutController *)signoutControllerForParameters:(MSIDInteractiveRequestParameters *)parameters

@@ -25,13 +25,18 @@
 #import "MSIDBaseRequestController.h"
 #import "MSIDTokenRequestProviding.h"
 #import "MSIDRequestControlling.h"
+#import "MSIDWebviewNavigationDelegate.h"
 
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDWebWPJResponse;
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
+@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewNavigationDelegate>
 
 @property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
+
+/// When YES, BRT acquisition fires on msauth:// redirect detection (POC).
+/// Defaults to NO. Set to YES before calling acquireToken to enable BRT seeding.
+@property (nonatomic) BOOL enableBRTAcquisition;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider

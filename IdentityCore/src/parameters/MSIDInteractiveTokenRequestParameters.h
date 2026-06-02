@@ -68,6 +68,14 @@ typedef void (^MSIDWebviewConfigurationBlock)(id<MSIDWebviewInteracting> webview
  */
 @property (nonatomic, copy, nullable) MSIDWebviewConfigurationBlock webviewConfigurationBlock;
 
+/// When YES, allows this webview session to run concurrently with an existing session.
+/// Used for background BRT acquisition which uses an invisible cloned webview.
+@property (nonatomic) BOOL allowConcurrentWebviewSession;
+
+/// When YES, only saves SSO state (RT + app metadata) — skips AT and ID token.
+/// Used for BRT acquisition where only the refresh token is needed.
+@property (nonatomic) BOOL saveSSOStateOnly;
+
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 - (NSDictionary *)allAuthorizeRequestExtraParameters DEPRECATED_MSG_ATTRIBUTE("Use -allAuthorizeRequestExtraParametersWithMetadata: instead");
 - (NSDictionary *)allAuthorizeRequestExtraParametersWithMetadata:(BOOL)includeMetadata;
