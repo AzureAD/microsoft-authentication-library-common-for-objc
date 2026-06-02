@@ -134,6 +134,8 @@ class BuildTarget:
             elif (operation == "test" and "build" in self.operations) :
                 xcb_operation = "test-without-building"
             command += xcb_operation + " "
+            if (xcb_operation in ("test", "test-without-building")) :
+                command += "-parallel-testing-enabled NO "
         
         if (self.project != None) :
             command += " -project " + self.project
