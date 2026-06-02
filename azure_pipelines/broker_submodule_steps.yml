@@ -87,6 +87,21 @@ steps:
     path: '$(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Pods'
 
 - task: Bash@3
+  displayName: 'Install CocoaPods (if needed)'
+  condition: eq(variables['target'], 'mac_library')
+  inputs:
+    targetType: 'inline'
+    script: |
+      if ! command -v pod >/dev/null 2>&1; then
+        export HOMEBREW_NO_AUTO_UPDATE=1
+        if command -v brew >/dev/null 2>&1; then
+          brew install cocoapods
+        else
+          sudo gem install cocoapods -N
+        fi
+      fi
+
+- task: Bash@3
   displayName: 'Install CocoaPods dependencies'
   condition: eq(variables['target'], 'mac_library')
   env:
