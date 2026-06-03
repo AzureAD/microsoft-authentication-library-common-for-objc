@@ -299,6 +299,20 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)aadEnterPassword:(XCUIApplication *)application
 {
+    XCUIElement *useYourPasswordButton = application.buttons[@"Use your password"];
+    if (useYourPasswordButton.exists)
+    {
+        [useYourPasswordButton msidTap];
+    }
+    else
+    {
+        XCUIElement *useYourPasswordText = application.staticTexts[@"Use your password"];
+        if (useYourPasswordText.exists)
+        {
+            [useYourPasswordText msidTap];
+        }
+    }
+
     [self enterPassword:self.primaryAccount.password app:application];
     // New Password reset API requires to force providing a new password after logging in with original password.
     [self setupPassword:self.primaryAccount.password app:application];
