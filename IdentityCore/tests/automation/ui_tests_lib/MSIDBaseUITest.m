@@ -299,15 +299,13 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)aadEnterPassword:(XCUIApplication *)application
 {
-    XCUIElement *useYourPasswordElement = application.buttons[@"Use your password"];
-    if (!useYourPasswordElement.exists)
+    if (![self tapPasswordSelectionButtonIfPresentInApp:application])
     {
-        useYourPasswordElement = application.staticTexts[@"Use your password"];
-    }
-
-    if (useYourPasswordElement.exists)
-    {
-        [useYourPasswordElement msidTap];
+        XCUIElement *useYourPasswordElement = application.staticTexts[@"Use your password"];
+        if ([self waitForElementsAndContinueIfNotAppear:useYourPasswordElement timeout:1.0f] == XCTWaiterResultCompleted)
+        {
+            [useYourPasswordElement msidTap];
+        }
     }
 
     [self enterPassword:self.primaryAccount.password app:application];
