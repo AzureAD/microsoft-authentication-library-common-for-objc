@@ -27,9 +27,9 @@
 
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDOauth2Factory;
-@class MSIDWebWPJResponse;
+@class MSIDWebviewResponse;
 
-typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
+typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse);
 
 NS_ASSUME_NONNULL_BEGIN
 
