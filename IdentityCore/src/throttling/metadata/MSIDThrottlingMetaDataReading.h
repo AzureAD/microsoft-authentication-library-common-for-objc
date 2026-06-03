@@ -23,16 +23,24 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDTokenResult;
-@class MSIDWebviewResponse;
-
-typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse);
+@protocol MSIDExtendedTokenCacheDataSource;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDInteractiveRequestControlling <NSObject>
+/**
+ * Class-method seam for the throttling metadata cache read path.
+ *
+ * Production callers route through @c MSIDDIContainer (resolving a
+ * @c Class<MSIDThrottlingMetaDataReading>) so unit tests can install a fake
+ * implementing class without runtime swizzling. The default implementation
+ * lives on @c MSIDThrottlingMetaDataCache.
+ */
+@protocol MSIDThrottlingMetaDataReading <NSObject>
 
-- (void)executeRequestWithCompletion:(MSIDInteractiveRequestCompletionBlock)completionBlock;
++ (nullable NSDate *)getLastRefreshTimeWithDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
+                                              context:(nullable id<MSIDRequestContext>)context
+                                                error:(NSError *__nullable *__nullable)error;
 
 @end
 

@@ -39,19 +39,6 @@ static NSString *const MSID_ONBOARDING_FIELD_TS = @"ts";
 // as forward-compat passthrough by callers.
 static NSString *const MSID_ONBOARDING_SUPPORTED_SCHEMA_VERSION = @"1.0.0";
 
-// Process-wide serial queue that gates load/mutate/save against the shared
-// NSUserDefaults-backed session correlation cache. Multiple concurrent builders
-// would otherwise race in `persistSessionCorrelation` and lose entries.
-static dispatch_queue_t MSIDOnboardingPersistQueue(void)
-{
-    static dispatch_queue_t queue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        queue = dispatch_queue_create("com.microsoft.identitycore.onboardingblob.persist", DISPATCH_QUEUE_SERIAL);
-    });
-    return queue;
-}
-
 // Parses `json` into an NSDictionary if and only if the input represents a JSON object.
 // Returns nil for nil/empty/non-JSON/non-dictionary inputs.
 static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nullable json)
@@ -241,7 +228,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 - (void)addBlockingError:(NSString *)errorCode
 {
     [self.blockingErrors addObject:errorCode];
-    [self persistSessionCorrelation];
 }
 
 - (void)setLastLoadedDomain:(NSString *)domain
@@ -308,56 +294,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     }
 
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] ?: @"";
-}
-
-#pragma mark - Private
-
-- (void)persistSessionCorrelation
-{
-    // Snapshot mutable state on the calling thread, then apply load/mutate/save under
-    // a process-wide serial queue. Without this, two concurrent flows recording a
-    // blocking error on different (clientId|target) pairs can read the cache, each
-    // mutate their own copy, and the second write loses the first.
-    NSString *clientId = self.clientId ?: @"";
-    NSString *target = self.target ?: @"";
-    NSString *sessionCorrelationId = self.sessionCorrelationId ?: @"";
-    MSIDSessionCachePersistence *persistence = self.sessionCachePersistence;
-
-    dispatch_async(MSIDOnboardingPersistQueue(), ^{
-        NSString *existing = [persistence load];
-        NSMutableDictionary *cache = [NSMutableDictionary dictionary];
-
-        if (![NSString msidIsStringNilOrBlank:existing])
-        {
-            NSData *data = [existing dataUsingEncoding:NSUTF8StringEncoding];
-
-            if (data)
-            {
-                NSError *error = nil;
-                id parsed = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
-
-                if (!error && [parsed isKindOfClass:[NSDictionary class]])
-                {
-                    [cache addEntriesFromDictionary:parsed];
-                }
-            }
-        }
-
-        NSString *key = [NSString stringWithFormat:@"%@|%@", clientId, target];
-        cache[key] = @{
-            @"id" : sessionCorrelationId,
-            @"ts" : @((long)([[NSDate date] timeIntervalSince1970]))
-        };
-
-        NSError *serializationError = nil;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:cache options:0 error:&serializationError];
-
-        if (!serializationError && jsonData)
-        {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            [persistence save:jsonString];
-        }
-    });
 }
 
 @end

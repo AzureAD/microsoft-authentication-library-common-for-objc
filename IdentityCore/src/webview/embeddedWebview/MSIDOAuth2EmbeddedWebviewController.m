@@ -39,6 +39,7 @@
 #import "MSIDMainThreadUtil.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDFlightManager.h"
+#import "MSIDWebviewNavigationDecision.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDWebAuthNUtil.h"
@@ -111,6 +112,9 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         _context = context;
         
         _complete = NO;
+        
+        // isMobileOnboardingEnabled starts as NO; it is dynamically set to YES
+        // when the server issues msauth://enroll (server-driven enablement).
     }
     
     return self;
@@ -381,8 +385,43 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
             self.navigationResponseBlock(response);
         }
     }
+    
+    WKNavigationResponsePolicy responsePolicy = WKNavigationResponsePolicyAllow;
 
-    decisionHandler(WKNavigationResponsePolicyAllow);
+    if (self.isMobileOnboardingEnabled)
+    {
+        id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+        if ((strongNavigationDelegate)
+            && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeadersAndCheckForASWebAuthHandoff:responseURL:)]
+            && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
+        {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
+
+            // Process the response headers and determine if a hand-off to ASWebAuthenticationSession is signaled.
+            // The response URL is passed so the delegate can verify the issuing origin is allowed (HTTPS + allowlisted host)
+            // before honoring an ASWebAuth header.
+            BOOL didHandoff = [strongNavigationDelegate processResponseHeadersAndCheckForASWebAuthHandoff:response.allHeaderFields
+                                                                                             responseURL:response.URL];
+
+#if !MSID_EXCLUDE_SYSTEMWV
+            // If a hand-off is signaled, and the navigation delegate implements the hand-off method, perform the hand-off to ASWebAuthenticationSession and cancel the current navigation.
+            if (didHandoff
+                && [strongNavigationDelegate respondsToSelector:@selector(performASWebAuthenticationHandoffWithCompletion:)])
+            {
+                NSURL *responseURL = response.URL;
+                responsePolicy = WKNavigationResponsePolicyCancel;
+                [strongNavigationDelegate performASWebAuthenticationHandoffWithCompletion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+                {
+                    [self performNavigationDecision:decision
+                                         requestURL:responseURL
+                                              error:error];
+                }];
+            }
+#endif // !MSID_EXCLUDE_SYSTEMWV
+        }
+    }
+
+    decisionHandler(responsePolicy);
 }
 
 - (void)completeWebAuthWithURL:(NSURL *)endURL
@@ -654,6 +693,89 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Navigation Decision
+
+- (void)performNavigationDecision:(MSIDWebviewNavigationDecision *)navigationDecision
+                       requestURL:(NSURL *)requestURL
+                            error:(NSError *)error
+{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        if (error)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                              @"Navigation delegate returned error: %@", error);
+            [self endWebAuthWithURL:nil error:error];
+            return;
+        }
+        
+        // Default to completing the web auth with the current URL if no decision is returned
+        if (!navigationDecision)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                              @"Navigation delegate returned nil action");
+            [self completeWebAuthWithURL:requestURL];
+            return;
+        }
+        
+        // Check validity
+        if (![navigationDecision isValid])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                              @"Navigation validation failed, using fallback");
+            [self completeWebAuthWithURL:requestURL];
+            return;
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                          @"Applying navigation decision type: %ld", (long)navigationDecision.type);
+        
+        switch (navigationDecision.type)
+        {
+            case MSIDWebviewNavigationDecisionLoadRequest:
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                      @"Loading request: %@",
+                                      MSID_PII_LOG_MASKABLE(navigationDecision.request.URL));
+                [self loadRequest:navigationDecision.request];
+                break;
+            }
+                
+            case MSIDWebviewNavigationDecisionCompleteWithURL:
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                      @"Completing webauth with URL: %@",
+                                      MSID_PII_LOG_MASKABLE(navigationDecision.URL));
+                [self completeWebAuthWithURL:navigationDecision.URL];
+                break;
+            }
+                
+            case MSIDWebviewNavigationDecisionFailWithError:
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                                  @"Failing webauth with error: %@", navigationDecision.error);
+                [self endWebAuthWithURL:nil error:navigationDecision.error];
+                break;
+            }
+                
+            case MSIDWebviewNavigationDecisionContinueDefault:
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                                  @"Continuing with default behavior");
+                [self completeWebAuthWithURL:requestURL];
+                break;
+            }
+                
+            default:
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                                  @"Unknown decision type: %ld, using fallback", (long)navigationDecision.type);
+                [self completeWebAuthWithURL:requestURL];
+                break;
+            }
+        }
+    }];
 }
 
 #pragma mark - Onboarding telemetry

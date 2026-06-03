@@ -54,7 +54,11 @@
     if (!URL)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve: URL is nil.");
-        return nil;
+        NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                         MSIDErrorInvalidInternalParameter,
+                                         @"Cannot resolve navigation decision: URL is nil.",
+                                         nil, nil, nil, nil, nil, YES);
+        return [MSIDWebviewNavigationDecision failWithError:error];
     }
     
     NSString *scheme = URL.scheme.lowercaseString;
@@ -62,7 +66,11 @@
     if (scheme.length == 0)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve: URL scheme is missing or empty. URL: %@", MSID_PII_LOG_MASKABLE(URL));
-        return nil;
+        NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                         MSIDErrorInvalidInternalParameter,
+                                         @"Cannot resolve navigation decision: URL scheme is missing or empty.",
+                                         nil, nil, nil, nil, nil, YES);
+        return [MSIDWebviewNavigationDecision failWithError:error];
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Resolving decision for scheme '%@'.", scheme);
@@ -103,7 +111,11 @@
     if (host.length == 0)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve 'msauth' URL: host is missing or empty. URL: %@", MSID_PII_LOG_MASKABLE(URL));
-        return nil;
+        NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                         MSIDErrorInvalidInternalParameter,
+                                         @"Cannot resolve 'msauth' URL: host is missing or empty.",
+                                         nil, nil, nil, nil, nil, YES);
+        return [MSIDWebviewNavigationDecision failWithError:error];
     }
     
     // Parse query parameters

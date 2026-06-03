@@ -23,16 +23,24 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDTokenResult;
-@class MSIDWebviewResponse;
-
-typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse);
+@protocol MSIDExtendedTokenCacheDataSource;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDInteractiveRequestControlling <NSObject>
+/**
+ * Class-method seam for the throttling-service refresh write path.
+ *
+ * Production callers route through @c MSIDDIContainer (resolving a
+ * @c Class<MSIDThrottlingRefreshing> ) so unit tests can install a fake
+ * implementing class without runtime swizzling. The default implementation
+ * lives on @c MSIDThrottlingService.
+ */
+@protocol MSIDThrottlingRefreshing <NSObject>
 
-- (void)executeRequestWithCompletion:(MSIDInteractiveRequestCompletionBlock)completionBlock;
++ (BOOL)updateLastRefreshTimeDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
+                                context:(nullable id<MSIDRequestContext>)context
+                                  error:(NSError *__nullable *__nullable)error;
 
 @end
 
