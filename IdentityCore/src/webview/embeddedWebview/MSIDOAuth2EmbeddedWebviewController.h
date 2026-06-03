@@ -34,6 +34,7 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDWebViewPlatformParams.h"
 #import "MSIDCustomHeaderProviding.h"
+#import "MSIDWebviewNavigationDelegate.h"
 
 @class MSIDOnboardingBlobBuilder;
 
@@ -59,11 +60,30 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
 
+/**
+ Applies the navigation decision returned by the delegate.
+ 
+ @param navigationDecision The navigation decision to apply
+ @param requestURL The URL of the original request that triggered the navigation decision
+ @param error An error from the delegate, if any
+ 
+ @note This method automatically ensures execution on the main thread. If called from a background thread,
+       it will dispatch to the main queue automatically.
+ */
+- (void)performNavigationDecision:(MSIDWebviewNavigationDecision *)navigationDecision
+                       requestURL:(NSURL *)requestURL
+                            error:(NSError *)error;
+
+- (void)finalizeOnboardingTelemetry:(NSURL *)endURL
+                              error:(NSError *)error;
+
 @property (atomic, readonly) NSURL *startURL;
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
+@property (nonatomic, weak) id<MSIDWebviewNavigationDelegate> navigationDelegate;
 @property (nonatomic) id<MSIDCustomHeaderProviding> customHeaderProvider;
+
 // When set, the controller automatically extracts onboarding telemetry signals
 // (last loaded domain, blocking errors from x-ms-clitelem header, and remediation
 // steps for known error codes) from each navigation response and forwards them

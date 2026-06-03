@@ -1707,6 +1707,134 @@
     XCTAssertNil(error.userInfo[MSID_CLIENT_DATA_RESPONSE]);
 }
 
+- (void)testHandleBrokerResponse_whenDecryptedResponseContainsTopLevelClientData_shouldSurfaceClientDataInErrorUserInfo
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+
+    NSDictionary *errorMetadata =
+    @{
+      @"http_response_code" : @200,
+      @"username" : @"user@contoso.com",
+      };
+    NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
+
+    NSDictionary *brokerResponseParams =
+    @{
+      @"broker_error_code" : @"-42004",
+      @"broker_error_domain" : @"MSALErrorDomain",
+      @"correlation_id" : correlationId,
+      @"x-broker-app-ver" : @"1.0.0",
+      @"error_metadata" : errorMetaDataString,
+      @"error": @"invalid_grant",
+      @"suberror": @"consent_required",
+      @"error_description": @"Error occured",
+      @"success": @NO,
+      @"broker_nonce" : @"nonce",
+      MSID_CLIENT_DATA_RESPONSE : @"top_level_client_data_value"
+      };
+
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, -42004);
+    XCTAssertEqualObjects(error.domain, @"MSALErrorDomain");
+    XCTAssertEqualObjects(error.userInfo[MSID_CLIENT_DATA_RESPONSE], @"top_level_client_data_value");
+}
+
+- (void)testHandleBrokerResponse_whenDecryptedResponseHasBlankTopLevelClientData_shouldNotContainClientDataInErrorUserInfo
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+
+    NSDictionary *errorMetadata =
+    @{
+      @"http_response_code" : @200,
+      @"username" : @"user@contoso.com",
+      };
+    NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
+
+    NSDictionary *brokerResponseParams =
+    @{
+      @"broker_error_code" : @"-42004",
+      @"broker_error_domain" : @"MSALErrorDomain",
+      @"correlation_id" : correlationId,
+      @"x-broker-app-ver" : @"1.0.0",
+      @"error_metadata" : errorMetaDataString,
+      @"error": @"invalid_grant",
+      @"error_description": @"Error occured",
+      @"success": @NO,
+      @"broker_nonce" : @"nonce",
+      MSID_CLIENT_DATA_RESPONSE : @""
+      };
+
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertNil(error.userInfo[MSID_CLIENT_DATA_RESPONSE]);
+}
+
+- (void)testHandleBrokerResponse_whenTopLevelAndErrorMetadataBothContainClientData_shouldPreferTopLevelClientData
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+
+    NSDictionary *errorMetadata =
+    @{
+      @"http_response_code" : @200,
+      @"username" : @"user@contoso.com",
+      MSID_CLIENT_DATA_RESPONSE : @"metadata_client_data_value"
+      };
+    NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
+
+    NSDictionary *brokerResponseParams =
+    @{
+      @"broker_error_code" : @"-42004",
+      @"broker_error_domain" : @"MSALErrorDomain",
+      @"correlation_id" : correlationId,
+      @"x-broker-app-ver" : @"1.0.0",
+      @"error_metadata" : errorMetaDataString,
+      @"error": @"invalid_grant",
+      @"suberror": @"consent_required",
+      @"error_description": @"Error occured",
+      @"success": @NO,
+      @"broker_nonce" : @"nonce",
+      MSID_CLIENT_DATA_RESPONSE : @"top_level_client_data_value"
+      };
+
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.userInfo[MSID_CLIENT_DATA_RESPONSE], @"top_level_client_data_value");
+}
+
 - (void)testHandleBrokerResponse_whenErrorMetadataContainsOnboardingBlob_shouldSurfaceOnboardingBlobInErrorUserInfo
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];

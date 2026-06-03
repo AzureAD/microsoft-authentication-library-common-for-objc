@@ -280,6 +280,12 @@
         userInfo[MSIDDeclinedScopesKey] = [[NSOrderedSet msidOrderedSetFromString:decryptedResponse[MSIDDeclinedScopesKey]] array];
     }
     
+    // optional: MSID_CLIENT_DATA_RESPONSE
+    if (![NSString msidIsStringNilOrBlank:decryptedResponse[MSID_CLIENT_DATA_RESPONSE]])
+    {
+        userInfo[MSID_CLIENT_DATA_RESPONSE] = decryptedResponse[MSID_CLIENT_DATA_RESPONSE];
+    }
+    
     MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Broker failed with error domain %@, error code %@, oauth error %@, sub error %@, description %@", errorDomain, errorCodeString, oauthErrorCode, subError, MSID_PII_LOG_MASKABLE(errorDescription));
 
     NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, subError, nil, correlationId, userInfo, NO);
