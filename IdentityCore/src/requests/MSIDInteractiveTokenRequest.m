@@ -108,13 +108,16 @@
 
 #pragma mark - External redirect hook
 
-// Microsoft's Apple Developer Team ID — used to sign Microsoft 1P apps
-// (Authenticator, Teams, Outlook, OneDrive, Edge, Office, etc.). The
-// external-redirect notifier is gated to this Team ID because the host
-// block (e.g. OneAuth's BRT seeder) is intended only for Microsoft 1P
-// callers; third-party MSAL consumers MUST NOT receive the parent
-// webview / shared cache handle.
-static NSString * const kMSIDMicrosoft1PTeamId = @"UBF8T346G9";
+// Apple Developer Team IDs used to sign Microsoft 1P apps (Authenticator,
+// Teams, Outlook, OneDrive, Edge, Office, etc.). The external-redirect
+// notifier is gated to these Team IDs because the host block (e.g.
+// OneAuth's BRT seeder) is intended only for Microsoft 1P callers;
+// third-party MSAL consumers MUST NOT receive the parent webview /
+// shared cache handle. iOS 1P apps are signed under SGGM6D27TK or
+// 9KBH5RKYEW; macOS 1P apps are signed under UBF8T346G9.
+static NSString * const kMSIDMicrosoft1PTeamIdMac    = @"UBF8T346G9";
+static NSString * const kMSIDMicrosoft1PTeamIdIosA   = @"SGGM6D27TK";
+static NSString * const kMSIDMicrosoft1PTeamIdIosB   = @"9KBH5RKYEW";
 
 // Returns YES iff the currently-running process is signed by Microsoft.
 // Result is cached (Team ID does not change during process lifetime).
@@ -124,7 +127,14 @@ static BOOL MSIDIsMicrosoft1PHostProcess(void)
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSString *teamId = [MSIDKeychainUtil sharedInstance].teamId;
-        isMicrosoft1P = teamId.length > 0 && [teamId isEqualToString:kMSIDMicrosoft1PTeamId];
+        if (teamId.length == 0) return;
+
+        NSSet<NSString *> *allowedTeamIds = [NSSet setWithObjects:
+                                             kMSIDMicrosoft1PTeamIdMac,
+                                             kMSIDMicrosoft1PTeamIdIosA,
+                                             kMSIDMicrosoft1PTeamIdIosB,
+                                             nil];
+        isMicrosoft1P = [allowedTeamIds containsObject:teamId];
     });
     return isMicrosoft1P;
 }
