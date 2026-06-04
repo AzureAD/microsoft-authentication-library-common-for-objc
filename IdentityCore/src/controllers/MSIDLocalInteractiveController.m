@@ -37,8 +37,17 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDThrottlingService.h"
+#import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDWebviewNavigationDecision.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDExternalRedirectContext.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDWebviewInteracting.h"
+#import "MSIDKeychainUtil.h"
 
-@interface MSIDLocalInteractiveController()
+@interface MSIDLocalInteractiveController() <MSIDWebviewNavigationDelegate>
 
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 @property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
@@ -61,6 +70,23 @@
     if (self)
     {
         _interactiveRequestParamaters = parameters;
+        
+        // Wire this controller as the webview's navigation delegate so we
+        // receive handleSpecialRedirectURL: callbacks from the embedded
+        // webview controller when mobile onboarding redirects are detected.
+        __weak typeof(self) weakSelf = self;
+        MSIDWebviewConfigurationBlock existingBlock = parameters.webviewConfigurationBlock;
+        parameters.webviewConfigurationBlock = ^(id<MSIDWebviewInteracting> webviewController) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (existingBlock)
+            {
+                existingBlock(webviewController);
+            }
+            if ([webviewController isKindOfClass:[MSIDOAuth2EmbeddedWebviewController class]])
+            {
+                ((MSIDOAuth2EmbeddedWebviewController *)webviewController).navigationDelegate = strongSelf;
+            }
+        };
     }
 
     return self;
@@ -242,5 +268,65 @@
         completionBlock(result, error);
     }];
 }
+
+#pragma mark - MSIDWebviewNavigationDelegate
+
+#if TARGET_OS_IPHONE
+- (void)handleSpecialRedirectURL:(NSURL *)URL
+       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
+                      completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                      @"Received special redirect URL: %@", URL.scheme);
+    
+    MSIDBRTAcquisitionBlock block = self.brtAcquisitionBlock;
+    
+    // Only fire BRT acquisition for the enroll redirect (msauth://enroll?url=…).
+    // Other special redirects (e.g. browser://) should not trigger BRT seeding.
+    BOOL isBRTEnrollRedirect = [URL.scheme caseInsensitiveCompare:@"msauth"] == NSOrderedSame
+                               && [URL.host caseInsensitiveCompare:@"enroll"] == NSOrderedSame;
+    
+    // Defense-in-depth: BRT seeding is only allowed for Microsoft 1P apps
+    // (Team ID UBF8T346G9). This prevents 3P apps from triggering BRT
+    // acquisition even if they somehow obtain a reference to this controller.
+    NSString *teamId = [MSIDKeychainUtil sharedInstance].teamId;
+    BOOL isMicrosoftApp = [teamId isEqualToString:@"UBF8T346G9"];
+    
+    if (block && isBRTEnrollRedirect && isMicrosoftApp)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                          @"BRT acquisition block is set — building context and firing (fire-and-forget).");
+        
+        MSIDExternalRedirectContext *context =
+            [[MSIDExternalRedirectContext alloc] initWithRedirectURL:URL
+                                                      parentWebView:embeddedWebviewController.webView
+                                                    parentAuthority:self.interactiveRequestParamaters.authority
+                                                      correlationId:self.interactiveRequestParamaters.correlationId
+                                                          loginHint:self.interactiveRequestParamaters.loginHint
+                                                         tokenCache:self.currentRequest.tokenCache
+                                               accountMetadataCache:self.currentRequest.accountMetadataCache
+                                                       oauthFactory:self.currentRequest.oauthFactory
+                                       parentExtraURLQueryParameters:self.interactiveRequestParamaters.extraURLQueryParameters];
+        
+        // Fire-and-forget — do not block the parent interactive flow.
+        block(context);
+    }
+    else if (!block)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                          @"No BRT acquisition block set — skipping.");
+    }
+    else if (!isMicrosoftApp)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters,
+                          @"BRT acquisition skipped — app team ID is not Microsoft (UBF8T346G9).");
+    }
+    
+    // Always let the parent webview continue with its default navigation.
+    MSIDWebviewNavigationDecision *decision = [MSIDWebviewNavigationDecision new];
+    decision.type = MSIDWebviewNavigationDecisionContinueDefault;
+    completion(decision, nil);
+}
+#endif
 
 @end
