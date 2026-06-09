@@ -34,6 +34,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
 
 @implementation MSIDRequestParameters
 
@@ -172,13 +174,32 @@
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostName]) return;
+
+    NSString *lowercaseHostName = cloudHostName.lowercaseString;
+
+    // Validate the cloud host name against the trusted-host allow-list to prevent
+    // SSRF / credential-exposure (CWE-346 / CWE-918). Only accept hosts that are
+    // in the static AAD trusted-host list or are known instance-discovery aliases.
+    BOOL isTrustedHost = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:lowercaseHostName];
+
+    if (!isTrustedHost)
+    {
+        isTrustedHost = [[MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments containsObject:lowercaseHostName];
+    }
+
+    if (!isTrustedHost)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Rejected cloud_instance_host_name: host is not in the trusted host allow-list.");
+        return;
+    }
+
     NSError *cloudHostError = nil;
     
-    _cloudAuthority = [self.authority authorityWithUpdatedCloudHostInstanceName:cloudHostName error:&cloudHostError];
+    _cloudAuthority = [self.authority authorityWithUpdatedCloudHostInstanceName:lowercaseHostName error:&cloudHostError];
     
     if (!_cloudAuthority && cloudHostError)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create authority with cloud host name %@, and error %@, %ld", cloudHostName, cloudHostError.domain, (long)cloudHostError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create authority with cloud host name %@, and error %@, %ld", lowercaseHostName, cloudHostError.domain, (long)cloudHostError.code);
     }
     [self updateMSIDConfiguration];
 }
