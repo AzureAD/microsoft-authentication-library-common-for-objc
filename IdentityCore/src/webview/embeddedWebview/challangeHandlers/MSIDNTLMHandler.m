@@ -26,8 +26,6 @@
 #import "MSIDChallengeHandler.h"
 #import "MSIDNTLMUIPrompt.h"
 
-static NSArray<NSString *> *s_trustedHosts = nil;
-
 #if DEBUG
 static void (^s_testPromptBlock)(NSString *host, ChallengeCompletionHandler completionHandler) = nil;
 #endif
@@ -60,34 +58,6 @@ static NSString *MSIDSafeHostForDisplay(NSString *host)
                                authMethod:NSURLAuthenticationMethodNTLM];
 }
 
-+ (void)setTrustedHosts:(nullable NSArray<NSString *> *)trustedHosts
-{
-    @synchronized(self)
-    {
-        s_trustedHosts = [trustedHosts copy];
-    }
-}
-
-+ (nullable NSArray<NSString *> *)trustedHosts
-{
-    @synchronized(self)
-    {
-        return s_trustedHosts;
-    }
-}
-
-+ (void)resetHandler
-{
-    @synchronized(self)
-    {
-        [MSIDNTLMUIPrompt dismissPrompt];
-        s_trustedHosts = nil;
-#if DEBUG
-        s_testPromptBlock = nil;
-#endif
-    }
-}
-
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(__unused WKWebView *)webview
 #if TARGET_OS_IPHONE
@@ -99,20 +69,9 @@ static NSString *MSIDSafeHostForDisplay(NSString *host)
     @synchronized(self)
     {
         NSString *host = challenge.protectionSpace.host;
-        
+
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to handle NTLM challenge host: %@", MSID_PII_LOG_TRACKABLE(host));
-        
-        NSArray<NSString *> *trustedHosts = s_trustedHosts;
-        if (trustedHosts)
-        {
-            if (!host || ![trustedHosts containsObject:host])
-            {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"NTLM challenge rejected: host not in trusted hosts list: %@", MSID_PII_LOG_TRACKABLE(host));
-                completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-                return YES;
-            }
-        }
-        
+
         NSString *displayHost = MSIDSafeHostForDisplay(host);
         
 #if DEBUG
@@ -137,8 +96,8 @@ static NSString *MSIDSafeHostForDisplay(NSString *host)
              if (cancel)
              {
                  MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"NTLM challenge cancelled - host: %@", MSID_PII_LOG_TRACKABLE(host));
-                 
-                 completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+
+                 completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
              }
              else
              {

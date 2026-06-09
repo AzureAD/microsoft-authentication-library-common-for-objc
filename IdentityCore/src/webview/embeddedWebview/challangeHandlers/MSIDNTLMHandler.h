@@ -26,7 +26,4 @@
 
 @interface MSIDNTLMHandler : NSObject <MSIDChallengeHandling>
 
-+ (void)setTrustedHosts:(nullable NSArray<NSString *> *)trustedHosts;
-+ (nullable NSArray<NSString *> *)trustedHosts;
-
 @end

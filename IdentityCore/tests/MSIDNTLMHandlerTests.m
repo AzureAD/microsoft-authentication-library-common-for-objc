@@ -69,22 +69,22 @@
 - (NSURLAuthenticationChallenge *)challengeWithHost:(NSString *)host
 {
     NSURLProtectionSpace *space = [[NSURLProtectionSpace alloc] initWithHost:host
-                                                                        port:443
-                                                                    protocol:NSURLProtectionSpaceHTTPS
-                                                                       realm:nil
-                                                        authenticationMethod:NSURLAuthenticationMethodNTLM];
+                                                                       port:443
+                                                                   protocol:NSURLProtectionSpaceHTTPS
+                                                                      realm:nil
+                                                       authenticationMethod:NSURLAuthenticationMethodNTLM];
     MSIDTestNTLMChallengeSender *sender = [MSIDTestNTLMChallengeSender new];
     return [[NSURLAuthenticationChallenge alloc] initWithProtectionSpace:space
-                                                      proposedCredential:nil
+                                                     proposedCredential:nil
                                                     previousFailureCount:0
-                                                         failureResponse:nil
-                                                                   error:nil
-                                                                  sender:sender];
+                                                        failureResponse:nil
+                                                                  error:nil
+                                                                 sender:sender];
 }
 
-#pragma mark - Allow-list tests
+#pragma mark - Prompt-display tests
 
-- (void)testHandleChallenge_whenTrustedHostsNil_shouldPresentPromptForAnyHost
+- (void)testHandleChallenge_shouldPresentPromptWithHostName
 {
     __block NSString *capturedHost = nil;
     __block BOOL promptCalled = NO;
@@ -99,7 +99,7 @@
     MSIDTestContext *context = [MSIDTestContext new];
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
 
-    BOOL handled = [MSIDNTLMHandler handleChallenge:[self challengeWithHost:@"any.example.com"]
+    BOOL handled = [MSIDNTLMHandler handleChallenge:[self challengeWithHost:@"login.contoso.com"]
                                             webview:nil
 #if TARGET_OS_IPHONE
                                    parentController:nil
@@ -114,99 +114,7 @@
 
     XCTAssertTrue(handled);
     XCTAssertTrue(promptCalled);
-    XCTAssertEqualObjects(capturedHost, @"any.example.com");
-}
-
-- (void)testHandleChallenge_whenHostInTrustedHosts_shouldPresentPrompt
-{
-    [MSIDNTLMHandler setTrustedHosts:@[@"trusted.example.com"]];
-
-    __block NSString *capturedHost = nil;
-    __block BOOL promptCalled = NO;
-
-    [MSIDNTLMHandler setTestPromptBlock:^(NSString *host, ChallengeCompletionHandler completionHandler)
-    {
-        capturedHost = host;
-        promptCalled = YES;
-        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-    }];
-
-    MSIDTestContext *context = [MSIDTestContext new];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
-
-    BOOL handled = [MSIDNTLMHandler handleChallenge:[self challengeWithHost:@"trusted.example.com"]
-                                            webview:nil
-#if TARGET_OS_IPHONE
-                                   parentController:nil
-#endif
-                                            context:context
-                                  completionHandler:^(__unused NSURLSessionAuthChallengeDisposition disposition, __unused NSURLCredential *credential)
-    {
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-
-    XCTAssertTrue(handled);
-    XCTAssertTrue(promptCalled);
-    XCTAssertEqualObjects(capturedHost, @"trusted.example.com");
-}
-
-- (void)testHandleChallenge_whenHostNotInTrustedHosts_shouldPerformDefaultHandling
-{
-    [MSIDNTLMHandler setTrustedHosts:@[@"trusted.example.com"]];
-
-    MSIDTestContext *context = [MSIDTestContext new];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
-    __block NSURLSessionAuthChallengeDisposition capturedDisposition = NSURLSessionAuthChallengeUseCredential;
-
-    BOOL handled = [MSIDNTLMHandler handleChallenge:[self challengeWithHost:@"untrusted.example.com"]
-                                            webview:nil
-#if TARGET_OS_IPHONE
-                                   parentController:nil
-#endif
-                                            context:context
-                                  completionHandler:^(NSURLSessionAuthChallengeDisposition disposition, __unused NSURLCredential *credential)
-    {
-        capturedDisposition = disposition;
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-
-    XCTAssertTrue(handled);
-    XCTAssertEqual(capturedDisposition, NSURLSessionAuthChallengePerformDefaultHandling);
-}
-
-- (void)testHandleChallenge_whenHostNotInTrustedHosts_shouldNotCallPrompt
-{
-    [MSIDNTLMHandler setTrustedHosts:@[@"trusted.example.com"]];
-
-    __block BOOL promptCalled = NO;
-
-    [MSIDNTLMHandler setTestPromptBlock:^(__unused NSString *host, ChallengeCompletionHandler completionHandler)
-    {
-        promptCalled = YES;
-        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-    }];
-
-    MSIDTestContext *context = [MSIDTestContext new];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
-
-    [MSIDNTLMHandler handleChallenge:[self challengeWithHost:@"untrusted.example.com"]
-                             webview:nil
-#if TARGET_OS_IPHONE
-                    parentController:nil
-#endif
-                             context:context
-                   completionHandler:^(__unused NSURLSessionAuthChallengeDisposition disposition, __unused NSURLCredential *credential)
-    {
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-
-    XCTAssertFalse(promptCalled);
+    XCTAssertEqualObjects(capturedHost, @"login.contoso.com");
 }
 
 - (void)testHandleChallenge_whenEmptyHost_shouldCallPromptWithEmptyHost
@@ -220,10 +128,10 @@
     }];
 
     NSURLProtectionSpace *space = [[NSURLProtectionSpace alloc] initWithHost:@""
-                                                                        port:443
-                                                                    protocol:NSURLProtectionSpaceHTTPS
-                                                                       realm:nil
-                                                        authenticationMethod:NSURLAuthenticationMethodNTLM];
+                                                                       port:443
+                                                                   protocol:NSURLProtectionSpaceHTTPS
+                                                                      realm:nil
+                                                       authenticationMethod:NSURLAuthenticationMethodNTLM];
     MSIDTestNTLMChallengeSender *sender = [MSIDTestNTLMChallengeSender new];
     NSURLAuthenticationChallenge *challenge = [[NSURLAuthenticationChallenge alloc]
                                                initWithProtectionSpace:space
@@ -252,15 +160,7 @@
     XCTAssertEqualObjects(capturedHost, @"");
 }
 
-- (void)testResetHandler_shouldClearTrustedHosts
-{
-    [MSIDNTLMHandler setTrustedHosts:@[@"trusted.example.com"]];
-    XCTAssertNotNil([MSIDNTLMHandler trustedHosts]);
-
-    [MSIDNTLMHandler resetHandler];
-
-    XCTAssertNil([MSIDNTLMHandler trustedHosts]);
-}
+#pragma mark - Reset tests
 
 - (void)testResetHandler_shouldClearTestPromptBlock
 {
@@ -300,54 +200,6 @@
 
     XCTAssertFalse(firstBlockCalled);
     XCTAssertTrue(secondBlockCalled);
-}
-
-- (void)testTrustedHosts_getterSetter_shouldRoundTrip
-{
-    NSArray<NSString *> *hosts = @[@"host1.example.com", @"host2.example.com"];
-    [MSIDNTLMHandler setTrustedHosts:hosts];
-
-    XCTAssertEqualObjects([MSIDNTLMHandler trustedHosts], hosts);
-}
-
-- (void)testTrustedHosts_whenSetToNil_shouldBeNil
-{
-    [MSIDNTLMHandler setTrustedHosts:@[@"host.example.com"]];
-    [MSIDNTLMHandler setTrustedHosts:nil];
-
-    XCTAssertNil([MSIDNTLMHandler trustedHosts]);
-}
-
-- (void)testHandleChallenge_whenTrustedHostsSetToNilAfterConfiguration_shouldPresentPromptForAnyHost
-{
-    [MSIDNTLMHandler setTrustedHosts:@[@"trusted.example.com"]];
-    [MSIDNTLMHandler setTrustedHosts:nil];
-
-    __block BOOL promptCalled = NO;
-
-    [MSIDNTLMHandler setTestPromptBlock:^(__unused NSString *host, ChallengeCompletionHandler completionHandler)
-    {
-        promptCalled = YES;
-        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-    }];
-
-    MSIDTestContext *context = [MSIDTestContext new];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
-
-    [MSIDNTLMHandler handleChallenge:[self challengeWithHost:@"any.example.com"]
-                             webview:nil
-#if TARGET_OS_IPHONE
-                    parentController:nil
-#endif
-                             context:context
-                   completionHandler:^(__unused NSURLSessionAuthChallengeDisposition disposition, __unused NSURLCredential *credential)
-    {
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-
-    XCTAssertTrue(promptCalled);
 }
 
 @end
