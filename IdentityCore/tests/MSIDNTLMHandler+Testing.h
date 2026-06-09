@@ -24,6 +24,8 @@
 #import "MSIDNTLMHandler.h"
 #import "MSIDChallengeHandling.h"
 
+#if DEBUG
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDNTLMHandler (Testing)
@@ -33,3 +35,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

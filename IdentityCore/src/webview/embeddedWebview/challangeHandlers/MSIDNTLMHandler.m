@@ -27,7 +27,10 @@
 #import "MSIDNTLMUIPrompt.h"
 
 static NSArray<NSString *> *s_trustedHosts = nil;
+
+#if DEBUG
 static void (^s_testPromptBlock)(NSString *host, ChallengeCompletionHandler completionHandler) = nil;
+#endif
 
 static NSString *MSIDSafeHostForDisplay(NSString *host)
 {
@@ -35,10 +38,14 @@ static NSString *MSIDSafeHostForDisplay(NSString *host)
     {
         return nil;
     }
-    NSCharacterSet *validChars = [NSCharacterSet characterSetWithCharactersInString:
-        @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-[]:"];
-    NSCharacterSet *invalidChars = validChars.invertedSet;
-    if ([host rangeOfCharacterFromSet:invalidChars].location != NSNotFound)
+    static NSCharacterSet *s_invalidChars;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSCharacterSet *validChars = [NSCharacterSet characterSetWithCharactersInString:
+            @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-[]:"];
+        s_invalidChars = validChars.invertedSet;
+    });
+    if ([host rangeOfCharacterFromSet:s_invalidChars].location != NSNotFound)
     {
         return nil;
     }
@@ -57,17 +64,7 @@ static NSString *MSIDSafeHostForDisplay(NSString *host)
 {
     @synchronized(self)
     {
-        if (!trustedHosts)
-        {
-            s_trustedHosts = nil;
-            return;
-        }
-        NSMutableArray<NSString *> *copies = [NSMutableArray arrayWithCapacity:trustedHosts.count];
-        for (NSString *h in trustedHosts)
-        {
-            [copies addObject:[h copy]];
-        }
-        s_trustedHosts = [copies copy];
+        s_trustedHosts = [trustedHosts copy];
     }
 }
 
@@ -85,7 +82,9 @@ static NSString *MSIDSafeHostForDisplay(NSString *host)
     {
         [MSIDNTLMUIPrompt dismissPrompt];
         s_trustedHosts = nil;
+#if DEBUG
         s_testPromptBlock = nil;
+#endif
     }
 }
 
@@ -116,12 +115,14 @@ static NSString *MSIDSafeHostForDisplay(NSString *host)
         
         NSString *displayHost = MSIDSafeHostForDisplay(host);
         
+#if DEBUG
         void (^testBlock)(NSString *, ChallengeCompletionHandler) = s_testPromptBlock;
         if (testBlock)
         {
             testBlock(host, completionHandler);
             return YES;
         }
+#endif
         
 #if TARGET_OS_IPHONE
         [MSIDNTLMUIPrompt presentPromptInParentController:parentViewController
@@ -162,6 +163,8 @@ static NSString *MSIDSafeHostForDisplay(NSString *host)
 
 @end
 
+#if DEBUG
+
 @implementation MSIDNTLMHandler (Testing)
 
 + (void)setTestPromptBlock:(nullable void (^)(NSString *host, ChallengeCompletionHandler completionHandler))block
@@ -173,3 +176,5 @@ static NSString *MSIDSafeHostForDisplay(NSString *host)
 }
 
 @end
+
+#endif
