@@ -374,7 +374,8 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 - (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
+    NSString *rawAuthMethod = challenge.protectionSpace.authenticationMethod;
+    NSString *authMethod = rawAuthMethod.lowercaseString;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context,
                      @"%@ - %@. Previous challenge failure count: %ld",
@@ -384,8 +385,8 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     // Reject any NTLM/Negotiate challenge whose host does not match the current main-frame
     // document host. This prevents sub-resource loads and navigations to rogue hosts from
     // triggering credential prompts (the primary UI-spoofing attack vector).
-    if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame
-        || [challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodNegotiate] == NSOrderedSame)
+    if ([rawAuthMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame
+        || [rawAuthMethod caseInsensitiveCompare:NSURLAuthenticationMethodNegotiate] == NSOrderedSame)
     {
         NSString *challengeHost = challenge.protectionSpace.host.lowercaseString;
         if (![challengeHost isEqualToString:_mainFrameHost])
