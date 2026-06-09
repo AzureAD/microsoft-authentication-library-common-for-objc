@@ -813,6 +813,7 @@
     MSIDAuthority *updatedAuthority = [authority authorityWithUpdatedCloudHostInstanceName:@"evil.attacker.net" error:&error];
 
     XCTAssertNil(updatedAuthority);
+    XCTAssertNil(error);
 }
 
 - (void)testAuthorityWithUpdatedCloudHostInstanceName_whenNilHost_shouldReturnNil
@@ -823,6 +824,7 @@
     MSIDAuthority *updatedAuthority = [authority authorityWithUpdatedCloudHostInstanceName:nil error:&error];
 
     XCTAssertNil(updatedAuthority);
+    XCTAssertNil(error);
 }
 
 
