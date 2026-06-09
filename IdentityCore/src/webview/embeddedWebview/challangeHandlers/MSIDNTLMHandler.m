@@ -29,6 +29,22 @@
 static NSArray<NSString *> *s_trustedHosts = nil;
 static void (^s_testPromptBlock)(NSString *host, ChallengeCompletionHandler completionHandler) = nil;
 
+static NSString *MSIDSafeHostForDisplay(NSString *host)
+{
+    if (!host || host.length == 0)
+    {
+        return nil;
+    }
+    NSCharacterSet *validChars = [NSCharacterSet characterSetWithCharactersInString:
+        @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-[]:"];
+    NSCharacterSet *invalidChars = validChars.invertedSet;
+    if ([host rangeOfCharacterFromSet:invalidChars].location != NSNotFound)
+    {
+        return nil;
+    }
+    return host;
+}
+
 @implementation MSIDNTLMHandler
 
 + (void)load
@@ -41,7 +57,17 @@ static void (^s_testPromptBlock)(NSString *host, ChallengeCompletionHandler comp
 {
     @synchronized(self)
     {
-        s_trustedHosts = [trustedHosts copy];
+        if (!trustedHosts)
+        {
+            s_trustedHosts = nil;
+            return;
+        }
+        NSMutableArray<NSString *> *copies = [NSMutableArray arrayWithCapacity:trustedHosts.count];
+        for (NSString *h in trustedHosts)
+        {
+            [copies addObject:[h copy]];
+        }
+        s_trustedHosts = [copies copy];
     }
 }
 
@@ -78,12 +104,17 @@ static void (^s_testPromptBlock)(NSString *host, ChallengeCompletionHandler comp
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to handle NTLM challenge host: %@", MSID_PII_LOG_TRACKABLE(host));
         
         NSArray<NSString *> *trustedHosts = s_trustedHosts;
-        if (trustedHosts && ![trustedHosts containsObject:host])
+        if (trustedHosts)
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"NTLM challenge rejected: host not in trusted hosts list: %@", MSID_PII_LOG_TRACKABLE(host));
-            completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-            return YES;
+            if (!host || ![trustedHosts containsObject:host])
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"NTLM challenge rejected: host not in trusted hosts list: %@", MSID_PII_LOG_TRACKABLE(host));
+                completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+                return YES;
+            }
         }
+        
+        NSString *displayHost = MSIDSafeHostForDisplay(host);
         
         void (^testBlock)(NSString *, ChallengeCompletionHandler) = s_testPromptBlock;
         if (testBlock)
@@ -94,11 +125,11 @@ static void (^s_testPromptBlock)(NSString *host, ChallengeCompletionHandler comp
         
 #if TARGET_OS_IPHONE
         [MSIDNTLMUIPrompt presentPromptInParentController:parentViewController
-                                          requestingHost:host
+                                          requestingHost:displayHost
                                        completionHandler:^(NSString *username, NSString *password, BOOL cancel)
 #else
         [MSIDNTLMUIPrompt presentPromptWithWebView:webview
-                                   requestingHost:host
+                                   requestingHost:displayHost
                                        completion:^(NSString *username, NSString *password, BOOL cancel)
 #endif
          {

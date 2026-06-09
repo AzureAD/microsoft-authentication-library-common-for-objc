@@ -318,4 +318,36 @@
     XCTAssertNil([MSIDNTLMHandler trustedHosts]);
 }
 
+- (void)testHandleChallenge_whenTrustedHostsSetToNilAfterConfiguration_shouldPresentPromptForAnyHost
+{
+    [MSIDNTLMHandler setTrustedHosts:@[@"trusted.example.com"]];
+    [MSIDNTLMHandler setTrustedHosts:nil];
+
+    __block BOOL promptCalled = NO;
+
+    [MSIDNTLMHandler setTestPromptBlock:^(__unused NSString *host, ChallengeCompletionHandler completionHandler)
+    {
+        promptCalled = YES;
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    }];
+
+    MSIDTestContext *context = [MSIDTestContext new];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
+
+    [MSIDNTLMHandler handleChallenge:[self challengeWithHost:@"any.example.com"]
+                             webview:nil
+#if TARGET_OS_IPHONE
+                    parentController:nil
+#endif
+                             context:context
+                   completionHandler:^(__unused NSURLSessionAuthChallengeDisposition disposition, __unused NSURLCredential *credential)
+    {
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
+    XCTAssertTrue(promptCalled);
+}
+
 @end
