@@ -33,12 +33,12 @@
 - (instancetype)initWithRedirectURL:(NSURL *)redirectURL
                       parentWebView:(WKWebView *)parentWebView
                     parentAuthority:(MSIDAuthority *)parentAuthority
-                      correlationId:(NSUUID *)correlationId
-                          loginHint:(NSString *)loginHint
+                      correlationId:(nullable NSUUID *)correlationId
+                          loginHint:(nullable NSString *)loginHint
                          tokenCache:(id<MSIDCacheAccessor>)tokenCache
                accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                        oauthFactory:(MSIDOauth2Factory *)oauthFactory
-       parentExtraURLQueryParameters:(NSDictionary<NSString *, NSString *> *)parentExtraURLQueryParameters
+       parentExtraURLQueryParameters:(nullable NSDictionary<NSString *, NSString *> *)parentExtraURLQueryParameters
 {
     if ((self = [super init]))
     {

@@ -376,10 +376,10 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
                               @"No BRT acquisition block set — skipping.");
         }
-        else if (MSIDIsMicrosoft1PHostProcess())
+        else if (!MSIDIsMicrosoft1PHostProcess())
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters,
-                              @"BRT acquisition skipped — app team ID is not Microsoft (UBF8T346G9).");
+                              @"BRT acquisition skipped — host app is not Microsoft-signed.");
         }
     }
 
@@ -392,11 +392,12 @@
 }
 #endif
 
+#if !MSID_EXCLUDE_WEBKIT
 - (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
                                               responseURL:(NSURL *)responseURL
 {
     return [self.navigationHandler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                              responseURL:responseURL];
+                                                                          responseURL:responseURL];
 }
 
 #if !MSID_EXCLUDE_SYSTEMWV
@@ -407,6 +408,7 @@
                                                                        completion:completion];
 }
 #endif // !MSID_EXCLUDE_SYSTEMWV
+#endif // !MSID_EXCLUDE_WEBKIT
 
 static NSString * const kMSIDMicrosoft1PTeamIdIosA   = @"SGGM6D27TK";
 static NSString * const kMSIDMicrosoft1PTeamIdIosB   = @"9KBH5RKYEW";
