@@ -537,8 +537,7 @@
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
     if (!components)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: Failed to parse URL components for URL: %@", url);
-        return @{};
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: Failed to parse URL components for URL: %@", MSID_PII_LOG_MASKABLE(url));
     }
     
     NSMutableDictionary<NSString *, NSString *> *result = [NSMutableDictionary new];
