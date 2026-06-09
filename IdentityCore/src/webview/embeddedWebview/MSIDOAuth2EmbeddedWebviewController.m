@@ -317,7 +317,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     // unrelated hosts can be rejected before any credential prompt is shown.
     if (navigationAction.targetFrame.isMainFrame)
     {
-        NSString *newHost = requestURL.host.lowercaseString;
+        NSString *newHost = requestURL.host.lowercaseString ?: @"";
         if (newHost.length > 0)
         {
             _mainFrameHost = newHost;
