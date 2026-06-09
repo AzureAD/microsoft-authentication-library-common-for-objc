@@ -118,7 +118,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         
         _complete = NO;
         
-        _mainFrameHost = startURL.host.lowercaseString;
+        _mainFrameHost = startURL.host.lowercaseString ?: @"";
         
         // isMobileOnboardingEnabled starts as NO; it is dynamically set to YES
         // when the server issues msauth://enroll (server-driven enablement).
@@ -384,8 +384,8 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     // Reject any NTLM/Negotiate challenge whose host does not match the current main-frame
     // document host. This prevents sub-resource loads and navigations to rogue hosts from
     // triggering credential prompts (the primary UI-spoofing attack vector).
-    if ([authMethod isEqualToString:[NSURLAuthenticationMethodNTLM lowercaseString]]
-        || [authMethod isEqualToString:[NSURLAuthenticationMethodNegotiate lowercaseString]])
+    if ([challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame
+        || [challenge.protectionSpace.authenticationMethod caseInsensitiveCompare:NSURLAuthenticationMethodNegotiate] == NSOrderedSame)
     {
         NSString *challengeHost = challenge.protectionSpace.host.lowercaseString;
         if (![challengeHost isEqualToString:_mainFrameHost])
