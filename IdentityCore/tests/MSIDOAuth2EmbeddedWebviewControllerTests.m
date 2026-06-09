@@ -31,6 +31,8 @@
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDNTLMHandler.h"
+#import "MSIDNTLMHandler+Testing.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -38,9 +40,25 @@
 @interface MSIDOAuth2EmbeddedWebviewController (Testing)
 - (BOOL)shouldOpenURLInSystemBrowser:(NSURL *)url targetFrame:(WKFrameInfo *)targetFrame;
 - (NSString *)onboardingStepForEndURL:(NSURL *)endURL;
+- (void)setMainFrameHostForTesting:(NSString *)host;
 @end
 
 @interface MSIDOAuth2EmbeddedWebviewControllerTests : XCTestCase
+
+@end
+
+// Helper: a minimal NSURLAuthenticationChallengeSender that satisfies the protocol requirement
+@interface MSIDTestEmbeddedWebviewChallengeSender : NSObject <NSURLAuthenticationChallengeSender>
+@end
+
+@implementation MSIDTestEmbeddedWebviewChallengeSender
+
+- (void)useCredential:(__unused NSURLCredential *)credential
+   forAuthenticationChallenge:(__unused NSURLAuthenticationChallenge *)challenge {}
+
+- (void)continueWithoutCredentialForAuthenticationChallenge:(__unused NSURLAuthenticationChallenge *)challenge {}
+
+- (void)cancelAuthenticationChallenge:(__unused NSURLAuthenticationChallenge *)challenge {}
 
 @end
 
@@ -52,9 +70,11 @@
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
     flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER: @NO};
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    [MSIDNTLMHandler resetHandler];
 }
 
 - (void)tearDown {
+    [MSIDNTLMHandler resetHandler];
     MSIDFlightManager.sharedInstance.flightProvider = nil;
     [super tearDown];
 }
@@ -269,6 +289,140 @@
     MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
     NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?LinkId="];
     XCTAssertNil([webVC onboardingStepForEndURL:url]);
+}
+
+#pragma mark - NTLM challenge host validation tests
+
+- (NSURLAuthenticationChallenge *)ntlmChallengeWithHost:(NSString *)host
+{
+    NSURLProtectionSpace *space = [[NSURLProtectionSpace alloc] initWithHost:host
+                                                                        port:443
+                                                                    protocol:NSURLProtectionSpaceHTTPS
+                                                                       realm:nil
+                                                        authenticationMethod:NSURLAuthenticationMethodNTLM];
+    MSIDTestEmbeddedWebviewChallengeSender *sender = [MSIDTestEmbeddedWebviewChallengeSender new];
+    return [[NSURLAuthenticationChallenge alloc] initWithProtectionSpace:space
+                                                      proposedCredential:nil
+                                                    previousFailureCount:0
+                                                         failureResponse:nil
+                                                                   error:nil
+                                                                  sender:sender];
+}
+
+- (void)testNTLMChallenge_whenHostMatchesStartURLHost_shouldForwardToHandler
+{
+    // Controller's startURL host is "contoso.com"; challenge from same host should
+    // reach MSIDNTLMHandler (intercepted via test-prompt block).
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    __block BOOL promptReached = NO;
+    [MSIDNTLMHandler setTestPromptBlock:^(__unused NSString *host, ChallengeCompletionHandler completionHandler)
+    {
+        promptReached = YES;
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
+    [webVC webView:nil
+        didReceiveAuthenticationChallenge:[self ntlmChallengeWithHost:@"contoso.com"]
+                        completionHandler:^(__unused NSURLSessionAuthChallengeDisposition disposition, __unused NSURLCredential *credential)
+    {
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
+    XCTAssertTrue(promptReached, @"NTLM challenge from the startURL host should be forwarded to the handler");
+}
+
+- (void)testNTLMChallenge_whenHostDoesNotMatchStartURLHost_shouldCancel
+{
+    // Challenge from a host other than the startURL host must be cancelled immediately.
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    __block BOOL promptReached = NO;
+    [MSIDNTLMHandler setTestPromptBlock:^(__unused NSString *host, ChallengeCompletionHandler completionHandler)
+    {
+        promptReached = YES;
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
+    __block NSURLSessionAuthChallengeDisposition capturedDisposition = NSURLSessionAuthChallengeUseCredential;
+    [webVC webView:nil
+        didReceiveAuthenticationChallenge:[self ntlmChallengeWithHost:@"evil.example.com"]
+                        completionHandler:^(NSURLSessionAuthChallengeDisposition disposition, __unused NSURLCredential *credential)
+    {
+        capturedDisposition = disposition;
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
+    XCTAssertFalse(promptReached, @"NTLM prompt must not be shown for an untrusted host");
+    XCTAssertEqual(capturedDisposition, NSURLSessionAuthChallengeCancelAuthenticationChallenge);
+}
+
+- (void)testNTLMChallenge_whenHostMatchesCaseInsensitive_shouldForwardToHandler
+{
+    // Host comparison must be case-insensitive: "CONTOSO.COM" should match "contoso.com".
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    __block BOOL promptReached = NO;
+    [MSIDNTLMHandler setTestPromptBlock:^(__unused NSString *host, ChallengeCompletionHandler completionHandler)
+    {
+        promptReached = YES;
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
+    [webVC webView:nil
+        didReceiveAuthenticationChallenge:[self ntlmChallengeWithHost:@"CONTOSO.COM"]
+                        completionHandler:^(__unused NSURLSessionAuthChallengeDisposition disposition, __unused NSURLCredential *credential)
+    {
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
+    XCTAssertTrue(promptReached, @"NTLM challenge host comparison must be case-insensitive");
+}
+
+- (void)testNTLMChallenge_whenSubResourceHostDiffersFromMainFrameHost_shouldCancel
+{
+    // After the main frame navigates to a new host, a challenge from the previous host
+    // (i.e., a sub-resource or rogue load) must be cancelled.
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    XCTAssertNotNil(webVC);
+
+    // Simulate the main frame navigating to adfs.contoso.com
+    [webVC setMainFrameHostForTesting:@"adfs.contoso.com"];
+
+    __block BOOL promptReached = NO;
+    [MSIDNTLMHandler setTestPromptBlock:^(__unused NSString *host, ChallengeCompletionHandler completionHandler)
+    {
+        promptReached = YES;
+        completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+    }];
+
+    // Issue a challenge from the original startURL host (no longer the main-frame host).
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
+    __block NSURLSessionAuthChallengeDisposition capturedDisposition = NSURLSessionAuthChallengeUseCredential;
+    [webVC webView:nil
+        didReceiveAuthenticationChallenge:[self ntlmChallengeWithHost:@"contoso.com"]
+                        completionHandler:^(NSURLSessionAuthChallengeDisposition disposition, __unused NSURLCredential *credential)
+    {
+        capturedDisposition = disposition;
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+
+    XCTAssertFalse(promptReached, @"Sub-resource NTLM challenge must not trigger a prompt");
+    XCTAssertEqual(capturedDisposition, NSURLSessionAuthChallengeCancelAuthenticationChallenge);
 }
 
 @end

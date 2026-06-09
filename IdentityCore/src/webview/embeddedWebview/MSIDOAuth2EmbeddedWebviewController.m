@@ -66,6 +66,11 @@
 #if !EXCLUDE_FROM_MSALCPP
     MSIDTelemetryUIEvent *_telemetryEvent;
 #endif
+
+    // Lowercase host of the current main-frame document; seeded from the startURL and
+    // updated as the main frame navigates. Used to reject NTLM challenges that originate
+    // from sub-resource loads or hosts other than the top-level document.
+    NSString *_mainFrameHost;
 }
 
 // Backed by readonly properties declared in the public header.
@@ -112,6 +117,8 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         _context = context;
         
         _complete = NO;
+        
+        _mainFrameHost = startURL.host.lowercaseString ?: @"";
         
         // isMobileOnboardingEnabled starts as NO; it is dynamically set to YES
         // when the server issues msauth://enroll (server-driven enablement).
@@ -305,7 +312,18 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     NSURL *requestURL = navigationAction.request.URL;
-    
+
+    // Track the main-frame host so that NTLM challenges from sub-resource loads or
+    // unrelated hosts can be rejected before any credential prompt is shown.
+    if (navigationAction.targetFrame.isMainFrame)
+    {
+        NSString *newHost = requestURL.host.lowercaseString ?: @"";
+        if (newHost.length > 0)
+        {
+            _mainFrameHost = newHost;
+        }
+    }
+
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-decidePolicyForNavigationAction host: %@", MSID_PII_LOG_TRACKABLE(requestURL.host));
     
     if ([self shouldSendNavigationNotification:requestURL navigationAction:navigationAction])
@@ -356,13 +374,31 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 - (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
+    NSString *rawAuthMethod = challenge.protectionSpace.authenticationMethod;
+    NSString *authMethod = rawAuthMethod.lowercaseString;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context,
                      @"%@ - %@. Previous challenge failure count: %ld",
                      @"webView:didReceiveAuthenticationChallenge:completionHandler",
                      authMethod, (long)challenge.previousFailureCount);
-    
+
+    // Reject any NTLM/Negotiate challenge whose host does not match the current main-frame
+    // document host. This prevents sub-resource loads and navigations to rogue hosts from
+    // triggering credential prompts (the primary UI-spoofing attack vector).
+    if ([rawAuthMethod caseInsensitiveCompare:NSURLAuthenticationMethodNTLM] == NSOrderedSame
+        || [rawAuthMethod caseInsensitiveCompare:NSURLAuthenticationMethodNegotiate] == NSOrderedSame)
+    {
+        NSString *challengeHost = challenge.protectionSpace.host.lowercaseString;
+        if (![challengeHost isEqualToString:_mainFrameHost])
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.context,
+                @"NTLM/Negotiate challenge rejected: host %@ does not match main-frame host %@",
+                MSID_PII_LOG_TRACKABLE(challengeHost), MSID_PII_LOG_TRACKABLE(_mainFrameHost));
+            completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+            return;
+        }
+    }
+
     [MSIDChallengeHandler handleChallenge:challenge
                                   webview:webView
 #if TARGET_OS_IPHONE
@@ -981,5 +1017,18 @@ initiatedByFrame:(WKFrameInfo *)frame
 }
 
 @end
+
+#if DEBUG
+
+@implementation MSIDOAuth2EmbeddedWebviewController (Testing)
+
+- (void)setMainFrameHostForTesting:(NSString *)host
+{
+    _mainFrameHost = host;
+}
+
+@end
+
+#endif
 
 #endif

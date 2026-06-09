@@ -21,22 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDNTLMHandler.h"
+#import "MSIDChallengeHandling.h"
 
-@class WKWebView;
+#if DEBUG
 
-@interface MSIDNTLMUIPrompt : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-#if TARGET_OS_IPHONE
-+ (void)presentPromptInParentController:(UIViewController *)parentViewController
-                         requestingHost:(nullable NSString *)host
-                      completionHandler:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
-#else
-+ (void)presentPromptWithWebView:(WKWebView *)webview
-                  requestingHost:(nullable NSString *)host
-                      completion:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
-#endif
+@interface MSIDNTLMHandler (Testing)
 
-+ (void)dismissPrompt;
++ (void)setTestPromptBlock:(nullable void (^)(NSString *host, ChallengeCompletionHandler completionHandler))block;
 
 @end
+
+NS_ASSUME_NONNULL_END
+
+#endif

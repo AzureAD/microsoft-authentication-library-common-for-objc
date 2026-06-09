@@ -2226,7 +2226,10 @@
 		};
 /* End PBXCopyFilesBuildPhase section */
 
-/* Begin PBXFileReference section */
+5BC2622A874744EE9090A4DE /* MSIDNTLMHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BE13ADBE46DF4707B92D9416 /* MSIDNTLMHandlerTests.m */; };
+70EF54F98EA24ACBAB635DE9 /* MSIDNTLMHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BE13ADBE46DF4707B92D9416 /* MSIDNTLMHandlerTests.m */; };
+7FAD3D82BBC0482FB041FE31 /* MSIDNTLMHandler+Testing.h in Headers */ = {isa = PBXBuildFile; fileRef = CC4A2ED85A1145F19B51F0C0 /* MSIDNTLMHandler+Testing.h */; };
+		/* Begin PBXFileReference section */
 		04930F831FEC8E6800FC4DCD /* MSIDAadAuthorityCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAadAuthorityCache.m; sourceTree = "<group>"; };
 		04930F841FEC8E6800FC4DCD /* MSIDAadAuthorityCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAadAuthorityCache.h; sourceTree = "<group>"; };
 		04930F931FEDB2C700FC4DCD /* MSIDAuthority.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthority.h; sourceTree = "<group>"; };
@@ -3744,7 +3747,9 @@
 		E7B67293257ED6E30053773F /* MSIDLRUCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLRUCache.h; sourceTree = "<group>"; };
 		F7AB2563ADFC286EF6D81445 /* MSIDWPJMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDWPJMetadata.h; sourceTree = "<group>"; };
 		F7AB272FEBCF984722F26558 /* MSIDWPJMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDWPJMetadata.m; sourceTree = "<group>"; };
-/* End PBXFileReference section */
+BE13ADBE46DF4707B92D9416 /* MSIDNTLMHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDNTLMHandlerTests.m; sourceTree = "<group>"; };
+CC4A2ED85A1145F19B51F0C0 /* MSIDNTLMHandler+Testing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDNTLMHandler+Testing.h"; sourceTree = "<group>"; };
+		/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1EE8FF5324F4BB3800CA1445 /* Frameworks */ = {
@@ -6287,6 +6292,8 @@
 				B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */,
 				E70C4A74258D7E7B00A7A07E /* MSIDLRUCacheTest.m */,
 				B2525C742330623E006FBA4B /* MSIDMainThreadUtilTests.m */,
+				BE13ADBE46DF4707B92D9416 /* MSIDNTLMHandlerTests.m */,
+				CC4A2ED85A1145F19B51F0C0 /* MSIDNTLMHandler+Testing.h */,
 				B223B0A522ADEE5900FB8713 /* MSIDMaskedLogParameterTests.m */,
 				B223B0A222ADEE4500FB8713 /* MSIDMaskedUsernameLogParameterTests.m */,
 				B434A1382F8E475700CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m */,
@@ -7002,6 +7009,7 @@
 				B2E2A94F239320B600BA2EA3 /* MSIDTestParametersProvider.h in Headers */,
 				B2E4A07824DDE5CF007CE642 /* NSDate+MSIDTestUtil.h in Headers */,
 				7233F08F2F88967A009C9602 /* MSIDDeviceTokenGrantRequest.h in Headers */,
+				7FAD3D82BBC0482FB041FE31 /* MSIDNTLMHandler+Testing.h in Headers */
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7749,6 +7757,7 @@
 				A0410E0825E81C5D004D80FD /* MSIDThrottlingModel429Test.m in Sources */,
 				96DAC2CD21431DE30001FBF5 /* NSString+MSIDTestUtil.m in Sources */,
 				B2DD4B3320A8DA4B0047A66E /* MSIDLegacyCacheKeyTests.m in Sources */,
+				5BC2622A874744EE9090A4DE /* MSIDNTLMHandlerTests.m in Sources */,
 				D6D9A4BE1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */,
 				A08D0A2B24A85C9800C9193D /* MSIDAuthenticationSchemePopTest.m in Sources */,
 				2347D6662D5415EB00372D20 /* MSIDSwitchBrowserResumeResponseTest.swift in Sources */,
@@ -8423,6 +8432,7 @@
 				B500F7322F1144A900E64911 /* MSIDBrokerOperationGetDefaultAccountRequestTests.m in Sources */,
 				B500F7332F1144A900E64911 /* MSIDBrokerOperationGetDefaultAccountResponseTests.m in Sources */,
 				0CC830A9C664A75FFE7C032C /* MSIDDIContainerTests.m in Sources */,
+				70EF54F98EA24ACBAB635DE9 /* MSIDNTLMHandlerTests.m in Sources */
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

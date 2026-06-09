@@ -26,20 +26,36 @@
 #import "MSIDChallengeHandler.h"
 #import "MSIDNTLMUIPrompt.h"
 
+#if DEBUG
+static void (^s_testPromptBlock)(NSString *host, ChallengeCompletionHandler completionHandler) = nil;
+#endif
+
+static NSString *MSIDSafeHostForDisplay(NSString *host)
+{
+    if (!host || host.length == 0)
+    {
+        return nil;
+    }
+    static NSCharacterSet *s_invalidChars;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSCharacterSet *validChars = [NSCharacterSet characterSetWithCharactersInString:
+            @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-[]:"];
+        s_invalidChars = validChars.invertedSet;
+    });
+    if ([host rangeOfCharacterFromSet:s_invalidChars].location != NSNotFound)
+    {
+        return nil;
+    }
+    return host;
+}
+
 @implementation MSIDNTLMHandler
 
 + (void)load
 {
     [MSIDChallengeHandler registerHandler:self
                                authMethod:NSURLAuthenticationMethodNTLM];
-}
-
-+ (void)resetHandler
-{
-    @synchronized(self)
-    {
-        [MSIDNTLMUIPrompt dismissPrompt];
-    }
 }
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
@@ -52,20 +68,36 @@
 {
     @synchronized(self)
     {
-        // This is the NTLM challenge: use the identity to authenticate:
+        NSString *host = challenge.protectionSpace.host;
+
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to handle NTLM challenge host: %@", MSID_PII_LOG_TRACKABLE(host));
+
+        NSString *displayHost = MSIDSafeHostForDisplay(host);
         
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to handle NTLM challenge host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
+#if DEBUG
+        void (^testBlock)(NSString *, ChallengeCompletionHandler) = s_testPromptBlock;
+        if (testBlock)
+        {
+            testBlock(host, completionHandler);
+            return YES;
+        }
+#endif
+        
 #if TARGET_OS_IPHONE
-        [MSIDNTLMUIPrompt presentPromptInParentController:parentViewController completionHandler:^(NSString *username, NSString *password, BOOL cancel)
+        [MSIDNTLMUIPrompt presentPromptInParentController:parentViewController
+                                          requestingHost:displayHost
+                                       completionHandler:^(NSString *username, NSString *password, BOOL cancel)
 #else
-        [MSIDNTLMUIPrompt presentPromptWithWebView:webview completion:^(NSString *username, NSString *password, BOOL cancel)
+        [MSIDNTLMUIPrompt presentPromptWithWebView:webview
+                                   requestingHost:displayHost
+                                       completion:^(NSString *username, NSString *password, BOOL cancel)
 #endif
          {
              if (cancel)
              {
-                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"NTLM challenge cancelled - host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
-                 
-                 completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"NTLM challenge cancelled - host: %@", MSID_PII_LOG_TRACKABLE(host));
+
+                 completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
              }
              else
              {
@@ -75,7 +107,7 @@
                  
                  completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
                  
-                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"NTLM credentials added - host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
+                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"NTLM credentials added - host: %@", MSID_PII_LOG_TRACKABLE(host));
              }
          }];
     }//@synchronized
@@ -89,3 +121,19 @@
 }
 
 @end
+
+#if DEBUG
+
+@implementation MSIDNTLMHandler (Testing)
+
++ (void)setTestPromptBlock:(nullable void (^)(NSString *host, ChallengeCompletionHandler completionHandler))block
+{
+    @synchronized(self)
+    {
+        s_testPromptBlock = block;
+    }
+}
+
+@end
+
+#endif
