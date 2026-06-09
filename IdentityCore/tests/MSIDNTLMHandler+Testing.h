@@ -21,12 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDNTLMHandler.h"
 #import "MSIDChallengeHandling.h"
 
-@interface MSIDNTLMHandler : NSObject <MSIDChallengeHandling>
+NS_ASSUME_NONNULL_BEGIN
 
-+ (void)setTrustedHosts:(nullable NSArray<NSString *> *)trustedHosts;
-+ (nullable NSArray<NSString *> *)trustedHosts;
+@interface MSIDNTLMHandler (Testing)
+
++ (void)setTestPromptBlock:(nullable void (^)(NSString *host, ChallengeCompletionHandler completionHandler))block;
 
 @end
+
+NS_ASSUME_NONNULL_END

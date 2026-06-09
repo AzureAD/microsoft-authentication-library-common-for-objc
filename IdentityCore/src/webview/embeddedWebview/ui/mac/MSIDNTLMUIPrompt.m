@@ -47,12 +47,24 @@ __weak static NSAlert *_presentedPrompt = nil;
     }];
 }
 
-+ (void)presentPromptWithWebView:(WKWebView *)webview completion:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler
++ (void)presentPromptWithWebView:(WKWebView *)webview
+                 requestingHost:(nullable NSString *)host
+                     completion:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler
 {
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         NSAlert *alert = [NSAlert new];
         
-        [alert setMessageText:NSLocalizedString(@"Enter your credentials", nil)];
+        NSString *messageText;
+        if (host.length > 0)
+        {
+            messageText = [NSString stringWithFormat:NSLocalizedString(@"Enter your credentials for %@", nil), host];
+        }
+        else
+        {
+            messageText = NSLocalizedString(@"Enter your credentials", nil);
+        }
+        
+        [alert setMessageText:messageText];
         NSButton *loginButton = [alert addButtonWithTitle:NSLocalizedString(@"Login", nil)];
         NSButton *cancelButton = [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         

@@ -46,6 +46,7 @@ __weak static UIAlertController *_presentedPrompt = nil;
 }
 
 + (void)presentPromptInParentController:(UIViewController *)parentViewController
+                         requestingHost:(nullable NSString *)host
                       completionHandler:(void (^)(NSString *username, NSString *password, BOOL cancel))block
 {
     if ([MSIDAppExtensionUtil isExecutingInAppExtension])
@@ -66,7 +67,17 @@ __weak static UIAlertController *_presentedPrompt = nil;
         
         NSBundle *bundle = [NSBundle bundleForClass:[self class]];
         
-        NSString *title = NSLocalizedStringFromTableInBundle(@"Enter your credentials", nil, bundle, nil);
+        NSString *title;
+        if (host.length > 0)
+        {
+            NSString *format = NSLocalizedStringFromTableInBundle(@"Enter your credentials for %@", nil, bundle, nil);
+            title = [NSString stringWithFormat:format, host];
+        }
+        else
+        {
+            title = NSLocalizedStringFromTableInBundle(@"Enter your credentials", nil, bundle, nil);
+        }
+        
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
                                                                        message:nil
                                                                 preferredStyle:UIAlertControllerStyleAlert];

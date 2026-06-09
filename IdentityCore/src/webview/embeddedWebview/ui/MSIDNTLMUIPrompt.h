@@ -29,9 +29,12 @@
 
 #if TARGET_OS_IPHONE
 + (void)presentPromptInParentController:(UIViewController *)parentViewController
+                         requestingHost:(nullable NSString *)host
                       completionHandler:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
 #else
-+ (void)presentPromptWithWebView:(WKWebView *)webview completion:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
++ (void)presentPromptWithWebView:(WKWebView *)webview
+                  requestingHost:(nullable NSString *)host
+                      completion:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
 #endif
 
 + (void)dismissPrompt;
