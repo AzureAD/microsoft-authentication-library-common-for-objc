@@ -236,10 +236,16 @@
     if (wpjResponse) return wpjResponse;
     
     // Try to create an OpenID Verifiable Credentials (openid-vc://) response
+    NSError *openIdVcError = nil;
     MSIDWebOpenIdVcResponse *openIdVcResponse = [[MSIDWebOpenIdVcResponse alloc] initWithURL:url
                                                                                      context:context
-                                                                                       error:nil];
-    if (openIdVcResponse) return openIdVcResponse;
+                                                                                       error:&openIdVcError];
+    if (openIdVcResponse && !openIdVcError) return openIdVcResponse;
+
+    if (openIdVcError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Failed to create OpenID-VC response: %@", openIdVcError);
+    }
 
     // Try to create a browser response
     MSIDWebOpenBrowserResponse *browserResponse = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url

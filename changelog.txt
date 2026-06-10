@@ -1,5 +1,6 @@
 TBD
 * Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release. Self-heal cache eviction on conformance failure; release-mode fallback test via NSAssertionHandler swap.
+* Handle openid-vc:// URLs in the AAD embedded webview by handing them off to the system (#1849)
 
 Version 1.24.1
 * Fix visionOS build failure: add visionos(2.0) availability annotation
@@ -14,7 +15,6 @@ Version 1.24.0
 * Close cookies popup in automation tests #1814
 * Exclude swift files from macOS targets #1827
 * Propagate client_data from broker error response for legacy broker support (#1834)
-* Handle openid-vc:// URLs in the AAD embedded webview by handing them off to the system (#1849)
 
 Version 1.23.1
 * Support saving and removing requestedClaims for ATs in mac legacy (ACL) cache (#1783)
