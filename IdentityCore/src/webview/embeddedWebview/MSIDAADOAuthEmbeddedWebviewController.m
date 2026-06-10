@@ -99,74 +99,74 @@
     BOOL isBrokerUrl  = [@"msauth"  caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     
-    // TODO: testing
-    NSString *host = requestURL.host;
-    NSString *path = requestURL.path;
-    if (isBrowserUrl)
-    {
-        NSDictionary *queryParams = [requestURL msidQueryParameters];
-        NSString *linkId = queryParams[@"LinkId"] ?: queryParams[@"linkid"];
-        linkId = linkId ? linkId : queryParams[@"linkid"] ?: queryParams[@"linkId"];
-        NSString *compliance = queryParams[@"portalAction"] ?: queryParams[@"PortalAction"];
-        BOOL isEnrollmentPath = [path isEqualToString:@"/fwlink"] || [path isEqualToString:@"/fwlink/"];
-        if ([host isEqualToString:@"go.microsoft.com"] &&
-            isEnrollmentPath
-            && ([linkId isEqualToString:@"396941"] || [linkId isEqual:@"399153"]))
-        {
-            // Construct proper https URL with all query parameters
-            NSString *cpurlValue;
-            if (requestURL.query && requestURL.query.length > 0)
-            {
-                cpurlValue = [NSString stringWithFormat:@"https://%@%@?%@", host, path, requestURL.query];
-            }
-            else
-            {
-                cpurlValue = [NSString stringWithFormat:@"https://%@%@", host, path];
-            }
-            // Properly encode the cpurl value for use as a query parameter
-            //            NSString *encodedCpurl = [cpurlValue stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-            //            NSRange range = [encodedCpurl rangeOfString:@"?"];
-            //            if (range.location != NSNotFound) {
-            //                encodedCpurl = [cpurlValue stringByReplacingCharactersInRange:range withString:@"&"];
-            //            }
-            
-            NSString *msauthURLString = [NSString stringWithFormat:@"msauth://enroll?%@=%@", MSID_INTUNE_URL_KEY, cpurlValue];
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Converting browser enrollment URL to msauth URL. Original: %@, Converted: %@", MSID_PII_LOG_MASKABLE(requestURL.absoluteString), MSID_PII_LOG_MASKABLE(msauthURLString));
-            requestURL = [NSURL URLWithString:msauthURLString];
-            // Re-evaluate URL scheme flags after conversion
-            isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
-            isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
-        }
-        
-        if ([host isEqualToString:@"portal.manage.microsoft.com"]
-            && ([compliance isEqualToString:@"Compliance"]))
-        {
-            // Construct proper https URL with all query parameters
-            NSString *cpurlValue;
-            if (requestURL.query && requestURL.query.length > 0)
-            {
-                cpurlValue = [NSString stringWithFormat:@"https://%@%@?%@", host, path, requestURL.query];
-            }
-            else
-            {
-                cpurlValue = [NSString stringWithFormat:@"https://%@%@", host, path];
-            }
-            // Properly encode the cpurl value for use as a query parameter
-            //            NSString *encodedCpurl = [cpurlValue stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-            //            NSRange range = [encodedCpurl rangeOfString:@"?"];
-            //            if (range.location != NSNotFound) {
-            //                encodedCpurl = [cpurlValue stringByReplacingCharactersInRange:range withString:@"&"];
-            //            }
-            
-            NSString *msauthURLString = [NSString stringWithFormat:@"msauth://compliance?%@=%@", MSID_INTUNE_URL_KEY, cpurlValue];
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Converting browser enrollment URL to msauth URL. Original: %@, Converted: %@", MSID_PII_LOG_MASKABLE(requestURL.absoluteString), MSID_PII_LOG_MASKABLE(msauthURLString));
-            requestURL = [NSURL URLWithString:msauthURLString];
-            // Re-evaluate URL scheme flags after conversion
-            isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
-            isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
-        }
-        
-    }
+//    // TODO: testing
+//    NSString *host = requestURL.host;
+//    NSString *path = requestURL.path;
+//    if (isBrowserUrl)
+//    {
+//        NSDictionary *queryParams = [requestURL msidQueryParameters];
+//        NSString *linkId = queryParams[@"LinkId"] ?: queryParams[@"linkid"];
+//        linkId = linkId ? linkId : queryParams[@"linkid"] ?: queryParams[@"linkId"];
+//        NSString *compliance = queryParams[@"portalAction"] ?: queryParams[@"PortalAction"];
+//        BOOL isEnrollmentPath = [path isEqualToString:@"/fwlink"] || [path isEqualToString:@"/fwlink/"];
+//        if ([host isEqualToString:@"go.microsoft.com"] &&
+//            isEnrollmentPath
+//            && ([linkId isEqualToString:@"396941"] || [linkId isEqual:@"399153"]))
+//        {
+//            // Construct proper https URL with all query parameters
+//            NSString *cpurlValue;
+//            if (requestURL.query && requestURL.query.length > 0)
+//            {
+//                cpurlValue = [NSString stringWithFormat:@"https://%@%@?%@", host, path, requestURL.query];
+//            }
+//            else
+//            {
+//                cpurlValue = [NSString stringWithFormat:@"https://%@%@", host, path];
+//            }
+//            // Properly encode the cpurl value for use as a query parameter
+//            //            NSString *encodedCpurl = [cpurlValue stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+//            //            NSRange range = [encodedCpurl rangeOfString:@"?"];
+//            //            if (range.location != NSNotFound) {
+//            //                encodedCpurl = [cpurlValue stringByReplacingCharactersInRange:range withString:@"&"];
+//            //            }
+//            
+//            NSString *msauthURLString = [NSString stringWithFormat:@"msauth://enroll?%@=%@", MSID_INTUNE_URL_KEY, cpurlValue];
+//            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Converting browser enrollment URL to msauth URL. Original: %@, Converted: %@", MSID_PII_LOG_MASKABLE(requestURL.absoluteString), MSID_PII_LOG_MASKABLE(msauthURLString));
+//            requestURL = [NSURL URLWithString:msauthURLString];
+//            // Re-evaluate URL scheme flags after conversion
+//            isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+//            isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+//        }
+//        
+//        if ([host isEqualToString:@"portal.manage.microsoft.com"]
+//            && ([compliance isEqualToString:@"Compliance"]))
+//        {
+//            // Construct proper https URL with all query parameters
+//            NSString *cpurlValue;
+//            if (requestURL.query && requestURL.query.length > 0)
+//            {
+//                cpurlValue = [NSString stringWithFormat:@"https://%@%@?%@", host, path, requestURL.query];
+//            }
+//            else
+//            {
+//                cpurlValue = [NSString stringWithFormat:@"https://%@%@", host, path];
+//            }
+//            // Properly encode the cpurl value for use as a query parameter
+//            //            NSString *encodedCpurl = [cpurlValue stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+//            //            NSRange range = [encodedCpurl rangeOfString:@"?"];
+//            //            if (range.location != NSNotFound) {
+//            //                encodedCpurl = [cpurlValue stringByReplacingCharactersInRange:range withString:@"&"];
+//            //            }
+//            
+//            NSString *msauthURLString = [NSString stringWithFormat:@"msauth://compliance?%@=%@", MSID_INTUNE_URL_KEY, cpurlValue];
+//            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Converting browser enrollment URL to msauth URL. Original: %@, Converted: %@", MSID_PII_LOG_MASKABLE(requestURL.absoluteString), MSID_PII_LOG_MASKABLE(msauthURLString));
+//            requestURL = [NSURL URLWithString:msauthURLString];
+//            // Re-evaluate URL scheme flags after conversion
+//            isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+//            isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+//        }
+//        
+//    }
     
     // Server-side trigger: msauth://enroll means the server opted this
     // session into the new mobile onboarding flow.

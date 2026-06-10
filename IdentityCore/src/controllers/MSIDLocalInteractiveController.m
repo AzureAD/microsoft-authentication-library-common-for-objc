@@ -41,6 +41,7 @@
 #import "MSIDRequestControllerFactory.h"
 #import "MSIDKeychainUtil.h"
 #import "MSIDExternalRedirectContext.h"
+#import "MSIDOpportunisticBRTSeeder.h"
 #if !MSID_EXCLUDE_WEBKIT
 #import "MSIDWebviewNavigationHandler.h"
 #import "MSIDWebviewNavigationDecision.h"
@@ -371,10 +372,20 @@
             // Fire-and-forget — do not block the parent interactive flow.
             block(context);
         }
-        else if (!block)
+        else if (!block && isBRTEnrollRedirect && MSIDIsMicrosoft1PHostProcess())
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
-                              @"No BRT acquisition block set — skipping.");
+                              @"No BRT acquisition block set");
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                              @"BRT POC: Firing opportunistic BRT seed (fire-and-forget).");
+            // Proceed immediately — seeder runs in background and does not block parent navigation.
+            [MSIDOpportunisticBRTSeeder seedWithParentParameters:self.interactiveRequestParamaters
+                                                         webView:embeddedWebviewController.webView
+                                                      tokenCache:self.currentRequest.tokenCache
+                                            accountMetadataCache:self.currentRequest.accountMetadataCache
+                                                    oauthFactory:self.currentRequest.oauthFactory
+                                          tokenResponseValidator:self.currentRequest.tokenResponseValidator
+                                                         context:self.requestParameters];
         }
         else if (!MSIDIsMicrosoft1PHostProcess())
         {
