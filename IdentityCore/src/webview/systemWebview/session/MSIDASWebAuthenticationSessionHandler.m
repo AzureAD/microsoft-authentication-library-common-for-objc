@@ -25,23 +25,21 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_WEBKIT && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500)
+#if !MSID_EXCLUDE_WEBKIT
 
 #import "MSIDASWebAuthenticationSessionHandler.h"
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDConstants.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
 @interface MSIDASWebAuthenticationSessionHandler () <ASWebAuthenticationPresentationContextProviding>
-#else
-@interface MSIDASWebAuthenticationSessionHandler ()
-#endif
+
 @property (weak, nonatomic) MSIDViewController *parentController;
 @property (nonatomic) NSURL *startURL;
 @property (nonatomic) NSString *callbackURLScheme;
 @property (nonatomic) ASWebAuthenticationSession *webAuthSession;
 @property (nonatomic) BOOL useEmpheralSession;
 @property (nonatomic) BOOL sessionDismissed;
+@property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
 
 @end
 
@@ -49,10 +47,11 @@
 
 #pragma mark - MSIDAuthSessionHandling
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController
-                                startURL:(NSURL *)startURL
-                          callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession
+- (instancetype)initCommonWithParentController:(MSIDViewController *)parentController
+                                      startURL:(NSURL *)startURL
+                                callbackScheme:(NSString *)callbackURLScheme
+                           useEphemeralSession:(BOOL)useEphemeralSession
+                             additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
 {
     self = [super init];
     
@@ -61,10 +60,36 @@
         _parentController = parentController;
         _startURL = startURL;
         _callbackURLScheme = callbackURLScheme;
-        _useEmpheralSession = useEmpheralSession;
+        _useEmpheralSession = useEphemeralSession;
+        _additionalHeaders = [additionalHeaders copy];
     }
     
     return self;
+}
+
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                      useEmpheralSession:(BOOL)useEphemeralSession
+{
+    return [self initCommonWithParentController:parentController
+                                       startURL:startURL
+                                 callbackScheme:callbackURLScheme
+                            useEphemeralSession:useEphemeralSession
+                              additionalHeaders:nil];
+}
+
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                     useEphemeralSession:(BOOL)useEphemeralSession
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders API_AVAILABLE(ios(18.0), macos(15.0), visionos(2.0))
+{
+    return [self initCommonWithParentController:parentController
+                                       startURL:startURL
+                                 callbackScheme:callbackURLScheme
+                            useEphemeralSession:useEphemeralSession
+                              additionalHeaders:additionalHeaders];
 }
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
@@ -96,13 +121,17 @@
                                                         callbackURLScheme:self.callbackURLScheme
                                                         completionHandler:authCompletion];
     
-    #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        if (@available(iOS 13.0, macOS 10.15, *))
+    self.webAuthSession.presentationContextProvider = self;
+    self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
+    
+    // Set additional headers if available (iOS 18+, macOS 15+, visionOS 2+)
+    if (@available(iOS 18.0, macOS 15.0, visionOS 2.0, *))
+    {
+        if (self.additionalHeaders && self.additionalHeaders.count > 0)
         {
-            self.webAuthSession.presentationContextProvider = self;
-            self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
+            self.webAuthSession.additionalHeaderFields = self.additionalHeaders;
         }
-    #endif
+    }
     
     if (![self.webAuthSession start] && !self.sessionDismissed)
     {
@@ -127,16 +156,14 @@
     [self cancelProgrammatically];
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-
 #pragma mark - ASWebAuthenticationPresentationContextProviding
 
-- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(__unused ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0), macCatalyst(13.0), macos(10.15))
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(__unused ASWebAuthenticationSession *)session
 {
     return [self presentationAnchor];
 }
 
-- (ASPresentationAnchor)presentationAnchor API_AVAILABLE(ios(13.0), macCatalyst(13.0), macos(10.15))
+- (ASPresentationAnchor)presentationAnchor
 {
     if (![NSThread isMainThread])
     {
@@ -156,8 +183,6 @@
     return parentController.view.window;
 #endif
 }
-
-#endif
 
 @end
 

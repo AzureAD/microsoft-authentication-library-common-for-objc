@@ -41,11 +41,16 @@
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
                                                       sdkCapabilities:(nullable NSArray *)sdkCapabilities
-                                                                error:(NSError * _Nullable * _Nullable)error;
+                                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (nullable MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
 
+- (nullable MSIDInteractiveTokenRequest *)interactiveXpcTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
+
 - (nullable MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
+                                                                        forceRefresh:(BOOL)forceRefresh;
+
+- (nullable MSIDSilentTokenRequest *)silentXpcTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
                                                                         forceRefresh:(BOOL)forceRefresh;
 
 @end

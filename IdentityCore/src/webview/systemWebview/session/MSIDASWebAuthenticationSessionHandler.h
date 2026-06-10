@@ -29,21 +29,22 @@
 #import "MSIDWebviewInteracting.h"
 #import "MSIDConstants.h"
 
-#if !MSID_EXCLUDE_WEBKIT && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500)
+#if !MSID_EXCLUDE_WEBKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-API_AVAILABLE(ios(12.0), macCatalyst(13.0), macos(10.15))
-#else
-API_AVAILABLE(ios(12.0))
-#endif
 @interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
 
 - (instancetype)initWithParentController:(MSIDViewController *)parentController
                                 startURL:(NSURL *)startURL
                           callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
+                      useEmpheralSession:(BOOL)useEphemeralSession;
+
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                     useEphemeralSession:(BOOL)useEphemeralSession
+                       additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders API_AVAILABLE(ios(18.0), macos(15.0), visionos(2.0));
 
 @end
 

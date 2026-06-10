@@ -29,6 +29,8 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 
 @implementation MSIDAADRequestErrorHandler
 
@@ -41,24 +43,48 @@
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    if (!httpResponse)
-    {
-        if (completionBlock) completionBlock(nil, error);
-        return;
-    }
-    
     BOOL shouldRetry = YES;
     shouldRetry &= httpRequest.retryCounter > 0;
-    // 5xx Server errors.
-    shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
+    if (!httpResponse)
+    {
+        BOOL shouldRetryNetworkingFailure = NO;
+        if (shouldRetry && error)
+        {
+            // Networking errors (-1001, -1003. -1004. -1005. -1009)
+            shouldRetryNetworkingFailure = [MSIDAADRequestErrorHandler shouldRetryNetworkingFailure:error.code];
+            if (shouldRetryNetworkingFailure && error.code == NSURLErrorNotConnectedToInternet)
+            {
+                // For handling the NSURLErrorNotConnectedToInternet error, retry the network request after a longer delay.
+                httpRequest.retryInterval = 2.0;
+            }
+        }
 
+        shouldRetry &= shouldRetryNetworkingFailure;
+        if (!shouldRetry)
+        {
+            if (completionBlock) completionBlock(nil, error);
+            return;
+        }
+    }
+    else
+    {
+        // 5xx Server errors.
+        if (shouldRetry) shouldRetry &= httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599;
+    }
+    
     if (shouldRetry)
     {
+        MSIDExecutionFlowInsertTag(MSIDExecutionFlowNetworkTagToString(MSIDRetryOnNetworkFailureTag),
+                                       nil,
+                                       context.correlationId);
         httpRequest.retryCounter--;
         
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            MSIDExecutionFlowInsertTag(MSIDExecutionFlowNetworkTagToString(MSIDStartToRetryOnNetworkFailureTag),
+                                           nil,
+                                           context.correlationId);
             [httpRequest sendWithBlock:completionBlock];
         });
         
@@ -122,9 +148,39 @@
         [additionalInfo setValue:@1 forKey:MSIDServerUnavailableStatusKey];
     }
     
-    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, nil, context.correlationId, additionalInfo, YES);
+    if (data && data.length > 0)
+    {
+        NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        if (![NSString msidIsStringNilOrBlank:responseString])
+        {
+            NSString *teleString = responseString.length > 10 ? [responseString substringToIndex:10] : responseString;
+            [additionalInfo setValue:teleString forKey:MSIDHTTPTruncatedResponseStringKey];
+        }
+    }
+    
+    NSError *httpUnderlyingError = nil;
+    if (httpResponse.statusCode == 403 || httpResponse.statusCode == 404)
+    {
+        httpUnderlyingError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorUnexpectedHttpResponse, errorDescription, nil, nil, nil, context.correlationId, nil, YES);
+    }
+
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, httpUnderlyingError, context.correlationId, additionalInfo, YES);
     
     if (completionBlock) completionBlock(nil, httpError);
+}
+
++ (BOOL)shouldRetryNetworkingFailure:(NSInteger)errorCode
+{
+    switch (errorCode) {
+        case NSURLErrorTimedOut:
+        case NSURLErrorCannotFindHost:
+        case NSURLErrorCannotConnectToHost:
+        case NSURLErrorNetworkConnectionLost:
+        case NSURLErrorNotConnectedToInternet:
+            return YES;
+        default:
+            return NO;
+    }
 }
 
 @end

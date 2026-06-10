@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
                requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
            useSSOCookieFallback:(BOOL)useSSOCookieFallback
                      ssoContext:(nullable MSIDExternalSSOContext *)ssoContext
-                          error:(NSError **)error;
+                          error:(NSError *__autoreleasing*)error;
 
 @end
 

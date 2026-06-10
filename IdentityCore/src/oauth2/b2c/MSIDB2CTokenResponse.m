@@ -41,7 +41,7 @@
     [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_B2C kindOfClass:MSIDTokenResponse.class toClassType:MSID_JSON_TYPE_B2C_TOKEN_RESPONSE];
 }
 
-- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError *__autoreleasing*)error
 {
     return [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }

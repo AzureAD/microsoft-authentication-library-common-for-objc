@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                  shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                                    error:(NSError * _Nullable * _Nullable)error;
+                                    error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (void)executeRequestWithCompletion:(MSIDSignoutRequestCompletionBlock)completionBlock;
 

@@ -61,7 +61,7 @@
                    telemetryApiId:(NSString *)telemetryApiId
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                       requestType:(MSIDRequestType)requestType
-                            error:(NSError **)error
+                            error:(NSError *__autoreleasing*)error
 {
     self = [super init];
 
@@ -163,6 +163,7 @@
     {
         [endpointQPs addEntriesFromDictionary:self.extraURLQueryParameters];
     }
+    
 
     tokenEndpoint.query = [endpointQPs msidURLEncode];
     return tokenEndpoint.URL;
@@ -324,7 +325,7 @@
 
 #pragma mark - Validate
 
-- (BOOL)validateParametersWithError:(NSError **)error
+- (BOOL)validateParametersWithError:(NSError *__autoreleasing*)error
 {
     if (!self.authority)
     {
@@ -332,7 +333,7 @@
         return NO;
     }
 
-    if (!self.redirectUri)
+    if (!self.redirectUri && !self.bypassRedirectURIValidation)
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Missing redirectUri parameter", self.correlationId);
         return NO;
@@ -369,6 +370,8 @@
     parameters->_oidcScope = [_oidcScope copyWithZone:zone];
     parameters->_accountIdentifier = [_accountIdentifier copyWithZone:zone];
     parameters->_validateAuthority = _validateAuthority;
+    parameters->_clientSku = [_clientSku copyWithZone:zone];
+    parameters->_skipValidateResultAccount = _skipValidateResultAccount;
     parameters->_extraTokenRequestParameters = [_extraTokenRequestParameters copyWithZone:zone];
     parameters->_extraURLQueryParameters = [_extraURLQueryParameters copyWithZone:zone];
     parameters->_tokenExpirationBuffer = _tokenExpirationBuffer;
@@ -385,6 +388,7 @@
     parameters->_clientCapabilities = [_clientCapabilities copyWithZone:zone];
     parameters->_msidConfiguration = [_msidConfiguration copyWithZone:zone];
     parameters->_keychainAccessGroup = [_keychainAccessGroup copyWithZone:zone];
+    parameters->_platformSequence = [_platformSequence copyWithZone:zone];
 
     return parameters;
 }

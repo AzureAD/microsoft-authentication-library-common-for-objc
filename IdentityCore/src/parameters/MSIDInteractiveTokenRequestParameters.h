@@ -22,12 +22,32 @@
 // THE SOFTWARE.
 
 #import "MSIDInteractiveRequestParameters.h"
+#import "MSIDCustomHeaderProviding.h"
+
+@class MSIDOnboardingBlobBuilder;
+@protocol MSIDWebviewInteracting;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * Block type for configuring webview controller after creation
+ */
+typedef void (^MSIDWebviewConfigurationBlock)(id<MSIDWebviewInteracting> webviewController);
 
 @interface MSIDInteractiveTokenRequestParameters : MSIDInteractiveRequestParameters
 
 @property (nonatomic) MSIDUIBehaviorType uiBehaviorType;
+
+// Optional onboarding telemetry blob builder. When set, the webview factory
+// propagates it onto the request configuration which then passes it to the
+// embedded webview controller for auto-recording of domain + blocking errors.
+// Held strongly so telemetry recording does not depend on an external strong
+// reference; the builder lives at least as long as these parameters.
+@property (nonatomic, strong, nullable) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
+// Optional onboarding telemetry seed JSON forwarded to the broker via the
+// broker IPC contract (URL-scheme query param "onboardingBlob"). The broker
+// classifies, builds, and echoes the populated blob back on the response.
+@property (nonatomic, copy, nullable) NSString *onboardingBlobJson;
 @property (nonatomic) NSString *loginHint;
 @property (nonatomic) NSString *extraScopesToConsent;
 @property (nonatomic) MSIDPromptType promptType;
@@ -36,6 +56,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSDictionary *extraAuthorizeURLQueryParameters;
 @property (nonatomic) BOOL enablePkce;
 @property (nonatomic) MSIDBrokerInvocationOptions *brokerInvocationOptions;
+@property (nullable, nonatomic) id<MSIDCustomHeaderProviding> crossDomainHeaderProvider;
+// Additional request parameter that will be utilized by OneAuth during internal automation testing. When available will be passed to web view to be consumed by ESTS as a form of MFA.
+@property (nonatomic, nullable) NSString *userFederatedIdentityToken;
+@property (nullable, nonatomic) id<MSIDCustomHeaderProviding> prtHeaderProvider;
+
+/**
+ * Optional configuration block called when webview controller is created
+ * Use this to set delegates, customize behavior, etc.
+ * Block is called on main thread before webview is presented
+ */
+@property (nonatomic, copy, nullable) MSIDWebviewConfigurationBlock webviewConfigurationBlock;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 - (NSDictionary *)allAuthorizeRequestExtraParameters DEPRECATED_MSG_ATTRIBUTE("Use -allAuthorizeRequestExtraParametersWithMetadata: instead");
@@ -54,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
                     brokerOptions:(nullable MSIDBrokerInvocationOptions *)brokerOptions
                       requestType:(MSIDRequestType)requestType
               intuneAppIdentifier:(nullable NSString *)intuneApplicationIdentifier
-                            error:(NSError * _Nullable * _Nullable)error;
+                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

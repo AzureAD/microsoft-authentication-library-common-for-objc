@@ -35,6 +35,7 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDJsonObject.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -72,7 +73,7 @@
               key:(MSIDCacheKey *)key
        serializer:(id<MSIDCacheItemSerializing>)serializer
           context:(id<MSIDRequestContext>)context
-            error:(NSError **)error
+            error:(NSError *__autoreleasing*)error
 {
     if (!item
         || !key
@@ -98,7 +99,7 @@
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
                                serializer:(id<MSIDCacheItemSerializing>)serializer
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     if (!serializer)
     {
@@ -122,28 +123,28 @@
 
 - (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
 
 - (BOOL)removeAccountsWithKey:(MSIDCacheKey *)key
                       context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+                        error:(NSError *__autoreleasing*)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
 
 - (BOOL)removeMetadataItemsWithKey:(MSIDCacheKey *)key
                            context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error
+                             error:(NSError *__autoreleasing*)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(__unused id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     if (!key)
     {
@@ -182,7 +183,7 @@
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
                                            serializer:(id<MSIDCacheItemSerializing>)serializer
                                               context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
+                                                error:(NSError *__autoreleasing*)error
 {
     if (!serializer)
     {
@@ -216,14 +217,14 @@
 }
 
 - (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context
-                          error:(__unused NSError **)error
+                          error:(__unused NSError *__autoreleasing*)error
 {
     _wipeInfo = @{@"wiped": [NSDate date]};
     return YES;
 }
 
 - (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context
-                     error:(__unused NSError **)error
+                     error:(__unused NSError *__autoreleasing*)error
 {
     return _wipeInfo;
 }
@@ -232,7 +233,7 @@
                 key:(MSIDCacheKey *)key
          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
+              error:(NSError *__autoreleasing*)error
 {
     if (!item
         || !serializer)
@@ -257,7 +258,7 @@
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     if (!serializer)
     {
@@ -282,7 +283,7 @@
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                              context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     if (!serializer)
     {
@@ -320,19 +321,61 @@
                                           context:(__unused id<MSIDRequestContext>)context
                                             error:(__unused NSError *__autoreleasing *)error
 {
-    // TODO
-    return nil;
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    NSMutableArray *resultItems = [NSMutableArray array];
+    
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:_tokenKeys
+                                contentDictionary:_tokenContents
+                                          context:context
+                                            error:error];
+    
+    for (NSData *itemData in items)
+    {
+        MSIDJsonObject *jsonObject = (MSIDJsonObject *)[serializer deserializeCacheItem:itemData ofClass:[MSIDJsonObject class]];
+        
+        if (jsonObject)
+        {
+            [resultItems addObject:jsonObject];
+        }
+    }
+    
+    return resultItems;
 }
 
 
-- (BOOL)saveJsonObject:(__unused MSIDJsonObject *)jsonObject
-            serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
-                   key:(__unused MSIDCacheKey *)key
-               context:(__unused id<MSIDRequestContext>)context
-                 error:(__unused NSError *__autoreleasing *)error
+- (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject
+            serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                   key:(MSIDCacheKey *)key
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError *__autoreleasing*)error
 {
-    // TODO
-    return NO;
+    if (!jsonObject || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return NO;
+    }
+    
+    NSData *serializedItem = [serializer serializeCacheItem:jsonObject];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_tokenKeys
+                 cacheContent:_tokenContents
+                      context:context
+                        error:error];
 }
 
 
@@ -379,7 +422,7 @@
              keysDictionary:(NSDictionary *)cacheKeys
           contentDictionary:(NSDictionary *)cacheContent
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     if (!key || !cacheKeys || !cacheContent)
     {
@@ -411,7 +454,7 @@
            cacheKeys:(NSMutableDictionary *)cacheKeys
         cacheContent:(NSMutableDictionary *)cacheContent
              context:(__unused id<MSIDRequestContext>)context
-               error:(NSError **)error
+               error:(NSError *__autoreleasing*)error
 {
     if (!key || !cacheKeys || !cacheContent)
     {
@@ -459,7 +502,7 @@
                      keysDictionary:(NSDictionary *)cacheKeys
                   contentDictionary:(NSDictionary *)cacheContent
                             context:(__unused id<MSIDRequestContext>)context
-                              error:(NSError **)error
+                              error:(NSError *__autoreleasing*)error
 {
     if (!key
         || !cacheKeys
@@ -526,7 +569,7 @@
     return resultItems;
 }
 
-- (BOOL)clearWithContext:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error
+- (BOOL)clearWithContext:(__unused id<MSIDRequestContext>)context error:(__unused NSError *__autoreleasing*)error
 {
     [self reset];
     return YES;
@@ -605,7 +648,7 @@
                     key:(MSIDCacheKey *)key
              serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+                  error:(NSError *__autoreleasing*)error
 {
     if (!item
         || !serializer)
@@ -630,7 +673,7 @@
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
                                                         serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                            context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error
+                                                             error:(NSError *__autoreleasing*)error
 {
     if (!serializer)
     {

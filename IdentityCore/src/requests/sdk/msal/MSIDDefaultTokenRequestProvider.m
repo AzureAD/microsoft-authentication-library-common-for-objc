@@ -30,6 +30,10 @@
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
 #import "MSIDSSOExtensionSilentTokenRequest.h"
 #import "MSIDSSOExtensionInteractiveTokenRequest.h"
+#if TARGET_OS_OSX
+#import "MSIDSSOXpcSilentTokenRequest.h"
+#import "MSIDSSOXpcInteractiveTokenRequest.h"
+#endif
 
 @implementation MSIDDefaultTokenRequestProvider
 
@@ -87,7 +91,7 @@
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
                                                       sdkCapabilities:(NSArray *)sdkCapabilities
-                                                                error:(NSError * _Nullable * _Nullable)error
+                                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters
                                                                                                     brokerKey:brokerKey
@@ -99,38 +103,59 @@
     return request;
 }
 
-- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
 {
-    if (@available(macOS 10.15, *))
-    {
-        __auto_type request = [[MSIDSSOExtensionInteractiveTokenRequest alloc] initWithRequestParameters:parameters
-                                                                                            oauthFactory:self.oauthFactory
-                                                                                  tokenResponseValidator:self.tokenResponseValidator
-                                                                                              tokenCache:self.tokenCache
-                                                                                    accountMetadataCache:self.accountMetadataCache
-                                                                                      extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
-        return request;
-    }
-    
+    __auto_type request = [[MSIDSSOExtensionInteractiveTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                        oauthFactory:self.oauthFactory
+                                                                              tokenResponseValidator:self.tokenResponseValidator
+                                                                                          tokenCache:self.tokenCache
+                                                                                accountMetadataCache:self.accountMetadataCache
+                                                                                  extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
+    return request;
+}
+
+- (MSIDInteractiveTokenRequest *)interactiveXpcTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+{
+#if TARGET_OS_OSX
+    __auto_type request = [[MSIDSSOXpcInteractiveTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                        oauthFactory:self.oauthFactory
+                                                                              tokenResponseValidator:self.tokenResponseValidator
+                                                                                          tokenCache:self.tokenCache
+                                                                                accountMetadataCache:self.accountMetadataCache
+                                                                                  extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
+    return request;
+#else
     return nil;
+#endif
 }
 
 - (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters
                                                             forceRefresh:(__unused BOOL)forceRefresh
 {
-    if (@available(macOS 10.15, *))
-    {
-        __auto_type request = [[MSIDSSOExtensionSilentTokenRequest alloc] initWithRequestParameters:parameters
-                                                                                       forceRefresh:forceRefresh
-                                                                                       oauthFactory:self.oauthFactory
-                                                                             tokenResponseValidator:self.tokenResponseValidator
-                                                                                         tokenCache:self.tokenCache
-                                                                               accountMetadataCache:self.accountMetadataCache
-                                                                                 extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
-        return request;
-    }
-    
-    return nil;
+    __auto_type request = [[MSIDSSOExtensionSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                   forceRefresh:forceRefresh
+                                                                                   oauthFactory:self.oauthFactory
+                                                                         tokenResponseValidator:self.tokenResponseValidator
+                                                                                     tokenCache:self.tokenCache
+                                                                           accountMetadataCache:self.accountMetadataCache
+                                                                             extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
+    return request;
 }
+
+- (nullable MSIDSilentTokenRequest *)silentXpcTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters forceRefresh:(BOOL)forceRefresh {
+#if TARGET_OS_OSX
+    __auto_type request = [[MSIDSSOXpcSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                                             forceRefresh:forceRefresh
+                                                                             oauthFactory:self.oauthFactory
+                                                                   tokenResponseValidator:self.tokenResponseValidator
+                                                                               tokenCache:self.tokenCache
+                                                                     accountMetadataCache:self.accountMetadataCache
+                                                                       extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
+    return request;
+#else
+    return nil;
+#endif
+}
+
 
 @end

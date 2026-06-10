@@ -52,7 +52,7 @@ NSString *const MSID_WIPE_CACHE_ALL_ACCOUNTS_KEY = @"wipe_cache_all_accounts";
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
     

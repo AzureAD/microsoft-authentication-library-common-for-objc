@@ -27,6 +27,7 @@
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDLastRequestTelemetry.h"
 #import "NSError+MSIDServerTelemetryError.h"
+#import "MSIDRequestTelemetryConstants.h"
 
 @interface MSIDAADTokenRequestServerTelemetry()
 
@@ -46,20 +47,26 @@
     return self;
 }
 
-- (void)handleError:(NSError *)error
+- (void)handleError:(nullable NSError *)error
             context:(id<MSIDRequestContext>)context
 {
-    NSString *errorString = [error msidServerTelemetryErrorString];
-    
-    [self handleError:error
-          errorString:errorString
-              context:context];
+    if (error == nil) {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Error is nil, reset MSID telemetry");
+    }
+
+    [self.lastRequestTelemetry updateWithApiId:self.currentRequestTelemetry.apiId
+                                   errorString:[error msidServerTelemetryErrorString]
+                                       context:context];
 }
 
-- (void)handleError:(NSError *)error
+- (void)handleError:(nullable NSError *)error
         errorString:(NSString *)errorString
             context:(id<MSIDRequestContext>)context
 {
+    if (error == nil) {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Error is nil, reset MSID telemetry");
+    }
+    
     [self.lastRequestTelemetry updateWithApiId:self.currentRequestTelemetry.apiId
                                    errorString:errorString
                                        context:context];
@@ -73,8 +80,8 @@
     NSString *lastRequestTelemetryString = [self.lastRequestTelemetry telemetryString];
     
     NSMutableURLRequest *mutableUrlRequest = [request.urlRequest mutableCopy];
-    [mutableUrlRequest setValue:currentRequestTelemetryString forHTTPHeaderField:@"x-client-current-telemetry"];
-    [mutableUrlRequest setValue:lastRequestTelemetryString forHTTPHeaderField:@"x-client-last-telemetry"];
+    [mutableUrlRequest setValue:currentRequestTelemetryString forHTTPHeaderField:MSID_CURRENT_TELEMETRY_HEADER_NAME];
+    [mutableUrlRequest setValue:lastRequestTelemetryString forHTTPHeaderField:MSID_LAST_TELEMETRY_HEADER_NAME];
     
     request.urlRequest = mutableUrlRequest;
 }

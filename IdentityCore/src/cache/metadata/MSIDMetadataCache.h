@@ -37,22 +37,22 @@
 - (BOOL)saveAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item
                                  key:(MSIDCacheKey *)key
                              context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error;
+                               error:(NSError *__autoreleasing*)error;
 
 - (BOOL)removeAccountMetadataCacheItemForKey:(MSIDCacheKey *)key
                                      context:(id<MSIDRequestContext>)context
-                                       error:(NSError **)error;
+                                       error:(NSError *__autoreleasing*)error;
 
 - (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
                                                           context:(id<MSIDRequestContext>)context
-                                                            error:(NSError **)error;
+                                                            error:(NSError *__autoreleasing*)error;
 
 - (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
                                                         skipCache:(BOOL)skipCache
                                                           context:(id<MSIDRequestContext>)context
-                                                            error:(NSError **)error;
+                                                            error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDAccountMetadataCacheItem *> *)allAccountMetadataCacheItemsWithContext:(id<MSIDRequestContext>)context
-                                                                               error:(NSError **)error;
+                                                                               error:(NSError *__autoreleasing*)error;
 
 @end

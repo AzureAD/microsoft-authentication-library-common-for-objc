@@ -42,7 +42,9 @@
             return nil;
         }
         
-        BOOL isBrokerCapable = [MSIDRedirectUri redirectUriIsBrokerCapable:customRedirectURL] == MSIDRedirectUriValidationResultMatched || bypassRedirectValidation;
+        MSIDRedirectUriValidationResult validationResult = [MSIDRedirectUri redirectUriIsBrokerCapable:customRedirectURL
+                                                                                                 error:error];
+        BOOL isBrokerCapable = !bypassRedirectValidation && validationResult == MSIDRedirectUriValidationResultMatched;
         return [[MSIDRedirectUri alloc] initWithRedirectUri:customRedirectURL
                                               brokerCapable:isBrokerCapable];
     }
@@ -51,7 +53,7 @@
                                           brokerCapable:YES];
 }
 
-+ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError **)error
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError *__autoreleasing*)error
 {
     return YES;
 }

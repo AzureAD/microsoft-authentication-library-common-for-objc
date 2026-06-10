@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "NSData+MSIDExtensions.h"
 
 @interface MSIDTestNSStringHelperMethods : XCTestCase
 
@@ -327,6 +328,18 @@
     NSString *input = @"testtest.com@";
     NSString *result = [input msidDomainSuffix];
     XCTAssertNil(result);
+}
+
+- (void)testMsidHexData_whenInputHexStringCanBeConvertedToData_shouldReturnSameOriginalData
+{
+    NSString *string = @"some string here";
+    
+    NSData *originalDataInput = [string dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *hexStringInput = [originalDataInput msidHexString];
+    NSData *dataConvertedFromHexString = [hexStringInput msidHexData];
+    
+    XCTAssertNotNil(dataConvertedFromHexString);
+    XCTAssertEqualObjects(originalDataInput, dataConvertedFromHexString);
 }
 
 @end

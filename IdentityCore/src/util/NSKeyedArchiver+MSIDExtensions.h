@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable NSData *)msidArchivedDataWithRootObject:(id)object
                               requiringSecureCoding:(BOOL)requiresSecureCoding
-                                              error:(NSError **)error;
+                                              error:(NSError *__autoreleasing*)error;
 
 @end
 

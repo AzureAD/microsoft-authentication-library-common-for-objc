@@ -191,7 +191,7 @@
     return signedJwtHeader;
 }
 
-- (BOOL)logAndFillError:(NSString *)description error:(NSError **)error
+- (BOOL)logAndFillError:(NSString *)description error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", description);
     
@@ -204,4 +204,3 @@
 }
 
 @end
-

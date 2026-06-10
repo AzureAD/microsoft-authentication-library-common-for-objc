@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_SYSTEMWV
+#if !MSID_EXCLUDE_SYSTEMWV && !(defined TARGET_OS_VISION && TARGET_OS_VISION)
 
 #import "MSIDSafariViewController.h"
 #import "MSIDSystemWebviewController.h"

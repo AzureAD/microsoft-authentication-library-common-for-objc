@@ -25,46 +25,31 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDSSOExtensionSilentTokenRequest.h"
-#import "MSIDSilentTokenRequest.h"
 #import "MSIDRequestParameters.h"
-#import "MSIDAccountIdentifier.h"
-#import "MSIDAuthority.h"
-#import "MSIDJsonSerializer.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
-#import "MSIDOauth2Factory.h"
-#import "MSIDBrokerOperationTokenResponse.h"
-#import "MSIDIntuneEnrollmentIdsCache.h"
-#import "MSIDIntuneMAMResourcesCache.h"
-#import "MSIDSSOTokenResponseHandler.h"
-#import "MSIDThrottlingService.h"
-#import "MSIDDefaultTokenCacheAccessor.h"
 #import "ASAuthorizationController+MSIDExtensions.h"
-
-#if !EXCLUDE_FROM_MSALCPP
-#import "MSIDLastRequestTelemetry.h"
-#endif
+#import "MSIDGCDStarvationDetector.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
-@property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
-@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
-@property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
+@property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
+@property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
-@property (nonatomic, readonly) MSIDProviderType providerType;
-@property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
-@property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
-@property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
-@property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
-@property (nonatomic) NSDate *requestSentDate;
+@property (nonatomic) MSIDGCDStarvationDetector *gcdStarvationDetector;
+@property (nonatomic) BOOL allowThreadStarvationMonitoring;
+@property (nonatomic) NSTimeInterval gcdStarvedDuration;
 
 @end
 
 @implementation MSIDSSOExtensionSilentTokenRequest
+
+@synthesize requestCompletionBlock, operationRequest, gcdStarvedDuration;
 
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
                              forceRefresh:(BOOL)forceRefresh
@@ -77,130 +62,39 @@
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
                                oauthFactory:oauthFactory
-                     tokenResponseValidator:tokenResponseValidator];
-
+                     tokenResponseValidator:tokenResponseValidator
+                                 tokenCache:tokenCache
+                       accountMetadataCache:accountMetadataCache
+                         extendedTokenCache:extendedTokenCache];
     if (self)
     {
-        _tokenCache = tokenCache;
-        _ssoTokenResponseHandler = [MSIDSSOTokenResponseHandler new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
-        __typeof__(self) __weak weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
+        _allowThreadStarvationMonitoring = parameters.allowThreadStarvationMonitoring;
+        MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock = [super getCompletionBlock];
+        if ([self isThreadStarvationMonitoringEnabled])
         {
-            __typeof__(self) strongSelf = weakSelf;
-#if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
-            strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
-#endif
-            
-#if !EXCLUDE_FROM_MSALCPP
-            [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
-                                                requestStartDate:strongSelf.requestSentDate
-                                                   telemetryType:MSID_PERF_TELEMETRY_SILENT_TYPE];
-#endif
-            
-            [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
-                                                      requestParameters:strongSelf.requestParameters
-                                                 tokenResponseValidator:strongSelf.tokenResponseValidator
-                                                           oauthFactory:strongSelf.oauthFactory
-                                                             tokenCache:strongSelf.tokenCache
-                                                   accountMetadataCache:strongSelf.accountMetadataCache
-                                                        validateAccount:NO
-                                                                  error:error
-                                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
-             {
-                MSIDRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
-                strongSelf.requestCompletionBlock = nil;
-                if (localError)
+            _gcdStarvationDetector = [MSIDGCDStarvationDetector new];
+            __weak typeof(self) weakSelf = self;
+            _extensionDelegate.completionBlock = ^(_Nullable id response, NSError  * _Nullable error) {
+                typeof(self) strongSelf = weakSelf;
+                if (!strongSelf) return;
+                if (strongSelf.gcdStarvationDetector)
                 {
-                    /**
-                     * If SSO-EXT responses error, we should update throttling db
-                     */
-                    if ([MSIDThrottlingService isThrottlingEnabled])
-                    {
-                        [strongSelf.throttlingService updateThrottlingService:localError tokenRequest:strongSelf.operationRequest];
-                    }
+                    strongSelf.gcdStarvedDuration = [strongSelf.gcdStarvationDetector stopMonitoring];
                 }
-                if (completionBlock) completionBlock(result, localError);
-            }];
-        };
-
-        _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
-        _providerType = [[oauthFactory class] providerType];
-        _enrollmentIdsCache = [MSIDIntuneEnrollmentIdsCache sharedCache];
-        _mamResourcesCache = [MSIDIntuneMAMResourcesCache sharedCache];
-        _accountMetadataCache = accountMetadataCache;
-
-        self.throttlingService = [[MSIDThrottlingService alloc] initWithDataSource:extendedTokenCache context:parameters];
-    }
-
-    return self;
-}
-
-#pragma mark - MSIDSilentTokenRequest
-
-- (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
-{
-    if (!self.requestParameters.accountIdentifier)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Account parameter cannot be nil");
-
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        completionBlock(nil, error);
-        return;
-    }
-
-    NSString *upn = self.requestParameters.accountIdentifier.displayableId;
-
-    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
-                                       userPrincipalName:upn
-                                                 context:self.requestParameters
-                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
-                                                           __unused BOOL validated, NSError *error)
-     {
-        if (error)
-        {
-            completionBlock(nil, error);
-            return;
-        }
-
-        NSDictionary *enrollmentIds = [self.enrollmentIdsCache enrollmentIdsJsonDictionaryWithContext:self.requestParameters
-                                                                                                error:nil];
-
-        NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
-                                                                                          error:nil];
-        self.requestSentDate = [NSDate date];
-        self.operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
-                                                                                            providerType:self.providerType
-                                                                                           enrollmentIds:enrollmentIds
-                                                                                            mamResources:mamResources
-                                                                                  requestSentDate:self.requestSentDate];
-        if (![MSIDThrottlingService isThrottlingEnabled])
-        {
-            [self executeRequestImplWithCompletionBlock:completionBlock];
+                
+                if (completionBlock) completionBlock(response, error);
+            };
         }
         else
         {
-            [self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
-             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Throttle decision: %@" , (shouldBeThrottled ? @"YES" : @"NO"));
-
-                if (cachedError)
-                {
-                    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(cachedError));
-                }
-
-                if (shouldBeThrottled && cachedError)
-                {
-                    completionBlock(nil,cachedError);
-                    return;
-                }
-
-                [self executeRequestImplWithCompletionBlock:completionBlock];
-            }];
+            _extensionDelegate.completionBlock = completionBlock;
         }
+        _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+    }
 
-    }];
+    return self;
 }
 
 - (void)executeRequestImplWithCompletionBlock:(MSIDRequestCompletionBlock _Nonnull)completionBlock
@@ -223,19 +117,21 @@
     self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
     self.authorizationController.delegate = self.extensionDelegate;
     
-    [self.authorizationController msidPerformRequests];
-
     self.requestCompletionBlock = completionBlock;
+    [self.authorizationController msidPerformRequests];
+    if ([self isThreadStarvationMonitoringEnabled])
+    {
+        [self.gcdStarvationDetector startMonitoring];
+    }
 }
 
-- (id<MSIDCacheAccessor>)tokenCache
+- (BOOL)isThreadStarvationMonitoringEnabled
 {
-    return _tokenCache;
-}
-
-- (MSIDAccountMetadataCacheAccessor *)metadataCache
-{
-    return self.accountMetadataCache;
+#if DEBUG
+    return YES;
+#else
+    return self.allowThreadStarvationMonitoring && [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENABLE_THREAD_STARVATION];
+#endif
 }
 
 @end

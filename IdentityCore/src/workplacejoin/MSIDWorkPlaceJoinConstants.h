@@ -26,6 +26,7 @@
 #pragma once
 
 extern NSString *const kMSIDPrivateKeyIdentifier;
+extern NSString *const kMSIDPrivateTransportKeyIdentifier;
 extern NSString *const kMSIDTenantKeyIdentifier;
 extern NSString *const kMSIDUPNKeyIdentifier;
 extern NSString *const kMSIDWPJThumbprintIdentifier;

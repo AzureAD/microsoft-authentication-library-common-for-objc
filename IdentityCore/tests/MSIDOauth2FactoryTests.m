@@ -31,6 +31,7 @@
 #import "MSIDBaseToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBoundRefreshToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDTestTokenResponse.h"
@@ -113,6 +114,23 @@
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidGrant);
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
+    XCTAssertFalse([error.userInfo.allKeys containsObject: MSIDSTSErrorCodesKey]);
+}
+
+- (void)testVerifyResponse_whenOAuthErrorWithErrorCodes_shouldReturnError
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:@{@"error":@"invalid_request", @"error_codes": @[@50222]} error:nil];
+    
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidRequest);
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_request");
+    XCTAssertEqualObjects(error.userInfo[MSIDSTSErrorCodesKey], @[@50222]);
 }
 
 - (void)testVerifyResponse_whenNoAccessTokenAndNoIdToken_shouldReturnError
@@ -489,6 +507,56 @@
     XCTAssertEqualObjects(metadata.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(metadata.environment, configuration.authority.environment);
     XCTAssertNil(metadata.familyId);
+}
+
+#pragma mark - Bound Refresh Token Tests
+
+- (void)testRefreshTokenFromResponse_whenBoundRefreshTokenResponse_shouldReturnBoundRefreshToken
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    
+    // Create a response with bound app refresh token indicators
+    MSIDTokenResponse *response = [MSIDTestTokenResponse defaultTokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                 RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                           username:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                            subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+    
+    // Set up bound app refresh token properties
+    response.boundAppRefreshTokenDeviceId = @"test-device-id";
+    NSMutableDictionary *additionalInfo = [response.additionalServerInfo mutableCopy] ?: [NSMutableDictionary new];
+    additionalInfo[@"refresh_token_type"] = @"bound_app_rt";
+    response.additionalServerInfo = additionalInfo;
+    
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
+    
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
+    
+    // Verify we get a bound refresh token
+    XCTAssertTrue([token isKindOfClass:[MSIDBoundRefreshToken class]]);
+    MSIDBoundRefreshToken *boundToken = (MSIDBoundRefreshToken *)token;
+    XCTAssertEqualObjects(boundToken.boundDeviceId, @"test-device-id");
+    XCTAssertEqualObjects(boundToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+}
+
+- (void)testRefreshTokenFromResponse_whenNormalRefreshTokenResponse_shouldReturnRegularRefreshToken
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    
+    MSIDTokenResponse *response = [MSIDTestTokenResponse defaultTokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                 RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                           username:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                            subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+    
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
+    
+    MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
+    
+    // Verify we get a regular refresh token, not bound
+    XCTAssertTrue([token isKindOfClass:[MSIDRefreshToken class]]);
+    XCTAssertFalse([token isKindOfClass:[MSIDBoundRefreshToken class]]);
+    XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 }
 
 @end

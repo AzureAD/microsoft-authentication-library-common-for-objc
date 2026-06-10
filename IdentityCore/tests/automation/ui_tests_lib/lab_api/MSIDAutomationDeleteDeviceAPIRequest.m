@@ -34,7 +34,7 @@
 
 - (NSString *)httpMethod
 {
-    return @"DELETE";
+    return @"POST";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems

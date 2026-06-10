@@ -83,9 +83,10 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(10, json.allKeys.count);
+    XCTAssertEqual(12, json.allKeys.count);
+    XCTAssertEqualObjects(json[MSID_SSO_PROVIDER_TYPE_KEY], @"unknown");
 #else
-    XCTAssertEqual(9, json.allKeys.count);
+    XCTAssertEqual(10, json.allKeys.count);
 #endif
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"operation"], @"login");
@@ -96,6 +97,7 @@
     XCTAssertEqualObjects(json[MSID_BROKER_WPJ_STATUS_KEY], @"notJoined");
     XCTAssertEqualObjects(json[@"response_gen_timestamp"], @"100.0000000000");
     XCTAssertEqualObjects(json[@"request_received_timestamp"], @"50.0000000000");
+    XCTAssertEqualObjects(json[MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY], @"preferredAuthNotConfigured");
 }
 
 - (void)testInitWithJSONDictionary_whenAllProperties_shouldInitResponse
@@ -152,70 +154,6 @@
     XCTAssertEqualObjects(response.deviceInfo.brokerVersion, @"1.2.3");
     XCTAssertNil(response.responseGenerationTimeStamp);
     XCTAssertNil(response.requestReceivedTimeStamp);
-}
-
-- (void)testTrackPerfTelemetry_whenDatesAreAllSet_shouldCallTrackWithRightIntervals
-{
-    MSIDBrokerNativeAppOperationResponse *response = [[MSIDBrokerNativeAppOperationResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
-    response.responseGenerationTimeStamp = [NSDate dateWithTimeIntervalSince1970:100];
-    response.requestReceivedTimeStamp = [NSDate dateWithTimeIntervalSince1970:50];
-    
-    MSIDLastRequestTelemetryMock *telemetryMock = [[MSIDLastRequestTelemetryMock alloc] initInternal];
-    
-    NSDate *requestStartDate = [NSDate dateWithTimeIntervalSince1970:20];
-    NSDate *responseReceivedDate = [NSDate dateWithTimeIntervalSince1970:150];
-    [NSDate mockCurrentDate:responseReceivedDate];
-    
-    [response trackPerfTelemetryWithLastRequest:telemetryMock
-                               requestStartDate:requestStartDate
-                                  telemetryType:@"type"];
-    
-    XCTAssertEqualObjects(telemetryMock.telemetryType, @"type");
-    XCTAssertEqualWithAccuracy(telemetryMock.totalPerfNumber, 130, 1.0);
-    XCTAssertEqualWithAccuracy(telemetryMock.ipcRequestPerfNumber, 30, 1.0);
-    XCTAssertEqualWithAccuracy(telemetryMock.ipcResponsePerfNumber, 50, 1.0);
-}
-
-- (void)testTrackPerfTelemetry_whenRequestReceivedDateIsNil_shouldCallTrackWithRightIntervals
-{
-    MSIDBrokerNativeAppOperationResponse *response = [[MSIDBrokerNativeAppOperationResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
-    response.responseGenerationTimeStamp = [NSDate dateWithTimeIntervalSince1970:100];
-    
-    MSIDLastRequestTelemetryMock *telemetryMock = [[MSIDLastRequestTelemetryMock alloc] initInternal];
-    
-    NSDate *requestStartDate = [NSDate dateWithTimeIntervalSince1970:20];
-    NSDate *responseReceivedDate = [NSDate dateWithTimeIntervalSince1970:150];
-    [NSDate mockCurrentDate:responseReceivedDate];
-    
-    [response trackPerfTelemetryWithLastRequest:telemetryMock
-                               requestStartDate:requestStartDate
-                                  telemetryType:@"type"];
-    
-    XCTAssertEqualObjects(telemetryMock.telemetryType, @"type");
-    XCTAssertEqualWithAccuracy(telemetryMock.totalPerfNumber, 130, 1.0);
-    XCTAssertEqualWithAccuracy(telemetryMock.ipcRequestPerfNumber, 0, 1.0);
-    XCTAssertEqualWithAccuracy(telemetryMock.ipcResponsePerfNumber, 50, 1.0);
-}
-
-- (void)testTrackPerfTelemetry_whenResponseGenerationDateIsNil_shouldCallTrackWithRightIntervals
-{
-    MSIDBrokerNativeAppOperationResponse *response = [[MSIDBrokerNativeAppOperationResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
-    response.requestReceivedTimeStamp = [NSDate dateWithTimeIntervalSince1970:50];
-    
-    MSIDLastRequestTelemetryMock *telemetryMock = [[MSIDLastRequestTelemetryMock alloc] initInternal];
-    
-    NSDate *requestStartDate = [NSDate dateWithTimeIntervalSince1970:20];
-    NSDate *responseReceivedDate = [NSDate dateWithTimeIntervalSince1970:150];
-    [NSDate mockCurrentDate:responseReceivedDate];
-    
-    [response trackPerfTelemetryWithLastRequest:telemetryMock
-                               requestStartDate:requestStartDate
-                                  telemetryType:@"type"];
-    
-    XCTAssertEqualObjects(telemetryMock.telemetryType, @"type");
-    XCTAssertEqualWithAccuracy(telemetryMock.totalPerfNumber, 130, 1.0);
-    XCTAssertEqualWithAccuracy(telemetryMock.ipcRequestPerfNumber, 30, 1.0);
-    XCTAssertEqualWithAccuracy(telemetryMock.ipcResponsePerfNumber, 0, 1.0);
 }
 
 @end

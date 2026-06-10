@@ -42,6 +42,16 @@
     _privateKeyRef = privateKey;
 }
 
+- (void)setPrivateTransportKey:(SecKeyRef)privateTransportKey
+{
+    _privateTransportKeyRef = privateTransportKey;
+}
+
+- (void)setCertificateSubject:(NSString *)certificateSubject
+{
+    _certificateSubject = certificateSubject;
+}
+
 - (void)setCertificateIssuer:(NSString *)certificateIssuer
 {
     _certificateIssuer = certificateIssuer;

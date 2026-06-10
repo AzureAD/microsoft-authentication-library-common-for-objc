@@ -81,7 +81,7 @@
     return YES;
 }
 
-- (instancetype)initWithJSONDictionary:(__unused NSDictionary *)json error:(__unused NSError **)error
+- (instancetype)initWithJSONDictionary:(__unused NSDictionary *)json error:(__unused NSError *__autoreleasing*)error
 {
     return [self initWithSchemeParameters:[NSDictionary new]];
 }

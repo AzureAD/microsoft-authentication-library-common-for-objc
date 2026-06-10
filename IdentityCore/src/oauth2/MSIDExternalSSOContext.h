@@ -27,6 +27,7 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 
 @class MSIDWPJKeyPairWithCert;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,6 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
 #if TARGET_OS_OSX
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
 @property (nonatomic, nullable, strong) ASAuthorizationProviderExtensionLoginManager *loginManager API_AVAILABLE(macos(13.0));
+@property (nonatomic) BOOL isDeviceRegistered API_AVAILABLE(macos(13.0));
+@property (nonatomic) BOOL isPlatformSSORegistrationFlow API_AVAILABLE(macos(13.0));
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+@property (nonatomic) BOOL isSetupAssistantFlow API_AVAILABLE(macos(26.0));
+#endif
 #endif
 #endif
 

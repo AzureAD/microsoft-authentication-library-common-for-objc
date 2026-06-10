@@ -26,16 +26,21 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "NSJSONSerialization+MSIDExtensions.h"
 #import "MSIDJsonSerializer.h"
-
+#if TARGET_OS_OSX
+#import "MSIDXpcProviderCache.h"
+#endif
+#if !AD_BROKER
+#import "MSIDBrokerFlightProvider.h"
+#endif
 static NSArray *deviceModeEnumString;
 
 @implementation MSIDDeviceInfo
-
 
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
                   ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
                  isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
                      brokerVersion:(NSString *)brokerVersion
+                   ssoProviderType:(MSIDSsoProviderType)ssoProviderType
 {
     self = [super init];
     
@@ -45,6 +50,7 @@ static NSArray *deviceModeEnumString;
         _ssoExtensionMode = ssoExtensionMode;
         _wpjStatus = isWorkPlaceJoined ? MSIDWorkPlaceJoinStatusJoined : MSIDWorkPlaceJoinStatusNotJoined;
         _brokerVersion = brokerVersion;
+        _ssoProviderType = ssoProviderType;
     }
     
     return self;
@@ -52,7 +58,7 @@ static NSArray *deviceModeEnumString;
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError *__autoreleasing*)error
 {
     self = [super init];
     
@@ -62,9 +68,13 @@ static NSArray *deviceModeEnumString;
         _ssoExtensionMode = [self ssoExtensionModeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_SSO_EXTENSION_MODE_KEY]];
         _wpjStatus = [self wpjStatusEnumFromString:[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY]];
         _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
+        _preferredAuthConfig = [self preferredAuthConfigurationEnumFromString:[json msidStringObjectForKey:MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY]];
+        _clientFlights = [json msidStringObjectForKey:MSID_BROKER_CLIENT_FLIGHTS_KEY];
         
 #if TARGET_OS_OSX
         _platformSSOStatus = [self platformSSOStatusEnumFromString:[json msidStringObjectForKey:MSID_PLATFORM_SSO_STATUS_KEY]];
+        _ssoProviderType = [self ssoProviderTypeEnumFromString:[json msidStringObjectForKey:MSID_SSO_PROVIDER_TYPE_KEY]];
+        [self updateSsoProviderType];
 #endif
         
         NSString *jsonDataString = [json msidStringObjectForKey:MSID_ADDITIONAL_EXTENSION_DATA_KEY];
@@ -80,6 +90,15 @@ static NSArray *deviceModeEnumString;
             _extraDeviceInfo = [extraDeviceInfoStr msidJson];
         }
         
+#if !AD_BROKER
+        // Save client flights if available
+        if (![NSString msidIsStringNilOrBlank:_clientFlights])
+        {
+            MSIDBrokerFlightProvider *flightProvider = [[MSIDBrokerFlightProvider alloc] initWithBase64EncodedFlightsPayload:_clientFlights];
+            
+            [MSIDFlightManager sharedInstance].flightProvider = flightProvider;
+        }
+#endif
     }
     
     return self;
@@ -93,8 +112,11 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_SSO_EXTENSION_MODE_KEY] = [self ssoExtensionModeStringFromEnum:self.ssoExtensionMode];
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
+    json[MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY] = [self preferredAuthConfigurationStringFromEnum:self.preferredAuthConfig];
+    json[MSID_BROKER_CLIENT_FLIGHTS_KEY] = self.clientFlights;
 #if TARGET_OS_OSX
     json[MSID_PLATFORM_SSO_STATUS_KEY] = [self platformSSOStatusStringFromEnum:self.platformSSOStatus];
+    json[MSID_SSO_PROVIDER_TYPE_KEY] = [self ssoProviderTypeStringFromEnum:self.ssoProviderType];
 #endif
     json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] = [self.additionalExtensionData msidJSONSerializeWithContext:nil];
     if (self.extraDeviceInfo)
@@ -174,6 +196,8 @@ static NSArray *deviceModeEnumString;
             return @"platformSSOEnabledNotRegistered";
         case MSIDPlatformSSOEnabledAndRegistered:
             return @"platformSSOEnabledAndRegistered";
+        case MSIDPlatformSSORegistrationNeedsRepair:
+            return @"platformSSORegistrationNeedsRepair";
         
         default:
             return nil;
@@ -185,8 +209,82 @@ static NSArray *deviceModeEnumString;
     if ([platformSSOStatusString isEqualToString:@"platformSSONotEnabled"])    return MSIDPlatformSSONotEnabled;
     if ([platformSSOStatusString isEqualToString:@"platformSSOEnabledNotRegistered"])  return MSIDPlatformSSOEnabledNotRegistered;
     if ([platformSSOStatusString isEqualToString:@"platformSSOEnabledAndRegistered"])  return MSIDPlatformSSOEnabledAndRegistered;
+    if ([platformSSOStatusString isEqualToString:@"platformSSORegistrationNeedsRepair"])  return MSIDPlatformSSORegistrationNeedsRepair;
     
     return MSIDPlatformSSONotEnabled;
+}
+
+- (NSString *)preferredAuthConfigurationStringFromEnum:(MSIDPreferredAuthMethod)preferredAuthConfiguration
+{
+    switch (preferredAuthConfiguration) {
+        case MSIDPreferredAuthMethodNotConfigured:
+            return @"preferredAuthNotConfigured";
+        case MSIDPreferredAuthMethodQRPIN:
+            return @"preferredAuthQRPIN";
+        
+        default:
+            return nil;
+    }
+}
+
+- (MSIDPreferredAuthMethod)preferredAuthConfigurationEnumFromString:(NSString *)preferredAuthConfigurationString
+{
+    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthNotConfigured"])    return MSIDPreferredAuthMethodNotConfigured;
+    if ([preferredAuthConfigurationString isEqualToString:@"preferredAuthQRPIN"])            return MSIDPreferredAuthMethodQRPIN;
+    
+    return MSIDPreferredAuthMethodNotConfigured;
+}
+
+#if TARGET_OS_OSX
+
+- (void)updateSsoProviderType
+{
+    // Update the provider type from SsoExtension only if it is recognized.
+    //
+    // 1. An "unknown" type might occur when:
+    //    - The Broker version lacks an updated return value for `ssoProviderType`.
+    //      In such cases, since the broker likely doesn't have the XPC service,
+    //      `MSIDXpcProviderCache` will determine which XPC service to use.
+    //
+    // 2. An "unknown" type might also occur from:
+    //    - The XPC service response itself.
+    //      Here, we already know which XPC service is appropriate before this call,
+    //      so there's no need to update the provider type.
+    
+    if (self.ssoProviderType != MSIDUnknownSsoProvider)
+    {
+        [MSIDXpcProviderCache sharedInstance].cachedXpcProviderType = self.ssoProviderType;
+    }
+}
+
+#endif
+
+- (NSString *)ssoProviderTypeStringFromEnum:(MSIDSsoProviderType)deviceMode
+{
+    switch (deviceMode)
+    {
+        case MSIDCompanyPortalSsoProvider:
+            return @"companyPortal";
+        case MSIDMacBrokerSsoProvider:
+            return @"macBroker";
+        default:
+            return @"unknown";
+    }
+}
+
+- (MSIDSsoProviderType)ssoProviderTypeEnumFromString:(NSString *)deviceModeString
+{
+    if ([deviceModeString isEqualToString:@"companyPortal"])
+    {
+        return MSIDCompanyPortalSsoProvider;
+    }
+    
+    if ([deviceModeString isEqualToString:@"macBroker"])
+    {
+        return MSIDMacBrokerSsoProvider;
+    }
+
+    return MSIDUnknownSsoProvider;
 }
 
 @end

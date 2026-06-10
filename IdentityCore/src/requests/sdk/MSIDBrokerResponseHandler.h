@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory
                        tokenResponseValidator:(MSIDTokenResponseValidator *)responseValidator;
 
-- (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication error:(NSError * _Nullable * _Nullable)error;
+- (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (BOOL)canHandleBrokerResponse:(NSURL *)response
              hasCompletionBlock:(BOOL)hasCompletionBlock;

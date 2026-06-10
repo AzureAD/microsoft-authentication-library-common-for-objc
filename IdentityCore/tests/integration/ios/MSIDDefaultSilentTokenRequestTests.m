@@ -52,6 +52,15 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDIdToken.h"
 #import "MSIDLRUCache.h"
+#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDOAuth2Constants.h"
+#import "MSIDTestSwizzle.h"
+#import "MSIDFlightManager.h"
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDLastRequestTelemetry.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -116,12 +125,14 @@
 
 - (void)tearDown
 {
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
+    [MSIDTestSwizzle reset];
     [super tearDown];
 }
 
@@ -766,6 +777,92 @@
     XCTAssertNil(refreshToken);
 }
 
+- (void)testAcquireTokenSilent_whenATExpired_AndFailedToRefreshTokenWithUserAccountDeleted_shouldReturnError_AndRemoveAccountMetadata_AndRemoveRefreshTokenInCache
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    silentParameters.accountIdentifier = accountIdentifier;
+    [self saveExpiredTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    
+    NSError *updateError = nil;
+    [self.accountMetadataCache updateSignInStateForHomeAccountId:silentParameters.accountIdentifier.homeAccountId
+                                                        clientId:silentParameters.clientId
+                                                           state:MSIDAccountMetadataStateSignedIn
+                                                         context:nil
+                                                           error:&updateError];
+    XCTAssertNil(updateError);
+    
+    NSError *metadataCacheError;
+    MSIDAccountMetadataCacheItem *accountMetadataCacheItem = [self.accountMetadataCache retrieveAccountMetadataCacheItemForClientId:silentParameters.clientId
+                                                                                                                            context:nil
+                                                                                                                              error:&metadataCacheError];
+    XCTAssertNil(metadataCacheError);
+    XCTAssertEqualObjects(silentParameters.clientId, accountMetadataCacheItem.clientId, "Valid item should be in the metadata cache");
+    MSIDAccountMetadata *accountMetadata = [accountMetadataCacheItem accountMetadataForHomeAccountId:silentParameters.accountIdentifier.homeAccountId];
+    XCTAssertNil(metadataCacheError);
+    XCTAssertNotNil(accountMetadata);
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse errorRefreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                     requestClaims:nil
+                                                                                     requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                     responseError:@"invalid_grant"
+                                                                                       description:@"test"
+                                                                                          subError:@"user_account_deleted"
+                                                                                               url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                      responseCode:200];
+
+    [MSIDTestURLSession addResponse:tokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(accessToken);
+    
+    MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:accountIdentifier familyId:nil configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(refreshToken);
+    
+    [silentRequest executeRequestWithCompletion:^(__unused MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
+        XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"user_account_deleted");
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    accessToken = [tokenCache getAccessTokenForAccount:accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNil(accessToken, "AT have removed access token from cache");
+
+    refreshToken = [tokenCache getRefreshTokenWithAccount:accountIdentifier familyId:nil configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNil(refreshToken, "RT have removed access token from cache");
+    
+    accountMetadataCacheItem = [self.accountMetadataCache retrieveAccountMetadataCacheItemForClientId:silentParameters.clientId
+                                                                                              context:nil
+                                                                                                error:&metadataCacheError];
+    XCTAssertNil(metadataCacheError);
+    accountMetadata = [accountMetadataCacheItem accountMetadataForHomeAccountId:silentParameters.accountIdentifier.homeAccountId];
+    XCTAssertNil(metadataCacheError);
+    XCTAssertNil(accountMetadata, "Account metadata should have been removed from cache");
+}
+
 - (void)testAcquireTokenSilent_whenATExpiresIn50WithinExpirationBuffer100_shouldReAcquireToken
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
@@ -1336,6 +1433,73 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+
+- (void)testAcquireTokenSilent_when403HttpCodeReturned_shouldReturnMSIDErrorUnexpectedHttpResponseInUnderlyingError
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDExecutionFlowRegister(silentParameters.correlationId);
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveExpiredTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    NSMutableDictionary *reqHeaders = [[MSIDTestURLResponse msidDefaultRequestHeaders] mutableCopy];
+    [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
+
+    MSIDTestURLResponse *errorTokenResponse =
+    [MSIDTestURLResponse requestURLString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                           requestHeaders:reqHeaders
+                        requestParamsBody:@{ @"client_id" : @"my_client_id",
+                                             @"scope" : @"user.read tasks.read openid profile offline_access",
+                                             @"grant_type" : @"refresh_token",
+                                             @"refresh_token" : DEFAULT_TEST_REFRESH_TOKEN,
+                                             MSID_OAUTH2_REDIRECT_URI : [[self silentRequestParameters] redirectUri],
+                                             @"client_info" : @"1"}
+                        responseURLString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                             responseCode:403
+                         httpHeaderFields:@{@"Retry-After": @"256",
+                                            @"Other-Header-Field": @"Other header field"
+                                            }
+                         dictionaryAsJSON:nil];
+
+    [errorTokenResponse->_requestHeaders removeObjectForKey:@"Content-Length"];
+
+    [MSIDTestURLSession addResponse:errorTokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNotNil(error);
+        XCTAssertNil(result);
+        XCTAssertEqual(error.code, MSIDErrorServerUnhandledResponse);
+        NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+        XCTAssertEqual(underlyingError.code, MSIDErrorUnexpectedHttpResponse);
+        XCTAssertEqualObjects(error.domain, MSIDHttpErrorCodeDomain);
+        XCTAssertEqualObjects(error.userInfo[MSIDHTTPResponseCodeKey], @"403");
+        MSIDExecutionFlowRetrieve(silentParameters.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+            XCTAssertNotNil(executionFlow);
+            XCTAssertTrue([executionFlow containsString:MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag)]);
+            [expectation fulfill];
+        });
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
 - (void)testAcquireTokenSilent_whenTokenEndpointInDifferentCloud_shouldReturnInteractionRequired
 {
     // Prepare RT in cache
@@ -1983,6 +2147,87 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+- (void)testAcquireTokenSilent_whenSingleFamilyRefreshTokenEnabled_shouldUseItAndSucceed
+{
+    [self setUseSingleFRTFeatureFlagMock:YES];
+    
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    [self saveTokensInCache:tokenCache
+              configuration:silentParameters.msidConfiguration
+                      scope:nil
+                       foci:@"1"
+                accessToken:nil
+               refreshToken:nil
+                    idToken:nil
+                 clientInfo:nil
+                  expiresIn:@"1"
+               extExpiresIn:nil
+                  refreshIn:nil];
+
+    // Update FRT
+    MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:silentParameters.accountIdentifier
+                                                                   familyId:@"1"
+                                                              configuration:silentParameters.msidConfiguration
+                                                                    context:silentParameters
+                                                                      error:nil];
+    XCTAssertNotNil(refreshToken);
+
+    refreshToken.refreshToken = @"family refresh token";
+
+    XCTAssertTrue([[self accountCredentialCache] saveCredential:refreshToken.tokenCacheItem context:nil error:nil]);
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    MSIDTestURLResponse *frtTokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:@"family refresh token"
+                                                                                    requestClaims:nil
+                                                                                    requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                       responseAT:@"new at frt"
+                                                                                       responseRT:@"new rt"
+                                                                                       responseID:nil
+                                                                                    responseScope:@"user.read tasks.read"
+                                                                               responseClientInfo:nil
+                                                                                              url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                     responseCode:200
+                                                                                        expiresIn:nil];
+
+    [MSIDTestURLSession addResponse:frtTokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertEqualObjects(result.accessToken.accessToken, @"new at frt");
+        XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read tasks.read"]);
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
+        XCTAssertFalse(result.extendedLifeTimeToken);
+        NSURL *tenantURL = [NSURL URLWithString:DEFAULT_TEST_AUTHORITY_GUID];
+        XCTAssertEqualObjects(result.authority.url, tenantURL);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 
 #pragma mark - Scopes
 
@@ -2272,6 +2517,316 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+#pragma mark - Bound Refresh Token Tests
+
+- (void)testAcquireTokenSilent_whenBoundRefreshTokenTypeAndDeviceId_shouldReturnBoundRefreshToken
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    // Remove access token to force refresh
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:silentParameters.accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(accessToken);
+    BOOL removeResult = [tokenCache removeToken:accessToken context:nil error:nil];
+    XCTAssertTrue(removeResult);
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                requestClaims:nil
+                                                                                requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                   responseAT:@"new at"
+                                                                                   responseRT:@"new rt"
+                                                                                   responseID:nil
+                                                                                responseScope:@"user.read tasks.read"
+                                                                           responseClientInfo:nil
+                                                                                          url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil
+                                                                         additionalBodyParams:nil];
+    
+    [self addBoundAppRefreshTokenResponseAttributesInResponse:tokenResponse responseAttributes:@{
+        MSID_REFRESH_TOKEN_TYPE : @"bound_app_rt",
+        MSID_BART_DEVICE_ID_KEY : @"test-device-id-123"
+    }];
+    [MSIDTestURLSession addResponse:tokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertNotNil(result.refreshToken);
+        
+        // Verify that the refresh token is a bound refresh token
+        XCTAssertTrue([result.refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]);
+        
+        if ([result.refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]) {
+            MSIDBoundRefreshToken *boundToken = (MSIDBoundRefreshToken *)result.refreshToken;
+            XCTAssertEqualObjects(boundToken.boundDeviceId, @"test-device-id-123");
+            XCTAssertEqualObjects(boundToken.refreshToken, @"new rt");
+        }
+        
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireTokenSilent_whenNoBoundDeviceId_shouldReturnRegularRefreshToken
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    // Remove access token to force refresh
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:silentParameters.accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(accessToken);
+    BOOL removeResult = [tokenCache removeToken:accessToken context:nil error:nil];
+    XCTAssertTrue(removeResult);
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    // Create token response with bound_app_rt type but no device ID
+    NSDictionary *additionalServerInfo = @{
+        @"refresh_token_type": @"bound_app_rt"
+        // No bound_app_refresh_token_device_id
+    };
+
+    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                requestClaims:nil
+                                                                                requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                   responseAT:@"new at"
+                                                                                   responseRT:@"new rt"
+                                                                                   responseID:nil
+                                                                                responseScope:@"user.read tasks.read"
+                                                                           responseClientInfo:nil
+                                                                                          url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil
+                                                                         additionalBodyParams:nil];
+    [self addBoundAppRefreshTokenResponseAttributesInResponse:tokenResponse responseAttributes:additionalServerInfo];
+    [MSIDTestURLSession addResponse:tokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertNotNil(result.refreshToken);
+        
+        // Verify that the refresh token is NOT a bound refresh token (regular MSIDRefreshToken)
+        XCTAssertTrue([result.refreshToken isKindOfClass:[MSIDRefreshToken class]]);
+        XCTAssertFalse([result.refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]);
+        
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireTokenSilent_whenDifferentRefreshTokenType_shouldReturnRegularRefreshToken
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    // Remove access token to force refresh
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:silentParameters.accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(accessToken);
+    BOOL removeResult = [tokenCache removeToken:accessToken context:nil error:nil];
+    XCTAssertTrue(removeResult);
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+
+    // Create token response with device ID but different refresh token type
+    NSDictionary *additionalServerInfo = @{
+        @"refresh_token_type": @"regular_rt",
+        @"bound_app_refresh_token_device_id": @"test-device-id-123"
+    };
+
+    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                requestClaims:nil
+                                                                                requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                   responseAT:@"new at"
+                                                                                   responseRT:@"new rt"
+                                                                                   responseID:nil
+                                                                                responseScope:@"user.read tasks.read"
+                                                                           responseClientInfo:nil
+                                                                                          url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil
+                                                                         additionalBodyParams:nil];
+    [self addBoundAppRefreshTokenResponseAttributesInResponse:tokenResponse responseAttributes:additionalServerInfo];
+    [MSIDTestURLSession addResponse:tokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertNotNil(result.refreshToken);
+        
+        // Verify that the refresh token is NOT a bound refresh token (regular MSIDRefreshToken)
+        XCTAssertTrue([result.refreshToken isKindOfClass:[MSIDRefreshToken class]]);
+        XCTAssertFalse([result.refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]);
+        
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireTokenSilent_whenBoundRefreshTokenRedemptionFails_shouldReportBartRedemptionError
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+
+    [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    // Remove access token to force refresh
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:silentParameters.accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    XCTAssertNotNil(accessToken);
+    BOOL removeResult = [tokenCache removeToken:accessToken context:nil error:nil];
+    XCTAssertTrue(removeResult);
+
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:oidcResponse];
+    
+    MSIDTestURLResponse *bartTokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                                requestClaims:nil
+                                                                                requestScopes:@"user.read tasks.read openid profile offline_access"
+                                                                                   responseAT:@"new at"
+                                                                                   responseRT:@"new rt"
+                                                                                   responseID:nil
+                                                                                responseScope:@"user.read tasks.read"
+                                                                           responseClientInfo:nil
+                                                                                          url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                 responseCode:200
+                                                                                    expiresIn:nil
+                                                                         additionalBodyParams:nil];
+    
+    [self addBoundAppRefreshTokenResponseAttributesInResponse:bartTokenResponse responseAttributes:@{
+        MSID_REFRESH_TOKEN_TYPE : @"bound_app_rt",
+        MSID_BART_DEVICE_ID_KEY : @"test-device-id-123"
+    }];
+    [MSIDTestURLSession addResponse:bartTokenResponse];
+
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"bart redemption silent request error"];
+    
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertNotNil(result.refreshToken);
+        
+        // Verify that the refresh token is a bound refresh token
+        XCTAssertTrue([result.refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]);
+        
+        if ([result.refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]) {
+            MSIDBoundRefreshToken *boundToken = (MSIDBoundRefreshToken *)result.refreshToken;
+            XCTAssertEqualObjects(boundToken.boundDeviceId, @"test-device-id-123");
+            XCTAssertEqualObjects(boundToken.refreshToken, @"new rt");
+        }
+        
+        MSIDDefaultSilentTokenRequest *bartRedemptionRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                            forceRefresh:NO
+                                                                            oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                  tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                              tokenCache:tokenCache
+                                                                    accountMetadataCache:self.accountMetadataCache];
+
+        // Remove access token to force refresh
+        MSIDAccessToken *accessToken1 = [tokenCache getAccessTokenForAccount:silentParameters.accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+        XCTAssertNotNil(accessToken1);
+        XCTAssertTrue([tokenCache removeToken:accessToken1 context:nil error:nil]);
+        
+        XCTAssertFalse(bartRedemptionRequest.shouldSkipBoundAppRefreshTokenUsage);
+        // Due to no workplacejoin information mocked, we should get an error here that bart redemption fails
+        [bartRedemptionRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable bartresult, NSError * _Nullable barterror) {
+            XCTAssertNotNil(barterror);
+            XCTAssertNil(bartresult);
+            XCTAssertEqual(barterror.code, MSIDErrorBoundAppRefreshTokenRedemptionError);
+            XCTAssertTrue(bartRedemptionRequest.shouldSkipBoundAppRefreshTokenUsage);
+            
+            // Verify telemetry contains bart redemption error info
+            MSIDLastRequestTelemetry *telemetry = bartRedemptionRequest.lastRequestTelemetry;
+            XCTAssertNotNil(telemetry);
+            NSString *telemString = [telemetry telemetryString];
+            XCTAssertTrue([telemString containsString:@"BART-RED-FAIL"]);
+            [expectation1 fulfill];
+        }];
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (MSIDTestURLResponse *)addBoundAppRefreshTokenResponseAttributesInResponse:(MSIDTestURLResponse *)tokenResponse responseAttributes:(NSDictionary *)attributes
+{
+    NSData *jsonResponse = tokenResponse->_responseData;
+    NSMutableDictionary *responseDict = [NSMutableDictionary new];
+    NSDictionary *existingResponse = [NSJSONSerialization JSONObjectWithData:jsonResponse options:kNilOptions error:nil];
+    [responseDict addEntriesFromDictionary:existingResponse];
+    [responseDict addEntriesFromDictionary:attributes];
+    [tokenResponse setResponseJSON:responseDict];
+    return tokenResponse;
+}
+
 
 #pragma mark - Cache
 
@@ -2341,6 +2896,21 @@
                                                     error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
+}
+
+- (void)setUseSingleFRTFeatureFlagMock:(BOOL)useSingleFRTStatus
+{
+    [MSIDTestSwizzle instanceMethod:@selector(stringForKey:)
+                              class:[MSIDFlightManager class]
+                              block:(id)^(__unused id *obj, NSString *flightKey)
+     {
+        if ([flightKey isEqualToString:MSID_FLIGHT_CLIENT_SFRT_STATUS])
+        {
+            return useSingleFRTStatus ? MSID_FRT_STATUS_ENABLED : MSID_FRT_STATUS_DISABLED;
+        }
+        
+        return @"";
+     }];
 }
 
 @end

@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerCryptoProvider.h"
-#import "NSData+AES.h"
+#import "NSData+MSIDAES.h"
 #import "NSData+MSIDExtensions.h"
 #import <CommonCrypto/CommonCrypto.h>
 #import "NSData+MSIDExtensions.h"
@@ -50,7 +50,7 @@
 
 - (NSDictionary *)decryptBrokerResponse:(NSDictionary *)response
                           correlationId:(NSUUID *)correlationId
-                                  error:(NSError **)error
+                                  error:(NSError *__autoreleasing*)error
 {
     NSString *hash = response[@"hash"];
 

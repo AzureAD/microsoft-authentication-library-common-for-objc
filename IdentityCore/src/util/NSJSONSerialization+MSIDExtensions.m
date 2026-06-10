@@ -26,7 +26,7 @@
 
 @implementation NSJSONSerialization (MSIDExtensions)
 
-+ (NSDictionary *)msidNormalizedDictionaryFromJsonData:(NSData *)data error:(NSError **)error
++ (NSDictionary *)msidNormalizedDictionaryFromJsonData:(NSData *)data error:(NSError *__autoreleasing*)error
 {
     if (!data.length)
     {

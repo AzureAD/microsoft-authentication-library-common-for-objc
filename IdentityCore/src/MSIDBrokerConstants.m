@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDBrokerConstants.h"
+
 NSString *const MSID_BROKER_RESUME_DICTIONARY_KEY  = @"adal-broker-resume-dictionary";
 NSString *const MSID_BROKER_SYMMETRIC_KEY_TAG      = @"com.microsoft.adBrokerKey\0";
 NSString *const MSID_BROKER_ADAL_SCHEME            = @"msauth";
@@ -64,15 +66,22 @@ NSString *const MSID_BROKER_DEVICE_MODE_KEY        = @"device_mode";
 NSString *const MSID_BROKER_SSO_EXTENSION_MODE_KEY = @"sso_extension_mode";
 NSString *const MSID_BROKER_WPJ_STATUS_KEY         = @"wpj_status";
 NSString *const MSID_BROKER_BROKER_VERSION_KEY     = @"broker_version";
+NSString *const MSID_SSO_PROVIDER_TYPE_KEY        = @"sso_provider_type";
 NSString *const MSID_BROKER_IS_PERFORMING_CBA      = @"broker_is_performing_cba";
 NSString *const MSID_ADAL_BROKER_MESSAGE_VERSION   = @"2";
 NSString *const MSID_MSAL_BROKER_MESSAGE_VERSION   = @"3";
 NSString *const MSID_BROKER_SDK_CAPABILITIES_KEY   = @"sdk_broker_capabilities";
 NSString *const MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY = @"sso_extension";
+NSString *const MSID_BROKER_SDK_BROKER_XPC_CAPABILITY = @"broker_xpc";
 NSString *const MSID_BROKER_SSO_URL = @"sso_url";
 NSString *const MSID_BROKER_ACCOUNT_IDENTIFIER = @"account_identifier";
 NSString *const MSID_BROKER_TYPES_OF_HEADER = @"types_of_header";
 NSString *const MSID_BROKER_REQUEST_SENT_TIMESTAMP = @"request_sent_timestamp";
+NSString *const MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY = @"preferred_auth_config";
+NSString *const MSID_BROKER_CLIENT_FLIGHTS_KEY = @"client_flights";
+NSString *const MSID_BROKER_ACCOUNT_HOME_TENANT_ID = @"account_home_tenant_id";
+NSString *const MSID_CLIENT_SKU_KEY = @"client_sku";
+NSString *const MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY = @"skip_validate_result_account";
 
 NSString *const MSID_ADDITIONAL_EXTENSION_DATA_KEY = @"additional_extension_data";
 NSString *const MSID_SSO_NONCE_QUERY_PARAM_KEY = @"sso_nonce";
@@ -85,5 +94,9 @@ NSString *const MSID_PRIMARY_REGISTRATION_TENANT_ID = @"primary_registration_met
 NSString *const MSID_PRIMARY_REGISTRATION_CLOUD = @"primary_registration_metadata_cloud_host";
 NSString *const MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT = @"primary_registration_metadata_certificate_thumbprint";
 NSString *const MSID_PLATFORM_SSO_STATUS_KEY = @"platform_sso_status";
-NSString *const JIT_TROUBLESHOOTING_HOST = @"jit_troubleshooting";
+NSString *const MSID_JIT_TROUBLESHOOTING_HOST = @"jit_troubleshooting";
+NSString *const MSID_IGNORE_BROKER_REQUEST = @"ignore_broker_request";
 NSString *const MSID_IS_CALLER_MANAGED_KEY = @"isCallerAppManaged";
+NSString *const MSID_BROKER_SDM_WPJ_ATTEMPTED = @"sdm_reg_attempted";
+NSString *const MSID_BART_DEVICE_ID_KEY = @"bart_device_id";
+NSString *const MSID_FORCE_REFRESH_KEY = @"force_refresh";

@@ -54,7 +54,7 @@
 @implementation MSIDSSOExtensionGetDeviceInfoRequest
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                             error:(NSError * _Nullable * _Nullable)error
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super init];
     
@@ -91,12 +91,6 @@
             
             __typeof__(self) strongSelf = weakSelf;
             
-#if !EXCLUDE_FROM_MSALCPP
-            [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
-                                                requestStartDate:strongSelf.requestSentDate
-                                                   telemetryType:MSID_PERF_TELEMETRY_GETDEVICEINFO_TYPE];
-#endif
-            
             MSIDGetDeviceInfoRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
             strongSelf.requestCompletionBlock = nil;
             
@@ -131,9 +125,9 @@
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
     self.requestSentDate = [NSDate date];
-    [self.authorizationController msidPerformRequests];
-    
+
     self.requestCompletionBlock = completionBlock;
+    [self.authorizationController msidPerformRequests];
 }
 
 #pragma mark - AuthenticationServices

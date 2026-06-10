@@ -27,5 +27,9 @@
 #import "MSIDRequestTelemetryConstants.h"
 
 NSInteger const HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION = 4;
+NSString* const MSID_CURRENT_TELEMETRY_HEADER_NAME = @"x-client-current-telemetry";
+NSString* const MSID_LAST_TELEMETRY_HEADER_NAME = @"x-client-last-telemetry";
+NSString* const MSID_WPJ_V2_TELEMETRY_KEY = @"wpj-v2";
+NSString* const MSID_WPJ_V1_TELEMETRY_KEY = @"wpj-v1";
 
 #endif

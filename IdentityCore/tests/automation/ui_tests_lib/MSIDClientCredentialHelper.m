@@ -54,6 +54,17 @@
                   clientCredential:(NSString *)clientCredential
                  completionHandler:(void (^)(NSString *, NSError *))completionHandler
 {
+    // Validate required parameters
+    if (!authority || !resource || !clientId || !clientCredential)
+    {
+        if (completionHandler)
+        {
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing required parameters for client credential flow.", nil, nil, nil, nil, nil, YES);
+            completionHandler(nil, error);
+        }
+        return;
+    }
+    
     MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authority]
                                                                                   clientId:clientId
                                                                                   resource:resource
@@ -91,6 +102,20 @@
                certificatePassword:(NSString *)password
                  completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler
 {
+    // Validate required parameters (password can be empty for passwordless certs like LabAuth)
+    if (!authorityString || !resource || !clientId || !certificateData)
+    {
+        if (completionHandler)
+        {
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing required parameters for certificate-based client credential flow.", nil, nil, nil, nil, nil, YES);
+            completionHandler(nil, error);
+        }
+        return;
+    }
+    
+    // Default to empty string for passwordless certs
+    if (!password) password = @"";
+    
     MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authorityString]
                                                                                   clientId:clientId
                                                                                   resource:resource
@@ -263,7 +288,7 @@
     }
     
     NSData *certData = (__bridge NSData *)(data);
-
+    
     NSString *thumbprint = [self sha1FromData:certData].msidBase64UrlEncodedString;
     CFRelease(data);
     CFRelease(certificate);
@@ -277,7 +302,8 @@
 
     NSDictionary *header = @{@"alg" : alg,
                              @"typ" : @"JWT",
-                             @"x5t" : thumbprint};
+                             @"x5t" : thumbprint,
+                             @"x5c" : [certData base64EncodedStringWithOptions:0]};
     
     NSNumber *expDate = @((long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]);
     NSNumber *notBeforeDate = @((long)[[NSDate date] timeIntervalSince1970]);
@@ -298,7 +324,9 @@
 + (SecIdentityRef)createIdentityFromData:(NSData *)data password:(NSString *)password
 {
     CFArrayRef resultArray = nil;
-    NSDictionary *options = @{(id)kSecImportExportPassphrase : password};
+    // Use empty string for passwordless certs (LabAuth from Key Vault has no password)
+    NSString *effectivePassword = password ?: @"";
+    NSDictionary *options = @{(id)kSecImportExportPassphrase : effectivePassword};
     OSStatus result = SecPKCS12Import((CFDataRef)data, (CFDictionaryRef)options, &resultArray);
     
     if (result != errSecSuccess)

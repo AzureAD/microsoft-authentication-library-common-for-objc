@@ -28,9 +28,14 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWebOAuth2Response.h"
 
+@class MSIDAuthorizationCodeResult;
+@class MSIDInteractiveTokenRequestParameters;
+
 @interface MSIDWebOAuth2AuthCodeResponse : MSIDWebOAuth2Response
 
 @property (atomic, readonly) NSString *authorizationCode;
-@property (atomic, readonly) NSError *oauthError;
+
+- (MSIDAuthorizationCodeResult *)createAuthorizationCodeResult;
+- (void)updateRequestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters;
 
 @end

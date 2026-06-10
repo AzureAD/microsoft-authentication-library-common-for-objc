@@ -46,8 +46,21 @@ typedef NS_ENUM(NSInteger, MSIDPlatformSSOStatus)
     MSIDPlatformSSONotEnabled = 0, //Platform SSO Not enabled in SSO Config
     MSIDPlatformSSOEnabledNotRegistered = 1, //Platform SSO Enabled in sso config , but not Registered
     MSIDPlatformSSOEnabledAndRegistered = 2, //Platform SSO Enabled in sso config and registered
+    MSIDPlatformSSORegistrationNeedsRepair = 3, //Platform registration needs to be repaired
 };
 
+typedef NS_ENUM(NSInteger, MSIDPreferredAuthMethod)
+{
+    MSIDPreferredAuthMethodNotConfigured = 0,
+    MSIDPreferredAuthMethodQRPIN
+};
+
+typedef NS_ENUM(NSInteger, MSIDSsoProviderType)
+{
+    MSIDUnknownSsoProvider = 0,
+    MSIDMacBrokerSsoProvider,
+    MSIDCompanyPortalSsoProvider
+};
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,7 +70,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDSSOExtensionMode ssoExtensionMode;
 @property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
 @property (nonatomic, nullable) NSString *brokerVersion;
+@property (nonatomic) MSIDSsoProviderType ssoProviderType;
 @property (nonatomic) NSDictionary *additionalExtensionData;
+@property (nonatomic) MSIDPreferredAuthMethod preferredAuthConfig;
+@property (nonatomic) NSString *clientFlights;
 
 #if TARGET_OS_OSX
 @property (nonatomic) MSIDPlatformSSOStatus platformSSOStatus;
@@ -69,7 +85,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
                   ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
                  isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
-                     brokerVersion:(NSString *)brokerVersion;
+                     brokerVersion:(NSString *)brokerVersion
+                   ssoProviderType:(MSIDSsoProviderType)ssoProviderType;
 
 @end
 

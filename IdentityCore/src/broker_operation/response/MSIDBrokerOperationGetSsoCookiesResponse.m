@@ -50,7 +50,7 @@ static NSString *const MSID_SSO_COOKIES = @"sso_cookies";
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
     
@@ -119,7 +119,7 @@ static NSString *const MSID_SSO_COOKIES = @"sso_cookies";
     return headersJson.count > 0 ? headersJson : nil;
 }
 
-- (nullable NSArray<MSIDCredentialHeader*> *)parseCredentialHeaderFrom:(NSDictionary *)json credentialName:(NSString *)name error:(NSError **)error
+- (nullable NSArray<MSIDCredentialHeader*> *)parseCredentialHeaderFrom:(NSDictionary *)json credentialName:(NSString *)name error:(NSError *__autoreleasing*)error
 {
     if(!json || !json[name]) return nil;
 

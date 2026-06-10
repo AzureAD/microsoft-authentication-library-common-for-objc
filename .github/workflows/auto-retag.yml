@@ -1,0 +1,108 @@
+name: Auto-retag UNTAGGED entries
+
+# This workflow automatically fixes UNTAGGED entries and commits the changes
+# Trigger manually via workflow_dispatch or on push to specific branches
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches:
+      - '**'  # All branches
+    paths:
+      - 'IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  TAG_PLACEHOLDER: "UNTAGGED"
+  TAG_LENGTH: "5"
+  TAG_CHARSET: "abcdefghijklmnopqrstuvwxyz0123456789"
+
+jobs:
+  auto-retag:
+    name: Automatically retag UNTAGGED entries
+    runs-on: ubuntu-latest
+    
+    # Skip if the commit was made by github-actions bot (prevents infinite loop)
+    if: github.actor != 'github-actions[bot]'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: ${{ github.head_ref || github.ref }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    
+    - name: Run retag script
+      id: retag
+      run: |
+        OUTPUT=$(python scripts/retag_untagged.py --placeholder "${{ env.TAG_PLACEHOLDER }}" --length "${{ env.TAG_LENGTH }}" --charset "${{ env.TAG_CHARSET }}" 2>&1)
+        echo "$OUTPUT"
+        echo "output<<EOF" >> $GITHUB_OUTPUT
+        echo "$OUTPUT" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Check if file was modified
+      id: check_changes
+      run: |
+        if git diff --quiet IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No changes made - file already has all tags assigned"
+        else
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "Changes detected - UNTAGGED entries were replaced"
+        fi
+    
+    - name: Commit and push changes
+      if: steps.check_changes.outputs.has_changes == 'true'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add IdentityCore/src/telemetry/execution_flow/MSIDExecutionFlowConstants.m
+        git commit -m "Auto-retag UNTAGGED execution flow tags [skip ci]"
+        git push
+    
+    - name: No changes needed
+      if: steps.check_changes.outputs.has_changes == 'false'
+      run: echo "✓ All tags are already assigned. No action needed."
+    
+    - name: Post PR comment
+      if: steps.check_changes.outputs.has_changes == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const output = `${{ steps.retag.outputs.output }}`;
+          const placeholder = `${{ env.TAG_PLACEHOLDER }}`;
+          
+          // Get the current branch name
+          const branch = context.ref.replace('refs/heads/', '');
+          
+          // Find open PRs for this branch
+          const { data: prs } = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            head: `${context.repo.owner}:${branch}`
+          });
+          
+          // If there's an open PR, comment on it
+          if (prs.length > 0) {
+            const pr = prs[0];
+            await github.rest.issues.createComment({
+              issue_number: pr.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🏷️ Auto-retag Results\n\n\`\`\`\n${output}\n\`\`\`\n\n✅ ${placeholder} entries have been automatically replaced with unique tags.`
+            });
+            console.log(`Posted comment to PR #${pr.number}`);
+          } else {
+            console.log('No open PR found for this branch - skipping comment');
+          }

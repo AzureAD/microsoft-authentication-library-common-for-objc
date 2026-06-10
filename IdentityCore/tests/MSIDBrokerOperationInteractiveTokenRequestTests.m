@@ -90,10 +90,12 @@
                                                                         homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     request.promptType = MSIDPromptTypeSelectAccount;
     request.extraScopesToConsent = @"scope 3";
+    request.clientSku = @"MSAL.iOS";
+    request.skipValidateResultAccount = NO;
 
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(22, json.allKeys.count);
+    XCTAssertEqual(25, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"claims"], @"{\"id_token\":{\"nickname\":null}}");
@@ -116,6 +118,9 @@
     XCTAssertEqualObjects(json[@"redirect_uri"], @"redirect uri");
     XCTAssertEqualObjects(json[@"scope"], @"scope scope2");
     XCTAssertEqualObjects(json[@"username"], @"user@contoso.com");
+    XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
+    XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"0");
+    XCTAssertEqualObjects(json[@"force_refresh"], @"0");
 }
 
 - (void)testJsonDictionary_whenRequiredPropertiesSet_shouldReturnJson
@@ -131,16 +136,58 @@
                                                                   target:@"scope scope2"];
     request.providerType = MSIDProviderTypeAADV1;
     request.promptType = MSIDPromptTypeSelectAccount;
+    request.clientSku = @"MSAL.iOS";
+    request.skipValidateResultAccount = NO;
     
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(9, json.allKeys.count);
+    XCTAssertEqual(12, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"client_id"], @"client id");
     XCTAssertEqualObjects(json[@"msg_protocol_ver"], @"99");
     XCTAssertEqualObjects(json[@"prompt"], @"select_account");
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v1");
+    XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
+    XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"0");
+    XCTAssertEqualObjects(json[@"force_refresh"], @"0");
+
+}
+
+- (void)testJsonDictionary_whenBothAccountId_andTenantHintSet_shouldReturnJsonWithBoth
+{
+    __auto_type request = [MSIDBrokerOperationInteractiveTokenRequest new];
+    request.brokerKey = @"broker_key_value";
+    request.protocolVersion = 99;
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl rawTenant:nil context:nil error:nil];
+    request.configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                             redirectUri:@"redirect uri"
+                                                                clientId:@"client id"
+                                                                  target:@"scope scope2"];
+    request.providerType = MSIDProviderTypeAADV1;
+    request.promptType = MSIDPromptTypeSelectAccount;
+    request.accountIdentifier =  [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                        homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    request.accountHomeTenantId = @"aad.tid.hint";
+    request.clientSku = @"MSAL.iOS";
+    request.skipValidateResultAccount = NO;
+    
+    NSDictionary *json = [request jsonDictionary];
+    
+    XCTAssertEqual(15, json.allKeys.count);
+    XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
+    XCTAssertEqualObjects(json[@"client_id"], @"client id");
+    XCTAssertEqualObjects(json[@"msg_protocol_ver"], @"99");
+    XCTAssertEqualObjects(json[@"prompt"], @"select_account");
+    XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v1");
+    XCTAssertEqualObjects(json[@"home_account_id"], DEFAULT_TEST_HOME_ACCOUNT_ID);
+    XCTAssertEqualObjects(json[@"username"], @"user@contoso.com");
+    XCTAssertEqualObjects(json[@"account_home_tenant_id"], @"aad.tid.hint");
+    XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
+    XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"0");
+    XCTAssertEqualObjects(json[@"force_refresh"], @"0");
 }
 
 - (void)testInitWithJSONDictionary_whenAllProperties_shouldInitRequest
@@ -232,6 +279,40 @@
     XCTAssertEqualObjects(@"scope scope2", request.configuration.target);
     XCTAssertEqual(MSIDProviderTypeAADV1, request.providerType);
     XCTAssertEqual(MSIDPromptTypeSelectAccount, request.promptType);
+}
+
+- (void)testInitWithJSONDictionary_whenRequiredProperties_andDualHeadedHintPresent_shouldInitRequest_withDualHeadedHint
+{
+    NSDictionary *json = @{
+        @"authority": @"https://login.microsoftonline.com/common",
+        @"broker_key": @"broker_key_value",
+        @"client_id": @"client id",
+        @"msg_protocol_ver": @"99",
+        @"prompt": @"select_account",
+        @"provider_type": @"provider_aad_v1",
+        @"redirect_uri": @"redirect uri",
+        @"scope": @"scope scope2",
+        @"home_account_id": @"uid.utid",
+        @"username": @"username@contoso.com",
+        @"account_home_tenant_id": @"aad.tid.hint"
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrokerOperationInteractiveTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(@"broker_key_value", request.brokerKey);
+    XCTAssertEqual(99, request.protocolVersion);
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.configuration.authority.url.absoluteString);
+    XCTAssertEqualObjects(@"client id", request.configuration.clientId);
+    XCTAssertEqualObjects(@"redirect uri", request.configuration.redirectUri);
+    XCTAssertEqualObjects(@"scope scope2", request.configuration.target);
+    XCTAssertEqual(MSIDProviderTypeAADV1, request.providerType);
+    XCTAssertEqual(MSIDPromptTypeSelectAccount, request.promptType);
+    XCTAssertEqualObjects(request.accountIdentifier.displayableId, @"username@contoso.com");
+    XCTAssertEqualObjects(request.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(request.accountHomeTenantId, @"aad.tid.hint");
 }
 
 @end

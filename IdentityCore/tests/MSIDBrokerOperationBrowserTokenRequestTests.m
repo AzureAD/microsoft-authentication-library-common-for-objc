@@ -53,7 +53,7 @@
 
     NSString *result = [MSIDBrokerOperationBrowserTokenRequest protocolLogNameForRequestURL:[NSURL URLWithString:url]];
 
-    XCTAssertEqualObjects(result, @"N/A");
+    XCTAssertEqualObjects(result, @"fido");
 }
 
 @end

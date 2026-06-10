@@ -26,23 +26,14 @@
 @implementation MSIDWebResponseBaseOperation
 
 - (nullable instancetype)initWithResponse:(nonnull __unused MSIDWebviewResponse *)response
-                                    error:(__unused NSError * _Nullable *)error
+                                    error:(__unused NSError * _Nullable __autoreleasing *)error
 {
     self = [super init];
     return self;
 }
 
-- (void)invokeWithInteractiveTokenRequestParameters:(nonnull __unused MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
-                               tokenRequestProvider:(nonnull __unused id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                         completion:(nonnull __unused MSIDRequestCompletionBlock)completion
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
-    completion(nil, error);
-}
-
 - (BOOL)doActionWithCorrelationId:(__unused NSUUID *)correlationId
-                            error:(NSError * _Nullable *_Nullable)error
+                            error:(NSError * _Nullable __autoreleasing *_Nullable)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
     if (error)
@@ -50,6 +41,16 @@
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
     }
     return YES;
+}
+
+- (void)invokeWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters
+            webRequestConfiguration:(MSIDAuthorizeWebRequestConfiguration *)webRequestConfiguration
+                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+  decidePolicyForBrowserActionBlock:(nullable MSIDExternalDecidePolicyForBrowserActionBlock)decidePolicyForBrowserActionBlock
+     webviewResponseCompletionBlock:(nonnull MSIDWebviewAuthCompletionHandler)webviewResponseCompletionBlock
+   authorizationCodeCompletionBlock:(nonnull MSIDInteractiveAuthorizationCodeCompletionBlock)authorizationCodeCompletionBlock
+{
+    @throw MSIDException(MSIDGenericException, @"Abstract method was invoked.", nil);
 }
 
 @end

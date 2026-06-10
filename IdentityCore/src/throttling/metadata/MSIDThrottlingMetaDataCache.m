@@ -32,6 +32,7 @@
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDKeychainTokenCache.h"
 #import "NSDate+MSIDExtensions.h"
+#import "MSIDDIContainer.h"
 
 @implementation MSIDThrottlingMetaDataCache
 
@@ -40,7 +41,7 @@
  */
 + (NSDate *)getLastRefreshTimeWithDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
                                      context:(id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+                                       error:(NSError *__autoreleasing*)error
 {
     MSIDThrottlingMetaData *metadata = [MSIDThrottlingMetaDataCache getThrottlingMetadataWithDatasource:datasource context:context error:error];
     NSString *stringDate = metadata.lastRefreshTime;
@@ -49,7 +50,7 @@
 
 + (BOOL)updateLastRefreshTimeWithDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
                                     context:(id<MSIDRequestContext>)context
-                                      error:(NSError*__nullable*__nullable)error
+                                      error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     MSIDThrottlingMetaData *metadata = [[MSIDThrottlingMetaData alloc] init];
     metadata.lastRefreshTime = [[NSDate new] msidDateToTimestamp];
@@ -66,7 +67,7 @@
 
 + (MSIDThrottlingMetaData *)getThrottlingMetadataWithDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
                                                         context:(id<MSIDRequestContext>)context
-                                                          error:(NSError*__nullable*__nullable)error
+                                                          error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     MSIDThrottlingMetaData *result = nil;
     if (!datasource) return nil;
@@ -93,6 +94,14 @@
                                                     type:nil];
     });
     return cacheKey;
+}
+
++ (Class<MSIDThrottlingMetaDataReading>)resolvedMetaDataReader
+{
+    return (Class<MSIDThrottlingMetaDataReading>)
+        [[MSIDDIContainer sharedInstance]
+            resolveImplClassForProtocol:@protocol(MSIDThrottlingMetaDataReading)
+                              orDefault:^Class { return [MSIDThrottlingMetaDataCache class]; }];
 }
 
 @end

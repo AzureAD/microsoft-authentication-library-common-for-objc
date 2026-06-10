@@ -25,22 +25,23 @@
 #define MSIDWorkPlaceJoinUtilBase_Internal_h
 
 #import <Foundation/Foundation.h>
+#import "MSIDWorkPlaceJoinUtilProviding.h"
 
 @class MSIDWPJMetadata;
 
-@interface MSIDWorkPlaceJoinUtilBase()
+@interface MSIDWorkPlaceJoinUtilBase () <MSIDWorkPlaceJoinUtilProviding>
 
 + (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                          accessGroup:(nullable NSString *)accessGroup
                                              context:(nullable id<MSIDRequestContext>)context
-                                               error:(NSError*__nullable*__nullable)error;
+                                               error:(NSError*__nullable __autoreleasing*__nullable)error;
 
 + (NSString *_Nullable)getWPJStringDataFromV2ForTenantId:(NSString *_Nullable)tenantId
                                               identifier:(nonnull NSString *)identifier
                                                      key:(nullable NSString *)key
                                              accessGroup:(nullable NSString *)accessGroup
                                                  context:(id<MSIDRequestContext>_Nullable)context
-                                                   error:(NSError*__nullable*__nullable)error;
+                                                   error:(NSError*__nullable __autoreleasing*__nullable)error;
 
 + (nullable NSString *)getPrimaryEccTenantWithSharedAccessGroup:(NSString *_Nullable)sharedAccessGroup
                                                         context:(id <MSIDRequestContext> _Nullable)context
@@ -52,6 +53,17 @@
                                                         domainName:(NSString *_Nullable)domainName
                                                            context:(id <MSIDRequestContext> _Nullable)context
                                                              error:(NSError *_Nullable *_Nullable)error;
+
+/**
+ Resolve the WorkplaceJoin provider class registered with @c MSIDDIContainer,
+ falling back to @c MSIDWorkPlaceJoinUtil when no override or registration
+ is installed.
+
+ Internal call sites in @c MSIDWorkPlaceJoinUtilBase route through this
+ resolver so that tests can install a fake conforming class via
+ @c -[MSIDDIContainer registerProtocol:lifetime:factory:] without swizzling.
+ */
++ (nonnull Class<MSIDWorkPlaceJoinUtilProviding>)resolvedProvider;
 
 @end
 

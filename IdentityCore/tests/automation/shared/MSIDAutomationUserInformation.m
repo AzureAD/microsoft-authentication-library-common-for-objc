@@ -39,6 +39,7 @@
     json[@"home_tenant_id"] = self.homeTenantId;
     json[@"environment"] = self.environment;
     json[@"legacyAccountId"] = self.legacyAccountId;
+    json[@"oneAuthAccountId"] = self.oneAuthAccountId;
     return json;
 }
 
@@ -59,6 +60,7 @@
         _homeTenantId = json[@"home_tenant_id"];
         _environment = json[@"environment"];
         _legacyAccountId = json[@"legacyAccountId"];
+        _oneAuthAccountId = json[@"oneAuthAccountId"];
     }
 
     return self;

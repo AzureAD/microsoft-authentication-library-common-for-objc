@@ -30,6 +30,7 @@
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #endif
+#import "MSIDWebResponseOperationFactory.h"
 
 @interface MSIDWebOpenBrowserResponseOperation()
 
@@ -39,8 +40,13 @@
 
 @implementation MSIDWebOpenBrowserResponseOperation
 
++ (void)load
+{
+    [MSIDWebResponseOperationFactory registerOperationClass:self forResponseClass:MSIDWebOpenBrowserResponse.class];
+}
+
 - (nullable instancetype)initWithResponse:(nonnull MSIDWebviewResponse *)response
-                                    error:(NSError * _Nullable *)error
+                                    error:(NSError * _Nullable __autoreleasing *)error
 {
     self = [super initWithResponse:response
                              error:error];

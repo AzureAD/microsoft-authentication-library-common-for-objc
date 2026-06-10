@@ -60,13 +60,23 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     request.clientCapabilities = parameters.clientCapabilities;
     request.claimsRequest = parameters.claimsRequest;
     request.requestSentDate = requestSentDate;
-        
+    request.nonce = parameters.nonce;
+    request.webPageUri = parameters.webPageUri;
+    request.clientSku = parameters.clientSku;
+    request.skipValidateResultAccount = parameters.skipValidateResultAccount;
+    request.forceRefresh = parameters.forceRefresh;
+    request.platformSequence = parameters.platformSequence;
+    request.allowAnyExtraURLQueryParameters = parameters.allowAnyExtraURLQueryParameters;
+    request.ignoreScopeValidation = parameters.ignoreScopeValidation;
+    request.forceUI = parameters.forceUI;
+    request.bypassRedirectURIValidation = parameters.bypassRedirectURIValidation;
+    request.showHeadsUp = parameters.showHeadsUp;
     return YES;
 }
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
     
@@ -74,6 +84,8 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     {
         _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:json error:error];
         if (!_configuration) return nil;
+        
+        _webPageUri = [json msidStringObjectForKey:@"web_page_uri"];
         
         _providerType = MSIDProviderTypeFromString([json msidStringObjectForKey:MSID_PROVIDER_TYPE_JSON_KEY]);
         
@@ -83,6 +95,8 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
         _extraQueryParameters = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:extraQueryParam];
         
         _instanceAware = [json msidBoolObjectForKey:MSID_BROKER_INSTANCE_AWARE_KEY];
+        
+        _userFederatedIdentityToken = [json msidStringObjectForKey:MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY];
         
         NSString *enrollmentIdsStr = [json msidStringObjectForKey:MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY];
         if (enrollmentIdsStr)
@@ -106,6 +120,13 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
         }
         
         _requestSentDate = [NSDate msidDateFromTimeStamp:json[MSID_BROKER_REQUEST_SENT_TIMESTAMP]];
+        
+        _nonce = [json msidStringObjectForKey:@"nonce"];
+        _accountHomeTenantId = [json msidStringObjectForKey:MSID_BROKER_ACCOUNT_HOME_TENANT_ID];
+
+        _clientSku = [json msidStringObjectForKey:MSID_CLIENT_SKU_KEY];
+        _skipValidateResultAccount = [json msidBoolObjectForKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+        _forceRefresh = [json msidBoolObjectForKey:MSID_FORCE_REFRESH_KEY];
     }
     
     return self;
@@ -124,8 +145,10 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     }
         
     [json addEntriesFromDictionary:configurationJson];
+    json[@"web_page_uri"] = self.webPageUri;
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
     json[MSID_BROKER_EXTRA_OIDC_SCOPES_KEY] = self.oidcScope;
+    json[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY] = self.userFederatedIdentityToken;
     json[MSID_BROKER_EXTRA_QUERY_PARAM_KEY] = [self.extraQueryParameters msidWWWFormURLEncode];
     json[MSID_BROKER_INSTANCE_AWARE_KEY] = [@(self.instanceAware) stringValue];
     json[MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY] = [self.enrollmentIds msidJSONSerializeWithContext:nil];
@@ -133,6 +156,12 @@ clientBrokerKeyCapabilityNotSupported:parameters.clientBrokerKeyCapabilityNotSup
     json[MSID_BROKER_CLIENT_CAPABILITIES_KEY] = [self.clientCapabilities componentsJoinedByString:@","];
     json[MSID_BROKER_CLAIMS_KEY] = [[self.claimsRequest jsonDictionary] msidJSONSerializeWithContext:nil];
     json[MSID_BROKER_REQUEST_SENT_TIMESTAMP] = [self.requestSentDate msidDateToFractionalTimestamp:10];
+    json[@"nonce"] = self.nonce;
+    json[MSID_BROKER_ACCOUNT_HOME_TENANT_ID] = self.accountHomeTenantId;
+    json[MSID_CLIENT_SKU_KEY] = self.clientSku;
+    json[MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY] = [@(self.skipValidateResultAccount) stringValue];
+    json[MSID_FORCE_REFRESH_KEY] = [@(self.forceRefresh) stringValue];
+    
     return json;
 }
 

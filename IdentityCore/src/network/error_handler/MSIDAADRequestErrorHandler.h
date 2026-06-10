@@ -26,4 +26,6 @@
 
 @interface MSIDAADRequestErrorHandler : NSObject <MSIDHttpRequestErrorHandling>
 
++ (BOOL)shouldRetryNetworkingFailure:(NSInteger)errorCode;
+
 @end

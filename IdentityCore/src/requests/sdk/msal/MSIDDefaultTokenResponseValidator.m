@@ -35,8 +35,9 @@
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(MSIDConfiguration *)configuration
                   oidcScope:(NSString *)oidcScope
+             validateScopes:(BOOL)validateScopes
               correlationID:(NSUUID *)correlationID
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     /*
      If server returns less scopes than developer requested,
@@ -47,11 +48,24 @@
     {
         return YES;
     }
+    
+    if (!validateScopes) return YES;
 
     NSOrderedSet *grantedScopes = tokenResult.accessToken.scopes;
     NSOrderedSet *normalizedGrantedScopes = grantedScopes.normalizedScopeSet;
+    NSOrderedSet *requestedScopes = configuration.scopes;
+    NSOrderedSet *normalizedRequestedScopes = requestedScopes.normalizedScopeSet;
+    
+    // Include email as scope returned if it was requested and server did not include it.
+    if ([normalizedRequestedScopes containsObject:MSID_OAUTH2_SCOPE_EMAIL_VALUE] &&
+        ![normalizedGrantedScopes containsObject:MSID_OAUTH2_SCOPE_EMAIL_VALUE])
+    {
+        NSMutableOrderedSet *extendedScopes = [normalizedGrantedScopes mutableCopy];
+        [extendedScopes addObject:MSID_OAUTH2_SCOPE_EMAIL_VALUE];
+        normalizedGrantedScopes = extendedScopes;
+    }
 
-    if (![configuration.scopes.normalizedScopeSet isSubsetOfOrderedSet:normalizedGrantedScopes])
+    if (![normalizedRequestedScopes isSubsetOfOrderedSet:normalizedGrantedScopes])
     {
         if (error)
         {
@@ -84,7 +98,7 @@
 - (BOOL)validateAccount:(MSIDAccountIdentifier *)accountIdentifier
             tokenResult:(MSIDTokenResult *)tokenResult
               correlationID:(NSUUID *)correlationID
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     if (accountIdentifier.uid != nil
         && ![accountIdentifier.uid isEqualToString:tokenResult.account.accountIdentifier.uid])

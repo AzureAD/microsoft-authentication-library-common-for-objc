@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *clientAppName;
 @property (nonatomic) MSIDClientSDKType clientSDK;
 @property (nonatomic) BOOL clientBrokerKeyCapabilityNotSupported;
+@property (nonatomic, nullable) NSString *platformSequence;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
 keychainAccessGroup:(nullable NSString *)keychainAccessGroup

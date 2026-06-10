@@ -30,18 +30,21 @@ extern NSString *const MSID_OAUTH2_AUTHORIZATION_URI;
 extern NSString *const MSID_OAUTH2_AUTHORITY;
 extern NSString *const MSID_OAUTH2_BEARER;
 extern NSString *const MSID_OAUTH2_POP;
+extern NSString *const MSID_OAUTH2_SSH_CERT;
 extern NSString *const MSID_OAUTH2_CLIENT_ID;
 extern NSString *const MSID_OAUTH2_CLAIMS;
 extern NSString *const MSID_OAUTH2_CODE;
 extern NSString *const MSID_OAUTH2_ERROR;
 extern NSString *const MSID_OAUTH2_ERROR_DESCRIPTION;
 extern NSString *const MSID_OAUTH2_ERROR_SUBCODE;
+extern NSString *const MSID_OAUTH2_ERROR_CODES;
 extern NSString *const MSID_OAUTH2_EXPIRES_IN;
 extern NSString *const MSID_OAUTH2_REFRESH_IN;
 extern NSString *const MSID_OAUTH2_REFRESH_ON;
 extern NSString *const MSID_OAUTH2_GRANT_TYPE;
 extern NSString *const MSID_OAUTH2_REDIRECT_URI;
 extern NSString *const MSID_OAUTH2_REFRESH_TOKEN;
+extern NSString *const MSID_OAUTH2_DEVICE_TOKEN;
 extern NSString *const MSID_OAUTH2_RESOURCE;
 extern NSString *const MSID_OAUTH2_RESPONSE_TYPE;
 extern NSString *const MSID_OAUTH2_SCOPE;
@@ -60,13 +63,17 @@ extern NSString *const MSID_OAUTH2_SAML2_BEARER_VALUE;
 extern NSString *const MSID_OAUTH2_SCOPE_OPENID_VALUE;
 extern NSString *const MSID_OAUTH2_SCOPE_OFFLINE_ACCESS_VALUE;
 extern NSString *const MSID_OAUTH2_SCOPE_PROFILE_VALUE;
+extern NSString *const MSID_OAUTH2_SCOPE_EMAIL_VALUE;
 extern NSString *const MSID_OAUTH2_ASSERTION;
 extern NSString *const MSID_OAUTH2_CLIENT_TELEMETRY;
+// Query parameter used on /authorize to request and receive STS client telemetry data.
+extern NSString *const MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM;
 extern NSString *const MSID_OAUTH2_PROMPT;
 extern NSString *const MSID_OAUTH2_PROMPT_NONE;
 extern NSString *const MSID_OAUTH2_SIGNOUT_REDIRECT_URI;
 extern NSString *const MSID_OAUTH2_REQUEST_CONFIRMATION;
 extern NSString *const MSID_OAUTH2_REQUEST_ENDPOINT;
+extern NSString *const MSID_OAUTH2_SSH_CERT_KEY_ID;
 
 extern NSString *const MSID_OAUTH2_EXPIRES_ON;
 extern NSString *const MSID_OAUTH2_EXT_EXPIRES_IN;
@@ -87,6 +94,7 @@ extern NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI;
 extern NSString *const MSID_OAUTH2_CLIENT_INFO;
 extern NSString *const MSID_OAUTH2_UNIQUE_IDENTIFIER;
 extern NSString *const MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER;
+extern NSString *const MSID_OAUTH2_TENANT_DATA_BOUNDARY_RESTRICTION;
 
 extern NSString *const MSID_OAUTH2_DOMAIN_REQ;
 extern NSString *const MSID_OAUTH2_LOGIN_REQ;
@@ -117,6 +125,8 @@ extern NSString *const MSID_REFRESH_ON_CACHE_KEY;
 extern NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY;
 extern NSString *const MSID_CACHED_AT_CACHE_KEY;
 extern NSString *const MSID_LAST_RECOVERY_ATTEMPT_CACHE_KEY;
+extern NSString *const MSID_RECOVERY_ATTEMPT_COUNT_CACHE_KEY;
+extern NSString *const MSID_LAST_RECOVERY_ATTEMPT_FAILED_CACHE_KEY;
 extern NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY;
 extern NSString *const MSID_EXPIRES_IN_CACHE_KEY;
 extern NSString *const MSID_SPE_INFO_CACHE_KEY;
@@ -150,6 +160,8 @@ extern NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_ID_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_LEGACY_ID_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_PRT_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_FRT_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_BOUND_RT_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_GENERAL_CACHE_ITEM_TYPE;
 extern NSString *const MSID_APP_METADATA_CACHE_TYPE;
@@ -163,3 +175,24 @@ extern NSString *const MSID_PREFERRED_USERNAME_MISSING;
 
 extern NSString *const MSIDServerErrorClientMismatch;
 extern NSString *const MSIDServerErrorBadToken;
+extern NSString *const MSIDServerErrorUserAccountDeleted;
+
+extern NSString *const MSID_CCS_REQUEST_ID_KEY;
+extern NSString *const MSID_CCS_REQUEST_ID_RESPONSE;
+
+extern NSString *const MSID_CCS_REQUEST_SEQUENCE_KEY;
+extern NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE;
+
+extern NSString *const MSID_CLIENT_DATA_HEADER_KEY;
+extern NSString *const MSID_CLIENT_DATA_RESPONSE;
+
+extern NSString *const MSID_BROKER_EXECUTION_FLOW_RESPONSE;
+
+extern NSString *const MSID_REFRESH_TOKEN_TYPE;
+extern NSString *const MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT;
+extern NSString *const MSID_BOUND_DEVICE_ID_CACHE_KEY;
+extern NSString *const MSID_BOUND_RT_EXCHANGE;
+extern NSString *const MSID_MSAL_CLIENT_APV_PREFIX;
+
+// STS error codes
+extern NSInteger const MSIDSTSErrorCodeResetPasswordRequired;

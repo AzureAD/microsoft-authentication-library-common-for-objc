@@ -57,23 +57,12 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
     
     msidCacheConfig = [[MSIDCacheConfig alloc] initWithKeychainGroup:[MSIDKeychainTokenCache defaultKeychainGroup]];
     keyPairAttributes = [MSIDAssymetricKeyLookupAttributes new];
-    
+
 #else
+
     keyPairAttributes = [[MSIDAssymetricKeyLookupAttributes alloc] init];
-    
-    if (@available(macOS 10.15, *))
-    {
-        msidCacheConfig = [[MSIDCacheConfig alloc] initWithKeychainGroup:mockDefaultKeychainGroup];
-    }
-    else
-    {
-        MSIDMacKeychainTokenCache *macDataSource = [[MSIDMacKeychainTokenCache alloc] initWithGroup:[MSIDKeychainTokenCache defaultKeychainGroup]
-                                                                                trustedApplications:nil
-                                                                                              error:&error];
-        
-        msidCacheConfig = [[MSIDCacheConfig alloc] initWithKeychainGroup:[MSIDKeychainTokenCache defaultKeychainGroup]
-                                                               accessRef:(__bridge SecAccessRef _Nullable)(macDataSource.accessControlForNonSharedItems)];
-    }
+    msidCacheConfig = [[MSIDCacheConfig alloc] initWithKeychainGroup:mockDefaultKeychainGroup];
+
 #endif
     keyPairAttributes.privateKeyIdentifier = MSID_POP_TOKEN_PRIVATE_KEY;
     

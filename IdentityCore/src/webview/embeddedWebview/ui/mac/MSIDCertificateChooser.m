@@ -96,25 +96,27 @@
 
 - (void)webAuthDidFail:(__unused NSNotification *)aNotification
 {
-    if (!_panel || !_window)
-    {
-        return;
-    }
-    
-    // If web auth fails while the sheet is up that usually means the connection timed out, tear
-    // down the cert selection sheet.
-    
-    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, _correlationId, @"Aborting cert selection due to web auth failure");
-    NSArray *sheets = _window.sheets;
-    if (sheets.count < 1)
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, _correlationId, @"Unable to find sheet to dismiss for client cert auth handler.");
-        return;
-    }
-    // It turns out the SFChooseIdentityPanel is not the real sheet that gets displayed, so telling the window to end it
-    // results in nothing happening. If I instead pull out the sheet from the window itself I can tell the window to end
-    // that and it works.
-    [_window endSheet:sheets[0] returnCode:NSModalResponseCancel];
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        if (!self->_panel || !self->_window)
+        {
+            return;
+        }
+        
+        // If web auth fails while the sheet is up that usually means the connection timed out, tear
+        // down the cert selection sheet.
+        
+        MSID_LOG_WITH_CORR(MSIDLogLevelInfo, self->_correlationId, @"Aborting cert selection due to web auth failure");
+        NSArray *sheets = self->_window.sheets;
+        if (sheets.count < 1)
+        {
+            MSID_LOG_WITH_CORR(MSIDLogLevelError, self->_correlationId, @"Unable to find sheet to dismiss for client cert auth handler.");
+            return;
+        }
+        // It turns out the SFChooseIdentityPanel is not the real sheet that gets displayed, so telling the window to end it
+        // results in nothing happening. If I instead pull out the sheet from the window itself I can tell the window to end
+        // that and it works.
+        [self->_window endSheet:sheets[0] returnCode:NSModalResponseCancel];
+    }];
 }
 
 @end

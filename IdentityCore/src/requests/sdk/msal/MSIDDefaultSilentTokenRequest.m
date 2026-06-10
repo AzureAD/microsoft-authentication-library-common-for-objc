@@ -37,6 +37,7 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDThrottlingService.h"
+#import "MSIDSilentTokenRequest+Internal.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -74,7 +75,7 @@
 
 #pragma mark - Abstract impl
 
-- (nullable MSIDAccessToken *)accessTokenWithError:(NSError **)error
+- (nullable MSIDAccessToken *)accessTokenWithError:(NSError *__autoreleasing*)error
 {
     NSError *cacheError = nil;
     MSIDAccessToken *accessToken = [self.defaultAccessor getAccessTokenForAccount:self.requestParameters.accountIdentifier
@@ -98,7 +99,7 @@
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
                                        refreshToken:(id<MSIDRefreshableToken>)refreshToken
-                                              error:(__unused NSError * _Nullable * _Nullable)error
+                                              error:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     if (!accessToken)
     {
@@ -123,6 +124,8 @@
     MSIDAccount *account = [self.defaultAccessor getAccountForIdentifier:self.requestParameters.accountIdentifier
                                                                authority:self.requestParameters.authority
                                                                realmHint:nil
+                                           accountHomeTenantId:nil
+                                                     accountSelectionLog:nil
                                                                  context:self.requestParameters
                                                                    error:&cacheError];
 
@@ -149,13 +152,13 @@
     return result;
 }
 
--(MSIDIdToken *)getIDToken:(NSError **)error
+-(MSIDIdToken *)getIDToken:(NSError *__autoreleasing*)error
 {
     return [self getIDTokenForTokenType:MSIDIDTokenType error:error];
 }
 
 -(MSIDIdToken *)getIDTokenForTokenType:(MSIDCredentialType)idTokenType
-                                 error:(NSError **)error
+                                 error:(NSError *__autoreleasing*)error
 {
     return [self.defaultAccessor getIDTokenForAccount:self.requestParameters.accountIdentifier
                                         configuration:self.requestParameters.msidConfiguration
@@ -164,9 +167,10 @@
                                                 error:error];
 }
 
-- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self.appMetadata = [self appMetadataWithError:error];
+    self.defaultAccessor.shouldSkipBoundAppRefreshTokenLookup = self.shouldSkipBoundAppRefreshTokenUsage;
 
     //On first network try, app metadata will be nil but on every subsequent attempt, it should reflect if clientId is part of family
     NSString *familyId = self.appMetadata ? self.appMetadata.familyId : MSID_DEFAULT_FAMILY_ID;
@@ -183,8 +187,9 @@
     return nil;
 }
 
-- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
+    self.defaultAccessor.shouldSkipBoundAppRefreshTokenLookup = self.shouldSkipBoundAppRefreshTokenUsage;
     return [self.defaultAccessor getRefreshTokenWithAccount:self.requestParameters.accountIdentifier
                                                    familyId:nil
                                               configuration:self.requestParameters.msidConfiguration
@@ -193,7 +198,7 @@
 }
 
 - (BOOL)updateFamilyIdCacheWithServerError:(NSError *)serverError
-                                cacheError:(NSError **)cacheError
+                                cacheError:(NSError *__autoreleasing*)cacheError
 {
     //When FRT is used by client which is not part of family, the server returns "client_mismatch" as sub-error
     NSString *subError = serverError.msidSubError;
@@ -224,6 +229,11 @@
     return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorBadToken];
 }
 
+- (BOOL)shouldRemoveAccountArtifacts:(NSError *)serverError
+{
+    return [super shouldRemoveAccountArtifacts:serverError];
+}
+
 - (id<MSIDCacheAccessor>)tokenCache
 {
     return self.defaultAccessor;
@@ -236,7 +246,7 @@
 
 #pragma mark - Helpers
 
-- (MSIDAppMetadataCacheItem *)appMetadataWithError:(NSError * _Nullable * _Nullable)error
+- (MSIDAppMetadataCacheItem *)appMetadataWithError:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSError *cacheError = nil;
     NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [self.defaultAccessor getAppMetadataEntries:self.requestParameters.msidConfiguration

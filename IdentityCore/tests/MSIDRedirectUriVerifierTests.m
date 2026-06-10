@@ -63,7 +63,10 @@
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result.url.absoluteString, redirectUri);
     XCTAssertFalse(result.brokerCapable);
-    XCTAssertNil(error);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 - (void)testMSIDRedirectUri_whenCustomRedirectUri_andBrokerCapable_shouldReturnUriBrokerCapableYes
@@ -232,6 +235,103 @@
     XCTAssertNotNil(error);
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorRedirectSchemeNotRegistered);
+}
+
+
+- (void)testMSIDRedirectUri_whenCustomRedirectUri_withUnsupportedScheme_shouldReturnNonBrokerCapableUri
+{
+    NSArray *urlTypes = @[@{@"CFBundleURLSchemes": @[@"unsupportedScheme"]}];
+    [MSIDTestBundle overrideObject:urlTypes forKey:@"CFBundleURLTypes"];
+    [MSIDTestBundle overrideBundleId:@"test.bundle.identifier"];
+    
+    NSString *redirectUri = @"unsupportedScheme://auth";
+    NSString *clientId = @"msidclient";
+    NSError *error = nil;
+    
+    MSIDRedirectUri *result = [MSIDRedirectUriVerifier msidRedirectUriWithCustomUri:redirectUri
+                                                                           clientId:clientId
+                                                           bypassRedirectValidation:NO
+                                                                              error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertEqualObjects(result.url.absoluteString, redirectUri);
+    XCTAssertFalse(result.brokerCapable);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
+}
+
+- (void)testMSIDRedirectUri_whenCustomRedirectUri_withHttpsScheme_shouldReturnNonBrokerCapableUri 
+{
+    NSArray *urlTypes = @[@{@"CFBundleURLSchemes": @[@"myapp"]}];
+    [MSIDTestBundle overrideObject:urlTypes forKey:@"CFBundleURLTypes"];
+    [MSIDTestBundle overrideBundleId:@"test.bundle.identifier"];
+    
+    NSString *redirectUri = @"https://example.com";
+    NSString *clientId = @"msidclient";
+    
+    NSError *error = nil;
+    MSIDRedirectUri *result = [MSIDRedirectUriVerifier msidRedirectUriWithCustomUri:redirectUri
+                                                                           clientId:clientId
+                                                           bypassRedirectValidation:NO
+                                                                              error:&error];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqualObjects(result.url.absoluteString, redirectUri);
+    XCTAssertFalse(result.brokerCapable);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
+}
+
+- (void)testMSIDRedirectUri_whenCustomRedirectUri_withMissingHost_shouldReturnNonBrokerCapableUri 
+{
+    NSArray *urlTypes = @[@{@"CFBundleURLSchemes": @[@"myapp"]}];
+    [MSIDTestBundle overrideObject:urlTypes forKey:@"CFBundleURLTypes"];
+    [MSIDTestBundle overrideBundleId:@"test.bundle.identifier"];
+    
+    NSString *redirectUri = @"myapp://";
+    NSString *clientId = @"msidclient";
+    
+    NSError *error = nil;
+    
+    MSIDRedirectUri *result = [MSIDRedirectUriVerifier msidRedirectUriWithCustomUri:redirectUri
+                                                                           clientId:clientId
+                                                           bypassRedirectValidation:NO
+                                                                              error:&error];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqualObjects(result.url.absoluteString, redirectUri);
+    XCTAssertFalse(result.brokerCapable);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
+}
+
+- (void)testMSIDRedirectUri_whenCustomRedirectUri_withNonRegisteredScheme_shouldReturnNilAndFillError 
+{
+    NSArray *urlTypes = @[@{@"CFBundleURLSchemes": @[@"myapp"]}];
+    [MSIDTestBundle overrideObject:urlTypes forKey:@"CFBundleURLTypes"];
+    [MSIDTestBundle overrideBundleId:@"test.bundle.identifier"];
+    
+    NSString *redirectUri = @"myapp://auth";
+    NSString *clientId = @"msidclient";
+    
+    NSError *error = nil;
+    
+    MSIDRedirectUri *result = [MSIDRedirectUriVerifier msidRedirectUriWithCustomUri:redirectUri
+                                                                           clientId:clientId
+                                                           bypassRedirectValidation:NO
+                                                                              error:&error];
+    
+    XCTAssertNotNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertFalse(result.brokerCapable);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertNotNil(error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqual(error.code, MSIDErrorInvalidRedirectURI);
 }
 
 @end

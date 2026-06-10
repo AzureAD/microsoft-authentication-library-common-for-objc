@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)requestClaim:(MSIDIndividualClaimRequest *)request
            forTarget:(MSIDClaimsRequestTarget)target
-               error:(NSError * _Nullable * _Nullable)error;
+               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 /*!
  Return the array of requested claims for the target.
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)removeClaimRequestWithName:(NSString *)name
                             target:(MSIDClaimsRequestTarget)target
-                             error:(NSError * _Nullable * _Nullable)error;
+                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

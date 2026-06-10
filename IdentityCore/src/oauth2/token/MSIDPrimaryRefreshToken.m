@@ -56,6 +56,8 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
         _expiresOn = tokenCacheItem.expiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
         _lastRecoveryAttempt = tokenCacheItem.lastRecoveryAttempt;
+        _recoveryAttemptCount = [tokenCacheItem.recoveryAttemptCount integerValue];
+        _lastRecoveryAttemptFailed = [jsonDictionary msidBoolObjectForKey:MSID_LAST_RECOVERY_ATTEMPT_FAILED_CACHE_KEY];
         _expiryInterval = [tokenCacheItem.expiryInterval integerValue];
         
         _externalKeyLocationType = (MSIDExternalPRTKeyLocationType)[[jsonDictionary msidObjectForKey:MSID_PRT_EXTERNAL_KEY_TYPE_CACHE_KEY ofClass:[NSString class]] integerValue];
@@ -85,6 +87,8 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     prtCacheItem.expiresOn = self.expiresOn;
     prtCacheItem.cachedAt = self.cachedAt;
     prtCacheItem.lastRecoveryAttempt = self.lastRecoveryAttempt;
+    prtCacheItem.recoveryAttemptCount = [NSString stringWithFormat:@"%lu", (long)self.recoveryAttemptCount];
+    prtCacheItem.lastRecoveryAttemptFailed = [@(self.lastRecoveryAttemptFailed) stringValue];
     prtCacheItem.expiryInterval = [NSString stringWithFormat:@"%lu", (long)self.expiryInterval];
     prtCacheItem.externalKeyLocationType = self.externalKeyLocationType;
     return prtCacheItem;
@@ -148,6 +152,14 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     return hash;
 }
 
+- (NSUInteger)prtId
+{
+    NSUInteger hash = 0;
+    hash = hash * 31 + self.accountIdentifier.homeAccountId.hash;
+    hash = hash * 31 + self.deviceID.hash;
+    return hash;
+}
+
 - (BOOL)isEqualToItem:(MSIDPrimaryRefreshToken *)token
 {
     if (!token)
@@ -174,6 +186,8 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
     item->_expiresOn = [_expiresOn copyWithZone:zone];
     item->_cachedAt = [_cachedAt copyWithZone:zone];
     item->_lastRecoveryAttempt = [_lastRecoveryAttempt copyWithZone:zone];
+    item->_recoveryAttemptCount = _recoveryAttemptCount;
+    item->_lastRecoveryAttemptFailed = _lastRecoveryAttemptFailed;
     item->_expiryInterval = _expiryInterval;
     item->_externalKeyLocationType = _externalKeyLocationType;
     return item;
@@ -200,6 +214,12 @@ static NSString *kMinSupportedPRTVersion = @"3.0";
 {
     CGFloat prtVersion = [self.prtProtocolVersion floatValue];
     return prtVersion >= 3.0 && [NSString msidIsStringNilOrBlank:self.deviceID];
+}
+
+- (BOOL)isDevicelessPRTv3
+{
+    CGFloat prtVersion = [self.prtProtocolVersion floatValue];
+    return prtVersion == 3.0 && [NSString msidIsStringNilOrBlank:self.deviceID];
 }
 
 - (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval

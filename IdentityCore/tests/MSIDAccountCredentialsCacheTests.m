@@ -37,6 +37,12 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
+#import "MSIDBasicContext.h"
+#import "MSIDCacheItemJsonSerializer.h"
+#import "MSIDJsonObject.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDTestSwizzle.h"
 
 @interface MSIDAccountCredentialsCacheTests : XCTestCase
 
@@ -52,7 +58,7 @@
 {
     id<MSIDExtendedTokenCacheDataSource> dataSource = nil;
 
-#if TARGET_OS_IOS
+#if !TARGET_OS_OSX
     dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
 #else
     // TODO: this should be replaced with a real macOS datasource instead
@@ -65,6 +71,7 @@
 
 - (void)tearDown
 {
+    [MSIDTestSwizzle reset];
     [self cleanCache];
     [super tearDown];
 }
@@ -2105,6 +2112,51 @@
     XCTAssertTrue(result);
 }
 
+- (void)testSaveCredential_whenTwoATsDifferOnlyByRequestedClaims_shouldStoreSeparatelyAndBeRetrievableIndependently
+{
+    MSIDCredentialCacheItem *atWithoutClaims = [self createTestAccessTokenCacheItem];
+    atWithoutClaims.secret = @"at_no_claims";
+    [self saveItem:atWithoutClaims];
+
+    MSIDCredentialCacheItem *atWithClaims = [self createTestAccessTokenCacheItem];
+    atWithClaims.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
+    atWithClaims.secret = @"at_with_claims";
+    [self saveItem:atWithClaims];
+
+    NSError *error = nil;
+    NSArray *allItems = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual([allItems count], 2);
+
+    MSIDDefaultCredentialCacheQuery *queryNoClaims = [MSIDDefaultCredentialCacheQuery new];
+    queryNoClaims.credentialType = MSIDAccessTokenType;
+    queryNoClaims.homeAccountId = @"uid.utid";
+    queryNoClaims.environment = @"login.microsoftonline.com";
+    queryNoClaims.clientId = @"client";
+    queryNoClaims.realm = @"contoso.com";
+    queryNoClaims.target = @"user.read user.write";
+    queryNoClaims.requestedClaims = nil;
+
+    NSArray *resultsNoClaims = [self.cache getCredentialsWithQuery:queryNoClaims context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual([resultsNoClaims count], 1);
+    XCTAssertEqualObjects(((MSIDCredentialCacheItem *)resultsNoClaims[0]).secret, @"at_no_claims");
+
+    MSIDDefaultCredentialCacheQuery *queryWithClaims = [MSIDDefaultCredentialCacheQuery new];
+    queryWithClaims.credentialType = MSIDAccessTokenType;
+    queryWithClaims.homeAccountId = @"uid.utid";
+    queryWithClaims.environment = @"login.microsoftonline.com";
+    queryWithClaims.clientId = @"client";
+    queryWithClaims.realm = @"contoso.com";
+    queryWithClaims.target = @"user.read user.write";
+    queryWithClaims.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
+
+    NSArray *resultsWithClaims = [self.cache getCredentialsWithQuery:queryWithClaims context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual([resultsWithClaims count], 1);
+    XCTAssertEqualObjects(((MSIDCredentialCacheItem *)resultsWithClaims[0]).secret, @"at_with_claims");
+}
+
 - (void)testSaveAccount_whenAccountPresent_shouldReturnYES
 {
     MSIDAccountCacheItem *item = [self createTestAccountCacheItem];
@@ -2791,25 +2843,25 @@
 - (void)testRemoveCredentialsWithQuery_whenQueryIsNotExactMatch_andATPopAccessTokensQuery_shouldRemoveAllItems
 {
     [self saveItem:[self createTestATPopAccessTokenCacheItem]];
-    
+
     MSIDCredentialCacheItem *token2 = [self createTestATPopAccessTokenCacheItem];
     token2.homeAccountId = @"uid.utid2";
     [self saveItem:token2];
-    
+
     [self saveItem:[self createTestRefreshTokenCacheItem]];
-    
+
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.matchAnyCredentialType = YES;
     query.environment = @"login.microsoftonline.com";
     query.clientId = @"client";
 
     XCTAssertFalse(query.exactMatch);
-    
+
     NSError *error = nil;
     BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
-    
+
     NSArray *remainignItems = [self.cache getAllItemsWithContext:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(remainignItems);
@@ -2968,6 +3020,221 @@
 
 #endif
 
+#pragma mark - checkFRTEnabled
+
+- (void)testCheckFRTEnabled_whenFRTClientNotEnabled_shouldReturnDisabledByClientApp
+{
+    [self setUseSingleFRTFeatureFlagMock:NO];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:YES];
+    
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByClientApp);
+}
+
+- (void)testCheckFRTEnabled_whenNoItemInCacheAndFeatureNotEnabled_shouldReturnNotEnabled
+{
+    [self setUseSingleFRTFeatureFlagMock:NO];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusNotEnabled);
+}
+
+- (void)testCheckFRTEnabled_whenNoItemInCacheAndFeatureEnabled_shouldReturnActive
+{
+    [self setUseSingleFRTFeatureFlagMock:YES];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
+}
+
+- (void)testCheckFRTEnabled_whenItemInCacheInvalidAndFeatureNotEnabled_shouldReturnDisabledByDeserializationError
+{
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    NSDictionary *json = @{@"some_key": @(123)};
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:nil];
+        
+    [self.cache.dataSource saveJsonObject:jsonObject
+                               serializer:[MSIDCacheItemJsonSerializer new]
+                                      key:[self checkFRTCacheKey]
+                                  context:nil
+                                    error:&error];
+    
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByDeserializationError);
+}
+
+- (void)testCheckFRTEnabled_whenItemInCacheInvalidAndFeatureEnabled_shouldReturnActive
+{
+    [self setUseSingleFRTFeatureFlagMock:YES];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    NSDictionary *json = @{@"some_key": @(123)};
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:nil];
+        
+    [self.cache.dataSource saveJsonObject:jsonObject
+                               serializer:[MSIDCacheItemJsonSerializer new]
+                                      key:[self checkFRTCacheKey]
+                                  context:nil
+                                    error:&error];
+    
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
+}
+
+- (void)testCheckFRTEnabled_whenItemInCacheInvalidAndFeatureNotEnabledAndDisabledForAll_shouldReturnDisabledByKeychainItem
+{
+    [self setUseSingleFRTFeatureFlagMock:NO];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    NSDictionary *json = @{@"some_key": @(123)};
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:nil];
+        
+    [self.cache.dataSource saveJsonObject:jsonObject
+                               serializer:[MSIDCacheItemJsonSerializer new]
+                                      key:[self checkFRTCacheKey]
+                                  context:nil
+                                    error:&error];
+    
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+}
+
+- (void)testCheckFRTEnabled_whenItemInCacheNotEnabledAndFeatureNotEnabled_shouldReturnDisabledByKeychainItem
+{
+    [self setUseSingleFRTFeatureFlagMock:NO];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    NSDictionary *json = @{MSID_USE_SINGLE_FRT_KEY: @"0"};
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:nil];
+        
+    [self.cache.dataSource saveJsonObject:jsonObject
+                               serializer:[MSIDCacheItemJsonSerializer new]
+                                      key:[self checkFRTCacheKey]
+                                  context:nil
+                                    error:&error];
+    
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+}
+
+- (void)testCheckFRTEnabled_whenItemInCacheNotEnabledAndFeatureEnabled_shouldReturnActive
+{
+    [self setUseSingleFRTFeatureFlagMock:YES];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    NSDictionary *json = @{MSID_USE_SINGLE_FRT_KEY: @"0"};
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:nil];
+        
+    [self.cache.dataSource saveJsonObject:jsonObject
+                               serializer:[MSIDCacheItemJsonSerializer new]
+                                      key:[self checkFRTCacheKey]
+                                  context:nil
+                                    error:&error];
+    
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
+}
+
+- (void)testCheckFRTEnabled_whenItemInCacheNotEnabledAndFeatureNotEnabledAndDisabledForAll_shouldReturnDisabledByKeychainItem
+{
+    [self setUseSingleFRTFeatureFlagMock:NO];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    NSDictionary *json = @{MSID_USE_SINGLE_FRT_KEY: @"0"};
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:nil];
+        
+    [self.cache.dataSource saveJsonObject:jsonObject
+                               serializer:[MSIDCacheItemJsonSerializer new]
+                                      key:[self checkFRTCacheKey]
+                                  context:nil
+                                    error:&error];
+    
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+}
+
+- (void)testCheckFRTEnabled_whenItemInCacheIsEnabledAndFeatureEnabled_shouldReturnActive
+{
+    [self setUseSingleFRTFeatureFlagMock:YES];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    NSDictionary *json = @{MSID_USE_SINGLE_FRT_KEY: @"1"};
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:nil];
+        
+    [self.cache.dataSource saveJsonObject:jsonObject
+                               serializer:[MSIDCacheItemJsonSerializer new]
+                                      key:[self checkFRTCacheKey]
+                                  context:nil
+                                    error:&error];
+    
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusEnabled);
+}
+
+- (void)testCheckFRTEnabled_whenItemInCacheIsEnabledAndFeatureNotEnabled_shouldReturnDisabledByKeychainItem
+{
+    [self setUseSingleFRTFeatureFlagMock:NO];
+    
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    [MSIDAccountCredentialCache setDisableFRT:NO];
+    
+    NSError *error = nil;
+    NSDictionary *json = @{MSID_USE_SINGLE_FRT_KEY: @"1"};
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:json error:nil];
+        
+    [self.cache.dataSource saveJsonObject:jsonObject
+                               serializer:[MSIDCacheItemJsonSerializer new]
+                                      key:[self checkFRTCacheKey]
+                                  context:nil
+                                    error:&error];
+    
+    MSIDIsFRTEnabledStatus result = [self.cache checkFRTEnabled:context error:&error];
+    
+    XCTAssertEqual(result, MSIDIsFRTEnabledStatusDisabledByKeychainItem);
+}
+
 #pragma mark - Helpers
 
 - (void)saveItem:(MSIDCredentialCacheItem *)item
@@ -3093,6 +3360,34 @@
     item.environment = @"login.microsoftonline.com";
     item.familyId = familyId;
     return item;
+}
+
+- (MSIDCacheKey *)checkFRTCacheKey
+{
+    static MSIDCacheKey *cacheKey = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cacheKey = [[MSIDCacheKey alloc] initWithAccount:MSID_USE_SINGLE_FRT_KEYCHAIN
+                                                 service:MSID_USE_SINGLE_FRT_KEYCHAIN
+                                                 generic:nil
+                                                    type:nil];
+    });
+    return cacheKey;
+}
+
+- (void)setUseSingleFRTFeatureFlagMock:(BOOL)useSingleFRTStatus
+{
+    [MSIDTestSwizzle instanceMethod:@selector(stringForKey:)
+                              class:[MSIDFlightManager class]
+                              block:(id)^(__unused id *obj, NSString *flightKey)
+     {
+        if ([flightKey isEqualToString:MSID_FLIGHT_CLIENT_SFRT_STATUS])
+        {
+            return useSingleFRTStatus ? MSID_FRT_STATUS_ENABLED : MSID_FRT_STATUS_DISABLED;
+        }
+        
+        return @"";
+     }];
 }
 
 @end

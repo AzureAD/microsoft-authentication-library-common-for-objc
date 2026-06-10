@@ -26,6 +26,7 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDTokenResponseValidator.h"
+#import "MSIDTokenResult.h"
 #import "MSIDDeviceInfo.h"
 
 @implementation MSIDSSOTokenResponseHandler
@@ -50,6 +51,12 @@
         NSError *localError;
         MSIDRequestParameters *parameters = [requestParameters copy];
         parameters.target = operationResponse.additionalTokenResponse.scope;
+        
+        if (parameters.skipTokenCacheFromSsoExtensionResponse)
+        {
+            // For additional token response, we still save it through CommonCore as OA cannot handle the additional token caching
+            parameters.skipTokenCacheFromSsoExtensionResponse = NO;
+        }
         
         [tokenResponseValidator validateAndSaveTokenResponse:operationResponse.additionalTokenResponse
                                                 oauthFactory:oauthFactory
@@ -78,8 +85,32 @@
          accountMetadataCache:accountMetadataCache
               validateAccount:validateAccount
              saveSSOStateOnly:saveSSOStateOnly
+             brokerAppVersion:[operationResponse.deviceInfo brokerVersion]
+brokerResponseGenerationTimeStamp:operationResponse.responseGenerationTimeStamp
+brokerRequestReceivedTimeStamp:operationResponse.requestReceivedTimeStamp
                         error:error
-              completionBlock:completionBlock];
+              completionBlock:[self wrapCompletionBlock:completionBlock
+                                     withOnboardingBlob:operationResponse.onboardingBlob]];
+}
+
+// Round-trip the onboarding telemetry blob from MSIDBrokerOperationTokenResponse
+// onto the resulting MSIDTokenResult.onboardingBlob so consumers
+// can forward it.
+- (MSIDRequestCompletionBlock)wrapCompletionBlock:(MSIDRequestCompletionBlock)completionBlock
+                               withOnboardingBlob:(NSString *)onboardingBlob
+{
+    if ([NSString msidIsStringNilOrBlank:onboardingBlob] || !completionBlock)
+    {
+        return completionBlock;
+    }
+    NSString *capturedBlob = [onboardingBlob copy];
+    return ^(MSIDTokenResult * _Nullable result, NSError * _Nullable wrappedError) {
+        if (result)
+        {
+            result.onboardingBlob = capturedBlob;
+        }
+        completionBlock(result, wrappedError);
+    };
 }
 
 @end

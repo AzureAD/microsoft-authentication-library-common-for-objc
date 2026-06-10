@@ -97,5 +97,6 @@
 - (BOOL)matchesURL:(NSURL *)url;
 - (BOOL)matchesBody:(NSData *)body;
 - (BOOL)matchesHeaders:(NSDictionary *)headers;
+- (void)setError:(NSError *)error;
 
 @end

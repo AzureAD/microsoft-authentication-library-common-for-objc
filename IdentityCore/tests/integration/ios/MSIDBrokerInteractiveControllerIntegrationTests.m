@@ -51,8 +51,61 @@
 #import "MSIDTestBrokerResponseHelper.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDTestBrokerKeyProviderHelper.h"
+#import "MSIDTestSwizzle.h"
+#import "MSIDAppExtensionUtil.h"
+#import "MSIDThrottlingService.h"
+#import "MSIDThrottlingRefreshing.h"
+#import "MSIDDIContainer.h"
+#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDOnboardingStatus.h"
+#import "MSIDOnboardingStatusCache.h"
+#import "MSIDTestCacheDataSource.h"
+#import "MSIDCacheItemJsonSerializer.h"
+#import "MSIDBrokerInvocationOptions.h"
+#import "MSIDBrokerConstants.h"
+#import "NSURL+MSIDExtensions.h"
+
+@interface MSIDBrokerInteractiveController ()
++ (void)setCurrentBrokerController:(MSIDBrokerInteractiveController *)currentBrokerController;
++ (MSIDBrokerInteractiveController *)currentBrokerController;
++ (void)setCurrentBrokerRequest:(MSIDBrokerTokenRequest *)currentBrokerRequest;
++ (MSIDBrokerTokenRequest *)currentBrokerRequest;
+@property (nonatomic, readwrite) BOOL isReplayRequest;
+@end
+
+@interface MSIDOnboardingStatusCache ()
+@property (nonatomic) id<MSIDExtendedTokenCacheDataSource> dataSource;
+@end
+
+#pragma mark - Throttling-refresh fake
+
+@interface MSIDFakeThrottlingRefresher : NSObject <MSIDThrottlingRefreshing>
+@property (class, nonatomic, assign) NSInteger callCount;
+@end
+
+@implementation MSIDFakeThrottlingRefresher
+
+static NSInteger gFakeThrottlingCallCount = 0;
+
++ (NSInteger)callCount { return gFakeThrottlingCallCount; }
++ (void)setCallCount:(NSInteger)value { gFakeThrottlingCallCount = value; }
+
++ (BOOL)updateLastRefreshTimeDatasource:(__unused id<MSIDExtendedTokenCacheDataSource>)datasource
+                                context:(__unused id<MSIDRequestContext>)context
+                                  error:(__unused NSError *__autoreleasing *)error
+{
+    gFakeThrottlingCallCount++;
+    return YES;
+}
+
+@end
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
+
+@property (nonatomic) MSIDTestCacheDataSource *testCacheDataSource;
+@property (nonatomic) id<MSIDExtendedTokenCacheDataSource> originalOnboardingDataSource;
 
 @end
 
@@ -64,10 +117,16 @@
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
 
     [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:MSID_BROKER_SYMMETRIC_KEY_TAG];
+    
+    self.testCacheDataSource = [MSIDTestCacheDataSource new];
+    self.originalOnboardingDataSource = MSIDOnboardingStatusCache.sharedInstance.dataSource;
+    MSIDOnboardingStatusCache.sharedInstance.dataSource = self.testCacheDataSource;
 }
 
 - (void)tearDown
 {
+    [MSIDTestSwizzle reset];
+    [[MSIDDIContainer sharedInstance] reset];
     // Clear keychain
     NSDictionary *query = @{(id)kSecClass : (id)kSecClassKey,
                             (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric};
@@ -79,6 +138,11 @@
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    [MSIDApplicationTestUtil reset];
+    [self.testCacheDataSource reset];
+    MSIDOnboardingStatusCache.sharedInstance.dataSource = self.originalOnboardingDataSource;
+    [MSIDBrokerInteractiveController setCurrentBrokerController:nil];
+    [MSIDBrokerInteractiveController setCurrentBrokerRequest:nil];
     [super tearDown];
 }
 
@@ -226,6 +290,72 @@
         XCTAssertNotNil(brokerEvent[@"start_time"]);
         XCTAssertNotNil(brokerEvent[@"stop_time"]);
 
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenSuccessfulBrokerResponse_shouldUpdateThrottleLastRefresh
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+    
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+    
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+        [receivedEvents addObject:event];
+    }];
+    
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+    
+    // Setup test request providers
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_broker_success";
+       
+    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                              defaultAccessor:[MSIDDefaultTokenCacheAccessor new]
+                                                                                      accountMetadataAccessor:[MSIDAccountMetadataCacheAccessor new]
+                                                                                       tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                                                 tokenRequestProvider:provider
+                                                                                                                   fallbackController:nil
+                                                                                                                                error:&error];
+    
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+    
+    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+    
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:@"com.microsoft.azureauthenticator"
+                                        brokerResponseHandler:brokerResponseHandler];
+        return YES;
+    }];
+    
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    MSIDFakeThrottlingRefresher.callCount = 0;
+    [[MSIDDIContainer sharedInstance]
+        registerProtocol:@protocol(MSIDThrottlingRefreshing)
+                lifetime:MSIDDIContainerLifetimeSingleton
+                 factory:^id { return (id)[MSIDFakeThrottlingRefresher class]; }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    [brokerController acquireToken:^(__unused MSIDTokenResult * _Nullable result, __unused NSError * _Nullable acquireTokenError) {
+
+        XCTAssertEqual(MSIDFakeThrottlingRefresher.callCount, 1);
         [expectation fulfill];
     }];
 
@@ -1030,6 +1160,601 @@
 
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken, testResult.accessToken);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+#endif
+
+#if !AD_BROKER
+- (void)testAcquireToken_whenFailedToLaunchBrokerWhileAppIsInactive_andNoFallbackController_shouldErrorOutWithCorrectCode
+{
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:nil];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
+                                                                                                                 tokenRequestProvider:provider
+                                                                                                                   fallbackController:nil
+                                                                                                                                error:&error];
+    
+    [MSIDTestSwizzle instanceMethod:@selector(applicationState)
+                              class:[UIApplication class]
+                              block:(id)^(void)
+    {
+        return UIApplicationStateInactive;
+    }];
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options)
+    {
+
+        XCTAssertEqualObjects(url, brokerRequestURL);
+        return NO;
+    }];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Failed with inactive error code"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable __unused result, NSError * _Nullable acquireTokenError) {
+
+        if (acquireTokenError.code == MSIDErrorBrokerAppIsInactive)
+        {
+            [expectation fulfill];
+        }
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenFailedToLaunchBrokerWhileAppIsInBackground_andNoFallbackController_shouldErrorOutWithCorrectCode
+{
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:nil];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
+                                                                                                                 tokenRequestProvider:provider
+                                                                                                                   fallbackController:nil
+                                                                                                                                error:&error];
+    
+    [MSIDTestSwizzle instanceMethod:@selector(applicationState)
+                              class:[UIApplication class]
+                              block:(id)^(void)
+    {
+        return UIApplicationStateBackground;
+    }];
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options)
+    {
+
+        XCTAssertEqualObjects(url, brokerRequestURL);
+        return NO;
+    }];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Failed with background error code"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable __unused result, NSError * _Nullable acquireTokenError) {
+
+        if (acquireTokenError.code == MSIDErrorBrokerAppIsInBackground)
+        {
+            [expectation fulfill];
+        }
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+#endif
+
+#pragma mark - Onboarding Status Tests
+
+- (void)testAcquireToken_whenBrokerRequestSent_shouldSetOnboardingStatusInCache
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=onboarding1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        MSIDOnboardingStatus *inFlightStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        XCTAssertNotNil(inFlightStatus);
+        XCTAssertEqual(inFlightStatus.phase, MSIDOnboardingPhaseBrokerInteractiveInProgress);
+        XCTAssertNotNil(inFlightStatus.correlationId);
+
+        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                        brokerResponseHandler:brokerResponseHandler];
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNotNil(result);
+        XCTAssertNil(acquireTokenError);
+
+        MSIDOnboardingStatus *cachedStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        XCTAssertNotNil(cachedStatus);
+        XCTAssertEqual(cachedStatus.phase, MSIDOnboardingPhaseNone);
+        XCTAssertNil(cachedStatus.correlationId);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenOpenURLFails_clearsOnboardingStatusFromCache
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=onboarding2"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        return NO;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token open URL failure"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+
+        MSIDOnboardingStatus *cachedStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        XCTAssertEqual(cachedStatus.phase, MSIDOnboardingPhaseNone);
+        XCTAssertNil(cachedStatus.correlationId);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenCompletedSuccessfully_shouldClearCurrentBrokerRequest
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=clearreq1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+
+    __block BOOL brokerRequestWasSetBeforeCompletion = NO;
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+
+        // Before completion, currentBrokerRequest should be set
+        brokerRequestWasSetBeforeCompletion = ([MSIDBrokerInteractiveController currentBrokerRequest] != nil);
+
+        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                        brokerResponseHandler:brokerResponseHandler];
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNotNil(result);
+        XCTAssertNil(acquireTokenError);
+        XCTAssertTrue(brokerRequestWasSetBeforeCompletion);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    // After completion unwinds, currentBrokerRequest and controller should be cleared
+    XCTAssertNil([MSIDBrokerInteractiveController currentBrokerRequest]);
+    XCTAssertNil([MSIDBrokerInteractiveController currentBrokerController]);
+}
+
+- (void)testAcquireToken_whenFailedToLaunchBroker_shouldClearCurrentBrokerRequest
+{
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=clearreq2"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:nil];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
+                                                                                                                  tokenRequestProvider:provider
+                                                                                                                    fallbackController:nil
+                                                                                                                                 error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        return NO;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+
+        // currentBrokerRequest should be cleared on failure
+        XCTAssertNil([MSIDBrokerInteractiveController currentBrokerRequest]);
+        XCTAssertNil([MSIDBrokerInteractiveController currentBrokerController]);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+#if !AD_BROKER
+- (void)testAcquireToken_whenBrokerResponseNotReceived_andOnboardingStatusMatches_shouldReplayRequest
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    // Enable broker invocation so canPerformRequest: returns YES
+    [MSIDApplicationTestUtil setCanOpenURLSchemes:@[@"msauthv2", @"msauthv3"]];
+    parameters.brokerInvocationOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                           protocolType:MSIDBrokerProtocolTypeUniversalLink
+                                                                                      aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=replay1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+
+    __block int openURLCallCount = 0;
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        openURLCallCount++;
+
+        if (openURLCallCount == 1)
+        {
+            // First call: original request to broker; verify no ignore_broker_request param
+            XCTAssertNil([url msidQueryParameters][MSID_IGNORE_BROKER_REQUEST]);
+
+            // Simulate broker not responding - app returns to foreground
+            [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+        }
+        else if (openURLCallCount == 2)
+        {
+            // Second call: replayed request should contain ignore_broker_request=1
+            XCTAssertEqualObjects([url msidQueryParameters][MSID_IGNORE_BROKER_REQUEST], @"1");
+
+            // Now simulate broker responding successfully
+            MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+            [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                                sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                            brokerResponseHandler:brokerResponseHandler];
+        }
+
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNotNil(result);
+        XCTAssertNil(acquireTokenError);
+        XCTAssertEqual(openURLCallCount, 2);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:2.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenBrokerResponseNotReceived_andOnboardingPhaseDoesNotMatch_shouldReturnError
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=noreplay1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+
+        // Manually overwrite onboarding status to a non-matching phase before simulating return
+        MSIDOnboardingStatus *nonMatchingStatus = [MSIDOnboardingStatus new];
+        nonMatchingStatus.phase = MSIDOnboardingPhaseNone;
+        [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:nonMatchingStatus];
+
+        // Simulate broker not responding
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorBrokerResponseNotReceived);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenBrokerResponseNotReceived_andOriginatingBundleIdDoesNotMatch_shouldReturnError
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=noreplay2"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+
+        // Overwrite onboarding status with a different originatingBundleId to simulate
+        // a status saved by another application. Use JSON initializer since originatingBundleId is readonly.
+        NSDictionary *mismatchedStatusJson = @{
+            @"phase": [MSIDOnboardingStatus stringFromPhase:MSIDOnboardingPhaseBrokerInteractiveInProgress],
+            @"context": [MSIDOnboardingStatus stringFromContext:MSIDOnboardingContextBroker],
+            @"ownerBundleId": @"com.microsoft.azureauthenticator",
+            @"originatingBundleId": @"com.microsoft.otherapp",
+            @"correlationId": @"00000000-1234-abcd-0000-000000000000"
+        };
+        MSIDOnboardingStatus *mismatchedStatus = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:mismatchedStatusJson error:nil];
+        [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:mismatchedStatus];
+
+        // Simulate broker not responding - app returns to foreground
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorBrokerResponseNotReceived);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenBrokerResponseError_shouldSetOnboardingPhaseToFailed
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=onboardingerror1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, 123456789, @"Test broker error", nil, nil, nil, parameters.correlationId, nil, YES);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+
+        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:nil testError:testError];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                        brokerResponseHandler:brokerResponseHandler];
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+
+        // Verify onboarding status phase is set to Failed on error
+        MSIDOnboardingStatus *cachedStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        XCTAssertNotNil(cachedStatus);
+        XCTAssertEqual(cachedStatus.phase, MSIDOnboardingPhaseFailed);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenBrokerResponseSuccess_shouldClearOnboardingStatus
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=onboardingsuccess1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:MSID_BROKER_APP_BUNDLE_ID
+                                        brokerResponseHandler:brokerResponseHandler];
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNotNil(result);
+        XCTAssertNil(acquireTokenError);
+
+        // Verify onboarding status was cleared on success
+        MSIDOnboardingStatus *cachedStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
+        XCTAssertNotNil(cachedStatus);
+        XCTAssertEqual(cachedStatus.phase, MSIDOnboardingPhaseNone);
+        XCTAssertNil(cachedStatus.correlationId);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenBrokerResponseNotReceived_andOnboardingContextNotBroker_shouldReturnError
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=noreplay3"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+
+        // Overwrite onboarding status with a different context (not broker) to prevent replay
+        NSDictionary *mismatchedContextJson = @{
+            @"phase": [MSIDOnboardingStatus stringFromPhase:MSIDOnboardingPhaseBrokerInteractiveInProgress],
+            @"context": [MSIDOnboardingStatus stringFromContext:MSIDOnboardingContextInAppWebview],
+            @"ownerBundleId": @"com.microsoft.azureauthenticator",
+            @"originatingBundleId": [[NSBundle mainBundle] bundleIdentifier] ?: @"xctest",
+            @"correlationId": @"00000000-1234-abcd-0000-000000000000"
+        };
+        MSIDOnboardingStatus *mismatchedContextStatus = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:mismatchedContextJson error:nil];
+        [[MSIDOnboardingStatusCache sharedInstance] setWithStatus:mismatchedContextStatus];
+
+        // Simulate broker not responding - app returns to foreground
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorBrokerResponseNotReceived);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenBrokerResponseNotReceived_andCanPerformRequestReturnsFalse_shouldReturnError
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    // brokerInvocationOptions is not set, so canPerformRequest: will return NO
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=noreplay4"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+
+        // Simulate broker not responding - app returns to foreground
+        // Onboarding status will match, but canPerformRequest should return NO
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorBrokerResponseNotReceived);
 
         [expectation fulfill];
     }];

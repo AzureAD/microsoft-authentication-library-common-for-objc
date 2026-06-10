@@ -66,13 +66,14 @@
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
-    response.deviceInfo = [[MSIDDeviceInfo alloc] initWithDeviceMode:MSIDDeviceModeShared ssoExtensionMode:MSIDSSOExtensionModeSilentOnly isWorkPlaceJoined:YES brokerVersion:@"1.2.3"];
+    response.deviceInfo = [[MSIDDeviceInfo alloc] initWithDeviceMode:MSIDDeviceModeShared ssoExtensionMode:MSIDSSOExtensionModeSilentOnly isWorkPlaceJoined:YES brokerVersion:@"1.2.3" ssoProviderType:MSIDCompanyPortalSsoProvider];
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(9, json.allKeys.count);
+    XCTAssertEqual(11, json.allKeys.count);
+    XCTAssertEqualObjects(json[MSID_SSO_PROVIDER_TYPE_KEY], @"companyPortal");
 #else
-    XCTAssertEqual(8, json.allKeys.count);
+    XCTAssertEqual(9, json.allKeys.count);
 #endif
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"operation"], @"login");
@@ -82,6 +83,7 @@
     XCTAssertEqualObjects(json[MSID_BROKER_SSO_EXTENSION_MODE_KEY], @"silent_only");
     XCTAssertEqualObjects(json[MSID_BROKER_WPJ_STATUS_KEY], @"joined");
     XCTAssertEqualObjects(json[MSID_BROKER_BROKER_VERSION_KEY], @"1.2.3");
+    XCTAssertEqualObjects(json[MSID_BROKER_PREFERRED_AUTH_CONFIGURATION_KEY], @"preferredAuthNotConfigured");
 }
 
 - (void)testJsonDictionary_whenRequiredPropertiesSet_shouldReturnJson
@@ -92,9 +94,10 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(7, json.allKeys.count);
+    XCTAssertEqual(9, json.allKeys.count);
+    XCTAssertEqualObjects(json[MSID_SSO_PROVIDER_TYPE_KEY], @"unknown");
 #else
-    XCTAssertEqual(6, json.allKeys.count);
+    XCTAssertEqual(7, json.allKeys.count);
 #endif
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"test_response");

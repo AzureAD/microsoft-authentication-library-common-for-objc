@@ -83,7 +83,7 @@
 
 #pragma mark - JSON
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError *__autoreleasing*)error
 {
     if (!(self = [super init]))
     {

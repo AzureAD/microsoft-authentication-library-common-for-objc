@@ -327,4 +327,9 @@
     return [NSString stringWithFormat:@"<%@: %@>", NSStringFromClass(self.class), _requestURL];
 }
 
+- (void)setError:(NSError *)error
+{
+    _error = error;
+}
+
 @end

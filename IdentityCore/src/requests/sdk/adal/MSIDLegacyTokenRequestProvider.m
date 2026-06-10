@@ -81,7 +81,7 @@
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
                                                       sdkCapabilities:(NSArray *)sdkCapabilities
-                                                                error:(NSError * _Nullable * _Nullable)error
+                                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     return [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters
                                                                  brokerKey:brokerKey
@@ -92,14 +92,25 @@
 
 - (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
 {
-    // TODO: not implemented yet.
+    // Not supported
+    return nil;
+}
+
+- (MSIDInteractiveTokenRequest *)interactiveXpcTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+{
+    // Not supported
     return nil;
 }
 
 - (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters
                                                             forceRefresh:(__unused BOOL)forceRefresh
 {
-    // TODO: not implemented yet.
+    // Not supported
+    return nil;
+}
+
+- (nullable MSIDSilentTokenRequest *)silentXpcTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters forceRefresh:(BOOL)forceRefresh { 
+    // Not supported
     return nil;
 }
 

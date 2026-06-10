@@ -220,6 +220,17 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitAADAuthority_whenAADAuthorityWithTenantAndEQP_shouldReturnNormalizedAuthorityUrl
+{
+    __auto_type authorityUrl = [@"https://login.microsoftonline.com/common/qwe?bad=param" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+
+    XCTAssertEqualObjects(authority.url, [@"https://login.microsoftonline.com/common" msidUrl]);
+    XCTAssertNil(error);
+}
+
 - (void)testInitAADAuthority_whenAADAuthorityWithTenantAndSlash_shouldReturnNormalizedAuthority
 {
     __auto_type authorityUrl = [@"https://login.microsoftonline.com/common/" msidUrl];
@@ -511,7 +522,19 @@
     authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.de/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
-    
+
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.sovcloud-identity.fr/common"];
+    authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    XCTAssertTrue([authority isKnown]);
+
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.sovcloud-identity.de/common"];
+    authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    XCTAssertTrue([authority isKnown]);
+
+    authorityUrl = [[NSURL alloc] initWithString:@"https://login.sovcloud-identity.sg/common"];
+    authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    XCTAssertTrue([authority isKnown]);
+
     authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common"];
     authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     XCTAssertTrue([authority isKnown]);
@@ -733,6 +756,29 @@
     NSURL *urlFromDifferentCloud = [NSURL URLWithString:@"https://login.partner.microsoftonline.cn/oauth2/v2.0/token"];
     XCTAssertFalse([authority checkTokenEndpointForRTRefresh:urlFromDifferentCloud]);
 }
+
+#pragma mark - needsUpdateToHomeAuthority
+- (void)testNeedsUpdateToHomeAuthority_common_shouldReturnTrue
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    XCTAssertTrue([authority needsUpdateToHomeAuthority:NO]);
+}
+- (void)testNeedsUpdateToHomeAuthority_organizations_nonMSATenant_shouldReturnTrue
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/organizations" aadAuthority];
+    XCTAssertTrue([authority needsUpdateToHomeAuthority:NO]);
+}
+- (void)testNeedsUpdateToHomeAuthority_organizations_MSATenant_shouldReturnFalse
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/organizations" aadAuthority];
+    XCTAssertFalse([authority needsUpdateToHomeAuthority:YES]);
+}
+- (void)testNeedsUpdateToHomeAuthority_consumers_shouldReturnTrue
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/consumers" aadAuthority];
+    XCTAssertTrue([authority needsUpdateToHomeAuthority:NO]);
+}
+
 
 #pragma mark - Private
 

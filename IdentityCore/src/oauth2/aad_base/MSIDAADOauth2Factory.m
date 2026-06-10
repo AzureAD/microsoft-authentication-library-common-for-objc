@@ -50,7 +50,7 @@
 
 - (BOOL)checkResponseClass:(MSIDTokenResponse *)response
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     if (![response isKindOfClass:[MSIDAADTokenResponse class]])
     {
@@ -71,7 +71,7 @@
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                      context:(__unused id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+                                       error:(NSError *__autoreleasing*)error
 {
     return [[MSIDAADTokenResponse alloc] initWithJSONDictionary:json error:error];
 }

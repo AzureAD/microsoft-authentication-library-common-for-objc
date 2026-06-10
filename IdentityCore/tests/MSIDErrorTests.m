@@ -195,4 +195,44 @@
     XCTAssertEqual(MSIDErrorCodeForOAuthErrorWithSubErrorCode(errorWithInvalidGrantWithOutTransferTokenExpired.userInfo[MSIDOAuthErrorKey], MSIDErrorUserCancel,errorWithInvalidGrantWithOutTransferTokenExpired.userInfo[MSIDOAuthSubErrorKey]), MSIDErrorServerInvalidGrant);
 }
 
+- (void)testMSIDErrorWithInvalidRequestAndSTS50142ShouldReturnResetPasswordRequired
+{
+    MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_request",
+                                                                       MSIDErrorServerOauth,
+                                                                       @[@50142]);
+    XCTAssertEqual(result, MSIDErrorServerInvalidRequestResetPasswordRequired);
+}
+
+- (void)testMSIDErrorWithInvalidRequestAndMultipleErrorsWithSTS50142ShouldReturnResetPasswordRequired
+{
+    MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_request",
+                                                                       MSIDErrorServerOauth,
+                                                                       @[@50142, @99999, @51410]);
+    XCTAssertEqual(result, MSIDErrorServerInvalidRequestResetPasswordRequired);
+}
+
+- (void)testMSIDErrorWithInvalidRequestAndDifferentSTSCodeShouldReturnInvalidRequest
+{
+    MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_request",
+                                                                       MSIDErrorServerOauth,
+                                                                       @[@99999]);
+    XCTAssertEqual(result, MSIDErrorServerInvalidRequest);
+}
+
+- (void)testMSIDErrorWithNilSTSCodesShouldFallbackToBaseFunction
+{
+    MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_request",
+                                                                       MSIDErrorServerOauth,
+                                                                       nil);
+    XCTAssertEqual(result, MSIDErrorServerInvalidRequest);
+}
+
+- (void)testMSIDErrorWithEmptySTSCodesShouldFallbackToBaseFunction
+{
+    MSIDErrorCode result = MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(@"invalid_request",
+                                                                       MSIDErrorServerOauth,
+                                                                       @[]);
+    XCTAssertEqual(result, MSIDErrorServerInvalidRequest);
+}
+
 @end

@@ -40,7 +40,7 @@
 #import "MSIDLastRequestTelemetry.h"
 #endif
 
-@interface MSIDSSOExtensionSignoutRequest() <ASAuthorizationControllerPresentationContextProviding, ASAuthorizationControllerDelegate>
+@interface MSIDSSOExtensionSignoutRequest() <ASAuthorizationControllerDelegate>
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic, copy) MSIDSignoutRequestCompletionBlock requestCompletionBlock;
@@ -98,12 +98,6 @@
             
             __typeof__(self) strongSelf = weakSelf;
             
-#if !EXCLUDE_FROM_MSALCPP
-            [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
-                                                requestStartDate:strongSelf.requestSentDate
-                                                   telemetryType:MSID_PERF_TELEMETRY_SIGNOUT_TYPE];
-#endif
-            
             MSIDSignoutRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
             strongSelf.requestCompletionBlock = nil;
             
@@ -143,6 +137,7 @@
     signoutRequest.clearSSOExtensionCookies = self.clearSSOExtensionCookies;
     signoutRequest.wipeAccount = self.shouldWipeAccount;
     signoutRequest.wipeCacheForAllAccounts = self.shouldWipeCacheForAllAccounts;
+    signoutRequest.clientBrokerKeyCapabilityNotSupported = self.requestParameters.clientBrokerKeyCapabilityNotSupported;
     
     [MSIDBrokerOperationRequest fillRequest:signoutRequest
                         keychainAccessGroup:self.requestParameters.keychainAccessGroup
@@ -168,33 +163,9 @@
     
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
-    self.authorizationController.presentationContextProvider = self;
     self.requestSentDate = [NSDate date];
-    [self.authorizationController msidPerformRequests];
-    
     self.requestCompletionBlock = completionBlock;
-}
-
-#pragma mark - ASAuthorizationControllerPresentationContextProviding
-
-- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(__unused ASAuthorizationController *)controller
-{
-    return [self presentationAnchor];
-}
-
-- (ASPresentationAnchor)presentationAnchor
-{
-    if (![NSThread isMainThread])
-    {
-        __block ASPresentationAnchor anchor;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            anchor = [self presentationAnchor];
-        });
-        
-        return anchor;
-    }
-    
-    return self.requestParameters.parentViewController.view.window;
+    [self.authorizationController msidPerformRequests];
 }
 
 #pragma mark - AuthenticationServices

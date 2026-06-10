@@ -59,7 +59,7 @@
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                         returnOnlySignedInAccounts:(BOOL)returnOnlySignedInAccounts
-                                             error:(NSError * _Nullable * _Nullable)error
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super init];
     
@@ -103,12 +103,6 @@
             
             __typeof__(self) strongSelf = weakSelf;
             
-#if !EXCLUDE_FROM_MSALCPP
-            [operationResponse trackPerfTelemetryWithLastRequest:strongSelf.lastRequestTelemetry
-                                                requestStartDate:strongSelf.requestSentDate
-                                                   telemetryType:MSID_PERF_TELEMETRY_GETACCOUNTS_TYPE];
-#endif
-            
             MSIDGetAccountsRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
             strongSelf.requestCompletionBlock = nil;
             
@@ -148,9 +142,9 @@
     self.authorizationController.delegate = self.extensionDelegate;
     
     self.requestSentDate = [NSDate date];
-    [self.authorizationController msidPerformRequests];
-    
+
     self.requestCompletionBlock = completionBlock;
+    [self.authorizationController msidPerformRequests];
 }
 
 #pragma mark - AuthenticationServices

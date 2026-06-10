@@ -1,3 +1,234 @@
+TBD
+* Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release. Self-heal cache eviction on conformance failure; release-mode fallback test via NSAssertionHandler swap.
+
+Version 1.24.1
+* Fix visionOS build failure: add visionos(2.0) availability annotation
+* Remove sessionCorrelationId persistence code not required
+
+Version 1.24.0
+* Add MSIDDIContainer dependency-injection container for swizzle-free test seams. (#1807)
+* Add Delos and GovSG sovereign cloud authorities as trusted hosts. (#1813)
+* Add onboarding telemetry support for broker and 1p apps. (#1811)
+* Add device token grant request/response handlers. (#1801)
+* Improve UI tests performance #1805
+* Close cookies popup in automation tests #1814
+* Exclude swift files from macOS targets #1827
+* Propagate client_data from broker error response for legacy broker support (#1834)
+
+Version 1.23.1
+* Support saving and removing requestedClaims for ATs in mac legacy (ACL) cache (#1783)
+
+Version 1.23.0
+* Clean up the experiment bag for HTTP requests and attempt to resolve the reported crash. (#1757)
+* Remove 4-hour XPC canPerform status cache and XPC roundtrip (#1771)
+* Add HttpRequest interceptor (#1759)
+* Cache and reuse broker XPC instance endpoint to skip dispatcher round-trip (gated by broker_xpc_instance_cache_enabled flight, default OFF).
+
+Version 1.22.0
+* Import the right bridging header when common-core is consumed as submodule 
+* Add retry logic when bound app refresh token redemption fails.
+* Captures the x-ms-clientData HTTP response header from ESTS & MSTS and supports client data from redirect uri (#1699)
+* Aligned Init Logic for Get Token API With Documentation (#1698)
+* Strip eqp from CIAM authority #1714
+* Add French sovereign cloud authority as a trusted authority (#1731)
+* Serialize `is_sso_account` as NSString instead of NSNumber in MSIDAccount
+
+Version 1.21.0
+* Import the right bridging header when common-core is consumed as submodule  (#1678)
+
+Version 1.20.0
+* Add token request execution flow logger (#1655)
+
+Version 1.19.1
+* Support POP and claims in browser core
+
+Version 1.19.0
+* Add logic to save bound app RT only when token response has refresh_token_type=bound_app_rt
+* Filter Bound app RTs when reg deviceId doesn't match
+* Mandate redirect_uri in Bound app refresh token redemption
+* Default account API (#1642)
+
+Version 1.18.0
+* Silent token request should use FRT first when single FRT is enabled #1624
+* Use autolayout for loading indicator #1628
+* Add thread starvation detector for SsoExt silent token flow guarded by flight #1622
+
+Version 1.17.2
+* Fix getting cached accounts from RTs when RT was Bound App RT 
+
+Version 1.17.1
+* Ability to decrypt Bound app refresh token response (#1572)
+* Read Bound app refresh token from server response #1604
+* Add BART token request classes. Add BART token response decryption classes #1620
+
+Version 1.17.0
+* Add flag to indicate app is requesting broker for Bound app RT #1578
+* Add category for redeeming a Bound application refresh token #1565
+
+Version 1.16.2
+* Update with changes from 1.15.3
+
+Version 1.16.1
+* Allow duna external idp on MacOs #1593
+
+Version 1.16.0
+* Filter based Flighting capabilities (#1580)
+* Filter based Flighting for DUNA feature (#1580)
+
+Version 1.15.3
+* Fix issue with legacy keychain on macOS.
+
+Version 1.15.2
+* Feature flag gating STK querying and getting rid of category for its setter. (#1586)
+
+Version 1.15.1
+* Allow cookies in duna resume request #1574
+
+Version 1.15.0
+* Query and populate ECC STK in Workplacejoin information for iOS (#1555)
+* Return MATS blob for GetToken api response #1551 
+* Introduce a class and cache item class to represent bound refresh tokens (#1548)
+* Parse sign out correlation id #1563
+
+Version 1.14.0
+* Added state validation to DUNA flow (#1543)
+
+Version 1.13.0
+* Improve logic for checking camera consent suppression flags (#1538)
+* Fix a potential crash related to webview in iOS26 (#1537)
+* Improve JIT troubleshooting in legacy auth flow (#1535)
+* Added ephemeral browser session to DUNA (#1534)
+
+Version 1.12.1
+* Remove a line that could cause crash when XPC service refuse to take the incoming connection (#1566)
+* Resolve UBSan issue due to Xpc protocol I/O  (#1566)
+
+Version 1.12.0
+* Add classes to define jwe_crypto and APV (#1522)
+* Add Request class to get nonce from server (#1525)
+* Fix crash when adding existing RT on interactive calls (#1528)
+* Disable preferred identity in CBA flow (#1529)
+* Update minimum version to iOS 16.0 and MacOS 11.0 (#1524)
+
+Version 1.11.0
+* Use a single family refresh token (#1470)
+* Improve browser core logs #1506
+
+Version 1.10.0
+* Fix resume response handling in DUNA #1493
+* Update supported contracts api #1492
+* Add feature flags provider to be controlled from broker (#1489)
+
+Version 1.9.1
+* Cherry pick DUNA "resume" action fix #1496
+
+Version 1.9.0
+* Remove MSAL perf telemetry as it's causing issue after SSO extension broker first strategy change (#1481)
+* Support DUNA protocol for CBA flow #1473
+
+Version 1.8.0
+* Make hashed ups in logs case insensitive (#1446)
+* Add new psso error (#1471)
+* Add PSSO registration needs repair status in getDeviceInfo psso status (#1465)
+* Suppress camera consent prompt in embedded webview when configured (#1464)
+* Fix crash due to null value being added to set (#1461)
+* Add new errors for passkey biometric policy mismatch (#1462)
+
+Version 1.7.44
+* Merge 1.7.42-hotfix
+
+Version 1.7.43
+* Support web_page_uri #1440
+* Save error received from ESTS, and return it to the client on silent broker calls (#1438)
+* XPC CommonCore Minor change to support broker XPC changes (#1436)
+* Assign completion block before perform request (#1434)
+
+Version 1.7.42-hotfix
+* Add support of "lookup" mode in broker #1450
+* Support web_page_uri #1440
+
+Version 1.7.42
+* Support extra query parameters on signout (#1243)
+* Wrap ASAuthorizationProviderExtensionAuthorizationRequest methods (#1427)
+* Replace deprecated method UIApplication.openURL(_:) (#1424)
+* Add support to attach PRT during cross cloud authentication (#1431)
+
+Version 1.7.41
+* VisionOS support added to IdentityCore (#1412)
+* Fix a minor crash case regarding telemetry (#1418)
+* Add GetSupportedContacts API (#1421)
+* Parse and add STS error codes in token error result (#1417)
+* Add canShowUI property to GetToken request (#1415)
+
+Version 1.7.40
+* Increased macOS minimum version to 10.15 (#2220)
+
+Version 1.7.39
+* Fix cert auth invalid request (hotfix) (#1409)
+
+Version 1.7.38
+* Migrate existing devices using UpgradeReg API - Error definitions (#1376)
+* Add MSIDThrottlingCacheHitKey flag when returning error from throttling's cache (#1393)
+* Update device register to include a new hint for token protection (#1394)
+* prt recovery fix , add recovery attempt count and recovery fail status to prt object(#1395)
+
+Version 1.7.37
+* Added new account type to handle On-prem ADFS scenarios. (#1397)
+
+Version 1.7.36
+* Add platform sequence telemetry param. (#1378)
+* Update broker automations lab API. (#1377)
+* Fix incorrect constant name without MSID prefix. (#1374)
+
+Version 1.7.35
+* Include email as scope returned if it was requested and server did not include it. (#1364)
+* Fix throttling bug in fallback legacy broker interactive controller. (#1371)
+* Fix crash in cert chooser (#1344).
+* Add a new retry condition when request is idle and timeout(#1367).
+
+Version 1.7.34
+* Ignore local cache in broker request
+
+Version 1.7.33
+* Implement support for Custom URL Domains (CUD) for CIAM authorities (#1347)
+* Support for QR+PIN (#1317)
+
+Version 1.7.32-b
+* Fix pkey auth after server side removal of registration to use isDeviceRegistered flag from ssoContext
+
+Version 1.7.32-a
+* Fix pkey auth for server side removal case
+
+Version 1.7.32
+* Implement sign out request for browser sso #1328
+
+Version 1.7.31
+* Add additional error codes for PSSO KeyId mismatch (#1322)
+
+Version 1.7.30
+* ADD get token operation for BrowserCore (#1293)
+* Add support to get Passkey assertion and credentials (#1306)
+* Update key auth to use current keys on sonoma (#1312)
+* Map broker version to existing token result value (#1314)
+
+Version 1.7.29
+* Introduce a way to inject external WKWebviewConfiguration for MSIDWebviewUIController - needed for MSAL C++ (#1308)
+
+Version 1.7.28
+* Report WPJ v2 telemetry capability. (#1297)
+* Add separate error code for OneAuth telemetry purpose (#1292)
+* Logging improvements (#1290)
+* Rename some internal macro (#1300)
+* Added ccs request id flag (#1296)
+
+Version 1.7.27
+* Expose APIs for manually setting time_Interval for request and session resource. (#1288)
+
+Version 1.7.26
+* Stop sending web auth start notifications for certain redirects. (#1280)
+* Add native message sso ext request. (#1253)
+* Filter expired certs in the certificate picker (#1278)
+
 Version 1.7.25
 * Update broker redirect_uri validation with more information in invalid scenario (#1264)
 
@@ -6,6 +237,7 @@ Version 1.7.24
 
 Version 1.7.23
 * Added code that removes expired AT for Apple storage.
+* Filter expired certs in the certificate picker (#1278)
 
 Version 1.7.22
 * Remove references to deprecated api. (#1252)

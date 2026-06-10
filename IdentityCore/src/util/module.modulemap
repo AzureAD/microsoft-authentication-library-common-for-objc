@@ -1,0 +1,5 @@
+framework module IdentityCore {
+  umbrella header "IdentityCore.pch"
+  export *
+  module * { export * }
+}

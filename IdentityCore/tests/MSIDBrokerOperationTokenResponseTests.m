@@ -51,6 +51,7 @@
     tokenResponse.idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                       subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
     __auto_type response = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
+    response.deviceInfo.ssoProviderType = MSIDMacBrokerSsoProvider;;
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
@@ -61,9 +62,10 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(21, json.allKeys.count);
+    XCTAssertEqual(23, json.allKeys.count);
+    XCTAssertEqualObjects(json[@"sso_provider_type"], @"macBroker");
 #else
-    XCTAssertEqual(20, json.allKeys.count);
+    XCTAssertEqual(21, json.allKeys.count);
 #endif
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
@@ -86,6 +88,7 @@
     XCTAssertEqualObjects(json[@"device_mode"], @"personal");
     XCTAssertEqualObjects(json[@"sso_extension_mode"], @"full");
     XCTAssertEqualObjects(json[@"wpj_status"], @"notJoined");
+    XCTAssertEqualObjects(json[@"preferred_auth_config"], @"preferredAuthNotConfigured");
 }
 
 - (void)testJsonDictionary_whenNoAdditionalTokenResponseForSuccessResponse_shouldReturnJson
@@ -107,9 +110,9 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(20, json.allKeys.count);
+    XCTAssertEqual(22, json.allKeys.count);
 #else
-    XCTAssertEqual(19, json.allKeys.count);
+    XCTAssertEqual(20, json.allKeys.count);
 #endif
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
@@ -125,6 +128,7 @@
     XCTAssertEqualObjects(json[@"scope"], @"scope 1");
     XCTAssertEqualObjects(json[@"success"], @"1");
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
+    XCTAssertEqualObjects(json[@"preferred_auth_config"], @"preferredAuthNotConfigured");
 }
 
 - (void)testJsonDictionary_whenNoAuthorityForSuccessResponse_shouldReturnNil
@@ -179,9 +183,9 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(20, json.allKeys.count);
+    XCTAssertEqual(22, json.allKeys.count);
 #else
-    XCTAssertEqual(19, json.allKeys.count);
+    XCTAssertEqual(20, json.allKeys.count);
 #endif
 
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
@@ -200,6 +204,7 @@
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
     XCTAssertEqualObjects(json[@"additional_token_reponse"],
     @"{\"access_token\":\"access_token\",\"expires_in\":\"300\",\"expires_on\":\"0\",\"ext_expires_in\":\"0\",\"ext_expires_on\":\"0\",\"id_token\":\"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ\",\"provider_type\":\"provider_aad_v2\",\"refresh_in\":\"0\",\"refresh_on\":\"0\",\"scope\":\"scope 1\",\"token_type\":\"Bearer\"}");
+    XCTAssertEqualObjects(json[@"preferred_auth_config"], @"preferredAuthNotConfigured");
 }
 
 - (void)testJsonDictionary_whenNoAdditionalTokenResponseForFailureResponse_shouldReturnJson
@@ -219,9 +224,9 @@
     
     NSDictionary *json = [response jsonDictionary];
 #if TARGET_OS_OSX
-    XCTAssertEqual(19, json.allKeys.count);
+    XCTAssertEqual(21, json.allKeys.count);
 #else
-    XCTAssertEqual(18, json.allKeys.count);
+    XCTAssertEqual(19, json.allKeys.count);
 #endif
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
@@ -237,6 +242,7 @@
     XCTAssertEqualObjects(json[@"scope"], @"scope 1");
     XCTAssertEqualObjects(json[@"success"], @"0");
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
+    XCTAssertEqualObjects(json[@"preferred_auth_config"], @"preferredAuthNotConfigured");
 }
 
 - (void)testJsonDictionary_whenNoTokenResponseForFailureResponse_shouldReturnNil

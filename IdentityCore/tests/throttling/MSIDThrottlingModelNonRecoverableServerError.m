@@ -29,6 +29,39 @@
 #import "NSError+MSIDExtensions.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDThrottlingMetaDataCache.h"
+#import "MSIDThrottlingMetaDataReading.h"
+#import "MSIDDIContainer.h"
+
+#pragma mark - Throttling metadata-reader fake
+
+@interface MSIDThrottlingModelTestFakeMetaDataReader : NSObject <MSIDThrottlingMetaDataReading>
+@property (class, nonatomic, copy, nullable) NSDate *nextLastRefreshTime;
+@end
+
+@implementation MSIDThrottlingModelTestFakeMetaDataReader
+
+static NSDate *gModelTestFakeLastRefreshTime = nil;
+
++ (NSDate *)nextLastRefreshTime { return gModelTestFakeLastRefreshTime; }
++ (void)setNextLastRefreshTime:(NSDate *)value { gModelTestFakeLastRefreshTime = [value copy]; }
+
++ (NSDate *)getLastRefreshTimeWithDatasource:(__unused id<MSIDExtendedTokenCacheDataSource>)datasource
+                                     context:(__unused id<MSIDRequestContext>)context
+                                       error:(__unused NSError *__autoreleasing *)error
+{
+    return gModelTestFakeLastRefreshTime;
+}
+
+@end
+
+static void MSIDInstallFakeMetaDataReader(NSDate * _Nullable lastRefreshTime)
+{
+    MSIDThrottlingModelTestFakeMetaDataReader.nextLastRefreshTime = lastRefreshTime;
+    [[MSIDDIContainer sharedInstance]
+        registerProtocol:@protocol(MSIDThrottlingMetaDataReading)
+                lifetime:MSIDDIContainerLifetimeSingleton
+                 factory:^id { return (id)[MSIDThrottlingModelTestFakeMetaDataReader class]; }];
+}
 
 @interface MSIDThrottlingModelNonRecoverableServerErrorTest : XCTestCase
 
@@ -36,26 +69,15 @@
 
 @implementation MSIDThrottlingModelNonRecoverableServerErrorTest
 
-- (NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *)swizzleStacks
-{
-    static dispatch_once_t once;
-    static NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *swizzleStacks = nil;
-    
-    dispatch_once(&once, ^{
-        swizzleStacks = [NSMutableDictionary new];
-    });
-    
-    return swizzleStacks;
-}
-
 - (void)setUp
 {
-    [self.swizzleStacks setValue:[NSMutableArray new] forKey:self.name];
 }
 
 - (void)tearDown
 {
-    [MSIDTestSwizzle resetWithSwizzleArray:[self.swizzleStacks objectForKey:self.name]];
+    [MSIDTestSwizzle reset];
+    [[MSIDDIContainer sharedInstance] reset];
+    MSIDThrottlingModelTestFakeMetaDataReader.nextLastRefreshTime = nil;
 }
 
 - (NSError *)createErrorWithDomain:(BOOL)isMSIDError
@@ -122,7 +144,7 @@
 - (void)test_IfTheCacheIsNotExpired_AndNoLastRefreshTime_ThenshouldThrottleRequestShouldBeYes
 {
     MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
-    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
@@ -132,15 +154,8 @@
                                                                                     throttleDuration:3];
         return record;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
-    MSIDTestSwizzle *metadataSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
-                                                              class:[MSIDThrottlingMetaDataCache class]
-                                                              block:(id)^(void)
-     {
-        return nil;
-    }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:metadataSwizzle];
+    MSIDInstallFakeMetaDataReader(nil);
 
     XCTAssertTrue([model shouldThrottleRequest]);
 }
@@ -148,7 +163,7 @@
 - (void)test_IfTheCacheIsNotExpired_AndLastRefreshTimeIsTooOld_ThenshouldThrottleRequestShouldBeYes
 {
     MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
-    MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
@@ -158,17 +173,8 @@
                                                                                     throttleDuration:3];
         return record;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:cacheSwizzle];
     
-    MSIDTestSwizzle *lastrefreshSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
-                           class:[MSIDThrottlingMetaDataCache class]
-                           block:(id)^(void)
-     {
-        
-        NSDate *lastRefreshTime = [NSDate dateWithTimeIntervalSinceNow:-3];
-        return lastRefreshTime;
-    }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:lastrefreshSwizzle];
+    MSIDInstallFakeMetaDataReader([NSDate dateWithTimeIntervalSinceNow:-3]);
 
     XCTAssertTrue([model shouldThrottleRequest]);
 }
@@ -176,7 +182,7 @@
 - (void)test_IfTheCacheIsExpired_ThenShouldThrottleRequestShouldBeNo
 {
     MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
-    MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
@@ -186,17 +192,8 @@
                                                                                     throttleDuration:-3];
         return record;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:cacheSwizzle];
 
-    MSIDTestSwizzle *lastrefreshSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
-                           class:[MSIDThrottlingMetaDataCache class]
-                           block:(id)^(void)
-     {
-        
-        NSDate *lastRefreshTime = nil;
-        return lastRefreshTime;
-    }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:lastrefreshSwizzle];
+    MSIDInstallFakeMetaDataReader(nil);
 
     XCTAssertFalse([model shouldThrottleRequest]);
 }
@@ -204,7 +201,7 @@
 - (void)test_IfTheCacheIsNotExpired_AndLastRefreshTimeIsNew_ThenshouldThrottleRequestShouldBeNo
 {
     MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
-    MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
@@ -214,17 +211,8 @@
                                                                                     throttleDuration:3];
         return record;
     }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:cacheSwizzle];
 
-    MSIDTestSwizzle *lastrefreshSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
-                           class:[MSIDThrottlingMetaDataCache class]
-                           block:(id)^(void)
-     {
-        
-        NSDate *lastRefreshTime = [NSDate dateWithTimeIntervalSinceNow:3];
-        return lastRefreshTime;
-    }];
-    [[self.swizzleStacks objectForKey:self.name] addObject:lastrefreshSwizzle];
+    MSIDInstallFakeMetaDataReader([NSDate dateWithTimeIntervalSinceNow:3]);
 
     XCTAssertFalse([model shouldThrottleRequest]);
 }

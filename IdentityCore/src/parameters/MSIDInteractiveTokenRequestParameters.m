@@ -40,7 +40,7 @@
                     brokerOptions:(MSIDBrokerInvocationOptions *)brokerOptions
                       requestType:(MSIDRequestType)requestType
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
-                            error:(NSError **)error
+                            error:(NSError *__autoreleasing*)error
 {
     self = [super initWithAuthority:authority
                          authScheme:authScheme
@@ -107,7 +107,7 @@
     return authorizeParams;
 }
 
-- (BOOL)validateParametersWithError:(NSError **)error
+- (BOOL)validateParametersWithError:(NSError *__autoreleasing*)error
 {
     BOOL result = [super validateParametersWithError:error];
 

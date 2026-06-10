@@ -49,7 +49,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_MIDDLE_NAME, middleName)
 MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
 MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
-- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString error:(NSError **)error
+- (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:rawIdTokenString])
     {

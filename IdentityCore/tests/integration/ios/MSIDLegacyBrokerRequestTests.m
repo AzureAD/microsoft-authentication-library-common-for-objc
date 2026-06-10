@@ -63,7 +63,9 @@
                                       @"max_protocol_ver": @"2",
                                       @"force": @"NO",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -82,7 +84,9 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"resource": @"myresource",
                                                @"sdk_name" : @"adal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -115,7 +119,9 @@
                                       @"max_protocol_ver": @"2",
                                       @"force": @"NO",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -134,7 +140,9 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"resource": @"myresource",
                                                @"sdk_name" : @"adal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -166,7 +174,9 @@
                                       @"max_protocol_ver": @"2",
                                       @"force": @"NO",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -185,7 +195,9 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"resource": @"myresource",
                                                @"sdk_name" : @"adal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -215,7 +227,9 @@
                                       @"max_protocol_ver": @"2",
                                       @"force": @"YES",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -234,7 +248,9 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"resource": @"myresource",
                                                @"sdk_name" : @"adal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -255,7 +271,20 @@
     MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
     parameters.brokerInvocationOptions = brokerOptions;
     parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
+    parameters.clientSku = [self clientSku];
+    parameters.skipValidateResultAccount = NO;
     return parameters;
+}
+
+- (NSString *)clientSku
+{
+    NSString *clientSku = nil;
+#if TARGET_OS_OSX
+    clientSku = MSID_CLIENT_SKU_MSAL_OSX;
+#else
+    clientSku = MSID_CLIENT_SKU_MSAL_IOS;
+#endif
+    return clientSku;
 }
 
 @end

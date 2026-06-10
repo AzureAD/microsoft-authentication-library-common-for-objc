@@ -22,11 +22,15 @@
 // THE SOFTWARE.
 
 #import "MSIDWebviewUIController.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
 #define DEFAULT_WINDOW_WIDTH 420
 #define DEFAULT_WINDOW_HEIGHT 650
+
+NSInteger const MSID_LOADING_INDICATOR_SIZE = 32;
 
 static WKWebViewConfiguration *s_webConfig;
 
@@ -43,6 +47,8 @@ static WKWebViewConfiguration *s_webConfig;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        // initialize method can never be called simultaneously with any other MSIDWebviewUIController method
+        // hence there is no need to synchronize access to s_webConfig here
         s_webConfig = [MSIDWebviewUIController defaultWKWebviewConfiguration];
     });
 }
@@ -51,12 +57,15 @@ static WKWebViewConfiguration *s_webConfig;
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
     webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
-    
-    if (@available(macOS 10.15, *))
-    {
-        webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
-    }
+    webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
     return webConfig;
+}
+
++ (void)setSharedWKWebviewConfiguration:(WKWebViewConfiguration *)configuration
+{
+    @synchronized(self) {
+        s_webConfig = configuration;
+    }
 }
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
@@ -83,12 +92,24 @@ static WKWebViewConfiguration *s_webConfig;
     return self;
 }
 
-- (BOOL)loadView:(__unused NSError **)error
+- (BOOL)loadView:(__unused NSError *__autoreleasing*)error
 {
     if (_webView)
     {
         _loadingIndicator = [self prepareLoadingIndicator];
         [_webView addSubview:_loadingIndicator];
+        
+        BOOL useAutolayout = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_USE_AUTOLAYOUT_FOR_LOADING_INDICATOR];
+        if (useAutolayout)
+        {
+            _loadingIndicator.translatesAutoresizingMaskIntoConstraints = NO;
+            [NSLayoutConstraint activateConstraints:@[
+                [_loadingIndicator.centerXAnchor constraintEqualToAnchor:_webView.centerXAnchor],
+                [_loadingIndicator.centerYAnchor constraintEqualToAnchor:_webView.centerYAnchor],
+                [_loadingIndicator.widthAnchor constraintEqualToConstant:MSID_LOADING_INDICATOR_SIZE],
+                [_loadingIndicator.heightAnchor constraintEqualToConstant:MSID_LOADING_INDICATOR_SIZE]
+            ]];
+        }
         return YES;
     }
     
@@ -218,9 +239,9 @@ static WKWebViewConfiguration *s_webConfig;
         windowWidth = window.size.width;
         windowHeight = window.size.height;
     }
-
-    NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(windowWidth / 2 - 16, windowHeight / 2 - 16, 32, 32)];
-    [loadingIndicator setStyle:NSProgressIndicatorSpinningStyle];
+    
+    NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(windowWidth / 2 - MSID_LOADING_INDICATOR_SIZE / 2, windowHeight / 2 - MSID_LOADING_INDICATOR_SIZE / 2, MSID_LOADING_INDICATOR_SIZE, MSID_LOADING_INDICATOR_SIZE)];
+    [loadingIndicator setStyle:NSProgressIndicatorStyleSpinning];
     // Keep the item centered in the window even if it's resized.
     [loadingIndicator setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];
     

@@ -43,7 +43,7 @@
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                      context:(__unused id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+                                       error:(NSError *__autoreleasing*)error
 {
     return [[MSIDAADV2TokenResponseForV1Request alloc] initWithJSONDictionary:json error:error];
 }

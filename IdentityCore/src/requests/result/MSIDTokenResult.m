@@ -26,6 +26,12 @@
 #import "MSIDIdToken.h"
 #import "MSIDAuthority.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDCache.h"
+
+NSString *const MSID_TOKEN_RESULT_BROKER_APP_VERSION = @"broker_app_version";
+NSString *const MSID_TOKEN_RESULT_BROKER_APP_RESPONSE_LATENCY = @"broker_response_latency";
+NSString *const MSID_TOKEN_RESULT_BROKER_APP_BROKER_HANDLING_TIME_INTERVAL = @"broker_request_handling_time_interval";
+NSString *const MSID_TOKEN_RESULT_CLIENT_DATA = @"client_data";
 
 @implementation MSIDTokenResult
 
@@ -49,9 +55,21 @@
         _tokenResponse = tokenResponse;
         _account = account;
         _correlationId = correlationId;
+        _brokerMetaData = [MSIDCache new];
     }
 
     return self;
+}
+
+- (void)insertBrokerMetaData:(id)obj forKey:(NSString *)key
+{
+    if (!obj || [NSString msidIsStringNilOrBlank:key])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Broker metadata insert skipped from MSIDTokenResult because key or object is nil.");
+        return;
+    }
+
+    [self.brokerMetaData setObject:obj forKey:key];
 }
 
 - (NSString *)description

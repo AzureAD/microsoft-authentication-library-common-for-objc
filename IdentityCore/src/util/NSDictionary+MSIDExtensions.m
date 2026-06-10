@@ -96,12 +96,12 @@
     return mutableDict;
 }
 
-- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
+- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError *__autoreleasing*)error
 {
     return [self msidAssertTypeIsOneOf:@[type] ofKey:key required:required error:error];
 }
 
-- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError *__autoreleasing*)error
 {
     return [self msidAssertTypeIsOneOf:types ofKey:key required:required context:nil errorCode:MSIDErrorInvalidInternalParameter error:error];
 }
@@ -111,7 +111,7 @@
                      required:(BOOL)required
                       context:(id<MSIDRequestContext>)context
                     errorCode:(NSInteger)errorCode
-                        error:(NSError **)error
+                        error:(NSError *__autoreleasing*)error
 {
     id obj = self[key];
     if (!obj && !required) return YES;
@@ -151,6 +151,31 @@
     }
     
     return YES;
+}
+
++ (NSDictionary *)msidDictionaryFromJSONString:(NSString *)jsonString
+{
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if (!jsonData)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to deserialize: jsonData is nil.");
+        return nil;
+    }
+
+    NSError *error = nil;
+    NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                               options:NSJSONReadingMutableContainers
+                                                                 error:&error];
+
+    
+    if (error)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to deserialize data with error %@", MSID_PII_LOG_MASKABLE(error));
+        return nil;
+    }
+    
+    return dictionary;
 }
 
 - (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context
@@ -227,6 +252,22 @@
 - (NSString *)msidStringObjectForKey:(NSString *)key
 {
     return [self msidObjectForKey:key ofClass:[NSString class]];
+}
+
+- (NSArray<NSNumber *>*)msidArrayOfIntegersForKey:(NSString *)key
+{
+    id array = [self msidObjectForKey:key ofClass:[NSArray class]];
+    
+    if (array) {
+        for (id obj in array) {
+            if (![obj isKindOfClass:[NSNumber class]]) {
+                return nil;
+            }
+        }
+        return array;
+    }
+    
+    return nil;
 }
 
 - (NSInteger)msidIntegerObjectForKey:(NSString *)key

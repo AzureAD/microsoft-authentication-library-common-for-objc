@@ -28,7 +28,7 @@
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(__unused NSError **)error
+                                 error:(__unused NSError *__autoreleasing*)error
 {
     return [self initWithDictionary:json];
 }

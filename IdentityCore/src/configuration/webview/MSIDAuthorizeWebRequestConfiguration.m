@@ -55,13 +55,14 @@
 - (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                        factory:(MSIDWebviewFactory *)factory
                                        context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error
+                                         error:(NSError *__autoreleasing*)error
 {
     return [factory oAuthResponseWithURL:url
-                       requestState:self.state
-                 ignoreInvalidState:self.ignoreInvalidState
-                            context:context
-                              error:error];
+                            requestState:self.state
+                      ignoreInvalidState:self.ignoreInvalidState
+                          endRedirectUri:self.endRedirectUrl
+                                 context:context
+                                   error:error];
 }
 
 @end

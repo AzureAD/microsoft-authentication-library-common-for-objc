@@ -35,7 +35,6 @@
 #import "MSIDAccount.h"
 #import "MSIDAccountIdentifier.h"
 
-API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionGetAccountsRequestIntegrationTests : XCTestCase
 
 @end

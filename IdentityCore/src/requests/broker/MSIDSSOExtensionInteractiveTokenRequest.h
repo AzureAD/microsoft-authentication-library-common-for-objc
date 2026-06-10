@@ -21,13 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDInteractiveTokenRequest.h"
+#import "MSIDSSORemoteInteractiveTokenRequest.h"
 #import "MSIDProviderType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionInteractiveTokenRequest : MSIDInteractiveTokenRequest
+@interface MSIDSSOExtensionInteractiveTokenRequest : MSIDSSORemoteInteractiveTokenRequest
 
 @end
 

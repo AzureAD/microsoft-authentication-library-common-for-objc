@@ -32,6 +32,13 @@
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDOAuthRequestConfigurator.h"
 #import "MSIDHttpRequestServerTelemetryHandling.h"
+#import "MSIDBrokerConstants.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
+#import "MSIDOAuth2Constants.h"
+#import "MSIDHttpRequestInterceptorProtocol.h"
+#import "MSIDHttpRequestHeaderValidator.h"
+#import "MSIDHttpRequestHeaderValidating.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -58,6 +65,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
         _requestTimeoutInterval = s_requestTimeoutInterval;
         _cache = [NSURLCache sharedURLCache];
         _shouldCacheResponse = NO;
+        _headerValidator = [MSIDHttpRequestHeaderValidator new];
     }
 
     return self;
@@ -66,12 +74,54 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     NSParameterAssert(self.urlRequest);
-
+    MSIDExecutionFlowInsertTag([self toString:MSIDPrepareNetworkRequestTag],
+                                   nil,
+                                   self.context.correlationId);
     __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
 
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
+
+    if (self.requestInterceptor)
+    {
+        __weak typeof(self) weakSelf = self;
+        [self.requestInterceptor addAdditionalHeaderFieldsForUrl:self.urlRequest.URL withBlock:^(NSDictionary<NSString *, NSString *> * _Nullable additionalHeaders)
+        {
+            __typeof__(self) strongSelf = weakSelf;
+            if (!strongSelf)
+            {
+                if (completionBlock)
+                {
+                    NSError *deallocError = [NSError errorWithDomain:MSIDErrorDomain code:MSIDErrorInternal userInfo:@{NSLocalizedDescriptionKey : @"HTTP request object was deallocated before completion."}];
+                    completionBlock(nil, deallocError);
+                }
+                return;
+            }
+
+            if (additionalHeaders.count)
+            {
+                NSMutableURLRequest *mutableRequest = [strongSelf.urlRequest mutableCopy];
+                
+                NSDictionary<NSString *, NSString *> *validHeaders = [strongSelf.headerValidator validHeadersFromHeaders:additionalHeaders];
+                for (NSString *field in validHeaders)
+                {
+                    [mutableRequest setValue:validHeaders[field] forHTTPHeaderField:field];
+                }
+
+                strongSelf.urlRequest = mutableRequest;
+            }
+
+            [strongSelf sendRequestWithCompletionBlock:completionBlock];
+        }];
+        return;
+    }
+
+    [self sendRequestWithCompletionBlock:completionBlock];
+}
+
+- (void)sendRequestWithCompletionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
+{
     NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
     if (response)
     {
@@ -83,11 +133,17 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
         if (!responseObject)
         {
+            MSIDExecutionFlowInsertTag([self toString:MSIDCacheResponseFailedObjectTag],
+                                           nil,
+                                           self.context.correlationId);
             [self.cache removeCachedResponseForRequest:self.urlRequest];
             MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Removing invalid response from cache %@, response: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(response.response));
         }
         else
         {
+            MSIDExecutionFlowInsertTag([self toString:MSIDCacheResponseSucceededObjectTag],
+                                           nil,
+                                           self.context.correlationId);
             if (completionBlock) { completionBlock(responseObject, error); }
             return;
         }
@@ -101,6 +157,9 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
     [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error)
       {
+        MSIDExecutionFlowInsertTag([self toString:MSIDReceiveNetworkResponseTag],
+                                       nil,
+                                       self.context.correlationId);
           MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Received network response: %@, error %@", _PII_NULLIFY(urlResponse), _PII_NULLIFY(error));
 
           if (urlResponse) NSAssert([urlResponse isKindOfClass:NSHTTPURLResponse.class], NULL);
@@ -116,6 +175,9 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
         void (^completeBlockWrapper)(id, NSError *) = ^(id wrapperResponse, NSError *wrapperError)
         {
+            MSIDExecutionFlowInsertTag([self toString:MSIDParseNetworkResponseTag],
+                                           wrapperError ? @{MSID_EXECUTION_FLOW_ERROR_CODE:@(wrapperError.code)} : nil,
+                                           self.context.correlationId);
             [self.serverTelemetry handleError:wrapperError context:self.context];
 
             if (completionBlock) { completionBlock(wrapperResponse, wrapperError); }
@@ -123,7 +185,30 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
           if (error)
           {
-              completeBlockWrapper(nil, error);
+              NSString *clientData = httpResponse.allHeaderFields[MSID_CLIENT_DATA_HEADER_KEY];
+              if (clientData)
+              {
+                  MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Enriching error userInfo with client data from response header.");
+                  NSMutableDictionary *userInfo = error.userInfo ? [error.userInfo mutableCopy] : [NSMutableDictionary new];
+                  userInfo[MSID_CLIENT_DATA_RESPONSE] = clientData;
+                  error = [NSError errorWithDomain:error.domain code:error.code userInfo:userInfo];
+              }
+
+              if (self.errorHandler)
+              {
+                  [self.errorHandler handleError:error
+                                    httpResponse:nil
+                                            data:nil
+                                     httpRequest:self
+                              responseSerializer:nil
+                              externalSSOContext:nil
+                                         context:self.context
+                                 completionBlock:completeBlockWrapper];
+              }
+              else
+              {
+                  if (completeBlockWrapper) completeBlockWrapper(nil, error);
+              }
           }
           else if (httpResponse.statusCode == 200)
           {
@@ -137,10 +222,14 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                   [self setCachedResponse:cachedResponse forRequest:self.urlRequest];
               }
 
-              completeBlockWrapper(responseObject, error);
+              if (completeBlockWrapper) completeBlockWrapper(responseObject, error);
           }
           else
           {
+              
+              MSIDExecutionFlowInsertTag([self toString:MSIDOtherHttpNetworkStatusCodeTag],
+                                             @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@(httpResponse.statusCode)},
+                                             self.context.correlationId);
               if (self.errorHandler)
               {
                   id<MSIDResponseSerialization> responseSerializer = self.errorResponseSerializer ? self.errorResponseSerializer : self.responseSerializer;
@@ -156,7 +245,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
               }
               else
               {
-                  completeBlockWrapper(nil, error);
+                  if (completeBlockWrapper) completeBlockWrapper(nil, error);
               }
           }
 
@@ -166,8 +255,8 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 + (NSInteger)retryCountSetting { return s_retryCount; }
 + (void)setRetryCountSetting:(NSInteger)retryCountSetting { s_retryCount = retryCountSetting; }
 
-+ (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
 + (void)setRetryIntervalSetting:(NSTimeInterval)retryIntervalSetting { s_retryInterval = retryIntervalSetting; }
++ (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
 + (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval { s_requestTimeoutInterval = requestTimeoutInterval; }
 + (NSTimeInterval)requestTimeoutInterval { return s_requestTimeoutInterval; }
 
@@ -176,9 +265,14 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     return [self.cache cachedResponseForRequest:self.urlRequest];
 }
 
--(void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request
+- (void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request
 {
    [self.cache storeCachedResponse:cachedResponse forRequest:request];
+}
+
+- (NSString *)toString:(MSIDExecutionFlowNetworkTag)tag
+{
+    return MSIDExecutionFlowNetworkTagToString(tag);
 }
 
 @end

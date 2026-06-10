@@ -29,6 +29,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDAADRequestErrorHandler.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
 #endif
@@ -47,7 +48,7 @@
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                             error:(NSError * _Nullable * _Nullable)error
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     return [self initWithRequestParameters:parameters
                               forceRefresh:forceRefresh
@@ -60,7 +61,7 @@
                                       forceRefresh:(BOOL)forceRefresh
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                      fallbackInteractiveController:(nullable id<MSIDRequestControlling>)fallbackController
-                                             error:(NSError * _Nullable * _Nullable)error
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
@@ -88,7 +89,7 @@
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
 #if TARGET_OS_IPHONE
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeSilentRequest];
+        [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeSilentRequest];
 #endif
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         completionBlock(result, error);
@@ -115,41 +116,66 @@
     self.currentRequest = request;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
     {
-        if (result || !self.fallbackController)
+        if (error)
         {
-#if !EXCLUDE_FROM_MSALCPP
-            MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-            [telemetryEvent setUserInformation:result.account];
-            [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
-            if (self.isLocalFallbackMode)
+            if (request.shouldSkipBoundAppRefreshTokenUsage
+                && [error.domain isEqualToString:MSIDErrorDomain]
+                && error.code == MSIDErrorBoundAppRefreshTokenRedemptionError)
             {
-                 [telemetryEvent setSsoExtFallBackFlow:1];
+                [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable retryResult, NSError * _Nullable retryError)
+                {
+                    [self processResponse:retryResult error:retryError completionBlock:completionBlock];
+                }];
+                return;
             }
-            
-            [self stopTelemetryEvent:telemetryEvent error:error];
-#endif
-            self.currentRequest = nil;
-            
-            completionBlock(result, error);
-            return;
+        }
+        [self processResponse:result error:error completionBlock:completionBlock];
+    }];
+}
+
+- (void)processResponse:(MSIDTokenResult *)result
+                  error:(NSError *)error
+        completionBlock:(MSIDRequestCompletionBlock)completionBlock
+{
+    if (error && [MSIDAADRequestErrorHandler shouldRetryNetworkingFailure:error.code]) {
+        completionBlock(result, error);
+        return;
+    }
+    
+    if (result || !self.fallbackController)
+    {
+#if !EXCLUDE_FROM_MSALCPP
+        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+        [telemetryEvent setUserInformation:result.account];
+        [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+        if (self.isLocalFallbackMode)
+        {
+            [telemetryEvent setSsoExtFallBackFlow:1];
         }
         
+        [self stopTelemetryEvent:telemetryEvent error:error];
+#endif
         self.currentRequest = nil;
-        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallResult, NSError *fallError)
-        {
-            // We don't have any meaningful information from fallback controller (edge case of SSO error) so we use the local controller result earlier
-            if (!fallResult && (fallError.code == MSIDErrorSSOExtensionUnexpectedError))
-            {
-                completionBlock(result, error);
-            }
-            else
-            {
-                completionBlock(fallResult, fallError);
-            }
-        };
         
-        [self.fallbackController acquireToken:completionBlockWrapper];
-    }];
+        completionBlock(result, error);
+        return;
+    }
+    
+    self.currentRequest = nil;
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *fallResult, NSError *fallError)
+    {
+        // We don't have any meaningful information from fallback controller (edge case of SSO/Xpc error) so we use the local controller result earlier
+        if (!fallResult && (fallError.code == MSIDErrorSSOExtensionUnexpectedError || fallError.code == MSIDErrorBrokerXpcUnexpectedError))
+        {
+            completionBlock(result, error);
+        }
+        else
+        {
+            completionBlock(fallResult, fallError);
+        }
+    };
+    
+    [self.fallbackController acquireToken:completionBlockWrapper];
 }
 
 @end

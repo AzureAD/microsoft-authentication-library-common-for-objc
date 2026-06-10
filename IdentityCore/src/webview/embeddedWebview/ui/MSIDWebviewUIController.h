@@ -50,13 +50,14 @@ NSWindowController
 #endif
 
 + (WKWebViewConfiguration *)defaultWKWebviewConfiguration;
++ (void)setSharedWKWebviewConfiguration:(WKWebViewConfiguration *)configuration;
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
        platformParams:(MSIDWebViewPlatformParams *)platformParams;
 
-- (BOOL)loadView:(NSError **)error;
+- (BOOL)loadView:(NSError *__autoreleasing*)error;
 - (void)presentView;
 - (void)dismissWebview:(void (^)(void))completion;
 - (void)showLoadingIndicator;

@@ -263,6 +263,38 @@
     XCTAssertEqualObjects(response.errorDescription, @"some description");
 }
 
+- (void)testInitWithJSONDictionary_whenErrorCodesIsContained_shouldParseIt
+{
+    NSDictionary *jsonInput = @{@"error": @"error_code",
+                                @"error_description": @"some description",
+                                @"error_codes": @[@57600]
+    };
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.error, @"error_code");
+    XCTAssertEqualObjects(response.errorDescription, @"some description");
+    XCTAssertEqualObjects(response.stsErrorCodes, @[@57600]);
+}
+
+- (void)testInitWithJSONDictionary_whenErrorCodesIsNotContained_ParseShouldNotFail
+{
+    NSDictionary *jsonInput = @{@"error": @"error_code"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.error, @"error_code");
+    XCTAssertEqualObjects(response.stsErrorCodes, nil);
+}
+
 - (void)testInitWithJSONDictionary_whenErrorDescriptionUrlEncoded_shouldParseIt
 {
     NSDictionary *jsonInput = @{@"error": @"error_code",
@@ -301,7 +333,13 @@
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");
     XCTAssertEqualObjects(json[@"expires_on"], @"1575635662");
-    XCTAssertEqualObjects(json[@"id_token"], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
+    
+    NSArray *idTokenComponents = [json[@"id_token"] componentsSeparatedByString:@"."];
+    XCTAssertEqual(idTokenComponents.count, 3);
+    XCTAssertEqualObjects(idTokenComponents[0], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
+    XCTAssertEqualObjects(idTokenComponents[1], @"eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9");
+    XCTAssertEqualObjects(idTokenComponents[2], @"eyJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUiLCJ0eXAiOiJKV1QifQ");
+
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
     XCTAssertEqualObjects(json[@"scope"], @"scope 1");
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
@@ -317,15 +355,17 @@
     tokenResponse.state = @"state 1";
     tokenResponse.additionalServerInfo = @{@"k": @"v"};
     tokenResponse.clientAppVersion = @"1.0";
+    tokenResponse.stsErrorCodes = @[@53005];
     
     NSDictionary *json = [tokenResponse jsonDictionary];
     
-    XCTAssertEqual(6, json.allKeys.count);
+    XCTAssertEqual(7, json.allKeys.count);
     XCTAssertEqualObjects(json[@"error"], @"unauthorized_client");
     XCTAssertEqualObjects(json[@"error_description"], @"AADSTS53005%3A%20Application%20needs%20to%20enforce%20Intune%20protection%20policies.%20Trace%20ID%3A%200ec6f651-1b0f-4147-8461-c8ecfb9c0400%20Correlation%20ID%3A%20e6317b1d-726e-4d63-a824-d530336101e6%20Timestamp%3A%202019-11-28%2000%3A13%3A53Z");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"k"], @"v");
     XCTAssertEqualObjects(json[@"state"], @"state 1");
+    XCTAssertEqualObjects(json[@"error_codes"], @[@53005]);
 }
 
 - (void)testJsonDictionary_withAccessTokenTypePop_shouldReturnValue
@@ -355,6 +395,55 @@
     
     XCTAssertEqualObjects(json[MSID_OAUTH2_TOKEN_TYPE], MSID_OAUTH2_POP);
     XCTAssertEqualObjects(json[MSID_OAUTH2_REQUEST_CONFIRMATION], @"kid");
+}
+
+#pragma mark - boundAppRefreshTokenDeviceId
+
+- (void)testInitWithJSONDictionary_whenBoundAppRefreshTokenDeviceIdPresent_shouldSetProperty
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt",
+                                @"bart_device_id": @"test-device-id-123"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(response.boundAppRefreshTokenDeviceId, @"test-device-id-123");
+}
+
+- (void)testInitWithJSONDictionary_whenBoundAppRefreshTokenDeviceIdMissing_shouldBeNil
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer", 
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertNil(response.boundAppRefreshTokenDeviceId);
+}
+
+- (void)testInitWithJSONDictionary_whenBoundAppRefreshTokenDeviceIdEmpty_shouldSetToEmpty
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600", 
+                                @"refresh_token": @"rt",
+                                @"bart_device_id": @""};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(response.boundAppRefreshTokenDeviceId, @"");
 }
 
 @end

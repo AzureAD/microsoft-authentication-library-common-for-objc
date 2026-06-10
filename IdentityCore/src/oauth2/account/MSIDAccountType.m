@@ -37,6 +37,9 @@
             
         case MSIDAccountTypeMSSTS:
             return @"MSSTS";
+
+	case MSIDAccountTypeADFS:
+	    return @"ADFS";
             
         default:
             return @"Other";
@@ -53,7 +56,8 @@ static NSDictionary *sAccountTypes = nil;
         
         sAccountTypes = @{@"aad": @(MSIDAccountTypeAADV1),
                           @"msa": @(MSIDAccountTypeMSA),
-                          @"mssts": @(MSIDAccountTypeMSSTS)};
+                          @"mssts": @(MSIDAccountTypeMSSTS),
+			  @"adfs": @(MSIDAccountTypeADFS)};
     });
     
     NSNumber *accountType = sAccountTypes[type.lowercaseString];

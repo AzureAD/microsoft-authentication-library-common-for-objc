@@ -39,8 +39,8 @@
 #if TARGET_OS_IPHONE
     [self typeText:text];
 #else
-    [[NSPasteboard generalPasteboard] declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
-    [[NSPasteboard generalPasteboard] setString:text forType:NSStringPboardType];
+    [[NSPasteboard generalPasteboard] declareTypes:[NSArray arrayWithObject:NSPasteboardTypeString] owner:nil];
+    [[NSPasteboard generalPasteboard] setString:text forType:NSPasteboardTypeString];
     [self click];
     [self typeKey:@"v" modifierFlags:XCUIKeyModifierCommand];
 #endif

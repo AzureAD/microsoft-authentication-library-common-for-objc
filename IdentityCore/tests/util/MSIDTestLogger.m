@@ -46,6 +46,9 @@
         [[MSIDLogger sharedLogger] setCallback:^(MSIDLogLevel level, NSString *message, BOOL containsPII) {
             [logger logLevel:level isPii:containsPII message:message];
             logger.callbackInvoked = YES;
+            if (![logger.expectation.description isEqualToString:@""]) {
+                [logger.expectation fulfill];
+            }
         }];
     });
     
@@ -57,6 +60,7 @@
     _lastLevel = level;
     _containsPII = isPii;
     _lastMessage = message;
+    [_messages addObject: message];
 }
 
 - (void)reset
@@ -67,6 +71,7 @@
 - (void)reset:(MSIDLogLevel)level
 {
     _lastMessage = nil;
+    _messages = [[NSMutableArray alloc] init];
     _lastLevel = -1;
     _containsPII = NO;
     [[MSIDLogger sharedLogger] setLevel:level];

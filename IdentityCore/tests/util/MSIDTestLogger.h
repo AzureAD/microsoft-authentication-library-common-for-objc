@@ -27,6 +27,7 @@
 
 
 #import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 #import "MSIDLogger.h"
 
 /*!
@@ -38,7 +39,9 @@
 @property (atomic, readwrite) BOOL callbackInvoked;
 @property (atomic, readwrite) BOOL containsPII;
 @property (atomic, readwrite, retain) NSString *lastMessage;
+@property (atomic, readwrite, retain) NSMutableArray *messages;
 @property (atomic, readwrite) MSIDLogLevel lastLevel;
+@property (atomic, readwrite) XCTestExpectation *expectation;
 
 + (MSIDTestLogger *)sharedLogger;
 

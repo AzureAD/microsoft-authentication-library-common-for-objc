@@ -305,7 +305,7 @@
             @"realm" : @"common",
             @"storage_environment" : @"login.windows2.net",
             @"username" : @"username",
-            @"is_sso_account": @YES
+            @"is_sso_account": @"1"
         },
         @{
             @"home_account_id" : @"uid.utid",
@@ -321,7 +321,7 @@
             @"realm" : @"tenant",
             @"storage_environment" : @"login.windows2.net",
             @"username" : @"username",
-            @"is_sso_account": @NO
+            @"is_sso_account": @"0"
         }
     ];
     

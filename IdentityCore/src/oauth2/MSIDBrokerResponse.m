@@ -26,6 +26,7 @@
 #import "MSIDBrokerResponse+Internal.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDDeviceInfo.h"
+#import "MSIDBrokerConstants.h"
 
 @implementation MSIDBrokerResponse
 

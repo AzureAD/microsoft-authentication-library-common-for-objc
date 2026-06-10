@@ -35,7 +35,7 @@
 - (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                   fallbackController:(id<MSIDRequestControlling>)fallbackController
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     self = [super initWithInteractiveRequestParameters:parameters
                                   tokenRequestProvider:tokenRequestProvider
@@ -64,7 +64,7 @@
             /**
              Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
              */
-            [MSIDThrottlingService updateLastRefreshTimeDatasource:request.extendedTokenCache context:self.interactiveRequestParamaters error:nil];
+            [[MSIDThrottlingService resolvedRefresher] updateLastRefreshTimeDatasource:request.extendedTokenCache context:self.interactiveRequestParamaters error:nil];
            
         }
         else if ([self shouldFallback:error])
@@ -77,7 +77,6 @@
         
         completionBlock(result, error);
     };
-    
 
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }

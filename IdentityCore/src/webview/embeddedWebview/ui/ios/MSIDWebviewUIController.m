@@ -29,6 +29,51 @@
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDMainThreadUtil.h"
 
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
+static inline CGRect ActiveScreenBounds(void)
+{
+    // this code is also compiled for extensions where UIApplication.sharedApplication is not available
+    UIApplication *sharedApp = nil;
+    if ([UIApplication respondsToSelector:NSSelectorFromString(@"sharedApplication")])
+    {
+        sharedApp = [UIApplication performSelector:NSSelectorFromString(@"sharedApplication")];
+    }
+
+    UIWindowScene *activeScene = nil;
+    for (UIWindowScene *scene in sharedApp.connectedScenes)
+    {
+        if (scene.activationState == UISceneActivationStateForegroundActive)
+        {
+            activeScene = scene;
+            break;
+        }
+    }
+
+    if ((activeScene == nil) && (sharedApp.connectedScenes.count > 0))
+    {
+        activeScene = (UIWindowScene *)sharedApp.connectedScenes.anyObject;
+    }
+
+    if (activeScene != nil)
+    {
+        return activeScene.coordinateSpace.bounds;
+    }
+
+    return CGRectZero;
+}
+
+static inline CGRect ActiveSceneBoundsForView(UIView *view)
+{
+    UIWindowScene *activeScene = view.window.windowScene;
+    if(activeScene != nil)
+    {
+        return activeScene.coordinateSpace.bounds;
+    }
+
+    return ActiveScreenBounds();
+}
+#endif
+
 static WKWebViewConfiguration *s_webConfig;
 
 @interface MSIDWebviewUIController ()
@@ -46,6 +91,8 @@ static WKWebViewConfiguration *s_webConfig;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        // initialize method can never be called simultaneously with any other MSIDWebviewUIController method
+        // hence there is no need to synchronize access to s_webConfig here
         s_webConfig = [MSIDWebviewUIController defaultWKWebviewConfiguration];
     });
 }
@@ -55,8 +102,22 @@ static WKWebViewConfiguration *s_webConfig;
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
     webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
     webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
+    
+    // QR+PIN auth inside a WKWebView requires these settings
+    // This allows the camera to be automatically triggered when redirected to the QR scanning page, instead
+    // of a user action like a button press
+    webConfig.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
+    // This allows the camera to show inline, otherwise it defaults to showing up fullscreen
+    webConfig.allowsInlineMediaPlayback = YES;
 
     return webConfig;
+}
+
++ (void)setSharedWKWebviewConfiguration:(WKWebViewConfiguration *)configuration
+{
+    @synchronized(self) {
+        s_webConfig = configuration;
+    }
 }
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
@@ -88,7 +149,7 @@ static WKWebViewConfiguration *s_webConfig;
     [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
 
-- (BOOL)loadView:(NSError **)error
+- (BOOL)loadView:(NSError *__autoreleasing*)error
 {
     /* Start background transition tracking,
      so we can start a background task, when app transitions to background */
@@ -111,7 +172,12 @@ static WKWebViewConfiguration *s_webConfig;
         return NO;
     }
     UIView *rootView = [self view];
-    [rootView setFrame:[[UIScreen mainScreen] bounds]];
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
+    CGRect screenBounds = ActiveSceneBoundsForView(rootView);
+#else
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+#endif
+    [rootView setFrame:screenBounds];
     [rootView setAutoresizesSubviews:YES];
     [rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     

@@ -47,6 +47,11 @@
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAADTokenRequestServerTelemetry.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDBoundRefreshTokenRedemptionParameters.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDBoundRefreshToken+Redemption.h"
+#import "MSIDBoundRefreshTokenGrantRequest.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -59,7 +64,7 @@
 
 - (BOOL)checkResponseClass:(MSIDTokenResponse *)response
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     if (![response isKindOfClass:[MSIDAADV2TokenResponse class]])
     {
@@ -80,7 +85,7 @@
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                      context:(__unused id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+                                       error:(NSError *__autoreleasing*)error
 {
     return [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:error];
 }
@@ -148,6 +153,12 @@
     if (![NSString msidIsStringNilOrBlank:configuration.nestedAuthBrokerClientId])
     {
         accessToken.redirectUri = configuration.redirectUri;
+    }
+    
+    // Map token_type as "ssh-cert" flow for Azure CLI
+    if ([MSID_OAUTH2_SSH_CERT isEqualToString:configuration.authScheme.tokenType])
+    {
+        accessToken.tokenType = MSID_OAUTH2_SSH_CERT;
     }
 
     return YES;
@@ -282,13 +293,74 @@
     return tokenRequest;
 }
 
+- (MSIDAADRefreshTokenGrantRequest *)boundRefreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                                                      refreshToken:(MSIDBoundRefreshToken *)boundRefreshToken
+                                                                    requestContext:(id<MSIDRequestContext>)context
+                                                                             error:(NSError *__autoreleasing *)error
+{
+    if (boundRefreshToken)
+    {
+        MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:requestParameters.clientCapabilities
+                                                                              claimsRequest:requestParameters.claimsRequest];
+        
+        NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:requestParameters];
+        NSString *enrollmentId = [requestParameters.authority enrollmentIdForHomeAccountId:requestParameters.accountIdentifier.homeAccountId
+                                                                              legacyUserId:requestParameters.accountIdentifier.displayableId
+                                                                                   context:requestParameters
+                                                                                     error:nil];
+        
+        MSIDBoundRefreshTokenGrantRequest *tokenRequest = [[MSIDBoundRefreshTokenGrantRequest alloc] initWithEndpoint:requestParameters.tokenEndpoint
+                                                                authScheme:requestParameters.authScheme
+                                                                  clientId:requestParameters.clientId
+                                                                     scope:requestParameters.allTokenRequestScopes
+                                                         boundrefreshToken:boundRefreshToken
+                                                               redirectUri:requestParameters.redirectUri
+                                                              enrollmentId:enrollmentId
+                                                                    claims:claims
+                                                           extraParameters:requestParameters.extraTokenRequestParameters
+                                                                ssoContext:requestParameters.ssoContext context:requestParameters
+                                                                        error:error];
+        
+        tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+        [tokenRequest configureDecryptionPreProcessorUsingKey];
+        if ([requestParameters isNestedAuthProtocol])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Nested auth protocol - Adding broker client id & redirect uri to code grant request");
+            NSMutableDictionary<NSString *, NSString *> *nestedAuthParams = [tokenRequest.parameters mutableCopy];
+
+            // Nested auth protocol
+            nestedAuthParams[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = requestParameters.nestedAuthBrokerClientId;
+            nestedAuthParams[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = requestParameters.nestedAuthBrokerRedirectUri;
+
+            tokenRequest.parameters = nestedAuthParams;
+        }
+    #if !EXCLUDE_FROM_MSALCPP
+        if (requestParameters.currentRequestTelemetry)
+        {
+            __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+            serverTelemetry.currentRequestTelemetry = requestParameters.currentRequestTelemetry;
+            tokenRequest.serverTelemetry = serverTelemetry;
+        }
+    #endif
+        return tokenRequest;
+    }
+    else
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Bound app refresh token is nil", nil, nil, nil, context.correlationId, nil, YES);
+        }
+    }
+    return nil;
+}
+
 #endif
 
 #pragma mark - Authority
 
 - (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
                                       tokenResponse:(MSIDTokenResponse *)response
-                                              error:(NSError **)error
+                                              error:(NSError *__autoreleasing*)error
 {
     if (response.idTokenObj.realm)
     {

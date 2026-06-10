@@ -247,13 +247,8 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         privateKeyQuery[(id)kSecAttrLabel] = [self.privateKeyDict objectForKey:(id)kSecAttrLabel];
         privateKeyQuery[(id)kSecReturnRef] = @YES;
         privateKeyQuery[(id)kSecReturnAttributes] = @YES;
-        
         #ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
-        #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-            if (@available(macOS 10.15, *)) {
                 privateKeyQuery[(id)kSecUseDataProtectionKeychain] = @YES;
-            }
-        #endif
         #endif
         
         CFDictionaryRef result = nil;

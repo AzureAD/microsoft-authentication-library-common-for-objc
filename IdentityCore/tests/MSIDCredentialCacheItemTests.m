@@ -25,6 +25,8 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDBoundRefreshTokenCacheItem.h"
+#import "MSIDDefaultCredentialCacheKey.h"
 
 @interface MSIDCredentialCacheItemTests : XCTestCase
 
@@ -96,6 +98,8 @@
     cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.lastRecoveryAttempt = lastRecoveryTimestamp;
+    cacheItem.recoveryAttemptCount = @"2";
+    cacheItem.lastRecoveryAttemptFailed = @"NO";
 
     NSDictionary *expectedDictionary = @{@"credential_type": @"RefreshToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
@@ -103,7 +107,9 @@
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"family_id": DEFAULT_TEST_FAMILY_ID,
                                          @"home_account_id": @"uid.utid",
-                                         @"recovery_attempted_at": lastRecoveryAttemptString
+                                         @"recovery_attempted_at": lastRecoveryAttemptString,
+                                         @"recovery_attempt_count": @"2",
+                                         @"last_recovery_attempt_failed":@"NO"
                                          };
 
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
@@ -191,7 +197,8 @@
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"family_id": DEFAULT_TEST_FAMILY_ID,
                                      @"home_account_id": @"uid.utid",
-                                     @"recovery_attempted_at": lastRecoveryAttemptString
+                                     @"recovery_attempted_at": lastRecoveryAttemptString,
+                                     @"recovery_attempt_count": @"2"
                                      };
 
     NSError *error = nil;
@@ -209,6 +216,7 @@
     NSTimeInterval interval = ABS([cacheItem.lastRecoveryAttempt timeIntervalSinceDate:lastRecoveryTimestamp]);
     XCTAssertTrue(interval < 1);
     XCTAssertNil(cacheItem.enrollmentId);
+    XCTAssertEqualObjects(cacheItem.recoveryAttemptCount, @"2");
 }
 
 - (void)testInitWithJSONDictionary_whenIDToken_andAllFieldsSet_shouldReturnIDTokenCacheItem
@@ -286,6 +294,237 @@
     cacheItem2.secret = DEFAULT_TEST_ID_TOKEN;
     cacheItem2.clientId = DEFAULT_TEST_CLIENT_ID;
     XCTAssertNotEqualObjects(cacheItem1, cacheItem2);
+}
+
+#pragma mark - MSIDBoundRefreshTokenCacheItem tests
+
+- (void)testJSONDictionary_whenBoundRefreshToken_andAllFieldsSet_shouldReturnJSONDictionary
+{
+    MSIDBoundRefreshTokenCacheItem *cacheItem = [MSIDBoundRefreshTokenCacheItem new];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.credentialType = MSIDBoundRefreshTokenType;
+    cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem.secret = DEFAULT_TEST_REFRESH_TOKEN;
+    cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.boundDeviceId = @"test-device-id";
+
+    NSDictionary *expectedDictionary = @{MSID_BOUND_DEVICE_ID_CACHE_KEY: @"test-device-id",
+                                         @"credential_type": @"BoundRefreshToken",
+                                         @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                         @"secret": DEFAULT_TEST_REFRESH_TOKEN,
+                                         @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                         @"home_account_id": @"uid.utid"
+                                         };
+    XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
+}
+
+- (void)testInitWithJSONDictionary_whenBoundRefreshToken_andAllFieldsSet_shouldReturnBoundRefreshTokenCacheItem
+{
+    NSDictionary *jsonDictionary = @{MSID_BOUND_DEVICE_ID_CACHE_KEY: @"test-device-id",
+                                     @"credential_type": @"BoundRefreshToken",
+                                     @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                     @"secret": DEFAULT_TEST_REFRESH_TOKEN,
+                                     @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                     @"home_account_id": @"uid.utid"
+                                     };
+    NSError *error = nil;
+    MSIDBoundRefreshTokenCacheItem *cacheItem = [[MSIDBoundRefreshTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    XCTAssertNotNil(cacheItem);
+    XCTAssertEqualObjects(cacheItem.boundDeviceId, @"test-device-id");
+    XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
+    XCTAssertEqual(cacheItem.credentialType, MSIDBoundRefreshTokenType);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_REFRESH_TOKEN);
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
+}
+
+- (void)testInitWithJSONDictionary_whenBoundRefreshToken_andDeviceIDMissing_shouldReturnNilItem
+{
+    NSDictionary *jsonDictionary = @{@"credential_type": @"BoundRefreshToken",
+                                     @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                     @"secret": DEFAULT_TEST_REFRESH_TOKEN,
+                                     @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                     @"home_account_id": @"uid.utid"
+                                     };
+    NSError *error = nil;
+    MSIDBoundRefreshTokenCacheItem *cacheItem = [[MSIDBoundRefreshTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    XCTAssertNil(cacheItem);
+    XCTAssertNotNil(error);
+    XCTAssertTrue([error.description containsString:@"Bound device ID is nil"]);
+}
+
+- (void)testInitWithJSONDictionary_whenBoundRefreshToken_missingSecret_shouldReturnError
+{
+    NSDictionary *jsonDictionary = @{MSID_BOUND_DEVICE_ID_CACHE_KEY: @"test-device-id",
+                                     @"credential_type": @"BoundRefreshToken",
+                                     @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                     @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                     @"home_account_id": @"uid.utid"
+                                     };
+    NSError *error = nil;
+    MSIDBoundRefreshTokenCacheItem *cacheItem = [[MSIDBoundRefreshTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    XCTAssertNil(cacheItem);
+}
+
+- (void)testInitWithJSONDictionary_whenBoundRefreshToken_missingDeviceId_shouldReturnError
+{
+    NSDictionary *jsonDictionary = @{@"credential_type": @"BoundRefreshToken",
+                                     @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                     @"secret": DEFAULT_TEST_REFRESH_TOKEN,
+                                     @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                     @"home_account_id": @"uid.utid"
+                                     };
+    NSError *error = nil;
+    MSIDBoundRefreshTokenCacheItem *cacheItem = [[MSIDBoundRefreshTokenCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    XCTAssertNil(cacheItem);
+    XCTAssertNotNil(error);
+    XCTAssertTrue([error.description containsString:@"Bound device ID is nil"]);
+}
+
+- (void)testIsEqualToItem_whenBoundDeviceIdNilAndEqual_shouldBeEqual
+{
+    MSIDBoundRefreshTokenCacheItem *item1 = [MSIDBoundRefreshTokenCacheItem new];
+    item1.boundDeviceId = nil;
+    item1.clientId = DEFAULT_TEST_CLIENT_ID;
+    item1.credentialType = MSIDBoundRefreshTokenType;
+    item1.secret = DEFAULT_TEST_REFRESH_TOKEN;
+    MSIDBoundRefreshTokenCacheItem *item2 = [MSIDBoundRefreshTokenCacheItem new];
+    item2.boundDeviceId = nil;
+    item2.clientId = DEFAULT_TEST_CLIENT_ID;
+    item2.credentialType = MSIDBoundRefreshTokenType;
+    item2.secret = DEFAULT_TEST_REFRESH_TOKEN;
+    XCTAssertEqualObjects(item1, item2);
+}
+
+- (void)testHash_whenBoundDeviceIdIsNil_shouldNotCrash
+{
+    MSIDBoundRefreshTokenCacheItem *item = [MSIDBoundRefreshTokenCacheItem new];
+    item.boundDeviceId = nil;
+    XCTAssertNoThrow([item hash]);
+}
+
+- (void)testCopyWithZone_shouldCopyBoundDeviceId
+{
+    MSIDBoundRefreshTokenCacheItem *item = [MSIDBoundRefreshTokenCacheItem new];
+    item.boundDeviceId = @"copy-device-id";
+    item.secret = DEFAULT_TEST_REFRESH_TOKEN;
+    MSIDBoundRefreshTokenCacheItem *copy = [item copy];
+    XCTAssertEqualObjects(item.boundDeviceId, copy.boundDeviceId);
+    item.boundDeviceId = @"new-device-id";
+    XCTAssertFalse(item.boundDeviceId == copy.boundDeviceId); // Should be a copy
+}
+
+- (void)testDescription_shouldIncludeBoundDeviceId
+{
+    MSIDBoundRefreshTokenCacheItem *item = [MSIDBoundRefreshTokenCacheItem new];
+    item.boundDeviceId = @"desc-device-id";
+    NSString *desc = [item description];
+    XCTAssertTrue([desc containsString:@"desc-device-id"]);
+}
+
+- (void)testSecureCoding_roundTrip_withNilDeviceId_shouldPreserveNil
+{
+    MSIDBoundRefreshTokenCacheItem *item = [MSIDBoundRefreshTokenCacheItem new];
+    item.boundDeviceId = nil;
+    item.clientId = DEFAULT_TEST_CLIENT_ID;
+    item.credentialType = MSIDBoundRefreshTokenType;
+    item.secret = DEFAULT_TEST_REFRESH_TOKEN;
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:item requiringSecureCoding:YES error:nil];
+    MSIDBoundRefreshTokenCacheItem *decodedItem = [NSKeyedUnarchiver unarchivedObjectOfClass:[MSIDBoundRefreshTokenCacheItem class] fromData:data error:nil];
+    XCTAssertNil(decodedItem.boundDeviceId);
+}
+
+- (void)testSecureCoding_roundTrip_shouldPreserveDeviceID
+{
+    MSIDBoundRefreshTokenCacheItem *item = [MSIDBoundRefreshTokenCacheItem new];
+    item.boundDeviceId = @"secure-device-id";
+    item.clientId = DEFAULT_TEST_CLIENT_ID;
+    item.credentialType = MSIDBoundRefreshTokenType;
+    item.secret = DEFAULT_TEST_REFRESH_TOKEN;
+
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:item requiringSecureCoding:YES error:nil];
+    XCTAssertNotNil(data);
+    MSIDBoundRefreshTokenCacheItem *decodedItem = [NSKeyedUnarchiver unarchivedObjectOfClass:[MSIDBoundRefreshTokenCacheItem class] fromData:data error:nil];
+    XCTAssertEqualObjects(decodedItem.boundDeviceId, @"secure-device-id");
+    XCTAssertEqualObjects(decodedItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqual(decodedItem.credentialType, MSIDBoundRefreshTokenType);
+    XCTAssertEqualObjects(decodedItem.boundRefreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+}
+
+#pragma mark - generateCacheKey
+
+- (void)testGenerateCacheKey_whenAccessToken_andAllFieldsSet_shouldPropagateAllFields
+{
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem.familyId = DEFAULT_TEST_FAMILY_ID;
+    cacheItem.realm = @"contoso.com";
+    cacheItem.target = DEFAULT_TEST_RESOURCE;
+    cacheItem.homeAccountId = @"uid.utid";
+    cacheItem.applicationIdentifier = @"app.bundle.id";
+    cacheItem.tokenType = @"Bearer";
+    cacheItem.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
+
+    MSIDCacheKey *key = [cacheItem generateCacheKey];
+    XCTAssertNotNil(key);
+    XCTAssertTrue([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]]);
+
+    MSIDDefaultCredentialCacheKey *defaultKey = (MSIDDefaultCredentialCacheKey *)key;
+    XCTAssertEqualObjects(defaultKey.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(defaultKey.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(defaultKey.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqual(defaultKey.credentialType, MSIDAccessTokenType);
+    XCTAssertEqualObjects(defaultKey.familyId, DEFAULT_TEST_FAMILY_ID);
+    XCTAssertEqualObjects(defaultKey.realm, @"contoso.com");
+    XCTAssertEqualObjects(defaultKey.target, DEFAULT_TEST_RESOURCE);
+    XCTAssertEqualObjects(defaultKey.applicationIdentifier, @"app.bundle.id");
+    XCTAssertEqualObjects(defaultKey.tokenType, @"Bearer");
+    XCTAssertEqualObjects(defaultKey.requestedClaims, @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}");
+}
+
+- (void)testGenerateCacheKey_whenRequestedClaimsNil_shouldHaveNilRequestedClaims
+{
+    MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    cacheItem.realm = @"contoso.com";
+    cacheItem.target = DEFAULT_TEST_RESOURCE;
+    cacheItem.homeAccountId = @"uid.utid";
+
+    MSIDDefaultCredentialCacheKey *defaultKey = (MSIDDefaultCredentialCacheKey *)[cacheItem generateCacheKey];
+    XCTAssertNotNil(defaultKey);
+    XCTAssertNil(defaultKey.requestedClaims);
+}
+
+- (void)testGenerateCacheKey_whenRequestedClaimsDiffer_shouldProduceDifferentServiceStrings
+{
+    MSIDCredentialCacheItem *baseItem = [MSIDCredentialCacheItem new];
+    baseItem.environment = @"login.microsoftonline.com";
+    baseItem.credentialType = MSIDAccessTokenType;
+    baseItem.clientId = DEFAULT_TEST_CLIENT_ID;
+    baseItem.realm = @"contoso.com";
+    baseItem.target = DEFAULT_TEST_RESOURCE;
+    baseItem.homeAccountId = @"uid.utid";
+
+    MSIDCredentialCacheItem *itemWithClaims = [MSIDCredentialCacheItem new];
+    itemWithClaims.environment = baseItem.environment;
+    itemWithClaims.credentialType = baseItem.credentialType;
+    itemWithClaims.clientId = baseItem.clientId;
+    itemWithClaims.realm = baseItem.realm;
+    itemWithClaims.target = baseItem.target;
+    itemWithClaims.homeAccountId = baseItem.homeAccountId;
+    itemWithClaims.requestedClaims = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}";
+
+    MSIDDefaultCredentialCacheKey *baseKey = (MSIDDefaultCredentialCacheKey *)[baseItem generateCacheKey];
+    MSIDDefaultCredentialCacheKey *claimsKey = (MSIDDefaultCredentialCacheKey *)[itemWithClaims generateCacheKey];
+
+    XCTAssertNotNil(baseKey.service);
+    XCTAssertNotNil(claimsKey.service);
+    XCTAssertNotEqualObjects(baseKey.service, claimsKey.service);
+    XCTAssertEqualObjects(baseKey.account, claimsKey.account);
 }
 
 @end

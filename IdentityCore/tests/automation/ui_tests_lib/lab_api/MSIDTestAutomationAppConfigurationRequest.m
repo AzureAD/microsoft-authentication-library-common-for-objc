@@ -118,4 +118,33 @@ MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI = @"app_whitelist_foci";
     return request;
 }
 
+#pragma mark - Compound key
+
++ (NSString *)keyForAppConfigurationRequest:(MSIDTestAutomationAppConfigurationRequest *)request
+{
+    NSMutableString *key = [NSMutableString stringWithString:request.testAppType ?: @"unknown"];
+
+    // Audience (default: "azureadandpersonalmicrosoftaccount")
+    if (request.testAppAudience
+        && ![request.testAppAudience isEqualToString:MSIDTestAppAudienceMultipleOrgsAndPersonalAccounts])
+    {
+        [key appendFormat:@"_%@", request.testAppAudience];
+    }
+
+    // Whitelist type (default: nil)
+    if (request.appWhiteListType.length > 0)
+    {
+        [key appendFormat:@"_%@", request.appWhiteListType];
+    }
+
+    // Environment (default: "azurecloud")
+    if (request.testAppEnvironment
+        && ![request.testAppEnvironment isEqualToString:MSIDTestAppEnvironmentWWCloud])
+    {
+        [key appendFormat:@"_%@", request.testAppEnvironment];
+    }
+
+    return [key copy];
+}
+
 @end

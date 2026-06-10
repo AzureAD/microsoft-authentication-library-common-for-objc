@@ -49,6 +49,20 @@
     return [NSString stringWithFormat:@"%0.*f", precision, [self timeIntervalSince1970]];
 }
 
+- (BOOL)msidIsDateBetween:(NSDate *)dateBefore dateAfter:(NSDate *)dateAfter
+{
+    if (!dateBefore || !dateAfter) return NO;
+    
+    if (([self compare:dateBefore] == NSOrderedDescending) &&
+        ([self compare:dateAfter] == NSOrderedAscending))
+    {
+        return  YES;
+    }
+    
+    return NO;
+    
+}
+
 + (NSDate *)msidDateFromTimeStamp:(NSString *)timeStamp
 {
     if (!timeStamp)

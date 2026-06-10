@@ -25,6 +25,7 @@
 #import "MSIDVersion.h"
 #import "MSIDConstants.h"
 #import "MSIDOAuth2Constants.h"
+#import "sys/utsname.h"
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>
@@ -42,8 +43,18 @@ void MSIDDeviceCopySerialNumber(CFStringRef *serialNumber)
     {
         *serialNumber = NULL;
         
-        io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
-                                                                     IOServiceMatching("IOPlatformExpertDevice"));
+        io_service_t    platformExpert;
+        if (@available(macOS 12.0, *))
+        {
+            platformExpert = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
+        }
+        else
+        {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("IOPlatformExpertDevice"));
+#pragma clang diagnostic pop
+        }
         
         if (platformExpert)
         {
@@ -186,6 +197,15 @@ void MSIDDeviceCopySerialNumber(CFStringRef *serialNumber)
             forKey:(NSString *)key
 {
     [(NSMutableDictionary *)[self deviceId] setObject:value forKey:key];
+}
+
++ (NSString *)deviceHardwareType
+{
+    struct utsname sysinfo;
+    int retVal = uname(&sysinfo);
+    if (EXIT_SUCCESS != retVal) return nil;
+    
+    return [NSString stringWithUTF8String:sysinfo.machine];
 }
 
 @end

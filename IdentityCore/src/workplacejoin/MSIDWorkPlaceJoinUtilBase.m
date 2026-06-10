@@ -27,6 +27,9 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDWPJMetadata.h"
+#import "MSIDFlightManager.h"
+#import "MSIDConstants.h"
+#import "MSIDDIContainer.h"
 
 static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
 static NSString *kECPrivateKeyTagSuffix = @"-EC";
@@ -37,7 +40,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
 + (NSString *_Nullable)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                          accessGroup:(nullable NSString *)accessGroup
                                              context:(id<MSIDRequestContext>_Nullable)context
-                                               error:(NSError*__nullable*__nullable)error
+                                               error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     return [self getWPJStringDataFromV2ForTenantId:nil
                                         identifier:identifier
@@ -52,7 +55,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                                      key:(nullable NSString *)key
                                              accessGroup:(nullable NSString *)accessGroup
                                                  context:(id<MSIDRequestContext>_Nullable)context
-                                                   error:(NSError*__nullable*__nullable)error
+                                                   error:(NSError*__nullable __autoreleasing*__nullable)error
 {
     // Building dictionary to retrieve given identifier from the keychain
     NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
@@ -110,6 +113,22 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     return [self getRegisteredDeviceMetadataInformation:context tenantId:nil usePrimaryFormat:YES];
 }
 
++ (BOOL)v2AccessGroupAllowedWithContext:(nullable id<MSIDRequestContext>)context
+{
+    NSString *accessGroup = [[MSIDKeychainUtil sharedInstance] accessGroup:kMSIDWPJKeychainGroupV2];
+    if (!accessGroup) return NO;
+    
+    NSError *error;
+    [[self resolvedProvider] getPrimaryEccTenantWithSharedAccessGroup:accessGroup context:context error:&error];
+    
+    if (error && [error.domain isEqual:MSIDKeychainErrorDomain] && error.code == errSecMissingEntitlement)
+    {
+        return NO;
+    }
+    
+    return YES;
+}
+
 + (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
                                                          tenantId:(nullable NSString *)tenantId
                                                  usePrimaryFormat:(BOOL)usePrimaryFormat
@@ -120,18 +139,18 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         if (!accessGroup) return nil;
         
         // If tenantId is nil, the caller requested primary registration. Query keychain to get the ECC primary registration first.
-        NSString* primaryEccTenantId = [self getPrimaryEccTenantWithSharedAccessGroup:accessGroup context:context error:nil];
+        NSString* primaryEccTenantId = [[self resolvedProvider] getPrimaryEccTenantWithSharedAccessGroup:accessGroup context:context error:nil];
         
         if (primaryEccTenantId)
         {
             NSError *subError;
             
             // ECC primary registration was found. Fill the data and return.
-            MSIDWPJMetadata *metadata = [self readWPJMetadataWithSharedAccessGroup:accessGroup
-                                                                  tenantIdentifier:primaryEccTenantId
-                                                                        domainName:nil
-                                                                           context:context
-                                                                             error:&subError];
+            MSIDWPJMetadata *metadata = [[self resolvedProvider] readWPJMetadataWithSharedAccessGroup:accessGroup
+                                                                                     tenantIdentifier:primaryEccTenantId
+                                                                                           domainName:nil
+                                                                                              context:context
+                                                                                                error:&subError];
             if (metadata && !subError)
             {
                 return [metadata serializeWithFormat:usePrimaryFormat];
@@ -139,7 +158,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         }
     }
  
-    MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
+    MSIDWPJKeyPairWithCert *wpjCerts = [[self resolvedProvider] getWPJKeysWithTenantId:tenantId context:context];
     if (wpjCerts)
     {
         MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
@@ -159,11 +178,11 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
             if (!accessGroup) return nil;
     
 
-            metadata = [self readWPJMetadataWithSharedAccessGroup:accessGroup
-                                                 tenantIdentifier:tenantId
-                                                       domainName:nil
-                                                          context:context
-                                                            error:&subError];
+            metadata = [[self resolvedProvider] readWPJMetadataWithSharedAccessGroup:accessGroup
+                                                                    tenantIdentifier:tenantId
+                                                                          domainName:nil
+                                                                             context:context
+                                                                               error:&subError];
         }
     
         if (metadata && !subError)
@@ -227,10 +246,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     {
         [mutableCertQuery addEntriesFromDictionary:certAttributes];
 #if TARGET_OS_OSX
-        if (@available(macOS 10.15, *))
-        {
-            [mutableCertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
-        }
+        [mutableCertQuery setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
 #endif
     }
     
@@ -339,7 +355,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (tenantId == nil)
     {
         NSError *error;
-        NSString *primaryRegTenantId = [MSIDWorkPlaceJoinUtilBase getPrimaryEccTenantWithSharedAccessGroup:defaultSharedAccessGroup context:context error:&error];
+        NSString *primaryRegTenantId = [[self resolvedProvider] getPrimaryEccTenantWithSharedAccessGroup:defaultSharedAccessGroup context:context error:&error];
         if (!primaryRegTenantId)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, error.description, error.code);
@@ -360,16 +376,24 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                                                                                    (__bridge id)kSecAttrKeySizeInBits : @256
                                                                                                 }];
 #if TARGET_OS_OSX
-    if (@available(macOS 10.15, *))
-    {
-        [privateKeyAttributes setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
-    }
+    [privateKeyAttributes setObject:@YES forKey:(__bridge id)kSecUseDataProtectionKeychain];
 #endif
     defaultKeys = [self findWPJRegistrationInfoWithAdditionalPrivateKeyAttributes:privateKeyAttributes certAttributes:extraCertAttributes context:context];
     if (defaultKeys)
     {
         defaultKeys.keyChainVersion = MSIDWPJKeychainAccessGroupV2;
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Returning EC private device key from default registration.");
+#if TARGET_OS_IPHONE
+        // Query the session transport key only for iOS.
+        // 1P apps use transport key to decrypt ECDH JWE responses when redeeming bound regular refresh tokens
+        id keyType = privateKeyAttributes[(__bridge id)kSecAttrKeyType];
+        if (keyType && [keyType isEqual: (__bridge id)kSecAttrKeyTypeECSECPrimeRandom])
+        {
+            [self setSessionTransportKeyRefFromSecureEnclaveForTenantId:tenantId
+                                                        keyPairWithCert:defaultKeys
+                                                                context:context];
+        }
+#endif
         return defaultKeys;
     }
 
@@ -379,7 +403,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     return legacyKeys;
 }
 
-+ (NSString *)getPrimaryEccTenantWithSharedAccessGroup:(NSString *)sharedAccessGroup context:(id<MSIDRequestContext>_Nullable)context error:(NSError **)error
++ (NSString *)getPrimaryEccTenantWithSharedAccessGroup:(NSString *)sharedAccessGroup context:(id<MSIDRequestContext>_Nullable)context error:(NSError *__autoreleasing*)error
 {
     NSString *res = nil;
     NSMutableDictionary *query = [NSMutableDictionary new];
@@ -388,9 +412,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     query[(__bridge id <NSCopying>) (kSecAttrAccount)] = @"ecc_default_tenant";
     query[(__bridge id <NSCopying>) (kSecAttrService)] = @"ecc_default_tenant";
 #if TARGET_OS_OSX
-    if (@available(macOS 10.15, *)) {
-        query[(__bridge id <NSCopying>) (kSecUseDataProtectionKeychain)] = @YES;
-    }
+    query[(__bridge id <NSCopying>) (kSecUseDataProtectionKeychain)] = @YES;
 #endif
     query[(__bridge id) kSecAttrAccessGroup] = sharedAccessGroup;
     CFDictionaryRef attributeDictCF = NULL;
@@ -425,7 +447,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                       tenantIdentifier:(NSString *)tenantIdentifier
                                             domainName:(NSString *)domainName
                                                context:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error
+                                                 error:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *query = [NSMutableDictionary new];
     query[(id)kSecClass] = (id)kSecClassGenericPassword;
@@ -484,4 +506,61 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     }
     return nil;
 }
+
++ (void)setSessionTransportKeyRefFromSecureEnclaveForTenantId:(NSString *)tenantId
+                                                   keyPairWithCert:(MSIDWPJKeyPairWithCert *)keyPairWithCert
+                                                           context:(id<MSIDRequestContext>)context
+{
+#if TARGET_OS_IPHONE
+    SecKeyRef transportKeyRef = nil;
+    if (!tenantId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No tenantId provided to read secure enclave session transport key.");
+    }
+    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
+    NSString *defaultSharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.v2", teamId];
+    NSString *tag = [NSString stringWithFormat:@"%@#%@%@", kMSIDPrivateTransportKeyIdentifier, tenantId, kECPrivateKeyTagSuffix];
+    NSData *tagData = [tag dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableDictionary *stkKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:
+                                             @{ (__bridge id)kSecAttrApplicationTag : tagData,
+                                                (__bridge id)kSecAttrAccessGroup : defaultSharedAccessGroup,
+                                                (__bridge id)kSecAttrTokenID : (__bridge id)kSecAttrTokenIDSecureEnclave,
+                                                (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeECSECPrimeRandom,
+                                                (__bridge id)kSecAttrKeySizeInBits : @256,
+                                                (__bridge id)kSecClass : (__bridge id)kSecClassKey,
+                                                (__bridge id)kSecReturnRef : @YES,
+                                                (__bridge id)kSecReturnAttributes : @YES
+                                             }];
+    OSStatus status = noErr;
+    CFTypeRef privateKeyCFDict = NULL;
+    
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)stkKeyAttributes, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
+    if (status != errSecSuccess)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to find secure enclave session transport private key with status %ld", (long)status);
+    }
+        
+    NSDictionary *privateKeyDict = CFBridgingRelease(privateKeyCFDict); // -1 privateKeyCFDict
+    transportKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
+    
+    if (!transportKeyRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No private session transport key ref found. Continuing without transport key.");
+    }
+    else
+    {
+        [keyPairWithCert initializePrivateTransportKeyRef:transportKeyRef];
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found secure enclave private session transport key ref in keychain.");
+    }
+#endif
+}
+
++ (Class<MSIDWorkPlaceJoinUtilProviding>)resolvedProvider
+{
+    return (Class<MSIDWorkPlaceJoinUtilProviding>)
+        [[MSIDDIContainer sharedInstance]
+            resolveImplClassForProtocol:@protocol(MSIDWorkPlaceJoinUtilProviding)
+                              orDefault:^Class { return [MSIDWorkPlaceJoinUtil class]; }];
+}
+
 @end

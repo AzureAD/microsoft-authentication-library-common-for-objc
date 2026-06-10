@@ -98,7 +98,7 @@
 #pragma mark - Protected
 
 - (ASAuthorizationSingleSignOnCredential *)ssoCredentialFromCredential:(id <ASAuthorizationCredential>)credential
-                                                                 error:(NSError **)error
+                                                                 error:(NSError *__autoreleasing*)error
 {
     if (![credential isKindOfClass:ASAuthorizationSingleSignOnCredential.class])
     {
@@ -115,7 +115,7 @@
 }
 
 - (NSDictionary *)jsonPayloadFromSSOCredential:(ASAuthorizationSingleSignOnCredential *)ssoCredential
-                                         error:(__unused NSError **)error
+                                         error:(__unused NSError *__autoreleasing*)error
 {
     return ssoCredential.authenticatedResponse.allHeaderFields;
 }

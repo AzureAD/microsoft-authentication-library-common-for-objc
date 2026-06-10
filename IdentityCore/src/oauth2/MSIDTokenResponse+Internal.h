@@ -27,6 +27,6 @@
 
 @interface MSIDTokenResponse ()
 
-- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error;
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError *__autoreleasing*)error;
 
 @end

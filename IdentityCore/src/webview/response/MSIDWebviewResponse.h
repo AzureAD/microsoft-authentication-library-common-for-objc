@@ -35,10 +35,17 @@
 @property (atomic, readonly) NSURL *url;
 @property (nonatomic, class, readonly) NSString *operation;
 
+/// Enables tracking of web response chains.
+/// For example, it is used in DUNA CBA flow to check that "swich_browser_resume" response
+/// was created as a result of "switch_browser" response.
+@property (nonatomic) MSIDWebviewResponse *parentResponse;
+
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
+                      error:(NSError *__autoreleasing*)error;
 
 + (NSDictionary *)msidWebResponseParametersFromURL:(NSURL *)url;
+
+- (BOOL)useV2WebResponseHandling;
 
 @end

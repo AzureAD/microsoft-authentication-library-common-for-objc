@@ -108,11 +108,15 @@
                                                              redirectUri:@"redirect uri"
                                                                 clientId:@"client id"
                                                                   target:nil];
+    request.nonce = @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47";
+    request.clientSku = @"MSAL.iOS";
+    request.skipValidateResultAccount = YES;
+    request.forceRefresh = YES;
     
     NSDictionary *json = [request jsonDictionary];
     
     XCTAssertNotNil(json);
-    XCTAssertEqual(7, json.allKeys.count);
+    XCTAssertEqual(11, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"client_id"], @"client id");
@@ -121,6 +125,10 @@
     XCTAssertEqualObjects(json[@"msg_protocol_ver"], @"99");
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
     XCTAssertEqualObjects(json[@"redirect_uri"], @"redirect uri");
+    XCTAssertEqualObjects(json[@"nonce"], @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47");
+    XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
+    XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"1");
+    XCTAssertEqualObjects(json[@"force_refresh"], @"1");
 }
 
 - (void)testInitWithJSONDictionary_whenNoProviderType_shouldReturnError
@@ -198,6 +206,7 @@
         @"authority": @"https://login.microsoftonline.com/common",
         @"redirect_uri": @"redirect uri",
         @"client_id": @"client id",
+        @"force_refresh": @"1"
     };
     
     NSError *error;

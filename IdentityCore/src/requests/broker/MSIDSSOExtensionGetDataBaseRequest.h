@@ -34,13 +34,12 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDRequestParameters;
 @class MSIDBrokerOperationRequest;
 
-API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionGetDataBaseRequest : NSObject
 
 @property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                             error:(NSError * _Nullable * _Nullable)error;
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (void)executeBrokerOperationRequest:(MSIDBrokerOperationRequest *)request
                            requiresUI:(BOOL)requiresUI

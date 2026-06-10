@@ -61,7 +61,7 @@
     return _accountMetadataMap[homeAccountId];
 }
 
-- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata forHomeAccountId:(NSString *)homeAccountId error:(NSError **)error
+- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata forHomeAccountId:(NSString *)homeAccountId error:(NSError *__autoreleasing*)error
 {
     if (!homeAccountId || !accountMetadata)
     {
@@ -76,7 +76,7 @@
 }
 
 - (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
-                                        error:(NSError **)error
+                                        error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:homeAccountId])
     {

@@ -74,7 +74,7 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
 
 - (NSString *)resourceForAuthority:(MSIDAuthority *)authority
                            context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error
+                             error:(NSError *__autoreleasing*)error
 {
     NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_RESOURCE_ID_KEY];
     if (!jsonDictionary)
@@ -98,7 +98,7 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
 
 - (BOOL)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
                            context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error
+                             error:(NSError *__autoreleasing*)error
 {
     if (![self isValid:jsonDictionary context:context error:error]) return NO;
     
@@ -107,7 +107,7 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
 }
 
 - (NSDictionary *)resourcesJsonDictionaryWithContext:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error
+                                               error:(NSError *__autoreleasing*)error
 {
     __auto_type jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_RESOURCE_ID_KEY];
     if (![self isValid:jsonDictionary context:context error:error]) return nil;
@@ -124,7 +124,7 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
 
 - (BOOL)isValid:(NSDictionary *)json
         context:(id<MSIDRequestContext>)context
-          error:(NSError **)error
+          error:(NSError *__autoreleasing*)error
 {
     NSString *errorDescription = @"Intune Resource JSON structure is incorrect.";
     __auto_type validationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, context.correlationId, nil, NO);

@@ -45,7 +45,7 @@
 
 - (BOOL)checkResponseClass:(MSIDCIAMTokenResponse *)response
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     if (![response isKindOfClass:[MSIDCIAMTokenResponse class]])
     {
@@ -66,7 +66,7 @@
 
 - (MSIDCIAMTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                         context:(__unused id<MSIDRequestContext>)context
-                                          error:(NSError **)error
+                                          error:(NSError *__autoreleasing*)error
 {
     return [[MSIDCIAMTokenResponse alloc] initWithJSONDictionary:json error:error];
 }
@@ -132,7 +132,7 @@
 
 - (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
                                       tokenResponse:(MSIDCIAMTokenResponse *)response
-                                              error:(NSError **)error
+                                              error:(NSError *__autoreleasing*)error
 {
     return [[MSIDCIAMAuthority alloc] initWithURL:configuration.authority.url
                                   validateFormat:NO

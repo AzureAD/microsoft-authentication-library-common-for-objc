@@ -40,7 +40,6 @@
 #import "MSIDLastRequestTelemetry.h"
 #endif
 
-NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
 NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_response_type";
 NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
@@ -92,15 +91,12 @@ NSString *const MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP = @"request_received_time
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
-    self = [super init];
+    self = [super initWithJSONDictionary:json error:error];
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_JSON_KEY required:YES error:error]) return nil;
-        self.operation = json[MSID_BROKER_OPERATION_JSON_KEY];
-        
         if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_BROKER_OPERATION_RESULT_JSON_KEY required:YES error:error]) return nil;
         _success = [json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] boolValue];
         _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_APP_VERSION_JSON_KEY];
@@ -114,14 +110,8 @@ NSString *const MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP = @"request_received_time
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [NSMutableDictionary new];
-    if (!self.operation)
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, operation is nil.", self.class);
-        return nil;
-    }
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
-    json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
     json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
     json[MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY] = self.class.responseType;
     json[MSID_BROKER_APP_VERSION_JSON_KEY] = self.clientAppVersion;
@@ -134,30 +124,4 @@ NSString *const MSID_BROKER_REQUEST_RECEIVED_TIMESTAMP = @"request_received_time
     return json;
 }
 
-#if !EXCLUDE_FROM_MSALCPP
-
-- (void)trackPerfTelemetryWithLastRequest:(MSIDLastRequestTelemetry *)telemetry
-                         requestStartDate:(NSDate *)requestStartDate
-                            telemetryType:(NSString *)telemetryType
-{
-    if (!requestStartDate)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"trackPerfTelemetryWithLastRequest called with nil request start date");
-        return;
-    }
-    
-    NSDate *responseDate = [NSDate date];
-    NSTimeInterval totalTime = [responseDate timeIntervalSinceDate:requestStartDate];
-    NSTimeInterval ipcRequestTime = self.requestReceivedTimeStamp ? [self.requestReceivedTimeStamp timeIntervalSinceDate:requestStartDate] : 0;
-    NSTimeInterval ipcResponseTime = self.responseGenerationTimeStamp ? [responseDate timeIntervalSinceDate:self.responseGenerationTimeStamp] : 0;
-    
-    [telemetry trackSSOExtensionPerformanceWithType:telemetryType
-                                    totalPerfNumber:totalTime
-                               ipcRequestPerfNumber:ipcRequestTime
-                              ipcResponsePerfNumber:ipcResponseTime];
-}
-
-#endif
-
 @end
-

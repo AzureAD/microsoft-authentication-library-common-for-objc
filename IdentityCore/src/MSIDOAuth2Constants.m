@@ -32,16 +32,19 @@ NSString *const MSID_OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const MSID_OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
 NSString *const MSID_OAUTH2_BEARER             = @"Bearer";
 NSString *const MSID_OAUTH2_POP                = @"Pop";
+NSString *const MSID_OAUTH2_SSH_CERT           = @"ssh-cert";
 NSString *const MSID_OAUTH2_CLIENT_ID          = @"client_id";
 NSString *const MSID_OAUTH2_CLAIMS             = @"claims";
 NSString *const MSID_OAUTH2_CODE               = @"code";
 NSString *const MSID_OAUTH2_ERROR              = @"error";
 NSString *const MSID_OAUTH2_ERROR_DESCRIPTION  = @"error_description";
 NSString *const MSID_OAUTH2_ERROR_SUBCODE      = @"error_subcode";
+NSString *const MSID_OAUTH2_ERROR_CODES        = @"error_codes";
 NSString *const MSID_OAUTH2_EXPIRES_IN         = @"expires_in";
 NSString *const MSID_OAUTH2_GRANT_TYPE         = @"grant_type";
 NSString *const MSID_OAUTH2_REDIRECT_URI       = @"redirect_uri";
 NSString *const MSID_OAUTH2_REFRESH_TOKEN      = @"refresh_token";
+NSString *const MSID_OAUTH2_DEVICE_TOKEN      = @"device_token";
 NSString *const MSID_OAUTH2_RESOURCE           = @"resource";
 NSString *const MSID_OAUTH2_RESPONSE_TYPE      = @"response_type";
 NSString *const MSID_OAUTH2_SCOPE              = @"scope";
@@ -60,13 +63,16 @@ NSString *const MSID_OAUTH2_SAML11_BEARER_VALUE = @"urn:ietf:params:oauth:grant-
 NSString *const MSID_OAUTH2_SAML2_BEARER_VALUE = @"urn:ietf:params:oauth:grant-type:saml2-bearer";
 NSString *const MSID_OAUTH2_SCOPE_OPENID_VALUE = @"openid";
 NSString *const MSID_OAUTH2_SCOPE_PROFILE_VALUE = @"profile";
+NSString *const MSID_OAUTH2_SCOPE_EMAIL_VALUE = @"email";
 NSString *const MSID_OAUTH2_SCOPE_OFFLINE_ACCESS_VALUE = @"offline_access";
 NSString *const MSID_OAUTH2_CLIENT_TELEMETRY    = @"x-ms-clitelem";
+NSString *const MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM = @"clidata";
 NSString *const MSID_OAUTH2_PROMPT              = @"prompt";
 NSString *const MSID_OAUTH2_PROMPT_NONE         = @"none";
 NSString *const MSID_OAUTH2_SIGNOUT_REDIRECT_URI    = @"post_logout_redirect_uri";
 NSString *const MSID_OAUTH2_REQUEST_CONFIRMATION = @"req_cnf";
 NSString *const MSID_OAUTH2_REQUEST_ENDPOINT = @"endpointUrl";
+NSString *const MSID_OAUTH2_SSH_CERT_KEY_ID = @"key_id";
 
 NSString *const MSID_OAUTH2_EXPIRES_ON          = @"expires_on";
 NSString *const MSID_OAUTH2_REFRESH_IN          = @"refresh_in";
@@ -82,9 +88,10 @@ NSString *const MSID_OAUTH2_CODE_VERIFIER                = @"code_verifier";
 NSString *const MSID_NESTED_AUTH_BROKER_CLIENT_ID        = @"brk_client_id";
 NSString *const MSID_NESTED_AUTH_BROKER_REDIRECT_URI     = @"brk_redirect_uri";
 
-NSString *const MSID_OAUTH2_CLIENT_INFO                  = @"client_info";
-NSString *const MSID_OAUTH2_UNIQUE_IDENTIFIER            = @"uid";
-NSString *const MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER     = @"utid";
+NSString *const MSID_OAUTH2_CLIENT_INFO                         = @"client_info";
+NSString *const MSID_OAUTH2_UNIQUE_IDENTIFIER                   = @"uid";
+NSString *const MSID_OAUTH2_UNIQUE_TENANT_IDENTIFIER            = @"utid";
+NSString *const MSID_OAUTH2_TENANT_DATA_BOUNDARY_RESTRICTION    = @"xms_tdbr";
 
 NSString *const MSID_OAUTH2_DOMAIN_REQ                   = @"domain_req";
 NSString *const MSID_OAUTH2_LOGIN_REQ                    = @"login_req";
@@ -117,6 +124,8 @@ NSString *const MSID_REFRESH_ON_CACHE_KEY                = @"refresh_on";
 NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY          = @"access_token_type";
 NSString *const MSID_CACHED_AT_CACHE_KEY                 = @"cached_at";
 NSString *const MSID_LAST_RECOVERY_ATTEMPT_CACHE_KEY     = @"recovery_attempted_at";
+NSString *const MSID_RECOVERY_ATTEMPT_COUNT_CACHE_KEY    = @"recovery_attempt_count";
+NSString *const MSID_LAST_RECOVERY_ATTEMPT_FAILED_CACHE_KEY    = @"last_recovery_attempt_failed";
 NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on";
 NSString *const MSID_EXPIRES_IN_CACHE_KEY                = @"expires_in";
 NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";
@@ -144,6 +153,8 @@ NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE             = @"LegacySingleResourc
 NSString *const MSID_ID_TOKEN_CACHE_TYPE                 = @"IdToken";
 NSString *const MSID_LEGACY_ID_TOKEN_CACHE_TYPE          = @"V1IdToken";
 NSString *const MSID_PRT_TOKEN_CACHE_TYPE                = @"PrimaryRefreshToken";
+NSString *const MSID_FRT_TOKEN_CACHE_TYPE                = @"FamilyRefreshToken";
+NSString *const MSID_BOUND_RT_TOKEN_CACHE_TYPE           = @"BoundRefreshToken";
 NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
 NSString *const MSID_GENERAL_CACHE_ITEM_TYPE             = @"general_cache_item";
 NSString *const MSID_APP_METADATA_CACHE_TYPE             = @"appmetadata";
@@ -163,3 +174,25 @@ NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the to
 
 NSString *const MSIDServerErrorClientMismatch            = @"client_mismatch";
 NSString *const MSIDServerErrorBadToken                  = @"bad_token";
+NSString *const MSIDServerErrorUserAccountDeleted        = @"user_account_deleted";
+
+NSString *const MSID_CCS_REQUEST_ID_KEY                  = @"x-ms-ccs-requestid";
+NSString *const MSID_CCS_REQUEST_ID_RESPONSE             = @"ccs-requestid";
+
+NSString *const MSID_CCS_REQUEST_SEQUENCE_KEY            = @"x-ms-srs";
+NSString *const MSID_CCS_REQUEST_SEQUENCE_RESPONSE       = @"ccs-request-sequence";
+
+NSString *const MSID_CLIENT_DATA_HEADER_KEY              = @"x-ms-clientdata";
+NSString *const MSID_CLIENT_DATA_RESPONSE                = @"client_data";
+
+NSString *const MSID_BROKER_EXECUTION_FLOW_RESPONSE      = @"broker_execution_flow";
+
+NSString *const MSID_REFRESH_TOKEN_TYPE                  = @"refresh_token_type";
+NSString *const MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT     = @"bound_app_rt";
+
+NSString *const MSID_BOUND_DEVICE_ID_CACHE_KEY           = @"bound_device_id";
+NSString *const MSID_BOUND_RT_EXCHANGE                   = @"bound_rt_exchange";
+NSString *const MSID_MSAL_CLIENT_APV_PREFIX              = @"MsalClient";
+
+// STS error codes
+NSInteger const MSIDSTSErrorCodeResetPasswordRequired    = 50142;

@@ -34,7 +34,7 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                 error:(NSError **)error
+                                 error:(NSError *__autoreleasing*)error
 {
     self = [self initWithJSONDictionary:json error:error];
     if (self)
@@ -118,7 +118,7 @@
 
 - (MSIDErrorCode)oauthErrorCode
 {
-    return MSIDErrorCodeForOAuthError(self.error, MSIDErrorServerOauth);
+    return MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(self.error, MSIDErrorServerOauth, self.stsErrorCodes);
 }
 
 + (MSIDProviderType)providerType
@@ -126,16 +126,26 @@
     @throw MSIDException(MSIDGenericException, @"Abstract method was invoked.", nil);
 }
 
+- (NSString *)accountIdentifier
+{
+    return self.idTokenObj.uniqueId;
+}
+
+- (NSString *)accountUpn
+{
+    return self.idTokenObj.username;
+}
+
 #pragma mark - Protected
 
-- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError *__autoreleasing*)error
 {
     return [[MSIDIdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super init];
     if (self)
@@ -157,8 +167,10 @@
         _state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
         [self setIdToken:[json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN]];
         _error = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
+        _stsErrorCodes = [json msidArrayOfIntegersForKey: MSID_OAUTH2_ERROR_CODES];
         _errorDescription = [[json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION] msidURLDecode];
         _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_VERSION_KEY];
+        _boundAppRefreshTokenDeviceId = [json msidStringObjectForKey:MSID_BART_DEVICE_ID_KEY];
         [self setAdditionalServerInfo:json];
     }
     
@@ -174,6 +186,7 @@
     {
         json[MSID_OAUTH2_ERROR] = self.error;
         json[MSID_OAUTH2_ERROR_DESCRIPTION] = [self.errorDescription msidURLEncode];
+        if (self.stsErrorCodes) json[MSID_OAUTH2_ERROR_CODES] = self.stsErrorCodes;
     }
     else
     {

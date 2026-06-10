@@ -30,6 +30,11 @@
 #import "MSIDDeviceId.h"
 #import "MSIDConstants.h"
 #import "NSDictionary+MSIDExtensions.h"
+#if !EXCLUDE_FROM_MSALCPP
+#import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDRequestTelemetryConstants.h"
+#endif
+#import "MSIDWorkPlaceJoinUtil.h"
 
 @implementation MSIDPKeyAuthHandler
 
@@ -75,7 +80,19 @@
     NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc] initWithURL:responseUrlComp.URL];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
-
+    
+#if !EXCLUDE_FROM_MSALCPP
+    MSIDCurrentRequestTelemetry *telemetry = [MSIDCurrentRequestTelemetry new];
+    telemetry.schemaVersion = HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION;
+    BOOL v2GroupEntitled = [MSIDWorkPlaceJoinUtil v2AccessGroupAllowedWithContext:context];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"v2 WPJ group is allowed %d", v2GroupEntitled);
+    NSMutableArray *platformFields = [NSMutableArray new];
+    [platformFields addObject:v2GroupEntitled ? MSID_WPJ_V2_TELEMETRY_KEY : MSID_WPJ_V1_TELEMETRY_KEY];
+    telemetry.platformFields = platformFields;
+    NSString *currentRequestTelemetryString = [telemetry telemetryString];
+    [responseReq setValue:currentRequestTelemetryString forHTTPHeaderField:MSID_CURRENT_TELEMETRY_HEADER_NAME];
+#endif
+    
     // Adding refreshTokenCredential (PRT) header to the challenge response. Header is available in customheaders dictionary
     NSString *credentialHeader = [customHeaders objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
     if (credentialHeader)

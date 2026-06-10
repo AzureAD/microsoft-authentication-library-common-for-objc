@@ -41,7 +41,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     self = [super initWithURL:url context:context error:error];
     if (self)
@@ -55,7 +55,7 @@
 
 + (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                         error:(NSError *__autoreleasing*)error
 {
     if (![super isAuthorityFormatValid:url context:context error:error]) return NO;
     
@@ -98,7 +98,7 @@
 
 + (NSURL *)normalizedAuthorityUrl:(NSURL *)url
                           context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+                            error:(NSError *__autoreleasing*)error
 {
     // Normalization requires url to have at least 1 path and a host.
     // Return nil otherwise.

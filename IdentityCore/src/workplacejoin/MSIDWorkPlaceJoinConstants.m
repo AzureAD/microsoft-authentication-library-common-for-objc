@@ -24,6 +24,7 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 
 NSString *const kMSIDPrivateKeyIdentifier               = @"com.microsoft.workplacejoin.privatekey\0";
+NSString *const kMSIDPrivateTransportKeyIdentifier      = @"com.microsoft.workplacejoin.stk.privatekey\0";
 NSString *const kMSIDTenantKeyIdentifier                = @"com.microsoft.workplacejoin.tenantId";
 NSString *const kMSIDUPNKeyIdentifier                   = @"com.microsoft.workplacejoin.registeredUserPrincipalName";
 NSString *const kMSIDWPJThumbprintIdentifier            = @"com.microsoft.workplacejoin.thumbprint";

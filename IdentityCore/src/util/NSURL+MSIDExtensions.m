@@ -107,7 +107,7 @@
     return [NSString stringWithFormat:@"%@:%d", self.host.lowercaseString, port.intValue];
 }
 
-- (NSURL *)msidURLForHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError **)error
+- (NSURL *)msidURLForHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing*)error
 {
     NSURL *url = [self copy];
     
@@ -134,7 +134,7 @@
         components.percentEncodedHost = hostComponents[0];
         
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 160000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
-        if (@available(iOS 16.0, macOS 13.0, *))
+        if (@available(macOS 13.0, *))
         {
             // On iOS 16.0 or macOS 13.0 and above, NSURLComponents percentEncodedHost will no longer throw an exception if invalid.
             if ([NSString msidIsStringNilOrBlank:components.host])

@@ -26,6 +26,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDConstants.h"
 #import "MSIDBrokerResponse.h"
+#import "MSIDAADV2BrokerResponse.h"
 #import "MSIDBrokerCryptoProvider.h"
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDCacheAccessor.h"
@@ -76,7 +77,7 @@
 
 #pragma mark - Broker response
 
-- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response sourceApplication:(NSString *)sourceApplication error:(NSError **)error
+- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response sourceApplication:(NSString *)sourceApplication error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Handling broker response.");
     
@@ -168,17 +169,31 @@
         }
     }
     
-    return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
-                                                            oidcScope:oidcScope
-                                                     requestAuthority:self.providedAuthority
-                                                        instanceAware:self.instanceAware
-                                                         oauthFactory:self.oauthFactory
-                                                           tokenCache:self.tokenCache
-                                                 accountMetadataCache:self.accountMetadataCacheAccessor
-                                                        correlationID:correlationId
-                                                     saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
-                                                           authScheme:authScheme
-                                                                error:error];
+    MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
+                                                                                    oidcScope:oidcScope
+                                                                             requestAuthority:self.providedAuthority
+                                                                                instanceAware:self.instanceAware
+                                                                                 oauthFactory:self.oauthFactory
+                                                                                   tokenCache:self.tokenCache
+                                                                         accountMetadataCache:self.accountMetadataCacheAccessor
+                                                                                correlationID:correlationId
+                                                                             saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
+                                                                                   authScheme:authScheme
+                                                                                        error:error];
+    
+    // Round-trip the onboarding telemetry blob (URL-scheme broker contract) onto
+    // the result's onboardingBlob property so consumers can forward it.
+    if ([brokerResponse isKindOfClass:[MSIDAADV2BrokerResponse class]])
+    {
+        NSString *onboardingBlob = ((MSIDAADV2BrokerResponse *)brokerResponse).onboardingBlob;
+        if (![NSString msidIsStringNilOrBlank:onboardingBlob])
+        {
+            tokenResult.onboardingBlob = onboardingBlob;
+        }
+    }
+
+    return tokenResult;
+
 }
 
 - (MSIDAuthenticationScheme *)authSchemeFromResumeState:(NSDictionary *)resumeState
@@ -220,7 +235,7 @@
 
 #pragma mark - Helpers
 
-- (NSDictionary *)verifyResumeStateDictionary:(NSURL *)response error:(NSError **)error
+- (NSDictionary *)verifyResumeStateDictionary:(NSURL *)response error:(NSError *__autoreleasing*)error
 {
     if (!response)
     {
@@ -292,21 +307,21 @@
                                                  correlationId:(__unused NSUUID *)correlationID
                                                     authScheme:(__unused MSIDAuthenticationScheme *)authScheme
                                                    redirectUri:(__unused NSString *)redirectUri
-                                                         error:(__unused NSError **)error
+                                                         error:(__unused NSError *__autoreleasing*)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;
 }
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                  error:(__unused NSError **)error
+                                                  error:(__unused NSError *__autoreleasing*)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;
 }
 
 - (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                                      error:(__unused NSError **)error
+                                                                      error:(__unused NSError *__autoreleasing*)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;

@@ -68,7 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable NSURL *)defaultBrokerCapableRedirectUri;
 
-+ (MSIDRedirectUriValidationResult)redirectUriIsBrokerCapable:(NSURL *)redirectUri;
++ (MSIDRedirectUriValidationResult)redirectUriIsBrokerCapable:(NSURL *)redirectUri
+                                                        error:(NSError * __autoreleasing *)error;
 
 @end
 

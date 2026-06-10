@@ -40,32 +40,32 @@
                 key:(MSIDCacheKey *)key
          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
-              error:(NSError **)error;
+              error:(NSError *__autoreleasing*)error;
 
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error;
+                                   error:(NSError *__autoreleasing*)error;
 
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                              context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error;
+                                               error:(NSError *__autoreleasing*)error;
 
 - (BOOL)removeAccountsWithKey:(MSIDCacheKey *)key
                       context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+                        error:(NSError *__autoreleasing*)error;
 
 // JSON Object
 - (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key
                                        serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                           context:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error;
+                                            error:(NSError *__autoreleasing*)error;
 
 - (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject
             serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                    key:(MSIDCacheKey *)key
                context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error;
+                 error:(NSError *__autoreleasing*)error;
 
 @end

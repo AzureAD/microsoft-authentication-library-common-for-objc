@@ -40,10 +40,7 @@ static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
 
 + (void)load
 {
-    if (@available(macOS 10.15, *))
-    {
-        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
-    }
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
 + (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
@@ -64,17 +61,12 @@ static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
 
 + (NSString *)operation
 {
-    if (@available(macOS 10.15, *))
-    {
-        return ASAuthorizationOperationRefresh;
-    }
-    
-    return @"refresh";
+    return ASAuthorizationOperationRefresh;
 }
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     self = [super initWithJSONDictionary:json error:error];
     
@@ -132,7 +124,9 @@ static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
                                            MSID_BROKER_CLIENT_APP_NAME_KEY,
                                            MSID_BROKER_CORRELATION_ID_KEY,
                                            MSID_BROKER_KEY,
-                                           MSID_BROKER_REQUEST_SENT_TIMESTAMP]];
+                                           MSID_BROKER_REQUEST_SENT_TIMESTAMP,
+                                           MSID_CLIENT_SKU_KEY,
+                                           MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY]];
     });
     return excludeSet;
     

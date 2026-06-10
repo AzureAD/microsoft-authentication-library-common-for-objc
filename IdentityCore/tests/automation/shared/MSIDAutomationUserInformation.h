@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *homeObjectId;
 @property (nonatomic) NSString *homeTenantId;
 @property (nonatomic) NSString *environment;
+@property (nonatomic) NSString *oneAuthAccountId;
 
 @end
 

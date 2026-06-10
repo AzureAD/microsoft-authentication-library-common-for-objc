@@ -25,16 +25,35 @@
 #import "MSIDBaseRequestController.h"
 #import "MSIDTokenRequestProviding.h"
 #import "MSIDRequestControlling.h"
+#import "MSIDWebviewNavigationDelegate.h"
 
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDWebWPJResponse;
+@class MSIDExternalRedirectContext;
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
+/**
+ * Block invoked fire-and-forget when the webview encounters a special redirect
+ * (e.g. msauth://enroll) during an interactive sign-in.
+ *
+ * Higher-level SDKs (OneAuth) inject an implementation that performs silent
+ * BRT acquisition using the snapshot in @c context.
+ */
+typedef void (^MSIDBRTAcquisitionBlock)(MSIDExternalRedirectContext * _Nonnull context);
+
+@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewNavigationDelegate>
 
 @property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 
+/**
+ * Optional block that is called fire-and-forget when a special redirect URL
+ * is intercepted during the interactive flow.
+ *
+ * Set by the host SDK (e.g. OneAuth) before calling @c acquireToken:.
+ */
+@property (nonatomic, copy, nullable) MSIDBRTAcquisitionBlock brtAcquisitionBlock;
+
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable * _Nullable)error;
+                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

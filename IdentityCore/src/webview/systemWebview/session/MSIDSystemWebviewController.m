@@ -34,7 +34,9 @@
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
 #import "UIApplication+MSIDExtensions.h"
+#if !defined TARGET_OS_VISION || !TARGET_OS_VISION
 #import "MSIDSafariViewController.h"
+#endif
 #import "MSIDURLResponseHandling.h"
 #endif
 #import "MSIDTelemetry+Internal.h"
@@ -54,6 +56,7 @@
 @property (nonatomic) BOOL useAuthenticationSession;
 @property (nonatomic) BOOL allowSafariViewController;
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
+@property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
 
 @end
 
@@ -65,6 +68,25 @@
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
       ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
+                         context:(id<MSIDRequestContext>)context
+{
+    return [self initWithStartURL:startURL
+                      redirectURI:redirectURI
+                 parentController:parentController
+         useAuthenticationSession:useAuthenticationSession
+        allowSafariViewController:allowSafariViewController
+       ephemeralWebBrowserSession:prefersEphemeralWebBrowserSession
+                additionalHeaders:nil
+                          context:context];
+}
+
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                     redirectURI:(NSString *)redirectURI
+                parentController:(MSIDViewController *)parentController
+        useAuthenticationSession:(BOOL)useAuthenticationSession
+       allowSafariViewController:(BOOL)allowSafariViewController
+      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
+               additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
                          context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
@@ -91,8 +113,21 @@
         _allowSafariViewController = allowSafariViewController;
         _useAuthenticationSession = useAuthenticationSession;
         _prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
+        _additionalHeaders = [additionalHeaders copy];
     }
     return self;
+}
+
++ (instancetype)sharedController
+{
+    static dispatch_once_t once;
+    static MSIDSystemWebviewController *s_controller;
+    
+    dispatch_once(&once, ^{
+        s_controller = [MSIDSystemWebviewController new];
+    });
+    
+    return s_controller;
 }
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
@@ -217,12 +252,19 @@
     
     if (authSessionAllowed)
     {
+        // Pass additionalHeaders to factory method
         return [MSIDSystemWebViewControllerFactory authSessionWithParentController:currentViewController
                                                                           startURL:self.startURL
                                                                     callbackScheme:self.redirectURL.scheme
-                                                                useEmpheralSession:self.prefersEphemeralWebBrowserSession
+                                                               useEphemeralSession:self.prefersEphemeralWebBrowserSession
+                                                                 additionalHeaders:self.additionalHeaders
                                                                            context:self.context];
     }
+
+#if defined TARGET_OS_VISION && TARGET_OS_VISION
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Couldn't create session on visionOS. Safari allowed flag %d", safariAllowed);
+    return nil;
+#else
         
 #if TARGET_OS_IPHONE
         
@@ -241,6 +283,7 @@
 #endif
     
     return nil;
+#endif
 }
 
 - (void)notifyEndWebAuthWithURL:(NSURL *)url

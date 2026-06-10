@@ -53,7 +53,7 @@
                   clientId:(NSString *)clientId
              instanceAware:(BOOL)instanceAware
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     if (!requestAuthorityURL
         || [NSString msidIsStringNilOrBlank:homeAccountId]
@@ -78,7 +78,7 @@
                   clientId:(NSString *)clientId
              instanceAware:(BOOL)instanceAware
                    context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                     error:(NSError *__autoreleasing*)error
 {
     if (!cacheAuthorityURL || !requestAuthorityURL || !homeAccountId || !clientId)
     {
@@ -137,7 +137,7 @@
 - (MSIDAccountMetadataState)signInStateForHomeAccountId:(NSString *)homeAccountId
                                                clientId:(NSString *)clientId
                                                 context:(id<MSIDRequestContext>)context
-                                                  error:(NSError **)error
+                                                  error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:homeAccountId]
         || [NSString msidIsStringNilOrBlank:clientId])
@@ -164,7 +164,7 @@
                                  clientId:(NSString *)clientId
                                     state:(MSIDAccountMetadataState)state
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:homeAccountId])
     {
@@ -213,7 +213,7 @@
 
 - (MSIDAccountIdentifier *)principalAccountIdForClientId:(NSString *)clientId
                                                  context:(id<MSIDRequestContext>)context
-                                                   error:(NSError **)error
+                                                   error:(NSError *__autoreleasing*)error
 {
     MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipMemoryCacheForAccountMetadata context:context error:error];
     
@@ -229,7 +229,7 @@
                          principalAccountId:(MSIDAccountIdentifier *)principalAccountId
                 principalAccountEnvironment:(NSString *)principalAccountEnvironment
                                     context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error
+                                      error:(NSError *__autoreleasing*)error
 {
     NSError *accountMetadataError;
     MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipMemoryCacheForAccountMetadata context:context error:&accountMetadataError];
@@ -257,7 +257,7 @@
 
 - (MSIDAccountMetadataCacheItem *)retrieveAccountMetadataCacheItemForClientId:(NSString *)clientId
                                                                       context:(id<MSIDRequestContext>)context
-                                                                        error:(NSError **)error
+                                                                        error:(NSError *__autoreleasing*)error
 {
     return [self retrieveAccountMetadataCacheItemForClientId:clientId
                                                    skipCache:NO
@@ -270,7 +270,7 @@
 - (MSIDAccountMetadataCacheItem *)retrieveAccountMetadataCacheItemForClientId:(NSString *)clientId
                                                                     skipCache:(BOOL)skipCache
                                                                       context:(id<MSIDRequestContext>)context
-                                                                        error:(NSError **)error
+                                                                        error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:clientId])
     {
@@ -291,7 +291,7 @@
 // Remove account metadata for all clients based on home account id
 - (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
                                       context:(id<MSIDRequestContext>)context
-                                        error:(NSError **)error
+                                        error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:homeAccountId])
     {
@@ -344,7 +344,7 @@
 }
 
 - (NSArray<MSIDAccountMetadataCacheItem *> *)allAccountMetadataCacheItemsWithContext:(id<MSIDRequestContext>)context
-                                                                               error:(NSError **)error
+                                                                               error:(NSError *__autoreleasing*)error
 {
     return [_metadataCache allAccountMetadataCacheItemsWithContext:context error:error];
 }

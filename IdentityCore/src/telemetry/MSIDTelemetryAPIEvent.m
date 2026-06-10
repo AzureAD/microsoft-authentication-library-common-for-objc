@@ -85,6 +85,12 @@
     [self setProperty:MSID_TELEMETRY_KEY_API_ERROR_CODE value:[NSString stringWithFormat:@"%ld", (long)errorCode]];
 }
 
+- (void)setErrorCodeString:(NSString *)errorCode
+{
+    self.errorInEvent = YES;
+    [self setProperty:MSID_TELEMETRY_KEY_API_ERROR_CODE value:errorCode];
+}
+
 - (void)setPromptType:(MSIDPromptType)promptType
 {
     NSString *promptParam = MSIDPromptParamFromType(promptType);

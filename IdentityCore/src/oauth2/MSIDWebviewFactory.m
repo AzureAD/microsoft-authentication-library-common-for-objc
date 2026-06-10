@@ -54,8 +54,10 @@
 {
         MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory availableWebViewTypeWithPreferredType:requestParameters.webviewType];
         
+#if !MSID_EXCLUDE_SYSTEMWV
         BOOL useSession = YES;
         BOOL allowSafariViewController = NO;
+#endif
         
         switch (webviewType)
         {
@@ -81,11 +83,15 @@
             default:
                 break;
         }
-    
+
+#if !MSID_EXCLUDE_SYSTEMWV
     return [self systemWebviewFromConfiguration:configuration
                        useAuthenticationSession:useSession
                       allowSafariViewController:allowSafariViewController
                                         context:context];
+#else
+    return nil;
+#endif
 }
 
 - (NSObject<MSIDWebviewInteracting> *)embeddedWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
@@ -113,6 +119,9 @@
                                                       customHeaders:configuration.customHeaders
                                                      platfromParams:nil
                                                             context:context];
+#if MSAL_JS_AUTOMATION
+    embeddedWebviewController.clientAutomationScript = configuration.clientAutomationScript;
+#endif
     
 #if TARGET_OS_IPHONE
     embeddedWebviewController.parentController = configuration.parentController;
@@ -120,6 +129,7 @@
 #endif
 
     embeddedWebviewController.externalDecidePolicyForBrowserAction = externalDecidePolicyForBrowserAction;
+    embeddedWebviewController.onboardingBlobBuilder = configuration.onboardingBlobBuilder;
 
     return embeddedWebviewController;
 }
@@ -183,6 +193,14 @@
         [result addEntriesFromDictionary:allAuthorizeRequestExtraParameters];
     }
     
+#if MSAL_JS_AUTOMATION
+    // Remove "script" entry from the additional parameters
+    if([result objectForKey:@"script"])
+    {
+        [result removeObjectForKey:@"script"];
+    }
+#endif
+    
     // PKCE
     if (pkce)
     {
@@ -200,7 +218,7 @@
     if (![NSString msidIsStringNilOrBlank:promptParam]) result[MSID_OAUTH2_PROMPT] = promptParam;
     
     [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
-    
+
     return result;
 }
 
@@ -212,6 +230,7 @@
     result[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
     [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
     [result addEntriesFromDictionary:parameters.appRequestMetadata];
+    [result addEntriesFromDictionary:parameters.extraURLQueryParameters];
     return result;
 }
 
@@ -224,8 +243,9 @@
 - (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
                       ignoreInvalidState:(BOOL)ignoreInvalidState
+                               endRedirectUri:(NSString *)endRedirectUri
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     //  return base response
     NSError *responseCreationError = nil;
@@ -276,13 +296,29 @@
                                                                                                                    state:oauthState
                                                                                                       ignoreInvalidState:NO
                                                                                                               ssoContext:parameters.ssoContext];
+
+#if MSAL_JS_AUTOMATION
+    configuration.clientAutomationScript = [[parameters allAuthorizeRequestExtraParametersWithMetadata:YES] objectForKey:@"script"];
+#endif
+    
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;
     configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
+    configuration.customHeaderProvider = parameters.prtHeaderProvider;
+    configuration.onboardingBlobBuilder = parameters.onboardingBlobBuilder;
     
 #if TARGET_OS_IPHONE
     configuration.presentationType = parameters.presentationType;
 #endif
+    
+    if (!configuration.customHeaders[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY])
+    {
+        NSMutableDictionary *mutableHeaders = configuration.customHeaders ? [configuration.customHeaders mutableCopy] : [NSMutableDictionary dictionary];
+        
+        mutableHeaders[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY] = parameters.userFederatedIdentityToken;
+        
+        configuration.customHeaders = mutableHeaders;
+    }
 
     return configuration;
 }

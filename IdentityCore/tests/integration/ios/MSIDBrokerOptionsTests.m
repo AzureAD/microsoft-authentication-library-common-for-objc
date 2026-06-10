@@ -34,6 +34,7 @@
 - (void)tearDown
 {
     MSIDApplicationTestUtil.canOpenURLSchemes = nil;
+    [MSIDApplicationTestUtil reset];
     [super tearDown];
 }
 

@@ -40,6 +40,19 @@
 #import "MSIDTokenResponseHandler.h"
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDFlightManager.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDBoundRefreshToken+Redemption.h"
+#import "MSIDBoundRefreshTokenRedemptionParameters.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDAADV1RefreshTokenGrantRequest.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAccountCredentialCache.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 #import "MSIDExternalAADCacheSeeder.h"
@@ -49,14 +62,13 @@
 
 typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
-    MSIDAppRefreshTokenType = 0,
-    MSIDFamilyRefreshTokenType
+    MSIDUseAppRefreshTokenType = 0,
+    MSIDUseFamilyRefreshTokenType
 };
 
 @interface MSIDSilentTokenRequest()
 
 @property (nonatomic) MSIDRequestParameters *requestParameters;
-@property (nonatomic) BOOL forceRefresh;
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
@@ -175,6 +187,13 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         if (accessToken)
         {
             accessTokenExpired = [accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer];
+            if (accessToken.cachedAt)
+            {
+                NSTimeInterval elapsed = [[NSDate date] timeIntervalSinceDate:accessToken.expiresOn];
+                MSIDExecutionFlowInsertTag(MSIDTokenRequestTagToString(MSIDAtExpirationElapsedTag),
+                                               @{MSID_EXECUTION_FLOW_DIAGNOSTIC_ID:@((int64_t)elapsed)},
+                                               self.requestParameters.correlationId);
+            }
         }
         
         if (accessToken && ![NSString msidIsStringNilOrBlank:accessToken.kid])
@@ -276,7 +295,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         return;
     }
     
-    [self fetchCachedTokenAndCheckForFRTFirst:NO shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
+    BOOL checkForFRTFirst = [self shouldCheckForFRTFirst];
+    
+    [self fetchCachedTokenAndCheckForFRTFirst:checkForFRTFirst shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
         if (!refreshToken)
         {
             NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
@@ -299,7 +320,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     NSError *rtError = nil;
     MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
     NSString *contextMsg = checkForFRT ? @"family refresh token" : @"app refresh token";
-    MSIDRefreshTokenTypes checkForTokenType = checkForFRT ? MSIDFamilyRefreshTokenType : MSIDAppRefreshTokenType;
+    MSIDRefreshTokenTypes checkForTokenType = checkForFRT ? MSIDUseFamilyRefreshTokenType : MSIDUseAppRefreshTokenType;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for %@...", contextMsg);
     if (checkForFRT)
@@ -343,7 +364,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
               tokenType:(MSIDRefreshTokenTypes)tokenType
         completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    BOOL isTryingWithAppRefreshToken = tokenType == MSIDAppRefreshTokenType;
+    BOOL isTryingWithAppRefreshToken = tokenType == MSIDUseAppRefreshTokenType;
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.requestParameters, @"Trying to acquire access token using %@ for clientId %@, authority %@, account %@", (isTryingWithAppRefreshToken ? @"App Refresh Token" : @"Family Refresh Token"), self.requestParameters.authority, self.requestParameters.clientId, self.requestParameters.accountIdentifier.maskedHomeAccountId);
     
     // When using ART or FRT, it will go through the same method below, and handle differently within the completion block
@@ -378,6 +399,26 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         }
         else
         {
+            if (refreshToken.credentialType == MSIDBoundRefreshTokenType)
+            {
+                // BART redemption failed for some reason, log it and retry with normal RT if available
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Bound refresh token redemption failed with error %@, trying to redeem normal refresh token if available", error);
+                
+                // Create error object to log BART redemption failure
+                NSError *bartRedemptionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBoundAppRefreshTokenRedemptionError, @"Bound refresh token redemption failed", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
+                
+                self.shouldSkipBoundAppRefreshTokenUsage = YES;
+#if !EXCLUDE_FROM_MSALCPP
+                MSIDAADTokenRequestServerTelemetry *serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+                NSString *telemetryMessage = [NSString stringWithFormat:@"BART-RED-FAIL(%ld)", (long)error.code];
+                
+                [serverTelemetry handleError:error
+                                 errorString:telemetryMessage
+                                     context:self.requestParameters];
+#endif
+                completionBlock(nil, bartRedemptionError);
+                return;
+            }
             completionBlock(nil, error);
         }
         
@@ -385,6 +426,38 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 }
 
 #pragma mark - Helpers
+
+- (BOOL)shouldCheckForFRTFirst
+{
+    MSIDAccountCredentialCache *accountCredentialCache = nil;
+    
+    if (self.tokenCache != nil && [self.tokenCache isKindOfClass:[MSIDDefaultTokenCacheAccessor class]])
+    {
+        accountCredentialCache = ((MSIDDefaultTokenCacheAccessor *)self.tokenCache).accountCredentialCache;
+    }
+    
+    // Use default keychain if account credential cache is not provided
+    if (accountCredentialCache == nil)
+    {
+        accountCredentialCache = [[MSIDAccountCredentialCache alloc] initWithDataSource:MSIDKeychainTokenCache.defaultKeychainCache];
+    }
+    
+    NSError *frtError = nil;
+    MSIDIsFRTEnabledStatus frtStatus = [accountCredentialCache checkFRTEnabled:self.requestParameters error:&frtError];
+    BOOL frtEnabled = frtStatus == MSIDIsFRTEnabledStatusEnabled;
+    if (frtError)
+    {
+        // Log error, but continue to use old FRT code
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Error checking FRT enabled status, not using new FRT. Error: %@", frtError);
+    }
+    else if (frtEnabled)
+    {
+        // FRT is enabled, should try to use it first
+        return YES;
+    }
+    
+    return NO;
+}
 
 - (BOOL)handleErrorResponseForAppRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                               completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
@@ -400,7 +473,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     if (familyRefreshToken && ![[familyRefreshToken refreshToken] isEqualToString:[refreshToken refreshToken]])
     {
         [self tryRefreshToken:familyRefreshToken
-                    tokenType:MSIDFamilyRefreshTokenType
+                    tokenType:MSIDUseFamilyRefreshTokenType
               completionBlock:completionBlock];
         return YES;
     }
@@ -446,6 +519,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 - (void)redeemAccessTokenWith:(MSIDBaseToken<MSIDRefreshableToken> *) __unused refreshToken
               completionBlock:(MSIDRequestCompletionBlock) __unused completionBlock
 {
+    self.shouldSkipBoundAppRefreshTokenUsage = NO;
 #if !EXCLUDE_FROM_MSALCPP
     if (!refreshToken)
     {
@@ -486,9 +560,29 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
 #if !EXCLUDE_FROM_MSALCPP
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
-    
-    MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
-                                                                                                refreshToken:refreshToken.refreshToken];
+    MSIDRefreshTokenGrantRequest *tokenRequest;
+    if (refreshToken.credentialType == MSIDBoundRefreshTokenType)
+    {
+        MSIDBoundRefreshToken *boundRT = (MSIDBoundRefreshToken *)refreshToken;
+        // We will always use AADV2 factory to create bound refresh token request
+        MSIDAADV2Oauth2Factory *aadv2TokenFactory = [[MSIDAADV2Oauth2Factory alloc] init];
+        NSError *boundAppRtRequestError;
+        tokenRequest = [aadv2TokenFactory boundRefreshTokenRequestWithRequestParameters:self.requestParameters
+                                                                           refreshToken:boundRT
+                                                                         requestContext:self.requestParameters
+                                                                                  error:&boundAppRtRequestError];
+        if (!tokenRequest)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to create bound app refresh token request with error %@", MSID_PII_LOG_MASKABLE(boundAppRtRequestError));
+            completionBlock(nil, boundAppRtRequestError);
+            return;
+        }
+    }
+    else
+    {
+        tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
+                                                                          refreshToken:refreshToken.refreshToken];
+    }
     // Currently SilentTokenRequest has 3 child classes: Legacy, Default (local) and SSO. We will init the throttling service in Default and SSO and exclude Legacy. So the nil check of throttling service is needed
     if (!self.throttlingService || ![MSIDThrottlingService isThrottlingEnabled])
     {
@@ -592,6 +686,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                   accountMetadataCache:self.metadataCache
                                        validateAccount:NO
                                       saveSSOStateOnly:NO
+                                      brokerAppVersion:nil
+                     brokerResponseGenerationTimeStamp:nil
+                        brokerRequestReceivedTimeStamp:nil
                                                  error:nil
                                        completionBlock:^(MSIDTokenResult *result, NSError *localError)
          {
@@ -617,15 +714,48 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                 }
             }
             
+            BOOL disableRemoveAccountArtifacts = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_REMOVE_ACCOUNT_ARTIFACTS];
+
+            // remove account artifacts only if we test flight feature is not disabled
+            if (!result && !disableRemoveAccountArtifacts && [self shouldRemoveAccountArtifacts:localError])
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Account deleted, Removing any user account artifacts from device...");
+                [self removeAccountArtifacts:self.requestParameters];
+            }
+
             completionBlock(result, localError);
         }];
     }];
+}
+
+- (void)removeAccountArtifacts:(MSIDRequestParameters *)requestParameters
+{
+    NSError *removalError = nil;
+    BOOL removalResult = [self.tokenCache clearCacheForAccount:requestParameters.accountIdentifier
+                                                     authority:requestParameters.authority
+                                                      clientId:requestParameters.clientId
+                                                      familyId:nil
+                                                       context:requestParameters
+                                                         error:&removalError];
+    if (!removalResult)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, requestParameters, @"Failed to clear cache with error %@", MSID_PII_LOG_MASKABLE(removalError));
+    }
+    
+    NSError *metadataRemovalError = nil;
+    [[self metadataCache] removeAccountMetadataForHomeAccountId:requestParameters.accountIdentifier.homeAccountId
+                                                        context:requestParameters
+                                                          error:&metadataRemovalError];
+    if (metadataRemovalError)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, requestParameters, @"Failed to remove account artifacts with error %@", MSID_PII_LOG_MASKABLE(metadataRemovalError));
+    }
 }
 #endif
 
 #pragma mark - Abstract
 
-- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error
+- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError *__autoreleasing*)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
@@ -633,26 +763,26 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 
 - (nullable MSIDTokenResult *)resultWithAccessToken:(__unused MSIDAccessToken *)accessToken
                                        refreshToken:(__unused id<MSIDRefreshableToken>)refreshToken
-                                              error:(__unused NSError * _Nullable * _Nullable)error
+                                              error:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable __autoreleasing * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
 - (BOOL)updateFamilyIdCacheWithServerError:(__unused NSError *)serverError
-                                cacheError:(__unused NSError **)cacheError
+                                cacheError:(__unused NSError *__autoreleasing*)cacheError
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return NO;
@@ -662,6 +792,14 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return NO;
+}
+
+- (BOOL)shouldRemoveAccountArtifacts:(nonnull NSError *)serverError
+{
+    // Removing account artifacts on invalid_grant + user_deleted_account suberror combination
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
+    NSString *subError = serverError.msidSubError;
+    return oauthError == MSIDErrorServerInvalidGrant && [subError isEqualToString:MSIDServerErrorUserAccountDeleted];
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

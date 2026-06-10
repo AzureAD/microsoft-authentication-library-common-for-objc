@@ -103,6 +103,26 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
     else return nil;
 }
 
++ (BOOL)isAccountIdValid:(NSString *)accountId error:(NSError *__autoreleasing*)error
+{
+    if ([NSString msidIsStringNilOrBlank:accountId])
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"account Id is nil or blank.", nil, nil, nil, nil, nil, YES);
+        
+        return NO;
+    }
+    
+    NSArray *accountComponents = [accountId componentsSeparatedByString:@"."];
+    if ([accountComponents count] != 2)
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"account Id is invalid.", nil, nil, nil, nil, nil, YES);
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
 #pragma mark - Copy
 
 - (instancetype)copyWithZone:(NSZone *)zone
@@ -159,7 +179,7 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     NSString *displayableId = [json msidStringObjectForKey:MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY];
     NSString *homeAccountId = [json msidStringObjectForKey:MSID_ACCOUNT_HOME_ID_JSON_KEY];

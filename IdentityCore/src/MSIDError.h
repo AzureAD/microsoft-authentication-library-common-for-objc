@@ -21,15 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef MSIDERROR_H
+#define MSIDERROR_H
 extern NSString * _Nonnull MSIDErrorDescriptionKey;
 extern NSString * _Nonnull MSIDOAuthErrorKey;
 extern NSString * _Nonnull MSIDOAuthSubErrorKey;
+extern NSString * _Nonnull MSIDOAuthSubErrorDescriptionKey;
 extern NSString * _Nonnull MSIDCorrelationIdKey;
 extern NSString * _Nonnull MSIDHTTPHeadersKey;
 extern NSString * _Nonnull MSIDHTTPResponseCodeKey;
+extern NSString * _Nonnull MSIDHTTPTruncatedResponseStringKey;
 extern NSString * _Nonnull MSIDUserDisplayableIdkey;
 extern NSString * _Nonnull MSIDHomeAccountIdkey;
+extern NSString * _Nonnull MSIDTokenProtectionRequired;
 extern NSString * _Nonnull MSIDBrokerVersionKey;
+extern NSString * _Nonnull MSIDSTSErrorCodesKey;
+extern NSString * _Nonnull MSIDThrottlingCacheHitKey;
 
 /*!
  ADAL and MSID use different error domains and error codes.
@@ -112,6 +119,11 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorMismatchedAccount          = -51117,
     
     MSIDErrorRedirectSchemeNotRegistered = -51118,
+    
+    MSIDErrorInvalidRedirectURI         = -51119,
+    
+    // General catch-all error for bound refresh token redemption failures. Use to retry with regular RT when encountered.
+    MSIDErrorBoundAppRefreshTokenRedemptionError = -51120,
 
     /*!
     =========================================================
@@ -164,6 +176,8 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
      */
 
     MSIDErrorServerUnhandledResponse    = -51500,
+    // http status Code 403 or 404
+    MSIDErrorUnexpectedHttpResponse     = -51501,
     
     /*!
      =========================================================
@@ -202,6 +216,14 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // Tried to open local UI in app extension
     MSIDErrorUINotSupportedInExtension  = -51731,
 
+    // Workplacejoin device upgrade registration required for device.
+    MSIDErrorInsufficientDeviceStrength = -51732,
+
+    /*! MDM enrollment completed successfully and the request should be retried. */
+    MSIDErrorMDMEnrollmentCompletedNeedsRetry = -51733,
+    
+    // Invalid URL for ASWebAuthenticationSession
+    MSIDErrorInvalidASWebAuthenticationURL = -51734,
     /*!
      =========================================================
      Broker flow errors    (518xx and 519xx) - MSIDErrorDomain
@@ -317,9 +339,46 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // JIT - Troubleshooting - Acquire token error
     MSIDErrorJITTroubleshootingAcquireToken        =   -51836,
     
+    // Device is not PSSO registered
+    MSIDErrorDeviceNotPSSORegistered               =   -51837,
+    
+    // In PSSO, KeyId stored in passkey provider storage does not match NGC key, needs to configure and retry
+    MSIDErrorPSSOKeyIdMismatch                     =   -51838,
+    
+    // JIT - Error Handling config invalid or not found
+    MSIDErrorJITErrorHandlingConfigNotFound        =   -51839,
+    
+    // Error is thrown when PSSO biometric policy flag mismatches with the config value
+    MSIDErrorPSSOBiometricPolicyMismatch        =   -51840,
+    
+    // Error is thrown when non ENtra passkey extension tries to access the passkey
+    MSIDErrorPSSOInvalidPasskeyExtension        =   -51841,
+    
+    // Error thrown when psso save login config operation fails
+    MSIDErrorPSSOSaveLoginConfigFailure        =   -51842,
+    
+    // Error is thrown when passkey accessed without biometric when h/w biometric policy configured
+    MSIDErrorPSSOPasskeyLAError        =   -51843,
+    
+    // Error is thrown when PSSO user registration attempted with no biometrics configured and sekey biometric policy is configured
+    MSIDErrorPSSOBiometricsNotEnrolled        =   -51844,
+    
+    // Error is thrown when PSSO user registration attempted with no biometrics available and sekey biometric policy is configured
+    MSIDErrorPSSOBiometricsNotAvailable        =   -51845,
+
     // Throttling errors
     MSIDErrorThrottleCacheNoRecord = -51900,
     MSIDErrorThrottleCacheInvalidSignature = -51901,
+    
+    // App state while failed to open broker error
+    MSIDErrorBrokerAppIsInactive = -51902,
+    MSIDErrorBrokerAppIsInBackground = -51903,
+    
+    // Broker Xpc internal error
+    MSIDErrorBrokerXpcUnexpectedError = -52001,
+    
+    // Error thrown when oauth error = MSIDServerInvalidRequest and error_code = 50142 (SecureChangePasswordDueToConditionalAccess)
+    MSIDErrorServerInvalidRequestResetPasswordRequired = -50142,
 
 };
 
@@ -329,6 +388,8 @@ extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString * _Nullable oauthError,
 
 extern MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSubErrorCode(NSString * _Nullable oauthError, MSIDErrorCode defaultCode, NSString * _Nullable subError);
 
+extern MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(NSString * _Nullable oauthError, MSIDErrorCode defaultCode, NSArray<NSNumber *> * _Nullable stsErrorCodes);
+
 extern NSDictionary<NSString *, NSArray *> * _Nonnull MSIDErrorDomainsAndCodes(void);
 
 extern void MSIDFillAndLogError(NSError * _Nullable __autoreleasing * _Nullable error, MSIDErrorCode errorCode, NSString * _Nullable errorDescription, NSUUID * _Nullable correlationID);
@@ -336,3 +397,4 @@ extern void MSIDFillAndLogError(NSError * _Nullable __autoreleasing * _Nullable 
 #define MSIDException(name, message, info) [NSException exceptionWithName:name reason:[NSString stringWithFormat:@"%@ (function:%s line:%i)", message, __PRETTY_FUNCTION__, __LINE__]  userInfo:info]
 
 extern NSString * _Nullable MSIDErrorCodeToString(MSIDErrorCode errorCode);
+#endif

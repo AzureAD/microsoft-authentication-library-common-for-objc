@@ -45,16 +45,27 @@
 //which should have been handled by the NSURL class
 - (void)testFragmentParameters
 {
+    NSDictionary* empty = [NSDictionary new];
+    
     //Missing or invalid fragment:
     XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com"]).msidFragmentParameters);
     XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar"]).msidFragmentParameters);
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar=foo#"]).msidFragmentParameters);
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar"]).msidFragmentParameters);
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar#"]).msidFragmentParameters);
-    XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#        "]).msidFragmentParameters);
+    if (@available(iOS 17.0, macOS 14.0, *))
+    {
+        XCTAssertEqualObjects(@{@"bar":@"foo#"}, ((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar=foo#"]).msidFragmentParameters);
+        XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar"]).msidFragmentParameters);
+        XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar#"]).msidFragmentParameters);
+        XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#        "]).msidFragmentParameters);
+    }
+    else
+    {
+        XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar=foo#"]).msidFragmentParameters);
+        XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar"]).msidFragmentParameters);
+        XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo#foo=bar#"]).msidFragmentParameters);
+        XCTAssertNil(((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#        "]).msidFragmentParameters);
+    }
     
     //Valid fragment, but missing/invalid configuration:
-    NSDictionary* empty = [NSDictionary new];
     XCTAssertEqualObjects(@{@"bar":@""}, ((NSURL*)[NSURL URLWithString:@"https://stuff.com#bar"]).msidFragmentParameters);
     XCTAssertEqualObjects(@{@"bar":@""}, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar"]).msidFragmentParameters);
     XCTAssertEqualObjects(empty, ((NSURL*)[NSURL URLWithString:@"https://stuff.com?foo=bar#bar=foo=bar"]).msidFragmentParameters);
@@ -362,31 +373,16 @@
 - (void)testMsidURLWithQueryParameters_whenNonEmptyQuery_NonEmptyParametersWithSpecialCharacters_shouldReturnCombinedURL
 {
     NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2"];
-
     NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"spec ial,":@"value1", @"key2": @"value2"}];
-#if TARGET_OS_OSX
-    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&spec%20ial%2C=value1&key2=value2"];
-#else
     NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&key2=value2&spec%20ial%2C=value1"];
-#endif
-
     XCTAssertEqualObjects(resultURL, expectedResultURL);
 }
 
 - (void)testMsidURLWithQueryParameters_whenNonEmptyQuery_andQueryParametersWithSimilarNames_shouldReturnCombinedURL
 {
     NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&longer-return-client-request-id=true"];
-    
-#if TARGET_OS_OSX
-    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&longer-return-client-request-id=true&return-client-request-id=value1&client-request-id=value2"];
-#else
     NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&longer-return-client-request-id=true&client-request-id=value2&return-client-request-id=value1"];
-#endif
-    
     NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"return-client-request-id":@"value1", @"client-request-id": @"value2"}];
-
-    
-
     XCTAssertEqualObjects(resultURL, expectedResultURL);
 }
 

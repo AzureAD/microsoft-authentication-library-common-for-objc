@@ -24,13 +24,6 @@
 #import "MSIDTestSilentTokenRequest.h"
 #import "MSIDTokenResult.h"
 
-@interface MSIDTestSilentTokenRequest()
-
-@property (nonatomic) MSIDTokenResult *testTokenResult;
-@property (nonatomic) NSError *testError;
-
-@end
-
 @implementation MSIDTestSilentTokenRequest
 
 #pragma mark - Init

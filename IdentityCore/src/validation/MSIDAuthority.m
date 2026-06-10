@@ -89,7 +89,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     return [self initWithURL:url validateFormat:YES context:context error:error];
 }
@@ -166,7 +166,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 - (NSString *)enrollmentIdForHomeAccountId:(__unused NSString *)homeAccountId
                               legacyUserId:(__unused NSString *)legacyUserId
                                    context:(__unused id<MSIDRequestContext>)context
-                                     error:(__unused NSError **)error
+                                     error:(__unused NSError *__autoreleasing*)error
 {
     return nil;
 }
@@ -200,6 +200,11 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 - (BOOL)checkTokenEndpointForRTRefresh:(NSURL *)tokenEndpoint
 {
     return YES;
+}
+
+- (BOOL)needsUpdateToHomeAuthority:(BOOL)isAccountFromMSATenant
+{
+    return NO;
 }
 
 - (nonnull NSString *)telemetryAuthorityType
@@ -260,7 +265,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 
 + (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
-                         error:(NSError **)error
+                         error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:url.absoluteString])
     {
@@ -343,7 +348,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 
 + (NSString *)realmFromURL:(NSURL *)url
                    context:(__unused id<MSIDRequestContext>)context
-                     error:(__unused NSError **)error
+                     error:(__unused NSError *__autoreleasing*)error
 {
     return url.path;
 }
@@ -357,14 +362,14 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 #pragma mark - Sovereign
 
 - (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(__unused NSString *)cloudHostInstanceName
-                                                       error:(__unused NSError **)error
+                                                       error:(__unused NSError *__autoreleasing*)error
 {
     return nil;
 }
 
 #pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
 {
     NSString *authorityString = json[MSID_AUTHORITY_URL_JSON_KEY];
     NSURL *authorityUrl = authorityString ? [[NSURL alloc] initWithString:authorityString] : nil;

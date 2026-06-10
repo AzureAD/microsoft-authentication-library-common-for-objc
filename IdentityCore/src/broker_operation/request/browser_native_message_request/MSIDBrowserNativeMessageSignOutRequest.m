@@ -1,0 +1,80 @@
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.  
+
+
+#import "MSIDBrowserNativeMessageSignOutRequest.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDConstants.h"
+
+@implementation MSIDBrowserNativeMessageSignOutRequest
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+}
+
++ (NSString *)operation
+{
+    return @"SignOut";
+}
+
+- (NSString *)description
+{
+    __auto_type parentDescription = [super description];
+
+    return [NSString stringWithFormat:@"%@ accountId: (homeAccountId: %@ displayableId: %@), correlationId: %@", parentDescription, MSID_PII_LOG_TRACKABLE(self.accountId.homeAccountId), MSID_PII_LOG_EMAIL(self.accountId.displayableId), self.correlationId.UUIDString];
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    if (!self) return nil;
+    
+    NSString *homeAccountId = [json msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_ACCOUNT_ID_KEY];
+    if (![MSIDAccountIdentifier isAccountIdValid:homeAccountId error:error]) return nil;
+
+    _accountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:homeAccountId];
+    
+    // Parse correlationId from JSON - optional field
+    if (![json msidAssertType:NSString.class ofKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY required:NO error:error]) return nil;
+    NSString *uuidString = [json msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_CORRELATION_KEY];
+    _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
+    if (!_correlationId)
+    {
+        _correlationId = [NSUUID UUID];
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"CorrelationID is invalid or not in UUID format: %@. Use new correlationId: %@", uuidString, _correlationId);
+    }
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    @throw MSIDException(MSIDGenericException, @"Not implemented.", nil);
+}
+
+@end

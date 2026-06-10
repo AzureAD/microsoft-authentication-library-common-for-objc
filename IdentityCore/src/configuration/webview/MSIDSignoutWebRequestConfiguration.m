@@ -33,7 +33,7 @@
 - (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                        factory:(__unused MSIDWebviewFactory *)factory
                                        context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error
+                                         error:(NSError *__autoreleasing*)error
 {
     return [[MSIDWebOAuth2Response alloc] initWithURL:url
                                          requestState:self.state

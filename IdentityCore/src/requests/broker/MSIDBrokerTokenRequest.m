@@ -33,6 +33,8 @@
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -57,7 +59,7 @@
                                 brokerKey:(NSString *)brokerKey
                    brokerApplicationToken:(NSString *)brokerApplicationToken
                           sdkCapabilities:(NSArray *)sdkCapabilities
-                                    error:(NSError **)error
+                                    error:(NSError *__autoreleasing*)error
 {
     self = [super init];
 
@@ -80,7 +82,7 @@
     return self;
 }
 
-- (BOOL)initPayloadContentsWithError:(NSError **)error
+- (BOOL)initPayloadContentsWithError:(NSError *__autoreleasing*)error
 {
     NSMutableDictionary *contents = [NSMutableDictionary new];
 
@@ -132,7 +134,7 @@
 
 #pragma mark - Default contents
 
-- (NSDictionary *)defaultPayloadContents:(NSError **)error
+- (NSDictionary *)defaultPayloadContents:(NSError *__autoreleasing*)error
 {
     if (![self checkParameter:self.requestParameters.authority parameterName:@"authority" error:error]) return nil;
     if (![self checkParameter:self.requestParameters.target parameterName:@"target" error:error]) return nil;
@@ -152,6 +154,7 @@
     NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
     NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    NSString *keyId = schemeParameters[MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
@@ -161,6 +164,10 @@
 #if TARGET_OS_IPHONE
     [queryDictionary msidSetNonEmptyString:self.brokerKey forKey:@"broker_key"];
     [queryDictionary msidSetNonEmptyString:self.brokerNonce forKey:@"broker_nonce"];
+    if ([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled])
+    {
+        [queryDictionary msidSetNonEmptyString:@"1" forKey:MSID_BOUND_RT_REDEEM];
+    }
 #endif
     [queryDictionary msidSetNonEmptyString:[MSIDVersion sdkVersion] forKey:@"client_version"];
     [queryDictionary msidSetNonEmptyString:claimsString forKey:@"claims"];
@@ -172,6 +179,7 @@
     [queryDictionary msidSetNonEmptyString:self.brokerApplicationToken forKey:@"application_token"];
     [queryDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [queryDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [queryDictionary msidSetNonEmptyString:keyId forKey:MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     if ([self.sdkBrokerCapabilities count])
     {
@@ -186,7 +194,13 @@
         queryDictionary[MSID_NESTED_AUTH_BROKER_CLIENT_ID] = self.requestParameters.nestedAuthBrokerClientId;
         queryDictionary[MSID_NESTED_AUTH_BROKER_REDIRECT_URI] = self.requestParameters.nestedAuthBrokerRedirectUri;
     }
-
+    
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
+    // Onboarding telemetry seed (when present): forwarded so the broker can
+    // classify, build, and round-trip the populated blob on the response.
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.onboardingBlobJson forKey:MSIDOnboardingBlobIPCKey];
     return queryDictionary;
 }
 
@@ -204,8 +218,10 @@
     NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
     NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    NSString *keyId = schemeParameters[MSID_OAUTH2_SSH_CERT_KEY_ID];
     [resumeDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [resumeDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [resumeDictionary msidSetNonEmptyString:keyId forKey:MSID_OAUTH2_SSH_CERT_KEY_ID];
     
     if ([self.requestParameters isNestedAuthProtocol])
     {
@@ -214,12 +230,15 @@
         [resumeDictionary msidSetNonEmptyString:self.requestParameters.nestedAuthBrokerRedirectUri forKey:MSID_NESTED_AUTH_BROKER_REDIRECT_URI];
     }
     
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
     return resumeDictionary;
 }
 
 - (BOOL)checkParameter:(id)parameter
          parameterName:(NSString *)parameterName
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     if (!parameter)
     {
@@ -301,7 +320,7 @@
 #pragma mark - Abstract
 
 // Thos parameters will be different depending on the broker protocol version
-- (NSDictionary *)protocolPayloadContentsWithError:(__unused NSError **)error
+- (NSDictionary *)protocolPayloadContentsWithError:(__unused NSError *__autoreleasing*)error
 {
     return @{};
 }

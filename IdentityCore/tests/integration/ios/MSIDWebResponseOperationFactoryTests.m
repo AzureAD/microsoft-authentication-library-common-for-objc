@@ -25,7 +25,6 @@
 #import <XCTest/XCTest.h>
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBaseOperation.h"
-#import "MSIDWebResponseBrokerInstallOperation.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDWebWPJResponse.h"
@@ -38,35 +37,6 @@
 
 @implementation MSIDWebResponseOperationFactoryTests
 
-- (void)test_wpjWebResponse_should_return_brokerInstallOperation
-{
-    NSString *responseString = @"msauth://wpj?app_link=https://login.microsoftonline.appinstall.test";
-    NSURL *startUrl = [[NSURL alloc] initWithString:@"https://fakeurl.contoso.com"];
-    NSString *endUri = @"end redirect uri";
-    NSString *state = [[NSUUID UUID] UUIDString];
-    MSIDAuthorizeWebRequestConfiguration * webResponseConfiguration = [[MSIDAuthorizeWebRequestConfiguration alloc] initWithStartURL:startUrl
-                                                                                                                      endRedirectUri:endUri
-                                                                                                                               state:state
-                                                                                                                  ignoreInvalidState:NO];
-    __auto_type *webResponse = [webResponseConfiguration responseWithResultURL:[[NSURL alloc] initWithString:responseString]
-                                                                               factory:[MSIDAADWebviewFactory new]
-                                                                               context:nil
-                                                                                 error:nil];
-    XCTAssertTrue([webResponse isKindOfClass:MSIDWebWPJResponse.class]);
-    XCTAssertNotNil(webResponse);
-    NSError *error = nil;
-    MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:webResponse error:&error];
-#if TARGET_OS_IPHONE
-    XCTAssertNil(error);
-    XCTAssertNotNil(operation);
-    XCTAssertTrue([operation isKindOfClass:MSIDWebResponseBrokerInstallOperation.class]);
-#else
-    XCTAssertNotNil(error);
-    XCTAssertNil(operation);
-#endif
-    [MSIDWebResponseOperationFactory unRegisterforResponse:webResponse];
-}
-
 - (void)test_openBroswerResponse_should_return_openBroserOperation
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
@@ -75,6 +45,7 @@
     __auto_type webResponse = [factory oAuthResponseWithURL:[NSURL URLWithString:@"browser://somehost"]
                                                requestState:nil
                                          ignoreInvalidState:NO
+                                             endRedirectUri:@"browser://somehost"
                                                     context:nil
                                                       error:nil];
     

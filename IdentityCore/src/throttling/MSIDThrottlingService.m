@@ -38,6 +38,7 @@
 #import "NSError+MSIDThrottlingExtension.h"
 #import "MSIDThrottlingModelBase.h"
 #import "MSIDThrottlingModelFactory.h"
+#import "MSIDDIContainer.h"
 
 @implementation MSIDThrottlingService
 
@@ -110,7 +111,7 @@
  */
 + (BOOL)updateLastRefreshTimeDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+                                   error:(NSError *__autoreleasing*)error
 {
     if(![MSIDThrottlingService isThrottlingEnabled])
     {
@@ -129,6 +130,14 @@
     #endif
 #endif
     return YES;
+}
+
++ (Class<MSIDThrottlingRefreshing>)resolvedRefresher
+{
+    return (Class<MSIDThrottlingRefreshing>)
+        [[MSIDDIContainer sharedInstance]
+            resolveImplClassForProtocol:@protocol(MSIDThrottlingRefreshing)
+                              orDefault:^Class { return [MSIDThrottlingService class]; }];
 }
 
 @end

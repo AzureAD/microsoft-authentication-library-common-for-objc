@@ -27,8 +27,10 @@
 #import "MSIDTokenResult.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDBrokerResponse.h"
+#import "MSIDOAuth2Constants.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBoundRefreshToken.h"
 #import "MSIDBasicContext.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAccountIdentifier.h"
@@ -43,7 +45,7 @@
                              configuration:(MSIDConfiguration *)configuration
                             requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
                              correlationID:(NSUUID *)correlationID
-                                     error:(NSError **)error
+                                     error:(NSError *__autoreleasing*)error
 {
     if (!tokenResponse)
     {
@@ -58,6 +60,17 @@
     {
         if (error)
         {
+            // Propagate clientData from /token response header into the error userInfo
+            // so callers can surface STS diagnostic information even on failure responses.
+            if (tokenResponse.clientData && verificationError)
+            {
+                NSMutableDictionary *userInfo = verificationError.userInfo ? [verificationError.userInfo mutableCopy] : [NSMutableDictionary new];
+                userInfo[MSID_CLIENT_DATA_RESPONSE] = tokenResponse.clientData;
+                verificationError = [NSError errorWithDomain:verificationError.domain
+                                                        code:verificationError.code
+                                                    userInfo:userInfo];
+            }
+
             *error = verificationError;
         }
 
@@ -66,12 +79,14 @@
         return nil;
     }
     
-    return [self createTokenResultFromResponse:tokenResponse
-                                  oauthFactory:factory
-                                 configuration:configuration
-                                requestAccount:accountIdentifier
-                                 correlationID:correlationID
-                                         error:error];
+    MSIDTokenResult *tokenResult = [self createTokenResultFromResponse:tokenResponse
+                                                          oauthFactory:factory
+                                                         configuration:configuration
+                                                        requestAccount:accountIdentifier
+                                                         correlationID:correlationID
+                                                                 error:error];
+
+    return tokenResult;
 }
 
 - (MSIDTokenResult *)createTokenResultFromResponse:(MSIDTokenResponse *)tokenResponse
@@ -79,7 +94,7 @@
                                      configuration:(MSIDConfiguration *)configuration
                                     requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
                                      correlationID:(NSUUID *)correlationID
-                                             error:(NSError **)error
+                                             error:(NSError *__autoreleasing*)error
 
 {
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse configuration:configuration];
@@ -117,15 +132,18 @@
                                                                  authority:resultAuthority
                                                              correlationId:correlationID
                                                              tokenResponse:tokenResponse];
-    
+
+    [result insertBrokerMetaData:tokenResponse.clientData forKey:MSID_TOKEN_RESULT_CLIENT_DATA];
+
     return result;
 }
 
 - (BOOL)validateTokenResult:(__unused MSIDTokenResult *)tokenResult
               configuration:(__unused MSIDConfiguration *)configuration
                   oidcScope:(__unused NSString *)oidcScope
+             validateScopes:(__unused BOOL)validateScopes
               correlationID:(__unused NSUUID *)correlationID
-                      error:(__unused NSError **)error
+                      error:(__unused NSError *__autoreleasing*)error
 {
     // Post saving validation
     return YES;
@@ -149,7 +167,7 @@
                                      correlationID:(NSUUID *)correlationID
                                   saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                         authScheme:(MSIDAuthenticationScheme *)authScheme
-                                             error:(NSError **)error
+                                             error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating broker response.");
     
@@ -224,6 +242,7 @@
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:configuration
                                        oidcScope:oidcScope
+                                  validateScopes:YES
                                    correlationID:correlationID
                                            error:error];
 
@@ -233,8 +252,10 @@
         return nil;
     }
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Token result is valid.");
+    // Keep old flow for now in case the old MSAL/OneAuth client is broken.
+    [tokenResult insertBrokerMetaData:brokerResponse.brokerAppVer forKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
+    [tokenResult insertBrokerMetaData:brokerResponse.tokenResponse.clientData forKey:MSID_TOKEN_RESULT_CLIENT_DATA];
 
-    tokenResult.brokerAppVersion = brokerResponse.brokerAppVer;
     return tokenResult;
 }
 
@@ -245,7 +266,7 @@
                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                 requestParameters:(MSIDRequestParameters *)parameters
                                  saveSSOStateOnly:(BOOL)saveSSOStateOnly
-                                            error:(NSError **)error
+                                            error:(NSError *__autoreleasing*)error
 {
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
                                                   oauthFactory:factory
@@ -259,6 +280,12 @@
         return nil;
     }
     
+    if ([MSID_REFRESH_TOKEN_TYPE_BOUND_APP_RT isEqualToString:tokenResponse.additionalServerInfo[MSID_REFRESH_TOKEN_TYPE]] && tokenResponse.boundAppRefreshTokenDeviceId)
+    {
+        tokenResult.refreshToken = [[MSIDBoundRefreshToken alloc] initWithRefreshToken:(MSIDRefreshToken *)tokenResult.refreshToken
+                                                                         boundDeviceId:tokenResponse.boundAppRefreshTokenDeviceId];
+    }
+
     //save metadata
     NSError *authorityError;
     MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&authorityError];
@@ -278,17 +305,21 @@
     
     // Note, if there's an error saving result, we log it, but we don't fail validation
     // This is by design because even if we fail to cache, we still should return tokens back to the app
-    [self saveTokenResponseToCache:tokenResponse
-                     configuration:parameters.msidConfiguration
-                      oauthFactory:factory
-                        tokenCache:tokenCache
-                  saveSSOStateOnly:saveSSOStateOnly
-                           context:parameters
-                             error:nil];
+    if (!parameters.skipTokenCacheFromSsoExtensionResponse)
+    {
+        [self saveTokenResponseToCache:tokenResponse
+                         configuration:parameters.msidConfiguration
+                          oauthFactory:factory
+                            tokenCache:tokenCache
+                      saveSSOStateOnly:saveSSOStateOnly
+                               context:parameters
+                                 error:nil];
+    }
 
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration
                                        oidcScope:parameters.oidcScope
+                                  validateScopes:!parameters.ignoreScopeValidation
                                    correlationID:parameters.correlationId
                                            error:error];
 
@@ -308,7 +339,7 @@
                       tokenCache:(id<MSIDCacheAccessor>)tokenCache
                 saveSSOStateOnly:(BOOL)saveSSOStateOnly
                          context:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
+                           error:(NSError *__autoreleasing*)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Saving token response, only save SSO state %d", saveSSOStateOnly);
     

@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
+#import "MSIDCustomHeaderProviding.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
@@ -37,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDWebviewResponse;
 @class MSIDWebviewFactory;
 @class MSIDExternalSSOContext;
+@class MSIDOnboardingBlobBuilder;
 
 @interface MSIDBaseWebRequestConfiguration : NSObject
 
@@ -45,22 +47,33 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Embedded webview
 @property (nonatomic, readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
+@property (nonatomic) id<MSIDCustomHeaderProviding> customHeaderProvider; // provide extra headers for subsequent requests rather than the intial request
 
 @property (nonatomic, weak) MSIDViewController *parentController;
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
+
+// Optional onboarding telemetry blob builder. When present, the embedded webview
+// controller created from this configuration will record domain + blocking error
+// telemetry into the builder. Held strongly so the builder remains valid for the
+// duration of the request, independent of any external strong reference.
+@property (nonatomic, strong, nullable) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 
 #if TARGET_OS_IPHONE
 @property (nonatomic, readwrite) UIModalPresentationStyle presentationType;
 #endif
 
 @property (nonatomic, readonly) NSString *state;
-@property (nonatomic, readonly) MSIDExternalSSOContext *ssoContext;
+@property (nullable, nonatomic, readonly) MSIDExternalSSOContext *ssoContext;
 
 // State verification
 // Set this to YES to have the request continue even at state verification failure.
 // Set this to NO if request should stop at state verification failure.
 // By default, this is set to NO.
 @property (nonatomic, readonly) BOOL ignoreInvalidState;
+
+#if MSAL_JS_AUTOMATION
+@property (nonatomic) NSString *clientAutomationScript;
+#endif
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                   endRedirectUri:(NSString *)endRedirectUri
@@ -76,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                                 factory:(MSIDWebviewFactory *)factory
                                                 context:(nullable id<MSIDRequestContext>)context
-                                                  error:(NSError * _Nullable * _Nullable)error;
+                                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

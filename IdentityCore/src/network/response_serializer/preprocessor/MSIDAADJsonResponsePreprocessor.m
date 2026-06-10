@@ -30,7 +30,7 @@
 - (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
                            data:(NSData *)data
                         context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
+                          error:(NSError *__autoreleasing*)error
 {
     NSError *jsonError;
     NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
@@ -55,6 +55,12 @@
     
     jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
     
+    jsonObject[MSID_CCS_REQUEST_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_CCS_REQUEST_ID_KEY];
+
+    jsonObject[MSID_CCS_REQUEST_SEQUENCE_RESPONSE] = httpResponse.allHeaderFields[MSID_CCS_REQUEST_SEQUENCE_KEY];
+
+    jsonObject[MSID_CLIENT_DATA_RESPONSE] = httpResponse.allHeaderFields[MSID_CLIENT_DATA_HEADER_KEY];
+
     NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
     if (![NSString msidIsStringNilOrBlank:clientTelemetry])
     {

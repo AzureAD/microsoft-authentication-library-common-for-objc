@@ -27,6 +27,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDBaseToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBoundRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
@@ -59,14 +60,14 @@
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                      context:(__unused id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+                                       error:(NSError *__autoreleasing*)error
 {
     return [[MSIDTokenResponse alloc] initWithJSONDictionary:json error:error];
 }
 
 - (BOOL)verifyResponse:(MSIDTokenResponse *)response
                context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error
+                 error:(NSError *__autoreleasing*)error
 {
     if (!response)
     {
@@ -85,6 +86,7 @@
         {
             NSMutableDictionary *userInfo = [NSMutableDictionary new];
             userInfo[MSIDBrokerVersionKey] = response.clientAppVersion;
+            if (response.stsErrorCodes) userInfo[MSIDSTSErrorCodesKey] = response.stsErrorCodes;
             
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      response.oauthErrorCode,
@@ -169,6 +171,10 @@
     BOOL result = [self fillRefreshToken:refreshToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
+    if (refreshToken && [self doesResponseHaveBoundAppRefreshToken:response])
+    {
+        return [[MSIDBoundRefreshToken alloc] initWithRefreshToken:refreshToken boundDeviceId:response.boundAppRefreshTokenDeviceId];
+    }
     return refreshToken;
 }
 
@@ -374,7 +380,7 @@
        fromResponse:(MSIDTokenResponse *)response
       configuration:(MSIDConfiguration *)configuration
 {
-    NSString *homeAccountId = response.idTokenObj.userId;
+    NSString *homeAccountId = response.idTokenObj.userId ?: [response accountIdentifier];
 
     if (!homeAccountId)
     {
@@ -408,6 +414,12 @@
     metadata.clientId = configuration.clientId;
     metadata.environment = cacheAuthority.environment;
     return YES;
+}
+
+- (BOOL)doesResponseHaveBoundAppRefreshToken:(MSIDTokenResponse *)response
+{
+    return ![NSString msidIsStringNilOrBlank:response.boundAppRefreshTokenDeviceId] ||
+           ![NSString msidIsStringNilOrBlank:response.additionalServerInfo[MSID_BART_DEVICE_ID_KEY]];
 }
 
 #pragma mark - Webview
@@ -487,7 +499,7 @@
 
 - (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
                                       tokenResponse:(MSIDTokenResponse *)response
-                                              error:(__unused NSError **)error
+                                              error:(__unused NSError *__autoreleasing*)error
 {
     if (response.idTokenObj.issuerAuthority)
     {

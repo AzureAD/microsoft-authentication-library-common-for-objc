@@ -39,26 +39,8 @@
     {
         return preferredType;
     }
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        
-    if (@available(iOS 12.0, macOS 10.15, *))
-    {
-        return MSIDWebviewTypeAuthenticationSession;
-    }
-#endif
-        
-#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
-        
+
     return MSIDWebviewTypeAuthenticationSession;
-        
-#endif
-    
-#if TARGET_OS_IPHONE
-    return MSIDWebviewTypeSafariViewController;
-#endif
-    
-    return MSIDWebviewTypeWKWebView;
 }
 
 + (id<MSIDWebviewInteracting>)authSessionWithParentController:(__unused MSIDViewController *)parentController
@@ -67,18 +49,41 @@
                                            useEmpheralSession:(__unused BOOL)useEmpheralSession
                                                       context:(__unused id<MSIDRequestContext>)context
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    
-    if (@available(iOS 12.0, macOS 10.15, *))
+    return [self authSessionWithParentController:parentController
+                                        startURL:startURL
+                                  callbackScheme:callbackURLScheme
+                             useEphemeralSession:useEmpheralSession
+                               additionalHeaders:nil
+                                         context:context];
+}
+
++ (id<MSIDWebviewInteracting>)authSessionWithParentController:(__unused MSIDViewController *)parentController
+                                                     startURL:(__unused NSURL *)startURL
+                                               callbackScheme:(__unused NSString *)callbackURLScheme
+                                          useEphemeralSession:(__unused BOOL)useEphemeralSession
+                                            additionalHeaders:(nullable NSDictionary<NSString *, NSString *> *)additionalHeaders
+                                                      context:(__unused id<MSIDRequestContext>)context
+{
+    // Only pass headers to ASWebAuthN when the additionalHeaders initializer is available
+    // (iOS 18+, macOS 15+, visionOS 2+). This factory method remains available on older OS
+    // versions and falls back to the initializer without additionalHeaders.
+    if (@available(iOS 18.0, macOS 15.0, visionOS 2.0, *))
     {
-        return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
-                                                                              startURL:startURL
-                                                                        callbackScheme:callbackURLScheme
-                                                                    useEmpheralSession:useEmpheralSession];
+        if (additionalHeaders && additionalHeaders.count > 0)
+        {
+            return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+                                                                                  startURL:startURL
+                                                                            callbackScheme:callbackURLScheme
+                                                                       useEphemeralSession:useEphemeralSession
+                                                                         additionalHeaders:additionalHeaders];
+        }
     }
-#endif
     
-    return nil;
+    // Fallback for older OS or when no headers provided
+    return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
+                                                                          startURL:startURL
+                                                                    callbackScheme:callbackURLScheme
+                                                                useEmpheralSession:useEphemeralSession];
 }
 
 #if TARGET_OS_IPHONE
@@ -99,11 +104,15 @@
     {
         return authSession;
     }
-    
+
+#if !MSID_EXCLUDE_SYSTEMWV && !(defined TARGET_OS_VISION && TARGET_OS_VISION)
     return [[MSIDSafariViewController alloc] initWithURL:startURL
                                         parentController:parentController
                                         presentationType:presentationType
                                                  context:context];
+#else
+    return nil;
+#endif
 }
 
 #endif

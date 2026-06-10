@@ -35,17 +35,25 @@
 #import "MSIDClaimsRequest.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthenticationSchemeSshCert.h"
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDDefaultBrokerTokenRequest.h"
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
 @end
 
 @implementation MSIDBrokerTokenRequestTests
 
+- (void)setUp
+{
+    [self setBoundAppRefreshTokenFlight];
+}
+
 - (void)tearDown
 {
     [MSIDIntuneEnrollmentIdsCache setSharedCache:[[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:[[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:[MSIDCache new]]]];
     [MSIDIntuneMAMResourcesCache setSharedCache:[[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:[[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:[MSIDCache new]]]];
-
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
     [super tearDown];
 }
 
@@ -59,6 +67,13 @@
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
     
+#if TARGET_OS_OSX
+    parameters.clientSku = MSID_CLIENT_SKU_MSAL_OSX;
+#else
+    parameters.clientSku = MSID_CLIENT_SKU_MSAL_IOS;
+#endif
+    
+    parameters.skipValidateResultAccount = NO;
     MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
     parameters.brokerInvocationOptions = brokerOptions;
     return parameters;
@@ -73,6 +88,31 @@
     };
     parameters.authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
     return parameters;
+}
+
+- (MSIDInteractiveTokenRequestParameters *)defaultTestParametersSshCert
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    NSString *modulus = @"2tNr73xwcj6lH7bqRZrFzgSLj7OeLfbn8";
+    NSString *exponent = @"AQAB";
+    NSDictionary *schemeParams = @{
+        @"token_type":@"ssh-cert",
+        @"key_id":@"key_id_value",
+        @"req_cnf":[NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent]
+    };
+    parameters.authScheme = [[MSIDAuthenticationSchemeSshCert alloc] initWithSchemeParameters:schemeParams];
+    return parameters;
+}
+
+- (NSString *)clientSku
+{
+    NSString *clientSku = nil;
+#if TARGET_OS_OSX
+    clientSku = MSID_CLIENT_SKU_MSAL_OSX;
+#else
+    clientSku = MSID_CLIENT_SKU_MSAL_IOS;
+#endif
+    return clientSku;
 }
 
 #pragma mark - Error cases
@@ -157,7 +197,10 @@
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      MSID_BOUND_RT_REDEEM : @"1",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -174,7 +217,9 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -200,7 +245,10 @@
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
                                       @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
-                                      @"token_type" : @"Pop"
+                                      @"token_type" : @"Pop",
+                                      MSID_BOUND_RT_REDEEM : @"1",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
     };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -219,7 +267,63 @@
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"broker_nonce": brokerNonce,
                                                @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
-                                               @"token_type" : @"Pop"
+                                               @"token_type" : @"Pop",
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
+    };
+    
+    XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
+}
+
+- (void)testInitBrokerRequest_whenValidParameters_shouldReturnValidPayload_SshCertFlow
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParametersSshCert];
+    
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    
+    NSString *modulus = @"2tNr73xwcj6lH7bqRZrFzgSLj7OeLfbn8";
+    NSString *exponent = @"AQAB";
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"key_id":@"key_id_value",
+                                      @"req_cnf" : [NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent],
+                                      @"token_type" : @"ssh-cert",
+                                      MSID_BOUND_RT_REDEEM : @"1",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
+    };
+    
+    NSURL *actualURL = request.brokerRequestURL;
+    
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
+    
+    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id": @"my_client_id",
+                                               @"correlation_id": [parameters.correlationId UUIDString],
+                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"broker_nonce": brokerNonce,
+                                               @"key_id":@"key_id_value",
+                                               @"req_cnf" : [NSString stringWithFormat:@"{\"kty\":\"RSA\",\"n\":\"%@\",\"e\":\"%@\"}", modulus, exponent],
+                                               @"token_type" : @"ssh-cert",
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
     };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -244,7 +348,10 @@
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      MSID_BOUND_RT_REDEEM : @"1",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -279,7 +386,10 @@
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      MSID_BOUND_RT_REDEEM : @"1",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -296,7 +406,9 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -321,7 +433,10 @@
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken",
-                                      @"sdk_broker_capabilities": @"capability1,capability2"
+                                      @"sdk_broker_capabilities": @"capability1,capability2",
+                                      MSID_BOUND_RT_REDEEM : @"1",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -338,7 +453,9 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -400,7 +517,10 @@
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
-                                      @"application_token" : @"brokerApplicationToken"
+                                      @"application_token" : @"brokerApplicationToken",
+                                      MSID_BOUND_RT_REDEEM : @"1",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -417,7 +537,9 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"client_sku" : [self clientSku],
+                                               @"skip_validate_result_account" : @"NO"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -483,7 +605,10 @@
             @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
             @"application_token" : @"brokerApplicationToken",
             @"brk_client_id" : @"123-456-7890-123",
-            @"brk_redirect_uri" : @"msauth.com.app.id://auth"
+            @"brk_redirect_uri" : @"msauth.com.app.id://auth",
+            MSID_BOUND_RT_REDEEM : @"1",
+            @"client_sku" : [self clientSku],
+            @"skip_validate_result_account" : @"NO"
     };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -502,10 +627,80 @@
             @"keychain_group": @"com.microsoft.mygroup",
             @"broker_nonce": brokerNonce,
             @"brk_client_id" : @"123-456-7890-123",
-            @"brk_redirect_uri" : @"msauth.com.app.id://auth"
+            @"brk_redirect_uri" : @"msauth.com.app.id://auth",
+            @"client_sku" : [self clientSku],
+            @"skip_validate_result_account" : @"NO"
     };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
+}
+
+- (void)testInitBrokerRequest_whenValidParameters_andBoundRefreshTokenExchangeNotRequestedWhenFlightEnabledButCacheNotEnabled
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+    XCTAssertFalse([[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled]);
+    
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:@[@"capability1", @"capability2"] error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"sdk_broker_capabilities": @"capability1,capability2",
+                                      @"client_sku" : [self clientSku],
+                                      @"skip_validate_result_account" : @"NO"
+                                      };
+
+    NSURL *actualURL = request.brokerRequestURL;
+
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+}
+
+- (void)testInitBrokerRequest_whenUserFederatedIdentityTokenSet_shouldIncludeFICInPayload
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.userFederatedIdentityToken = @"test-fic-token-value";
+
+    NSError *error = nil;
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSURL *actualURL = request.brokerRequestURL;
+    NSDictionary *queryParams = [actualURL msidQueryParameters];
+    XCTAssertEqualObjects(queryParams[@"x-ms-UserFederatedIdentityCredential"], @"test-fic-token-value");
+}
+
+- (void)testInitBrokerRequest_whenUserFederatedIdentityTokenNil_shouldNotIncludeFICInPayload
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.userFederatedIdentityToken = nil;
+
+    NSError *error = nil;
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSURL *actualURL = request.brokerRequestURL;
+    NSDictionary *queryParams = [actualURL msidQueryParameters];
+    XCTAssertNil(queryParams[@"x-ms-UserFederatedIdentityCredential"]);
+}
+
+- (void)setBoundAppRefreshTokenFlight
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
 }
 
 @end

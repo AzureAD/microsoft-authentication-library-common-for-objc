@@ -40,8 +40,15 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Loginmanager not present, returning early");
             return nil;
         }
+        /* psso wil mark device as registered in loginManager only after deviceRegistration callback is completed with success. But we need pkey auth to be performed for device patching which happens before the call back completion, so the check for loginManager.isDeviceRegistered will break this when pkey auth is performed during a fresh registration step, hence removed that check.*/
+        if (!self.isDeviceRegistered)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No valid PSSO registration found on device, returning early.  isDeviceRegisteredFlagSet : %@", self.isDeviceRegistered ? @"YES" : @"NO");
+            return nil;
+        }
         
-        SecIdentityRef identityRef = [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning]; // +1
+        SecIdentityRef identityRef = nil;
+        [self getPlatformSSOIdentity:&identityRef]; // +1
         
         if (!identityRef)
         {
@@ -106,6 +113,27 @@
 #endif
     
     return nil;
+}
+
+- (void)getPlatformSSOIdentity:(SecIdentityRef _Nullable *_Nullable)identityRef API_AVAILABLE(macos(13.0))
+{
+    
+#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 130000
+    if (!identityRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"identityRef passed is nil, cannot set identity from LoginManager");
+        return;
+    }
+#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MAX_ALLOWED >= 140000
+    if (@available(macOS 14.0, *))
+    {
+        *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeCurrentDeviceSigning];
+        return;
+    }
+#endif
+    *identityRef =  [self.loginManager copyIdentityForKeyType:ASAuthorizationProviderExtensionKeyTypeUserDeviceSigning];
+#endif
+
 }
 
 @end

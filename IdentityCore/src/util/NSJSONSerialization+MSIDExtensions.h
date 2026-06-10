@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSJSONSerialization (MSIDExtensions)
 
-+ (nullable NSDictionary *)msidNormalizedDictionaryFromJsonData:(NSData *)data error:(NSError * _Nullable * _Nullable)error;
++ (nullable NSDictionary *)msidNormalizedDictionaryFromJsonData:(NSData *)data error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

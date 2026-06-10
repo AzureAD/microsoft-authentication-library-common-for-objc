@@ -27,6 +27,7 @@
 
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDConstants.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDCBAWebAADAuthResponse
 
@@ -38,7 +39,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+                      error:(NSError *__autoreleasing*)error
 {
     // Check for WPJ or broker response
     if (![self.class isCBAWebAADAuthResponse:url])
@@ -64,6 +65,15 @@
     }
     
     return self;
+}
+
+#pragma mark - MSIDWebOAuth2AuthCodeResponse
+
+- (void)updateRequestParameters:(MSIDInteractiveTokenRequestParameters *)requestParameters
+{
+    [super updateRequestParameters:requestParameters];
+    
+    requestParameters.redirectUri = self.redirectUri;
 }
 
 @end

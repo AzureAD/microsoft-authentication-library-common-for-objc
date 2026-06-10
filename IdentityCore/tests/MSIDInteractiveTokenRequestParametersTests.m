@@ -29,6 +29,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTestIdentifiers.h"
 #import "MSIDConfiguration.h"
+#import "MSIDAuthenticationSchemeSshCert.h"
 
 @interface MSIDInteractiveTokenRequestParametersTests : XCTestCase
 
@@ -44,6 +45,11 @@
 - (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError_Bearerflow
 {
     [self testInitWithAllSupportedParameters_shouldInitialize_returnNilError:[MSIDAuthenticationScheme new]];
+}
+
+- (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError_SshCertflow
+{
+    [self testInitWithAllSupportedParameters_shouldInitialize_returnNilError:[MSIDAuthenticationSchemeSshCert new]];
 }
 
 - (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError:(MSIDAuthenticationScheme *)authScheme

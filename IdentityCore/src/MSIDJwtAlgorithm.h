@@ -22,7 +22,21 @@
 // THE SOFTWARE.
 
 typedef NSString *const MSIDJwtAlgorithm NS_TYPED_ENUM;
+typedef NSString *const MSIDJwtParameterName NS_TYPED_ENUM;
+
+// JWT key constants
+extern MSIDJwtParameterName const MSID_JWT_ALG;  // Signing algorithm
+extern MSIDJwtParameterName const MSID_JWT_ENC;  // Encryption algorithm
+extern MSIDJwtParameterName const MSID_JWT_APV;  // This party's public key for key exchange.
+
 // Asymmetric signature Algorithms values as defined in https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-algorithms-36#section-3.1
 
 extern MSIDJwtAlgorithm const MSID_JWT_ALG_RS256;    // RSASSA-PKCS-v1_5 using SHA-256
 extern MSIDJwtAlgorithm const MSID_JWT_ALG_ES256;    // ECDSA using P-256 and SHA-256
+
+
+// Encryption Algorithms
+extern MSIDJwtAlgorithm const MSID_JWT_ALG_A256GCM;    // AES GCM using 256-bit key
+
+// Key exchange Algorithms
+extern MSIDJwtAlgorithm const MSID_JWT_ALG_ECDH;    // Key Agreement with Elliptic Curve Diffie-Hellman
