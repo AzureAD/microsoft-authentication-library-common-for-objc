@@ -13,7 +13,7 @@ parameters:
   - name: useAcesPool
     displayName: 'Run on the ACES shared pool (Sequoia). Disable to use the hosted macOS-14 image.'
     type: boolean
-    default: true
+    default: false
 
 variables:
 - group: msal-ci-migration-vars
