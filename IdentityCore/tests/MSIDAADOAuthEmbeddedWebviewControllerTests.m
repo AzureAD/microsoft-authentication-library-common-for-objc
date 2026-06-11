@@ -233,6 +233,7 @@
     XCTAssertTrue(result);
 }
 
+#if TARGET_OS_IPHONE
 - (void)testDecidePolicyForNavigationAction_whenIsOpenIdVcUrl_shouldCancelActionAndReturnYes
 {
     MSIDOpenIdVcWebViewControllerSpy *webVC = [[MSIDOpenIdVcWebViewControllerSpy alloc]
@@ -287,6 +288,7 @@
     XCTAssertTrue(result);
     XCTAssertTrue(webVC.didOpenHandoffURL);
 }
+#endif
 
 - (void)testDecidePolicyForNavigationAction_whenExternalDecidePolicyForBrowserAction_shouldCancelActionAndReturnYesAndCallExternalMethod
 {
