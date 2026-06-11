@@ -15,14 +15,6 @@ parameters:
     type: boolean
     default: true
 
-pool:
-  ${{ if eq(parameters.useAcesPool, true) }}:
-    name: 'AcesShared'
-    demands:
-      - ImageOverride -equals ACES_VM_SharedPool_Sequoia
-  ${{ else }}:
-    vmImage: 'macOS-14'
-
 variables:
 - group: msal-ci-migration-vars
 - name: xcodeVersion
@@ -44,6 +36,13 @@ jobs:
   displayName: OneAuth checks per commit for iOS
   timeoutInMinutes: 90
   cancelTimeoutInMinutes: 1
+  pool:
+    ${{ if eq(parameters.useAcesPool, true) }}:
+      name: 'AcesShared'
+      demands:
+        - ImageOverride -equals ACES_VM_SharedPool_Sequoia
+    ${{ else }}:
+      vmImage: 'macOS-14'
   workspace:
     clean: all
 
