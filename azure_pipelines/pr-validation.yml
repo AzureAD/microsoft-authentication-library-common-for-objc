@@ -67,6 +67,19 @@ jobs:
     inputs:
       versionSpec: '3.x'
   - task: Bash@3
+    displayName: 'Harden Python toolcache permissions (silence Ruby insecure PATH warning)'
+    inputs:
+      targetType: 'inline'
+      script: |
+        # /opt/hostedtoolcache/Python is created world-writable (mode 0777),
+        # which makes Ruby (used by xcpretty/slather) emit a warning to stderr
+        # whenever it loads rbconfig.rb. That warning trips `failOnStderr: true`
+        # on later steps. Strip the world-write bit from the toolcache tree.
+        if [ -d /opt/hostedtoolcache ]; then
+          sudo chmod -R o-w /opt/hostedtoolcache || true
+        fi
+      failOnStderr: false
+  - task: Bash@3
     displayName: 'Select Xcode version'
     inputs:
       targetType: 'inline'
