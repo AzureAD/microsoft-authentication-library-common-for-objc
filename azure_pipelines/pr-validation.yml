@@ -40,13 +40,12 @@ jobs:
       script: |
         sudo gem install xcpretty -N -v 0.3.0
       failOnStderr: true
-  # - task: CmdLine@2
-  #   displayName: Installing slather
-  #   inputs:
-  #     script: |
-  #       sudo gem install securerandom -N -v 0.3.2
-  #       sudo gem install slather -N
-  #     failOnStderr: true
+  - task: CmdLine@2
+    displayName: Installing slather
+    inputs:
+      script: |
+        gem install slather bundler -N
+      failOnStderr: true
   - checkout: self
     clean: true
     submodules: true
@@ -56,11 +55,11 @@ jobs:
     displayName: 'Use Python 3.x'
     inputs:
       versionSpec: '3.x'
-  # - task: Bash@3
-  #   displayName: 'Select Xcode version'
-  #   inputs:
-  #     targetType: 'inline'
-  #     script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_26.2.app"'
+  - task: Bash@3
+    displayName: 'Select Xcode version'
+    inputs:
+      targetType: 'inline'
+      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.4.app"'
   - task: Bash@3
     displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
     inputs:
@@ -72,7 +71,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        python ./scripts/update_xcode_config_cpp_checks.py
+        python3 ./scripts/update_xcode_config_cpp_checks.py
       failOnStderr: true
   - task: Bash@3
     displayName: Run Build script & check for Errors
