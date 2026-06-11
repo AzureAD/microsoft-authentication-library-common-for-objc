@@ -275,8 +275,14 @@ class BuildTarget:
         if not os.path.isfile(executable_file_path) :
             print(ColorValues.FAIL + "executable file missing! : " + executable_file_path + ColorValues.END)
             return -1
-        
-        command = "xcrun llvm-cov report -instr-profile " + profile_data_path + " -arch=\"x86_64\" -use-color " + executable_file_path
+
+        # iOS/visionOS simulator slices on modern Macs are arm64; Mac matches the host arch.
+        if self.platform == "Mac" :
+            cov_arch = subprocess.check_output("uname -m", shell=True).decode(sys.stdout.encoding).strip()
+        else :
+            cov_arch = "arm64"
+
+        command = "xcrun llvm-cov report -instr-profile " + profile_data_path + " -arch=\"" + cov_arch + "\" -use-color " + executable_file_path
         print(command)
         p = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
         
