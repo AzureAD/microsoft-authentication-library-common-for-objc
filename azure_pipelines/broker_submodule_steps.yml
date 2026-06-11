@@ -157,8 +157,12 @@ steps:
     script: |
       cd azure-activedirectory-tokenbroker-for-objc
       echo "executing build:./build.py"
-      LOG_FILE="$(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/build/build_output.log"
-      mkdir -p "$(dirname \"$LOG_FILE\")"
+      # Anchor the log path to the actual build cwd so the cleanup step
+      # cannot drift to a different location than what we tee'd to.
+      mkdir -p "$PWD/build"
+      LOG_FILE="$PWD/build/build_output.log"
+      echo "BROKER_BUILD_LOG=$LOG_FILE"
+      echo "##vso[task.setvariable variable=BROKER_BUILD_LOG]$LOG_FILE"
       ./build.py --show-build-settings --target $(target) 2>&1 | tee "$LOG_FILE"
       final_status=$(<./build/status.txt)
       echo "FINAL STATUS  = ${final_status}"
@@ -174,11 +178,12 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      LOG_FILE="$(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/build/build_output.log"
+      LOG_FILE="${BROKER_BUILD_LOG:-$(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/build/build_output.log}"
+      echo "Looking for build log at: $LOG_FILE"
       echo "Failed tests summary:"
       if [ -f "$LOG_FILE" ]; then
         grep -E "Test Case '-\\[.*\\]' failed|\\*\\* TEST FAILED \\*\\*" "$LOG_FILE" | sort -u || echo "No failed test lines found."
       else
-        echo "No build log found."
+        echo "No build log found at $LOG_FILE (build step likely did not run)."
       fi
       rm -rf ./build/status.txt
