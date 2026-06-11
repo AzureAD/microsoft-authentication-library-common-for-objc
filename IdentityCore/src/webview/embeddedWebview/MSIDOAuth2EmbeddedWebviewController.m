@@ -112,6 +112,9 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         _context = context;
         
         _complete = NO;
+        
+        // isMobileOnboardingEnabled starts as NO; it is dynamically set to YES
+        // when the server issues msauth://enroll (server-driven enablement).
     }
     
     return self;
@@ -382,8 +385,43 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
             self.navigationResponseBlock(response);
         }
     }
+    
+    WKNavigationResponsePolicy responsePolicy = WKNavigationResponsePolicyAllow;
 
-    decisionHandler(WKNavigationResponsePolicyAllow);
+    if (self.isMobileOnboardingEnabled)
+    {
+        id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+        if ((strongNavigationDelegate)
+            && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeadersAndCheckForASWebAuthHandoff:responseURL:)]
+            && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
+        {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
+
+            // Process the response headers and determine if a hand-off to ASWebAuthenticationSession is signaled.
+            // The response URL is passed so the delegate can verify the issuing origin is allowed (HTTPS + allowlisted host)
+            // before honoring an ASWebAuth header.
+            BOOL didHandoff = [strongNavigationDelegate processResponseHeadersAndCheckForASWebAuthHandoff:response.allHeaderFields
+                                                                                             responseURL:response.URL];
+
+#if !MSID_EXCLUDE_SYSTEMWV
+            // If a hand-off is signaled, and the navigation delegate implements the hand-off method, perform the hand-off to ASWebAuthenticationSession and cancel the current navigation.
+            if (didHandoff
+                && [strongNavigationDelegate respondsToSelector:@selector(performASWebAuthenticationHandoffWithCompletion:)])
+            {
+                NSURL *responseURL = response.URL;
+                responsePolicy = WKNavigationResponsePolicyCancel;
+                [strongNavigationDelegate performASWebAuthenticationHandoffWithCompletion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+                {
+                    [self performNavigationDecision:decision
+                                         requestURL:responseURL
+                                              error:error];
+                }];
+            }
+#endif // !MSID_EXCLUDE_SYSTEMWV
+        }
+    }
+
+    decisionHandler(responsePolicy);
 }
 
 - (void)completeWebAuthWithURL:(NSURL *)endURL

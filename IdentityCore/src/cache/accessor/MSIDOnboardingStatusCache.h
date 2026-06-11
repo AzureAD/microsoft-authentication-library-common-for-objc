@@ -23,16 +23,47 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDTokenResult;
-@class MSIDWebviewResponse;
-
-typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse);
+@class MSIDOnboardingStatus;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDInteractiveRequestControlling <NSObject>
+/**
+ Cache accessor for reading and writing MSIDOnboardingStatus items to the keychain.
+ This class uses MSIDKeychainTokenCache.defaultKeychainGroup as its data source.
+ */
+@interface MSIDOnboardingStatusCache : NSObject
 
-- (void)executeRequestWithCompletion:(MSIDInteractiveRequestCompletionBlock)completionBlock;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
+/**
+ Shared instance of MSIDOnboardingStatusCache using the default keychain group.
+ */
+@property (class, readonly, nonnull) MSIDOnboardingStatusCache *sharedInstance;
+
+/**
+ Sets the onboarding status.
+ 
+ @param status The MSIDOnboardingStatus to set.
+ @return YES if the operation succeeds, NO otherwise.
+ */
+- (BOOL)setWithStatus:(MSIDOnboardingStatus *)status;
+
+/**
+ Gets the current onboarding status.
+ 
+ @return The MSIDOnboardingStatus representing the current status. If no status is stored, a default status object is returned.
+ */
+- (MSIDOnboardingStatus *)getOnboardingStatus;
+
+/**
+ Clears the onboarding status for a specific bundle identifier.
+ 
+ @param bundleId The bundle identifier to clear the status for.
+ @return YES if the operation succeeds, NO otherwise.
+ */
+- (BOOL)clear:(NSString *)bundleId;
 
 @end
 
