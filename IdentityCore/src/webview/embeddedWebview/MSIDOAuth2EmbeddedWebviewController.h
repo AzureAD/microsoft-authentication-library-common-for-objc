@@ -80,6 +80,7 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
                               error:(NSError *)error;
 
 @property (atomic, readonly) NSURL *startURL;
+@property (atomic, readonly) NSURL *endURL;
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;

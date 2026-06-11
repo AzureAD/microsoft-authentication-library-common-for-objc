@@ -30,6 +30,7 @@
 
 extern NSString * const MSID_SCHEME_MSAUTH;
 extern NSString * const MSID_SCHEME_BROWSER;
+extern NSString * const MSID_SCHEME_OPENID_VC;
 
 #pragma mark - URL Hosts
 
@@ -65,6 +66,18 @@ extern NSString * const MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX;              // x-
 // ASWebAuthentication handoff header values
 extern NSString * const MSID_ASWEBAUTH_HANDOFF_VALUE_TRUE;                 // "true"
 extern NSString * const MSID_ASWEBAUTH_HANDOFF_VALUE_FALSE;                // "false"
+
+#pragma mark - OpenID4VC bring-back query parameters
+
+// Microsoft-namespaced query parameters appended to openid-vc:// URLs when handing off
+// from an embedded MSAL webview to a wallet (Authenticator) so the wallet can bounce
+// the user back to the calling app when the VID flow completes. Non-Microsoft wallets
+// that handle openid-vc:// will ignore these unknown parameters per OpenID4VP guidance
+// to preserve unrecognized request parameters.
+
+extern NSString * const MSID_OPENID_VC_CALLER_REDIRECT_URI_KEY;            // x_ms_caller_redirect_uri
+extern NSString * const MSID_OPENID_VC_CALLER_BUNDLE_ID_KEY;               // x_ms_caller_bundle_id
+extern NSString * const MSID_OPENID_VC_CORRELATION_ID_KEY;                 // x_ms_correlation_id
 
 #pragma mark - MSIDASWebAuthenticationConstants Class
 

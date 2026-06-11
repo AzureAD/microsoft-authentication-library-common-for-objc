@@ -33,7 +33,6 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
-#import "MSIDWebOpenIdVcResponse.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
@@ -190,8 +189,7 @@
         return;
     }
 
-    if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class]
-        || [response isKindOfClass:MSIDWebOpenIdVcResponse.class])
+    if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
     {
         error = nil;
         MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response
@@ -336,8 +334,7 @@
     {
         completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
     }
-    else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class]
-             || [response isKindOfClass:MSIDWebOpenIdVcResponse.class])
+    else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
     {
         error = nil;
         MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response

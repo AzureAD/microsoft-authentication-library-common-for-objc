@@ -25,11 +25,66 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
+#import "MSIDOpenIdVcHandling.h"
 #import "MSIDWKNavigationActionMock.h"
 #import "MSIDWebAuthNUtil.h"
 #import "MSIDTestBundle.h"
 
 #if !MSID_EXCLUDE_WEBKIT
+
+#if TARGET_OS_IPHONE
+/// Test-only subclass that captures the URL passed to `openOpenIdVcHandoffURL:`
+/// instead of invoking UIApplication. Lets logic-test targets exercise the
+/// openid-vc decision path without crashing on a nil `[UIApplication sharedApplication]`.
+@interface MSIDOpenIdVcWebViewControllerSpy : MSIDAADOAuthEmbeddedWebviewController
+@property (nonatomic, copy, readonly) NSURL *capturedHandoffURL;
+@property (nonatomic, readonly) BOOL didOpenHandoffURL;
+@end
+
+@implementation MSIDOpenIdVcWebViewControllerSpy
+
+- (void)openOpenIdVcHandoffURL:(NSURL *)url
+{
+    _capturedHandoffURL = [url copy];
+    _didOpenHandoffURL = YES;
+}
+
+@end
+
+/// Test stub conforming to `MSIDOpenIdVcHandling`. Captures every argument it
+/// receives and lets the test choose when (and with what error) to invoke the
+/// controller's completion block.
+@interface MSIDOpenIdVcHandlerStub : NSObject <MSIDOpenIdVcHandling>
+@property (nonatomic, readonly) NSInteger invocationCount;
+@property (nonatomic, copy, readonly, nullable) NSURL *receivedURL;
+@property (nonatomic, weak, readonly, nullable) MSIDAADOAuthEmbeddedWebviewController *receivedWebviewController;
+@property (nonatomic, copy, readonly, nullable) NSString *receivedCallerRedirectUri;
+@property (nonatomic, copy, readonly, nullable) NSUUID *receivedCorrelationId;
+@property (nonatomic, copy, nullable) NSError *errorToReportInCompletion;
+@property (nonatomic, copy, nullable) void (^onHandle)(void);
+@end
+
+@implementation MSIDOpenIdVcHandlerStub
+
+- (void)handleOpenIdVcURL:(NSURL *)url
+        webviewController:(MSIDAADOAuthEmbeddedWebviewController *)webviewController
+        callerRedirectUri:(NSString *)callerRedirectUri
+            correlationId:(NSUUID *)correlationId
+               completion:(void (^)(NSError * _Nullable))completion
+{
+    _invocationCount += 1;
+    _receivedURL = [url copy];
+    _receivedWebviewController = webviewController;
+    _receivedCallerRedirectUri = [callerRedirectUri copy];
+    _receivedCorrelationId = [correlationId copy];
+
+    if (self.onHandle) self.onHandle();
+
+    completion(self.errorToReportInCompletion);
+}
+
+@end
+#endif
 
 #if AD_BROKER && TARGET_OS_IPHONE
 @interface MSIDMockAppDelegate : NSObject <UIApplicationDelegate>
@@ -180,7 +235,7 @@
 
 - (void)testDecidePolicyForNavigationAction_whenIsOpenIdVcUrl_shouldCancelActionAndReturnYes
 {
-    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+    MSIDOpenIdVcWebViewControllerSpy *webVC = [[MSIDOpenIdVcWebViewControllerSpy alloc]
             initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                       endURL:[NSURL URLWithString:@"endurl://host"]
                      webview:nil
@@ -202,11 +257,13 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
     XCTAssertTrue(result);
+    XCTAssertTrue(webVC.didOpenHandoffURL);
+    XCTAssertEqualObjects(webVC.capturedHandoffURL.scheme, @"openid-vc");
 }
 
 - (void)testDecidePolicyForNavigationAction_whenIsOpenIdVcUrlMixedCase_shouldCancelActionAndReturnYes
 {
-    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+    MSIDOpenIdVcWebViewControllerSpy *webVC = [[MSIDOpenIdVcWebViewControllerSpy alloc]
             initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                       endURL:[NSURL URLWithString:@"endurl://host"]
                      webview:nil
@@ -228,6 +285,7 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
     XCTAssertTrue(result);
+    XCTAssertTrue(webVC.didOpenHandoffURL);
 }
 
 - (void)testDecidePolicyForNavigationAction_whenExternalDecidePolicyForBrowserAction_shouldCancelActionAndReturnYesAndCallExternalMethod
@@ -365,6 +423,206 @@
 
     [UIApplication sharedApplication].delegate = originalDelegate;
     [MSIDTestBundle reset];
+}
+#endif
+
+#pragma mark - openid-vc handoff URL mutation
+
+- (NSURL *)mutatedOpenIdVcURLForRequestURL:(NSString *)requestURLString
+                                   endURL:(NSString *)endURLString
+{
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:endURLString]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    SEL selector = NSSelectorFromString(@"openIdVcURLWithCallerContext:");
+    NSURL * (*impl)(id, SEL, NSURL *) = (NSURL * (*)(id, SEL, NSURL *))[webVC methodForSelector:selector];
+    return impl(webVC, selector, [NSURL URLWithString:requestURLString]);
+}
+
+- (void)testOpenIdVcURLMutation_whenCallerRedirectUriPresent_shouldAppendXMsParams
+{
+    NSURL *mutated = [self mutatedOpenIdVcURLForRequestURL:@"openid-vc://?request_uri=https%3A%2F%2Fverifier%2Fvp%2Fabc&client_id=verifier-id"
+                                                   endURL:@"msauth.com.microsoft.outlook://auth"];
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:mutated resolvingAgainstBaseURL:NO];
+    NSMutableDictionary<NSString *, NSString *> *queryMap = [NSMutableDictionary new];
+    for (NSURLQueryItem *item in components.queryItems)
+    {
+        queryMap[item.name] = item.value;
+    }
+
+    XCTAssertEqualObjects(queryMap[@"request_uri"], @"https://verifier/vp/abc");
+    XCTAssertEqualObjects(queryMap[@"client_id"], @"verifier-id");
+    XCTAssertEqualObjects(queryMap[@"x_ms_caller_redirect_uri"], @"msauth.com.microsoft.outlook://auth");
+    XCTAssertNotNil(queryMap[@"x_ms_caller_bundle_id"]);
+}
+
+- (void)testOpenIdVcURLMutation_whenCallerRedirectUriBlank_shouldReturnOriginalURL
+{
+    // `[NSURL URLWithString:@""]` returns a URL whose `absoluteString` is the empty
+    // string; the controller accepts it (`if (!endURL)` is false), and the helper
+    // then takes the blank-string fallback path.
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@""]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+    XCTAssertNotNil(webVC);
+
+    SEL selector = NSSelectorFromString(@"openIdVcURLWithCallerContext:");
+    NSURL * (*impl)(id, SEL, NSURL *) = (NSURL * (*)(id, SEL, NSURL *))[webVC methodForSelector:selector];
+    NSURL *originalURL = [NSURL URLWithString:@"openid-vc://?request_uri=https%3A%2F%2Fverifier%2Fvp%2Fabc"];
+    NSURL *mutated = impl(webVC, selector, originalURL);
+
+    XCTAssertEqualObjects(mutated, originalURL);
+}
+
+- (void)testOpenIdVcURLMutation_whenXMsParamAlreadyPresent_shouldBeIdempotent
+{
+    NSURL *mutated = [self mutatedOpenIdVcURLForRequestURL:@"openid-vc://?request_uri=https%3A%2F%2Fverifier&x_ms_caller_redirect_uri=other%3A%2F%2Fpreexisting"
+                                                   endURL:@"msauth.com.microsoft.outlook://auth"];
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:mutated resolvingAgainstBaseURL:NO];
+    NSInteger callerRedirectUriCount = 0;
+    NSString *callerRedirectUriValue = nil;
+    for (NSURLQueryItem *item in components.queryItems)
+    {
+        if ([item.name isEqualToString:@"x_ms_caller_redirect_uri"])
+        {
+            callerRedirectUriCount++;
+            callerRedirectUriValue = item.value;
+        }
+    }
+
+    XCTAssertEqual(callerRedirectUriCount, 1);
+    XCTAssertEqualObjects(callerRedirectUriValue, @"other://preexisting");
+}
+
+- (void)testOpenIdVcURLMutation_whenOriginalURLHasNoQueryString_shouldStillAppendXMsParams
+{
+    NSURL *mutated = [self mutatedOpenIdVcURLForRequestURL:@"openid-vc://credential-offer"
+                                                   endURL:@"msauth.com.microsoft.outlook://auth"];
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:mutated resolvingAgainstBaseURL:NO];
+    NSMutableDictionary<NSString *, NSString *> *queryMap = [NSMutableDictionary new];
+    for (NSURLQueryItem *item in components.queryItems)
+    {
+        queryMap[item.name] = item.value;
+    }
+
+    XCTAssertEqualObjects(queryMap[@"x_ms_caller_redirect_uri"], @"msauth.com.microsoft.outlook://auth");
+    XCTAssertNotNil(queryMap[@"x_ms_caller_bundle_id"]);
+}
+
+#pragma mark - openid-vc handler delegation
+
+#if TARGET_OS_IPHONE
+- (void)testDecidePolicy_whenOpenIdVcHandlerIsSet_shouldForwardToHandlerAndSkipOpenURLFallback
+{
+    MSIDOpenIdVcWebViewControllerSpy *webVC = [[MSIDOpenIdVcWebViewControllerSpy alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"msauth.com.microsoft.outlook://auth"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    MSIDOpenIdVcHandlerStub *handler = [MSIDOpenIdVcHandlerStub new];
+    webVC.openIdVcHandler = handler;
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:
+        [NSURL URLWithString:@"openid-vc://?request_uri=https%3A%2F%2Fverifier%2Fvp%2Fabc"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+
+    BOOL result = [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(result);
+    XCTAssertEqual(handler.invocationCount, 1);
+    // Handler receives the original URL (no x_ms_* mutation — that's only for the openURL fallback).
+    XCTAssertEqualObjects(handler.receivedURL.absoluteString,
+                          @"openid-vc://?request_uri=https%3A%2F%2Fverifier%2Fvp%2Fabc");
+    XCTAssertEqualObjects(handler.receivedCallerRedirectUri, @"msauth.com.microsoft.outlook://auth");
+    XCTAssertEqual(handler.receivedWebviewController, webVC);
+    // Critically: the URL must NOT be opened via UIApplication when a handler is attached.
+    XCTAssertFalse(webVC.didOpenHandoffURL);
+}
+
+- (void)testDecidePolicy_whenHandlerReportsError_shouldEndAuthSession
+{
+    MSIDOpenIdVcWebViewControllerSpy *webVC = [[MSIDOpenIdVcWebViewControllerSpy alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"msauth.com.microsoft.outlook://auth"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    MSIDOpenIdVcHandlerStub *handler = [MSIDOpenIdVcHandlerStub new];
+    handler.errorToReportInCompletion = [NSError errorWithDomain:@"TestDomain" code:42 userInfo:nil];
+    webVC.openIdVcHandler = handler;
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:
+        [NSURL URLWithString:@"openid-vc://?request_uri=https%3A%2F%2Fverifier%2Fvp%2Fabc"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+
+    [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertEqual(handler.invocationCount, 1);
+    XCTAssertFalse(webVC.didOpenHandoffURL);
+    // Error path terminates the auth session via -endWebAuthWithURL:error:, which sets `complete`.
+    XCTAssertTrue(webVC.complete);
+}
+
+- (void)testDecidePolicy_whenHandlerIsNil_shouldFallBackToOpenURL
+{
+    MSIDOpenIdVcWebViewControllerSpy *webVC = [[MSIDOpenIdVcWebViewControllerSpy alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"msauth.com.microsoft.outlook://auth"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:nil];
+
+    XCTAssertNil(webVC.openIdVcHandler);
+
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:
+        [NSURL URLWithString:@"openid-vc://?request_uri=https%3A%2F%2Fverifier%2Fvp%2Fabc"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+
+    [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy decision) {
+        XCTAssertEqual(decision, WKNavigationActionPolicyCancel);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    // Existing Phase 1 fallback path is exercised — openURL is invoked, mutated.
+    XCTAssertTrue(webVC.didOpenHandoffURL);
+    XCTAssertEqualObjects(webVC.capturedHandoffURL.scheme, @"openid-vc");
+    XCTAssertFalse(webVC.complete);
 }
 #endif
 

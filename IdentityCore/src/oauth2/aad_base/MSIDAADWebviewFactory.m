@@ -32,7 +32,6 @@
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewSession.h"
 #import "MSIDWebOpenBrowserResponse.h"
-#import "MSIDWebOpenIdVcResponse.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAuthority.h"
 #import "MSIDCBAWebAADAuthResponse.h"
@@ -234,18 +233,6 @@
     // Try to create a WPJ response
     MSIDWebWPJResponse *wpjResponse = [[MSIDWebWPJResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;
-    
-    // Try to create an OpenID Verifiable Credentials (openid-vc://) response
-    NSError *openIdVcError = nil;
-    MSIDWebOpenIdVcResponse *openIdVcResponse = [[MSIDWebOpenIdVcResponse alloc] initWithURL:url
-                                                                                     context:context
-                                                                                       error:&openIdVcError];
-    if (openIdVcResponse && !openIdVcError) return openIdVcResponse;
-
-    if (openIdVcError)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Failed to create OpenID-VC response: %@", openIdVcError);
-    }
 
     // Try to create a browser response
     MSIDWebOpenBrowserResponse *browserResponse = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url
