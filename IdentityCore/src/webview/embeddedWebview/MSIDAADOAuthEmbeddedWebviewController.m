@@ -333,7 +333,7 @@
 // In all cases the in-webview navigation is cancelled — the embedded webview
 // never consumes the `openid-vc://` URL itself.
 - (void)handleOpenIdVcNavigationAction:(NSURL *)requestURL
-                       decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+                       decisionHandler:(nullable void (^)(WKNavigationActionPolicy))decisionHandler
 {
     id<MSIDOpenIdVcHandling> handler = self.openIdVcHandler;
     if (handler != nil)
@@ -341,22 +341,30 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                           @"Detected openid-vc:// navigation; delegating to registered handler.");
 
+        // Weak/strong dance: the handler is weak, so no retain cycle through the
+        // property — but the completion block still extends the controller's
+        // lifetime for as long as the handler holds it, which could be a long
+        // time once an SSO extension hosts VID in-process.
+        __weak typeof(self) weakSelf = self;
         [handler handleOpenIdVcURL:requestURL
                  webviewController:self
                  callerRedirectUri:self.endURL.absoluteString
                      correlationId:self.context.correlationId
                         completion:^(NSError * _Nullable error)
         {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) return;
+
             if (error)
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.context,
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, strongSelf.context,
                                       @"openid-vc handler reported error; ending auth session: %@",
                                       MSID_PII_LOG_MASKABLE(error));
-                [self endWebAuthWithURL:nil error:error];
+                [strongSelf endWebAuthWithURL:nil error:error];
             }
         }];
 
-        decisionHandler(WKNavigationActionPolicyCancel);
+        if (decisionHandler) decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
 
@@ -368,7 +376,7 @@
                                                   @"unable to open openid-vc URL from extension",
                                                   nil, nil, nil, self.context.correlationId, nil, YES);
         [self endWebAuthWithURL:nil error:extensionError];
-        decisionHandler(WKNavigationActionPolicyCancel);
+        if (decisionHandler) decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
 
@@ -385,11 +393,15 @@
     // endWebAuthWithURL:. The webview stays presented so the user returns to it
     // after the wallet completes. The verifier's page is responsible for driving
     // the webview to its terminal state once the VID exchange succeeds.
-    decisionHandler(WKNavigationActionPolicyCancel);
+    if (decisionHandler) decisionHandler(WKNavigationActionPolicyCancel);
 #else
+    // macOS / unsupported platforms: VID flows are not supported here.
+    // openid-vc:// is iOS-only by product scope, so this branch is not expected
+    // to be reached. Cancel the navigation and leave the auth session alone —
+    // there's no wallet to hand off to and no error contract to surface.
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
-                      @"openid-vc:// scheme is not supported on this platform");
-    decisionHandler(WKNavigationActionPolicyCancel);
+                      @"openid-vc:// scheme is not supported on this platform.");
+    if (decisionHandler) decisionHandler(WKNavigationActionPolicyCancel);
 #endif
 }
 
