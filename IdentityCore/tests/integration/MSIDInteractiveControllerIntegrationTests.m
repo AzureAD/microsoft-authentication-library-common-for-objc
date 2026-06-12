@@ -23,7 +23,6 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDTestTokenRequestProvider.h"
-#import "MSIDTestInteractiveTokenRequest.h"
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDRequestParameters.h"
 #import "NSString+MSIDTestUtil.h"
@@ -38,7 +37,6 @@
 #import "MSIDTelemetry.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDTestIdentifiers.h"
-#import "MSIDWebMDMEnrollmentCompletionResponse.h"
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
 #import "MSIDWebWPJResponse.h"
@@ -49,46 +47,6 @@
 #import "MSIDTestURLSession.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
-
-@interface MSIDTestSequencedTokenRequestProvider : MSIDTestTokenRequestProvider
-
-@property (nonatomic) NSArray<MSIDInteractiveTokenRequest *> *interactiveRequests;
-@property (nonatomic) NSUInteger interactiveRequestCallCount;
-
-- (instancetype)initWithInteractiveRequests:(NSArray<MSIDInteractiveTokenRequest *> *)interactiveRequests;
-
-@end
-
-@implementation MSIDTestSequencedTokenRequestProvider
-
-- (instancetype)initWithInteractiveRequests:(NSArray<MSIDInteractiveTokenRequest *> *)interactiveRequests
-{
-    self = [super initWithTestResponse:nil
-                             testError:nil
-                 testWebMSAuthResponse:nil];
-
-    if (self)
-    {
-        _interactiveRequests = interactiveRequests;
-    }
-
-    return self;
-}
-
-- (nullable MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(nonnull __unused MSIDInteractiveTokenRequestParameters *)parameters
-{
-    self.interactiveRequestCallCount += 1;
-
-    if (!self.interactiveRequests.count)
-    {
-        return nil;
-    }
-
-    NSUInteger requestIndex = MIN(self.interactiveRequestCallCount - 1, self.interactiveRequests.count - 1);
-    return self.interactiveRequests[requestIndex];
-}
-
-@end
 
 @interface MSIDInteractiveControllerIntegrationTests : XCTestCase
 
@@ -163,20 +121,6 @@
                                                              tokenResponse:response];
 
     return result;
-}
-
-- (MSIDWebMDMEnrollmentCompletionResponse *)mdmEnrollmentCompletionResponseWithStatus:(NSString *)status
-{
-    NSError *error = nil;
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://in_app_enrollment_complete?status=%@", status]];
-    MSIDWebMDMEnrollmentCompletionResponse *response = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:url
-                                                                                                             context:nil
-                                                                                                               error:&error];
-
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-
-    return response;
 }
 
 #pragma mark - tests
@@ -303,80 +247,6 @@
         XCTAssertEqualObjects(telemetryEvent[@"error_protocol_code"], @"invalid_grant");
         XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
         XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
-
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
-}
-
-- (void)testAcquireToken_whenMDMEnrollmentCompletionSucceeds_shouldRetryInteractiveRequest
-{
-    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
-    parameters.uiBehaviorType = MSIDUIBehaviorForceType;
-    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
-    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [self mdmEnrollmentCompletionResponseWithStatus:@"success"];
-
-    MSIDTestInteractiveTokenRequest *mdmRequest = [[MSIDTestInteractiveTokenRequest alloc] initWithTestResponse:nil
-                                                                                                      testError:nil
-                                                                                          testWebMSAuthResponse:mdmResponse];
-    MSIDTestInteractiveTokenRequest *successRequest = [[MSIDTestInteractiveTokenRequest alloc] initWithTestResponse:testResult
-                                                                                                          testError:nil
-                                                                                              testWebMSAuthResponse:nil];
-    MSIDTestSequencedTokenRequestProvider *provider = [[MSIDTestSequencedTokenRequestProvider alloc] initWithInteractiveRequests:@[mdmRequest, successRequest]];
-
-    NSError *error = nil;
-    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                                                                     tokenRequestProvider:provider
-                                                                                                                                    error:&error];
-
-    XCTAssertNotNil(interactiveController);
-    XCTAssertNil(error);
-
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token after MDM enrollment completion"];
-
-    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
-
-        XCTAssertNotNil(result);
-        XCTAssertEqualObjects(result.accessToken, testResult.accessToken);
-        XCTAssertNil(acquireTokenError);
-        XCTAssertEqual(provider.interactiveRequestCallCount, (NSUInteger)2);
-
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
-}
-
-- (void)testAcquireToken_whenMDMEnrollmentCompletionFails_shouldReturnFailure
-{
-    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
-    parameters.uiBehaviorType = MSIDUIBehaviorForceType;
-    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [self mdmEnrollmentCompletionResponseWithStatus:@"failed"];
-
-    MSIDTestInteractiveTokenRequest *mdmRequest = [[MSIDTestInteractiveTokenRequest alloc] initWithTestResponse:nil
-                                                                                                      testError:nil
-                                                                                          testWebMSAuthResponse:mdmResponse];
-    MSIDTestSequencedTokenRequestProvider *provider = [[MSIDTestSequencedTokenRequestProvider alloc] initWithInteractiveRequests:@[mdmRequest]];
-
-    NSError *error = nil;
-    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                                                                     tokenRequestProvider:provider
-                                                                                                                                    error:&error];
-
-    XCTAssertNotNil(interactiveController);
-    XCTAssertNil(error);
-
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token with failed MDM enrollment completion"];
-
-    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
-
-        XCTAssertNil(result);
-        XCTAssertNotNil(acquireTokenError);
-        XCTAssertEqualObjects(acquireTokenError.domain, MSIDErrorDomain);
-        XCTAssertEqual(acquireTokenError.code, MSIDErrorInternal);
-        XCTAssertEqualObjects(acquireTokenError.userInfo[@"mdm_enrollment_status"], @"failed");
-        XCTAssertEqual(provider.interactiveRequestCallCount, (NSUInteger)1);
 
         [expectation fulfill];
     }];
