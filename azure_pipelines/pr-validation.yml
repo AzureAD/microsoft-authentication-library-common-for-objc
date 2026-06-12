@@ -22,7 +22,9 @@ jobs:
         target: "mac_library"
   displayName: Validate Pull Request
   pool:
-    vmImage: 'macos-15'
+    name: 'AcesShared'
+    demands:
+      - ImageOverride -equals ACES_VM_SharedPool_Sequoia
     timeOutInMinutes: 30
 
   steps:
@@ -30,30 +32,58 @@ jobs:
     displayName: Uninstalling xcpretty v0.4.0
     inputs:
       script: |
-        gem uninstall xcpretty -I --version 0.4.0
+        sudo gem uninstall xcpretty -I --version 0.4.0
       failOnStderr: false
   - task: CmdLine@2
     displayName: Installing xcpretty v0.3.0
     inputs:
       script: |
-        gem install xcpretty -N -v 0.3.0
+        sudo gem install xcpretty -N -v 0.3.0
       failOnStderr: true
+  - script: |
+      # System Ruby on macOS agents is 2.6, too old for current slather/bundler.
+      # Install a modern Ruby via Homebrew and prepend it to PATH for all subsequent steps.
+      export HOMEBREW_NO_AUTO_UPDATE=1
+      export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+      brew list ruby >/dev/null 2>&1 || brew install ruby
+      RUBY_BIN="$(brew --prefix ruby)/bin"
+      echo "##vso[task.prependpath]$GEM_HOME/bin"
+      echo "##vso[task.prependpath]$RUBY_BIN"
+      "$RUBY_BIN/ruby" --version
+    displayName: 'Install modern Ruby'
   - task: CmdLine@2
     displayName: Installing slather
     inputs:
       script: |
-        gem install slather -N
+        gem install slather bundler -N
       failOnStderr: true
   - checkout: self
     clean: true
     submodules: true
     fetchDepth: 1
     persistCredentials: false
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
+    inputs:
+      versionSpec: '3.x'
+  - task: Bash@3
+    displayName: 'Harden Python toolcache permissions (silence Ruby insecure PATH warning)'
+    inputs:
+      targetType: 'inline'
+      script: |
+        # /opt/hostedtoolcache/Python is created world-writable (mode 0777),
+        # which makes Ruby (used by xcpretty/slather) emit a warning to stderr
+        # whenever it loads rbconfig.rb. That warning trips `failOnStderr: true`
+        # on later steps. Strip the world-write bit from the toolcache tree.
+        if [ -d /opt/hostedtoolcache ]; then
+          sudo chmod -R o-w /opt/hostedtoolcache || true
+        fi
+      failOnStderr: false
   - task: Bash@3
     displayName: 'Select Xcode version'
     inputs:
       targetType: 'inline'
-      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_26.2.app"'
+      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.4.app"'
   - task: Bash@3
     displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
     inputs:
@@ -65,7 +95,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        python ./scripts/update_xcode_config_cpp_checks.py
+        python3 ./scripts/update_xcode_config_cpp_checks.py
       failOnStderr: true
   - task: Bash@3
     displayName: Run Build script & check for Errors

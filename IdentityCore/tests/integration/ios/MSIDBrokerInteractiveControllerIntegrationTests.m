@@ -1357,7 +1357,7 @@ static NSInteger gFakeThrottlingCallCount = 0;
 
     __block BOOL brokerRequestWasSetBeforeCompletion = NO;
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
 
         // Before completion, currentBrokerRequest should be set
         brokerRequestWasSetBeforeCompletion = ([MSIDBrokerInteractiveController currentBrokerRequest] != nil);
