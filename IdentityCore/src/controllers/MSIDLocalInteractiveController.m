@@ -318,6 +318,17 @@
     // Could not build a controller, cannot retry the request.
     if (!brokerController)
     {
+        if (!brokerError)
+        {
+            brokerError = MSIDCreateError(MSIDErrorDomain,
+                                          MSIDErrorInternal,
+                                          @"Failed to resolve a controller after MDM enrollment.",
+                                          nil, nil, nil,
+                                          self.requestParameters.correlationId,
+                                          nil,
+                                          YES);
+        }
+
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
                           @"Failed to resolve a controller after MDM enrollment: %@", brokerError);
         CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], brokerError);
