@@ -37,11 +37,24 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDThrottlingService.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
+#import "MSIDRequestControllerFactory.h"
+#import "MSIDKeychainUtil.h"
+#import "MSIDExternalRedirectContext.h"
+#if !MSID_EXCLUDE_WEBKIT
+#import "MSIDWebviewNavigationHandler.h"
+#import "MSIDWebviewNavigationDecision.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
+#endif
 
 @interface MSIDLocalInteractiveController()
 
 @property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 @property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
+@property (nonatomic) BOOL brtAttempted;
+#if !MSID_EXCLUDE_WEBKIT
+@property (nonatomic, strong) MSIDWebviewNavigationHandler *navigationHandler;
+#endif
 
 @end
 
@@ -61,6 +74,21 @@
     if (self)
     {
         _interactiveRequestParamaters = parameters;
+        
+#if !MSID_EXCLUDE_WEBKIT
+        // Wire self as navigation delegate for BRT acquisition (POC)
+        _navigationHandler = [[MSIDWebviewNavigationHandler alloc] initWithContext:parameters];
+
+        __weak typeof(self) weakSelf = self;
+        parameters.webviewConfigurationBlock = ^(id<MSIDWebviewInteracting> webviewController) {
+            __strong typeof(self) strongSelf = weakSelf;
+            if (strongSelf)
+            {
+                [strongSelf.navigationHandler configureWebviewController:webviewController
+                                                               delegate:strongSelf];
+            }
+        };
+#endif
     }
 
     return self;
@@ -225,11 +253,20 @@
     
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebviewResponse *msauthResponse)
     {
-        if (msauthResponse && [msauthResponse isKindOfClass:[MSIDWebWPJResponse class]])
+        if (msauthResponse)
         {
             self.currentRequest = nil;
-            [self handleWebMSAuthResponse:(MSIDWebWPJResponse *)msauthResponse completion:completionBlock];
-            return;
+            if ([msauthResponse isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class])
+            {
+                [self handleWebMDMEnrollmentCompletionResponse:(MSIDWebMDMEnrollmentCompletionResponse *)msauthResponse
+                                                  completion:completionBlock];
+                return;
+            }
+            if ([msauthResponse isKindOfClass:[MSIDWebWPJResponse class]])
+            {
+                [self handleWebMSAuthResponse:(MSIDWebWPJResponse *)msauthResponse completion:completionBlock];
+                return;
+            }
         }
         
 #if !EXCLUDE_FROM_MSALCPP
@@ -243,4 +280,155 @@
     }];
 }
 
+#pragma mark - MDM Response Handlers
+
+- (void)handleWebMDMEnrollmentCompletionResponse:(MSIDWebMDMEnrollmentCompletionResponse *)mdmEnrollmentCompletionResponse
+                                      completion:(MSIDRequestCompletionBlock)completionBlock
+{
+    NSString *status = mdmEnrollmentCompletionResponse.status ?: @"<none>";
+    
+    if (mdmEnrollmentCompletionResponse.isSuccess)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Profile installation completed successfully. Resuming authentication flow in broker context.");
+        
+        // TODO: Perform any custom actions needed by localInteractiveController before continuing
+        NSError *brokerError = nil;
+        id<MSIDRequestControlling> brokerController = [MSIDRequestControllerFactory interactiveControllerForParameters:self.interactiveRequestParamaters tokenRequestProvider:self.tokenRequestProvider error:&brokerError];
+        
+        // if broker is installed and sso profile is active this should return sso controller
+        if (!brokerController)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
+                              @"Failed to create broker controller after profile installation: %@", brokerError);
+            CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], brokerError);
+            completionBlock(nil, brokerError);
+            return;
+        }
+        
+        // Broker will invoke SSO extension which handles the request in its own webview
+        // Response will be sent back to calling app through the broker completion handler
+        [brokerController acquireToken:completionBlock];
+    }
+    else
+    {
+        // Profile installation failed or status is not success
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
+                          @"MDM Enrollment failed (status=%@).", status);
+        
+        NSError *profileError = MSIDCreateError(MSIDErrorDomain,
+                                                MSIDErrorInternal,
+                                                @"Profile installation failed",
+                                                nil, nil, nil,
+                                                self.requestParameters.correlationId,
+                                                nil, NO);
+        
+        CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], profileError);
+        completionBlock(nil, profileError);
+    }
+}
+
+#if !MSID_EXCLUDE_WEBKIT
+#pragma mark - MSIDWebviewNavigationDelegate (BRT POC)
+
+- (void)handleSpecialRedirectURL:(NSURL *)URL
+       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
+                      completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable, NSError * _Nullable))completion
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                      @"Received special redirect URL: %@", URL.scheme);
+    
+    // Fire-and-forget BRT seeding — does not block parent navigation
+    if (!self.brtAttempted)
+    {
+        self.brtAttempted = YES;
+
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                          @"BRT POC: Firing opportunistic BRT seed (fire-and-forget).");
+
+        MSIDBRTAcquisitionBlock block = self.brtAcquisitionBlock;
+        
+        // Only fire BRT acquisition for the enroll redirect (msauth://enroll?url=…).
+        // Other special redirects (e.g. browser://) should not trigger BRT seeding.
+        BOOL isBRTEnrollRedirect = [URL.scheme caseInsensitiveCompare:@"msauth"] == NSOrderedSame
+                                   && [URL.host caseInsensitiveCompare:@"enroll"] == NSOrderedSame;
+        
+        if (block && isBRTEnrollRedirect && MSIDIsMicrosoft1PHostProcess())
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                              @"BRT acquisition block is set — building context and firing (fire-and-forget).");
+            
+            MSIDExternalRedirectContext *context =
+                [[MSIDExternalRedirectContext alloc] initWithRedirectURL:URL
+                                                          parentWebView:embeddedWebviewController.webView
+                                                        parentAuthority:self.interactiveRequestParamaters.authority
+                                                          correlationId:self.interactiveRequestParamaters.correlationId
+                                                              loginHint:self.interactiveRequestParamaters.loginHint
+                                                             tokenCache:self.currentRequest.tokenCache
+                                                   accountMetadataCache:self.currentRequest.accountMetadataCache
+                                                           oauthFactory:self.currentRequest.oauthFactory
+                                           parentExtraURLQueryParameters:self.interactiveRequestParamaters.extraURLQueryParameters];
+            
+            // Fire-and-forget — do not block the parent interactive flow.
+            block(context);
+        }
+        else if (!block)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
+                              @"No BRT acquisition block set — skipping.");
+        }
+        else if (!MSIDIsMicrosoft1PHostProcess())
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters,
+                              @"BRT acquisition skipped — host app is not Microsoft-signed.");
+        }
+    }
+
+    // Proceed immediately — seeder runs in background
+    [self.navigationHandler handleSpecialRedirectURL:URL
+                        embeddedWebviewController:embeddedWebviewController
+                                          appName:@"MSAL"
+                                       appVersion:@"1.0"
+                                       completion:completion];
+}
+#endif
+
+#if !MSID_EXCLUDE_WEBKIT
+- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
+                                              responseURL:(NSURL *)responseURL
+{
+    return [self.navigationHandler processResponseHeadersAndCheckForASWebAuthHandoff:headers
+                                                                          responseURL:responseURL];
+}
+
+#if !MSID_EXCLUDE_SYSTEMWV
+- (void)performASWebAuthenticationHandoffWithCompletion:(void (^)(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                  NSError * _Nullable error))completion
+{
+    [self.navigationHandler performASWebAuthenticationHandoffWithParentController:self.interactiveRequestParamaters.parentViewController
+                                                                       completion:completion];
+}
+#endif // !MSID_EXCLUDE_SYSTEMWV
+#endif // !MSID_EXCLUDE_WEBKIT
+
+static NSString * const kMSIDMicrosoft1PTeamIdIosA   = @"SGGM6D27TK";
+static NSString * const kMSIDMicrosoft1PTeamIdIosB   = @"9KBH5RKYEW";
+
+// Returns YES iff the currently-running process is signed by Microsoft.
+// Result is cached (Team ID does not change during process lifetime).
+static BOOL MSIDIsMicrosoft1PHostProcess(void)
+{
+    static BOOL isMicrosoft1P = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSString *teamId = [MSIDKeychainUtil sharedInstance].teamId;
+        if (teamId.length == 0) return;
+
+        NSSet<NSString *> *allowedTeamIds = [NSSet setWithObjects:
+                                             kMSIDMicrosoft1PTeamIdIosA,
+                                             kMSIDMicrosoft1PTeamIdIosB,
+                                             nil];
+        isMicrosoft1P = [allowedTeamIds containsObject:teamId];
+    });
+    return isMicrosoft1P;
+}
 @end
