@@ -71,6 +71,7 @@
 // Backed by readonly properties declared in the public header.
 @synthesize onboardingStrongAuthSetupStarted = _onboardingStrongAuthSetupStarted;
 @synthesize onboardingMdmEnrollmentStarted = _onboardingMdmEnrollmentStarted;
+@synthesize endURL = _endURL;
 
 #if AD_BROKER
 NSString *const SSO_EXTENSION_USER_DEFAULTS_KEY = @"group.com.microsoft.azureauthenticator.sso";
