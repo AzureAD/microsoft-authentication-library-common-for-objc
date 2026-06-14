@@ -43,6 +43,7 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDWebAuthNUtil.h"
+#import "MSIDInteractiveRequestParameters.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -113,9 +114,6 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         _context = context;
         
         _complete = NO;
-        
-        // isMobileOnboardingEnabled starts as NO; it is dynamically set to YES
-        // when the server issues msauth://enroll (server-driven enablement).
     }
     
     return self;
@@ -389,7 +387,12 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     
     WKNavigationResponsePolicy responsePolicy = WKNavigationResponsePolicyAllow;
 
-    if (self.isMobileOnboardingEnabled)
+    id contextObject = self.context;
+    MSIDInteractiveRequestParameters *interactiveRequestParameters =
+        [contextObject isKindOfClass:[MSIDInteractiveRequestParameters class]]
+            ? (MSIDInteractiveRequestParameters *)contextObject : nil;
+    
+    if (interactiveRequestParameters.isNewMobileOnboardingFlow)
     {
         id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
         if ((strongNavigationDelegate)
