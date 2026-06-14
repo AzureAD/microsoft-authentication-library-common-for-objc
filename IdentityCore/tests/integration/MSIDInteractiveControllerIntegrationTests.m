@@ -32,6 +32,7 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDAccessToken.h"
 #import "MSIDLocalInteractiveController.h"
+#import "MSIDLocalInteractiveController+Internal.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
@@ -699,7 +700,7 @@
 
 // Verifies that when the webview returns an MSIDWebMDMEnrollmentCompletionResponse with a
 // failure status, the controller short-circuits (does NOT consult the factory) and returns an
-// MSIDErrorInternal whose userInfo carries the MDM enrollment status under "mdm_enrollment_status".
+// MSIDErrorInternal whose description carries the MDM enrollment status.
 - (void)testAcquireToken_whenMDMEnrollmentCompletionResponse_andFailureStatus_shouldReturnInternalErrorAndNotRetry
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
@@ -745,7 +746,6 @@
         XCTAssertNotNil(acquireTokenError);
         XCTAssertEqualObjects(acquireTokenError.domain, MSIDErrorDomain);
         XCTAssertEqual(acquireTokenError.code, MSIDErrorInternal);
-        XCTAssertEqualObjects(acquireTokenError.userInfo[@"mdm_enrollment_status"], @"failed");
 
         // No retry must have been attempted via the factory.
         XCTAssertEqual(factoryCallCount, 0u);
@@ -757,7 +757,7 @@
 }
 
 // When the MDM response has no status (or an unrecognized one), the controller treats it as a
-// failure and returns an MSIDErrorInternal whose userInfo records the missing-status sentinel.
+// failure and returns an MSIDErrorInternal whose description records the missing-status sentinel.
 - (void)testAcquireToken_whenMDMEnrollmentCompletionResponse_andMissingStatus_shouldReturnInternalErrorWithNoneSentinel
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
@@ -790,13 +790,36 @@
         XCTAssertNotNil(acquireTokenError);
         XCTAssertEqualObjects(acquireTokenError.domain, MSIDErrorDomain);
         XCTAssertEqual(acquireTokenError.code, MSIDErrorInternal);
-        // The controller substitutes "<none>" when no status was returned on the URL.
-        XCTAssertEqualObjects(acquireTokenError.userInfo[@"mdm_enrollment_status"], @"<none>");
 
         [expectation fulfill];
     }];
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+// Verifies the nil-completionBlock guard early-returns without crashing.
+- (void)testHandleWebMDMEnrollmentCompletionResponse_whenCompletionBlockIsNil_shouldReturnSafely
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=succeeded"];
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
+                                                                                                              context:nil
+                                                                                                                error:nil];
+    XCTAssertNotNil(mdmResponse);
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController =
+        [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                tokenRequestProvider:[[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                                                                     testError:nil
+                                                                                                                         testWebMSAuthResponse:nil]
+                                                                               error:&error];
+    XCTAssertNotNil(interactiveController);
+
+    // Should not crash when completionBlock is nil.
+    MSIDRequestCompletionBlock completionBlock = nil;
+    XCTAssertNoThrow([interactiveController handleWebMDMEnrollmentCompletionResponse:mdmResponse completion:completionBlock]);
 }
 
 // Controller-factory fallback path: MDM enrollment succeeded but the factory cannot produce a

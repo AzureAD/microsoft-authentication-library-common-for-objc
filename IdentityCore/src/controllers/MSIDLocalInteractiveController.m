@@ -291,12 +291,13 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
                           @"MDM enrollment failed (status=%@).", status);
 
+        NSString *errorDescription = [NSString stringWithFormat:@"MDM enrollment failed with status: %@", status];
         NSError *enrollmentError = MSIDCreateError(MSIDErrorDomain,
                                                    MSIDErrorInternal,
-                                                   @"MDM enrollment failed",
+                                                   errorDescription,
                                                    nil, nil, nil,
                                                    self.requestParameters.correlationId,
-                                                   @{ @"mdm_enrollment_status": status },
+                                                   nil,
                                                    NO);
 
         CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], enrollmentError);
