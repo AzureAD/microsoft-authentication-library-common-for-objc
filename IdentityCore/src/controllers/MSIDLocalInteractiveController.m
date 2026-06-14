@@ -71,7 +71,10 @@
         __weak typeof(self) weakSelf = self;
         parameters.webviewConfigurationBlock = ^(id<MSIDWebviewInteracting> webviewController) {
             __strong typeof(self) strongSelf = weakSelf;
-            if (!strongSelf) return;
+            if (!strongSelf)
+            {
+                return;
+            }
 
             [strongSelf.navigationHandler configureWebviewController:webviewController
                                                           delegate:strongSelf];

@@ -858,7 +858,10 @@
                                        NSError **err)
     {
         factoryCallCount++;
-        if (err) *err = factoryError;
+        if (err)
+        {
+            *err = factoryError;
+        }
         return nil;
     }];
 
