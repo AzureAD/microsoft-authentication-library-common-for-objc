@@ -30,6 +30,7 @@
 #import "MSIDIntuneDeviceIdCache.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDVersion.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -49,8 +50,6 @@
 
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                                           appName:(NSString *)appName
-                                                        appVersion:(NSString *)appVersion
 {
     // Validate required parameters
     if (!URL)
@@ -82,9 +81,7 @@
     {
         // Handle msauth:// URLs
         return [self handleMSAuthURL:URL
-           embeddedWebviewController:embeddedWebviewController
-                             appName:appName
-                          appVersion:appVersion];
+           embeddedWebviewController:embeddedWebviewController];
     }
     else if ([scheme isEqualToString:MSID_SCHEME_BROWSER])
     {
@@ -104,8 +101,6 @@
 
 - (MSIDWebviewNavigationDecision *)handleMSAuthURL:(NSURL *)URL
                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                           appName:(NSString *)appName
-                                        appVersion:(NSString *)appVersion
 {
     NSString *host = URL.host.lowercaseString;
 
@@ -129,8 +124,6 @@
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
         return [self decisionForEnrollURL:params
-                                  appName:appName
-                               appVersion:appVersion
                 embeddedWebviewController:embeddedWebviewController];
     }
     else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
@@ -159,8 +152,6 @@
 #pragma mark - URL Decision Resolvers
 
 - (MSIDWebviewNavigationDecision *)decisionForEnrollURL:(NSDictionary *)params
-                                                appName:(NSString *)appName
-                                             appVersion:(NSString *)appVersion
                               embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
@@ -238,14 +229,16 @@
     // Prepare additional headers for enrollment.
     NSMutableDictionary *additionalHeaders = [NSMutableDictionary dictionary];
 
-    if (appName.length > 0)
+    NSString *platformName = [MSIDVersion platformName];
+    if (platformName.length > 0)
     {
-        additionalHeaders[MSID_APP_NAME_KEY] = appName;
+        additionalHeaders[MSID_PLATFORM_KEY] = platformName;
     }
 
-    if (appVersion.length > 0)
+    NSString *sdkVersion = [MSIDVersion sdkVersion];
+    if (sdkVersion.length > 0)
     {
-        additionalHeaders[MSID_APP_VER_KEY] = appVersion;
+        additionalHeaders[MSID_VERSION_KEY] = sdkVersion;
     }
 
     // Build the final request with all query params and headers.

@@ -432,7 +432,7 @@
     XCTAssertEqual(embedded.navigationDelegate, delegate);
 }
 
-#pragma mark - handleSpecialRedirectURL:embeddedWebviewController:appName:appVersion:completion:
+#pragma mark - handleSpecialRedirectURL:embeddedWebviewController:completion:
 
 - (void)testHandleSpecialRedirectURL_whenURLIsNil_shouldCompleteWithFailWithError
 {
@@ -444,8 +444,6 @@
 
     [self.handler handleSpecialRedirectURL:nilURL
                 embeddedWebviewController:nil
-                                  appName:@"App"
-                               appVersion:@"1.0"
                                completion:^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
     {
         XCTAssertNotNil(decision);
@@ -467,8 +465,6 @@
 
     [self.handler handleSpecialRedirectURL:URL
                 embeddedWebviewController:nil
-                                  appName:@"App"
-                               appVersion:@"1.0"
                                completion:^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
     {
         XCTAssertNotNil(decision);
@@ -490,8 +486,6 @@
 
     XCTAssertNoThrow([self.handler handleSpecialRedirectURL:URL
                                  embeddedWebviewController:nil
-                                                   appName:@"App"
-                                                appVersion:@"1.0"
                                                 completion:^(MSIDWebviewNavigationDecision * _Nullable decision, __unused NSError * _Nullable error)
     {
         XCTAssertNotNil(decision);
@@ -511,8 +505,6 @@
 
     [self.handler handleSpecialRedirectURL:URL
                 embeddedWebviewController:nil
-                                  appName:@"App"
-                               appVersion:@"1.0"
                                completion:^(__unused MSIDWebviewNavigationDecision * _Nullable decision,
                                             __unused NSError * _Nullable error)
     {

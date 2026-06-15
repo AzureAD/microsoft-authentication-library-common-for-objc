@@ -76,8 +76,6 @@
 
 - (void)handleSpecialRedirectURL:(NSURL *)URL
        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                         appName:(NSString *)appName
-                      appVersion:(NSString *)appVersion
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
@@ -85,9 +83,7 @@
 
     MSIDWebviewNavigationDecisionResolver *util = [MSIDWebviewNavigationDecisionResolver sharedInstance];
     MSIDWebviewNavigationDecision *navigationDecision = [util resolveDecisionForURL:URL
-                                                          embeddedWebviewController:embeddedWebviewController
-                                                                            appName:appName
-                                                                         appVersion:appVersion];
+                                                          embeddedWebviewController:embeddedWebviewController];
     completion(navigationDecision, nil);
 }
 
