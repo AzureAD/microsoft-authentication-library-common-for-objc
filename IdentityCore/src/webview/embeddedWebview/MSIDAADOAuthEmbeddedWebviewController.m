@@ -38,6 +38,8 @@
 #import "MSIDWebviewConstants.h"
 #import "NSURL+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -118,6 +120,13 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                 @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
             self.isMobileOnboardingEnabled = YES;
+
+            // Record onboarding telemetry: tag UX flow for the new mobile onboarding path.
+            MSIDOnboardingBlobBuilder *builder = self.onboardingBlobBuilder;
+            if (builder)
+            {
+                [builder addUxFlowUsed:MSIDOnboardingUxFlowMobileOnboardingPhase1];
+            }
         }
         else
         {

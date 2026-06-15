@@ -30,6 +30,8 @@
 #import "MSIDRequestContext.h"
 #import "MSIDWebviewNavigationDelegate.h"
 #import "MSIDWebviewConstants.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -89,13 +91,22 @@
     completion(navigationDecision, nil);
 }
 
-- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
-                                              responseURL:(NSURL *)responseURL
+- (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
+         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
 {
+    NSDictionary *headers = response.allHeaderFields;
+    NSURL *responseURL = response.URL;
+
     // Normalize and capture headers for later use. This also allows for case-insensitive lookup of header values.
     self.lastResponseHeaders = [self normalizeHeaders:headers];
 
-    // TODO: Add telemetry for response headers
+    // Process onboarding telemetry from the response if the builder is available.
+    // This records blocking errors (x-ms-clitelem) and last-loaded domain.
+    MSIDOnboardingBlobBuilder *builder = embeddedWebviewController.onboardingBlobBuilder;
+    if (builder && responseURL)
+    {
+        [builder processResponseHeaders:headers responseURL:responseURL];
+    }
 
     NSString *handoffURLString = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
     BOOL hasHandoffHeader = [handoffURLString isKindOfClass:NSString.class] && ((NSString *)handoffURLString).length > 0;
@@ -132,7 +143,7 @@
     }
 
     // Retrieve the hand-off URL captured by the most recent
-    // processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: call.
+    // processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: call.
     id rawHandoffURL = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
     NSString *handoffURLString = [rawHandoffURL isKindOfClass:NSString.class] ? (NSString *)rawHandoffURL : nil;
     NSURL *handoffURL = handoffURLString.length > 0 ? [NSURL URLWithString:handoffURLString] : nil;

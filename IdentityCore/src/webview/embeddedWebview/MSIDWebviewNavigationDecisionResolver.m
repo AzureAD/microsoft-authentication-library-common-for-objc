@@ -28,6 +28,8 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDConstants.h"
 #import "MSIDIntuneDeviceIdCache.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -128,11 +130,13 @@
     {
         return [self decisionForEnrollURL:params
                                   appName:appName
-                               appVersion:appVersion];
+                               appVersion:appVersion
+                embeddedWebviewController:embeddedWebviewController];
     }
     else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
-        return [self decisionForProfileDownloadComplete:params];
+        return [self decisionForProfileDownloadComplete:params
+                             embeddedWebviewController:embeddedWebviewController];
     }
     else if ([host isEqualToString:MSID_COMPLIANCE_HOST])
     {
@@ -157,8 +161,16 @@
 - (MSIDWebviewNavigationDecision *)decisionForEnrollURL:(NSDictionary *)params
                                                 appName:(NSString *)appName
                                              appVersion:(NSString *)appVersion
+                              embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
+
+    // Record onboarding telemetry step for MDM enrollment start.
+    MSIDOnboardingBlobBuilder *builder = embeddedWebviewController.onboardingBlobBuilder;
+    if (builder)
+    {
+        [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:[NSDate date]];
+    }
 
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
 
@@ -256,8 +268,16 @@
 }
 
 - (MSIDWebviewNavigationDecision *)decisionForProfileDownloadComplete:(NSDictionary *)params
+                                           embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Processing MDM profile download completion redirect.");
+
+    // Record onboarding telemetry step for profile download completion.
+    MSIDOnboardingBlobBuilder *builder = embeddedWebviewController.onboardingBlobBuilder;
+    if (builder)
+    {
+        [builder addStep:MSIDOnboardingBlobStepProfileDownloadCompleted timestamp:[NSDate date]];
+    }
 
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
 
@@ -381,6 +401,13 @@
                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Building compliance request from msauth redirect.");
+
+    // Record onboarding telemetry step for compliance/remediation start.
+    MSIDOnboardingBlobBuilder *builder = embeddedWebviewController.onboardingBlobBuilder;
+    if (builder)
+    {
+        [builder addStep:MSIDOnboardingBlobStepComplianceRemediationStarted timestamp:[NSDate date]];
+    }
 
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
 

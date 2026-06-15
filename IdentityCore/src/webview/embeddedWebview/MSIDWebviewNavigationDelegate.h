@@ -51,23 +51,25 @@ NS_ASSUME_NONNULL_BEGIN
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**
- * Caches response headers and detects an ASWebAuthenticationSession hand-off signal.
+ * Caches response headers, processes onboarding telemetry, and detects an
+ * ASWebAuthenticationSession hand-off signal.
  * On YES, caller should cancel the WKWebView navigation and invoke the hand-off method below.
  *
- * Security: hand-off is honored only when @c responseURL is HTTPS and its host is on the allowlist.
+ * Security: hand-off is honored only when the response URL is HTTPS and its host is on the allowlist.
  *
- * @param headers     HTTP response headers (raw `allHeaderFields`)
- * @param responseURL URL of the response that delivered @c headers (@c NSHTTPURLResponse.URL).
- * @return YES if @c headers signal a hand-off AND @c responseURL is from allowed origin; NO otherwise.
+ * @param response    The HTTP navigation response containing headers and URL.
+ * @param embeddedWebviewController The controller that drove the navigation, passed explicitly
+ *        so the delegate does not have to reach back through shared state.
+ * @return YES if headers signal a hand-off AND the response URL is from allowed origin; NO otherwise.
  */
-- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
-                                              responseURL:(nullable NSURL *)responseURL;
+- (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
+         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController;
 
 #if !MSID_EXCLUDE_SYSTEMWV
 
 /**
  * Performs the hand-off using the headers cached by the last
- * @c processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: call.
+ * @c processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: call.
  *
  * @param completion Completion block - MUST be called exactly once; failures surface as a @c failWithError decision
  */
