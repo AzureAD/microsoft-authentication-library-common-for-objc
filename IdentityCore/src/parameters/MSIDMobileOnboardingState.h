@@ -21,27 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDInteractiveRequestParameters.h"
-#import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDClaimsRequest.h"
-#import "MSIDMobileOnboardingState.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDInteractiveRequestParameters
+NS_ASSUME_NONNULL_BEGIN
 
-@dynamic isNewMobileOnboardingFlow;
+/// Shared mutable state for mobile onboarding flow, passed by reference across recreated params.
+@interface MSIDMobileOnboardingState : NSObject
 
-- (BOOL)isNewMobileOnboardingFlow
-{
-    return self.mobileOnboardingState.isNewMobileOnboardingFlow;
-}
-
-- (void)setIsNewMobileOnboardingFlow:(BOOL)isNewMobileOnboardingFlow
-{
-    if (!self.mobileOnboardingState)
-    {
-        self.mobileOnboardingState = [MSIDMobileOnboardingState new];
-    }
-    self.mobileOnboardingState.isNewMobileOnboardingFlow = isNewMobileOnboardingFlow;
-}
+@property (nonatomic) BOOL isNewMobileOnboardingFlow;
 
 @end
+
+NS_ASSUME_NONNULL_END

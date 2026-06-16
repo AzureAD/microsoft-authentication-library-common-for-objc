@@ -27,6 +27,7 @@
 #import "MSIDConstants.h"
 
 @class WKWebView;
+@class MSIDMobileOnboardingState;
 #if TARGET_OS_IPHONE
 @class UIViewController;
 #endif
@@ -47,10 +48,9 @@
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 @property (nonatomic) NSString *telemetryWebviewType;
 
-/* Marks the current request as part of the new mobile onboarding flow.
-   Set to YES when the server issues `msauth://enroll` during the embedded
-   webview leg, so the bit survives the hop into the broker SSO extension
-   where the broker can branch on it during device-registration bootstrap. */
+@property (nonatomic, nullable) MSIDMobileOnboardingState *mobileOnboardingState;
+
+/// Convenience accessor — forwards to mobileOnboardingState.isNewMobileOnboardingFlow.
 @property (nonatomic) BOOL isNewMobileOnboardingFlow;
 
 @end
