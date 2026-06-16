@@ -36,6 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, nullable) MSIDTokenResponse *additionalTokenResponse;
 
+/// Optional onboarding telemetry blob populated by the broker during the interactive
+/// flow. Empty/nil when no blocking error was recorded; populated JSON otherwise.
+/// Mirrors the same field key as the request (`MSIDOnboardingBlobIPCKey`).
+@property (nonatomic, copy, nullable) NSString *onboardingBlob;
+
 @end
 
 NS_ASSUME_NONNULL_END

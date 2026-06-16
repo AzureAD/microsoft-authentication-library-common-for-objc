@@ -111,8 +111,12 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)closeResultPipeline:(XCUIApplication *)application
 {
+    [self closeResultPipeline:application waitInMs:10];
+}
+
+- (void)closeResultPipeline:(XCUIApplication *)application waitInMs:(int)count
+{
 #if TARGET_OS_SIMULATOR
-    int count = 10;
     double interval = 1;
     __auto_type resultPipelineExpectation = [[XCTestExpectation alloc] initWithDescription:@"Wait for result pipeline."];
     
@@ -295,6 +299,15 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)aadEnterPassword:(XCUIApplication *)application
 {
+    if (![self tapPasswordSelectionButtonIfPresentInApp:application])
+    {
+        XCUIElement *useYourPasswordElement = application.staticTexts[@"Use your password"];
+        if ([self waitForElementsAndContinueIfNotAppear:useYourPasswordElement timeout:1.0f] == XCTWaiterResultCompleted)
+        {
+            [useYourPasswordElement msidTap];
+        }
+    }
+
     [self enterPassword:self.primaryAccount.password app:application];
     // New Password reset API requires to force providing a new password after logging in with original password.
     [self setupPassword:self.primaryAccount.password app:application];
@@ -693,7 +706,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
-    [self waitForExpectationsWithTimeout:45.0f handler:nil];
+    [self waitForExpectationsWithTimeout:60.0f handler:nil];
 }
 
 - (XCUIElement *)waitForEitherElements:(XCUIElement *)object1 and:(XCUIElement *)object2
@@ -706,10 +719,35 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object
 {
+    return [self waitForElementsAndContinueIfNotAppear:object timeout:30.0f];
+}
+
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object timeout:(NSTimeInterval)timeout
+{
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"%@.exists == 1" argumentArray:@[object]];
 
     XCTestExpectation *expectation = [[XCTNSPredicateExpectation alloc] initWithPredicate:existsPredicate object:object];
-    return [XCTWaiter waitForExpectations:@[expectation] timeout:30.0f enforceOrder:YES];
+    return [XCTWaiter waitForExpectations:@[expectation] timeout:timeout enforceOrder:YES];
+}
+
+- (void)dismissCookieSharingDialogIfNecessary
+{
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    XCUIElement *allowButton = springBoardApp.alerts.buttons[@"Allow"];
+
+    XCTWaiterResult waitResult = [self waitForElementsAndContinueIfNotAppear:allowButton timeout:5.0f];
+
+    if (waitResult == XCTWaiterResultCompleted)
+    {
+        XCUIElement *alert = springBoardApp.alerts.element;
+        BOOL isCookieAlert = [alert.label containsString:@"cookies"]
+                             || [alert.label containsString:@"website data"];
+
+        if (isCookieAlert)
+        {
+            [allowButton msidTap];
+        }
+    }
 }
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element

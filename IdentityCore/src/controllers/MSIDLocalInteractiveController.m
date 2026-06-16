@@ -86,9 +86,9 @@
             /**
              Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
              */
-            [MSIDThrottlingService updateLastRefreshTimeDatasource:request.extendedTokenCache
-                                                               context:self.interactiveRequestParamaters
-                                                                 error:nil];
+            [[MSIDThrottlingService resolvedRefresher] updateLastRefreshTimeDatasource:request.extendedTokenCache
+                                                                              context:self.interactiveRequestParamaters
+                                                                                error:nil];
         }
         
         if (!completionBlock)
@@ -223,14 +223,15 @@
 
     self.currentRequest = request;
     
-    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *msauthResponse)
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebviewResponse *msauthResponse)
     {
-        if (msauthResponse)
+        if (msauthResponse && [msauthResponse isKindOfClass:[MSIDWebWPJResponse class]])
         {
             self.currentRequest = nil;
-            [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
+            [self handleWebMSAuthResponse:(MSIDWebWPJResponse *)msauthResponse completion:completionBlock];
             return;
         }
+        
 #if !EXCLUDE_FROM_MSALCPP
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:result.account];

@@ -49,6 +49,8 @@ NSString *const MSIDTrustedAuthorityChina          = @"login.chinacloudapi.cn";
 NSString *const MSIDTrustedAuthorityChina2         = @"login.partner.microsoftonline.cn";
 NSString *const MSIDTrustedAuthorityGermany        = @"login.microsoftonline.de";
 NSString *const MSIDTrustedAuthorityFrance         = @"login.sovcloud-identity.fr";
+NSString *const MSIDTrustedAuthorityDelos          = @"login.sovcloud-identity.de";
+NSString *const MSIDTrustedAuthorityGovSG          = @"login.sovcloud-identity.sg";
 NSString *const MSIDTrustedAuthorityWorldWide      = @"login.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityUSGovernment   = @"login-us.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityCloudGovApi    = @"login.usgovcloudapi.net";
@@ -63,6 +65,9 @@ NSString *const MSID_POP_TOKEN_PRIVATE_KEY = @"com.microsoft.token.private.key";
 NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN = @"com.microsoft.identity.throttling.metadata";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";
+
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN = @"com.microsoft.identity.intune.deviceid";
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN_VERSION = @"Ver1";
 
 NSString *const MSID_USE_SINGLE_FRT_KEYCHAIN          = @"useSingleFRT";
 NSString *const MSID_USE_SINGLE_FRT_KEY               = @"use_single_frt";
@@ -115,10 +120,15 @@ NSString *const MSID_FLIGHT_ENABLE_THREAD_STARVATION = @"ts_en";
 // This is SsoExt flow only flight
 NSString *const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE = @"skip_brk_cache";
 
+// Enables caching and reuse of the Broker XPC instance endpoint (macOS only).
+NSString *const MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED = @"broker_xpc_instance_cache_enabled";
+
 NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 
 NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 
 NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_new_window_in_browser";
+
+NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboarding";
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

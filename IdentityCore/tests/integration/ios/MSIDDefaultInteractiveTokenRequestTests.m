@@ -180,7 +180,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -285,7 +285,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -392,7 +392,7 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -486,7 +486,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -582,7 +582,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -651,7 +651,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -719,13 +719,14 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
-
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
         XCTAssertNil(result);
         XCTAssertNil(error);
         XCTAssertNotNil(installBrokerResponse);
-        XCTAssertEqualObjects(installBrokerResponse.appInstallLink, @"https://login.microsoftonline.appinstall.test");
-        XCTAssertTrue(installBrokerResponse.tokenProtectionRequired);
+        XCTAssertTrue([installBrokerResponse isKindOfClass:[MSIDWebWPJResponse class]]);
+        MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)installBrokerResponse;
+        XCTAssertEqualObjects(wpjResponse.appInstallLink, @"https://login.microsoftonline.appinstall.test");
+        XCTAssertTrue(wpjResponse.tokenProtectionRequired);
 
         [expectation fulfill];
 
@@ -789,11 +790,13 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable upgradeRegBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable response) {
 
         XCTAssertNil(result);
         XCTAssertNil(error);
-        XCTAssertNotNil(upgradeRegBrokerResponse);
+        XCTAssertNotNil(response);
+        XCTAssertTrue([response isKindOfClass:[MSIDWebUpgradeRegResponse class]]);
+        MSIDWebUpgradeRegResponse *upgradeRegBrokerResponse = (MSIDWebUpgradeRegResponse *)response;
         XCTAssertEqualObjects(upgradeRegBrokerResponse.upn, @"user");
         XCTAssertEqualObjects(upgradeRegBrokerResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
         XCTAssertEqualObjects(upgradeRegBrokerResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
@@ -892,7 +895,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -966,7 +969,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
