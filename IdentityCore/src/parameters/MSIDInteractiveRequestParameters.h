@@ -50,7 +50,6 @@
 
 @property (nonatomic, nullable) MSIDMobileOnboardingState *mobileOnboardingState;
 
-/// Convenience accessor — forwards to mobileOnboardingState.isNewMobileOnboardingFlow.
 @property (nonatomic) BOOL isNewMobileOnboardingFlow;
 
 @end
