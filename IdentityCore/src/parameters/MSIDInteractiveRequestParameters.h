@@ -48,6 +48,7 @@
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 @property (nonatomic) NSString *telemetryWebviewType;
 
+/// Shared mutable onboarding state, passed by reference across recreated params.
 @property (nonatomic, nullable) MSIDMobileOnboardingState *mobileOnboardingState;
 
 @property (nonatomic) BOOL isNewMobileOnboardingFlow;

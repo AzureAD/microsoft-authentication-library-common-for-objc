@@ -43,9 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// blob via `MSIDBrokerOperationTokenResponse.onboardingBlob`.
 @property (nonatomic, copy, nullable) NSString *onboardingBlob;
 
-/// Mirrors `MSIDInteractiveRequestParameters.isNewMobileOnboardingFlow`.
-/// Round-tripped across the SSO extension IPC boundary so the broker can
-/// branch on whether the request originated from the new mobile onboarding flow.
+/// Indicates the new mobile onboarding flow. Serialized across SSO extension IPC.
 @property (nonatomic) BOOL isNewMobileOnboardingFlow;
 
 + (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
