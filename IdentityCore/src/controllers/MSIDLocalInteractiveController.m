@@ -358,11 +358,11 @@
                                           completion:completion];
 }
 
-- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
-                                              responseURL:(NSURL *)responseURL
+- (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
+                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
 {
-    return [self.navigationHandler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:responseURL];
+    return [self.navigationHandler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                                              embeddedWebviewController:embeddedWebviewController];
 }
 
 #if !MSID_EXCLUDE_SYSTEMWV

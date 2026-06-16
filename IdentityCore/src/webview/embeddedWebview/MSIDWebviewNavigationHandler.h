@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return YES if headers signal a hand-off AND the response URL is from allowed origin; NO otherwise.
  */
 - (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
-         embeddedWebviewController:(nullable MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController;
+                                   embeddedWebviewController:(nullable MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController;
 
 #if !MSID_EXCLUDE_SYSTEMWV
 /**

@@ -88,7 +88,7 @@
 }
 
 - (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
-         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
+                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
 {
     NSDictionary *headers = response.allHeaderFields;
     NSURL *responseURL = response.URL;
