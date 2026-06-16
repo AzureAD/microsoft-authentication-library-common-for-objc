@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Shared mutable state for mobile onboarding flow.
+// Shared mutable state for mobile onboarding flow.
 @interface MSIDMobileOnboardingState : NSObject
 
 @property (nonatomic) BOOL isNewMobileOnboardingFlow;
