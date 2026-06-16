@@ -35,7 +35,6 @@
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDBartFeatureUtil.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
-#import "MSIDBrokerConstants.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -202,12 +201,6 @@
     // Onboarding telemetry seed (when present): forwarded so the broker can
     // classify, build, and round-trip the populated blob on the response.
     [queryDictionary msidSetNonEmptyString:self.requestParameters.onboardingBlobJson forKey:MSIDOnboardingBlobIPCKey];
-
-    if (self.requestParameters.isNewMobileOnboardingFlow)
-    {
-        queryDictionary[MSID_BROKER_NEW_MOBILE_ONBOARDING_FLOW_KEY] = @"1";
-    }
-
     return queryDictionary;
 }
 

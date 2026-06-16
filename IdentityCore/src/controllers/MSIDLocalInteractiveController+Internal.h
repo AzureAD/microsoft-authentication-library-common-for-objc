@@ -23,17 +23,12 @@
 
 #import "MSIDLocalInteractiveController.h"
 
-@class MSIDWebMDMEnrollmentCompletionResponse;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDLocalInteractiveController ()
 
 - (void)acquireTokenWithRequest:(MSIDInteractiveTokenRequest *)request
                 completionBlock:(MSIDRequestCompletionBlock)completionBlock;
-
-- (void)handleWebMDMEnrollmentCompletionResponse:(MSIDWebMDMEnrollmentCompletionResponse *)mdmEnrollmentCompletionResponse
-                                       completion:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
 

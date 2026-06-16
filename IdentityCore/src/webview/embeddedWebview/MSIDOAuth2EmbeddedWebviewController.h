@@ -45,6 +45,8 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate, WKUIDeleg
 
 typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth2EmbeddedWebviewController *webView, NSURL *url);
 
+@property (nonatomic, assign) BOOL isMobileOnboardingEnabled;
+
 - (id)init NS_UNAVAILABLE;
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL

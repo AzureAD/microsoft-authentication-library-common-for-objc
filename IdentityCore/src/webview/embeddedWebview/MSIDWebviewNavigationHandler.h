@@ -83,10 +83,14 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param URL The special redirect URL
  * @param embeddedWebviewController The embedded webview controller instance
+ * @param appName The name of the sdk
+ * @param appVersion The version of the sdk
  * @param completion Completion block with the navigation decision or error
  */
 - (void)handleSpecialRedirectURL:(NSURL *)URL
        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                         appName:(NSString *)appName
+                      appVersion:(NSString *)appVersion
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**

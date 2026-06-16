@@ -92,11 +92,10 @@
     request.extraScopesToConsent = @"scope 3";
     request.clientSku = @"MSAL.iOS";
     request.skipValidateResultAccount = NO;
-    request.isNewMobileOnboardingFlow = YES;
 
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertEqual(26, json.allKeys.count);
+    XCTAssertEqual(25, json.allKeys.count);
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"claims"], @"{\"id_token\":{\"nickname\":null}}");
@@ -122,7 +121,6 @@
     XCTAssertEqualObjects(json[@"client_sku"], @"MSAL.iOS");
     XCTAssertEqualObjects(json[@"skip_validate_result_account"], @"0");
     XCTAssertEqualObjects(json[@"force_refresh"], @"0");
-    XCTAssertEqualObjects(json[@"new_mobile_onboarding_flow"], @"1");
 }
 
 - (void)testJsonDictionary_whenRequiredPropertiesSet_shouldReturnJson
@@ -217,7 +215,6 @@
         @"redirect_uri": @"redirect uri",
         @"scope": @"scope scope2",
         @"username": @"user@contoso.com",
-        @"new_mobile_onboarding_flow": @"1",
     };
     
     NSError *error;
@@ -254,7 +251,6 @@
     XCTAssertEqualObjects(DEFAULT_TEST_HOME_ACCOUNT_ID, request.accountIdentifier.homeAccountId);
     XCTAssertEqual(MSIDPromptTypeSelectAccount, request.promptType);
     XCTAssertEqualObjects(@"scope 3", request.extraScopesToConsent);
-    XCTAssertTrue(request.isNewMobileOnboardingFlow);
 }
 
 - (void)testInitWithJSONDictionary_whenRequiredProperties_shouldInitRequest
