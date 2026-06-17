@@ -301,13 +301,11 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 {
     if (![self tapPasswordSelectionButtonIfPresentInApp:application])
     {
-        // Prefer the in-page static text over a possibly identically-labeled
-        // QuickType / AutoFill suggestion (see tapPasswordSelectionButtonIfPresentInApp:).
+        // Same rationale as tapPasswordSelectionButtonIfPresentInApp: stay
+        // inside the web view so an identically-labeled QuickType / AutoFill
+        // suggestion never wins the first-match query. The polling loop in
+        // enterPassword: handles the "not present yet" case.
         XCUIElement *useYourPasswordElement = application.webViews.staticTexts[@"Use your password"];
-        if (!useYourPasswordElement.exists)
-        {
-            useYourPasswordElement = application.staticTexts[@"Use your password"];
-        }
         if ([self waitForElementsAndContinueIfNotAppear:useYourPasswordElement timeout:1.0f] == XCTWaiterResultCompleted)
         {
             [useYourPasswordElement msidTap];
@@ -365,18 +363,17 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
         @"Other ways to sign in"
     ];
 
+    // Password-selection buttons only ever appear inside the AAD/MSA/B2C web
+    // page (rendered in a WKWebView / SFSafariViewController inside the test
+    // host). Restrict the lookup to web views so we never match an iOS
+    // QuickType bar / Passwords AutoFill accessory button that happens to
+    // carry the same label — tapping those opens the empty system password
+    // picker on CI sims with no saved credentials and the test loops forever.
+    // The polling loop in enterPassword: retries every second, so returning NO
+    // here when the web button hasn't rendered yet is the desired behavior.
     for (NSString *buttonTitle in passwordButtonTitles)
     {
-        // Search only inside web views to avoid matching identically-labeled
-        // buttons in the iOS QuickType bar / Passwords AutoFill accessory,
-        // which appear in the simulator on iOS 17+ when typing in form fields
-        // and cause CI to repeatedly tap a keyboard suggestion instead of the
-        // real web button.
         XCUIElement *button = application.webViews.buttons[buttonTitle];
-        if (!button.exists)
-        {
-            button = application.buttons[buttonTitle];
-        }
         if (!button.exists || !button.isHittable)
         {
             continue;
