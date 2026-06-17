@@ -361,11 +361,12 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     // text field, which raises the iOS keyboard. The keyboard + its accessory
     // bar cover the lower part of the page, including the "Use your password"
     // link we actually want. While covered, the link is in the view hierarchy
-    // (so .exists is YES) but not .isHittable, and any tap is intercepted by
-    // the keyboard.
+    // (so .exists is YES) but XCUI taps land on the keyboard's hit area and
+    // get absorbed — the link never receives the tap and the page never
+    // progresses.
     //
     // Tap the keyboard's "Done" accessory button to dismiss it. The page then
-    // scrolls/redraws and the password link becomes hittable. The polling
+    // scrolls/redraws and the password link becomes tappable. The polling
     // loop in enterPassword: re-invokes tapPasswordSelectionButtonIfPresentInApp:
     // on the next tick, which then finds and taps the link.
     if (!application.webViews.staticTexts[@"Verify your email"].exists)
@@ -373,14 +374,31 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
         return NO;
     }
 
-    XCUIElement *doneButton = application.toolbars.buttons[@"Done"];
-    if (!doneButton.exists || !doneButton.isHittable)
+    // The Done button on the keyboard accessory bar lives under different
+    // parents depending on iOS version and which app surfaces the keyboard
+    // (SafariViewController vs WKWebView). Try the known-safe scopes in order:
+    // 1. toolbars.buttons (iOS classic UIToolbar input accessory)
+    // 2. keyboards.buttons (iOS 17/18 direct keyboard child)
+    // 3. otherElements.buttons (some accessory views wrap Done in a generic Other)
+    // We intentionally avoid the unscoped application.buttons[@"Done"] because
+    // it can match unrelated "Done" buttons elsewhere in the test host.
+    NSArray<XCUIElement *> *doneCandidates = @[
+        application.toolbars.buttons[@"Done"],
+        application.keyboards.buttons[@"Done"],
+        application.keyboards.toolbars.buttons[@"Done"],
+        application.otherElements[@"InputAssistantView"].buttons[@"Done"],
+    ];
+
+    for (XCUIElement *candidate in doneCandidates)
     {
-        return NO;
+        if (candidate.exists && candidate.isHittable)
+        {
+            [candidate msidTap];
+            return YES;
+        }
     }
 
-    [doneButton msidTap];
-    return YES;
+    return NO;
 }
 
 - (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
