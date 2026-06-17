@@ -301,7 +301,13 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 {
     if (![self tapPasswordSelectionButtonIfPresentInApp:application])
     {
-        XCUIElement *useYourPasswordElement = application.staticTexts[@"Use your password"];
+        // Prefer the in-page static text over a possibly identically-labeled
+        // QuickType / AutoFill suggestion (see tapPasswordSelectionButtonIfPresentInApp:).
+        XCUIElement *useYourPasswordElement = application.webViews.staticTexts[@"Use your password"];
+        if (!useYourPasswordElement.exists)
+        {
+            useYourPasswordElement = application.staticTexts[@"Use your password"];
+        }
         if ([self waitForElementsAndContinueIfNotAppear:useYourPasswordElement timeout:1.0f] == XCTWaiterResultCompleted)
         {
             [useYourPasswordElement msidTap];
@@ -361,8 +367,17 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
     for (NSString *buttonTitle in passwordButtonTitles)
     {
-        XCUIElement *button = application.buttons[buttonTitle];
+        // Search only inside web views to avoid matching identically-labeled
+        // buttons in the iOS QuickType bar / Passwords AutoFill accessory,
+        // which appear in the simulator on iOS 17+ when typing in form fields
+        // and cause CI to repeatedly tap a keyboard suggestion instead of the
+        // real web button.
+        XCUIElement *button = application.webViews.buttons[buttonTitle];
         if (!button.exists)
+        {
+            button = application.buttons[buttonTitle];
+        }
+        if (!button.exists || !button.isHittable)
         {
             continue;
         }
