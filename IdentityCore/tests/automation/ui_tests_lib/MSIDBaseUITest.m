@@ -358,47 +358,39 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 {
     // The MSA "Verify your email" interstitial (shown during B2C / MSA login
     // flows when the account needs proof-of-control) auto-focuses the email
-    // text field, which raises the iOS keyboard. The keyboard + its accessory
-    // bar cover the lower part of the page, including the "Use your password"
-    // link we actually want. While covered, the link is in the view hierarchy
-    // (so .exists is YES) but XCUI taps land on the keyboard's hit area and
-    // get absorbed — the link never receives the tap and the page never
-    // progresses.
+    // text field, which raises the iOS keyboard. The keyboard covers the
+    // lower part of the page, including the "Use your password" link we want.
+    // The link is in the view hierarchy (so .exists is YES) and XCUI may
+    // even report it as .isHittable, but synthesized taps land on the
+    // keyboard's hit area and get absorbed — the link never receives the tap
+    // and the page never progresses.
     //
-    // Tap the keyboard's "Done" accessory button to dismiss it. The page then
-    // scrolls/redraws and the password link becomes tappable. The polling
-    // loop in enterPassword: re-invokes tapPasswordSelectionButtonIfPresentInApp:
-    // on the next tick, which then finds and taps the link.
-    if (!application.webViews.staticTexts[@"Verify your email"].exists)
+    // Dismiss the keyboard by tapping the "Verify your email" header itself.
+    // Tapping a static text in a webview is a no-op for the page (no link, no
+    // event handler), but it defocuses the email text field, which causes
+    // iOS to dismiss the keyboard. After dismissal the page reflows and the
+    // password link becomes truly tappable. The polling loop in enterPassword:
+    // re-invokes tapPasswordSelectionButtonIfPresentInApp: on the next tick.
+    //
+    // This is more reliable than searching for the keyboard's "Done" accessory
+    // button — Done lives under different parents (toolbars/keyboards/
+    // otherElements) on different iOS versions and surface owners
+    // (SafariViewController vs WKWebView), and on some iOS 18+ sims isn't
+    // exposed to XCUI at all.
+    XCUIElement *header = application.webViews.staticTexts[@"Verify your email"];
+    if (!header.exists)
     {
         return NO;
     }
 
-    // The Done button on the keyboard accessory bar lives under different
-    // parents depending on iOS version and which app surfaces the keyboard
-    // (SafariViewController vs WKWebView). Try the known-safe scopes in order:
-    // 1. toolbars.buttons (iOS classic UIToolbar input accessory)
-    // 2. keyboards.buttons (iOS 17/18 direct keyboard child)
-    // 3. otherElements.buttons (some accessory views wrap Done in a generic Other)
-    // We intentionally avoid the unscoped application.buttons[@"Done"] because
-    // it can match unrelated "Done" buttons elsewhere in the test host.
-    NSArray<XCUIElement *> *doneCandidates = @[
-        application.toolbars.buttons[@"Done"],
-        application.keyboards.buttons[@"Done"],
-        application.keyboards.toolbars.buttons[@"Done"],
-        application.otherElements[@"InputAssistantView"].buttons[@"Done"],
-    ];
-
-    for (XCUIElement *candidate in doneCandidates)
+    if (!application.keyboards.firstMatch.exists)
     {
-        if (candidate.exists && candidate.isHittable)
-        {
-            [candidate msidTap];
-            return YES;
-        }
+        // Page is showing but no keyboard up — nothing to dismiss.
+        return NO;
     }
 
-    return NO;
+    [header msidTap];
+    return YES;
 }
 
 - (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
