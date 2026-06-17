@@ -354,8 +354,45 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     }
 }
 
+- (BOOL)dismissKeyboardIfVerifyEmailPagePresentInApp:(XCUIApplication *)application
+{
+    // The MSA "Verify your email" interstitial (shown during B2C / MSA login
+    // flows when the account needs proof-of-control) auto-focuses the email
+    // text field, which raises the iOS keyboard. The keyboard + its accessory
+    // bar cover the lower part of the page, including the "Use your password"
+    // link we actually want. While covered, the link is in the view hierarchy
+    // (so .exists is YES) but not .isHittable, and any tap is intercepted by
+    // the keyboard.
+    //
+    // Tap the keyboard's "Done" accessory button to dismiss it. The page then
+    // scrolls/redraws and the password link becomes hittable. The polling
+    // loop in enterPassword: re-invokes tapPasswordSelectionButtonIfPresentInApp:
+    // on the next tick, which then finds and taps the link.
+    if (!application.webViews.staticTexts[@"Verify your email"].exists)
+    {
+        return NO;
+    }
+
+    XCUIElement *doneButton = application.toolbars.buttons[@"Done"];
+    if (!doneButton.exists || !doneButton.isHittable)
+    {
+        return NO;
+    }
+
+    [doneButton msidTap];
+    return YES;
+}
+
 - (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
 {
+    // If we're on the MSA "Verify your email" interstitial with the keyboard
+    // up, the "Use your password" link is covered by the keyboard. Dismiss
+    // the keyboard first so the link is hittable on the next loop iteration.
+    if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application])
+    {
+        return NO;
+    }
+
     NSArray<NSString *> *passwordButtonTitles = @[
         @"Use my password",
         @"Use your password",
