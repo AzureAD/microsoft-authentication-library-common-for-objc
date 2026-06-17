@@ -143,6 +143,32 @@
     XCTAssertTrue(handleResult);
 }
 
+- (void)testHandleChallengeWithRefreshToken_whenSubmitUrlIsNotKnownAADHost_shouldNotAttachPRTHeader
+{
+    [self makeAppV2GroupEntitled:YES];
+
+    __auto_type pkeyUrl = @"urn:http-auth:PKeyAuth?CertAuthorities=OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access%2cDC%3dwindows%2cDC%3dnet&Version=1.0&Context=SOMECONTEXT&nonce=_bQWemEag2Zze-FR1kw2r-XyrDYxmQB2PftHsshTEJc&SubmitUrl=https%3a%2f%2fcontoso.untrusted.com%2fcommon%2fDeviceAuthPKeyAuth&TenantId=f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
+    NSString *value = @"FakeRefreshToken";
+    NSDictionary<NSString *, NSString *> *customHeaders = @{ MSID_REFRESH_TOKEN_CREDENTIAL : value};
+
+    __auto_type *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.extraURLQueryParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
+    __block BOOL callback = NO;
+    BOOL handleResult = [MSIDPKeyAuthHandler handleChallenge:pkeyUrl
+                                                     context:context
+                                               customHeaders:customHeaders
+                                          externalSSOContext:nil
+                                           completionHandler:^(NSURLRequest *challengeResponse, NSError *error) {
+        XCTAssertNotNil(challengeResponse);
+        XCTAssertNil([[challengeResponse allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"RefreshToken should not be attached for non-AAD hosts");
+        XCTAssertNil(error);
+        callback = YES;
+    }];
+    XCTAssertTrue(callback);
+    XCTAssertTrue(handleResult);
+}
+
 - (void)testHandleChallengeNilRefreshToken_shouldProceedWithSuccess
 {
     [self makeAppV2GroupEntitled:YES];

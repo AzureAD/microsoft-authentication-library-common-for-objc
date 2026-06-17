@@ -35,6 +35,7 @@
 #import "MSIDRequestTelemetryConstants.h"
 #endif
 #import "MSIDWorkPlaceJoinUtil.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @implementation MSIDPKeyAuthHandler
 
@@ -93,12 +94,21 @@
     [responseReq setValue:currentRequestTelemetryString forHTTPHeaderField:MSID_CURRENT_TELEMETRY_HEADER_NAME];
 #endif
     
-    // Adding refreshTokenCredential (PRT) header to the challenge response. Header is available in customheaders dictionary
+    // Adding refreshTokenCredential (PRT) header to the challenge response. Header is available in customheaders dictionary.
+    // Only attach the PRT header when the challenge is being submitted to a known AAD host, to avoid leaking it to untrusted hosts.
     NSString *credentialHeader = [customHeaders objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL];
     if (credentialHeader)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Added refresh token to the PkeyAuth response.");
-        [responseReq setValue:credentialHeader forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
+        NSString *submitHost = [NSURL URLWithString:submitUrl].host.lowercaseString;
+        if ([[MSIDAADNetworkConfiguration defaultConfiguration] isAADPublicCloud:submitHost])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Added refresh token to the PkeyAuth response.");
+            [responseReq setValue:credentialHeader forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Skipped adding refresh token to the PkeyAuth response because the submit URL host is not a known AAD host.");
+        }
     }
     else
     {
