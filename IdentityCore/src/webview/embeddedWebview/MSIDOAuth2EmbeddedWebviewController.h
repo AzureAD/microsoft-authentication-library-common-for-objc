@@ -45,8 +45,6 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate, WKUIDeleg
 
 typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth2EmbeddedWebviewController *webView, NSURL *url);
 
-@property (nonatomic, assign) BOOL isMobileOnboardingEnabled;
-
 - (id)init NS_UNAVAILABLE;
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
@@ -80,6 +78,7 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
                               error:(NSError *)error;
 
 @property (atomic, readonly) NSURL *startURL;
+@property (atomic, readonly) NSURL *endURL;
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
 @property (nonatomic, copy) MSIDNavigationResponseBlock navigationResponseBlock;
 @property (nonatomic, copy) MSIDExternalDecidePolicyForBrowserActionBlock externalDecidePolicyForBrowserAction;
