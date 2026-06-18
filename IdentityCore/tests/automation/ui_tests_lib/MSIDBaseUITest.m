@@ -409,7 +409,9 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     // the keyboard first so the link is hittable on the next loop iteration.
     if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application])
     {
-        return NO;
+        // Keyboard dismissal is an intentional state transition; avoid attempting
+        // other password-selection taps until the next polling iteration.
+        return YES;
     }
 
     NSArray<NSString *> *passwordButtonTitles = @[
