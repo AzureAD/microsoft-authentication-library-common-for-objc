@@ -378,18 +378,27 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     // (SafariViewController vs WKWebView), and on some iOS 18+ sims isn't
     // exposed to XCUI at all.
     XCUIElement *header = application.webViews.staticTexts[@"Verify your email"];
-    if (!header.exists)
+    if (!header.exists || !header.isHittable)
     {
         return NO;
     }
 
-    if (!application.keyboards.firstMatch.exists)
+    XCUIElement *keyboard = application.keyboards.firstMatch;
+    if (!keyboard.exists)
     {
         // Page is showing but no keyboard up — nothing to dismiss.
         return NO;
     }
 
     [header msidTap];
+
+    // Best-effort wait for dismissal to avoid immediately re-hitting the covered link.
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:2.0];
+    while (keyboard.exists && deadline.timeIntervalSinceNow > 0)
+    {
+        [NSThread sleepForTimeInterval:0.1];
+    }
+
     return YES;
 }
 
