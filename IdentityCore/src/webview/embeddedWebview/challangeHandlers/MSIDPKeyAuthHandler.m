@@ -100,7 +100,7 @@
     if (credentialHeader)
     {
         NSString *submitHost = [NSURL URLWithString:submitUrl].host.lowercaseString;
-        if ([[MSIDAADNetworkConfiguration defaultConfiguration] isAADPublicCloud:submitHost])
+        if (submitHost && [[MSIDAADNetworkConfiguration defaultConfiguration] isAADPublicCloud:submitHost])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Added refresh token to the PkeyAuth response.");
             [responseReq setValue:credentialHeader forHTTPHeaderField:MSID_REFRESH_TOKEN_CREDENTIAL];
