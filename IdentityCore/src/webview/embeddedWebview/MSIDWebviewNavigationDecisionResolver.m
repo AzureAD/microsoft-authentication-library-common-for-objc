@@ -28,6 +28,7 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDConstants.h"
 #import "MSIDIntuneDeviceIdCache.h"
+#import "MSIDVersion.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -47,14 +48,16 @@
 
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                                           appName:(NSString *)appName
-                                                        appVersion:(NSString *)appVersion
 {
     // Validate required parameters
     if (!URL)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve: URL is nil.");
-        return nil;
+        NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                         MSIDErrorInvalidInternalParameter,
+                                         @"Cannot resolve navigation decision: URL is nil.",
+                                         nil, nil, nil, nil, nil, YES);
+        return [MSIDWebviewNavigationDecision failWithError:error];
     }
     
     NSString *scheme = URL.scheme.lowercaseString;
@@ -62,7 +65,11 @@
     if (scheme.length == 0)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve: URL scheme is missing or empty. URL: %@", MSID_PII_LOG_MASKABLE(URL));
-        return nil;
+        NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                         MSIDErrorInvalidInternalParameter,
+                                         @"Cannot resolve navigation decision: URL scheme is missing or empty.",
+                                         nil, nil, nil, nil, nil, YES);
+        return [MSIDWebviewNavigationDecision failWithError:error];
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Resolving decision for scheme '%@'.", scheme);
@@ -72,9 +79,7 @@
     {
         // Handle msauth:// URLs
         return [self handleMSAuthURL:URL
-           embeddedWebviewController:embeddedWebviewController
-                             appName:appName
-                          appVersion:appVersion];
+           embeddedWebviewController:embeddedWebviewController];
     }
     else if ([scheme isEqualToString:MSID_SCHEME_BROWSER])
     {
@@ -94,8 +99,6 @@
 
 - (MSIDWebviewNavigationDecision *)handleMSAuthURL:(NSURL *)URL
                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                           appName:(NSString *)appName
-                                        appVersion:(NSString *)appVersion
 {
     NSString *host = URL.host.lowercaseString;
 
@@ -103,7 +106,11 @@
     if (host.length == 0)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve 'msauth' URL: host is missing or empty. URL: %@", MSID_PII_LOG_MASKABLE(URL));
-        return nil;
+        NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                         MSIDErrorInvalidInternalParameter,
+                                         @"Cannot resolve 'msauth' URL: host is missing or empty.",
+                                         nil, nil, nil, nil, nil, YES);
+        return [MSIDWebviewNavigationDecision failWithError:error];
     }
     
     // Parse query parameters
@@ -114,9 +121,7 @@
     // Route based on host
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
-        return [self decisionForEnrollURL:params
-                                  appName:appName
-                               appVersion:appVersion];
+        return [self decisionForEnrollURL:params];
     }
     else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
@@ -143,8 +148,6 @@
 #pragma mark - URL Decision Resolvers
 
 - (MSIDWebviewNavigationDecision *)decisionForEnrollURL:(NSDictionary *)params
-                                                appName:(NSString *)appName
-                                             appVersion:(NSString *)appVersion
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
 
@@ -214,14 +217,16 @@
     // Prepare additional headers for enrollment.
     NSMutableDictionary *additionalHeaders = [NSMutableDictionary dictionary];
 
-    if (appName.length > 0)
+    NSString *platformName = [MSIDVersion platformName];
+    if (platformName.length > 0)
     {
-        additionalHeaders[MSID_APP_NAME_KEY] = appName;
+        additionalHeaders[MSID_PLATFORM_KEY] = platformName;
     }
 
-    if (appVersion.length > 0)
+    NSString *sdkVersion = [MSIDVersion sdkVersion];
+    if (sdkVersion.length > 0)
     {
-        additionalHeaders[MSID_APP_VER_KEY] = appVersion;
+        additionalHeaders[MSID_VERSION_KEY] = sdkVersion;
     }
 
     // Build the final request with all query params and headers.

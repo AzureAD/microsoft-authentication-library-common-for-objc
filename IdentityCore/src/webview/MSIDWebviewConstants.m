@@ -28,6 +28,7 @@
 
 NSString * const MSID_SCHEME_MSAUTH  = @"msauth";
 NSString * const MSID_SCHEME_BROWSER  = @"browser";
+NSString * const MSID_SCHEME_OPENID_VC = @"openid-vc";
 
 #pragma mark - URL Hosts
 
@@ -63,6 +64,12 @@ NSString *const MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX              = @"x-ms-asweb
 // ASWebAuthentication handoff header values
 NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_TRUE                 = @"true";
 NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_FALSE                = @"false";
+
+#pragma mark - OpenID4VC bring-back query parameters
+
+NSString * const MSID_OPENID_VC_CALLER_REDIRECT_URI_KEY            = @"x_ms_caller_redirect_uri";
+NSString * const MSID_OPENID_VC_CALLER_BUNDLE_ID_KEY               = @"x_ms_caller_bundle_id";
+NSString * const MSID_OPENID_VC_CORRELATION_ID_KEY                 = @"x_ms_correlation_id";
 
 #pragma mark - ASWebAuthentication Allowed Domains
 

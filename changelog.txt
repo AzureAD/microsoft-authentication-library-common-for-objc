@@ -1,3 +1,7 @@
+Version 1.25.0
+* Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release. Self-heal cache eviction on conformance failure; release-mode fallback test via NSAssertionHandler swap.
+* Hand off openid-vc:// URLs to the registered wallet from the AAD embedded webview without dismissing the webview; append x_ms_caller_redirect_uri/x_ms_caller_bundle_id/x_ms_correlation_id so the wallet can foreground the calling app when the VID flow completes. Add the MSIDOpenIdVcHandling delegate protocol on MSIDAADOAuthEmbeddedWebviewController so hosts (e.g. an SSO extension hosting VID in-process) can intercept openid-vc navigations and present in-process UI instead of bouncing out via openURL. Replaces the prior MSIDWebOpenIdVcResponse / MSIDWebOpenIdVcResponseOperation pipeline that erroneously errored out the interactive request.
+
 Version 1.24.1
 * Fix visionOS build failure: add visionos(2.0) availability annotation
 * Remove sessionCorrelationId persistence code not required
