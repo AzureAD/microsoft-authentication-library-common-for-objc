@@ -32,6 +32,7 @@
 
 @implementation MSIDBoundTokenProviderTests
 
+// A production-shaped GetToken request built from the real MSIDBrowserNativeMessageGetTokenRequest properties.
 - (MSIDBrowserNativeMessageGetTokenRequest *)validRequest
 {
     MSIDBrowserNativeMessageGetTokenRequest *request = [MSIDBrowserNativeMessageGetTokenRequest new];
@@ -39,6 +40,14 @@
     request.redirectUri = @"brk-com.microsoft.test://auth";
     request.scopes = @"user.read";
     request.state = @"test-state";
+    request.prompt = MSIDPromptTypeDefault;
+    request.canShowUI = YES;
+    request.isSts = NO;
+    request.nonce = @"test-nonce";
+    request.loginHint = @"user@contoso.com";
+    request.instanceAware = NO;
+    request.platformSequence = @"oneauth|1.2.3,msal|1.0.0";
+    request.extraParameters = @{ @"foo": @"bar" };
     return request;
 }
 

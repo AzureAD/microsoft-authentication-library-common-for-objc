@@ -48,10 +48,8 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
                       @"%@ Servicing GetToken request in-process (no SSO extension). clientId: %@",
                       MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, request.clientId);
 
-    // OneAuth invokes this provider directly because the SSO Extension is unavailable on unmanaged
-    // iOS. The provider transforms the request and routes it to silent BART SPA redemption or an
-    // interactive broker flip; the real token work is layered on top of this seam. The serialized
-    // browser-native-message response payload is returned here.
+    // Stub seam: the real silent-redemption / interactive-broker-flip orchestration is layered on top of
+    // this provider. Returns the serialized browser-native-message response payload.
     NSString *responsePayload = [self stubResponsePayloadForRequest:request];
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
