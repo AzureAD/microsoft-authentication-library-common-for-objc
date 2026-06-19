@@ -291,6 +291,8 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     
     [self tapElementAndWaitForKeyboardToAppear:emailTextField app:application];
     [emailTextField selectTextWithApp:application];
+    [self waitForWebViewInputConnectionOnField:emailTextField app:application];
+
     NSString *emailString = [NSString stringWithFormat:@"%@\n", email];
     [self enterText:emailTextField isMainApp:isMainApp text:emailString];
 }
@@ -461,6 +463,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
         if (passwordSecureTextField.exists && passwordSecureTextField.isHittable)
         {
             [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
+            [self waitForWebViewInputConnectionOnField:passwordSecureTextField app:application];
             NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
             [self enterText:passwordSecureTextField isMainApp:isMainApp text:passwordString];
             return;
@@ -831,6 +834,17 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 13.0f)
     {
         [element tap];
+
+        // Wait for the keyboard to fully appear before returning.
+        // On iOS 13+ the keyboard animation takes ~300ms; typing before
+        // it finishes causes the first keystroke to be swallowed.
+        XCUIElement *keyboard = application.keyboards.firstMatch;
+        if (![keyboard waitForExistenceWithTimeout:5])
+        {
+            // Retry the tap once — the field may not have received focus.
+            [element tap];
+            (void)[keyboard waitForExistenceWithTimeout:5];
+        }
         return;
     }
 
@@ -866,6 +880,29 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
             [textField typeText:[textToEnter substringWithRange:NSMakeRange(i, 1)]];
         }
     }
+}
+
+#pragma mark - WKWebView Input Connection
+
+- (void)waitForWebViewInputConnectionOnField:(XCUIElement *)textField app:(XCUIApplication *)application
+{
+    // On iOS 18+ with WKWebView text fields (e.g. AAD/MSA sign-in pages), the
+    // keyboard may be visible but the web view's input connection is not yet
+    // fully established. The UIProcess ↔ WebContent XPC handshake and the
+    // Passwords/AutoFill framework initialization run asynchronously after the
+    // keyboard appears. Typing before this completes causes the first keystroke
+    // to be silently dropped. This affects all iOS device types (iPhone/iPad).
+    //
+    // Fix: type a disposable probe character to absorb a potential drop, wait
+    // for the IPC handshake to settle, then select-all so the caller's real
+    // text entry replaces whatever is in the field (the probe char if it was
+    // accepted, or nothing if it was dropped).
+    //
+    // On older iOS versions or native (non-WKWebView) fields, the probe types
+    // successfully and is immediately replaced — no functional difference.
+    [textField typeText:@"."];
+    [NSThread sleepForTimeInterval:0.5];
+    [textField selectTextWithApp:application];
 }
 
 @end
