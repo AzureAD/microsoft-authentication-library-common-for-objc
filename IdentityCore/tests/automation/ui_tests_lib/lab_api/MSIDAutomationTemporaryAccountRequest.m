@@ -38,7 +38,7 @@
 
 - (NSString *)requestOperationPath
 {
-    return @"CreateTempUser";
+    return @"CreateTempUserID4SLAB2";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems
