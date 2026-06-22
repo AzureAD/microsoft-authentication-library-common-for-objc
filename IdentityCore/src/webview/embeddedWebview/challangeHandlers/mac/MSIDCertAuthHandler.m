@@ -27,8 +27,22 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDCertAuthIdentityProviding.h"
+#import "MSIDDIContainer.h"
+
+@interface MSIDCertAuthHandler () <MSIDCertAuthIdentityProviding>
+@end
 
 @implementation MSIDCertAuthHandler
+
++ (Class<MSIDCertAuthIdentityProviding>)resolvedIdentityProvider
+{
+    return (Class<MSIDCertAuthIdentityProviding>)
+        [[MSIDDIContainer sharedInstance]
+            resolveImplClassForProtocol:@protocol(MSIDCertAuthIdentityProviding)
+
+                              orDefault:^Class { return self; }];
+}
 
 + (void)resetHandler
 {
@@ -42,6 +56,7 @@
 {
     NSString *host = challenge.protectionSpace.host;
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
+    Class<MSIDCertAuthIdentityProviding> identityProvider = [self resolvedIdentityProvider];
     BOOL isIdentityValid = false;
     SecIdentityRef identity = NULL;
     if ([self isIdentityPersistenceEnabled])
@@ -51,8 +66,8 @@
         // was removed to close an origin confusion vulnerability (MSRC-42fca33e).
         // SecIdentityCopyPreferred(host) is the sole automatic lookup; if no preferred identity
         // exists for this host, the handler falls through to promptUserForIdentity:.
-        identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
-        isIdentityValid  = [self isIdentityValid:identity context:context];
+        identity = [identityProvider copyPreferredIdentityForHost:host distinguishedNames:distinguishedNames];
+        isIdentityValid  = [identityProvider isIdentityValid:identity context:context];
     }
       
     if (isIdentityValid)
@@ -64,7 +79,7 @@
     else
     {
         // If not prompt the user to select an identity
-        [self promptUserForIdentity:distinguishedNames
+        [identityProvider promptUserForIdentity:distinguishedNames
                                host:host
                             webview:webview
                       correlationId:context.correlationId
@@ -84,7 +99,7 @@
             CFArrayRef arrayRef = (__bridge CFArrayRef)arr;
             if (host && [self isIdentityPersistenceEnabled])
             {
-                OSStatus status = SecIdentitySetPreferred(selectedIdentity, (CFStringRef)host, arrayRef);
+                OSStatus status = [identityProvider setPreferredIdentity:selectedIdentity forHost:host keyUsageRef:arrayRef];
                 if (!status)
                 {
                     MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Result of setting identity preference is %d", status);
@@ -104,6 +119,21 @@
 + (BOOL)isIdentityPersistenceEnabled
 {
     return ![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA];
+}
+
+#pragma mark - MSIDCertAuthIdentityProviding (default implementation)
+// inline  Security.framework  calls lifted into named, overridable methods so the DI container has something to substitute
++ (SecIdentityRef)copyPreferredIdentityForHost:(NSString *)host
+                            distinguishedNames:(NSArray<NSData *> *)distinguishedNames
+{
+    return SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
+}
+
++ (OSStatus)setPreferredIdentity:(SecIdentityRef)identity
+                         forHost:(NSString *)host
+                     keyUsageRef:(CFArrayRef)keyUsage
+{
+    return SecIdentitySetPreferred(identity, (CFStringRef)host, keyUsage);
 }
 
 + (void)respondCertAuthChallengeWithIdentity:(nonnull SecIdentityRef)identity
