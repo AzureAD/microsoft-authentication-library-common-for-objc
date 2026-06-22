@@ -38,6 +38,7 @@
 #import "MSIDAuthenticationSchemeSshCert.h"
 #import "MSIDBartFeatureUtil.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
+#import "MSIDBrokerConstants.h"
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
 @end
@@ -696,6 +697,36 @@
     NSURL *actualURL = request.brokerRequestURL;
     NSDictionary *queryParams = [actualURL msidQueryParameters];
     XCTAssertNil(queryParams[@"x-ms-UserFederatedIdentityCredential"]);
+}
+
+- (void)testInitBrokerRequest_whenNewMobileOnboardingFlowSet_shouldIncludeInPayload
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.isNewMobileOnboardingFlow = YES;
+
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSURL *actualURL = request.brokerRequestURL;
+    NSDictionary *queryParams = [actualURL msidQueryParameters];
+    XCTAssertEqualObjects(queryParams[MSID_BROKER_NEW_MOBILE_ONBOARDING_FLOW_KEY], @"1");
+}
+
+- (void)testInitBrokerRequest_whenNewMobileOnboardingFlowNotSet_shouldNotIncludeInPayload
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.isNewMobileOnboardingFlow = NO;
+
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+
+    NSURL *actualURL = request.brokerRequestURL;
+    NSDictionary *queryParams = [actualURL msidQueryParameters];
+    XCTAssertNil(queryParams[MSID_BROKER_NEW_MOBILE_ONBOARDING_FLOW_KEY]);
 }
 
 - (void)setBoundAppRefreshTokenFlight

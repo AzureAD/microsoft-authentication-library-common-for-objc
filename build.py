@@ -36,11 +36,11 @@ from timeit import default_timer as timer
 script_start_time = timer()
 
 ios_sim_device = "iPhone 17"
-ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=26.2'"
+ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=26.1'"
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 vision_sim_device = "Apple Vision Pro"
-vision_sim_dest = "-destination 'platform=visionOS Simulator,name=" + vision_sim_device + ",OS=26.2'"
+vision_sim_dest = "-destination 'platform=visionOS Simulator,name=" + vision_sim_device + ",OS=26.1'"
 vision_sim_flags = "-sdk xrsimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 default_workspace = "IdentityCore.xcworkspace"
@@ -134,6 +134,8 @@ class BuildTarget:
             elif (operation == "test" and "build" in self.operations) :
                 xcb_operation = "test-without-building"
             command += xcb_operation + " "
+            if (xcb_operation in ("test", "test-without-building")) :
+                command += "-parallel-testing-enabled NO "
         
         if (self.project != None) :
             command += " -project " + self.project
@@ -155,13 +157,26 @@ class BuildTarget:
         
         if (self.platform == "visionOS") :
             command += " " + vision_sim_flags + " " + vision_sim_dest
-        
+
+        # Tee raw xcodebuild output to a per-operation log so the real error context
+        # is preserved even when xcpretty filters stdout. The log is consulted on
+        # failure to surface error lines to stderr (see do_operation).
+        # Skip for the metadata invocation (operation is None, e.g. -showBuildSettings)
+        # because the caller parses stdout directly.
+        if (operation is not None) :
+            log_path = self.log_path(operation)
+            command += " 2>&1 | tee '" + log_path + "'"
+
         if (xcpretty) :
             command += " | xcpretty"
         if (xcpretty and operation == "test") :
-            command += " --report junit --output ./build/reports/'" + target.name + ".xml'"
-        
+            command += " --report junit --output ./build/reports/'" + self.name + ".xml'"
+
         return command
+
+    def log_path(self, operation) :
+        safe_name = self.name.replace(" ", "_")
+        return "./build/logs/" + safe_name + "_" + str(operation) + ".log"
     
     def get_build_settings(self) :
         """
@@ -273,8 +288,14 @@ class BuildTarget:
         if not os.path.isfile(executable_file_path) :
             print(ColorValues.FAIL + "executable file missing! : " + executable_file_path + ColorValues.END)
             return -1
-        
-        command = "xcrun llvm-cov report -instr-profile " + profile_data_path + " -arch=\"x86_64\" -use-color " + executable_file_path
+
+        # iOS/visionOS simulator slices on modern Macs are arm64; Mac matches the host arch.
+        if self.platform == "Mac" :
+            cov_arch = subprocess.check_output("uname -m", shell=True).decode(sys.stdout.encoding).strip()
+        else :
+            cov_arch = "arm64"
+
+        command = "xcrun llvm-cov report -instr-profile " + profile_data_path + " -arch=\"" + cov_arch + "\" -use-color " + executable_file_path
         print(command)
         p = subprocess.Popen(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
         
@@ -294,11 +315,34 @@ class BuildTarget:
         self.coverage = float(cov_str)
         return self.print_coverage(False)
     
+    def dump_error_context(self, operation) :
+        log_path = self.log_path(operation)
+        if not os.path.isfile(log_path) :
+            return
+        try :
+            with open(log_path, "r", errors="replace") as f :
+                lines = f.readlines()
+        except Exception :
+            return
+
+        error_pattern = re.compile(
+            r"(error:|fatal error|ld: |Undefined symbol|Testing failed:|\*\* (BUILD|TEST) FAILED \*\*|The following build commands failed)"
+        )
+        matches = [line for line in lines if error_pattern.search(line)]
+
+        sys.stderr.write("\n----- " + self.name + " [" + operation + "] error excerpt from " + log_path + " -----\n")
+        if matches :
+            sys.stderr.writelines(matches[-50:])
+        else :
+            sys.stderr.write("(no error/failure lines matched; showing tail of log)\n")
+            sys.stderr.writelines(lines[-100:])
+        sys.stderr.write("----- end excerpt -----\n")
+
     def do_operation(self, operation) :
         exit_code = -1;
         print_operation_start(self.name, operation)
         start_time = timer()
-        
+
         try :
             if (operation == "codecov") :
                 exit_code = self.do_codecov()
@@ -309,6 +353,8 @@ class BuildTarget:
                     command = "build-wrapper-macosx-x86 --out-dir build-wrapper-output " + command
                 print(command)
                 exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
+                if (exit_code != 0) :
+                    self.dump_error_context(operation)
             
             if (exit_code != 0) :
                 self.failed = True
@@ -375,6 +421,10 @@ for spec in target_specifiers :
 
 if requires_simulator(targets) :
     launch_simulator(targets)
+
+# Ensure log/report output directories exist before any xcodebuild invocation.
+os.makedirs("./build/logs", exist_ok=True)
+os.makedirs("./build/reports", exist_ok=True)
 
 # start by cleaning up any derived data that might be lying around
 if (clean) :

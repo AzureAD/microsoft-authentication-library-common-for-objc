@@ -48,32 +48,24 @@ jobs:
         target: "macFramework"
   displayName: Validate Pull Request
   pool:
-    vmImage: 'macOS-14'
+    name: 'AcesShared'
+    demands:
+      - ImageOverride -equals ACES_VM_SharedPool_Sequoia
 
   steps:
-  - script: |
-          /bin/bash -c "sudo xcode-select -s /Applications/Xcode_16.2.app"
-    displayName: 'Switch to use Xcode 16.2'
 
   - task: CmdLine@2
     displayName: Uninstalling xcpretty v0.4.0
     inputs:
       script: |
-        gem uninstall xcpretty -I --version 0.4.0
+        sudo gem uninstall xcpretty -I --version 0.4.0
       failOnStderr: false
 
   - task: CmdLine@2
     displayName: Installing xcpretty v0.3.0
     inputs:
       script: |
-        gem install xcpretty -N -v 0.3.0
-      failOnStderr: true
-
-  - task: CmdLine@2
-    displayName: Installing dependencies
-    inputs:
-      script: |
-        gem install slather bundler -N
+        sudo gem install xcpretty -N -v 0.3.0
       failOnStderr: true
 
   - checkout: microsoft-authentication-library-for-objc
@@ -89,6 +81,11 @@ jobs:
     fetchDepth: 1
     path: 's/microsoft-authentication-library-for-objc/MSAL/IdentityCore'
     persistCredentials: false
+
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
+    inputs:
+      versionSpec: '3.x'
 
   - task: Bash@3
     displayName: Run Build script & check for Errors
