@@ -147,6 +147,8 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityChina;
 extern NSString * _Nonnull const MSIDTrustedAuthorityChina2;
 extern NSString * _Nonnull const MSIDTrustedAuthorityGermany;
 extern NSString * _Nonnull const MSIDTrustedAuthorityFrance;
+extern NSString * _Nonnull const MSIDTrustedAuthorityDelos;
+extern NSString * _Nonnull const MSIDTrustedAuthorityGovSG;
 extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUSGovernment;
 extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
@@ -161,6 +163,9 @@ extern NSString * _Nonnull const MSID_POP_TOKEN_KEY_LABEL;
 
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION;
+
+extern NSString * _Nonnull const MSID_INTUNE_DEVICE_ID_KEYCHAIN;
+extern NSString * _Nonnull const MSID_INTUNE_DEVICE_ID_KEYCHAIN_VERSION;
 
 extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEYCHAIN;
 extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEY;
@@ -261,10 +266,25 @@ extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE;
 
+/// Flight to enable caching and reuse of the Broker XPC instance endpoint returned by the dispatcher.
+/// When enabled, MSIDXpcSingleSignOnProvider caches the NSXPCListenerEndpoint from the dispatcher and
+/// reuses it on subsequent requests, skipping the dispatcher round-trip on cache hits. On stale cache
+/// (connection interruption/invalidation or transport error), the cache is cleared and a single
+/// transparent retry is performed via the dispatcher.
+/// Owner: kaisong
+/// Default: OFF
+/// WorkItem: 3563423
+extern NSString * _Nonnull const MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED;
+
 /// Kill-switch flight to disable opening JavaScript-initiated new-window requests (e.g. window.open()) in the system browser
 /// from the WKUIDelegate createWebViewWithConfiguration: path. Does not affect target=_blank anchor clicks,
 /// which are handled separately in decidePolicyForNavigationAction:.
 /// Owner: josephpab
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
+
+/// Kill switch to disable mobile onboarding in non-brokered flow.
+/// When ON, prevents mobile onboarding even if server signals enrollment.
+/// Default: OFF
+extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

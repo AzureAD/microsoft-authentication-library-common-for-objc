@@ -111,8 +111,12 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)closeResultPipeline:(XCUIApplication *)application
 {
+    [self closeResultPipeline:application waitInMs:10];
+}
+
+- (void)closeResultPipeline:(XCUIApplication *)application waitInMs:(int)count
+{
 #if TARGET_OS_SIMULATOR
-    int count = 10;
     double interval = 1;
     __auto_type resultPipelineExpectation = [[XCTestExpectation alloc] initWithDescription:@"Wait for result pipeline."];
     
@@ -295,6 +299,19 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (void)aadEnterPassword:(XCUIApplication *)application
 {
+    if (![self tapPasswordSelectionButtonIfPresentInApp:application])
+    {
+        // Same rationale as tapPasswordSelectionButtonIfPresentInApp: stay
+        // inside the web view so an identically-labeled QuickType / AutoFill
+        // suggestion never wins the first-match query. The polling loop in
+        // enterPassword: handles the "not present yet" case.
+        XCUIElement *useYourPasswordElement = application.webViews.staticTexts[@"Use your password"];
+        if ([self waitForElementsAndContinueIfNotAppear:useYourPasswordElement timeout:1.0f] == XCTWaiterResultCompleted)
+        {
+            [useYourPasswordElement msidTap];
+        }
+    }
+
     [self enterPassword:self.primaryAccount.password app:application];
     // New Password reset API requires to force providing a new password after logging in with original password.
     [self setupPassword:self.primaryAccount.password app:application];
@@ -337,8 +354,66 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     }
 }
 
+- (BOOL)dismissKeyboardIfVerifyEmailPagePresentInApp:(XCUIApplication *)application
+{
+    // The MSA "Verify your email" interstitial (shown during B2C / MSA login
+    // flows when the account needs proof-of-control) auto-focuses the email
+    // text field, which raises the iOS keyboard. The keyboard covers the
+    // lower part of the page, including the "Use your password" link we want.
+    // The link is in the view hierarchy (so .exists is YES) and XCUI may
+    // even report it as .isHittable, but synthesized taps land on the
+    // keyboard's hit area and get absorbed — the link never receives the tap
+    // and the page never progresses.
+    //
+    // Dismiss the keyboard by tapping the "Verify your email" header itself.
+    // Tapping a static text in a webview is a no-op for the page (no link, no
+    // event handler), but it defocuses the email text field, which causes
+    // iOS to dismiss the keyboard. After dismissal the page reflows and the
+    // password link becomes truly tappable. The polling loop in enterPassword:
+    // re-invokes tapPasswordSelectionButtonIfPresentInApp: on the next tick.
+    //
+    // This is more reliable than searching for the keyboard's "Done" accessory
+    // button — Done lives under different parents (toolbars/keyboards/
+    // otherElements) on different iOS versions and surface owners
+    // (SafariViewController vs WKWebView), and on some iOS 18+ sims isn't
+    // exposed to XCUI at all.
+    XCUIElement *header = application.webViews.staticTexts[@"Verify your email"];
+    if (!header.exists || !header.isHittable)
+    {
+        return NO;
+    }
+
+    XCUIElement *keyboard = application.keyboards.firstMatch;
+    if (!keyboard.exists)
+    {
+        // Page is showing but no keyboard up — nothing to dismiss.
+        return NO;
+    }
+
+    [header msidTap];
+
+    // Best-effort wait for dismissal to avoid immediately re-hitting the covered link.
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:2.0];
+    while (keyboard.exists && deadline.timeIntervalSinceNow > 0)
+    {
+        [NSThread sleepForTimeInterval:0.1];
+    }
+
+    return YES;
+}
+
 - (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
 {
+    // If we're on the MSA "Verify your email" interstitial with the keyboard
+    // up, the "Use your password" link is covered by the keyboard. Dismiss
+    // the keyboard first so the link is hittable on the next loop iteration.
+    if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application])
+    {
+        // Keyboard dismissal is an intentional state transition; avoid attempting
+        // other password-selection taps until the next polling iteration.
+        return YES;
+    }
+
     NSArray<NSString *> *passwordButtonTitles = @[
         @"Use my password",
         @"Use your password",
@@ -346,10 +421,18 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
         @"Other ways to sign in"
     ];
 
+    // Password-selection buttons only ever appear inside the AAD/MSA/B2C web
+    // page (rendered in a WKWebView / SFSafariViewController inside the test
+    // host). Restrict the lookup to web views so we never match an iOS
+    // QuickType bar / Passwords AutoFill accessory button that happens to
+    // carry the same label — tapping those opens the empty system password
+    // picker on CI sims with no saved credentials and the test loops forever.
+    // The polling loop in enterPassword: retries every second, so returning NO
+    // here when the web button hasn't rendered yet is the desired behavior.
     for (NSString *buttonTitle in passwordButtonTitles)
     {
-        XCUIElement *button = application.buttons[buttonTitle];
-        if (!button.exists)
+        XCUIElement *button = application.webViews.buttons[buttonTitle];
+        if (!button.exists || !button.isHittable)
         {
             continue;
         }
@@ -368,7 +451,14 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
     while (deadline.timeIntervalSinceNow > 0)
     {
-        if (passwordSecureTextField.exists)
+        // Require .isHittable in addition to .exists so we don't tap and type
+        // into a stale SecureTextField that's still in the view hierarchy from
+        // a previous sign-in step. Without this, a second acquireToken call
+        // (e.g. prompt=force with a login_hint after a prior sign-in) can find
+        // the previous step's password field, send keystrokes that go nowhere,
+        // and leave the broker waiting on an empty password — the test then
+        // times out in waitForRedirectToClientApp.
+        if (passwordSecureTextField.exists && passwordSecureTextField.isHittable)
         {
             [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
             NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
@@ -686,7 +776,7 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
-    [self waitForExpectationsWithTimeout:45.0f handler:nil];
+    [self waitForExpectationsWithTimeout:60.0f handler:nil];
 }
 
 - (XCUIElement *)waitForEitherElements:(XCUIElement *)object1 and:(XCUIElement *)object2
@@ -699,10 +789,35 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 - (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object
 {
+    return [self waitForElementsAndContinueIfNotAppear:object timeout:30.0f];
+}
+
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object timeout:(NSTimeInterval)timeout
+{
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"%@.exists == 1" argumentArray:@[object]];
 
     XCTestExpectation *expectation = [[XCTNSPredicateExpectation alloc] initWithPredicate:existsPredicate object:object];
-    return [XCTWaiter waitForExpectations:@[expectation] timeout:30.0f enforceOrder:YES];
+    return [XCTWaiter waitForExpectations:@[expectation] timeout:timeout enforceOrder:YES];
+}
+
+- (void)dismissCookieSharingDialogIfNecessary
+{
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    XCUIElement *allowButton = springBoardApp.alerts.buttons[@"Allow"];
+
+    XCTWaiterResult waitResult = [self waitForElementsAndContinueIfNotAppear:allowButton timeout:5.0f];
+
+    if (waitResult == XCTWaiterResultCompleted)
+    {
+        XCUIElement *alert = springBoardApp.alerts.element;
+        BOOL isCookieAlert = [alert.label containsString:@"cookies"]
+                             || [alert.label containsString:@"website data"];
+
+        if (isCookieAlert)
+        {
+            [allowButton msidTap];
+        }
+    }
 }
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element

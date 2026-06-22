@@ -38,6 +38,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDPromptType promptType;
 @property (nonatomic, nullable) NSString *extraScopesToConsent;
 
+/// Optional onboarding telemetry seed JSON forwarded by MSAL/OneAuth. The broker
+/// inspects + enriches this during the interactive flow and returns the populated
+/// blob via `MSIDBrokerOperationTokenResponse.onboardingBlob`.
+@property (nonatomic, copy, nullable) NSString *onboardingBlob;
+
+/// Mirrors `MSIDInteractiveRequestParameters.isNewMobileOnboardingFlow`.
+/// Round-tripped across the SSO extension IPC boundary so the broker can
+/// branch on whether the request originated from the new mobile onboarding flow.
+@property (nonatomic) BOOL isNewMobileOnboardingFlow;
+
 + (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                               providerType:(MSIDProviderType)providerType
                              enrollmentIds:(nullable NSDictionary *)enrollmentIds

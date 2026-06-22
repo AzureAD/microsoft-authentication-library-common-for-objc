@@ -34,6 +34,8 @@
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDBartFeatureUtil.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDBrokerConstants.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -197,6 +199,15 @@
     [queryDictionary msidSetNonEmptyString:self.requestParameters.clientSku forKey:MSID_CLIENT_SKU_KEY];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.skipValidateResultAccount ? @"YES" : @"NO" forKey:MSID_SKIP_VALIDATE_RESULT_ACCOUNT_KEY];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.platformSequence forKey:MSID_PLATFORM_SEQUENCE_KEY];
+    // Onboarding telemetry seed (when present): forwarded so the broker can
+    // classify, build, and round-trip the populated blob on the response.
+    [queryDictionary msidSetNonEmptyString:self.requestParameters.onboardingBlobJson forKey:MSIDOnboardingBlobIPCKey];
+
+    if (self.requestParameters.isNewMobileOnboardingFlow)
+    {
+        queryDictionary[MSID_BROKER_NEW_MOBILE_ONBOARDING_FLOW_KEY] = @"1";
+    }
+
     return queryDictionary;
 }
 
