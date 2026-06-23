@@ -43,6 +43,13 @@
 #import "MSIDTestConfiguration.h"
 #import "MSIDTestTokenResponse.h"
 #import "MSIDTestCacheDataSource.h"
+#import "MSIDTestIdTokenUtil.h"
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDBrokerConstants.h"
+#import "MSIDCacheAccessor.h"
+#import "NSString+MSIDExtensions.h"
 
 #pragma mark - Test seam (private methods under test)
 
@@ -470,6 +477,92 @@
 
     XCTAssertFalse(provider.silentRequestCreated);
     [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+#pragma mark - Bound token cache lookup
+
+// Seeds a Bound App Refresh Token (BART) into the supplied cache for the account/configuration
+// derived from the request, mirroring how the silent engine would persist one after redemption.
+- (void)seedBoundRefreshTokenInCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
+                          parameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                            deviceId:(NSString *)deviceId
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"user@contoso.com" subject:@"subject"];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2TokenResponseWithAT:@"cached-at"
+                                                                                RT:@"bound-rt"
+                                                                            scopes:[@"user.read" msidScopeSet]
+                                                                           idToken:idToken
+                                                                               uid:@"uid"
+                                                                              utid:@"utid"
+                                                                          familyId:nil];
+
+    // A device-bound RT is denoted by the BART device id; re-hydrate the response from JSON so the
+    // factory persists a MSIDBoundRefreshToken.
+    NSMutableDictionary *json = [NSMutableDictionary dictionaryWithDictionary:response.jsonDictionary];
+    json[MSID_BART_DEVICE_ID_KEY] = deviceId;
+    response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:nil];
+
+    NSError *saveError = nil;
+    BOOL saved = [tokenCache saveTokensWithConfiguration:parameters.msidConfiguration
+                                                response:response
+                                                 factory:[MSIDAADV2Oauth2Factory new]
+                                                 context:nil
+                                                   error:&saveError];
+    XCTAssertNil(saveError);
+    XCTAssertTrue(saved);
+}
+
+// Walkable proof of what MSIDBoundTokenProvider retrieves at hasCachedTokenForParameters (the
+// getRefreshTokenWithAccount: call): when a BART is cached and the feature is enabled, the lookup
+// returns a bound token (MSIDBoundRefreshToken), not a regular refresh token.
+- (void)testCachedRefreshTokenLookup_whenBoundTokenSeeded_returnsBoundToken
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+
+    MSIDDefaultTokenCacheAccessor *tokenCache = [self inMemoryTokenCache];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:[self validRequest]];
+    [self seedBoundRefreshTokenInCache:tokenCache parameters:parameters deviceId:@"test-device-id"];
+
+    NSError *lookupError = nil;
+    MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:parameters.accountIdentifier
+                                                                  familyId:nil
+                                                             configuration:parameters.msidConfiguration
+                                                                   context:nil
+                                                                     error:&lookupError];
+
+    XCTAssertNil(lookupError);
+    XCTAssertNotNil(refreshToken);
+    XCTAssertTrue([refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]);
+    XCTAssertEqualObjects([(MSIDBoundRefreshToken *)refreshToken boundDeviceId], @"test-device-id");
+
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+}
+
+// Drives the provider's actual routing gate: with only a BART cached (no valid access token), the
+// gate falls through to the refresh-token lookup and deems the request silent-eligible.
+- (void)testShouldServiceRequestSilently_whenOnlyBoundRefreshTokenCached_returnsYes
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+
+    MSIDDefaultTokenCacheAccessor *tokenCache = [self inMemoryTokenCache];
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+    [self seedBoundRefreshTokenInCache:tokenCache parameters:parameters deviceId:@"test-device-id"];
+
+    // Remove the cached access token so the gate must consult the refresh-token lookup.
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:parameters.accountIdentifier
+                                                         configuration:parameters.msidConfiguration
+                                                               context:nil
+                                                                 error:nil];
+    XCTAssertNotNil(accessToken);
+    XCTAssertTrue([tokenCache removeToken:accessToken context:nil error:nil]);
+
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
+    provider.injectedTokenCache = tokenCache;
+
+    XCTAssertTrue([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
+
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
 }
 
 #endif
