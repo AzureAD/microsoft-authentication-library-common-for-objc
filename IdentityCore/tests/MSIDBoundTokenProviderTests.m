@@ -25,6 +25,9 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBoundTokenProvider.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
+#import "MSIDError.h"
+#import "MSIDConstants.h"
+#import "MSIDAADAuthority.h"
 
 @interface MSIDBoundTokenProviderTests : XCTestCase
 
@@ -38,6 +41,10 @@
     MSIDBrowserNativeMessageGetTokenRequest *request = [MSIDBrowserNativeMessageGetTokenRequest new];
     request.clientId = @"00000000-0000-0000-0000-000000000001";
     request.redirectUri = @"brk-com.microsoft.test://auth";
+    request.authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                                    rawTenant:nil
+                                                      context:nil
+                                                        error:nil];
     request.scopes = @"user.read";
     request.state = @"test-state";
     request.prompt = MSIDPromptTypeDefault;
@@ -51,20 +58,44 @@
     return request;
 }
 
-// A GetToken request handed to the provider is serviced entirely in-process,
-// returning a payload, with no SSO extension / ASAuthorization involvement.
-- (void)testAcquireBoundToken_inProc_returnsPayload
+// A GetToken request with no cached tokens cannot be serviced silently, so the provider
+// routes to the (not-yet-implemented) interactive broker-flip path and surfaces a clear
+// interaction-required signal. This exercises the silent/interactive routing decision.
+- (void)testAcquireBoundToken_noCachedToken_routesToInteractive
 {
     MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"in-proc completion"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
 
     [provider acquireBoundTokenWithRequest:[self validRequest]
                                    context:nil
                            completionBlock:^(NSString *response, NSError *error) {
-        XCTAssertNil(error);
-        XCTAssertNotNil(response);
-        XCTAssertTrue([response containsString:@"in_proc_common_core"]);
-        XCTAssertTrue([response containsString:@"MSIDBoundTokenProvider"]);
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// A prompt that forces UI must never be serviced silently; it routes straight to the
+// interactive path regardless of cached token availability.
+- (void)testAcquireBoundToken_promptForcesUI_routesToInteractive
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.prompt = MSIDPromptTypeLogin;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
         [expectation fulfill];
     }];
 
