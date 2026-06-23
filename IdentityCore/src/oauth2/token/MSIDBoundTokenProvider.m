@@ -284,16 +284,9 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         return;
     }
 
-    MSIDAADV2Oauth2Factory *oauthFactory = [MSIDAADV2Oauth2Factory new];
-    MSIDTokenResponseValidator *tokenResponseValidator = [MSIDTokenResponseValidator new];
-
-    MSIDDefaultSilentTokenRequest *silentRequest =
-    [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
-                                                       forceRefresh:NO
-                                                       oauthFactory:oauthFactory
-                                             tokenResponseValidator:tokenResponseValidator
-                                                         tokenCache:tokenCache
-                                               accountMetadataCache:accountMetadataCache];
+    MSIDDefaultSilentTokenRequest *silentRequest = [self silentTokenRequestWithParameters:parameters
+                                                                               tokenCache:tokenCache
+                                                                     accountMetadataCache:accountMetadataCache];
 
     // Keep the request alive across the async authority resolution + network round-trip.
     __block MSIDDefaultSilentTokenRequest *pendingRequest = silentRequest;
@@ -328,6 +321,23 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ Silent GetToken request failed: %@", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(error));
         completionBlock(nil, error);
     }];
+}
+
+// Factory seam for the silent engine. Extracted so tests can substitute a stub silent request
+// (avoiding live authority resolution / network) while production builds the real engine.
+- (MSIDDefaultSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                                        tokenCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
+                                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+{
+    MSIDAADV2Oauth2Factory *oauthFactory = [MSIDAADV2Oauth2Factory new];
+    MSIDTokenResponseValidator *tokenResponseValidator = [MSIDTokenResponseValidator new];
+
+    return [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                              forceRefresh:NO
+                                                              oauthFactory:oauthFactory
+                                                    tokenResponseValidator:tokenResponseValidator
+                                                                tokenCache:tokenCache
+                                                      accountMetadataCache:accountMetadataCache];
 }
 
 #pragma mark - Interactive path
