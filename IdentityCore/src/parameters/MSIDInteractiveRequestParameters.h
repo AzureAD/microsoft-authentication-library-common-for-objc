@@ -32,6 +32,8 @@
 @class UIViewController;
 #endif
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MSIDInteractiveRequestParameters : MSIDRequestParameters
 
 @property (nonatomic) MSIDWebviewType webviewType;
@@ -54,3 +56,5 @@
 @property (nonatomic) BOOL isNewMobileOnboardingFlow;
 
 @end
+
+NS_ASSUME_NONNULL_END
