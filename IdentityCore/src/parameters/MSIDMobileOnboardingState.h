@@ -21,38 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
-#import "MSIDProviderType.h"
-
-@class WKWebView;
-@class MSIDAccountIdentifier;
-@class MSIDInteractiveTokenRequestParameters;
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
+// Shared mutable state for mobile onboarding flow.
+@interface MSIDMobileOnboardingState : NSObject
 
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic) MSIDPromptType promptType;
-@property (nonatomic, nullable) NSString *extraScopesToConsent;
-
-/// Optional onboarding telemetry seed JSON forwarded by MSAL/OneAuth. The broker
-/// inspects + enriches this during the interactive flow and returns the populated
-/// blob via `MSIDBrokerOperationTokenResponse.onboardingBlob`.
-@property (nonatomic, copy, nullable) NSString *onboardingBlob;
-
-// Indicates the new mobile onboarding flow. Serialized across SSO extension IPC.
 @property (nonatomic) BOOL isNewMobileOnboardingFlow;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                           requestSentDate:(NSDate *)requestSentDate;
 
 @end
 
 NS_ASSUME_NONNULL_END
-#endif
