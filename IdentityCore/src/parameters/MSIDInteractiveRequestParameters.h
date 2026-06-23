@@ -27,9 +27,12 @@
 #import "MSIDConstants.h"
 
 @class WKWebView;
+@class MSIDMobileOnboardingState;
 #if TARGET_OS_IPHONE
 @class UIViewController;
 #endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDInteractiveRequestParameters : MSIDRequestParameters
 
@@ -47,4 +50,11 @@
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 @property (nonatomic) NSString *telemetryWebviewType;
 
+// Shared mutable onboarding state, passed by reference across recreated params.
+@property (nonatomic, nullable) MSIDMobileOnboardingState *mobileOnboardingState;
+
+@property (nonatomic) BOOL isNewMobileOnboardingFlow;
+
 @end
+
+NS_ASSUME_NONNULL_END

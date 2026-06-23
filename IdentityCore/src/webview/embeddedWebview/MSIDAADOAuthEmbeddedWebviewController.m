@@ -38,6 +38,7 @@
 #import "MSIDWebviewConstants.h"
 #import "NSURL+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDInteractiveRequestParameters.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -101,13 +102,18 @@
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isOpenIdVcUrl = [MSID_SCHEME_OPENID_VC caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
 
+    id contextObject = self.context;
+    MSIDInteractiveRequestParameters *interactiveRequestParameters =
+        [contextObject isKindOfClass:[MSIDInteractiveRequestParameters class]]
+            ? (MSIDInteractiveRequestParameters *)contextObject : nil;
+    
     // Server-side trigger: msauth://enroll means the server opted this
     // session into the new mobile onboarding flow.
     BOOL isServerNewOnboardingRedirect =
            isBrokerUrl
-        && [MSID_MDM_ENROLL_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame;
+    && ([MSID_MDM_ENROLL_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame || [MSID_COMPLIANCE_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame);
 
-    if (isServerNewOnboardingRedirect && !self.isMobileOnboardingEnabled)
+    if (isServerNewOnboardingRedirect && !interactiveRequestParameters.isNewMobileOnboardingFlow)
     {
         BOOL clientOnboardingDisabled =
             [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING];
@@ -117,7 +123,7 @@
             // Server ON + client ON -> new flow for the rest of the session.
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                 @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
-            self.isMobileOnboardingEnabled = YES;
+            interactiveRequestParameters.isNewMobileOnboardingFlow = YES;
         }
         else
         {
@@ -178,7 +184,7 @@
     {
         id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
 
-        if (self.isMobileOnboardingEnabled
+        if (interactiveRequestParameters.isNewMobileOnboardingFlow
             && [strongNavigationDelegate respondsToSelector:
                 @selector(handleSpecialRedirectURL:embeddedWebviewController:completion:)])
         {
