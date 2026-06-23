@@ -581,6 +581,7 @@
       @"http_response_code" : @200,
       @"username" : @"user@contoso.com",
       @"home_account_id" : @"1.1234-5678-90abcdefg",
+      @"resource_tenant_id" : @"resourceTenantB-1234-5678-90abcdefg",
       @"declined_scopes" : @"decliendScope1 decliendScope2",
       @"granted_scopes" : @"grantedScope1 grantedScope2",
       };
@@ -621,6 +622,7 @@
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"consent_required");
     XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"user@contoso.com");
     XCTAssertEqualObjects(error.userInfo[MSIDHomeAccountIdkey], @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(error.userInfo[MSIDResourceTenantIdKey], @"resourceTenantB-1234-5678-90abcdefg");
     XCTAssertEqualObjects(error.userInfo[MSIDDeclinedScopesKey], @"decliendScope1 decliendScope2");
     XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], @"grantedScope1 grantedScope2");
 }

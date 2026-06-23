@@ -58,6 +58,7 @@
                                 @"x-broker-app-ver" : MSIDBrokerVersionKey,
                                 @"username" : MSIDUserDisplayableIdkey,
                                 @"home_account_id" : MSIDHomeAccountIdkey,
+                                @"resource_tenant_id" : MSIDResourceTenantIdKey,
                                 @"declined_scopes" : MSIDDeclinedScopesKey,
                                 @"granted_scopes" : MSIDGrantedScopesKey,
                                 @"client_data" : MSID_CLIENT_DATA_RESPONSE,
