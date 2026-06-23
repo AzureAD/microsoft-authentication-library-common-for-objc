@@ -35,6 +35,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDConfiguration.h"
 #import "MSIDDefaultSilentTokenRequest.h"
+#import "MSIDBoundRefreshToken.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDCacheAccessor.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
@@ -229,7 +230,12 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     }
 }
 
-// Returns YES if a valid access token or any refresh token (Bound App RT preferred) is cached.
+// Returns YES only when a token usable for silent redemption is cached: a valid access token
+// (Scenario 1 cache hit) or a Bound App Refresh Token (BART, Scenario 2). Per the BART SPA design,
+// a regular (non-bound) refresh token does NOT qualify - without a cached BART the request must fall
+// back to the interactive broker flip (Scenario 3). Token *validity* remains authoritative
+// server-side: even with a cached BART the silent engine may return MSIDErrorInteractionRequired
+// (expired BART / device re-registration), at which point orchestration falls back to interactive.
 - (BOOL)hasCachedTokenForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                             context:(nullable id<MSIDRequestContext>)context
 {
@@ -250,18 +256,20 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         return YES;
     }
 
+    // getRefreshTokenWithAccount: prefers a Bound App Refresh Token when one is cached. Only a bound
+    // token makes silent redemption viable here; a regular refresh token is intentionally rejected.
     MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:parameters.accountIdentifier
                                                                   familyId:nil
                                                              configuration:parameters.msidConfiguration
                                                                    context:context
                                                                      error:&cacheError];
-    if (refreshToken)
+    if ([refreshToken isKindOfClass:[MSIDBoundRefreshToken class]])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Found cached refresh token; silent path viable.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Found cached bound app refresh token; silent path viable.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
         return YES;
     }
 
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ No usable cached token found.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ No cached bound app refresh token; silent path not viable.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
     return NO;
 }
 
