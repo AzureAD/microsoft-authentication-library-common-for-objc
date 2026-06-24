@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *deviceID;
 @property (nonatomic) NSString *tenantIdentifier;
 @property (nonatomic) NSString *upn;
+@property (nonatomic, nullable) NSString *userObjectId;
 
 - (nonnull NSDictionary *)serializeWithFormat:(BOOL)usePrimaryFormat;
 
