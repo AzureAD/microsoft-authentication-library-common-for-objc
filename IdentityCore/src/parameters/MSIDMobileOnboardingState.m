@@ -21,27 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDInteractiveRequestParameters.h"
-#import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDClaimsRequest.h"
 #import "MSIDMobileOnboardingState.h"
 
-@implementation MSIDInteractiveRequestParameters
-
-@dynamic isNewMobileOnboardingFlow;
-
-- (BOOL)isNewMobileOnboardingFlow
-{
-    return self.mobileOnboardingState.isNewMobileOnboardingFlow;
-}
-
-- (void)setIsNewMobileOnboardingFlow:(BOOL)isNewMobileOnboardingFlow
-{
-    if (!self.mobileOnboardingState)
-    {
-        self.mobileOnboardingState = [MSIDMobileOnboardingState new];
-    }
-    self.mobileOnboardingState.isNewMobileOnboardingFlow = isNewMobileOnboardingFlow;
-}
+@implementation MSIDMobileOnboardingState
 
 @end
