@@ -67,7 +67,8 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ completionBlock is nil; cannot deliver result.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
         return;
     }
-
+    
+    // TODO: improve validation to match that of BNM for mac os
     if (![self validateRequest:request context:context completionBlock:completionBlock])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ BrowserNativeMessaging Get Token Request is not valid, returning early.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
@@ -231,8 +232,7 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 }
 
 // Returns YES only when a token usable for silent redemption is cached: a valid access token
-// (Scenario 1 cache hit) or a Bound App Refresh Token (BART, Scenario 2). Per the BART SPA design,
-// a regular (non-bound) refresh token does NOT qualify - without a cached BART the request must fall
+// (Scenario 1 cache hit) or a Bound App Refresh Token (BART, Scenario 2). without a cached BART the request must fall
 // back to the interactive broker flip (Scenario 3). Token *validity* remains authoritative
 // server-side: even with a cached BART the silent engine may return MSIDErrorInteractionRequired
 // (expired BART / device re-registration), at which point orchestration falls back to interactive.
