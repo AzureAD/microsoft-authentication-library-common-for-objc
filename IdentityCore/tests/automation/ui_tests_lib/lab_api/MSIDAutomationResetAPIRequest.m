@@ -29,7 +29,7 @@
 
 - (NSString *)requestOperationPath
 {
-    return @"Reset";
+    return @"ResetID4SLAB2";
 }
 
 - (NSString *)httpMethod

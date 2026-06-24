@@ -1,5 +1,8 @@
 TBD
 * Guest/MTO MAM: add enrollmentIdForUserObjectId:resourceTenantId: cross-tenant enrollment lookup on MSIDIntuneEnrollmentIdsCache, add MSIDResourceTenantIdKey, and map broker error response resource_tenant_id -> MSIDResourceTenantIdKey so the resource tenant's MAM enrollment can be resolved for guest users.
+* Only attach the PRT (refresh token credential) header to the PkeyAuth challenge response for known/trusted AAD hosts, preventing PRT leakage to untrusted hosts. Record an execution-flow tag for the added/skipped decision when a correlation id is available.
+
+Version 1.25.0
 * Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release. Self-heal cache eviction on conformance failure; release-mode fallback test via NSAssertionHandler swap.
 * Hand off openid-vc:// URLs to the registered wallet from the AAD embedded webview without dismissing the webview; append x_ms_caller_redirect_uri/x_ms_caller_bundle_id/x_ms_correlation_id so the wallet can foreground the calling app when the VID flow completes. Add the MSIDOpenIdVcHandling delegate protocol on MSIDAADOAuthEmbeddedWebviewController so hosts (e.g. an SSO extension hosting VID in-process) can intercept openid-vc navigations and present in-process UI instead of bouncing out via openURL. Replaces the prior MSIDWebOpenIdVcResponse / MSIDWebOpenIdVcResponseOperation pipeline that erroneously errored out the interactive request.
 

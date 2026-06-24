@@ -21,45 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationDeleteDeviceAPIRequest.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDAutomationDeleteDeviceAPIRequest
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - Lab Request
+// Shared mutable state for mobile onboarding flow.
+@interface MSIDMobileOnboardingState : NSObject
 
-- (NSString *)requestOperationPath
-{
-    return @"DeleteDeviceID4SLAB2";
-}
-
-- (NSString *)httpMethod
-{
-    return @"POST";
-}
-
-- (NSArray<NSURLQueryItem *> *)queryItems
-{
-    NSMutableArray *queryItems = [NSMutableArray array];
-    
-    if (self.userUPN)
-    {
-        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"upn" value:self.userUPN]];
-    }
-    
-    if (self.deviceGUID)
-    {
-        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"deviceid" value:self.deviceGUID]];
-    }
-    
-    return queryItems;
-}
-
-- (NSUInteger)hash
-{
-    NSUInteger hash = self.userUPN.hash;
-    hash ^= self.deviceGUID.hash;
-
-    return hash;
-}
+@property (nonatomic) BOOL isNewMobileOnboardingFlow;
 
 @end
+
+NS_ASSUME_NONNULL_END

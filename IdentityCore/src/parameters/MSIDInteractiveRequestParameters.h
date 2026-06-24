@@ -27,9 +27,12 @@
 #import "MSIDConstants.h"
 
 @class WKWebView;
+@class MSIDMobileOnboardingState;
 #if TARGET_OS_IPHONE
 @class UIViewController;
 #endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDInteractiveRequestParameters : MSIDRequestParameters
 
@@ -53,4 +56,9 @@
    where the broker can branch on it during device-registration bootstrap. */
 @property (nonatomic) BOOL isNewMobileOnboardingFlow;
 
+   // Shared mutable onboarding state, passed by reference across recreated params.
+@property (nonatomic, nullable) MSIDMobileOnboardingState *mobileOnboardingState;
+
 @end
+
+NS_ASSUME_NONNULL_END
