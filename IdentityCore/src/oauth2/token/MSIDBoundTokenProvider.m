@@ -101,8 +101,9 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 
     NSError *serializationError = nil;
     NSData *data = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&serializationError];
-    if (!data)
+    if (serializationError || !data)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@ Failed to serialize bound token payload: %@", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, serializationError);
         return @"{}";
     }
 
