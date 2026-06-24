@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) BOOL scheduleCalled;
 @property (nonatomic) NSTimeInterval receivedDelay;
+@property (nonatomic) BOOL cancelCalled;
 
 @end
 

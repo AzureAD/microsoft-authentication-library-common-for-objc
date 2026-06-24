@@ -696,6 +696,47 @@
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
 }
 
+#pragma mark - Cancel Notification on Enrollment Completion
+
+- (void)testEnrollmentCompletion_whenProviderSet_shouldCancelNotification
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
+
+    XCTAssertTrue(mockProvider.cancelCalled, @"Cancel should be invoked on enrollment completion.");
+}
+
+- (void)testEnrollmentCompletion_whenProviderIsNil_shouldNotCrash
+{
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionCompleteWithURL);
+}
+
 @end
 
 #endif // !MSID_EXCLUDE_WEBKIT

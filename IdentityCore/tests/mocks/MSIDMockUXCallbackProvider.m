@@ -32,4 +32,9 @@
     self.receivedDelay = delay;
 }
 
+- (void)cancelMDMProfileInstalledNotification
+{
+    self.cancelCalled = YES;
+}
+
 @end
