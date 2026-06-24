@@ -34,6 +34,12 @@
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDVersion.h"
+#import "MSIDUXCallbackProvider.h"
+#import "MSIDUXCallbackProtocol.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
+#import "MSIDMockUXCallbackProvider.h"
 
 @interface MSIDWebviewNavigationDecisionResolverTests : XCTestCase
 
@@ -61,6 +67,8 @@
 {
     [MSIDTestSwizzle reset];
     [self.dataSource reset];
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
     [super tearDown];
 }
 
@@ -597,6 +605,94 @@
                                                          embeddedWebviewController:nil];
     XCTAssertNotNil(decision);
     XCTAssertFalse(invoked, @"External block must not be invoked when no webview controller is provided.");
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+}
+
+#pragma mark - UX Callback Tests
+
+- (void)testProfileDownloadComplete_whenProviderSet_shouldInvokeCallbackWithDefaultDelay
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
+    NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123&%@=%@",
+                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
+                           MSID_INTUNE_DEVICE_ID_KEY,
+                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
+                           encodedURL];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
+
+    XCTAssertTrue(mockProvider.scheduleCalled, @"UX callback should be invoked on profile download complete.");
+    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+}
+
+- (void)testProfileDownloadComplete_whenFlightConfiguresDelay_shouldPassFlightDelay
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"300" };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
+    NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123&%@=%@",
+                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
+                           MSID_INTUNE_DEVICE_ID_KEY,
+                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
+                           encodedURL];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
+
+    XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, 300.0, 0.01);
+}
+
+- (void)testProfileDownloadComplete_whenFlightDelayIsNegative_shouldFallbackToDefault
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"-5" };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
+    NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123&%@=%@",
+                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
+                           MSID_INTUNE_DEVICE_ID_KEY,
+                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
+                           encodedURL];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
+
+    XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+}
+
+- (void)testProfileDownloadComplete_whenProviderIsNil_shouldNotCrash
+{
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+
+    NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
+    NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123&%@=%@",
+                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
+                           MSID_INTUNE_DEVICE_ID_KEY,
+                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
+                           encodedURL];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
+    XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
 }
 

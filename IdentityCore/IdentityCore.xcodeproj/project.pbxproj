@@ -1937,6 +1937,9 @@
 		B4134C1B2FEA3E410037FE68 /* MSIDMobileOnboardingState.m in Sources */ = {isa = PBXBuildFile; fileRef = B4134C192FEA3E410037FE68 /* MSIDMobileOnboardingState.m */; };
 		B4134C1C2FEA3E410037FE68 /* MSIDMobileOnboardingState.h in Headers */ = {isa = PBXBuildFile; fileRef = B4134C182FEA3E410037FE68 /* MSIDMobileOnboardingState.h */; };
 		B4134C1D2FEA3E410037FE68 /* MSIDMobileOnboardingState.m in Sources */ = {isa = PBXBuildFile; fileRef = B4134C192FEA3E410037FE68 /* MSIDMobileOnboardingState.m */; };
+		B4134C442FEC495C0037FE68 /* MSIDMockUXCallbackProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B4134C422FEC495C0037FE68 /* MSIDMockUXCallbackProvider.h */; };
+		B4134C452FEC495C0037FE68 /* MSIDMockUXCallbackProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B4134C432FEC495C0037FE68 /* MSIDMockUXCallbackProvider.m */; };
+		B4134C462FEC495C0037FE68 /* MSIDMockUXCallbackProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B4134C432FEC495C0037FE68 /* MSIDMockUXCallbackProvider.m */; };
 		B41DD0A22FB4187500F81A9A /* MSIDIntuneDeviceIdCache.h in Headers */ = {isa = PBXBuildFile; fileRef = B41DD0A12FB4187200F81A9A /* MSIDIntuneDeviceIdCache.h */; };
 		B41DD0A42FB4187B00F81A9A /* MSIDIntuneDeviceIdCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A32FB4187900F81A9A /* MSIDIntuneDeviceIdCache.m */; };
 		B41DD0A52FB4187B00F81A9A /* MSIDIntuneDeviceIdCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B41DD0A32FB4187900F81A9A /* MSIDIntuneDeviceIdCache.m */; };
@@ -3597,6 +3600,8 @@
 		B41163BB29BAC9DE00E64619 /* MSIDWKNavigationActionMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWKNavigationActionMock.h; sourceTree = "<group>"; };
 		B4134C182FEA3E410037FE68 /* MSIDMobileOnboardingState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMobileOnboardingState.h; sourceTree = "<group>"; };
 		B4134C192FEA3E410037FE68 /* MSIDMobileOnboardingState.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMobileOnboardingState.m; sourceTree = "<group>"; };
+		B4134C422FEC495C0037FE68 /* MSIDMockUXCallbackProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMockUXCallbackProvider.h; sourceTree = "<group>"; };
+		B4134C432FEC495C0037FE68 /* MSIDMockUXCallbackProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMockUXCallbackProvider.m; sourceTree = "<group>"; };
 		B41DD0A12FB4187200F81A9A /* MSIDIntuneDeviceIdCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneDeviceIdCache.h; sourceTree = "<group>"; };
 		B41DD0A32FB4187900F81A9A /* MSIDIntuneDeviceIdCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneDeviceIdCache.m; sourceTree = "<group>"; };
 		B41DD0A62FB41A0000F81A9A /* MSIDIntuneDeviceIdCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneDeviceIdCacheTests.m; sourceTree = "<group>"; };
@@ -4108,6 +4113,8 @@
 		23642AB32187D88C00F97009 /* mocks */ = {
 			isa = PBXGroup;
 			children = (
+				B4134C422FEC495C0037FE68 /* MSIDMockUXCallbackProvider.h */,
+				B4134C432FEC495C0037FE68 /* MSIDMockUXCallbackProvider.m */,
 				722AC5182F0EF275005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.m */,
 				722AC5162F0EF1AC005BE6A5 /* MSIDTestBoundAppRefreshTokenRequest.h */,
 				729357EE2DDBCBAB0001D03C /* MSIDNonceTokenRequestMock.m */,
@@ -6995,6 +7002,7 @@
 				B217861823A57ED800839CE8 /* MSIDAuthorizationControllerMock.h in Headers */,
 				B2E4A07B24DDE5D7007CE642 /* NSUUID+MSIDTestUtil.h in Headers */,
 				B217862923A5839300839CE8 /* MSIDSSOExtensionSignoutRequestMock.h in Headers */,
+				B4134C442FEC495C0037FE68 /* MSIDMockUXCallbackProvider.h in Headers */,
 				2A0278A32D6E3787005655B4 /* MSIDLastRequestTelemetry+Tests.h in Headers */,
 				969CCB5622A9EB0300A55515 /* MSIDTestCacheDataSource.h in Headers */,
 				B28AC66421A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h in Headers */,
@@ -8504,6 +8512,7 @@
 				D626FFF71FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
 				6078EB50226DA97100235498 /* MSIDTestCacheUtil.m in Sources */,
 				B2E2A94D239320B100BA2EA3 /* MSIDTestParametersProvider.m in Sources */,
+				B4134C462FEC495C0037FE68 /* MSIDMockUXCallbackProvider.m in Sources */,
 				961ACE0522A1FA8200B9266C /* MSIDApplicationTestUtil.m in Sources */,
 				D626FFF41FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
 				D6D9A44D1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
@@ -8539,6 +8548,7 @@
 				B216826223AB09C300F4897A /* MSIDSSOExtensionGetAccountsRequestMock.m in Sources */,
 				B2E4A07424DDE576007CE642 /* MSIDTestTelemetryEventsObserver.m in Sources */,
 				5898429F252544900075DFED /* MSIDAccountMetadataCacheMockGetAuthorityParameters.m in Sources */,
+				B4134C452FEC495C0037FE68 /* MSIDMockUXCallbackProvider.m in Sources */,
 				B2E2A94E239320B100BA2EA3 /* MSIDTestParametersProvider.m in Sources */,
 				969CCB5822A9EB7D00A55515 /* MSIDTestCacheDataSource.m in Sources */,
 				96290E5721489BB800FDD5C8 /* NSString+MSIDTestUtil.m in Sources */,
