@@ -321,9 +321,16 @@
 
     NSString *delayString = [[MSIDFlightManager sharedInstance] stringForKey:MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY];
     NSTimeInterval delay = delayString.length > 0 ? delayString.doubleValue : MSIDMDMProfileInstalledNotificationDefaultDelay;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [MSIDUXCallbackProvider.uxCallbackProvider scheduleMDMProfileInstalledNotificationWithDelay:delay];
-    });
+    if (delay <= 0)
+    {
+        delay = MSIDMDMProfileInstalledNotificationDefaultDelay;
+    }
+
+    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
+    if (provider)
+    {
+        [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
+    }
 
     return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:profileURL]];
 }

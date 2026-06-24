@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDUXCallbackProvider : NSObject
 
-@property (nonatomic, class) id<MSIDUXCallbackProtocol> uxCallbackProvider;
+@property (nonatomic, class, nullable) id<MSIDUXCallbackProtocol> uxCallbackProvider;
 
 @end
 
