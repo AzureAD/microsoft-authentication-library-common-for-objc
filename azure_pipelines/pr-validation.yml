@@ -15,7 +15,7 @@ resources:
     - repository: automationHealthTracker
       type: git
       name: IDDP/MSAL-ObjC-Pipelines
-      ref: ameyapat/automation-health-tracker
+      ref: main
 
 # Define parallel jobs that run build script for specified targets
 jobs:
