@@ -46,6 +46,7 @@
 @property (nonatomic) MSIDWebviewNavigationDecisionResolver *resolver;
 @property (nonatomic) MSIDTestCacheDataSource *dataSource;
 @property (nonatomic) MSIDIntuneDeviceIdCache *deviceIdCache;
+@property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
 
 @end
 
@@ -61,6 +62,9 @@
     self.dataSource = [MSIDTestCacheDataSource new];
     self.deviceIdCache = [[MSIDIntuneDeviceIdCache alloc] initWithDataSource:self.dataSource];
     [MSIDIntuneDeviceIdCache setSharedCache:self.deviceIdCache];
+
+    self.flightProvider = [MSIDFlightManagerMockProvider new];
+    MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
 }
 
 - (void)tearDown
@@ -635,9 +639,7 @@
     MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
 
-    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"300" };
-    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"300" };
 
     NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
     NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
@@ -659,9 +661,7 @@
     MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
 
-    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"-5" };
-    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"-5" };
 
     NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
     NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
