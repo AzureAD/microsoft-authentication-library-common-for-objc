@@ -1883,6 +1883,61 @@ static NSInteger gFakeThrottlingCallCount = 0;
     XCTAssertNil([[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY]);
 }
 
+- (void)testAcquireToken_whenInProgressBrokerStatusHasMissingOriginatingBundleId_andReturnsToForeground_shouldReturnBrokerResponseNotReceived
+{
+    // A malformed/legacy in-progress broker status without an originating bundle id is cached.
+    NSISO8601DateFormatter *formatter = [NSISO8601DateFormatter new];
+    NSDictionary *json = @{
+        @"phase": [MSIDOnboardingStatus stringFromPhase:MSIDOnboardingPhaseBrokerInteractiveInProgress],
+        @"context": [MSIDOnboardingStatus stringFromContext:MSIDOnboardingContextBroker],
+        @"ownerBundleId": @"com.microsoft.azureauthenticator",
+        @"correlationId": @"00000000-1234-abcd-0000-000000000000",
+        @"startedAt": [formatter stringFromDate:[NSDate date]],
+        @"ttlSeconds": @900
+    };
+    MSIDOnboardingStatus *noOriginatingStatus = [[MSIDOnboardingStatus alloc] initWithJSONDictionary:json error:nil];
+    XCTAssertNotNil(noOriginatingStatus);
+    XCTAssertNil(noOriginatingStatus.originatingBundleId);
+    XCTAssertTrue([[MSIDOnboardingStatusCache sharedInstance] setWithStatus:noOriginatingStatus]);
+
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=nilcancel1"];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:@{}];
+
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+
+    XCTAssertNotNil(brokerController);
+
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(__unused NSURL *url, __unused NSDictionary<NSString *,id> *options) {
+
+        // The user returns to the foreground without a broker response. Because the cached
+        // status has no originating bundle id, the session must NOT be cancelled; it falls
+        // through to the standard "broker response not received" handling.
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillEnterForegroundNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+
+        return YES;
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorBrokerResponseNotReceived);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 - (void)testAcquireToken_whenBrokerResponseError_andStatusBelongsToAnotherApp_shouldNotSetOnboardingPhaseToFailed
 {
     // App A already has an in-progress broker session recorded in the shared cache.

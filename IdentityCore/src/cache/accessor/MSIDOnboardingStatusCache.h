@@ -24,7 +24,6 @@
 #import <Foundation/Foundation.h>
 #import "MSIDOnboardingStatus.h"
 
-@class MSIDOnboardingStatus;
 @protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN

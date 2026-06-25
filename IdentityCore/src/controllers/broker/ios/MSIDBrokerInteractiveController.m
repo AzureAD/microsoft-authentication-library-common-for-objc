@@ -437,16 +437,21 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         MSIDOnboardingStatus *onboardingStatus = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
         NSString *originatingBundleId = onboardingStatus.originatingBundleId;
         NSString *currentBundleId = [NSBundle.mainBundle bundleIdentifier];
+        // Only evaluate ownership when both bundle ids are present. A malformed/legacy cache
+        // entry with a missing originating or current bundle id falls through to the existing
+        // non-response handling rather than cancelling the session.
         if (onboardingStatus.phase == MSIDOnboardingPhaseBrokerInteractiveInProgress &&
-            onboardingStatus.onboardingContext == MSIDOnboardingContextBroker)
+            onboardingStatus.onboardingContext == MSIDOnboardingContextBroker &&
+            originatingBundleId.length > 0 && currentBundleId.length > 0)
         {
-            if (originatingBundleId.length > 0 && currentBundleId.length > 0 &&
-                [originatingBundleId caseInsensitiveCompare:currentBundleId] == NSOrderedSame)
+            if ([originatingBundleId caseInsensitiveCompare:currentBundleId] == NSOrderedSame)
             {
                 returnToBroker = YES;
             }
             else
             {
+                // Both bundle ids are present and differ: another app's broker session is in
+                // progress, so cancel this duplicate session and clear the stale resume state.
                 NSError *cancelError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authentication still in progress in broker, cancel current session.", nil, nil, nil, nil, nil, YES);
 
                 [brokerController completeAcquireTokenWithResult:nil error:cancelError];
