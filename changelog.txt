@@ -1,5 +1,6 @@
 TBD
 * Only attach the PRT (refresh token credential) header to the PkeyAuth challenge response for known/trusted AAD hosts, preventing PRT leakage to untrusted hosts. Record an execution-flow tag for the added/skipped decision when a correlation id is available.
+* Support concurrent broker onboarding & authentication sessions across apps (#1878)
 
 Version 1.25.0
 * Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release. Self-heal cache eviction on conformance failure; release-mode fallback test via NSAssertionHandler swap.
