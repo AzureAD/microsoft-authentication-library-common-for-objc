@@ -72,7 +72,7 @@
 + (MSIDBrokerInteractiveController *)currentBrokerController;
 + (void)setCurrentBrokerRequest:(MSIDBrokerTokenRequest *)currentBrokerRequest;
 + (MSIDBrokerTokenRequest *)currentBrokerRequest;
-@property (nonatomic, readwrite) BOOL isReplayRequest;
+@property (nonatomic, readwrite) BOOL shouldIgnoreBrokerRequest;
 @end
 
 @interface MSIDOnboardingStatusCache ()

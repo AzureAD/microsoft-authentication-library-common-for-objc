@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDOnboardingStatus.h"
 
 @class MSIDOnboardingStatus;
 @protocol MSIDRequestContext;
@@ -64,6 +65,14 @@ NS_ASSUME_NONNULL_BEGIN
  @return YES if the operation succeeds, NO otherwise.
  */
 - (BOOL)clear:(NSString *)bundleId;
+
+/**
+ Checks whether the given onboarding phase is currently in progress.
+ 
+ @param phase The MSIDOnboardingPhase to check.
+ @return YES if the specified phase is in progress, NO otherwise.
+ */
+- (BOOL)isInProgressPhase:(MSIDOnboardingPhase)phase;
 
 @end
 
