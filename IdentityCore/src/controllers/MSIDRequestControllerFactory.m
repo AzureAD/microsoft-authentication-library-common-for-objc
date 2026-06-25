@@ -308,7 +308,15 @@
         return nil;
     }
     
-    if ([parameters shouldUseBroker])
+    // Account creation (prompt=create) must never be routed to the broker / Apple SSO
+    // extension. On iOS an installed Microsoft Authenticator registers an Enterprise SSO
+    // extension that intercepts brokered interactive requests and presents its stored-account
+    // experience instead of the sign-up page, which blocks users from creating a new account
+    // (e.g. a consumer/MSA account). Force such requests through the local interactive
+    // (webview) controller so the sign-up experience is shown.
+    BOOL isAccountCreation = parameters.promptType == MSIDPromptTypeCreate;
+    
+    if ([parameters shouldUseBroker] && !isAccountCreation)
     {
         MSIDExecutionFlowInsertTag(MSIDRequestControllerFactoryTagToString(MSIDInteractiveControllerShouldUseBrokerTag),
                                        nil,
@@ -326,6 +334,10 @@
         MSIDExecutionFlowInsertTag(MSIDRequestControllerFactoryTagToString(MSIDInteractiveControllerNoBrokerFallbackTag),
                                        nil,
                                        parameters.correlationId);
+    }
+    else if (isAccountCreation)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"prompt=create requested; skipping broker/SSO extension and using local interactive controller so the account creation experience is shown.", nil);
     }
 
     return localController;
