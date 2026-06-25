@@ -3,7 +3,7 @@
 # The PR title lint workflow lives in the 'dev' branch of 'azure-activedirectory-tokenbroker-for-objc'.
 #
 # To update or modify PR title requirements, ONLY edit the file:
-#   https://github.com/AzureAD/azure-activedirectory-tokenbroker-for-objc/blob/dev/.github/workflows/pr-title-lint.yml
+#   https://github.com/AzureAD/azure-activedirectory-tokenbroker-for-objc/blob/dev/.github/workflows/pr-title-lint-reusable.yml
 #
 # For more information on reusable workflows, see: https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
@@ -18,5 +18,5 @@ permissions:
   
 jobs:
   validate-pr-title:
-    uses: AzureAD/azure-activedirectory-tokenbroker-for-objc/.github/workflows/pr-title-lint.yml@dev
+    uses: AzureAD/azure-activedirectory-tokenbroker-for-objc/.github/workflows/pr-title-lint-reusable.yml@dev
     secrets: inherit
