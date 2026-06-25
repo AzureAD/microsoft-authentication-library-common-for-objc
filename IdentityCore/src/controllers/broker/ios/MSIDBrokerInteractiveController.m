@@ -447,7 +447,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
             }
             else
             {
-                NSError *cancelError = MSIDCreateError(MSAIMSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authentication still in progress in broker, cancel current session.", nil, nil, nil, nil, nil, YES);
+                NSError *cancelError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authentication still in progress in broker, cancel current session.", nil, nil, nil, nil, nil, YES);
 
                 [brokerController completeAcquireTokenWithResult:nil error:cancelError];
                 [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
@@ -531,7 +531,8 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
     {
         // Update onboarding status as failed only for the originating app
         MSIDOnboardingStatus *status = [[MSIDOnboardingStatusCache sharedInstance] getOnboardingStatus];
-        if (status && status.phase != MSIDOnboardingPhaseNone && bundleId
+        if (status && status.phase != MSIDOnboardingPhaseNone && bundleId.length > 0
+            && status.originatingBundleId.length > 0
             && [status.originatingBundleId caseInsensitiveCompare:bundleId] == NSOrderedSame)
         {
             status.phase = MSIDOnboardingPhaseFailed;
