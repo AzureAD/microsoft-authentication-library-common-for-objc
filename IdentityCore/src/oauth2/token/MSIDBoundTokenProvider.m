@@ -94,12 +94,16 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     payload[@"scope"] = request.scopes ?: @"";
     payload[@"servicedBy"] = @"MSIDBoundTokenProvider";
     payload[@"transport"] = @"in_proc_common_core";
-    if (request.state) payload[@"state"] = request.state;
+    if (request.state)
+    {
+        payload[@"state"] = request.state;
+    }
 
     NSError *serializationError = nil;
     NSData *data = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&serializationError];
-    if (!data)
+    if (serializationError || !data)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@ Failed to serialize bound token payload: %@", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, serializationError);
         return @"{}";
     }
 
