@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,28 +22,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDInteractiveRequestParameters.h"
-#import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDClaimsRequest.h"
-#import "MSIDMobileOnboardingState.h"
+#import "MSIDUXCallbackProvider.h"
 
-@implementation MSIDInteractiveRequestParameters
+static id<MSIDUXCallbackProtocol> s_uxCallbackProvider;
 
-@dynamic isNewMobileOnboardingFlow;
+@implementation MSIDUXCallbackProvider
 
-- (BOOL)isNewMobileOnboardingFlow
++ (id<MSIDUXCallbackProtocol>)uxCallbackProvider
 {
-    return self.mobileOnboardingState.isNewMobileOnboardingFlow;
+    return s_uxCallbackProvider;
 }
 
-- (void)setIsNewMobileOnboardingFlow:(BOOL)isNewMobileOnboardingFlow
++ (void)setUxCallbackProvider:(id<MSIDUXCallbackProtocol>)uxCallbackProvider
 {
-    if (!self.mobileOnboardingState)
-    {
-        self.mobileOnboardingState = [MSIDMobileOnboardingState new];
-    }
-    self.mobileOnboardingState.isNewMobileOnboardingFlow = isNewMobileOnboardingFlow;
+    s_uxCallbackProvider = uxCallbackProvider;
 }
 
 @end

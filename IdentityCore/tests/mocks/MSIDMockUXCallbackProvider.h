@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,39 +22,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRequestParameters.h"
-#import "MSIDConstants.h"
-#import "MSIDBrokerInvocationOptions.h"
-#import "MSIDConstants.h"
-
-@class WKWebView;
-@class MSIDMobileOnboardingState;
-#if TARGET_OS_IPHONE
-@class UIViewController;
-#endif
+#import <Foundation/Foundation.h>
+#import "MSIDUXCallbackProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDInteractiveRequestParameters : MSIDRequestParameters
+@interface MSIDMockUXCallbackProvider : NSObject <MSIDUXCallbackProtocol>
 
-@property (nonatomic) MSIDWebviewType webviewType;
-@property (nonatomic) WKWebView *customWebview;
-@property (atomic, readwrite) NSDictionary<NSString *, NSString *> *customWebviewHeaders;
-@property (nonatomic, weak) MSIDViewController *parentViewController;
-#if TARGET_OS_IPHONE
-@property (nonatomic) UIModalPresentationStyle presentationType;
-#endif
-/* Use presentationAnchorWindow as a fallback if parentViewController is
-   not provided, so that Sso extension UI can attach to the provided window
-*/
-@property (nonatomic) MSIDWindow *presentationAnchorWindow;
-@property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
-@property (nonatomic) NSString *telemetryWebviewType;
-
-// Shared mutable onboarding state, passed by reference across recreated params.
-@property (nonatomic, nullable) MSIDMobileOnboardingState *mobileOnboardingState;
-
-@property (nonatomic) BOOL isNewMobileOnboardingFlow;
+@property (nonatomic) BOOL scheduleCalled;
+@property (nonatomic) NSTimeInterval receivedDelay;
+@property (nonatomic) BOOL cancelCalled;
 
 @end
 
