@@ -633,4 +633,80 @@
     XCTAssertTrue([retrieved.correlationId isEqual:statusA.correlationId] || [retrieved.correlationId isEqual:statusB.correlationId]);
 }
 
+#pragma mark - isInProgressPhase
+
+- (void)testIsInProgressPhase_whenBrokerInteractiveInProgress_shouldReturnYES
+{
+    XCTAssertTrue([self.cache isInProgressPhase:MSIDOnboardingPhaseBrokerInteractiveInProgress]);
+}
+
+- (void)testIsInProgressPhase_whenMdmEnrollmentInProgress_shouldReturnYES
+{
+    XCTAssertTrue([self.cache isInProgressPhase:MSIDOnboardingPhaseMdmEnrollmentInProgress]);
+}
+
+- (void)testIsInProgressPhase_whenNone_shouldReturnNO
+{
+    XCTAssertFalse([self.cache isInProgressPhase:MSIDOnboardingPhaseNone]);
+}
+
+- (void)testIsInProgressPhase_whenFailed_shouldReturnNO
+{
+    XCTAssertFalse([self.cache isInProgressPhase:MSIDOnboardingPhaseFailed]);
+}
+
+#pragma mark - setWithStatus terminal phase overwrite
+
+- (void)testSetWithStatus_whenCurrentPhaseFailedFromDifferentApp_shouldOverwrite
+{
+    // App A leaves a terminal (failed) status behind.
+    MSIDOnboardingStatus *failed = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                             originating:@"com.microsoft.teams"
+                                                   phase:MSIDOnboardingPhaseFailed
+                                              ttlSeconds:900
+                                               startedAt:[NSDate date]];
+    XCTAssertTrue([self.cache setWithStatus:failed]);
+
+    // A different app (B) must be allowed to overwrite a terminal status.
+    MSIDOnboardingStatus *fromOtherApp = [self statusWithOwner:@"com.microsoft.outlook"
+                                                   originating:@"com.microsoft.outlook"
+                                                         phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                                    ttlSeconds:900
+                                                     startedAt:[NSDate date]];
+
+    BOOL result = [self.cache setWithStatus:fromOtherApp];
+
+    XCTAssertTrue(result);
+
+    MSIDOnboardingStatus *retrieved = [self.cache getOnboardingStatus];
+    XCTAssertEqual(retrieved.phase, MSIDOnboardingPhaseBrokerInteractiveInProgress);
+    XCTAssertEqualObjects(retrieved.originatingBundleId, @"com.microsoft.outlook");
+}
+
+- (void)testSetWithStatus_whenCurrentPhaseMdmEnrollmentInProgressFromDifferentApp_shouldReturnNO
+{
+    // App A has an in-progress (MDM enrollment) status.
+    MSIDOnboardingStatus *inProgress = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                                 originating:@"com.microsoft.teams"
+                                                       phase:MSIDOnboardingPhaseMdmEnrollmentInProgress
+                                                  ttlSeconds:900
+                                                   startedAt:[NSDate date]];
+    XCTAssertTrue([self.cache setWithStatus:inProgress]);
+
+    // A different app (B) must NOT be allowed to overwrite an in-progress status.
+    MSIDOnboardingStatus *fromOtherApp = [self statusWithOwner:@"com.microsoft.azureauthenticator"
+                                                   originating:@"com.microsoft.outlook"
+                                                         phase:MSIDOnboardingPhaseBrokerInteractiveInProgress
+                                                    ttlSeconds:900
+                                                     startedAt:[NSDate date]];
+
+    BOOL result = [self.cache setWithStatus:fromOtherApp];
+
+    XCTAssertFalse(result);
+
+    MSIDOnboardingStatus *retrieved = [self.cache getOnboardingStatus];
+    XCTAssertEqual(retrieved.phase, MSIDOnboardingPhaseMdmEnrollmentInProgress);
+    XCTAssertEqualObjects(retrieved.originatingBundleId, @"com.microsoft.teams");
+}
+
 @end
