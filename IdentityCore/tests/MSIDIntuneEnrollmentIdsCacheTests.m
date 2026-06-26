@@ -188,6 +188,83 @@
     XCTAssertNotNil(error);
 }
 
+#pragma mark - enrollmentIdForUserObjectId:resourceTenantId
+
+- (void)testEnrollmentIdForUserObjectIdResourceTenantId_whenObjectIdIsNil_shouldReturnNil
+{
+    NSString *objectId;
+    NSString *resourceTenantId = @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1";
+
+    NSError *error;
+    __auto_type enrollmentId = [self.cache enrollmentIdForUserObjectId:objectId resourceTenantId:resourceTenantId context:nil error:&error];
+
+    XCTAssertNil(enrollmentId);
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIdForUserObjectIdResourceTenantId_whenResourceTenantIdIsNil_shouldReturnNil
+{
+    NSString *objectId = @"d3444455-mike-4271-b6ea-e499cc0cab46";
+    NSString *resourceTenantId;
+
+    NSError *error;
+    __auto_type enrollmentId = [self.cache enrollmentIdForUserObjectId:objectId resourceTenantId:resourceTenantId context:nil error:&error];
+
+    XCTAssertNil(enrollmentId);
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIdForUserObjectIdResourceTenantId_whenOidAndResourceTenantMatch_shouldReturnId
+{
+    NSString *objectId = @"d3444455-mike-4271-b6ea-e499cc0cab46";
+    NSString *resourceTenantId = @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1";
+
+    NSError *error;
+    __auto_type enrollmentId = [self.cache enrollmentIdForUserObjectId:objectId resourceTenantId:resourceTenantId context:nil error:&error];
+
+    XCTAssertEqualObjects(@"adf79e3f-mike-454d-9f0f-2299e76dbfd5", enrollmentId);
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIdForUserObjectIdResourceTenantId_whenOidMatchesButResourceTenantDiffers_shouldReturnNil
+{
+    // Guest/MTO scenario: the user's OID is in cache but only under the home tenant;
+    // no enrollment entry exists for the resource tenant, so nothing should match.
+    NSString *objectId = @"d3444455-mike-4271-b6ea-e499cc0cab46";
+    NSString *resourceTenantId = @"99999999-9999-4999-9999-999999999999";
+
+    NSError *error;
+    __auto_type enrollmentId = [self.cache enrollmentIdForUserObjectId:objectId resourceTenantId:resourceTenantId context:nil error:&error];
+
+    XCTAssertNil(enrollmentId);
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIdForUserObjectIdResourceTenantId_whenResourceTenantMatchesOidDoesnt_shouldReturnNil
+{
+    NSString *objectId = @"qwe";
+    NSString *resourceTenantId = @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1";
+
+    NSError *error;
+    __auto_type enrollmentId = [self.cache enrollmentIdForUserObjectId:objectId resourceTenantId:resourceTenantId context:nil error:&error];
+
+    XCTAssertNil(enrollmentId);
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIdForUserObjectIdResourceTenantId_whenCacheIsInvalid_shouldReturnNilAndError
+{
+    NSString *objectId = @"d3444455-mike-4271-b6ea-e499cc0cab46";
+    NSString *resourceTenantId = @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1";
+    [self corruptCache];
+
+    NSError *error;
+    __auto_type enrollmentId = [self.cache enrollmentIdForUserObjectId:objectId resourceTenantId:resourceTenantId context:nil error:&error];
+
+    XCTAssertNil(enrollmentId);
+    XCTAssertNotNil(error);
+}
+
 #pragma mark - enrollmentIdForHomeAccountId
 
 - (void)testEnrollmentIdForHomeAccountId_whenHomeAccountIdIsNil_shouldReturnNil

@@ -33,6 +33,14 @@ extern NSString * _Nonnull MSIDHTTPResponseCodeKey;
 extern NSString * _Nonnull MSIDHTTPTruncatedResponseStringKey;
 extern NSString * _Nonnull MSIDUserDisplayableIdkey;
 extern NSString * _Nonnull MSIDHomeAccountIdkey;
+/*!
+ Resource tenant id associated with a protection-policy-required error.
+
+ For a guest/MTO scenario the resource tenant differs from the user's home tenant.
+ This key carries the resource tenant id (extracted from the resource authority) so
+ that MSAL/client apps can resolve the correct cross-tenant MAM enrollment.
+ */
+extern NSString * _Nonnull MSIDResourceTenantIdKey;
 extern NSString * _Nonnull MSIDTokenProtectionRequired;
 extern NSString * _Nonnull MSIDBrokerVersionKey;
 extern NSString * _Nonnull MSIDSTSErrorCodesKey;

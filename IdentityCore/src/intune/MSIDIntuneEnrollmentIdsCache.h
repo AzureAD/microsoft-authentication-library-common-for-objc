@@ -49,6 +49,20 @@ NS_ASSUME_NONNULL_BEGIN
                                            context:(nullable id<MSIDRequestContext>)context
                                              error:(NSError *__autoreleasing *)error;
 
+/*!
+ Returns the enrollment id matching a user's object id (OID) scoped to the resource tenant.
+
+ Used for guest/MTO scenarios where the user's home tenant differs from the resource
+ tenant. Unlike enrollmentIdForHomeAccountId:legacyUserId:, this never falls back to a
+ home-tenant or first-available match: it returns an enrollment id only when an entry
+ keyed to the supplied resource tenant exists, so the resource tenant's MAM policy is
+ enforced instead of the home tenant's.
+ */
+- (nullable NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
+                                  resourceTenantId:(NSString *)resourceTenantId
+                                           context:(nullable id<MSIDRequestContext>)context
+                                             error:(NSError *__autoreleasing *)error;
+
 - (nullable NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                                             context:(nullable id<MSIDRequestContext>)context
                                               error:(NSError *__autoreleasing *)error;

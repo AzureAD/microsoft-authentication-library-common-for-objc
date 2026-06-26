@@ -50,10 +50,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 @property (nonatomic) NSString *telemetryWebviewType;
 
-// Shared mutable onboarding state, passed by reference across recreated params.
-@property (nonatomic, nullable) MSIDMobileOnboardingState *mobileOnboardingState;
-
+/* Marks the current request as part of the new mobile onboarding flow.
+   Set to YES when the server issues `msauth://enroll` during the embedded
+   webview leg, so the bit survives the hop into the broker SSO extension
+   where the broker can branch on it during device-registration bootstrap. */
 @property (nonatomic) BOOL isNewMobileOnboardingFlow;
+
+   // Shared mutable onboarding state, passed by reference across recreated params.
+@property (nonatomic, nullable) MSIDMobileOnboardingState *mobileOnboardingState;
 
 @end
 

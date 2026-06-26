@@ -97,6 +97,32 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     return nil;
 }
 
+- (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
+                         resourceTenantId:(NSString *)resourceTenantId
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError *__autoreleasing*)error
+{
+    if (!userObjectId || !resourceTenantId) return nil;
+
+    NSDictionary *jsonDictionary = [self.dataSource jsonDictionaryForKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
+    if (![self isValid:jsonDictionary context:context error:error]) return nil;
+
+    NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
+    for (NSDictionary *enrollIdDic in enrollIds)
+    {
+        if ([enrollIdDic[MSID_INTUNE_OID] isEqualToString:userObjectId] &&
+            [enrollIdDic[MSID_INTUNE_TID] isEqualToString:resourceTenantId])
+        {
+            NSString *enrollmentId = enrollIdDic[MSID_INTUNE_ENROLL_ID];
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Queried by OID + resource tenant, enrollment id read from intune cache : %@.", enrollmentId ? MSID_PII_LOG_MASKABLE(enrollmentId) : enrollmentId);
+            return enrollmentId;
+        }
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"OID + resource tenant id passed in, but cannot find matching enrollment id.");
+    return nil;
+}
+
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                               legacyUserId:(NSString *)legacyUserId
                                    context:(id<MSIDRequestContext>)context
