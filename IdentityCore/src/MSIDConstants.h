@@ -287,4 +287,11 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
 
+/// Flight key for MDM profile install notification delay (seconds).
+/// Owner: swagup
+extern NSString * _Nonnull const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY;
+
+/// Default delay (in seconds) before the MDM profile install notification fires.
+extern NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay;
+
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
