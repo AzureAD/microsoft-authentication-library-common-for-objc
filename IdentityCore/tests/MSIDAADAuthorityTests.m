@@ -820,8 +820,9 @@
 {
     MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
     NSError *error = nil;
+    NSString *nilHost = nil;
 
-    MSIDAuthority *updatedAuthority = [authority authorityWithUpdatedCloudHostInstanceName:nil error:&error];
+    MSIDAuthority *updatedAuthority = [authority authorityWithUpdatedCloudHostInstanceName:nilHost error:&error];
 
     XCTAssertNil(updatedAuthority);
     XCTAssertNil(error);
