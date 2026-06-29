@@ -779,6 +779,55 @@
     XCTAssertTrue([authority needsUpdateToHomeAuthority:NO]);
 }
 
+#pragma mark - authorityWithUpdatedCloudHostInstanceName
+
+- (void)testAuthorityWithUpdatedCloudHostInstanceName_whenTrustedPublicCloudHost_shouldReturnUpdatedAuthority
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    NSError *error = nil;
+
+    MSIDAuthority *updatedAuthority = [authority authorityWithUpdatedCloudHostInstanceName:@"login.microsoftonline.com" error:&error];
+
+    XCTAssertNotNil(updatedAuthority);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(updatedAuthority.environment, @"login.microsoftonline.com");
+}
+
+- (void)testAuthorityWithUpdatedCloudHostInstanceName_whenTrustedSovereignCloudHost_shouldReturnUpdatedAuthority
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    NSError *error = nil;
+
+    MSIDAuthority *updatedAuthority = [authority authorityWithUpdatedCloudHostInstanceName:@"login.microsoftonline.de" error:&error];
+
+    XCTAssertNotNil(updatedAuthority);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(updatedAuthority.environment, @"login.microsoftonline.de");
+}
+
+- (void)testAuthorityWithUpdatedCloudHostInstanceName_whenUntrustedHost_shouldReturnNil
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    NSError *error = nil;
+
+    MSIDAuthority *updatedAuthority = [authority authorityWithUpdatedCloudHostInstanceName:@"evil.attacker.net" error:&error];
+
+    XCTAssertNil(updatedAuthority);
+    XCTAssertNil(error);
+}
+
+- (void)testAuthorityWithUpdatedCloudHostInstanceName_whenNilHost_shouldReturnNil
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    NSError *error = nil;
+    NSString *nilHost = nil;
+
+    MSIDAuthority *updatedAuthority = [authority authorityWithUpdatedCloudHostInstanceName:nilHost error:&error];
+
+    XCTAssertNil(updatedAuthority);
+    XCTAssertNil(error);
+}
+
 
 #pragma mark - Private
 

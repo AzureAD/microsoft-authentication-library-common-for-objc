@@ -35,6 +35,7 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDProviderType.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @interface MSIDAADAuthority()
 
@@ -359,8 +360,26 @@
 - (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostInstanceName]) return nil;
-    
-    NSURL *cloudAuthorityURL = [self.url msidAADAuthorityWithCloudInstanceHostname:cloudHostInstanceName];
+
+    NSString *lowercaseHostName = cloudHostInstanceName.lowercaseString;
+
+    // Defense-in-depth: validate the host against the trusted-host allow-list.
+    // The primary check is in setCloudAuthorityWithCloudHostName:; this guard
+    // ensures no other caller can bypass that validation (CWE-346 / CWE-918).
+    BOOL isTrustedHost = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:lowercaseHostName];
+
+    if (!isTrustedHost)
+    {
+        isTrustedHost = [[MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments containsObject:lowercaseHostName];
+    }
+
+    if (!isTrustedHost)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Rejected cloud_instance_host_name in authorityWithUpdatedCloudHostInstanceName: host is not in the trusted host allow-list.");
+        return nil;
+    }
+
+    NSURL *cloudAuthorityURL = [self.url msidAADAuthorityWithCloudInstanceHostname:lowercaseHostName];
     return [[MSIDAADAuthority alloc] initWithURL:cloudAuthorityURL context:nil error:error];
 }
 
