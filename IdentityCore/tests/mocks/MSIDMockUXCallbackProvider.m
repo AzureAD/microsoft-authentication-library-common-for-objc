@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,21 +22,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDTokenRequestProviding.h"
-#import "MSIDRequestControlling.h"
-#import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDMockUXCallbackProvider.h"
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDWebWPJResponse;
+@implementation MSIDMockUXCallbackProvider
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewNavigationDelegate>
+- (void)scheduleMDMProfileInstalledNotificationWithDelay:(NSTimeInterval)delay
+{
+    self.scheduleCalled = YES;
+    self.receivedDelay = delay;
+}
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
-
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (void)cancelMDMProfileInstalledNotification
+{
+    self.cancelCalled = YES;
+}
 
 @end

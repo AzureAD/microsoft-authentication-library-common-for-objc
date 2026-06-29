@@ -28,6 +28,9 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDConstants.h"
 #import "MSIDIntuneDeviceIdCache.h"
+#import "MSIDVersion.h"
+#import "MSIDUXCallbackProvider.h"
+#import "MSIDFlightManager.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -47,8 +50,6 @@
 
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                                           appName:(NSString *)appName
-                                                        appVersion:(NSString *)appVersion
 {
     // Validate required parameters
     if (!URL)
@@ -80,9 +81,7 @@
     {
         // Handle msauth:// URLs
         return [self handleMSAuthURL:URL
-           embeddedWebviewController:embeddedWebviewController
-                             appName:appName
-                          appVersion:appVersion];
+           embeddedWebviewController:embeddedWebviewController];
     }
     else if ([scheme isEqualToString:MSID_SCHEME_BROWSER])
     {
@@ -102,8 +101,6 @@
 
 - (MSIDWebviewNavigationDecision *)handleMSAuthURL:(NSURL *)URL
                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                           appName:(NSString *)appName
-                                        appVersion:(NSString *)appVersion
 {
     NSString *host = URL.host.lowercaseString;
 
@@ -126,9 +123,7 @@
     // Route based on host
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
-        return [self decisionForEnrollURL:params
-                                  appName:appName
-                               appVersion:appVersion];
+        return [self decisionForEnrollURL:params];
     }
     else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
@@ -155,8 +150,6 @@
 #pragma mark - URL Decision Resolvers
 
 - (MSIDWebviewNavigationDecision *)decisionForEnrollURL:(NSDictionary *)params
-                                                appName:(NSString *)appName
-                                             appVersion:(NSString *)appVersion
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
 
@@ -226,14 +219,16 @@
     // Prepare additional headers for enrollment.
     NSMutableDictionary *additionalHeaders = [NSMutableDictionary dictionary];
 
-    if (appName.length > 0)
+    NSString *platformName = [MSIDVersion platformName];
+    if (platformName.length > 0)
     {
-        additionalHeaders[MSID_APP_NAME_KEY] = appName;
+        additionalHeaders[MSID_PLATFORM_KEY] = platformName;
     }
 
-    if (appVersion.length > 0)
+    NSString *sdkVersion = [MSIDVersion sdkVersion];
+    if (sdkVersion.length > 0)
     {
-        additionalHeaders[MSID_APP_VER_KEY] = appVersion;
+        additionalHeaders[MSID_VERSION_KEY] = sdkVersion;
     }
 
     // Build the final request with all query params and headers.
@@ -323,6 +318,20 @@
     }
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Built profile install request for host '%@'.", profileURL.host);
+
+    NSString *delayString = [[MSIDFlightManager sharedInstance] stringForKey:MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY];
+    NSTimeInterval delay = delayString.length > 0 ? delayString.doubleValue : MSIDMDMProfileInstalledNotificationDefaultDelay;
+    if (delay <= 0)
+    {
+        delay = MSIDMDMProfileInstalledNotificationDefaultDelay;
+    }
+
+    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
+    if (provider)
+    {
+        [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
+    }
+
     return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:profileURL]];
 }
 
@@ -331,6 +340,13 @@
                                                                params:(NSDictionary *)params
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] Processing enrollment completion redirect.");
+
+    // Cancel any previously scheduled MDM profile installed notification
+    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
+    if (provider)
+    {
+        [provider cancelMDMProfileInstalledNotification];
+    }
 
     // Check if SSO extension can perform request
     if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
