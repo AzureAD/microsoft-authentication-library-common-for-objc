@@ -30,21 +30,75 @@
 #import "NSDictionary+MSIDQueryItems.h"
 #import "MSIDCertAuthManager.h"
 
-#if !MSID_EXCLUDE_SYSTEMWV
+#if MSID_ENABLE_TEST_HOOKS
+#import <Security/Security.h>
+#endif
 
-static BOOL s_disableCertBasedAuth = NO; 
+#if !MSID_EXCLUDE_SYSTEMWV && MSID_ENABLE_TEST_HOOKS
+
+// Test-only API surface. Declared in a file-private class extension so the
+// formal property contract lives only inside this .m and never reaches any
+// header consumer. The implementations are additionally compiled out of any
+// build where MSID_ENABLE_TEST_HOOKS is not defined, so no shipping binary
+// contains the test hooks even via Objective-C runtime reflection.
+// Consumers opt in by defining MSID_ENABLE_TEST_HOOKS=1 only for
+// test-bearing CMake/Xcode configurations.
+@interface MSIDCertAuthHandler ()
+
+// When YES, +handleChallenge: refuses the CBA challenge.
+@property (class, nonatomic) BOOL disableCertBasedAuth;
+
+// When non-NULL, the iOS challenge handler answers every subsequent
+// WKWebView client-cert challenge in-process with this identity (until
+// the slot is cleared) instead of routing to SFSafariViewController.
+// The host test installs the identity via SecPKCS12Import and assigns
+// it here; tear-down assigns NULL to clear it. This is the mechanism
+// that lets MSAL ObjC consumers run end-to-end CBA tests on hosted CI
+// without a UI agent (matching what other platforms already do via
+// silent client-cert credential responses).
+@property (class, nonatomic) SecIdentityRef testIdentityForCertBasedAuth;
+
+@end
+
+static BOOL s_disableCertBasedAuth = NO;
+static SecIdentityRef s_testIdentityForCertBasedAuth = NULL;
 
 #endif
 
 @implementation MSIDCertAuthHandler
 
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV && MSID_ENABLE_TEST_HOOKS
 
-+ (void)disableCertBasedAuth
++ (BOOL)disableCertBasedAuth
 {
-    // This is a private API only to ensure nobody with access to internal headers takes dependency on it
-    // This should be executed in automation tests only
-    s_disableCertBasedAuth = YES;
+    return s_disableCertBasedAuth;
+}
+
++ (void)setDisableCertBasedAuth:(BOOL)disableCertBasedAuth
+{
+    s_disableCertBasedAuth = disableCertBasedAuth;
+}
+
++ (SecIdentityRef)testIdentityForCertBasedAuth
+{
+    return s_testIdentityForCertBasedAuth;
+}
+
++ (void)setTestIdentityForCertBasedAuth:(SecIdentityRef)testIdentityForCertBasedAuth
+{
+    // Retain the new identity BEFORE releasing the old one. If a caller passes
+    // the same SecIdentityRef that's already installed, releasing first could
+    // drop the last reference and leave us retaining a dangling pointer.
+    SecIdentityRef previous = s_testIdentityForCertBasedAuth;
+    if (testIdentityForCertBasedAuth)
+    {
+        CFRetain(testIdentityForCertBasedAuth);
+    }
+    s_testIdentityForCertBasedAuth = testIdentityForCertBasedAuth;
+    if (previous)
+    {
+        CFRelease(previous);
+    }
 }
 
 #endif
@@ -66,11 +120,27 @@ static BOOL s_disableCertBasedAuth = NO;
 {
 #if !MSID_EXCLUDE_SYSTEMWV
     
+#if MSID_ENABLE_TEST_HOOKS
     if (s_disableCertBasedAuth)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Cert based auth is explicitly disabled. Ignoring challenge.");
         return NO;
     }
+
+    // Test-only short-circuit: if a test has injected an identity via
+    // +setTestIdentityForCertBasedAuth:, answer the challenge in-process
+    // and skip the SFSafariViewController hand-off entirely. This is what
+    // lets end-to-end CBA tests run on hosted CI with no UI agent.
+    if (s_testIdentityForCertBasedAuth)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Answering CBA challenge with injected test identity.");
+        NSURLCredential *credential = [NSURLCredential credentialWithIdentity:s_testIdentityForCertBasedAuth
+                                                                 certificates:nil
+                                                                  persistence:NSURLCredentialPersistenceNone];
+        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+        return YES;
+    }
+#endif
     
     MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
     
