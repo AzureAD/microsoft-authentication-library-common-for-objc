@@ -72,3 +72,8 @@ extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentStarted;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentFinished;
 extern NSString * const MSIDOnboardingBlobStepRemediationStarted;
 extern NSString * const MSIDOnboardingBlobStepRemediationFinished;
+extern NSString * const MSIDOnboardingBlobStepComplianceRemediationStarted;
+extern NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted;
+
+// UX flow tag values (ux_flow_used array entries)
+extern NSString * const MSIDOnboardingUxFlowMobileOnboardingPhase1;
