@@ -40,20 +40,28 @@ jobs:
             target_branch_ref="refs/heads/${target_branch_ref}"
           fi
 
-          git fetch --no-tags origin "+${target_branch_ref}:refs/remotes/origin/pr-target"
+          # Fail open: if change detection can't run, default to running AutomationHealth.
+          run_automation_health=true
+          if git fetch --no-tags origin "+${target_branch_ref}:refs/remotes/origin/pr-target"; then
+            run_automation_health=false
 
-          run_automation_health=false
-          while IFS= read -r changed_file
-          do
-            case "$changed_file" in
-              ""|IdentityCore/tests/*)
-                ;;
-              *)
-                run_automation_health=true
-                break
-                ;;
-            esac
-          done < <(git diff --name-only refs/remotes/origin/pr-target...HEAD)
+            changed_files="$(git diff --name-only refs/remotes/origin/pr-target...HEAD)" || {
+              run_automation_health=true
+              changed_files=""
+            }
+
+            while IFS= read -r changed_file
+            do
+              case "$changed_file" in
+                ""|IdentityCore/tests/*)
+                  ;;
+                *)
+                  run_automation_health=true
+                  break
+                  ;;
+              esac
+            done <<< "${changed_files}"
+          fi
 
           echo "##vso[task.setvariable variable=runAutomationHealth;isOutput=true]${run_automation_health}"
 - job: AutomationHealth
