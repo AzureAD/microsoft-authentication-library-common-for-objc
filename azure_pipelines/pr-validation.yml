@@ -25,7 +25,7 @@ jobs:
   steps:
     - checkout: self
       clean: true
-      fetchDepth: 1
+      fetchDepth: 0
       persistCredentials: true
     - task: Bash@3
       name: detectChanges
