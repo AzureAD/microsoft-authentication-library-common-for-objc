@@ -148,4 +148,22 @@
     return jsonArray;
 }
 
+- (NSArray<NSDictionary<NSString *, id> *> *)executionFlowDictionariesWithKeys:(NSSet<NSString *> *)queryKeys
+{
+    NSMutableArray<NSDictionary<NSString *, id> *> *result = [NSMutableArray new];
+
+    dispatch_sync(self.executionFlowWritingQueue, ^{
+        for (MSIDExecutionFlowBlob *blob in self.executionFlow)
+        {
+            NSDictionary<NSString *, id> *dict = [blob blobToDictionaryWithKeys:queryKeys];
+            if (dict)
+            {
+                [result addObject:dict];
+            }
+        }
+    });
+
+    return result;
+}
+
 @end

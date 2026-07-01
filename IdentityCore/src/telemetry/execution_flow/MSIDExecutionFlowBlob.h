@@ -69,6 +69,19 @@ NS_ASSUME_NONNULL_BEGIN
  @return A string representation of the execution flow blob suitable for logging or telemetry, or an empty string if serialization fails.
  */
 - (NSString *)blobToStringWithKeys:(nullable NSSet<NSString *>*)queryKeys;
+
+/**
+ Returns the current execution flow blob as a dictionary, optionally filtering by a set of keys.
+ 
+ Same selection semantics as `-blobToStringWithKeys:` (mandatory fields `t`, `ts`, `tid` are always
+ included; additional entries are included when their key is contained in `queryKeys`, or when
+ `queryKeys` is `nil` or empty), but skips the JSON serialization step. Intended for callers that
+ need to assemble blobs into a larger structure (e.g. a compact-key wire envelope).
+ 
+ @param queryKeys An optional set of keys to filter which blob entries to include. Pass `nil` to include all entries.
+ @return A dictionary representation of the execution flow blob.
+ */
+- (NSDictionary<NSString *, id> *)blobToDictionaryWithKeys:(nullable NSSet<NSString *>*)queryKeys;
 @end
 
 NS_ASSUME_NONNULL_END

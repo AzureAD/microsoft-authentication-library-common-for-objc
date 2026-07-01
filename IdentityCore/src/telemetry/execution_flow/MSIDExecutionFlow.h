@@ -59,6 +59,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable NSString *)exportExecutionFlowToJSONsWithKeys:(nullable NSSet<NSString *> *)queryKeys;
 
+/**
+ Returns the recorded execution flow entries as an array of dictionaries, optionally filtered by a set of keys.
+ 
+ Mirrors `-exportExecutionFlowToJSONsWithKeys:` but skips the JSON serialization step, returning the raw
+ blob dictionaries. Intended for callers that need to embed the event blobs inside a larger encoded
+ structure (e.g. a compact-key wire envelope).
+ 
+ @param queryKeys An optional set of keys used to select which optional blob entries to include in each
+ dictionary. Pass `nil` to include all entries. Mandatory fields (`t`, `ts`, `tid`) are always included.
+ @return An array of dictionaries, each representing one recorded blob, or an empty array if no blobs are recorded.
+ */
+- (NSArray<NSDictionary<NSString *, id> *> *)executionFlowDictionariesWithKeys:(nullable NSSet<NSString *> *)queryKeys;
+
 @end
 
 NS_ASSUME_NONNULL_END
