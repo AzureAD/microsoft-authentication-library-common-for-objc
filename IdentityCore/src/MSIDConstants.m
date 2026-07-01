@@ -66,6 +66,9 @@ NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN = @"com.microsoft.identity.throttling.metadata";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";
 
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN = @"com.microsoft.identity.intune.deviceid";
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN_VERSION = @"Ver1";
+
 NSString *const MSID_USE_SINGLE_FRT_KEYCHAIN          = @"useSingleFRT";
 NSString *const MSID_USE_SINGLE_FRT_KEY               = @"use_single_frt";
 NSString *const MSID_FRT_STATUS_ENABLED               = @"on";
@@ -125,5 +128,11 @@ NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 
 NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_new_window_in_browser";
+
+NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboarding";
+
+NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_profile_installed_notification_delay";
+
+NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 60.0;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

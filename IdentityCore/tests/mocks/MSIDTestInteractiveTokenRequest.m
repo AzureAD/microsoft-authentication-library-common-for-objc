@@ -27,7 +27,7 @@
 
 @property (nonatomic) MSIDTokenResult *testTokenResult;
 @property (nonatomic) NSError *testError;
-@property (nonatomic) MSIDWebWPJResponse *testBrokerResponse;
+@property (nonatomic) MSIDWebviewResponse *testBrokerResponse;
 
 @end
 
@@ -37,7 +37,7 @@
 
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
+               testWebMSAuthResponse:(MSIDWebviewResponse *)brokerResponse
 {
     self = [super init];
 

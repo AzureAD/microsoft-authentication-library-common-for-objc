@@ -33,7 +33,12 @@
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDMainThreadUtil.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDWebviewConstants.h"
+#import "NSURL+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
+#import "MSIDInteractiveRequestParameters.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -84,6 +89,8 @@
     return isAADHost && isActivationPath;
 }
 
+#pragma mark - Navigation Action Decision
+
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
                            decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
@@ -91,9 +98,66 @@
     NSURL *requestURL = navigationAction.request.URL;
     
     // Stop at broker or browser
-    BOOL isBrokerUrl = [@"msauth" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+    BOOL isBrokerUrl  = [@"msauth"  caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
     BOOL isBrowserUrl = [@"browser" caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+    BOOL isOpenIdVcUrl = [MSID_SCHEME_OPENID_VC caseInsensitiveCompare:requestURL.scheme] == NSOrderedSame;
+
+    id contextObject = self.context;
+    MSIDInteractiveRequestParameters *interactiveRequestParameters =
+        [contextObject isKindOfClass:[MSIDInteractiveRequestParameters class]]
+            ? (MSIDInteractiveRequestParameters *)contextObject : nil;
     
+    // Server-side trigger: msauth://enroll means the server opted this
+    // session into the new mobile onboarding flow.
+    BOOL isServerNewOnboardingRedirect =
+           isBrokerUrl
+    && ([MSID_MDM_ENROLL_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame || [MSID_COMPLIANCE_HOST caseInsensitiveCompare:requestURL.host] == NSOrderedSame);
+
+    if (isServerNewOnboardingRedirect && !interactiveRequestParameters.isNewMobileOnboardingFlow)
+    {
+        BOOL clientOnboardingDisabled =
+            [[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING];
+
+        if (!clientOnboardingDisabled)
+        {
+            // Server ON + client ON -> new flow for the rest of the session.
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                @"Server issued msauth://enroll - enabling mobile onboarding for this session.");
+            interactiveRequestParameters.isNewMobileOnboardingFlow = YES;
+        }
+        else
+        {
+            // Server ON + client OFF -> legacy fallback.
+            // Pull intuneRedirectUrl (https://...) out of the query params,
+            // rewrite it to browser:// and let the unified broker/browser
+            // handling below open it in the system browser.
+            NSString *intuneURLString =
+                [[requestURL msidQueryParameters][MSID_INTUNE_URL_KEY]
+                    stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+            NSURL *legacyBrowserURL =
+                [self urlBySwappingScheme:[NSURL URLWithString:intuneURLString]
+                                     from:@"https"
+                                       to:MSID_SCHEME_BROWSER];
+
+            if (legacyBrowserURL)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                    @"Mobile onboarding disabled on client; falling back to legacy "
+                    @"flow by opening intuneRedirectUrl via browser:// scheme.");
+                requestURL   = legacyBrowserURL;
+                isBrokerUrl  = NO;
+                isBrowserUrl = YES;
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                    @"Mobile onboarding disabled on client but msauth://enroll URL is "
+                    @"missing a valid https intuneRedirectUrl; continuing with default handling.");
+            }
+        }
+    }
+
     if (![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH])
     {
         // When not running in SSO extension, the CA block page will return with "https" scheme instead of "browser"
@@ -115,10 +179,34 @@
             }
         }
     }
-    
+    // Hand off broker and browser URLs to the delegate when mobile onboarding is enabled.
     if (isBrokerUrl || isBrowserUrl)
     {
-        // Let external code decide if browser url is allowed to continue
+        id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+
+        if (interactiveRequestParameters.isNewMobileOnboardingFlow
+            && [strongNavigationDelegate respondsToSelector:
+                @selector(handleSpecialRedirectURL:embeddedWebviewController:completion:)])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                              @"Delegating special redirect %@ to navigationDelegate",
+                              requestURL.scheme);
+
+            decisionHandler(WKNavigationActionPolicyCancel);
+
+            [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+                [strongNavigationDelegate handleSpecialRedirectURL:requestURL
+                                         embeddedWebviewController:self
+                                                        completion:^(MSIDWebviewNavigationDecision *action, NSError *error)
+                {
+                    [self performNavigationDecision:action
+                                         requestURL:requestURL
+                                              error:error];
+                }];
+            }];
+            return YES;
+        }
+
         if (isBrowserUrl && self.externalDecidePolicyForBrowserAction)
         {
             NSURLRequest *challengeResponse = self.externalDecidePolicyForBrowserAction(self, requestURL);
@@ -127,14 +215,18 @@
             {
                 decisionHandler(WKNavigationActionPolicyCancel);
                 [self loadRequest:challengeResponse];
-
                 return YES;
             }
         }
-        
+
         [self completeWebAuthWithURL:requestURL];
-        
         decisionHandler(WKNavigationActionPolicyCancel);
+        return YES;
+    }
+
+    if (isOpenIdVcUrl)
+    {
+        [self handleOpenIdVcNavigationAction:requestURL decisionHandler:decisionHandler];
         return YES;
     }
     
@@ -199,6 +291,184 @@
     }
 
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
+}
+
+#pragma mark - Private helpers
+
+- (NSURL *)urlBySwappingScheme:(NSURL *)url
+                          from:(NSString *)fromScheme
+                            to:(NSString *)toScheme
+{
+    if (!url || fromScheme.length == 0 || toScheme.length == 0)
+    {
+        return nil;
+    }
+
+    if ([fromScheme caseInsensitiveCompare:url.scheme] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    NSString *absolute = url.absoluteString;
+    if (absolute.length <= fromScheme.length)
+    {
+        return nil;
+    }
+
+    NSString *rewritten = [toScheme stringByAppendingString:
+        [absolute substringFromIndex:fromScheme.length]];
+    return [NSURL URLWithString:rewritten];
+}
+
+#pragma mark - openid-vc handoff
+
+// Handles a webview navigation to an `openid-vc://` URL.
+//
+// Priority order:
+//   1. If a delegate handler is attached (`openIdVcHandler`), forward the
+//      navigation to it. The handler owns the entire VID interaction — it
+//      may present in-process UI on top of the webview, hand off to a wallet,
+//      or anything else. The webview is left presented and the auth session
+//      is not terminated unless the handler reports an error.
+//   2. Otherwise, fall back to the default behavior of mutating the URL with
+//      `x_ms_*` extension parameters and dispatching to a system-registered
+//      wallet via `UIApplication.openURL`. From an SSO extension this is not
+//      possible, so we terminate the auth session with
+//      `MSIDErrorAttemptToOpenURLFromExtension` in that case.
+//
+// In all cases the in-webview navigation is cancelled — the embedded webview
+// never consumes the `openid-vc://` URL itself.
+- (void)handleOpenIdVcNavigationAction:(NSURL *)requestURL
+                       decisionHandler:(nullable void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    id<MSIDOpenIdVcHandling> handler = self.openIdVcHandler;
+    if (handler != nil)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                          @"Detected openid-vc:// navigation; delegating to registered handler.");
+
+        // Weak/strong dance: the handler is weak, so no retain cycle through the
+        // property — but the completion block still extends the controller's
+        // lifetime for as long as the handler holds it, which could be a long
+        // time once an SSO extension hosts VID in-process.
+        __weak typeof(self) weakSelf = self;
+        [handler handleOpenIdVcURL:requestURL
+                 webviewController:self
+                 callerRedirectUri:self.endURL.absoluteString
+                     correlationId:self.context.correlationId
+                        completion:^(NSError * _Nullable error)
+        {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) return;
+
+            if (error)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, strongSelf.context,
+                                      @"openid-vc handler reported error; ending auth session: %@",
+                                      MSID_PII_LOG_MASKABLE(error));
+                [strongSelf endWebAuthWithURL:nil error:error];
+            }
+        }];
+
+        if (decisionHandler) decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+
+#if TARGET_OS_IPHONE
+    if ([MSIDAppExtensionUtil isExecutingInAppExtension])
+    {
+        NSError *extensionError = MSIDCreateError(MSIDErrorDomain,
+                                                  MSIDErrorAttemptToOpenURLFromExtension,
+                                                  @"unable to open openid-vc URL from extension",
+                                                  nil, nil, nil, self.context.correlationId, nil, YES);
+        [self endWebAuthWithURL:nil error:extensionError];
+        if (decisionHandler) decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+
+    NSURL *handoffURL = [self openIdVcURLWithCallerContext:requestURL];
+
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                          @"Detected openid-vc:// navigation; opening wallet at %@ "
+                          @"while keeping auth webview presented.",
+                          [handoffURL msidPIINullifiedURL]);
+
+    [self openOpenIdVcHandoffURL:handoffURL];
+
+    // Cancel the in-webview navigation but DO NOT call completeWebAuthWithURL: or
+    // endWebAuthWithURL:. The webview stays presented so the user returns to it
+    // after the wallet completes. The verifier's page is responsible for driving
+    // the webview to its terminal state once the VID exchange succeeds.
+    if (decisionHandler) decisionHandler(WKNavigationActionPolicyCancel);
+#else
+    // macOS / unsupported platforms: VID flows are not supported here.
+    // openid-vc:// is iOS-only by product scope, so this branch is not expected
+    // to be reached. Cancel the navigation and leave the auth session alone —
+    // there's no wallet to hand off to and no error contract to surface.
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                      @"openid-vc:// scheme is not supported on this platform.");
+    if (decisionHandler) decisionHandler(WKNavigationActionPolicyCancel);
+#endif
+}
+
+// Wraps the actual `UIApplication.openURL:` call so tests can subclass the
+// controller and override this method to capture the URL without hitting
+// UIKit (`[UIApplication sharedApplication]` is nil in logic-test targets).
+- (void)openOpenIdVcHandoffURL:(NSURL *)url
+{
+#if TARGET_OS_IPHONE
+    [MSIDAppExtensionUtil sharedApplicationOpenURL:url];
+#endif
+}
+
+// Appends Microsoft-namespaced query parameters (x_ms_caller_redirect_uri,
+// x_ms_caller_bundle_id, x_ms_correlation_id) so the wallet can bounce the user
+// back to the calling app when the VID flow completes. Falls back to the original
+// URL if the calling-app redirect URI is unavailable or URL parsing fails — non-
+// Microsoft wallets that handle openid-vc:// will simply ignore unknown parameters.
+- (NSURL *)openIdVcURLWithCallerContext:(NSURL *)originalURL
+{
+    NSString *callerRedirectUri = self.endURL.absoluteString;
+    if ([NSString msidIsStringNilOrBlank:callerRedirectUri])
+    {
+        return originalURL;
+    }
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:originalURL
+                                              resolvingAgainstBaseURL:NO];
+    if (!components)
+    {
+        return originalURL;
+    }
+
+    NSMutableArray<NSURLQueryItem *> *items = [components.queryItems mutableCopy] ?: [NSMutableArray new];
+
+    [self appendQueryItem:items
+                     name:MSID_OPENID_VC_CALLER_REDIRECT_URI_KEY
+                    value:callerRedirectUri];
+    [self appendQueryItem:items
+                     name:MSID_OPENID_VC_CALLER_BUNDLE_ID_KEY
+                    value:NSBundle.mainBundle.bundleIdentifier];
+    [self appendQueryItem:items
+                     name:MSID_OPENID_VC_CORRELATION_ID_KEY
+                    value:self.context.correlationId.UUIDString];
+
+    components.queryItems = items;
+    return components.URL ?: originalURL;
+}
+
+- (void)appendQueryItem:(NSMutableArray<NSURLQueryItem *> *)items
+                   name:(NSString *)name
+                  value:(NSString *)value
+{
+    if ([NSString msidIsStringNilOrBlank:value]) return;
+
+    for (NSURLQueryItem *item in items)
+    {
+        if ([item.name isEqualToString:name]) return;  // idempotent
+    }
+
+    [items addObject:[NSURLQueryItem queryItemWithName:name value:value]];
 }
 
 @end

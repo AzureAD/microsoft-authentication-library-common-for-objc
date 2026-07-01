@@ -164,6 +164,9 @@ extern NSString * _Nonnull const MSID_POP_TOKEN_KEY_LABEL;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN;
 extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION;
 
+extern NSString * _Nonnull const MSID_INTUNE_DEVICE_ID_KEYCHAIN;
+extern NSString * _Nonnull const MSID_INTUNE_DEVICE_ID_KEYCHAIN_VERSION;
+
 extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEYCHAIN;
 extern NSString * _Nonnull const MSID_USE_SINGLE_FRT_KEY;
 
@@ -278,5 +281,17 @@ extern NSString * _Nonnull const MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED;
 /// which are handled separately in decidePolicyForNavigationAction:.
 /// Owner: josephpab
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
+
+/// Kill switch to disable mobile onboarding in non-brokered flow.
+/// When ON, prevents mobile onboarding even if server signals enrollment.
+/// Default: OFF
+extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
+
+/// Flight key for MDM profile install notification delay (seconds).
+/// Owner: swagup
+extern NSString * _Nonnull const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY;
+
+/// Default delay (in seconds) before the MDM profile install notification fires.
+extern NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
