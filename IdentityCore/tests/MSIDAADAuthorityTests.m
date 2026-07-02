@@ -816,6 +816,25 @@
     XCTAssertNil(error);
 }
 
+- (void)testAuthorityWithUpdatedCloudHostInstanceName_whenHostInCacheWithDifferentCase_shouldReturnUpdatedAuthority
+{
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    NSSet *savedEnvironments = cache.allCloudNetworkEnvironments;
+    // Simulate a cache that stores the preferred_network host without case normalization.
+    cache.allCloudNetworkEnvironments = [NSSet setWithObject:@"Login.Contoso-Sovereign.COM"];
+
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    NSError *error = nil;
+
+    MSIDAuthority *updatedAuthority = [authority authorityWithUpdatedCloudHostInstanceName:@"login.contoso-sovereign.com" error:&error];
+
+    XCTAssertNotNil(updatedAuthority);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(updatedAuthority.environment, @"login.contoso-sovereign.com");
+
+    cache.allCloudNetworkEnvironments = savedEnvironments;
+}
+
 - (void)testAuthorityWithUpdatedCloudHostInstanceName_whenNilHost_shouldReturnNil
 {
     MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];

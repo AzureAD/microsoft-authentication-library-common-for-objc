@@ -370,7 +370,17 @@
 
     if (!isTrustedHost)
     {
-        isTrustedHost = [[MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments containsObject:lowercaseHostName];
+        // Host names are case-insensitive, but the cache may store preferred_network
+        // values without case normalization. Match case-insensitively so a valid host
+        // is not incorrectly rejected.
+        for (NSString *cloudEnvironment in [MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments)
+        {
+            if ([cloudEnvironment caseInsensitiveCompare:lowercaseHostName] == NSOrderedSame)
+            {
+                isTrustedHost = YES;
+                break;
+            }
+        }
     }
 
     if (!isTrustedHost)
