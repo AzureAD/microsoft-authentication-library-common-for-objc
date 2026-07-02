@@ -498,4 +498,133 @@
     XCTAssertEqualObjects(parameters.nestedAuthBrokerRedirectUri, @"myredirect");
 }
 
+#pragma mark - setCloudAuthorityWithCloudHostName
+
+- (void)testSetCloudAuthorityWithCloudHostName_whenKnownPublicCloudHost_shouldSetCloudAuthority
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                          authScheme:[MSIDAuthenticationScheme new]
+                                                                         redirectUri:@"myredirect"
+                                                                            clientId:@"myclient_id"
+                                                                              scopes:scopes
+                                                                          oidcScopes:oidcScopes
+                                                                       correlationId:nil
+                                                                      telemetryApiId:nil
+                                                                 intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                         requestType:MSIDRequestLocalType
+                                                                               error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+
+    [parameters setCloudAuthorityWithCloudHostName:@"login.microsoftonline.com"];
+
+    XCTAssertNotNil(parameters.cloudAuthority);
+    XCTAssertEqualObjects(parameters.cloudAuthority.environment, @"login.microsoftonline.com");
+}
+
+- (void)testSetCloudAuthorityWithCloudHostName_whenKnownSovereignCloudHost_shouldSetCloudAuthority
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                          authScheme:[MSIDAuthenticationScheme new]
+                                                                         redirectUri:@"myredirect"
+                                                                            clientId:@"myclient_id"
+                                                                              scopes:scopes
+                                                                          oidcScopes:oidcScopes
+                                                                       correlationId:nil
+                                                                      telemetryApiId:nil
+                                                                 intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                         requestType:MSIDRequestLocalType
+                                                                               error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+
+    [parameters setCloudAuthorityWithCloudHostName:@"login.microsoftonline.de"];
+
+    XCTAssertNotNil(parameters.cloudAuthority);
+    XCTAssertEqualObjects(parameters.cloudAuthority.environment, @"login.microsoftonline.de");
+}
+
+- (void)testSetCloudAuthorityWithCloudHostName_whenUnknownHost_shouldNotSetCloudAuthority
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                          authScheme:[MSIDAuthenticationScheme new]
+                                                                         redirectUri:@"myredirect"
+                                                                            clientId:@"myclient_id"
+                                                                              scopes:scopes
+                                                                          oidcScopes:oidcScopes
+                                                                       correlationId:nil
+                                                                      telemetryApiId:nil
+                                                                 intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                         requestType:MSIDRequestLocalType
+                                                                               error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+
+    [parameters setCloudAuthorityWithCloudHostName:@"unknown-host.example.com"];
+
+    XCTAssertNil(parameters.cloudAuthority);
+}
+
+- (void)testSetCloudAuthorityWithCloudHostName_whenNilHost_shouldNotSetCloudAuthority
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                          authScheme:[MSIDAuthenticationScheme new]
+                                                                         redirectUri:@"myredirect"
+                                                                            clientId:@"myclient_id"
+                                                                              scopes:scopes
+                                                                          oidcScopes:oidcScopes
+                                                                       correlationId:nil
+                                                                      telemetryApiId:nil
+                                                                 intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                         requestType:MSIDRequestLocalType
+                                                                               error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+
+    [parameters setCloudAuthorityWithCloudHostName:nil];
+
+    XCTAssertNil(parameters.cloudAuthority);
+}
+
+- (void)testSetCloudAuthorityWithCloudHostName_whenBlankHost_shouldNotSetCloudAuthority
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                          authScheme:[MSIDAuthenticationScheme new]
+                                                                         redirectUri:@"myredirect"
+                                                                            clientId:@"myclient_id"
+                                                                              scopes:scopes
+                                                                          oidcScopes:oidcScopes
+                                                                       correlationId:nil
+                                                                      telemetryApiId:nil
+                                                                 intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                         requestType:MSIDRequestLocalType
+                                                                               error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+
+    [parameters setCloudAuthorityWithCloudHostName:@"   "];
+
+    XCTAssertNil(parameters.cloudAuthority);
+}
+
 @end

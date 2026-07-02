@@ -35,6 +35,7 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDProviderType.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @interface MSIDAADAuthority()
 
@@ -359,8 +360,37 @@
 - (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostInstanceName]) return nil;
-    
-    NSURL *cloudAuthorityURL = [self.url msidAADAuthorityWithCloudInstanceHostname:cloudHostInstanceName];
+
+    NSString *lowercaseHostName = cloudHostInstanceName.lowercaseString;
+
+    // Only build a cloud authority when the host is a recognized Microsoft identity
+    // host: a known AAD public/sovereign cloud host, or a network environment already
+    // discovered via instance metadata. This mirrors the check in
+    // setCloudAuthorityWithCloudHostName: so callers get consistent behavior.
+    BOOL isKnownHost = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:lowercaseHostName];
+
+    if (!isKnownHost)
+    {
+        // Host names are case-insensitive, but the cache may store preferred_network
+        // values without case normalization. Match case-insensitively so a valid host
+        // is not incorrectly ignored.
+        for (NSString *cloudEnvironment in [MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments)
+        {
+            if ([cloudEnvironment caseInsensitiveCompare:lowercaseHostName] == NSOrderedSame)
+            {
+                isKnownHost = YES;
+                break;
+            }
+        }
+    }
+
+    if (!isKnownHost)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring cloud_instance_host_name in authorityWithUpdatedCloudHostInstanceName: host is not a recognized Microsoft identity host.");
+        return nil;
+    }
+
+    NSURL *cloudAuthorityURL = [self.url msidAADAuthorityWithCloudInstanceHostname:lowercaseHostName];
     return [[MSIDAADAuthority alloc] initWithURL:cloudAuthorityURL context:nil error:error];
 }
 

@@ -34,6 +34,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
 
 @implementation MSIDRequestParameters
 
@@ -172,13 +174,43 @@
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostName]) return;
+
+    NSString *lowercaseHostName = cloudHostName.lowercaseString;
+
+    // Only rewrite the cloud authority when cloud_instance_host_name is a recognized
+    // Microsoft identity host: either a known AAD public/sovereign cloud host, or a
+    // network environment already discovered via instance metadata. Unrecognized
+    // values are ignored so the originally configured authority continues to be used.
+    BOOL isKnownHost = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:lowercaseHostName];
+
+    if (!isKnownHost)
+    {
+        // Host names are case-insensitive, but the cache may store preferred_network
+        // values without case normalization. Match case-insensitively so a valid host
+        // is not incorrectly ignored.
+        for (NSString *cloudEnvironment in [MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments)
+        {
+            if ([cloudEnvironment caseInsensitiveCompare:lowercaseHostName] == NSOrderedSame)
+            {
+                isKnownHost = YES;
+                break;
+            }
+        }
+    }
+
+    if (!isKnownHost)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring cloud_instance_host_name: host is not a recognized Microsoft identity host.");
+        return;
+    }
+
     NSError *cloudHostError = nil;
     
-    _cloudAuthority = [self.authority authorityWithUpdatedCloudHostInstanceName:cloudHostName error:&cloudHostError];
+    _cloudAuthority = [self.authority authorityWithUpdatedCloudHostInstanceName:lowercaseHostName error:&cloudHostError];
     
     if (!_cloudAuthority && cloudHostError)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create authority with cloud host name %@, and error %@, %ld", cloudHostName, cloudHostError.domain, (long)cloudHostError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create authority with cloud host name %@, and error %@, %ld", lowercaseHostName, cloudHostError.domain, (long)cloudHostError.code);
     }
     [self updateMSIDConfiguration];
 }
