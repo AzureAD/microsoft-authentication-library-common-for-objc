@@ -34,6 +34,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDExecutionFlowConstants.h"
 
 @implementation MSIDRequestParameters
 
@@ -180,7 +182,13 @@
     // configured authority continues to be used.
     if (![self.authority isRecognizedMicrosoftIdentityHost:lowercaseHostName])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring cloud_instance_host_name: host is not a recognized Microsoft identity host.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self, @"Ignoring cloud_instance_host_name: host is not a recognized Microsoft identity host.");
+
+        if (self.correlationId)
+        {
+            MSIDExecutionFlowInsertTag(MSIDCloudInstanceHostNameTagToString(MSIDCloudInstanceHostNameIgnoredTag), nil, self.correlationId);
+        }
+
         return;
     }
 
@@ -190,7 +198,7 @@
     
     if (!_cloudAuthority && cloudHostError)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create authority with cloud host name %@, and error %@, %ld", lowercaseHostName, cloudHostError.domain, (long)cloudHostError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self, @"Failed to create authority with cloud host name %@, and error %@, %ld", lowercaseHostName, cloudHostError.domain, (long)cloudHostError.code);
     }
     [self updateMSIDConfiguration];
 }
