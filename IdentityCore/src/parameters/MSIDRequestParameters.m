@@ -34,7 +34,6 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
 #import "MSIDAuthenticationScheme.h"
-#import "MSIDAADAuthority.h"
 
 @implementation MSIDRequestParameters
 
@@ -179,7 +178,7 @@
     // Only rewrite the cloud authority when cloud_instance_host_name is a recognized
     // Microsoft identity host; unrecognized values are ignored so the originally
     // configured authority continues to be used.
-    if (![MSIDAADAuthority isRecognizedMicrosoftIdentityHost:lowercaseHostName])
+    if (![self.authority isRecognizedMicrosoftIdentityHost:lowercaseHostName])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring cloud_instance_host_name: host is not a recognized Microsoft identity host.");
         return;

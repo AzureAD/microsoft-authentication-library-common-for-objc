@@ -44,11 +44,4 @@
                                         context:(nullable id<MSIDRequestContext>)context
                                           error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
-/*!
- Returns YES when @c host is a recognized Microsoft identity host: either a known
- AAD public/sovereign cloud host, or a network environment already discovered via
- instance metadata. Matching is case-insensitive. Returns NO for nil or blank input.
- */
-+ (BOOL)isRecognizedMicrosoftIdentityHost:(nullable NSString *)host;
-
 @end

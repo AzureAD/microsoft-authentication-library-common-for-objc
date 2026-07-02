@@ -856,33 +856,39 @@
 
 - (void)testIsRecognizedMicrosoftIdentityHost_whenKnownPublicCloudHost_shouldReturnYes
 {
-    XCTAssertTrue([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"login.microsoftonline.com"]);
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    XCTAssertTrue([authority isRecognizedMicrosoftIdentityHost:@"login.microsoftonline.com"]);
 }
 
 - (void)testIsRecognizedMicrosoftIdentityHost_whenKnownSovereignCloudHost_shouldReturnYes
 {
-    XCTAssertTrue([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"login.microsoftonline.de"]);
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    XCTAssertTrue([authority isRecognizedMicrosoftIdentityHost:@"login.microsoftonline.de"]);
 }
 
 - (void)testIsRecognizedMicrosoftIdentityHost_whenMixedCaseKnownHost_shouldReturnYes
 {
-    XCTAssertTrue([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"Login.MicrosoftOnline.COM"]);
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    XCTAssertTrue([authority isRecognizedMicrosoftIdentityHost:@"Login.MicrosoftOnline.COM"]);
 }
 
 - (void)testIsRecognizedMicrosoftIdentityHost_whenUnknownHost_shouldReturnNo
 {
-    XCTAssertFalse([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"unknown-host.example.com"]);
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    XCTAssertFalse([authority isRecognizedMicrosoftIdentityHost:@"unknown-host.example.com"]);
 }
 
 - (void)testIsRecognizedMicrosoftIdentityHost_whenNilHost_shouldReturnNo
 {
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
     NSString *nilHost = nil;
-    XCTAssertFalse([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:nilHost]);
+    XCTAssertFalse([authority isRecognizedMicrosoftIdentityHost:nilHost]);
 }
 
 - (void)testIsRecognizedMicrosoftIdentityHost_whenBlankHost_shouldReturnNo
 {
-    XCTAssertFalse([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"   "]);
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    XCTAssertFalse([authority isRecognizedMicrosoftIdentityHost:@"   "]);
 }
 
 - (void)testIsRecognizedMicrosoftIdentityHost_whenHostInCacheWithDifferentCase_shouldReturnYes
@@ -894,12 +900,21 @@
 
     @try
     {
-        XCTAssertTrue([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"login.contoso-sovereign.com"]);
+        MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+        XCTAssertTrue([authority isRecognizedMicrosoftIdentityHost:@"login.contoso-sovereign.com"]);
     }
     @finally
     {
         cache.allCloudNetworkEnvironments = savedEnvironments;
     }
+}
+
+- (void)testIsRecognizedMicrosoftIdentityHost_whenNonAADAuthority_shouldReturnNo
+{
+    // Non-AAD authority types inherit the base implementation, which recognizes no
+    // cloud host, so even a known AAD host is not recognized for e.g. ADFS.
+    MSIDAuthority *adfsAuthority = [@"https://login.microsoftonline.com/adfs" adfsAuthority];
+    XCTAssertFalse([adfsAuthority isRecognizedMicrosoftIdentityHost:@"login.microsoftonline.com"]);
 }
 
 

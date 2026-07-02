@@ -357,7 +357,7 @@
 
 #pragma mark - Sovereign
 
-+ (BOOL)isRecognizedMicrosoftIdentityHost:(NSString *)host
+- (BOOL)isRecognizedMicrosoftIdentityHost:(NSString *)host
 {
     if ([NSString msidIsStringNilOrBlank:host]) return NO;
 
@@ -386,7 +386,7 @@
     // Only build a cloud authority when the host is a recognized Microsoft identity
     // host. This mirrors the check in setCloudAuthorityWithCloudHostName: so callers
     // get consistent behavior.
-    if (![MSIDAADAuthority isRecognizedMicrosoftIdentityHost:lowercaseHostName])
+    if (![self isRecognizedMicrosoftIdentityHost:lowercaseHostName])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring cloud_instance_host_name in authorityWithUpdatedCloudHostInstanceName: host is not a recognized Microsoft identity host.");
         return nil;
