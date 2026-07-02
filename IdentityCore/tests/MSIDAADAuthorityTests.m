@@ -852,6 +852,56 @@
     XCTAssertNil(error);
 }
 
+#pragma mark - isRecognizedMicrosoftIdentityHost
+
+- (void)testIsRecognizedMicrosoftIdentityHost_whenKnownPublicCloudHost_shouldReturnYes
+{
+    XCTAssertTrue([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"login.microsoftonline.com"]);
+}
+
+- (void)testIsRecognizedMicrosoftIdentityHost_whenKnownSovereignCloudHost_shouldReturnYes
+{
+    XCTAssertTrue([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"login.microsoftonline.de"]);
+}
+
+- (void)testIsRecognizedMicrosoftIdentityHost_whenMixedCaseKnownHost_shouldReturnYes
+{
+    XCTAssertTrue([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"Login.MicrosoftOnline.COM"]);
+}
+
+- (void)testIsRecognizedMicrosoftIdentityHost_whenUnknownHost_shouldReturnNo
+{
+    XCTAssertFalse([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"unknown-host.example.com"]);
+}
+
+- (void)testIsRecognizedMicrosoftIdentityHost_whenNilHost_shouldReturnNo
+{
+    NSString *nilHost = nil;
+    XCTAssertFalse([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:nilHost]);
+}
+
+- (void)testIsRecognizedMicrosoftIdentityHost_whenBlankHost_shouldReturnNo
+{
+    XCTAssertFalse([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"   "]);
+}
+
+- (void)testIsRecognizedMicrosoftIdentityHost_whenHostInCacheWithDifferentCase_shouldReturnYes
+{
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    NSSet *savedEnvironments = cache.allCloudNetworkEnvironments;
+    // Simulate a cache that stores the preferred_network host without case normalization.
+    cache.allCloudNetworkEnvironments = [NSSet setWithObject:@"Login.Contoso-Sovereign.COM"];
+
+    @try
+    {
+        XCTAssertTrue([MSIDAADAuthority isRecognizedMicrosoftIdentityHost:@"login.contoso-sovereign.com"]);
+    }
+    @finally
+    {
+        cache.allCloudNetworkEnvironments = savedEnvironments;
+    }
+}
+
 
 #pragma mark - Private
 

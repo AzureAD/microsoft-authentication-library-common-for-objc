@@ -357,6 +357,26 @@
 
 #pragma mark - Sovereign
 
++ (BOOL)isRecognizedMicrosoftIdentityHost:(NSString *)host
+{
+    if ([NSString msidIsStringNilOrBlank:host]) return NO;
+
+    NSString *lowercaseHost = host.lowercaseString;
+
+    // A known AAD public/sovereign cloud host.
+    if ([MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:lowercaseHost]) return YES;
+
+    // Otherwise, a network environment already discovered via instance metadata.
+    // Host names are case-insensitive, but the cache may store preferred_network
+    // values without case normalization, so match case-insensitively.
+    for (NSString *cloudEnvironment in [MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments)
+    {
+        if ([cloudEnvironment caseInsensitiveCompare:lowercaseHost] == NSOrderedSame) return YES;
+    }
+
+    return NO;
+}
+
 - (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostInstanceName]) return nil;
@@ -364,27 +384,9 @@
     NSString *lowercaseHostName = cloudHostInstanceName.lowercaseString;
 
     // Only build a cloud authority when the host is a recognized Microsoft identity
-    // host: a known AAD public/sovereign cloud host, or a network environment already
-    // discovered via instance metadata. This mirrors the check in
-    // setCloudAuthorityWithCloudHostName: so callers get consistent behavior.
-    BOOL isKnownHost = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:lowercaseHostName];
-
-    if (!isKnownHost)
-    {
-        // Host names are case-insensitive, but the cache may store preferred_network
-        // values without case normalization. Match case-insensitively so a valid host
-        // is not incorrectly ignored.
-        for (NSString *cloudEnvironment in [MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments)
-        {
-            if ([cloudEnvironment caseInsensitiveCompare:lowercaseHostName] == NSOrderedSame)
-            {
-                isKnownHost = YES;
-                break;
-            }
-        }
-    }
-
-    if (!isKnownHost)
+    // host. This mirrors the check in setCloudAuthorityWithCloudHostName: so callers
+    // get consistent behavior.
+    if (![MSIDAADAuthority isRecognizedMicrosoftIdentityHost:lowercaseHostName])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring cloud_instance_host_name in authorityWithUpdatedCloudHostInstanceName: host is not a recognized Microsoft identity host.");
         return nil;

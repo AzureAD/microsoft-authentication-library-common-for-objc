@@ -34,8 +34,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
 #import "MSIDAuthenticationScheme.h"
-#import "MSIDAADNetworkConfiguration.h"
-#import "MSIDAadAuthorityCache.h"
+#import "MSIDAADAuthority.h"
 
 @implementation MSIDRequestParameters
 
@@ -178,27 +177,9 @@
     NSString *lowercaseHostName = cloudHostName.lowercaseString;
 
     // Only rewrite the cloud authority when cloud_instance_host_name is a recognized
-    // Microsoft identity host: either a known AAD public/sovereign cloud host, or a
-    // network environment already discovered via instance metadata. Unrecognized
-    // values are ignored so the originally configured authority continues to be used.
-    BOOL isKnownHost = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:lowercaseHostName];
-
-    if (!isKnownHost)
-    {
-        // Host names are case-insensitive, but the cache may store preferred_network
-        // values without case normalization. Match case-insensitively so a valid host
-        // is not incorrectly ignored.
-        for (NSString *cloudEnvironment in [MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments)
-        {
-            if ([cloudEnvironment caseInsensitiveCompare:lowercaseHostName] == NSOrderedSame)
-            {
-                isKnownHost = YES;
-                break;
-            }
-        }
-    }
-
-    if (!isKnownHost)
+    // Microsoft identity host; unrecognized values are ignored so the originally
+    // configured authority continues to be used.
+    if (![MSIDAADAuthority isRecognizedMicrosoftIdentityHost:lowercaseHostName])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring cloud_instance_host_name: host is not a recognized Microsoft identity host.");
         return;
