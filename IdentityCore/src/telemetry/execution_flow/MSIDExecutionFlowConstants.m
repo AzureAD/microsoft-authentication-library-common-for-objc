@@ -155,7 +155,7 @@ NSString *MSIDCloudInstanceHostNameTagToString(MSIDCloudInstanceHostNameTag stat
     switch (state)
     {
         case MSIDCloudInstanceHostNameIgnoredTag:
-            return @"UNTAGGED";
+            return @"lziv8";
     }
     // Fallback for any future enum values
     return [NSString stringWithFormat:@"MSIDCloudInstanceHostNameTag(%ld)", (long)state];
