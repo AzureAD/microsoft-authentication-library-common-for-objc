@@ -29,6 +29,8 @@
 #import "MSIDConstants.h"
 #import "MSIDIntuneDeviceIdCache.h"
 #import "MSIDVersion.h"
+#import "MSIDUXCallbackProvider.h"
+#import "MSIDFlightManager.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -316,6 +318,20 @@
     }
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Built profile install request for host '%@'.", profileURL.host);
+
+    NSString *delayString = [[MSIDFlightManager sharedInstance] stringForKey:MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY];
+    NSTimeInterval delay = delayString.length > 0 ? delayString.doubleValue : MSIDMDMProfileInstalledNotificationDefaultDelay;
+    if (delay <= 0)
+    {
+        delay = MSIDMDMProfileInstalledNotificationDefaultDelay;
+    }
+
+    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
+    if (provider)
+    {
+        [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
+    }
+
     return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:profileURL]];
 }
 
@@ -324,6 +340,13 @@
                                                                params:(NSDictionary *)params
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] Processing enrollment completion redirect.");
+
+    // Cancel any previously scheduled MDM profile installed notification
+    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
+    if (provider)
+    {
+        [provider cancelMDMProfileInstalledNotification];
+    }
 
     // Check if SSO extension can perform request
     if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
