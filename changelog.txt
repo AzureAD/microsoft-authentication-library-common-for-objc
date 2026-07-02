@@ -1,5 +1,5 @@
 TBD
-* Fix macOS certificate-based authentication origin confusion (MSRC-42fca33e): remove the SecIdentityCopyPreferred(webview.URL.absoluteString) fallback in MSIDCertAuthHandler so a stored client-certificate preference is only matched against the challenge host, never the top-level page URL. Route the keychain/prompt calls through the new MSIDCertAuthIdentityProviding DI seam so the regression tests run without MSIDTestSwizzle.
+* Fix macOS certificate-based authentication origin confusion (MSRC-42fca33e): skip the SecIdentityCopyPreferred(webview.URL.absoluteString) fallback in MSIDCertAuthHandler so a stored client-certificate preference is only matched against the challenge host, never the top-level page URL. The fix is gated behind the MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX flight (default disabled retains the legacy host-then-URL-string fallback) for gradual rollout. Route the keychain/prompt calls through the new MSIDCertAuthIdentityProviding DI seam so the regression tests run without MSIDTestSwizzle.
 
 Version 1.25.0
 * Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release. Self-heal cache eviction on conformance failure; release-mode fallback test via NSAssertionHandler swap.

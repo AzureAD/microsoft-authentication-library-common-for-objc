@@ -59,6 +59,18 @@ NS_ASSUME_NONNULL_BEGIN
                                      distinguishedNames:(nullable NSArray<NSData *> *)distinguishedNames CF_RETURNS_RETAINED;
 
 /**
+ Legacy wildcard fallback: returns the preferred Keychain identity stored for the
+ webview's top-level @c urlString (matching the supplied issuer
+ @c distinguishedNames), or @c NULL when none exists.
+
+ This lookup is the origin-confusion vector closed by MSRC-42fca33e and is only
+ used while @c MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX is disabled. The returned
+ identity is owned by the caller (+1 retain, matching @c SecIdentityCopyPreferred).
+ */
++ (nullable SecIdentityRef)copyPreferredIdentityForURLString:(nullable NSString *)urlString
+                                          distinguishedNames:(nullable NSArray<NSData *> *)distinguishedNames CF_RETURNS_RETAINED;
+
+/**
  Validates that @c identity is non-NULL and its certificate is currently within
  its validity date range.
  */

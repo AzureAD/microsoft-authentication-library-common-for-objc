@@ -133,13 +133,18 @@ static NSString *const kMSIDTestCertBase64 =
 // When non-nil, copyPreferredIdentityForHost: returns preferredIdentity only for
 // this exact host (NULL for any other host). nil means "no preferred identity".
 @property (class, nonatomic, copy, nullable) NSString *preferredIdentityHost;
+// When YES, the legacy URL-string fallback seam returns the shared preferred
+// identity (regardless of the URL string). Decoupled from the webview's actual
+// URL so the fallback branch is deterministically testable.
+@property (class, nonatomic, assign) BOOL urlStringLookupSucceeds;
 // Result of isIdentityValid:.
 @property (class, nonatomic, assign) BOOL validityResult;
 // Identity handed back from the simulated cert picker (NULL == user cancelled).
 @property (class, nonatomic, assign) SecIdentityRef promptIdentity;
 
 // Recording.
-@property (class, nonatomic, readonly) NSArray<NSString *> *queriedHosts;     // hosts passed to copyPreferredIdentityForHost:
+@property (class, nonatomic, readonly) NSArray<NSString *> *queriedHosts;      // hosts passed to copyPreferredIdentityForHost:
+@property (class, nonatomic, readonly) NSArray<NSString *> *queriedURLStrings; // url strings passed to copyPreferredIdentityForURLString:
 @property (class, nonatomic, readonly) NSArray<NSString *> *setPreferredHosts; // hosts passed to setPreferredIdentity:
 @property (class, nonatomic, readonly) BOOL promptInvoked;
 
@@ -150,15 +155,20 @@ static NSString *const kMSIDTestCertBase64 =
 @implementation MSIDFakeCertAuthIdentityProvider
 
 static NSString *gPreferredIdentityHost = nil;
+static BOOL gUrlStringLookupSucceeds = NO;
 static BOOL gValidityResult = NO;
 static SecIdentityRef gPromptIdentity = NULL;
 static SecIdentityRef gPreferredIdentity = NULL; // owned by the test, shared backing object
 static NSMutableArray<NSString *> *gQueriedHosts = nil;
+static NSMutableArray<NSString *> *gQueriedURLStrings = nil;
 static NSMutableArray<NSString *> *gSetPreferredHosts = nil;
 static BOOL gPromptInvoked = NO;
 
 + (NSString *)preferredIdentityHost { return gPreferredIdentityHost; }
 + (void)setPreferredIdentityHost:(NSString *)v { gPreferredIdentityHost = [v copy]; }
+
++ (BOOL)urlStringLookupSucceeds { return gUrlStringLookupSucceeds; }
++ (void)setUrlStringLookupSucceeds:(BOOL)v { gUrlStringLookupSucceeds = v; }
 
 + (BOOL)validityResult { return gValidityResult; }
 + (void)setValidityResult:(BOOL)v { gValidityResult = v; }
@@ -167,6 +177,7 @@ static BOOL gPromptInvoked = NO;
 + (void)setPromptIdentity:(SecIdentityRef)v { gPromptIdentity = v; }
 
 + (NSArray<NSString *> *)queriedHosts { return [gQueriedHosts copy]; }
++ (NSArray<NSString *> *)queriedURLStrings { return [gQueriedURLStrings copy]; }
 + (NSArray<NSString *> *)setPreferredHosts { return [gSetPreferredHosts copy]; }
 + (BOOL)promptInvoked { return gPromptInvoked; }
 
@@ -176,10 +187,12 @@ static BOOL gPromptInvoked = NO;
 + (void)reset
 {
     gPreferredIdentityHost = nil;
+    gUrlStringLookupSucceeds = NO;
     gValidityResult = NO;
     gPromptIdentity = NULL;
     gPreferredIdentity = NULL;
     gQueriedHosts = [NSMutableArray new];
+    gQueriedURLStrings = [NSMutableArray new];
     gSetPreferredHosts = [NSMutableArray new];
     gPromptInvoked = NO;
 }
@@ -192,6 +205,21 @@ static BOOL gPromptInvoked = NO;
     [gQueriedHosts addObject:(host ?: @"")];
 
     if (gPreferredIdentityHost && [gPreferredIdentityHost isEqualToString:host] && gPreferredIdentity)
+    {
+        // Honour the +1 contract (CF_RETURNS_RETAINED) declared on the protocol.
+        CFRetain(gPreferredIdentity);
+        return gPreferredIdentity;
+    }
+
+    return NULL;
+}
+
++ (SecIdentityRef)copyPreferredIdentityForURLString:(NSString *)urlString
+                                 distinguishedNames:(__unused NSArray<NSData *> *)distinguishedNames
+{
+    [gQueriedURLStrings addObject:(urlString ?: @"")];
+
+    if (gUrlStringLookupSucceeds && gPreferredIdentity)
     {
         // Honour the +1 contract (CF_RETURNS_RETAINED) declared on the protocol.
         CFRetain(gPreferredIdentity);
@@ -255,8 +283,12 @@ static BOOL gPromptInvoked = NO;
     [super setUp];
 
     // Enable identity persistence by default (flight = NO means NOT disabled).
+    // Enable the origin-confusion fix by default (flight = YES) so the existing
+    // secure-behavior tests below exercise host-only lookup; the flag-OFF (legacy
+    // URL-string fallback) branch is covered explicitly in its own tests.
     self.flightProvider = [MSIDFlightManagerMockProvider new];
-    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO};
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
+                                                MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES};
     MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
 
     // A real, CFRelease-safe Security object used wherever a non-NULL identity is
@@ -440,6 +472,66 @@ static BOOL gPromptInvoked = NO;
 
     XCTAssertEqual(MSIDFakeCertAuthIdentityProvider.queriedHosts.count, 0u,
                    @"Preferred-identity lookup must be skipped when persistence is disabled");
+    XCTAssertTrue(MSIDFakeCertAuthIdentityProvider.promptInvoked);
+    XCTAssertEqual(disposition, NSURLSessionAuthChallengeRejectProtectionSpace);
+}
+
+#pragma mark - MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX
+
+// Flight ENABLED (the fix): after a host miss the handler must NOT perform the
+// legacy URL-string fallback and instead falls through to the picker.
+- (void)testHandleChallenge_whenOriginFixEnabledAndHostMisses_shouldNotQueryURLStringFallback
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
+                                                MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES};
+    MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = nil; // host lookup returns NULL
+    MSIDFakeCertAuthIdentityProvider.urlStringLookupSucceeds = YES; // would match if consulted
+    MSIDFakeCertAuthIdentityProvider.promptIdentity = NULL;        // user cancels
+
+    NSURLSessionAuthChallengeDisposition disposition;
+    [self runChallengeWithHost:@"login.microsoftonline.com" disposition:&disposition credential:nil];
+
+    XCTAssertEqual(MSIDFakeCertAuthIdentityProvider.queriedURLStrings.count, 0u,
+                   @"The URL-string fallback must not be consulted when the origin-confusion fix is enabled");
+    XCTAssertTrue(MSIDFakeCertAuthIdentityProvider.promptInvoked);
+    XCTAssertEqual(disposition, NSURLSessionAuthChallengeRejectProtectionSpace);
+}
+
+// Flight DISABLED (legacy): after a host miss the handler falls back to the
+// wildcard URL-string lookup; when that matches a valid identity, the handler
+// responds with a credential without prompting.
+- (void)testHandleChallenge_whenOriginFixDisabledAndHostMissButURLStringMatches_shouldUseCredentialViaFallback
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
+                                                MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @NO};
+    MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = nil;   // host lookup returns NULL
+    MSIDFakeCertAuthIdentityProvider.urlStringLookupSucceeds = YES; // URL-string fallback matches
+    MSIDFakeCertAuthIdentityProvider.validityResult = YES;
+
+    NSURLSessionAuthChallengeDisposition disposition;
+    [self runChallengeWithHost:@"login.microsoftonline.com" disposition:&disposition credential:nil];
+
+    XCTAssertEqual(MSIDFakeCertAuthIdentityProvider.queriedURLStrings.count, 1u,
+                   @"The URL-string fallback must be consulted once after a host miss when the fix is disabled");
+    XCTAssertFalse(MSIDFakeCertAuthIdentityProvider.promptInvoked);
+    XCTAssertEqual(disposition, NSURLSessionAuthChallengeUseCredential);
+}
+
+// Flight DISABLED (legacy): after a host miss the fallback is consulted; when it
+// also misses, the handler falls through to the picker.
+- (void)testHandleChallenge_whenOriginFixDisabledAndBothLookupsMiss_shouldPromptAfterQueryingFallback
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
+                                                MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @NO};
+    MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = nil;  // host lookup returns NULL
+    MSIDFakeCertAuthIdentityProvider.urlStringLookupSucceeds = NO; // URL-string fallback also misses
+    MSIDFakeCertAuthIdentityProvider.promptIdentity = NULL;        // user cancels
+
+    NSURLSessionAuthChallengeDisposition disposition;
+    [self runChallengeWithHost:@"login.microsoftonline.com" disposition:&disposition credential:nil];
+
+    XCTAssertEqual(MSIDFakeCertAuthIdentityProvider.queriedURLStrings.count, 1u,
+                   @"The URL-string fallback must be consulted once after a host miss when the fix is disabled");
     XCTAssertTrue(MSIDFakeCertAuthIdentityProvider.promptInvoked);
     XCTAssertEqual(disposition, NSURLSessionAuthChallengeRejectProtectionSpace);
 }

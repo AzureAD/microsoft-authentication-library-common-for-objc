@@ -62,11 +62,20 @@
     if ([self isIdentityPersistenceEnabled])
     {
         // Check if a preferred identity is set for this host.
-        // Note: The URL-string fallback (SecIdentityCopyPreferred with webview.URL.absoluteString)
-        // was removed to close an origin confusion vulnerability (MSRC-42fca33e).
-        // SecIdentityCopyPreferred(host) is the sole automatic lookup; if no preferred identity
-        // exists for this host, the handler falls through to promptUserForIdentity:.
         identity = [identityProvider copyPreferredIdentityForHost:host distinguishedNames:distinguishedNames];
+
+        if (!identity && ![self isCBAOriginFixEnabled])
+        {
+            // Legacy behavior (flight disabled): if no identity matched the exact host,
+            // fall back to a wildcard URL-string match. This URL-string fallback is the
+            // origin confusion vector closed by MSRC-42fca33e; it is retained only while
+            // MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX is ramping so the fix can roll out gradually.
+            // When the flight is enabled, SecIdentityCopyPreferred(host) is the sole automatic
+            // lookup and the handler falls through to promptUserForIdentity:.
+            identity = [identityProvider copyPreferredIdentityForURLString:webview.URL.absoluteString
+                                                       distinguishedNames:distinguishedNames];
+        }
+
         isIdentityValid  = [identityProvider isIdentityValid:identity context:context];
     }
       
@@ -121,12 +130,23 @@
     return ![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA];
 }
 
++ (BOOL)isCBAOriginFixEnabled
+{
+    return [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX];
+}
+
 #pragma mark - MSIDCertAuthIdentityProviding (default implementation)
 // inline  Security.framework  calls lifted into named, overridable methods so the DI container has something to substitute
 + (SecIdentityRef)copyPreferredIdentityForHost:(NSString *)host
                             distinguishedNames:(NSArray<NSData *> *)distinguishedNames
 {
     return SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
+}
+
++ (SecIdentityRef)copyPreferredIdentityForURLString:(NSString *)urlString
+                                 distinguishedNames:(NSArray<NSData *> *)distinguishedNames
+{
+    return SecIdentityCopyPreferred((CFStringRef)urlString, NULL, (CFArrayRef)distinguishedNames);
 }
 
 + (OSStatus)setPreferredIdentity:(SecIdentityRef)identity
