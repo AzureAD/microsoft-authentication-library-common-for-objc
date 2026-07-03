@@ -113,7 +113,7 @@
 
 - (void)setFlightProvider:(id<MSIDFlightManagerInterface>)flightProvider
 {
-    dispatch_barrier_async(self.synchronizationQueue, ^{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         self->_flightProvider = flightProvider;
     });
 }
