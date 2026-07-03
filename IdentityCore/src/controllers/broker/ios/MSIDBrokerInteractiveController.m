@@ -440,7 +440,7 @@ static MSIDBrokerTokenRequest *s_currentBrokerRequest;
         // Only evaluate ownership when both bundle ids are present. A malformed/legacy cache
         // entry with a missing originating or current bundle id falls through to the existing
         // non-response handling rather than cancelling the session.
-        if (onboardingStatus.phase == MSIDOnboardingPhaseBrokerInteractiveInProgress &&
+        if ([[MSIDOnboardingStatusCache sharedInstance] isInProgressPhase:onboardingStatus.phase] &&
             onboardingStatus.onboardingContext == MSIDOnboardingContextBroker &&
             originatingBundleId.length > 0 && currentBundleId.length > 0)
         {
