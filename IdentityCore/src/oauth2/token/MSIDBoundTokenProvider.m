@@ -298,9 +298,8 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 
     // Keep the request alive across the async authority resolution + network round-trip.
     __block MSIDDefaultSilentTokenRequest *pendingRequest = silentRequest;
-    __weak __typeof(self) weakSelf = self;
+    __typeof(self) strongSelf = self;
     [silentRequest executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error) {
-        __typeof(self) strongSelf = weakSelf;
         pendingRequest = nil;
 
         if (result)
