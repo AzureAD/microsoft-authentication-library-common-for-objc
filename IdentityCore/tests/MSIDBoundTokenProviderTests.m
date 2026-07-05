@@ -49,6 +49,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDBrokerConstants.h"
 #import "MSIDCacheAccessor.h"
+#import "MSIDKeychainTokenCache.h"
 #import "NSString+MSIDExtensions.h"
 
 #pragma mark - Test seam (private methods under test)
@@ -367,6 +368,23 @@
     provider.injectedTokenCache = [self inMemoryTokenCache];
     provider.injectedAccountMetadataCache = [self inMemoryAccountMetadataCache];
     return provider;
+}
+
+- (void)testDefaultCacheAccessors_useSharedAdalKeychainGroup
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+
+    MSIDDefaultTokenCacheAccessor *tokenCache = [provider defaultTokenCache:nil];
+    XCTAssertNotNil(tokenCache);
+    XCTAssertEqualObjects([tokenCache.accountCredentialCache.dataSource valueForKey:@"keychainGroup"],
+                          [MSIDKeychainTokenCache defaultKeychainGroup]);
+
+    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [provider accountMetadataCache:nil];
+    XCTAssertNotNil(accountMetadataCache);
+
+    id metadataCache = [accountMetadataCache valueForKey:@"metadataCache"];
+    XCTAssertEqualObjects([[metadataCache valueForKey:@"dataSource"] valueForKey:@"keychainGroup"],
+                          [MSIDKeychainTokenCache defaultKeychainGroup]);
 }
 
 // When the silent engine returns a token result, the provider serializes it into the GetToken
