@@ -133,7 +133,7 @@ jobs:
         inputs:
           targetType: 'inline'
           script: |
-            rm -rf $(Agent.BuildDirectory)/s/build/status.txt
+            rm -rf $(Agent.BuildDirectory)/s/microsoft-authentication-library-for-objc/build/status.txt
       - task: PublishTestResults@2
         condition: always()
         displayName: Publish Test Report
