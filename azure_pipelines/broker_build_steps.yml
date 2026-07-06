@@ -193,4 +193,4 @@ steps:
       else
         echo "No build log found at $LOG_FILE (build step likely did not run)."
       fi
-      rm -rf ./build/status.txt
+      rm -rf $(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/build/status.txt
