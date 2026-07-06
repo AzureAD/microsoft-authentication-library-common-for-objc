@@ -139,6 +139,6 @@ jobs:
         displayName: Publish Test Report
         inputs:
           testResultsFormat: 'JUnit'
-          testResultsFiles: '$(Agent.BuildDirectory)/s/build/reports/*'
+          testResultsFiles: '$(Agent.BuildDirectory)/s/microsoft-authentication-library-for-objc/build/reports/*'
           failTaskOnFailedTests: true
           testRunTitle: 'Test Run - macFramework'
