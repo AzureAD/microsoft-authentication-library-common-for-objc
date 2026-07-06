@@ -429,16 +429,29 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     // picker on CI sims with no saved credentials and the test loops forever.
     // The polling loop in enterPassword: retries every second, so returning NO
     // here when the web button hasn't rendered yet is the desired behavior.
+    //
+    // On iOS/iPadOS 26 simulators, WebKit's accessibility tree sometimes
+    // exposes this link as a StaticText rather than a Button (the underlying
+    // markup is an anchor/span styled as a link, and the accessibility role
+    // mapping WebKit chooses for it changed across OS versions). Fall back to
+    // a staticTexts lookup so the tap still lands when that happens; without
+    // this, enterPassword: never finds a match and times out with "Timed out
+    // waiting for the password field or a password selection button to appear."
     for (NSString *buttonTitle in passwordButtonTitles)
     {
         XCUIElement *button = application.webViews.buttons[buttonTitle];
-        if (!button.exists || !button.isHittable)
+        if (button.exists && button.isHittable)
         {
-            continue;
+            [button msidTap];
+            return YES;
         }
 
-        [button msidTap];
-        return YES;
+        XCUIElement *staticTextButton = application.webViews.staticTexts[buttonTitle];
+        if (staticTextButton.exists && staticTextButton.isHittable)
+        {
+            [staticTextButton msidTap];
+            return YES;
+        }
     }
 
     return NO;
