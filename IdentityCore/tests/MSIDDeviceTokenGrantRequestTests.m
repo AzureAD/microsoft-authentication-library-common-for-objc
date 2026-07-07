@@ -33,6 +33,8 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDTestSecureEnclaveKeyPairGenerator.h"
+#import "MSIDError.h"
+#import "MSIDTokenResult.h"
 
 @interface MSIDDeviceTokenGrantRequestTests : XCTestCase
 
@@ -340,6 +342,82 @@
 
     // Assert
     XCTAssertNotNil(request);
+}
+
+#pragma mark - executeRequestWithCompletion: nonce validation
+
+- (void)testExecuteRequest_whenNonceIsNil_shouldCallCompletionBlockWithError
+{
+    // Arrange
+    MSIDDeviceTokenGrantRequest *request = [[MSIDDeviceTokenGrantRequest alloc] initWithEndpoint:self.testEndpoint
+                                                                              requestParameters:self.defaultRequestParameters
+                                                                                         scopes:@"scope1 scope2"
+                                                                        registrationInformation:self.mockRegistrationInfo
+                                                                                       resource:@"https://graph.microsoft.com"
+                                                                                   enrollmentId:nil
+                                                                                extraParameters:nil
+                                                                                     ssoContext:nil
+                                                                           tokenResponseHandler:self.defaultResponseHandler
+                                                                                          error:nil];
+    XCTAssertNotNil(request);
+    request.nonce = nil;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
+    __block NSError *capturedError = nil;
+    __block MSIDTokenResult *capturedResult = nil;
+
+    // Act
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        capturedResult = result;
+        capturedError = error;
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    // Assert
+    XCTAssertNil(capturedResult);
+    XCTAssertNotNil(capturedError);
+    XCTAssertEqualObjects(capturedError.domain, MSIDErrorDomain);
+    XCTAssertEqual(capturedError.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testExecuteRequest_whenNonceIsBlank_shouldCallCompletionBlockWithError
+{
+    // Arrange
+    MSIDDeviceTokenGrantRequest *request = [[MSIDDeviceTokenGrantRequest alloc] initWithEndpoint:self.testEndpoint
+                                                                              requestParameters:self.defaultRequestParameters
+                                                                                         scopes:@"scope1 scope2"
+                                                                        registrationInformation:self.mockRegistrationInfo
+                                                                                       resource:@"https://graph.microsoft.com"
+                                                                                   enrollmentId:nil
+                                                                                extraParameters:nil
+                                                                                     ssoContext:nil
+                                                                           tokenResponseHandler:self.defaultResponseHandler
+                                                                                          error:nil];
+    XCTAssertNotNil(request);
+    request.nonce = @"";
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
+    __block NSError *capturedError = nil;
+    __block MSIDTokenResult *capturedResult = nil;
+
+    // Act
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        capturedResult = result;
+        capturedError = error;
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    // Assert
+    XCTAssertNil(capturedResult);
+    XCTAssertNotNil(capturedError);
+    XCTAssertEqualObjects(capturedError.domain, MSIDErrorDomain);
+    XCTAssertEqual(capturedError.code, MSIDErrorInvalidInternalParameter);
 }
 
 - (NSString *)dummyEccCertificate

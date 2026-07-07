@@ -145,6 +145,13 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+    if ([NSString msidIsStringNilOrBlank:self.nonce])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Failed to execute device token request: nonce is nil or blank.");
+        NSError *nonceError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to execute device token request: nonce is nil or blank.", nil, nil, nil, self.context.correlationId, nil, YES);
+        completionBlock(nil, nonceError);
+        return;
+    }
     [self tokenRequestWithCompletionBlock:completionBlock];
 }
 
