@@ -27,8 +27,22 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDCertAuthIdentityProviding.h"
+#import "MSIDDIContainer.h"
+
+@interface MSIDCertAuthHandler () <MSIDCertAuthIdentityProviding>
+@end
 
 @implementation MSIDCertAuthHandler
+
++ (Class<MSIDCertAuthIdentityProviding>)resolvedIdentityProvider
+{
+    return (Class<MSIDCertAuthIdentityProviding>)
+        [[MSIDDIContainer sharedInstance]
+            resolveImplClassForProtocol:@protocol(MSIDCertAuthIdentityProviding)
+
+                              orDefault:^Class { return self; }];
+}
 
 + (void)resetHandler
 {
@@ -42,21 +56,27 @@
 {
     NSString *host = challenge.protectionSpace.host;
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
+    Class<MSIDCertAuthIdentityProviding> identityProvider = [self resolvedIdentityProvider];
     BOOL isIdentityValid = false;
     SecIdentityRef identity = NULL;
     if ([self isIdentityPersistenceEnabled])
     {
-        // Check if a preferred identity is set for this host
-        identity = SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
-        
-        if (!identity)
+        // Check if a preferred identity is set for this host.
+        identity = [identityProvider copyPreferredIdentityForHost:host distinguishedNames:distinguishedNames];
+
+        if (!identity && ![self isCBAOriginFixEnabled])
         {
-            // If there was no identity matched for the exact host, try to match by URL
-            // URL matching is more flexible, as it's doing a wildcard matching for different subdomains
-            // However, we need to do both, because if there's an entry by hostname, matching by URL won't find it
-            identity = SecIdentityCopyPreferred((CFStringRef)webview.URL.absoluteString, NULL, (CFArrayRef)distinguishedNames);
+            // Legacy behavior (flight disabled): if no identity matched the exact host,
+            // fall back to a wildcard URL-string match. This URL-string fallback is the
+            // origin confusion vector closed by MSRC-42fca33e; it is retained only while
+            // MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX is ramping so the fix can roll out gradually.
+            // When the flight is enabled, SecIdentityCopyPreferred(host) is the sole automatic
+            // lookup and the handler falls through to promptUserForIdentity:.
+            identity = [identityProvider copyPreferredIdentityForURLString:webview.URL.absoluteString
+                                                       distinguishedNames:distinguishedNames];
         }
-        isIdentityValid  = [self isIdentityValid:identity context:context];
+
+        isIdentityValid  = [identityProvider isIdentityValid:identity context:context];
     }
       
     if (isIdentityValid)
@@ -68,7 +88,7 @@
     else
     {
         // If not prompt the user to select an identity
-        [self promptUserForIdentity:distinguishedNames
+        [identityProvider promptUserForIdentity:distinguishedNames
                                host:host
                             webview:webview
                       correlationId:context.correlationId
@@ -88,7 +108,7 @@
             CFArrayRef arrayRef = (__bridge CFArrayRef)arr;
             if (host && [self isIdentityPersistenceEnabled])
             {
-                OSStatus status = SecIdentitySetPreferred(selectedIdentity, (CFStringRef)host, arrayRef);
+                OSStatus status = [identityProvider setPreferredIdentity:selectedIdentity forHost:host keyUsageRef:arrayRef];
                 if (!status)
                 {
                     MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Result of setting identity preference is %d", status);
@@ -108,6 +128,32 @@
 + (BOOL)isIdentityPersistenceEnabled
 {
     return ![MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA];
+}
+
++ (BOOL)isCBAOriginFixEnabled
+{
+    return [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX];
+}
+
+#pragma mark - MSIDCertAuthIdentityProviding (default implementation)
+// inline  Security.framework  calls lifted into named, overridable methods so the DI container has something to substitute
++ (SecIdentityRef)copyPreferredIdentityForHost:(NSString *)host
+                            distinguishedNames:(NSArray<NSData *> *)distinguishedNames
+{
+    return SecIdentityCopyPreferred((CFStringRef)host, NULL, (CFArrayRef)distinguishedNames);
+}
+
++ (SecIdentityRef)copyPreferredIdentityForURLString:(NSString *)urlString
+                                 distinguishedNames:(NSArray<NSData *> *)distinguishedNames
+{
+    return SecIdentityCopyPreferred((CFStringRef)urlString, NULL, (CFArrayRef)distinguishedNames);
+}
+
++ (OSStatus)setPreferredIdentity:(SecIdentityRef)identity
+                         forHost:(NSString *)host
+                     keyUsageRef:(CFArrayRef)keyUsage
+{
+    return SecIdentitySetPreferred(identity, (CFStringRef)host, keyUsage);
 }
 
 + (void)respondCertAuthChallengeWithIdentity:(nonnull SecIdentityRef)identity
