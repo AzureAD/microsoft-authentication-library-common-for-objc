@@ -42,7 +42,6 @@
 @interface MSIDDeviceTokenGrantRequest()
 
 @property (nonatomic) NSString *redirectUri;
-@property (nonatomic) NSString *nonce;
 @property (nonatomic) NSString *enrollmentId;
 @property (nonatomic) MSIDWPJKeyPairWithCert *wpjInfo;
 @property (nonatomic) NSString *clientId;
@@ -146,31 +145,7 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDRequestParameters *nonceReqParams = [MSIDRequestParameters new];
-    nonceReqParams.correlationId = self.context.correlationId;
-    nonceReqParams.authority = [[MSIDAADAuthority alloc] initWithURL:self.urlRequest.URL rawTenant:MSIDAADTenantTypeCommonRawValue context:self.context error:nil];
-    // Passing blank accountId details as device token is not associated with a specific account. This is required to bypass cache look up in nonce request and directly request new nonce from server.
-    nonceReqParams.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"" homeAccountId:@""];
-    MSIDNonceTokenRequest *nonceRequest = [[MSIDNonceTokenRequest alloc] initWithRequestParameters:nonceReqParams];
-    __weak typeof(self) weakSelf = self;
-    [nonceRequest executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable error)
-    {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf)
-        {
-            return;
-        }
-        
-        if (!resultNonce || error)
-        {
-            NSError *nonceError = error ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to retrieve nonce for device token request: nonce is nil.", nil, nil, nil, strongSelf.context.correlationId, nil, YES);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, strongSelf.context, @"Failed to retrieve nonce for device token request: %@", nonceError);
-            completionBlock(nil, nonceError);
-            return;
-        }
-        strongSelf.nonce = resultNonce;
-        [strongSelf tokenRequestWithCompletionBlock:completionBlock];
-    }];
+    [self tokenRequestWithCompletionBlock:completionBlock];
 }
 
 - (void)tokenRequestWithCompletionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
