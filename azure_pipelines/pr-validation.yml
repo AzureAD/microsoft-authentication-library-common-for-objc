@@ -25,7 +25,54 @@ resources:
 
 # Define parallel jobs that run build script for specified targets
 jobs:
+- job: DetectAutomationHealthChanges
+  pool: { vmImage: 'ubuntu-latest' }
+  displayName: Detect automation health changes
+  steps:
+    - checkout: self
+      clean: true
+      fetchDepth: 0
+      persistCredentials: true
+    - task: Bash@3
+      name: detectChanges
+      displayName: Detect non-test changes
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+
+          target_branch_ref="$(System.PullRequest.TargetBranch)"
+          if [[ "${target_branch_ref}" != refs/* ]]; then
+            target_branch_ref="refs/heads/${target_branch_ref}"
+          fi
+
+          # Fail open: if change detection can't run, default to running AutomationHealth.
+          run_automation_health=true
+          if git fetch --no-tags origin "+${target_branch_ref}:refs/remotes/origin/pr-target"; then
+            run_automation_health=false
+
+            changed_files="$(git diff --name-only refs/remotes/origin/pr-target...HEAD)" || {
+              run_automation_health=true
+              changed_files=""
+            }
+
+            while IFS= read -r changed_file
+            do
+              case "$changed_file" in
+                ""|IdentityCore/tests/*)
+                  ;;
+                *)
+                  run_automation_health=true
+                  break
+                  ;;
+              esac
+            done <<< "${changed_files}"
+          fi
+
+          echo "##vso[task.setvariable variable=runAutomationHealth;isOutput=true]${run_automation_health}"
 - job: AutomationHealth
+  dependsOn: DetectAutomationHealthChanges
+  condition: and(succeeded(), eq(dependencies.DetectAutomationHealthChanges.outputs['detectChanges.runAutomationHealth'], 'true'))
   pool: { vmImage: 'ubuntu-latest' }
   displayName: Automation pipeline health check
   steps:
