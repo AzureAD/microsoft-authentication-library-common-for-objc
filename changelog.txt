@@ -1,6 +1,7 @@
 TBD
 * Add MSIDUXCallbackProtocol and MSIDUXCallbackProvider to allow host apps to receive UX callbacks (e.g., schedule and cancel MDM profile installed notification) from CommonCore navigation layer. Add delay validation for flight-configured notification delay.
 * Only attach the PRT (refresh token credential) header to the PkeyAuth challenge response for known/trusted AAD hosts, preventing PRT leakage to untrusted hosts. Record an execution-flow tag for the added/skipped decision when a correlation id is available.
+* Validate cloud_instance_host_name from the auth redirect against the known Microsoft identity host list before using it to build the cloud authority in setCloudAuthorityWithCloudHostName: and authorityWithUpdatedCloudHostInstanceName:error:. Unrecognized values are ignored and logged; sovereign-cloud and instance-aware flows are unaffected.
 
 Version 1.25.0
 * Harden MSIDDIContainer: validate protocol conformance in resolveImplClassForProtocol:orDefault:; NSAssert in debug, log + fall back to default in release. Self-heal cache eviction on conformance failure; release-mode fallback test via NSAssertionHandler swap.
