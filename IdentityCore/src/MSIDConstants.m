@@ -133,6 +133,6 @@ NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboard
 
 NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_profile_installed_notification_delay";
 
-NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 60.0;
+NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 45.0;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
