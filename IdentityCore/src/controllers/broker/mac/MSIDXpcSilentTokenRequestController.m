@@ -48,7 +48,14 @@
 {
     if (@available(macOS 13, *))
     {
-        return [MSIDXpcSingleSignOnProvider canPerformRequest:MSIDXpcProviderCache.sharedInstance];
+        MSIDXpcCanPerformFailureReason failureReason = MSIDXpcCanPerformFailureReasonNone;
+        BOOL canPerform = [MSIDXpcSingleSignOnProvider canPerformRequest:MSIDXpcProviderCache.sharedInstance
+                                                                   reason:&failureReason];
+        if (!canPerform)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDXpcSilentTokenRequestController canPerformRequest] returned NO, reason: %@ (%ld)", MSIDXpcCanPerformFailureReasonToString(failureReason), (long)failureReason);
+        }
+        return canPerform;
     }
     else
     {

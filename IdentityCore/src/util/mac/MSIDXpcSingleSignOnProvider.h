@@ -30,6 +30,27 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Distinguishes why +[MSIDXpcSingleSignOnProvider canPerformRequest:] returned NO,
+// so telemetry/logging can disambiguate which of the client-side static gates rejected the request.
+typedef NS_ENUM(NSInteger, MSIDXpcCanPerformFailureReason)
+{
+    // canPerformRequest succeeded, no failure occurred.
+    MSIDXpcCanPerformFailureReasonNone = 0,
+    // Neither the MacBrokerApp nor the CompanyPortal Xpc component is installed on the device.
+    MSIDXpcCanPerformFailureReasonNoProviderInstalled,
+    // Failed to construct the SSOExtension getDeviceInfo request object.
+    MSIDXpcCanPerformFailureReasonDeviceInfoRequestCreationFailed,
+    // SSOExtension getDeviceInfo handshake completed with a hard error.
+    MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeError,
+    // SSOExtension getDeviceInfo handshake did not complete before the 1 second timeout expired.
+    MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeTimeout,
+    // No installed Xpc provider matches the cached/available Xpc configuration.
+    MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed,
+};
+
+// Returns a human readable, non-PII name for the given failure reason, suitable for logging.
+extern NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason reason);
+
 @interface MSIDXpcSingleSignOnProvider : NSObject
 
 // For interactive auth request
@@ -49,6 +70,11 @@ NS_ASSUME_NONNULL_BEGIN
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
 + (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache;
+
+// Same as canPerformRequest: above, but additionally reports the specific reason for a NO result via the reason out-param.
+// The reason is left untouched if the caller passes nil.
++ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                    reason:(MSIDXpcCanPerformFailureReason * _Nullable)reason;
 
 NS_ASSUME_NONNULL_END
 

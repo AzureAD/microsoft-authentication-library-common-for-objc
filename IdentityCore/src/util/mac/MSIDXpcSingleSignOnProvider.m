@@ -95,6 +95,27 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 
 @end
 
+NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason reason)
+{
+    switch (reason)
+    {
+        case MSIDXpcCanPerformFailureReasonNone:
+            return @"None";
+        case MSIDXpcCanPerformFailureReasonNoProviderInstalled:
+            return @"NoProviderInstalled";
+        case MSIDXpcCanPerformFailureReasonDeviceInfoRequestCreationFailed:
+            return @"DeviceInfoRequestCreationFailed";
+        case MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeError:
+            return @"DeviceInfoHandshakeError";
+        case MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeTimeout:
+            return @"DeviceInfoHandshakeTimeout";
+        case MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed:
+            return @"ValidateCacheProviderFailed";
+    }
+    
+    return @"Unknown";
+}
+
 @implementation MSIDXpcSingleSignOnProvider
 
 - (BOOL)isXpcInstanceCacheEnabled
@@ -289,6 +310,12 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 
 + (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache
 {
+    return [self canPerformRequest:xpcProviderCache reason:nil];
+}
+
++ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                    reason:(MSIDXpcCanPerformFailureReason *)reason
+{
     // Step 0: If none of the XPC components (CP or MacBrokerApp) exist on the device, return false.
     // Step 1: Read from the userDefaults cache to find the correct XPC configuration based on the active SsoExtension.
         // Step 1.1: If the XPC configuration is found, validate the existence of the corresponding XPC component based on the configuration.
@@ -299,15 +326,29 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             // Step 1.2.2: If the handshake fails because canPerformRequest returns NO, use predefined logic to decide the XPC provider/configuration (use the XPC component from the MacBrokerApp first, then from the CompanyPortal App).
                 // Step 1.2.2.1: If using the XPC provider from the MacBroker App, return true.
                 // Step 1.2.2.2: If using the XPC provider from the CompanyPortal App, return true.
-    
+
+    if (reason)
+    {
+        *reason = MSIDXpcCanPerformFailureReasonNone;
+    }
+
     /* Step 0 Start*/
     if (!xpcProviderCache.isXpcProviderInstalledOnDevice)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT Xpc component is not available on device", nil, nil);
+        if (reason)
+        {
+            *reason = MSIDXpcCanPerformFailureReasonNoProviderInstalled;
+        }
         return NO;
     }
     /* Step 0 End*/
     
+    // Tracks whether the getDeviceInfo handshake below hit a hard error or timed out, so that if the
+    // subsequent validateCacheXpcProvider check ultimately fails, we can report the more specific root cause.
+    __block BOOL handshakeHadError = NO;
+    BOOL handshakeTimedOut = NO;
+
     /* Step 1 Start: decide Xpc configuration */
     if (!xpcProviderCache.xpcConfiguration && [MSIDSSOExtensionGetDeviceInfoRequest canPerformRequest])
     {
@@ -328,6 +369,10 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         {
             // This is unlikely to happen, but if it does, return NO
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT get error when creating getDeviceInfoRequest with error: %@", ssoExtensionRequestError);
+            if (reason)
+            {
+                *reason = MSIDXpcCanPerformFailureReasonDeviceInfoRequestCreationFailed;
+            }
             return NO;
         }
     
@@ -339,6 +384,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             if (error)
             {
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT did not receive deviceInfo with error: %@", error);
+                handshakeHadError = YES;
                 dispatch_group_leave(group);
                 return;
             }
@@ -349,7 +395,12 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         
         // waiting expired in 1 sec
         dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
-        dispatch_group_wait(group, timeout);
+        long waitResult = dispatch_group_wait(group, timeout);
+        handshakeTimedOut = (waitResult != 0);
+        if (handshakeTimedOut)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT getDeviceInfo handshake timed out after 1 sec", nil, nil);
+        }
     }
     
     if (!xpcProviderCache.xpcConfiguration)
@@ -362,6 +413,23 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no %@ Xpc component found on device. Failed to validate cached Xpc and skip Xpc flow", xpcProviderCache.xpcConfiguration.xpcHostAppName, nil);
         // Reset the cached Xpc provider/configuration.
         xpcProviderCache.cachedXpcProviderType = MSIDUnknownSsoProvider;
+        if (reason)
+        {
+            // If the getDeviceInfo handshake above timed out or errored, surface that as the root cause
+            // instead of the more generic validation failure it ultimately fell through to.
+            if (handshakeTimedOut)
+            {
+                *reason = MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeTimeout;
+            }
+            else if (handshakeHadError)
+            {
+                *reason = MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeError;
+            }
+            else
+            {
+                *reason = MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed;
+            }
+        }
         return NO;
     }
     
