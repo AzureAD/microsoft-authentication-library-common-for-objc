@@ -32,9 +32,14 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "NSData+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
 #import "MSIDTestSecureEnclaveKeyPairGenerator.h"
 #import "MSIDError.h"
 #import "MSIDTokenResult.h"
+#import "MSIDTestURLSession.h"
+#import "MSIDTestURLResponse.h"
+#import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDTestIdentifiers.h"
 
 @interface MSIDDeviceTokenGrantRequestTests : XCTestCase
 
@@ -51,6 +56,7 @@
 - (void)setUp
 {
     [super setUp];
+    [MSIDTestURLSession clearResponses];
 
     self.testEndpoint = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token"];
 
@@ -76,6 +82,7 @@
     self.defaultRequestParameters = nil;
     self.mockRegistrationInfo = nil;
     self.defaultResponseHandler = nil;
+    [MSIDTestURLSession clearResponses];
 
     [super tearDown];
 }
@@ -418,6 +425,80 @@
     XCTAssertNotNil(capturedError);
     XCTAssertEqualObjects(capturedError.domain, MSIDErrorDomain);
     XCTAssertEqual(capturedError.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testExecuteRequest_whenNonceIsSet_shouldCallCompletionBlockWithoutError
+{
+    // Arrange
+    self.defaultRequestParameters.authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                                                           rawTenant:nil
+                                                                             context:nil
+                                                                               error:nil];
+    MSIDDeviceTokenGrantRequest *request = [[MSIDDeviceTokenGrantRequest alloc] initWithEndpoint:self.testEndpoint
+                                                                              requestParameters:self.defaultRequestParameters
+                                                                                         scopes:@"scope1 scope2"
+                                                                        registrationInformation:self.mockRegistrationInfo
+                                                                                       resource:@"https://graph.microsoft.com"
+                                                                                   enrollmentId:nil
+                                                                                extraParameters:nil
+                                                                                     ssoContext:nil
+                                                                           tokenResponseHandler:self.defaultResponseHandler
+                                                                                          error:nil];
+    XCTAssertNotNil(request);
+    request.nonce = @"test-nonce-value";
+
+    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:self.testEndpoint
+                                                                  statusCode:200
+                                                                 HTTPVersion:@"1.1"
+                                                                headerFields:nil];
+    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse request:self.testEndpoint reponse:httpResponse];
+    tokenResponse->_requestHeaders = [self mockedRequestHeadersForDeviceTokenRequest];
+
+    NSDictionary *clientInfoClaims = @{@"uid": DEFAULT_TEST_UID, @"utid": DEFAULT_TEST_UTID};
+    NSString *clientInfo = [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:clientInfoClaims
+                                                                                                        options:0
+                                                                                                          error:nil]];
+    [tokenResponse setResponseJSON:@{
+        @"access_token": @"test_device_access_token",
+        @"token_type": @"Bearer",
+        @"expires_in": @"3600",
+        @"client_info": clientInfo,
+    }];
+    [MSIDTestURLSession addResponse:tokenResponse];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
+    __block NSError *capturedError = nil;
+
+    // Act
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    {
+        capturedError = error;
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    // Assert
+    XCTAssertNil(capturedError);
+}
+
+- (NSMutableDictionary *)mockedRequestHeadersForDeviceTokenRequest
+{
+    return [@{
+        @"Accept" : [MSIDTestIgnoreSentinel sentinel],
+        @"Content-Length" : [MSIDTestIgnoreSentinel sentinel],
+        @"Content-Type" : [MSIDTestIgnoreSentinel sentinel],
+        @"User-Agent" : [MSIDTestIgnoreSentinel sentinel],
+        @"x-client-SKU": [MSIDTestIgnoreSentinel sentinel],
+        @"x-client-OS": [MSIDTestIgnoreSentinel sentinel],
+        @"x-app-name": [MSIDTestIgnoreSentinel sentinel],
+        @"x-ms-PkeyAuth+": [MSIDTestIgnoreSentinel sentinel],
+        @"x-client-Ver": [MSIDTestIgnoreSentinel sentinel],
+        @"x-client-CPU": [MSIDTestIgnoreSentinel sentinel],
+        @"x-app-ver": [MSIDTestIgnoreSentinel sentinel],
+        @"x-client-DM": [MSIDTestIgnoreSentinel sentinel],
+        @"Connection": [MSIDTestIgnoreSentinel sentinel],
+    } mutableCopy];
 }
 
 - (NSString *)dummyEccCertificate
