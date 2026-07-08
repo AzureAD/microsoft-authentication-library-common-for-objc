@@ -470,7 +470,7 @@
     __block NSError *capturedError = nil;
 
     // Act
-    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
+    [request executeRequestWithCompletion:^(MSIDTokenResult * __unused result, NSError *error)
     {
         capturedError = error;
         [expectation fulfill];
