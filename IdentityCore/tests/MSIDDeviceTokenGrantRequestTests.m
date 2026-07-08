@@ -40,6 +40,8 @@
 #import "MSIDTestURLResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDTestIdentifiers.h"
+#import "MSIDDeviceTokenGrantRequestMock.h"
+#import "MSIDAccessToken.h"
 
 @interface MSIDDeviceTokenGrantRequestTests : XCTestCase
 
@@ -434,44 +436,38 @@
                                                                            rawTenant:nil
                                                                              context:nil
                                                                                error:nil];
-    MSIDDeviceTokenGrantRequest *request = [[MSIDDeviceTokenGrantRequest alloc] initWithEndpoint:self.testEndpoint
-                                                                              requestParameters:self.defaultRequestParameters
-                                                                                         scopes:@"scope1 scope2"
-                                                                        registrationInformation:self.mockRegistrationInfo
-                                                                                       resource:@"https://graph.microsoft.com"
-                                                                                   enrollmentId:nil
-                                                                                extraParameters:nil
-                                                                                     ssoContext:nil
-                                                                           tokenResponseHandler:self.defaultResponseHandler
-                                                                                          error:nil];
+    MSIDDeviceTokenGrantRequestMock *request = [[MSIDDeviceTokenGrantRequestMock alloc] initWithEndpoint:self.testEndpoint
+                                                                                   requestParameters:self   .defaultRequestParameters
+                                                                                              scopes:@"scope1 scope2"
+                                                                             registrationInformation:self.mockRegistrationInfo
+                                                                                            resource:@"https://graph.microsoft.com"
+                                                                                        enrollmentId:nil
+                                                                                     extraParameters:nil
+                                                                                          ssoContext:nil
+                                                                                tokenResponseHandler:self.defaultResponseHandler
+                                                                                               error:nil];
     XCTAssertNotNil(request);
     request.nonce = @"test-nonce-value";
-
-    NSHTTPURLResponse *httpResponse = [[NSHTTPURLResponse alloc] initWithURL:self.testEndpoint
-                                                                  statusCode:200
-                                                                 HTTPVersion:@"1.1"
-                                                                headerFields:nil];
-    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse request:self.testEndpoint reponse:httpResponse];
-    tokenResponse->_requestHeaders = [self mockedRequestHeadersForDeviceTokenRequest];
-
-    NSDictionary *clientInfoClaims = @{@"uid": DEFAULT_TEST_UID, @"utid": DEFAULT_TEST_UTID};
-    NSString *clientInfo = [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:clientInfoClaims
-                                                                                                        options:0
-                                                                                                          error:nil]];
-    [tokenResponse setResponseJSON:@{
-        @"access_token": @"test_device_access_token",
-        @"token_type": @"Bearer",
-        @"expires_in": @"3600",
-        @"client_info": clientInfo,
-    }];
-    [MSIDTestURLSession addResponse:tokenResponse];
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID } msidBase64UrlJson];
+    NSDictionary *tokenResponse = @{
+        MSID_OAUTH2_TOKEN_TYPE : @"Bearer",
+        MSID_OAUTH2_ACCESS_TOKEN : @"test-device-access-token",
+        MSID_OAUTH2_EXPIRES_IN : @"3600",
+        MSID_OAUTH2_SCOPE : @"scope1 scope2",
+        MSID_OAUTH2_CLIENT_INFO : clientInfoString,
+        MSID_OAUTH2_ID_TOKEN : @"test-id-token"
+    };
+    request.expectedResponse = tokenResponse;
+    request.expectedError = nil;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
     __block NSError *capturedError = nil;
+    __block MSIDTokenResult *capturedResult = nil;
 
     // Act
-    [request executeRequestWithCompletion:^(MSIDTokenResult * __unused result, NSError *error)
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
     {
+        capturedResult = result;
         capturedError = error;
         [expectation fulfill];
     }];
@@ -479,6 +475,8 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
     // Assert
+    XCTAssertNotNil(capturedResult);
+    XCTAssertEqualObjects([capturedResult.accessToken accessToken], @"test-device-access-token");
     XCTAssertNil(capturedError);
 }
 
