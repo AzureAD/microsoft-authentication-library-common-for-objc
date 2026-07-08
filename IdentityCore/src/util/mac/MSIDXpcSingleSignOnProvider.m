@@ -111,6 +111,8 @@ NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason 
             return @"DeviceInfoHandshakeTimeout";
         case MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed:
             return @"ValidateCacheProviderFailed";
+        case MSIDXpcCanPerformFailureReasonUnsupportedOSVersion:
+            return @"UnsupportedOSVersion";
     }
     
     return @"Unknown";

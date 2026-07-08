@@ -46,6 +46,8 @@ typedef NS_ENUM(NSInteger, MSIDXpcCanPerformFailureReason)
     MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeTimeout,
     // No installed Xpc provider matches the cached/available Xpc configuration.
     MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed,
+    // The Xpc broker flow is gated behind macOS 13+ (or otherwise unsupported on this OS version) and was rejected before reaching MSIDXpcSingleSignOnProvider.
+    MSIDXpcCanPerformFailureReasonUnsupportedOSVersion,
 };
 
 // Returns a human readable, non-PII name for the given failure reason, suitable for logging.

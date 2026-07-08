@@ -84,16 +84,29 @@
 
 + (BOOL)canPerformRequest
 {
+    return [self canPerformRequest:nil];
+}
+
++ (BOOL)canPerformRequest:(MSIDXpcCanPerformFailureReason *)reason
+{
     if (@available(macOS 13, *)) {
         MSIDXpcCanPerformFailureReason failureReason = MSIDXpcCanPerformFailureReasonNone;
         BOOL canPerform = [MSIDXpcSingleSignOnProvider canPerformRequest:MSIDXpcProviderCache.sharedInstance
                                                                    reason:&failureReason];
+        if (reason)
+        {
+            *reason = failureReason;
+        }
         if (!canPerform)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[MSIDXpcInteractiveTokenRequestController canPerformRequest] returned NO, reason: %@ (%ld)", MSIDXpcCanPerformFailureReasonToString(failureReason), (long)failureReason);
         }
         return canPerform;
     } else {
+        if (reason)
+        {
+            *reason = MSIDXpcCanPerformFailureReasonUnsupportedOSVersion;
+        }
         return NO;
     }
 }
