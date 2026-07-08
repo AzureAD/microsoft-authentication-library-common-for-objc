@@ -78,3 +78,16 @@
 }
 
 @end
+
+@implementation XCUICoordinate (CrossPlat)
+
+- (void)msidTap
+{
+#if TARGET_OS_IPHONE
+    [self tap];
+#else
+    [self click];
+#endif
+}
+
+@end

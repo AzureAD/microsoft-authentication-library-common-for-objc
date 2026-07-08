@@ -48,5 +48,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+/*!
+ Returns YES when @c host is a recognized identity host for this authority type.
+ The base implementation returns NO; authority types that support cloud host
+ rewriting (e.g. AAD) override this to validate against their known host list.
+ Matching is expected to be case-insensitive. Returns NO for nil or blank input.
+ */
+- (BOOL)isRecognizedMicrosoftIdentityHost:(nullable NSString *)host;
+
 NS_ASSUME_NONNULL_END
 @end

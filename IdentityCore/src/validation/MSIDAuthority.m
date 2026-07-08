@@ -367,6 +367,11 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     return nil;
 }
 
+- (BOOL)isRecognizedMicrosoftIdentityHost:(__unused NSString *)host
+{
+    return NO;
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
