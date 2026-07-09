@@ -120,7 +120,7 @@ static SecIdentityRef s_testIdentityForCertBasedAuth = NULL;
 {
 #if !MSID_EXCLUDE_SYSTEMWV
     
-#if MSID_ENABLE_TEST_HOOKS
+#if TARGET_OS_IPHONE && MSID_ENABLE_TEST_HOOKS
     if (s_disableCertBasedAuth)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Cert based auth is explicitly disabled. Ignoring challenge.");
