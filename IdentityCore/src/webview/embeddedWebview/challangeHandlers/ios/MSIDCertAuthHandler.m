@@ -34,7 +34,7 @@
 #import <Security/Security.h>
 #endif
 
-#if !MSID_EXCLUDE_SYSTEMWV && MSID_ENABLE_TEST_HOOKS
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV && MSID_ENABLE_TEST_HOOKS
 
 // Test-only API surface. Declared in a file-private class extension so the
 // formal property contract lives only inside this .m and never reaches any
