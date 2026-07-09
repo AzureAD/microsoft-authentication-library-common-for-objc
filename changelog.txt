@@ -1,4 +1,5 @@
 TBD
+*iOS: opt-in test injection hook for in-process CBA challenge handling #1880
 * Add MSIDUXCallbackProtocol and MSIDUXCallbackProvider to allow host apps to receive UX callbacks (e.g., schedule and cancel MDM profile installed notification) from CommonCore navigation layer. Add delay validation for flight-configured notification delay.
 * Only attach the PRT (refresh token credential) header to the PkeyAuth challenge response for known/trusted AAD hosts, preventing PRT leakage to untrusted hosts. Record an execution-flow tag for the added/skipped decision when a correlation id is available.
 * Validate cloud_instance_host_name from the auth redirect against the known Microsoft identity host list before using it to build the cloud authority in setCloudAuthorityWithCloudHostName: and authorityWithUpdatedCloudHostInstanceName:error:. Unrecognized values are ignored and logged; sovereign-cloud and instance-aware flows are unaffected.
