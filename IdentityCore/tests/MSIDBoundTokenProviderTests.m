@@ -50,6 +50,8 @@
 #import "MSIDBrokerConstants.h"
 #import "MSIDCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDRequestControlling.h"
+#import "MSIDTokenRequestProviding.h"
 #import "NSString+MSIDExtensions.h"
 
 #pragma mark - Test seam (private methods under test)
@@ -79,6 +81,43 @@
 - (MSIDDefaultSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                                          tokenCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
                                                accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+
+- (void)acquireTokenInteractivelyWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                        request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                        context:(nullable id<MSIDRequestContext>)context
+                                completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock;
+
+- (BOOL)isBartFeatureEnabled;
+- (BOOL)canPerformInteractiveRequest:(MSIDInteractiveTokenRequestParameters *)parameters;
+
+- (id<MSIDTokenRequestProviding>)tokenRequestProviderWithTokenCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
+                                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+
+- (id<MSIDRequestControlling>)interactiveControllerForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                           tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                          error:(NSError *__autoreleasing *)error;
+
+@end
+
+#pragma mark - Interactive controller stub
+
+// Stands in for the real broker interactive controller so tests can drive the provider's interactive
+// orchestration with a canned result/error instead of flipping to the broker.
+@interface MSIDBoundTokenProviderTestControllerStub : NSObject <MSIDRequestControlling>
+
+@property (nonatomic, nullable) MSIDTokenResult *stubResult;
+@property (nonatomic, nullable) NSError *stubError;
+@property (nonatomic) BOOL acquireTokenCalled;
+
+@end
+
+@implementation MSIDBoundTokenProviderTestControllerStub
+
+- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
+{
+    self.acquireTokenCalled = YES;
+    completionBlock(self.stubResult, self.stubError);
+}
 
 @end
 
@@ -114,6 +153,14 @@
 @property (nonatomic, nullable) NSError *silentError;
 @property (nonatomic) BOOL silentRequestCreated;
 
+// Interactive path controls.
+@property (nonatomic) BOOL bartFeatureEnabled;
+@property (nonatomic) BOOL brokerAvailable;
+@property (nonatomic, nullable) MSIDTokenResult *interactiveResult;
+@property (nonatomic, nullable) NSError *interactiveError;
+@property (nonatomic, nullable) NSError *interactiveControllerBuildError;
+@property (nonatomic) BOOL interactiveControllerCreated;
+
 @end
 
 @implementation MSIDBoundTokenProviderTestStub
@@ -143,6 +190,41 @@
                                                              accountMetadataCache:accountMetadataCache];
     stub.stubResult = self.silentResult;
     stub.stubError = self.silentError;
+    return stub;
+}
+
+- (BOOL)isBartFeatureEnabled
+{
+    return self.bartFeatureEnabled;
+}
+
+- (BOOL)canPerformInteractiveRequest:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+{
+    return self.brokerAvailable;
+}
+
+- (id<MSIDTokenRequestProviding>)tokenRequestProviderWithTokenCache:(__unused MSIDDefaultTokenCacheAccessor *)tokenCache
+                                              accountMetadataCache:(__unused MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+{
+    // The injected controller stub ignores the provider, so any non-nil sentinel keeps the flow going.
+    return (id<MSIDTokenRequestProviding>)[NSObject new];
+}
+
+- (id<MSIDRequestControlling>)interactiveControllerForParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+                                           tokenRequestProvider:(__unused id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                          error:(NSError *__autoreleasing *)error
+{
+    if (self.interactiveControllerBuildError)
+    {
+        if (error) *error = self.interactiveControllerBuildError;
+        return nil;
+    }
+
+    self.interactiveControllerCreated = YES;
+
+    MSIDBoundTokenProviderTestControllerStub *stub = [MSIDBoundTokenProviderTestControllerStub new];
+    stub.stubResult = self.interactiveResult;
+    stub.stubError = self.interactiveError;
     return stub;
 }
 
@@ -298,54 +380,6 @@
     XCTAssertFalse([provider promptForcesInteraction:MSIDPromptTypeNever]);
 }
 
-#pragma mark - End-to-end routing
-
-// A prompt that forces UI must never be serviced silently; it routes straight to the (not-yet-
-// implemented) interactive path regardless of cached token availability.
-- (void)testAcquireBoundToken_promptForcesUI_routesToInteractive
-{
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
-    request.prompt = MSIDPromptTypeLogin;
-
-    XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
-
-    [provider acquireBoundTokenWithRequest:request
-                                   context:nil
-                           completionBlock:^(NSString *response, NSError *error) {
-        XCTAssertNil(response);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectations:@[expectation] timeout:5.0];
-}
-
-// With no account identifier the request cannot be serviced silently, so the provider routes to the
-// interactive path and surfaces a clear interaction-required signal.
-- (void)testAcquireBoundToken_noAccountIdentifier_routesToInteractive
-{
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
-    request.accountId = nil;
-
-    XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
-
-    [provider acquireBoundTokenWithRequest:request
-                                   context:nil
-                           completionBlock:^(NSString *response, NSError *error) {
-        XCTAssertNil(response);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectations:@[expectation] timeout:5.0];
-}
-
 #if TARGET_OS_IPHONE
 
 #pragma mark - Silent path
@@ -367,6 +401,9 @@
     MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
     provider.injectedTokenCache = [self inMemoryTokenCache];
     provider.injectedAccountMetadataCache = [self inMemoryAccountMetadataCache];
+    // Default the interactive path to a usable broker flip; individual tests override the outcome.
+    provider.bartFeatureEnabled = YES;
+    provider.brokerAvailable = YES;
     return provider;
 }
 
@@ -376,7 +413,7 @@
 
     MSIDDefaultTokenCacheAccessor *tokenCache = [provider defaultTokenCache:nil];
     XCTAssertNotNil(tokenCache);
-    XCTAssertEqualObjects([tokenCache.accountCredentialCache.dataSource valueForKey:@"keychainGroup"],
+    XCTAssertEqualObjects([(id)tokenCache.accountCredentialCache.dataSource valueForKey:@"keychainGroup"],
                           [MSIDKeychainTokenCache defaultKeychainGroup]);
 
     MSIDAccountMetadataCacheAccessor *accountMetadataCache = [provider accountMetadataCache:nil];
@@ -415,30 +452,32 @@
 }
 
 // When the silent engine reports interaction is required, the provider falls back to the interactive
-// path rather than surfacing the engine error directly.
-- (void)testAcquireTokenSilently_engineReturnsInteractionRequired_routesToInteractive
+// broker flip. Here the injected controller returns a token result, so the flip yields a payload.
+- (void)testAcquireTokenSilently_engineReturnsInteractionRequired_fallsBackToInteractive
 {
     MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
     provider.silentResult = nil;
     provider.silentError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
                                            @"User interaction is required", nil, nil, nil, nil, nil, NO);
+    provider.interactiveResult = [self cachedTokenResult];
+    provider.interactiveError = nil;
 
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
     MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
 
-    XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interactive fallback payload"];
 
     [provider acquireTokenSilentlyWithParameters:parameters
                                          request:request
                                          context:nil
                                  completionBlock:^(NSString *response, NSError *error) {
-        XCTAssertNil(response);
-        XCTAssertNotNil(error);
-        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        XCTAssertNil(error);
+        XCTAssertNotNil(response);
+        XCTAssertTrue([response containsString:@"access_token"]);
         [expectation fulfill];
     }];
 
+    XCTAssertTrue(provider.interactiveControllerCreated);
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
@@ -469,18 +508,20 @@
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
-// When the token cache cannot be constructed the silent engine is never created and the provider
-// routes to the interactive path.
+// When the token cache cannot be constructed the silent engine is never created; the provider routes
+// to the interactive path, which also finds no cache and surfaces MSIDErrorInternal.
 - (void)testAcquireTokenSilently_cacheUnavailable_routesToInteractive
 {
     MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
     provider.injectedTokenCache = nil;
     provider.injectedAccountMetadataCache = nil;
+    provider.bartFeatureEnabled = YES;
+    provider.brokerAvailable = YES;
 
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
     MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
 
-    XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"cache unavailable"];
 
     [provider acquireTokenSilentlyWithParameters:parameters
                                          request:request
@@ -489,10 +530,229 @@
         XCTAssertNil(response);
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
         [expectation fulfill];
     }];
 
+    XCTAssertFalse(provider.silentRequestCreated);
+    XCTAssertFalse(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+#pragma mark - Interactive path
+
+// When the interactive controller returns a token result, the provider serializes it into the
+// GetToken response payload and reports success.
+- (void)testAcquireTokenInteractively_controllerReturnsResult_returnsPayload
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveResult = [self cachedTokenResult];
+    provider.interactiveError = nil;
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"payload"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(response);
+        XCTAssertTrue([response containsString:@"access_token"]);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// An error from the interactive controller is propagated to the caller as-is.
+- (void)testAcquireTokenInteractively_controllerReturnsError_propagatesError
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveResult = nil;
+    provider.interactiveError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel,
+                                                @"User cancelled the interactive flow", nil, nil, nil, nil, nil, NO);
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interactive error"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorUserCancel);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// The BART feature flag is the load-bearing minting trigger: with it disabled the provider must refuse
+// the flip (a flip would mint an unbound token) and never build a controller.
+- (void)testAcquireTokenInteractively_bartFeatureDisabled_returnsInternalErrorWithoutFlipping
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.bartFeatureEnabled = NO;
+    provider.interactiveResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"bart disabled"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation fulfill];
+    }];
+
+    XCTAssertFalse(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// When the broker (Authenticator) is unavailable, the provider surfaces the dedicated
+// broker-not-available error rather than attempting the flip.
+- (void)testAcquireTokenInteractively_brokerUnavailable_returnsBrokerNotAvailable
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.brokerAvailable = NO;
+    provider.interactiveResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"broker unavailable"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorBrokerNotAvailable);
+        [expectation fulfill];
+    }];
+
+    XCTAssertFalse(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// A failure to construct the interactive controller is propagated to the caller.
+- (void)testAcquireTokenInteractively_controllerBuildFails_propagatesError
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveControllerBuildError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                                               @"could not build controller", nil, nil, nil, nil, nil, NO);
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"controller build fails"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// The interactive path also guards against a missing token cache and surfaces MSIDErrorInternal.
+- (void)testAcquireTokenInteractively_cacheUnavailable_returnsInternalError
+{
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
+    provider.injectedTokenCache = nil;
+    provider.injectedAccountMetadataCache = nil;
+    provider.bartFeatureEnabled = YES;
+    provider.brokerAvailable = YES;
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"cache unavailable"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation fulfill];
+    }];
+
+    XCTAssertFalse(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// End-to-end routing: a UI-forcing prompt bypasses the silent path and reaches the interactive flip,
+// which (with an injected controller) yields a payload.
+- (void)testAcquireBoundToken_promptForcesUI_routesToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.prompt = MSIDPromptTypeLogin;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"routes to interactive"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(response);
+        XCTAssertTrue([response containsString:@"access_token"]);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.interactiveControllerCreated);
+    XCTAssertFalse(provider.silentRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// End-to-end routing: with no account identifier the request cannot be serviced silently, so it
+// reaches the interactive flip.
+- (void)testAcquireBoundToken_noAccountIdentifier_routesToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.accountId = nil;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"routes to interactive"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(response);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.interactiveControllerCreated);
     XCTAssertFalse(provider.silentRequestCreated);
     [self waitForExpectations:@[expectation] timeout:5.0];
 }

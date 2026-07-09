@@ -47,10 +47,19 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDBrowserNativeMessageGetTokenResponse.h"
 #import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDRequestControllerFactory.h"
+#import "MSIDRequestControlling.h"
+#import "MSIDTokenRequestProviding.h"
+#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDDefaultTokenResponseValidator.h"
+#import "MSIDBrokerInvocationOptions.h"
+#import "MSIDBartFeatureUtil.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
+#import "MSIDBrokerInteractiveController.h"
+#import "MSIDDefaultBrokerResponseHandler.h"
 #endif
 
 NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider]";
@@ -100,6 +109,39 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Routing GetToken request to interactive path.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
         [self acquireTokenInteractivelyWithParameters:parameters request:request context:context completionBlock:completionBlock];
     }
+}
+
+#pragma mark - Interactive callback
+
++ (BOOL)completeInteractiveRequestWithURL:(NSURL *)url
+                        sourceApplication:(nullable NSString *)sourceApplication
+                                  context:(nullable id<MSIDRequestContext>)context
+{
+#if TARGET_OS_IPHONE
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
+                      @"%@ Handling inbound broker callback for interactive request.",
+                      MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler =
+    [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+                                           tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+
+    BOOL handled = [MSIDBrokerInteractiveController completeAcquireToken:url
+                                                     sourceApplication:sourceApplication
+                                                 brokerResponseHandler:brokerResponseHandler];
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
+                      @"%@ Inbound broker callback handled: %@.",
+                      MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, handled ? @"YES" : @"NO");
+    return handled;
+#else
+    (void)url;
+    (void)sourceApplication;
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context,
+                      @"%@ Inbound broker callback is only supported on iOS.",
+                      MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+    return NO;
+#endif
 }
 
 #pragma mark - Private
@@ -349,18 +391,175 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 
 #pragma mark - Interactive path
 
-// Interactive broker flip (app flip to Authenticator) is not yet implemented. For now a clear
-// "interaction required" signal is surfaced so callers can decide how to proceed.
-- (void)acquireTokenInteractivelyWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
-                                        request:(__unused MSIDBrowserNativeMessageGetTokenRequest *)request
+// Interactive broker flip: opens the broker (Authenticator) via URL scheme (msauthv2://) to mint the
+// initial device-bound RT through PRT redemption, then shapes the returned result into the GetToken
+// response. The broker request carries bound_rt_redeem=1 (added by MSIDBrokerTokenRequest when the BART
+// feature is enabled), which is the signal the broker uses to perform the bound-RT exchange with ESTS.
+- (void)acquireTokenInteractivelyWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                        request:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                         context:(nullable id<MSIDRequestContext>)context
                                 completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Interactive broker flip is not yet implemented.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
-                                     @"Interactive broker flip is required but not yet implemented in MSIDBoundTokenProvider.",
-                                     nil, nil, nil, context.correlationId, nil, NO);
-    completionBlock(nil, error);
+    if (!completionBlock)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ completionBlock is nil; cannot deliver interactive result.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+        return;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
+                      @"%@ Beginning interactive broker flip. clientId: %@",
+                      MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, request.clientId);
+
+    // Minting precondition: the outbound bound_rt_redeem=1 signal that makes the broker mint a
+    // device-bound RT is gated on the BART feature flag (see MSIDBrokerTokenRequest). Flipping with
+    // the flag disabled would mint an unbound token, defeating the purpose of this flow.
+    if (![self isBartFeatureEnabled])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context,
+                          @"%@ BART feature disabled; refusing interactive flip to avoid minting an unbound token.",
+                          MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                         @"BART feature is disabled; cannot mint a bound token via interactive broker flip.",
+                                         nil, nil, nil, context.correlationId, nil, NO);
+        completionBlock(nil, error);
+        return;
+    }
+
+    MSIDDefaultTokenCacheAccessor *tokenCache = [self defaultTokenCache:context];
+    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [self accountMetadataCache:context];
+    if (!tokenCache || !accountMetadataCache)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context,
+                          @"%@ Token cache unavailable; cannot perform interactive broker flip.",
+                          MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                         @"Token cache is unavailable; cannot perform interactive broker flip.",
+                                         nil, nil, nil, context.correlationId, nil, NO);
+        completionBlock(nil, error);
+        return;
+    }
+
+    // Configure the request to route through the broker via the custom-scheme flip (msauthv2://).
+    [self configureBrokerInvocationForParameters:parameters];
+
+    if (![self canPerformInteractiveRequest:parameters])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context,
+                          @"%@ Broker (Authenticator) is not available; cannot complete interactive request.",
+                          MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerNotAvailable,
+                                         @"Broker (Authenticator) is required for the interactive bound-token request but is not available.",
+                                         nil, nil, nil, context.correlationId, nil, NO);
+        completionBlock(nil, error);
+        return;
+    }
+
+    id<MSIDTokenRequestProviding> tokenRequestProvider = [self tokenRequestProviderWithTokenCache:tokenCache
+                                                                            accountMetadataCache:accountMetadataCache];
+
+    NSError *controllerError = nil;
+    id<MSIDRequestControlling> controller = [self interactiveControllerForParameters:parameters
+                                                               tokenRequestProvider:tokenRequestProvider
+                                                                              error:&controllerError];
+    if (!controller)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context,
+                          @"%@ Failed to build interactive controller: %@",
+                          MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(controllerError));
+        completionBlock(nil, controllerError);
+        return;
+    }
+
+    // Keep the controller alive across the app-flip and the inbound callback round-trip.
+    __block id<MSIDRequestControlling> pendingController = controller;
+    __typeof(self) strongSelf = self;
+    [controller acquireToken:^(MSIDTokenResult *result, NSError *error) {
+        pendingController = nil;
+
+        if (result)
+        {
+            NSError *shapeError = nil;
+            NSString *payload = [strongSelf responsePayloadFromResult:result request:request error:&shapeError];
+            if (payload)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Interactive GetToken request completed.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+                completionBlock(payload, nil);
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, context,
+                                  @"%@ Interactive GetToken succeeded but response shaping failed: %@",
+                                  MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(shapeError));
+                completionBlock(nil, shapeError);
+            }
+            return;
+        }
+
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context,
+                          @"%@ Interactive GetToken request failed: %@",
+                          MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(error));
+        completionBlock(nil, error);
+    }];
+}
+
+// Configures the request parameters to flip to the broker. Edge's redirect URI is a custom scheme, so
+// the flip uses msauthv2:// (custom scheme); an https redirect would use the universal link instead.
+- (void)configureBrokerInvocationForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+{
+    parameters.validateAuthority = YES;
+
+    MSIDBrokerProtocolType protocolType = MSIDBrokerProtocolTypeCustomScheme;
+    if ([parameters.redirectUri hasPrefix:@"https"])
+    {
+        protocolType = MSIDBrokerProtocolTypeUniversalLink;
+    }
+
+    parameters.brokerInvocationOptions =
+    [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                      protocolType:protocolType
+                                                 aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+}
+
+// Seam: BART feature gate. The interactive flip only mints a bound RT when this is enabled, because it
+// gates the outbound bound_rt_redeem=1 signal in MSIDBrokerTokenRequest.
+- (BOOL)isBartFeatureEnabled
+{
+    return [[MSIDBartFeatureUtil sharedInstance] isBartFeatureEnabled];
+}
+
+// Seam: broker availability probe. Extracted so tests can drive the broker-unavailable branch.
+- (BOOL)canPerformInteractiveRequest:(MSIDInteractiveTokenRequestParameters *)parameters
+{
+#if TARGET_OS_IPHONE
+    return [MSIDBrokerInteractiveController canPerformRequest:parameters];
+#else
+    return NO;
+#endif
+}
+
+// Seam: builds the token request provider the interactive controller factory needs. Extracted so tests
+// can substitute a stub (avoiding live authority resolution / network) as the silent path does.
+- (id<MSIDTokenRequestProviding>)tokenRequestProviderWithTokenCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
+                                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+{
+    MSIDAADV2Oauth2Factory *oauthFactory = [MSIDAADV2Oauth2Factory new];
+    MSIDTokenResponseValidator *tokenResponseValidator = [MSIDTokenResponseValidator new];
+
+    return [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:oauthFactory
+                                                        defaultAccessor:tokenCache
+                                                accountMetadataAccessor:accountMetadataCache
+                                                 tokenResponseValidator:tokenResponseValidator];
+}
+
+// Seam: builds the interactive (broker) controller. Extracted so tests can substitute a fake controller
+// whose acquireToken: returns a canned result/error instead of flipping to the broker.
+- (id<MSIDRequestControlling>)interactiveControllerForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                           tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                          error:(NSError *__autoreleasing *)error
+{
+    return [MSIDRequestControllerFactory interactiveControllerForParameters:parameters
+                                                      tokenRequestProvider:tokenRequestProvider
+                                                                     error:error];
 }
 
 #pragma mark - Response shaping
