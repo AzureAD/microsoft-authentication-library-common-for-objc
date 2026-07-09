@@ -62,24 +62,24 @@ target_specifiers = [
         "name" : "iOS Library",
         "target" : "ios_library",
         "scheme" : "IdentityCore iOS",
-        "operations" : [ "build", "test" ],
-        "min_warn_codecov" : 70.0,
+        "operations" : [ "build", "test", "codecov" ],
+        "min_warn_codecov" : 40.0,
         "platform" : "iOS",
     },
     {
         "name" : "Mac Library",
         "target" : "mac_library",
         "scheme" : "IdentityCore Mac",
-        "operations" : [ "build", "test" ],
-        "min_warn_codecov" : 70.0,
+        "operations" : [ "build", "test", "codecov" ],
+        "min_warn_codecov" : 40.0,
         "platform" : "Mac"
     },
     {
         "name" : "Vision Library",
         "target" : "vision_library",
         "scheme" : "IdentityCore iOS",
-        "operations" : [ "build", "test" ],
-        "min_warn_codecov" : 70.0,
+        "operations" : [ "build", "test", "codecov" ],
+        "min_warn_codecov" : 40.0,
         "platform" : "visionOS"
     },
 ]
