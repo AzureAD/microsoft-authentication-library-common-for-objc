@@ -50,6 +50,7 @@
 #import "MSIDBrokerConstants.h"
 #import "MSIDCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDKeychainUtil.h"
 #import "NSString+MSIDExtensions.h"
 
 #pragma mark - Test seam (private methods under test)
@@ -374,17 +375,21 @@
 {
     MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
 
+    // The keychain data source stores the team-prefixed access group, so build the
+    // expected value with the same helper the production cache uses.
+    NSString *expectedKeychainGroup = [[MSIDKeychainUtil sharedInstance] accessGroup:[MSIDKeychainTokenCache defaultKeychainGroup]];
+
     MSIDDefaultTokenCacheAccessor *tokenCache = [provider defaultTokenCache:nil];
     XCTAssertNotNil(tokenCache);
-    XCTAssertEqualObjects([tokenCache.accountCredentialCache.dataSource valueForKey:@"keychainGroup"],
-                          [MSIDKeychainTokenCache defaultKeychainGroup]);
+    XCTAssertEqualObjects([(NSObject *)tokenCache.accountCredentialCache.dataSource valueForKey:@"keychainGroup"],
+                          expectedKeychainGroup);
 
     MSIDAccountMetadataCacheAccessor *accountMetadataCache = [provider accountMetadataCache:nil];
     XCTAssertNotNil(accountMetadataCache);
 
     id metadataCache = [accountMetadataCache valueForKey:@"metadataCache"];
     XCTAssertEqualObjects([[metadataCache valueForKey:@"dataSource"] valueForKey:@"keychainGroup"],
-                          [MSIDKeychainTokenCache defaultKeychainGroup]);
+                          expectedKeychainGroup);
 }
 
 // When the silent engine returns a token result, the provider serializes it into the GetToken
