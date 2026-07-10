@@ -208,6 +208,44 @@ class MSIDFlightManagerTests: XCTestCase {
         XCTAssertTrue(mockFlightProvider.stringForKeyCalled)
     }
     
+    func testConcurrentReads_whileProviderSwappedAndCleared_doNotCrash() {
+        let flightManager = MSIDFlightManager.sharedInstance()
+        
+        let expectation = XCTestExpectation(description: "All operations complete")
+        expectation.expectedFulfillmentCount = 300
+        
+        // Interleave provider swaps (including nil) with concurrent reads. Before the reader
+        // fix, boolForKey:/stringForKey: tested the provider through the unsynchronized getter
+        // before dispatching onto the synchronization queue, so a swap-and-release racing a
+        // read could leave the read messaging a freed provider. Reading the provider once from
+        // inside the queue into a strong local removes that window.
+        for i in 0..<100 {
+            DispatchQueue.global().async {
+                let provider = MockFlightProvider()
+                provider.identifier = "provider-\(i)"
+                provider.boolValues["bool-key"] = true
+                provider.stringValues["string-key"] = "value-\(i)"
+                flightManager.flightProvider = (i % 2 == 0) ? provider : nil
+                expectation.fulfill()
+            }
+            
+            DispatchQueue.global().async {
+                _ = flightManager.bool(forKey: "bool-key")
+                expectation.fulfill()
+            }
+            
+            DispatchQueue.global().async {
+                _ = flightManager.string(forKey: "string-key")
+                expectation.fulfill()
+            }
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Reset shared singleton state mutated by this test.
+        flightManager.flightProvider = nil
+    }
+    
     // MARK: - Edge Cases
     
     func testQueryKeyInstance_WithWhitespaceOnlyKey_ReturnsSharedInstance() {
