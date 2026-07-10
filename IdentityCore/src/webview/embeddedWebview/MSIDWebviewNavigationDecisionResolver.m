@@ -31,7 +31,6 @@
 #import "MSIDVersion.h"
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDFlightManager.h"
-#import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 
