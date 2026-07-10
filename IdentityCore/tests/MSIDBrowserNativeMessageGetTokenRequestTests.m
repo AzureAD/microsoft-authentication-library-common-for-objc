@@ -30,6 +30,9 @@
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDError.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 
 @interface MSIDBrowserNativeMessageGetTokenRequestTests : XCTestCase
 
@@ -43,6 +46,7 @@
 
 - (void)tearDown 
 {
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
 }
 
 - (void)testOperation_shouldBeCorrect
@@ -1231,6 +1235,93 @@
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
     // tokenType in extraParameters is Pop but reqCnf is missing, so the request is rejected.
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndNilReqCnfAndValidationDisabledByFlight_shouldInitWithDefaultScheme
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+        }
+    };
+
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+
+    // Kill switch is enabled, so the missing reqCnf validation is skipped. Initialization succeeds; the Pop scheme
+    // cannot be built without reqCnf, so the request falls back to the default (Bearer) scheme instead of failing.
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndEmptyReqCnfAndValidationDisabledByFlight_shouldInitWithDefaultScheme
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+            @"reqCnf": @""
+        }
+    };
+
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+
+    // Kill switch is enabled, so the empty reqCnf validation is skipped. Initialization succeeds; the Pop scheme
+    // cannot be built without reqCnf, so the request falls back to the default (Bearer) scheme instead of failing.
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndNilReqCnfAndValidationEnabledByDefaultFlight_shouldReturnNilWithError
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @NO };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+        }
+    };
+
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+
+    // Kill switch is explicitly off, so validation remains active and the request is rejected.
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
