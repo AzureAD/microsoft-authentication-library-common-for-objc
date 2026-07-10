@@ -38,6 +38,7 @@ extern NSString * const MSID_MDM_ENROLL_HOST;
 extern NSString * const MSID_COMPLIANCE_HOST;
 extern NSString * const MSID_MDM_ENROLLMENT_COMPLETION_HOST;
 extern NSString * const MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST;
+extern NSString * const MSID_BROKER_APP_INSTALL_HOST;
 
 #pragma mark - Enrollment Query Parameters
 

@@ -36,6 +36,7 @@ NSString * const MSID_MDM_ENROLL_HOST = @"enroll";
 NSString * const MSID_COMPLIANCE_HOST = @"compliance";
 NSString * const MSID_MDM_ENROLLMENT_COMPLETION_HOST = @"in_app_enrollment_complete";
 NSString * const MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST = @"profile_download_complete";
+NSString * const MSID_BROKER_APP_INSTALL_HOST = @"wpj";
 
 #pragma mark - Enrollment Query Parameters
 

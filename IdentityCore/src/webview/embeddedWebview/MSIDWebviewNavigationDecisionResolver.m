@@ -31,6 +31,9 @@
 #import "MSIDVersion.h"
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDFlightManager.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -138,6 +141,11 @@
     {
         return [self decisionForEnrollmentCompletionURL:URL
                                                  params:params];
+    }
+    else if ([host isEqualToString:MSID_BROKER_APP_INSTALL_HOST])
+    {
+        return [self decisionForBrokerAppInstallURL:URL
+                          embeddedWebviewController:embeddedWebviewController];
     }
     else
     {
@@ -391,6 +399,22 @@
                                      @"SSO extension is not available and no valid fallback error URL was provided for enrollment completion.",
                                      nil, nil, nil, nil, nil, YES);
     return [MSIDWebviewNavigationDecision failWithError:error];
+}
+
+- (MSIDWebviewNavigationDecision *)decisionForBrokerAppInstallURL:(NSURL *)URL
+                                       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[BrokerAppInstall] Handling workplace-join (wpj) redirect; completing web auth so the request is handed off.");
+
+    // Record the broker-app-install onboarding step before diverting. When the new mobile
+    // onboarding flow handles the wpj redirect in-app, it does not fall through to the legacy
+    // broker handoff that used to stamp this step, so record it here to keep the onboarding
+    // telemetry blob complete. onboardingBlobBuilder is nil outside the onboarding flow, in
+    // which case the nil-message is a safe no-op.
+    [embeddedWebviewController.onboardingBlobBuilder addStep:MSIDOnboardingBlobStepBrokerAppInstall
+                                                   timestamp:[NSDate date]];
+
+    return [MSIDWebviewNavigationDecision completeWithURL:URL];
 }
 
 - (MSIDWebviewNavigationDecision *)decisionForComplianceURL:(NSDictionary *)params
