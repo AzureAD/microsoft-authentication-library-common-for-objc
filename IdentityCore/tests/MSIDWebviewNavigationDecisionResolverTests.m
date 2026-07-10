@@ -40,6 +40,8 @@
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
 #import "MSIDMockUXCallbackProvider.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 @interface MSIDWebviewNavigationDecisionResolverTests : XCTestCase
 
@@ -155,6 +157,38 @@
                                                                  embeddedWebviewController:nil];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionContinueDefault);
+}
+
+#pragma mark - Broker app install host
+
+- (void)testResolveDecision_msauthBrokerAppInstallHost_returnsCompleteWithURL
+{
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_BROKER_APP_INSTALL_HOST]];
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 embeddedWebviewController:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionCompleteWithURL);
+    XCTAssertEqualObjects(decision.URL, url);
+}
+
+- (void)testResolveDecision_msauthBrokerAppInstallHost_withOnboardingBuilder_stampsBrokerAppInstallStep
+{
+    MSIDOAuth2EmbeddedWebviewController *controller = [self createWebviewControllerWithExternalBlock:nil];
+    controller.onboardingBlobBuilder = [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:@"{\"schema_version\":\"1.0.0\"}"
+                                                                                   clientId:@"test-client-id"
+                                                                                     target:@"user.read"];
+
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_BROKER_APP_INSTALL_HOST]];
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 embeddedWebviewController:controller];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionCompleteWithURL);
+
+    NSString *blob = [controller.onboardingBlobBuilder finalizeBlob];
+    NSData *blobData = [blob dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *parsedBlob = [NSJSONSerialization JSONObjectWithData:blobData options:0 error:nil];
+
+    XCTAssertEqualObjects(parsedBlob[MSIDOnboardingBlobFieldLastCompletedStep], MSIDOnboardingBlobStepBrokerAppInstall);
 }
 
 #pragma mark - Enroll host
