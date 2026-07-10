@@ -120,7 +120,7 @@
 
 #pragma mark - MSIDFlightManagerInterface
 
-- (BOOL)boolForKey:(nonnull NSString *)flightKey 
+- (BOOL)boolForKey:(nonnull NSString *)flightKey
 {
     __block BOOL result = NO;
     // Read the provider only from within the synchronization queue. Testing it via the

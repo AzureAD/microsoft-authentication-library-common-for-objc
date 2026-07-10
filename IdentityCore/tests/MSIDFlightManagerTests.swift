@@ -211,15 +211,17 @@ class MSIDFlightManagerTests: XCTestCase {
     func testConcurrentReads_whileProviderSwappedAndCleared_doNotCrash() {
         let flightManager = MSIDFlightManager.sharedInstance()
         
+        let iterations = 100
+        let operationsPerIteration = 3
         let expectation = XCTestExpectation(description: "All operations complete")
-        expectation.expectedFulfillmentCount = 300
+        expectation.expectedFulfillmentCount = iterations * operationsPerIteration
         
         // Interleave provider swaps (including nil) with concurrent reads. Before the reader
         // fix, boolForKey:/stringForKey: tested the provider through the unsynchronized getter
         // before dispatching onto the synchronization queue, so a swap-and-release racing a
         // read could leave the read messaging a freed provider. Reading the provider once from
         // inside the queue into a strong local removes that window.
-        for i in 0..<100 {
+        for i in 0..<iterations {
             DispatchQueue.global().async {
                 let provider = MockFlightProvider()
                 provider.identifier = "provider-\(i)"
