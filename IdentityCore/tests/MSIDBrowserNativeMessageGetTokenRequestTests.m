@@ -47,6 +47,7 @@
 - (void)tearDown 
 {
     MSIDFlightManager.sharedInstance.flightProvider = nil;
+    [super tearDown];
 }
 
 - (void)testOperation_shouldBeCorrect
