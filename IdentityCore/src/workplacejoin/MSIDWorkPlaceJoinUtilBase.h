@@ -25,6 +25,8 @@
 #define MSIDWorkPlaceJoinUtilBase_h
 
 @class MSIDWPJKeyPairWithCert;
+@class MSIDRequestParameters;
+#import "MSIDConstants.h"
 
 #import <Foundation/Foundation.h>
 
@@ -55,6 +57,12 @@
 // MSIDWPJKeyPairWithCert only contains keys and cert - no IdentityRef. Can be used for PkeyAuth challenges, but not for Client TLS challenges
 + (nullable MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(nullable NSString *)tenantId
                                                     context:(nullable id<MSIDRequestContext>)context;
+
++ (void)getDeviceTokenForTenantId:(nonnull NSString *)tenantId
+                requestParameters:(nonnull MSIDRequestParameters *)requestParameters
+                           scopes:(nullable NSOrderedSet<NSString *> *)scopes
+                         resource:(nonnull NSString *)resource
+                  completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock;
 @end
 
 #endif /* MSIDWorkPlaceJoinUtilBase_h */

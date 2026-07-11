@@ -30,6 +30,14 @@
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
 #import "MSIDDIContainer.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDAuthority.h"
+#import "MSIDDeviceTokenResponseHandler.h"
+#import "MSIDDeviceTokenGrantRequest.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDNonceTokenRequest.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDOauth2Factory.h"
 
 static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
 static NSString *kECPrivateKeyTagSuffix = @"-EC";
@@ -401,6 +409,106 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     // Otherwise, return legacy Identity - this can happen if we couldn't match based on the tenantId, but Identity was there. It could be usable. We'll let ESTS to evaluate it and check.
     // This means that for registrations that have no tenantId stored, we'd always do this extra query until registration gets updated to have the tenantId stored on it.
     return legacyKeys;
+}
+
++ (void)getDeviceTokenForTenantId:(NSString *)tenantId
+                requestParameters:(MSIDRequestParameters *)requestParameters
+                           scopes:(NSOrderedSet<NSString *> *)scopes
+                         resource:(NSString *)resource
+                  completionBlock:(MSIDRequestCompletionBlock)completionBlock
+{
+    MSIDWPJKeyPairWithCert *wpjCerts = [[self resolvedProvider] getWPJKeysWithTenantId:tenantId context:requestParameters];
+    
+    if (!wpjCerts)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Could not find device registration for the requested tenant.", nil, nil, nil, nil, nil, YES);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"deviceTokenWithRequestParameters: No device registration found for tenant Id: %@", MSID_PII_LOG_MASKABLE(tenantId));
+        completionBlock(nil, error);
+        return;
+    }
+    
+    if (!wpjCerts.certificateData)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Could not find certificate for device registration.", nil, nil, nil, nil, nil, YES);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"deviceTokenWithRequestParameters: No certificate found for device registration for tenant Id: %@", MSID_PII_LOG_MASKABLE(tenantId));
+        completionBlock(nil, error);
+        return;
+    }
+    
+    // Create a mutable URL from requestParameters.authority.url. If the last component of path is common, replace it with tenantId
+    NSURL *url = requestParameters.authority.url;
+    if ([url.pathComponents.lastObject isEqualToString:@"common"])
+    {
+        url = [url URLByDeletingLastPathComponent];
+        url = [url URLByAppendingPathComponent:tenantId];
+    }
+
+    NSURL *endpoint = [url URLByAppendingPathComponent:@"oauth2/v2.0/token"];
+    NSError *error;
+    
+    NSError *enrollmentIdLookupError;
+    // No user is associated to device token, using the first enrollment id from Intune cache for shared device.
+    NSString *enrollmentId = [requestParameters.authority enrollmentIdForHomeAccountId:nil
+                                                                          legacyUserId:nil
+                                                                               context:requestParameters
+                                                                                 error:&enrollmentIdLookupError];
+    if (!enrollmentId)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, requestParameters, @"deviceTokenWithRequestParameters: No enrollment id found for device token request for tenant Id: %@, error: %@", MSID_PII_LOG_MASKABLE(tenantId), MSID_PII_LOG_MASKABLE(enrollmentIdLookupError));
+    }
+    
+    MSIDDeviceTokenResponseHandler *tokenResponseHandler = [[MSIDDeviceTokenResponseHandler alloc] initWithRequestParameters:requestParameters
+                                                                                                                oauthFactory:[MSIDOauth2Factory new]];
+    
+    MSIDDeviceTokenGrantRequest *deviceTokenRequest = [[MSIDDeviceTokenGrantRequest alloc] initWithEndpoint:endpoint
+                                                                                         requestParameters:requestParameters
+                                                                                                     scopes:requestParameters.allTokenRequestScopes
+                                                                                    registrationInformation:wpjCerts
+                                                                                                   resource:resource
+                                                                                               enrollmentId:enrollmentId
+                                                                                            extraParameters:nil
+                                                                                                 ssoContext:nil
+                                                                                       tokenResponseHandler:tokenResponseHandler
+                                                                                                      error:&error];
+    if (!deviceTokenRequest)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"deviceTokenWithRequestParameters: Failed to create device token request for tenant Id: %@, error: %@", MSID_PII_LOG_MASKABLE(tenantId), MSID_PII_LOG_MASKABLE(error));
+        completionBlock(nil, error);
+        return;
+    }
+    
+    MSIDRequestParameters *nonceReqParams = [MSIDRequestParameters new];
+    nonceReqParams.correlationId = requestParameters.correlationId;
+    nonceReqParams.authority = [[MSIDAADAuthority alloc] initWithURL:endpoint rawTenant:MSIDAADTenantTypeCommonRawValue context:requestParameters error:nil];
+    // Passing blank accountId details as device token is not associated with a specific account. This is required to bypass cache look up in nonce request and directly request new nonce from server.
+    nonceReqParams.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"" homeAccountId:@""];
+    MSIDNonceTokenRequest *nonceRequest = [[MSIDNonceTokenRequest alloc] initWithRequestParameters:nonceReqParams];
+    [nonceRequest executeRequestWithCompletion:^(NSString * _Nullable resultNonce, NSError * _Nullable nonceError)
+    {
+        if (!resultNonce || nonceError)
+        {
+            NSError *finalNonceError = nonceError ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to retrieve nonce for device token request: nonce is nil.", nil, nil, nil, requestParameters.correlationId, nil, YES);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"deviceTokenWithRequestParameters: Failed to retrieve nonce for device token request for tenant Id: %@, error: %@", MSID_PII_LOG_MASKABLE(tenantId), MSID_PII_LOG_MASKABLE(finalNonceError));
+            completionBlock(nil, finalNonceError);
+            return;
+        }
+        
+        deviceTokenRequest.nonce = resultNonce;
+        
+        [deviceTokenRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable requestError)
+        {
+            if (!result)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"deviceTokenWithRequestParameters: Error acquiring device token for tenant Id: %@, error: %@", MSID_PII_LOG_MASKABLE(tenantId), MSID_PII_LOG_MASKABLE(error));
+                completionBlock(nil, requestError);
+                return;
+            }
+            
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"deviceTokenWithRequestParameters: Device token request completed for tenant Id %@.", MSID_PII_LOG_MASKABLE(tenantId));
+            
+            completionBlock(result, nil);
+        }];
+    }];
 }
 
 + (NSString *)getPrimaryEccTenantWithSharedAccessGroup:(NSString *)sharedAccessGroup context:(id<MSIDRequestContext>_Nullable)context error:(NSError *__autoreleasing*)error

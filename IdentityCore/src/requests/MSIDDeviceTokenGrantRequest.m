@@ -68,26 +68,46 @@
 {
     if (!registrationInformation)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: registration information is nil.");
+        NSString *errorMessage = @"Failed to create device token request parameters: registration information is nil.";
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+        }
         return nil;
     }
     
     if (registrationInformation.certificateData == nil || registrationInformation.privateKeyRef == nil)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: registration information is missing certificate data or private key.");
+        NSString *errorMessage = @"Failed to create device token request parameters: registration information is missing certificate data or private key.";
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+        }
         return nil;
     }
     
     if ([NSString msidIsStringNilOrBlank:endpoint.absoluteString])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: authorityEndpoint is nil.");
+        NSString *errorMessage = @"Failed to create device token request parameters: authorityEndpoint is nil.";
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+        }
         return nil;
     }
     
     NSString *clientId = requestParameters.clientId;
     if ([NSString msidIsStringNilOrBlank:clientId])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: clientId is nil or blank.");
+        NSString *errorMessage = @"Failed to create device token request parameters: clientId is nil or blank.";
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+        }
         return nil;
     }
     
@@ -107,25 +127,45 @@
                 
         if ([NSString msidIsStringNilOrBlank:resource])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: resource is nil or blank.");
+            NSString *errorMessage = @"Failed to create device token request parameters: resource is nil or blank.";
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+            }
             return nil;
         }
         
         if ([NSString msidIsStringNilOrBlank:redirectUri])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: redirectURI is nil or blank.");
+            NSString *errorMessage = @"Failed to create device token request parameters: redirectURI is nil or blank.";
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+            }
             return nil;
         }
         
         if (!scopesSet || scopesSet.count == 0)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: scope is nil or empty.");
+            NSString *errorMessage = @"Failed to create device token request parameters: scope is nil or empty.";
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+            }
             return nil;
         }
                 
         if ([scopesSet containsObject:@"aza"])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create device token request parameters: scopes contains aza.");
+            NSString *errorMessage = @"Failed to create device token request parameters: scopes contains aza.";
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, errorMessage, nil, nil, nil, requestParameters.correlationId, nil, YES);
+            }
             return nil;
         }
         
