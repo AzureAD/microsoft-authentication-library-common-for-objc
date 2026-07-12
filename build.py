@@ -29,11 +29,23 @@ import sys
 import re
 import os
 import argparse
+import shutil
 import device_guids
 
 from timeit import default_timer as timer
 
 script_start_time = timer()
+
+def select_formatter(enabled) :
+    if not enabled :
+        return None
+    if shutil.which("xcbeautify") :
+        return "xcbeautify"
+    if shutil.which("xcpretty") :
+        print("Warning: xcbeautify not found; falling back to xcpretty")
+        return "xcpretty"
+    print("Warning: xcbeautify/xcpretty not found; using raw xcodebuild output")
+    return None
 
 ios_sim_device = "iPhone 17"
 ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=26.1'"
@@ -46,7 +58,7 @@ vision_sim_flags = "-sdk xrsimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIR
 default_workspace = "IdentityCore.xcworkspace"
 default_config = "Debug"
 
-use_xcpretty = True
+use_formatter = True
 show_build_settings = False
 
 class ColorValues:
@@ -120,7 +132,7 @@ class BuildTarget:
         self.start_time = None
         self.end_time = None
     
-    def xcodebuild_command(self, operation, xcpretty) :
+    def xcodebuild_command(self, operation, formatter) :
         """
         Generate and return an xcodebuild command string based on the ivars and operation provided.
         """
@@ -149,7 +161,7 @@ class BuildTarget:
         if (operation == "build") :
             command += " RUN_CLANG_STATIC_ANALYZER=NO"
         
-        if (operation != None and "codecov" in self.operations) :
+        if (operation != None and "codecov" in self.operations and xcb_operation in ["test", "build-for-testing", "test-without-building"]) :
             command += " -enableCodeCoverage YES"
 
         if (self.platform == "iOS") :
@@ -167,10 +179,14 @@ class BuildTarget:
             log_path = self.log_path(operation)
             command += " 2>&1 | tee '" + log_path + "'"
 
-        if (xcpretty) :
+        if (formatter == "xcbeautify") :
+            command += " | xcbeautify"
+            if (operation == "test") :
+                command += " --report junit --report-path ./build/reports --junit-report-filename '" + self.name + ".xml'"
+        elif (formatter == "xcpretty") :
             command += " | xcpretty"
-        if (xcpretty and operation == "test") :
-            command += " --report junit --output ./build/reports/'" + self.name + ".xml'"
+            if (operation == "test") :
+                command += " --report junit --output ./build/reports/'" + self.name + ".xml'"
 
         return command
 
@@ -347,7 +363,7 @@ class BuildTarget:
             if (operation == "codecov") :
                 exit_code = self.do_codecov()
             else :
-                command = self.xcodebuild_command(operation, use_xcpretty)
+                command = self.xcodebuild_command(operation, output_formatter)
                 if (operation == "build" and self.use_sonarcube == "true" and os.environ.get('TRAVIS') == "true") :
                     subprocess.call("rm -rf .sonar; rm -rf build-wrapper-output", shell = True)
                     command = "build-wrapper-macosx-x86 --out-dir build-wrapper-output " + command
@@ -401,14 +417,15 @@ clean = True
 
 parser = argparse.ArgumentParser(description='ADAL SDK Build Script')
 parser.add_argument('--no-clean', action='store_false', help="Skips the clean build products step")
-parser.add_argument('--no-xcpretty', action='store_false', help="Show raw xcodebuild output instead of using xcpretty")
+parser.add_argument('--no-xcpretty', '--no-xcbeautify', dest='use_formatter', action='store_false', help="Show raw xcodebuild output instead of using xcbeautify/xcpretty")
 parser.add_argument('--show-build-settings', action='store_true',  help="Show xcodebuild's settings output")
-parser.add_argument('--targets', nargs='+', help="Specify individual targets to run")
+parser.add_argument('--targets', '--target', dest='targets', nargs='+', help="Specify individual targets to run")
 args = parser.parse_args()
 
 clean = args.no_clean
-use_xcpretty = args.no_xcpretty
+use_formatter = args.use_formatter
 show_build_settings = args.show_build_settings
+output_formatter = select_formatter(use_formatter)
 
 if (args.targets != None) :
     print("Targets specified: " + str(args.targets))
