@@ -117,13 +117,13 @@
     
     // Parse query parameters
     NSDictionary<NSString *, NSString *> *params = [URL msidQueryParameters];
-    
+    NSDictionary<NSString *, NSString *> *params1 = [self queryParamsFromURL:URL];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Resolving decision for msauth host '%@'.", host);
     
     // Route based on host
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
-        return [self decisionForEnrollURL:params];
+        return [self decisionForEnrollURL:params1];
     }
     else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
@@ -131,7 +131,7 @@
     }
     else if ([host isEqualToString:MSID_COMPLIANCE_HOST])
     {
-        return [self decisionForComplianceURL:params
+        return [self decisionForComplianceURL:params1
                     embeddedWebviewController:embeddedWebviewController];
     }
     else if ([host isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_HOST])
@@ -329,6 +329,8 @@
     id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
     if (provider)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Notification is sheduled with delay '%f'.", delay);
+
         [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
     }
 
@@ -539,6 +541,45 @@
     }
 
     return request;
+}
+
+- (NSDictionary<NSString *, NSString *> *)queryParamsFromURL:(NSURL *)url
+{
+    if (!url)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: URL is nil");
+        return @{};
+    }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    if (!components)
+    {
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: Failed to parse URL components for URL: %@", MSID_PII_LOG_MASKABLE(url));
+    }
+    
+    NSMutableDictionary<NSString *, NSString *> *result = [NSMutableDictionary new];
+    
+    NSArray<NSURLQueryItem *> *queryItems = components.queryItems;
+    if (!queryItems || queryItems.count == 0)
+    {
+        return @{};
+    }
+    
+    for (NSURLQueryItem *item in queryItems)
+    {
+        // Only add items with both name and value present
+        if (item.name && item.value)
+        {
+            result[item.name] = item.value;
+        }
+        else if (item.name)
+        {
+            // Query parameter with no value - log as warning
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Query parameter '%@' has no value", item.name);
+        }
+    }
+    
+    return [result copy];
 }
 
 @end
