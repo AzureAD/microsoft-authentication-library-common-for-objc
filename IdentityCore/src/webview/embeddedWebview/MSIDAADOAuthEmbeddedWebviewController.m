@@ -39,6 +39,8 @@
 #import "NSURL+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDInteractiveRequestParameters.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 

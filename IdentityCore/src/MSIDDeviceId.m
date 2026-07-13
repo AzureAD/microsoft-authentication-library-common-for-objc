@@ -199,6 +199,18 @@ void MSIDDeviceCopySerialNumber(CFStringRef *serialNumber)
     [(NSMutableDictionary *)[self deviceId] setObject:value forKey:key];
 }
 
+static NSString *s_brokerVersion = nil;
+
++ (NSString *)brokerVersion
+{
+    return s_brokerVersion;
+}
+
++ (void)setBrokerVersion:(NSString *)brokerVersion
+{
+    s_brokerVersion = [brokerVersion copy];
+}
+
 + (NSString *)deviceHardwareType
 {
     struct utsname sysinfo;

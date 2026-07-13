@@ -27,11 +27,15 @@
 #import "MSIDWebviewConstants.h"
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDConstants.h"
+#import "MSIDDeviceId.h"
 #import "MSIDIntuneDeviceIdCache.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDVersion.h"
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDFlightManager.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -236,6 +240,12 @@
     if (sdkVersion.length > 0)
     {
         additionalHeaders[MSID_VERSION_KEY] = sdkVersion;
+    }
+
+    NSString *brokerVersion = [MSIDDeviceId brokerVersion];
+    if (brokerVersion.length > 0)
+    {
+        additionalHeaders[MSID_BROKER_VER_KEY] = brokerVersion;
     }
 
     // Build the final request with all query params and headers.
