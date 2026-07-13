@@ -241,7 +241,7 @@
     SEL selectorForExecuteRequest = NSSelectorFromString(@"executeRequestWithCompletion:");
     [MSIDTestSwizzle instanceMethod:selectorForExecuteRequest
                               class:[MSIDSSOExtensionGetDeviceInfoRequest class]
-                              block:(id)^(id selfRef, MSIDGetDeviceInfoRequestCompletionBlock completionBlock)
+                              block:(id)^(id __unused selfRef, MSIDGetDeviceInfoRequestCompletionBlock completionBlock)
      {
         NSError *error = [NSError errorWithDomain:@"MSIDXpcSingleSignOnProviderTestDomain" code:-1 userInfo:nil];
         completionBlock(nil, error);
