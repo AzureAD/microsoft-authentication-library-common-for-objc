@@ -81,6 +81,25 @@
                                                          tokenCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
                                                accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
 
+- (NSString *)responsePayloadFromResult:(MSIDTokenResult *)result
+                                request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                  error:(NSError *__autoreleasing *)error;
+
+- (NSDictionary *)responseDictionaryFromResult:(MSIDTokenResult *)result
+                                       request:(MSIDBrowserNativeMessageGetTokenRequest *)request;
+
+- (NSDictionary *)responseDictionaryFromCachedResult:(MSIDTokenResult *)result
+                                             request:(MSIDBrowserNativeMessageGetTokenRequest *)request;
+
+@end
+
+#pragma mark - Silent request test seam
+
+@interface MSIDDefaultSilentTokenRequest (BoundTokenProviderUnitTest)
+
+- (MSIDRefreshToken *)familyRefreshTokenWithError:(NSError *__autoreleasing *)error;
+- (MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError *__autoreleasing *)error;
+
 @end
 
 #pragma mark - Silent engine stub
@@ -114,6 +133,7 @@
 @property (nonatomic, nullable) MSIDTokenResult *silentResult;
 @property (nonatomic, nullable) NSError *silentError;
 @property (nonatomic) BOOL silentRequestCreated;
+@property (nonatomic, nullable) MSIDDefaultSilentTokenRequest *createdSilentRequest;
 
 @end
 
@@ -144,7 +164,24 @@
                                                              accountMetadataCache:accountMetadataCache];
     stub.stubResult = self.silentResult;
     stub.stubError = self.silentError;
+    self.createdSilentRequest = stub;
     return stub;
+}
+
+@end
+
+#pragma mark - Invalid JSON response stub
+
+@interface MSIDBoundTokenProviderInvalidJSONStub : MSIDBoundTokenProvider
+
+@end
+
+@implementation MSIDBoundTokenProviderInvalidJSONStub
+
+- (NSDictionary *)responseDictionaryFromResult:(__unused MSIDTokenResult *)result
+                                       request:(__unused MSIDBrowserNativeMessageGetTokenRequest *)request
+{
+    return @{@"invalid": NSDate.date};
 }
 
 @end
@@ -251,6 +288,7 @@
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
         XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+        XCTAssertNotNil(error.userInfo[NSUnderlyingErrorKey]);
         [expectation fulfill];
     }];
 
@@ -277,6 +315,15 @@
     MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
 
     XCTAssertFalse([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
+}
+
+- (void)testShouldServiceRequestSilently_defaultPromptAndAccount_returnsYes
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTAssertTrue([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
 }
 
 - (void)testPromptForcesInteraction_interactivePrompts_returnYes
@@ -345,6 +392,54 @@
     }];
 
     [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+#pragma mark - Response shaping
+
+- (void)testResponsePayloadFromResult_whenResponseIsNotValidJSON_returnsError
+{
+    MSIDBoundTokenProviderInvalidJSONStub *provider = [MSIDBoundTokenProviderInvalidJSONStub new];
+    NSError *error = nil;
+
+    NSString *response = [provider responsePayloadFromResult:[self cachedTokenResult]
+                                                     request:[self validRequest]
+                                                       error:&error];
+
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+}
+
+- (void)testResponseDictionaryFromCachedResult_whenExpirationIsPresent_returnsStringValues
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+    NSDictionary *response = [provider responseDictionaryFromCachedResult:[self cachedTokenResult]
+                                                                  request:[self validRequest]];
+
+    XCTAssertTrue([response[@"expires_on"] isKindOfClass:NSString.class]);
+    XCTAssertTrue([response[@"expires_in"] isKindOfClass:NSString.class]);
+}
+
+- (void)testResponseDictionaryFromCachedResult_whenOptionalValuesAreMissing_omitsFields
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+    MSIDTokenResult *result = [self cachedTokenResult];
+    [result.accessToken setValue:@"" forKey:@"accessToken"];
+    [result.accessToken setValue:@"" forKey:@"tokenType"];
+    [result.accessToken setValue:nil forKey:@"scopes"];
+    [result.accessToken setValue:nil forKey:@"expiresOn"];
+    [result setValue:@"" forKey:@"rawIdToken"];
+    [result.account setValue:nil forKey:@"accountIdentifier"];
+    [result.account setValue:@"" forKey:@"username"];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.loginHint = @"";
+    request.state = @"";
+
+    NSDictionary *response = [provider responseDictionaryFromCachedResult:result request:request];
+
+    XCTAssertEqual(response.count, 0);
 }
 
 #if TARGET_OS_IPHONE
@@ -416,6 +511,7 @@
     }];
 
     XCTAssertTrue(provider.silentRequestCreated);
+    XCTAssertTrue(provider.createdSilentRequest.requiresBoundRefreshToken);
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
@@ -468,6 +564,7 @@
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
         XCTAssertEqual(error.code, MSIDErrorServerOauth);
+        XCTAssertEqualObjects(error.userInfo[NSUnderlyingErrorKey], provider.silentError);
         [expectation fulfill];
     }];
 
@@ -539,9 +636,8 @@
     XCTAssertTrue(saved);
 }
 
-// Walkable proof of what MSIDBoundTokenProvider retrieves at hasCachedTokenForParameters (the
-// getRefreshTokenWithAccount: call): when a BART is cached and the feature is enabled, the lookup
-// returns a bound token (MSIDBoundRefreshToken), not a regular refresh token.
+// Proves that the cache lookup used by the silent engine returns a bound token when a BART is
+// cached and the feature is enabled.
 - (void)testCachedRefreshTokenLookup_whenBoundTokenSeeded_returnsBoundToken
 {
     [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
@@ -559,42 +655,13 @@
 
     XCTAssertNil(lookupError);
     XCTAssertNotNil(refreshToken);
-    XCTAssertTrue([refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]);
+    XCTAssertTrue(refreshToken.isBoundRefreshToken);
     XCTAssertEqualObjects([(MSIDBoundRefreshToken *)refreshToken boundDeviceId], @"test-device-id");
 
     [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
 }
 
-// Drives the provider's actual routing gate: with only a BART cached (no valid access token), the
-// gate falls through to the refresh-token lookup and deems the request silent-eligible.
-- (void)testShouldServiceRequestSilently_whenOnlyBoundRefreshTokenCached_returnsYes
-{
-    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
-
-    MSIDDefaultTokenCacheAccessor *tokenCache = [self inMemoryTokenCache];
-    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
-    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
-    [self seedRefreshTokenInCache:tokenCache parameters:parameters boundDeviceId:@"test-device-id"];
-
-    // Remove the cached access token so the gate must consult the refresh-token lookup.
-    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:parameters.accountIdentifier
-                                                         configuration:parameters.msidConfiguration
-                                                               context:nil
-                                                                 error:nil];
-    XCTAssertNotNil(accessToken);
-    XCTAssertTrue([tokenCache removeToken:accessToken context:nil error:nil]);
-
-    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
-    provider.injectedTokenCache = tokenCache;
-
-    XCTAssertTrue([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
-
-    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
-}
-
-// Per the BART SPA design, a regular (non-bound) refresh token does not make the request silent-
-// eligible: with no cached BART the gate returns NO so orchestration falls back to interactive.
-- (void)testShouldServiceRequestSilently_whenOnlyRegularRefreshTokenCached_returnsNo
+- (void)testSilentRequest_whenBoundRefreshTokenRequired_rejectsRegularRefreshToken
 {
     [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
 
@@ -603,7 +670,6 @@
     MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
     [self seedRefreshTokenInCache:tokenCache parameters:parameters boundDeviceId:nil];
 
-    // Remove the cached access token so the gate must consult the refresh-token lookup.
     MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:parameters.accountIdentifier
                                                          configuration:parameters.msidConfiguration
                                                                context:nil
@@ -611,10 +677,54 @@
     XCTAssertNotNil(accessToken);
     XCTAssertTrue([tokenCache removeToken:accessToken context:nil error:nil]);
 
-    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
-    provider.injectedTokenCache = tokenCache;
+    MSIDDefaultSilentTokenRequest *silentRequest =
+    [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                        forceRefresh:NO
+                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                              tokenResponseValidator:[MSIDTokenResponseValidator new]
+                                                          tokenCache:tokenCache
+                                                accountMetadataCache:[self inMemoryAccountMetadataCache]];
 
-    XCTAssertFalse([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
+    XCTAssertFalse(silentRequest.requiresBoundRefreshToken);
+    MSIDRefreshToken *regularRefreshToken = (MSIDRefreshToken *)[silentRequest appRefreshTokenWithError:nil];
+    XCTAssertNotNil(regularRefreshToken);
+    XCTAssertFalse(regularRefreshToken.isBoundRefreshToken);
+
+    silentRequest.requiresBoundRefreshToken = YES;
+    XCTAssertNil([silentRequest familyRefreshTokenWithError:nil]);
+    XCTAssertNil([silentRequest appRefreshTokenWithError:nil]);
+
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+}
+
+- (void)testSilentRequest_whenBoundRefreshTokenRequired_acceptsBoundRefreshToken
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+
+    MSIDDefaultTokenCacheAccessor *tokenCache = [self inMemoryTokenCache];
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+    [self seedRefreshTokenInCache:tokenCache parameters:parameters boundDeviceId:@"test-device-id"];
+
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:parameters.accountIdentifier
+                                                         configuration:parameters.msidConfiguration
+                                                               context:nil
+                                                                 error:nil];
+    XCTAssertNotNil(accessToken);
+    XCTAssertTrue([tokenCache removeToken:accessToken context:nil error:nil]);
+
+    MSIDDefaultSilentTokenRequest *silentRequest =
+    [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                        forceRefresh:NO
+                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                              tokenResponseValidator:[MSIDTokenResponseValidator new]
+                                                          tokenCache:tokenCache
+                                                accountMetadataCache:[self inMemoryAccountMetadataCache]];
+    silentRequest.requiresBoundRefreshToken = YES;
+
+    MSIDRefreshToken *boundRefreshToken = (MSIDRefreshToken *)[silentRequest appRefreshTokenWithError:nil];
+    XCTAssertNotNil(boundRefreshToken);
+    XCTAssertTrue(boundRefreshToken.isBoundRefreshToken);
 
     [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
 }

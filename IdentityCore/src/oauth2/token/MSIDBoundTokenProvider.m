@@ -35,7 +35,6 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDConfiguration.h"
 #import "MSIDDefaultSilentTokenRequest.h"
-#import "MSIDBoundRefreshToken.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDCacheAccessor.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
@@ -56,6 +55,15 @@
 NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider]";
 
 @implementation MSIDBoundTokenProvider
+
+- (void)boundTokenProviderLogHelper:(MSIDLogLevel)logLevel
+                            context:(nullable id<MSIDRequestContext>)context
+                            message:(NSString *)logMsg
+{
+    if (!logMsg) { return; }
+    MSID_LOG_WITH_CTX(logLevel, context, @"%@ %@", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, logMsg);
+}
+
 
 - (void)acquireBoundTokenWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                              context:(nullable id<MSIDRequestContext>)context
@@ -86,7 +94,10 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     if (!parameters)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ Failed to build request parameters: %@", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(parametersError));
-        completionBlock(nil, parametersError);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter,
+                                         @"Failed to build bound token request parameters.",
+                                         nil, nil, parametersError, context.correlationId, nil, NO);
+        completionBlock(nil, error);
         return;
     }
 
@@ -175,7 +186,9 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     {
         if (error)
         {
-            *error = parametersError;
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter,
+                                     @"Failed to initialize bound token request parameters.",
+                                     nil, nil, parametersError, correlationId, nil, NO);
         }
         return nil;
     }
@@ -191,11 +204,9 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 
 #pragma mark - Silent / interactive routing
 
-// Silent servicing is viable when the request does not force UI and a usable token is already
-// cached. Token availability is checked the same way Bound App Refresh Tokens are searched.
-// Note: token *validity* is authoritative server-side - even with a cached BART, the silent engine
-// may return MSIDErrorInteractionRequired (expired BART / device re-registration), at which point
-// orchestration falls back to the interactive path.
+// Silent servicing can be attempted when the request does not force UI and identifies an account.
+// The silent engine performs the authoritative cache lookup and returns interaction-required when
+// no valid access token or Bound App Refresh Token is available.
 - (BOOL)shouldServiceRequestSilently:(MSIDBrowserNativeMessageGetTokenRequest *)request
                           parameters:(MSIDInteractiveTokenRequestParameters *)parameters
                              context:(nullable id<MSIDRequestContext>)context
@@ -212,7 +223,7 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         return NO;
     }
 
-    return [self hasCachedTokenForParameters:parameters context:context];
+    return YES;
 }
 
 // Prompt types that require user interaction and therefore cannot be serviced silently.
@@ -229,48 +240,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         default:
             return NO;
     }
-}
-
-// Returns YES only when a token usable for silent redemption is cached: a valid access token
-// (Scenario 1 cache hit) or a Bound App Refresh Token (BART, Scenario 2). without a cached BART the request must fall
-// back to the interactive broker flip (Scenario 3). Token *validity* remains authoritative
-// server-side: even with a cached BART the silent engine may return MSIDErrorInteractionRequired
-// (expired BART / device re-registration), at which point orchestration falls back to interactive.
-- (BOOL)hasCachedTokenForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                            context:(nullable id<MSIDRequestContext>)context
-{
-    MSIDDefaultTokenCacheAccessor *tokenCache = [self defaultTokenCache:context];
-    if (!tokenCache)
-    {
-        return NO;
-    }
-
-    NSError *cacheError = nil;
-    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:parameters.accountIdentifier
-                                                         configuration:parameters.msidConfiguration
-                                                               context:context
-                                                                 error:&cacheError];
-    if (accessToken && ![accessToken isExpired])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Found valid cached access token; silent path viable.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-        return YES;
-    }
-
-    // getRefreshTokenWithAccount: prefers a Bound App Refresh Token when one is cached. Only a bound
-    // token makes silent redemption viable here; a regular refresh token is intentionally rejected.
-    MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:parameters.accountIdentifier
-                                                                  familyId:nil
-                                                             configuration:parameters.msidConfiguration
-                                                                   context:context
-                                                                     error:&cacheError];
-    if ([refreshToken isKindOfClass:[MSIDBoundRefreshToken class]])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Found cached bound app refresh token; silent path viable.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-        return YES;
-    }
-
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ No cached bound app refresh token; silent path not viable.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-    return NO;
 }
 
 #pragma mark - Silent path
@@ -295,6 +264,7 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     MSIDDefaultSilentTokenRequest *silentRequest = [self silentTokenRequestWithParameters:parameters
                                                                                tokenCache:tokenCache
                                                                      accountMetadataCache:accountMetadataCache];
+    silentRequest.requiresBoundRefreshToken = YES;
 
     // Keep the request alive across the async authority resolution + network round-trip.
     __block MSIDDefaultSilentTokenRequest *pendingRequest = silentRequest;
@@ -326,7 +296,11 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         }
 
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ Silent GetToken request failed: %@", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(error));
-        completionBlock(nil, error);
+        NSInteger errorCode = error ? error.code : MSIDErrorInternal;
+        NSError *providerError = MSIDCreateError(MSIDErrorDomain, errorCode,
+                                                 @"Silent bound token request failed.",
+                                                 nil, nil, error, context.correlationId, nil, NO);
+        completionBlock(nil, providerError);
     }];
 }
 
@@ -382,15 +356,26 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         return nil;
     }
 
+    if (![NSJSONSerialization isValidJSONObject:responseDictionary])
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                     @"GetToken response payload is not a valid JSON object.",
+                                     nil, nil, nil, result.correlationId, nil, NO);
+        }
+        return nil;
+    }
+
     NSError *serializationError = nil;
     NSData *data = [NSJSONSerialization dataWithJSONObject:responseDictionary options:0 error:&serializationError];
     if (!data)
     {
         if (error)
         {
-            *error = serializationError ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                                           @"Failed to serialize GetToken response payload.",
-                                                           nil, nil, nil, result.correlationId, nil, NO);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                     @"Failed to serialize GetToken response payload.",
+                                     nil, nil, serializationError, result.correlationId, nil, NO);
         }
         return nil;
     }
@@ -429,22 +414,60 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     }
 
     NSMutableDictionary *response = [NSMutableDictionary new];
-    response[@"access_token"] = accessToken.accessToken ?: @"";
-    response[@"token_type"] = accessToken.tokenType ?: @"Bearer";
-    response[@"id_token"] = result.rawIdToken ?: @"";
-    response[@"scope"] = [accessToken.scopes msidToString] ?: @"";
+    if (![NSString msidIsStringNilOrBlank:accessToken.accessToken])
+    {
+        response[@"access_token"] = accessToken.accessToken;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:accessToken.tokenType])
+    {
+        response[@"token_type"] = accessToken.tokenType;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:result.rawIdToken])
+    {
+        response[@"id_token"] = result.rawIdToken;
+    }
+
+    NSString *scope = [accessToken.scopes msidToString];
+    if (![NSString msidIsStringNilOrBlank:scope])
+    {
+        response[@"scope"] = scope;
+    }
 
     if (accessToken.expiresOn)
     {
-        response[@"expires_on"] = @((long long)[accessToken.expiresOn timeIntervalSince1970]);
-        response[@"expires_in"] = @((long long)MAX(0, (NSInteger)[accessToken.expiresOn timeIntervalSinceNow]));
+        response[@"expires_on"] = [@((long long)[accessToken.expiresOn timeIntervalSince1970]) stringValue];
+        response[@"expires_in"] = [@((long long)MAX(0, (NSInteger)[accessToken.expiresOn timeIntervalSinceNow])) stringValue];
     }
 
     NSMutableDictionary *account = [NSMutableDictionary new];
-    account[@"id"] = result.account.accountIdentifier.homeAccountId;
-    account[@"userName"] = result.account.username ?: request.loginHint;
-    response[@"account"] = account;
-    response[@"state"] = request.state ?: @"";
+    NSString *homeAccountId = result.account.accountIdentifier.homeAccountId;
+    if (![NSString msidIsStringNilOrBlank:homeAccountId])
+    {
+        account[@"id"] = homeAccountId;
+    }
+
+    NSString *username = result.account.username;
+    if ([NSString msidIsStringNilOrBlank:username])
+    {
+        username = request.loginHint;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:username])
+    {
+        account[@"userName"] = username;
+    }
+
+    if (account.count)
+    {
+        response[@"account"] = account;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:request.state])
+    {
+        response[@"state"] = request.state;
+    }
 
     return response;
 }

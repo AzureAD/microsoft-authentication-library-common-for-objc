@@ -59,6 +59,11 @@
 
 #pragma mark - MSIDBoundRefreshToken
 
+- (void)testIsBoundRefreshToken_shouldReturnTrue
+{
+    XCTAssertTrue([self createToken].isBoundRefreshToken);
+}
+
 - (void)testBoundRefreshTokenIsEqual_whenBoundDeviceIdIsNotEqual_shouldReturnFalse
 {
     MSIDBoundRefreshToken *lhs = [self createToken];
