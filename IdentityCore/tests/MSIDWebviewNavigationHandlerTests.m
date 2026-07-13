@@ -33,6 +33,8 @@
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDTestWebviewInteractingViewController.h"
 #import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 // Stub conforming to MSIDWebviewNavigationDelegate for delegate-wiring assertions.
 @interface MSIDTestNavigationDelegateStub : NSObject <MSIDWebviewNavigationDelegate>
@@ -46,6 +48,7 @@
 
 // Expose private methods and properties for testing.
 @property (nonatomic) NSDictionary *lastResponseHeaders;
+@property (nonatomic, weak) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 
 - (BOOL)isValidHandoffURL:(NSURL *)url error:(NSError *__autoreleasing *)error;
 - (BOOL)isURLInAllowedDomains:(NSURL *)url;
@@ -373,7 +376,7 @@
     NSString *upperCaseHeader = [[NSString stringWithFormat:@"%@token", MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX] uppercaseString];
     NSString *lowerCaseHeader = [upperCaseHeader lowercaseString];
     
-    // Simulate what processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: does: normalize the raw server headers first
+    // Simulate what processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: does: normalize the raw server headers first
     NSDictionary *rawHeaders = @{upperCaseHeader: @"tok123"};
     NSDictionary *normalised = [self.handler normalizeHeaders:rawHeaders];
     self.handler.lastResponseHeaders = normalised;
@@ -514,7 +517,7 @@
     [self waitForExpectations:@[expectation] timeout:1.0];
 }
 
-#pragma mark - processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: (synchronous)
+#pragma mark - processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: (synchronous)
 
 // An allowed response URL used by happy-path tests below. Matches an entry in
 // MSIDASWebAuthenticationConstants.asWebAuthAllowedDomains so the origin check passes.
@@ -523,12 +526,23 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     return [NSURL URLWithString:@"https://portal.manage.microsoft.com/some/path"];
 }
 
+// Helper to create an NSHTTPURLResponse with given headers and URL.
+static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url)
+{
+    return [[NSHTTPURLResponse alloc] initWithURL:url
+                                      statusCode:200
+                                     HTTPVersion:@"HTTP/1.1"
+                                    headerFields:headers];
+}
+
 - (void)testProcessResponseHeaders_whenNoHandoffHeader_shouldReturnNO
 {
     NSDictionary *headers = @{@"Content-Type": @"application/json"};
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:MSIDTestAllowedResponseURL()];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, MSIDTestAllowedResponseURL());
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertFalse(hasHandoff);
     // Side effect: headers are still normalized into lastResponseHeaders for later use.
@@ -539,8 +553,10 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 {
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @""};
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:MSIDTestAllowedResponseURL()];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, MSIDTestAllowedResponseURL());
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertFalse(hasHandoff);
 }
@@ -549,8 +565,10 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 {
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @42};
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:MSIDTestAllowedResponseURL()];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, MSIDTestAllowedResponseURL());
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertFalse(hasHandoff);
 }
@@ -561,8 +579,10 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSString *uppercaseKey = MSID_ASWEBAUTH_HANDOFF_URL_KEY.uppercaseString;
     NSDictionary *headers = @{uppercaseKey: @"https://www.example.com/handoff"};
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:MSIDTestAllowedResponseURL()];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, MSIDTestAllowedResponseURL());
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertTrue(hasHandoff);
     // The normalized headers should expose the lowercased key for later use.
@@ -575,15 +595,17 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     self.handler.lastResponseHeaders = @{@"stale": @"value"};
 
     NSDictionary *headers = @{@"X-Custom": @"v1", @"Other-Header": @"v2"};
-    (void)[self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                             responseURL:MSIDTestAllowedResponseURL()];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, MSIDTestAllowedResponseURL());
+
+    (void)[self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertEqualObjects(self.handler.lastResponseHeaders[@"x-custom"], @"v1");
     XCTAssertEqualObjects(self.handler.lastResponseHeaders[@"other-header"], @"v2");
     XCTAssertNil(self.handler.lastResponseHeaders[@"stale"], @"Previous headers must be replaced, not merged.");
 }
 
-#pragma mark - processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: (response-URL origin gate)
+#pragma mark - processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: (response-URL origin gate)
 
 - (void)testProcessResponseHeaders_whenHandoffHeaderPresentButResponseURLIsNil_shouldReturnNOAndStillCacheHeaders
 {
@@ -591,8 +613,10 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     // must not be able to force a hand-off by injecting only the header.
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:nil];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, [NSURL URLWithString:@""]);
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertFalse(hasHandoff);
     // Headers are still cached so downstream consumers see consistent state.
@@ -606,8 +630,10 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
     NSURL *httpResponseURL = [NSURL URLWithString:@"http://portal.manage.microsoft.com/some/path"];
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:httpResponseURL];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, httpResponseURL);
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertFalse(hasHandoff);
 }
@@ -619,8 +645,10 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
     NSURL *attackerOrigin = [NSURL URLWithString:@"https://evil.example.com/landing"];
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:attackerOrigin];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, attackerOrigin);
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertFalse(hasHandoff);
 }
@@ -631,8 +659,10 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
     NSURL *spoofedOrigin = [NSURL URLWithString:@"https://portal.manage.microsoft.com.attacker.com/path"];
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:spoofedOrigin];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, spoofedOrigin);
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertFalse(hasHandoff);
 }
@@ -641,8 +671,10 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 {
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:MSIDTestAllowedResponseURL()];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, MSIDTestAllowedResponseURL());
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertTrue(hasHandoff);
 }
@@ -653,8 +685,10 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
     NSURL *mixedCaseOrigin = [NSURL URLWithString:@"https://PORTAL.MANAGE.microsoft.com/path"];
 
-    BOOL hasHandoff = [self.handler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:mixedCaseOrigin];
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, mixedCaseOrigin);
+
+    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                    embeddedWebviewController:nil];
 
     XCTAssertTrue(hasHandoff);
 }
@@ -675,7 +709,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 
 - (void)testPerformASWebAuthHandoff_whenNoHandoffURLCaptured_shouldCompleteWithFailWithError
 {
-    // No prior processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: call captured a hand-off URL.
+    // No prior processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: call captured a hand-off URL.
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
     MSIDViewController *parent = [MSIDViewController new];
 
@@ -697,7 +731,7 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 {
     // Capture a hand-off URL whose domain is not in the allowlist so validation
     // short-circuits before reaching the system webview transition manager.
-    // Bypass the processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: origin gate by
+    // Bypass the processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: origin gate by
     // populating lastResponseHeaders directly — this test isolates the perform-side validation.
     self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://www.example.com/handoff"};
 
@@ -715,6 +749,109 @@ static NSURL *MSIDTestAllowedResponseURL(void)
         [expectation fulfill];
     }];
 
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+#pragma mark - performASWebAuthenticationHandoff onboarding telemetry
+
+// Finalizes the given builder and returns the ordered list of stamped step_id values.
+- (NSArray<NSString *> *)stampedStepIdsFromBuilder:(MSIDOnboardingBlobBuilder *)builder
+{
+    NSData *data = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    NSMutableArray<NSString *> *stepIds = [NSMutableArray new];
+    for (NSDictionary *step in parsed[@"steps_list"])
+    {
+        [stepIds addObject:step[@"step_id"]];
+    }
+    return stepIds;
+}
+
+- (MSIDOnboardingBlobBuilder *)onboardingBuilderForHandoffTest
+{
+    NSDictionary *seed = @{@"schema_version": @"1.0.0", @"session_correlation_id": @"abc-123", @"onboarding_mode": @"non-brokered"};
+    NSString *seedJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:seed options:0 error:nil]
+                                               encoding:NSUTF8StringEncoding];
+    return [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"clientA" target:@"resource1"];
+}
+
+- (void)testPerformASWebAuthHandoff_whenBuilderPresent_shouldStampSessionStarted
+{
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+    [self.handler performASWebAuthenticationHandoffWithParentController:parent
+                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepASWebAuthSessionStarted]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenNoHandoffURLCaptured_shouldStampSessionStartFailedNotCompleted
+{
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+    [self.handler performASWebAuthenticationHandoffWithParentController:parent
+                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepASWebAuthSessionStarted]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepASWebAuthSessionStartFailed]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepASWebAuthenticationCompleted]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepASWebAuthCallbackUrlReceived]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenHandoffURLFailsValidation_shouldStampSessionStartFailedNotCompleted
+{
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://www.example.com/handoff"};
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+    [self.handler performASWebAuthenticationHandoffWithParentController:parent
+                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepASWebAuthSessionStartFailed]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepASWebAuthenticationCompleted]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenNoBuilder_shouldNotCrash
+{
+    self.handler.onboardingBlobBuilder = nil;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+    XCTAssertNoThrow([self.handler performASWebAuthenticationHandoffWithParentController:parent
+                                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                                         NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        [expectation fulfill];
+    }]);
     [self waitForExpectations:@[expectation] timeout:1.0];
 }
 

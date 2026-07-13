@@ -36,6 +36,9 @@ extern NSString * const MSIDOnboardingBlobIPCKey;
 // decide whether a session is brokered before finalizing the blob.
 extern NSString * const MSIDOnboardingModeBrokered;
 
+// UX flow tags (appended to the `ux_flow_used` array). Records which onboarding UX a session went through.
+extern NSString * const MSIDOnboardingUxFlowMobileOnboardingPhase1;
+
 // Field keys for populated blob
 extern NSString * const MSIDOnboardingBlobFieldBlockingErrors;
 extern NSString * const MSIDOnboardingBlobFieldLastBlockingError;
@@ -62,6 +65,31 @@ extern NSString * const MSIDOnboardingBlobStepJITRemediationCompleted;
 extern NSString * const MSIDOnboardingBlobStepJITComplianceBitSetStarted;
 extern NSString * const MSIDOnboardingBlobStepJITComplianceBitSetCompleted;
 extern NSString * const MSIDOnboardingBlobStepTokenIssued;
+
+// New mobile-onboarding funnel steps (free-form passthrough; not C++-aggregated).
+extern NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted;
+extern NSString * const MSIDOnboardingBlobStepComplianceRemediationStarted;
+extern NSString * const MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback;
+extern NSString * const MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled;
+extern NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable;
+extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionStarted;
+extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded;
+extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed;
+extern NSString * const MSIDOnboardingBlobStepComplianceRequestMalformed;
+extern NSString * const MSIDOnboardingBlobStepProfileInstallUrlMalformed;
+extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentFailed;
+extern NSString * const MSIDOnboardingBlobStepEnrollmentCheckInTimedOut;
+extern NSString * const MSIDOnboardingBlobStepNonHttpsRedirectFailed;
+extern NSString * const MSIDOnboardingBlobStepASWebAuthSessionStarted;
+extern NSString * const MSIDOnboardingBlobStepASWebAuthenticationCompleted;
+extern NSString * const MSIDOnboardingBlobStepASWebAuthCallbackUrlReceived;
+extern NSString * const MSIDOnboardingBlobStepASWebAuthUserCancelled;
+extern NSString * const MSIDOnboardingBlobStepASWebAuthSessionStartFailed;
+
+// Token-request retry after MDM enrollment completes (free-form passthrough; not C++-aggregated).
+extern NSString * const MSIDOnboardingBlobStepTokenRequestRetryStarted;
+extern NSString * const MSIDOnboardingBlobStepTokenRequestRetrySucceeded;
+extern NSString * const MSIDOnboardingBlobStepTokenRequestRetryFailed;
 
 // Step ID values used in C++ aggregation. Values must match
 // MSAIOnboardingBlobConstants (Djinni-generated) byte-for-byte.

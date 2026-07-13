@@ -373,55 +373,58 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
+    WKNavigationResponsePolicy responsePolicy = WKNavigationResponsePolicyAllow;
+
+    NSHTTPURLResponse *response = nil;
     if (navigationResponse && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
     {
-        NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
+        response = (NSHTTPURLResponse *)navigationResponse.response;
+    }
 
-        [self processOnboardingTelemetryForResponse:response];
+    if (response)
+    {
+        id contextObject = self.context;
+        MSIDInteractiveRequestParameters *interactiveRequestParameters =
+            [contextObject isKindOfClass:[MSIDInteractiveRequestParameters class]]
+                ? (MSIDInteractiveRequestParameters *)contextObject : nil;
+
+        if (interactiveRequestParameters.isNewMobileOnboardingFlow)
+        {
+            // In the new onboarding flow, the navigation delegate processes telemetry
+            // and checks for ASWebAuthenticationSession hand-off in a single call.
+            id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+            if ((strongNavigationDelegate)
+                && [strongNavigationDelegate respondsToSelector:@selector(processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController:)])
+            {
+                BOOL didHandoff = [strongNavigationDelegate processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                                            embeddedWebviewController:self];
+
+#if !MSID_EXCLUDE_SYSTEMWV
+                // If a hand-off is signaled, and the navigation delegate implements the hand-off method, perform the hand-off to ASWebAuthenticationSession and cancel the current navigation.
+                if (didHandoff
+                    && [strongNavigationDelegate respondsToSelector:@selector(performASWebAuthenticationHandoffWithCompletion:)])
+                {
+                    NSURL *responseURL = response.URL;
+                    responsePolicy = WKNavigationResponsePolicyCancel;
+                    [strongNavigationDelegate performASWebAuthenticationHandoffWithCompletion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+                    {
+                        [self performNavigationDecision:decision
+                                             requestURL:responseURL
+                                                  error:error];
+                    }];
+                }
+#endif // !MSID_EXCLUDE_SYSTEMWV
+            }
+        }
+        else
+        {
+            // Legacy flow: process onboarding telemetry locally.
+            [self processOnboardingTelemetryForResponse:response];
+        }
 
         if (self.navigationResponseBlock)
         {
             self.navigationResponseBlock(response);
-        }
-    }
-    
-    WKNavigationResponsePolicy responsePolicy = WKNavigationResponsePolicyAllow;
-
-    id contextObject = self.context;
-    MSIDInteractiveRequestParameters *interactiveRequestParameters =
-        [contextObject isKindOfClass:[MSIDInteractiveRequestParameters class]]
-            ? (MSIDInteractiveRequestParameters *)contextObject : nil;
-    
-    if (interactiveRequestParameters.isNewMobileOnboardingFlow)
-    {
-        id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
-        if ((strongNavigationDelegate)
-            && [strongNavigationDelegate respondsToSelector:@selector(processResponseHeadersAndCheckForASWebAuthHandoff:responseURL:)]
-            && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
-        {
-            NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
-
-            // Process the response headers and determine if a hand-off to ASWebAuthenticationSession is signaled.
-            // The response URL is passed so the delegate can verify the issuing origin is allowed (HTTPS + allowlisted host)
-            // before honoring an ASWebAuth header.
-            BOOL didHandoff = [strongNavigationDelegate processResponseHeadersAndCheckForASWebAuthHandoff:response.allHeaderFields
-                                                                                             responseURL:response.URL];
-
-#if !MSID_EXCLUDE_SYSTEMWV
-            // If a hand-off is signaled, and the navigation delegate implements the hand-off method, perform the hand-off to ASWebAuthenticationSession and cancel the current navigation.
-            if (didHandoff
-                && [strongNavigationDelegate respondsToSelector:@selector(performASWebAuthenticationHandoffWithCompletion:)])
-            {
-                NSURL *responseURL = response.URL;
-                responsePolicy = WKNavigationResponsePolicyCancel;
-                [strongNavigationDelegate performASWebAuthenticationHandoffWithCompletion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
-                {
-                    [self performNavigationDecision:decision
-                                         requestURL:responseURL
-                                              error:error];
-                }];
-            }
-#endif // !MSID_EXCLUDE_SYSTEMWV
         }
     }
 
@@ -519,6 +522,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     // redirecting to non-https url is not allowed
     if (![requestURL.scheme.lowercaseString isEqualToString:@"https"])
     {
+        [self.onboardingBlobBuilder addStep:MSIDOnboardingBlobStepNonHttpsRedirectFailed timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Server is redirecting to a non-https url");
         
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, self.context.correlationId, nil, NO);
@@ -794,11 +798,15 @@ initiatedByFrame:(WKFrameInfo *)frame
         if (flowSucceeded)
         {
             NSDate *now = [NSDate date];
-            if (_onboardingStrongAuthSetupStarted)
+            // The paired "Started" can be recorded on either path: the new flow processes
+            // headers inside the WebViewManager (sets only the builder flag), while the
+            // legacy flow processes them here (sets both the builder flag and the local ivar).
+            // OR both so the closing step is stamped regardless of which path saw the start.
+            if (_onboardingStrongAuthSetupStarted || onboardingBlobBuilder.strongAuthSetupStarted)
             {
                 [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepStrongAuthSetupCompleted timestamp:now];
             }
-            if (_onboardingMdmEnrollmentStarted)
+            if (_onboardingMdmEnrollmentStarted || onboardingBlobBuilder.mdmEnrollmentStarted)
             {
                 [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFinished timestamp:now];
             }
@@ -890,98 +898,11 @@ initiatedByFrame:(WKFrameInfo *)frame
         return;
     }
 
-    NSString *host = response.URL.host;
-    if (host.length > 0)
-    {
-        [builder setLastLoadedDomain:host];
-    }
+    [builder processResponseHeaders:response.allHeaderFields responseURL:response.URL];
 
-    NSString *cliTelem = response.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
-    if ([NSString msidIsStringNilOrBlank:cliTelem])
-    {
-        return;
-    }
-
-    // Format: <version>,<error_code>,<suberror_code>,<rt_age>,<spe_info>
-    NSArray *components = [cliTelem componentsSeparatedByString:@","];
-    if (components.count < 2)
-    {
-        return;
-    }
-
-    NSString *errorCode = [components[1] msidTrimmedString];
-    if (errorCode.length == 0 || [errorCode isEqualToString:@"0"])
-    {
-        return;
-    }
-
-    // Check list of expected errors to ignore as part of normal sign-in flow.
-    if ([[self.class nonBlockingOnboardingErrorCodes] containsObject:errorCode])
-    {
-        return;
-    }
-
-    [builder addBlockingError:errorCode];
-    [self recordOnboardingRemediationStepForErrorCode:errorCode builder:builder];
-}
-
-// Error codes that are returned during normal sign-in flow and should not be
-// treated as blocking onboarding errors (e.g. user not signed in, wrong password,
-// device auth interrupt). This list will be extended over time.
-//   50058  UserInformationNotProvided      - User not signed in / no valid SSO session found
-//   50097  DeviceAuthenticationRequired    - Device auth interrupt triggered by CA policy
-//   50126  InvalidUserNameOrPassword       - Wrong username or password
-+ (NSSet<NSString *> *)nonBlockingOnboardingErrorCodes
-{
-    static NSSet<NSString *> *codes = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        codes = [NSSet setWithObjects:@"50058", @"50097", @"50126", nil];
-    });
-    return codes;
-}
-
-- (void)recordOnboardingRemediationStepForErrorCode:(NSString *)errorCode
-                                            builder:(MSIDOnboardingBlobBuilder *)builder
-{
-    NSDate *now = [NSDate date];
-
-    // 50079: Strong auth enrollment needed (MFA setup, not MFA fulfillment like 50076/50078)
-    if ([errorCode isEqualToString:@"50079"] && !_onboardingStrongAuthSetupStarted)
-    {
-        [builder addStep:MSIDOnboardingBlobStepStrongAuthSetupStarted timestamp:now];
-        _onboardingStrongAuthSetupStarted = YES;
-    }
-    // 50129 (DeviceIsNotWorkplaceJoined): Device registration needed,
-    // 501291 (DeviceIsNotWorkplaceJoinedForMamApp): Device registration needed for MAM app
-    else if ([errorCode isEqualToString:@"50129"] || [errorCode isEqualToString:@"501291"])
-    {
-        [builder addStep:MSIDOnboardingBlobStepDeviceRegistrationRequired timestamp:now];
-    }
-    // 530001 (DeviceNotCompliantBrowserNotSupported): Browser not supported,
-    // 530002: (DeviceNotCompliantDeviceCompliantRequired): The device is required to be compliant to access this resource
-    else if ([errorCode isEqualToString:@"530001"] || [errorCode isEqualToString:@"530002"])
-    {
-        [builder addStep:MSIDOnboardingBlobStepDeviceNotCompliant timestamp:now];
-    }
-    // 53000 (DeviceNotCompliant): The user must enroll their device with an approved MDM provider like Intune,
-    // 530003 (DeviceNotCompliantDeviceManagementRequired): MDM enrollment required
-    else if ([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"530003"])
-    {
-        [builder addStep:MSIDOnboardingBlobStepMdmEnrollmentRequired timestamp:now];
-    }
-    // 50127: Client app is a MAM app and device is not registered
-    else if ([errorCode isEqualToString:@"50127"])
-    {
-        [builder addStep:MSIDOnboardingBlobStepBrokerInstallPromptedForMAM timestamp:now];
-    }
-    // 501271: Broker app needs to be installed for device authentication to succeed.
-    else if ([errorCode isEqualToString:@"501271"])
-    {
-        [builder addStep:MSIDOnboardingBlobStepBrokerInstallPrompted timestamp:now];
-    }
-    
-    // All other error codes (50076, 50078, 53005, 53003, etc.): blocking error only, no step
+    // Sync local flags from builder for use in finalizeOnboardingTelemetry:error:
+    _onboardingStrongAuthSetupStarted = builder.strongAuthSetupStarted;
+    _onboardingMdmEnrollmentStarted = builder.mdmEnrollmentStarted;
 }
 
 @end

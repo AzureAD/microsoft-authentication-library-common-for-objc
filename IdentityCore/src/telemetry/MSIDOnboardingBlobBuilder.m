@@ -25,6 +25,8 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDSessionCachePersistence.h"
+#import "NSString+MSIDExtensions.h"
+#import "MSIDOAuth2Constants.h"
 
 // Seed field keys — must match xplat core (Djinni-generated constants).
 static NSString *const MSID_ONBOARDING_FIELD_SCHEMA_VERSION = @"schema_version";
@@ -81,6 +83,9 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 @property (nonatomic, copy, nullable) NSString *lastLoadedDomain;
 
 @property (nonatomic) MSIDSessionCachePersistence *sessionCachePersistence;
+
+@property (nonatomic, readwrite) BOOL strongAuthSetupStarted;
+@property (nonatomic, readwrite) BOOL mdmEnrollmentStarted;
 
 @end
 
@@ -246,6 +251,99 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     {
         self.onboardingMode = MSIDOnboardingModeBrokered;
     }
+}
+
+#pragma mark - HTTP Response Telemetry Processing
+
+// Error codes that are returned during normal sign-in flow and should not be
+// treated as blocking onboarding errors.
+//   50058  UserInformationNotProvided      - User not signed in / no valid SSO session found
+//   50097  DeviceAuthenticationRequired    - Device auth interrupt triggered by CA policy
+//   50126  InvalidUserNameOrPassword       - Wrong username or password
++ (NSSet<NSString *> *)nonBlockingOnboardingErrorCodes
+{
+    static NSSet<NSString *> *codes = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        codes = [NSSet setWithObjects:@"50058", @"50097", @"50126", nil];
+    });
+    return codes;
+}
+
+- (void)processResponseHeaders:(NSDictionary *)headers responseURL:(NSURL *)responseURL
+{
+    NSString *host = responseURL.host;
+    if (host.length > 0)
+    {
+        [self setLastLoadedDomain:host];
+    }
+
+    NSString *cliTelem = headers[MSID_OAUTH2_CLIENT_TELEMETRY];
+    if ([NSString msidIsStringNilOrBlank:cliTelem])
+    {
+        return;
+    }
+
+    // Format: <version>,<error_code>,<suberror_code>,<rt_age>,<spe_info>
+    NSArray *components = [cliTelem componentsSeparatedByString:@","];
+    if (components.count < 2)
+    {
+        return;
+    }
+
+    NSString *errorCode = [components[1] msidTrimmedString];
+    if (errorCode.length == 0 || [errorCode isEqualToString:@"0"])
+    {
+        return;
+    }
+
+    if ([[self.class nonBlockingOnboardingErrorCodes] containsObject:errorCode])
+    {
+        return;
+    }
+
+    [self addBlockingError:errorCode];
+    [self recordRemediationStepForErrorCode:errorCode];
+}
+
+- (void)recordRemediationStepForErrorCode:(NSString *)errorCode
+{
+    NSDate *now = [NSDate date];
+
+    // 50079: Strong auth enrollment needed (MFA setup, not MFA fulfillment like 50076/50078)
+    if ([errorCode isEqualToString:@"50079"] && !self.strongAuthSetupStarted)
+    {
+        [self addStep:MSIDOnboardingBlobStepStrongAuthSetupStarted timestamp:now];
+        self.strongAuthSetupStarted = YES;
+    }
+    // 50129 (DeviceIsNotWorkplaceJoined), 501291 (DeviceIsNotWorkplaceJoinedForMamApp): device registration needed
+    else if ([errorCode isEqualToString:@"50129"] || [errorCode isEqualToString:@"501291"])
+    {
+        [self addStep:MSIDOnboardingBlobStepDeviceRegistrationRequired timestamp:now];
+    }
+    // 530001, 530002: Device not compliant
+    else if ([errorCode isEqualToString:@"530001"] || [errorCode isEqualToString:@"530002"])
+    {
+        [self addStep:MSIDOnboardingBlobStepDeviceNotCompliant timestamp:now];
+    }
+    // 53000, 530003: MDM enrollment required
+    else if ([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"530003"])
+    {
+        [self addStep:MSIDOnboardingBlobStepMdmEnrollmentRequired timestamp:now];
+        self.mdmEnrollmentStarted = YES;
+    }
+    // 50127: MAM app, device not registered
+    else if ([errorCode isEqualToString:@"50127"])
+    {
+        [self addStep:MSIDOnboardingBlobStepBrokerInstallPromptedForMAM timestamp:now];
+    }
+    // 501271: Broker app needs to be installed
+    else if ([errorCode isEqualToString:@"501271"])
+    {
+        [self addStep:MSIDOnboardingBlobStepBrokerInstallPrompted timestamp:now];
+    }
+
+    // All other error codes (50076, 50078, 53005, 53003, etc.): blocking error only, no step.
 }
 
 - (NSString *)finalizeBlob

@@ -30,6 +30,9 @@ NSString * const MSIDOnboardingBlobIPCKey = @"onboardingBlob";
 // Onboarding mode values (must match xplat core / Djinni-generated constants).
 NSString * const MSIDOnboardingModeBrokered = @"brokered";
 
+// UX flow tags (appended to the `ux_flow_used` array).
+NSString * const MSIDOnboardingUxFlowMobileOnboardingPhase1 = @"MobileOnboardingPhase1";
+
 // Field keys for populated blob
 NSString * const MSIDOnboardingBlobFieldBlockingErrors = @"blocking_errors";
 NSString * const MSIDOnboardingBlobFieldLastBlockingError = @"last_blocking_error";
@@ -56,6 +59,31 @@ NSString * const MSIDOnboardingBlobStepJITRemediationCompleted = @"JITRemediatio
 NSString * const MSIDOnboardingBlobStepJITComplianceBitSetStarted = @"JITComplianceBitSetStarted";
 NSString * const MSIDOnboardingBlobStepJITComplianceBitSetCompleted = @"JITComplianceBitSetCompleted";
 NSString * const MSIDOnboardingBlobStepTokenIssued = @"TokenIssued";
+
+// New mobile-onboarding funnel steps
+NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted = @"ProfileDownloadCompleted";
+NSString * const MSIDOnboardingBlobStepComplianceRemediationStarted = @"ComplianceRemediationStarted";
+NSString * const MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback = @"MobileOnboardingClientDisabledFallback";
+NSString * const MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled = @"MDMProfileInstallNotificationScheduled";
+NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable = @"SSOExtensionUnavailable";
+NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionStarted = @"MDMEnrollmentCompletionStarted";
+NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded = @"MDMEnrollmentCompletionFallbackErrorUrlLoaded";
+NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed = @"MDMEnrollmentRequestMalformed";
+NSString * const MSIDOnboardingBlobStepComplianceRequestMalformed = @"ComplianceRequestMalformed";
+NSString * const MSIDOnboardingBlobStepProfileInstallUrlMalformed = @"ProfileInstallUrlMalformed";
+NSString * const MSIDOnboardingBlobStepMdmEnrollmentFailed = @"MDMEnrollmentFailed";
+NSString * const MSIDOnboardingBlobStepEnrollmentCheckInTimedOut = @"EnrollmentCheckInTimedOut";
+NSString * const MSIDOnboardingBlobStepNonHttpsRedirectFailed = @"NonHttpsRedirectFailed";
+NSString * const MSIDOnboardingBlobStepASWebAuthSessionStarted = @"ASWebAuthSessionStarted";
+NSString * const MSIDOnboardingBlobStepASWebAuthenticationCompleted = @"ASWebAuthenticationCompleted";
+NSString * const MSIDOnboardingBlobStepASWebAuthCallbackUrlReceived = @"ASWebAuthCallbackUrlReceived";
+NSString * const MSIDOnboardingBlobStepASWebAuthUserCancelled = @"ASWebAuthUserCancelled";
+NSString * const MSIDOnboardingBlobStepASWebAuthSessionStartFailed = @"ASWebAuthSessionStartFailed";
+
+// Token-request retry after MDM enrollment completes
+NSString * const MSIDOnboardingBlobStepTokenRequestRetryStarted = @"TokenRequestRetryStarted";
+NSString * const MSIDOnboardingBlobStepTokenRequestRetrySucceeded = @"TokenRequestRetrySucceeded";
+NSString * const MSIDOnboardingBlobStepTokenRequestRetryFailed = @"TokenRequestRetryFailed";
 
 // Step ID values used in C++ aggregation (must match MSAIOnboardingBlobConstants)
 NSString * const MSIDOnboardingBlobStepStrongAuthSetupStarted = @"StrongAuthSetupStarted";

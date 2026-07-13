@@ -24,6 +24,9 @@
 #import "MSIDLocalInteractiveController+Internal.h"
 #import "MSIDInteractiveTokenRequest+Internal.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDWebviewConstants.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryAPIEvent.h"
@@ -287,10 +290,12 @@
     }
 
     NSString *status = mdmEnrollmentCompletionResponse.status ?: @"<none>";
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.interactiveRequestParamaters.onboardingBlobBuilder;
 
     // Failure path: MDM enrollment did not complete.
     if (!mdmEnrollmentCompletionResponse.isSuccess)
     {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFailed timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
                           @"MDM enrollment failed (status=%@).", status);
 
@@ -310,6 +315,10 @@
 
     // MDM enrollment complete. Retry the token request through the appropriate controller.
     // If broker is installed and SSO extension is active, the factory returns the SSO controller.
+    if ([status.lowercaseString isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_STATUS_VALUE_CHECK_IN_TIMED_OUT])
+    {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepEnrollmentCheckInTimedOut timestamp:[NSDate date]];
+    }
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
                       @"MDM enrollment complete (status=%@); retrying token request.", status);
 
@@ -344,7 +353,18 @@
     CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], nil);
 
     // Retry the request; the result flows back to the caller via completionBlock.
-    [brokerController acquireToken:completionBlock];
+    // Stamp the retry outcome onto the onboarding blob (free-form passthrough steps).
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepTokenRequestRetryStarted timestamp:[NSDate date]];
+
+    MSIDRequestCompletionBlock retryCompletion = ^(MSIDTokenResult *result, NSError *error)
+    {
+        NSString *retryStep = error ? MSIDOnboardingBlobStepTokenRequestRetryFailed
+                                    : MSIDOnboardingBlobStepTokenRequestRetrySucceeded;
+        [onboardingBlobBuilder addStep:retryStep timestamp:[NSDate date]];
+        completionBlock(result, error);
+    };
+
+    [brokerController acquireToken:retryCompletion];
 }
 
 #pragma mark - Webview Navigation Delegate
@@ -358,11 +378,11 @@
                                           completion:completion];
 }
 
-- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
-                                              responseURL:(NSURL *)responseURL
+- (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
+                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
 {
-    return [self.navigationHandler processResponseHeadersAndCheckForASWebAuthHandoff:headers
-                                                                         responseURL:responseURL];
+    return [self.navigationHandler processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                                              embeddedWebviewController:embeddedWebviewController];
 }
 
 #if !MSID_EXCLUDE_SYSTEMWV

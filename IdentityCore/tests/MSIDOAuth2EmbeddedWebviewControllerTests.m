@@ -31,6 +31,7 @@
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDOnboardingBlobBuilder.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -38,6 +39,7 @@
 @interface MSIDOAuth2EmbeddedWebviewController (Testing)
 - (BOOL)shouldOpenURLInSystemBrowser:(NSURL *)url targetFrame:(WKFrameInfo *)targetFrame;
 - (NSString *)onboardingStepForEndURL:(NSURL *)endURL;
+- (void)finalizeOnboardingTelemetry:(NSURL *)endURL error:(NSError *)error;
 @end
 
 @interface MSIDOAuth2EmbeddedWebviewControllerTests : XCTestCase
@@ -269,6 +271,85 @@
     MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
     NSURL *url = [NSURL URLWithString:@"browser://go.microsoft.com/fwlink/?LinkId="];
     XCTAssertNil([webVC onboardingStepForEndURL:url]);
+}
+
+#pragma mark - finalizeOnboardingTelemetry:error:
+
+- (MSIDOnboardingBlobBuilder *)builderForFinalizeTest
+{
+    NSDictionary *seed = @{@"schema_version": @"1.0.0", @"session_correlation_id": @"abc-123", @"onboarding_mode": @"non-brokered"};
+    NSString *seedJson = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:seed options:0 error:nil]
+                                               encoding:NSUTF8StringEncoding];
+    return [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"clientA" target:@"resource1"];
+}
+
+- (NSArray<NSString *> *)stampedStepIdsFromBuilder:(MSIDOnboardingBlobBuilder *)builder
+{
+    NSData *data = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    NSMutableArray<NSString *> *stepIds = [NSMutableArray new];
+    for (NSDictionary *step in parsed[@"steps_list"])
+    {
+        [stepIds addObject:step[@"step_id"]];
+    }
+    return stepIds;
+}
+
+// New-flow scenario: the WebViewManager processed headers on the shared builder
+// (setting builder.strongAuthSetupStarted), while the controller's local ivar was
+// never touched. The OR in finalize must still stamp the closing step.
+- (void)testFinalizeOnboardingTelemetry_whenBuilderStrongAuthFlagSetAndSuccess_shouldStampStrongAuthSetupCompleted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    MSIDOnboardingBlobBuilder *builder = [self builderForFinalizeTest];
+    [builder processResponseHeaders:@{@"x-ms-clitelem": @"2,50079,0,,"} responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+    XCTAssertTrue(builder.strongAuthSetupStarted);
+    webVC.onboardingBlobBuilder = builder;
+
+    [webVC finalizeOnboardingTelemetry:[NSURL URLWithString:@"https://contoso.com/done"] error:nil];
+
+    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepStrongAuthSetupCompleted]);
+}
+
+- (void)testFinalizeOnboardingTelemetry_whenBuilderMdmFlagSetAndSuccess_shouldStampMdmEnrollmentFinished
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    MSIDOnboardingBlobBuilder *builder = [self builderForFinalizeTest];
+    [builder processResponseHeaders:@{@"x-ms-clitelem": @"2,53000,0,,"} responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+    XCTAssertTrue(builder.mdmEnrollmentStarted);
+    webVC.onboardingBlobBuilder = builder;
+
+    [webVC finalizeOnboardingTelemetry:[NSURL URLWithString:@"https://contoso.com/done"] error:nil];
+
+    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepMdmEnrollmentFinished]);
+}
+
+- (void)testFinalizeOnboardingTelemetry_whenFlagSetButError_shouldNotStampCompleted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    MSIDOnboardingBlobBuilder *builder = [self builderForFinalizeTest];
+    [builder processResponseHeaders:@{@"x-ms-clitelem": @"2,50079,0,,"} responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+    webVC.onboardingBlobBuilder = builder;
+
+    NSError *error = [NSError errorWithDomain:@"TestDomain" code:-1 userInfo:nil];
+    [webVC finalizeOnboardingTelemetry:[NSURL URLWithString:@"https://contoso.com/done"] error:error];
+
+    XCTAssertFalse([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepStrongAuthSetupCompleted]);
+}
+
+- (void)testFinalizeOnboardingTelemetry_whenNoStartedFlagAndSuccess_shouldNotStampCompleted
+{
+    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
+    MSIDOnboardingBlobBuilder *builder = [self builderForFinalizeTest];
+    XCTAssertFalse(builder.strongAuthSetupStarted);
+    XCTAssertFalse(builder.mdmEnrollmentStarted);
+    webVC.onboardingBlobBuilder = builder;
+
+    [webVC finalizeOnboardingTelemetry:[NSURL URLWithString:@"https://contoso.com/done"] error:nil];
+
+    NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepStrongAuthSetupCompleted]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentFinished]);
 }
 
 @end

@@ -30,6 +30,8 @@
 #import "MSIDRequestContext.h"
 #import "MSIDWebviewNavigationDelegate.h"
 #import "MSIDWebviewConstants.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -37,6 +39,12 @@
 
 @property (nonatomic) id<MSIDRequestContext> context;
 @property (nonatomic) NSDictionary<NSString *, id> *lastResponseHeaders;
+
+// Per-request onboarding telemetry builder, captured from the embedded webview
+// controller during processNavigationResponseAndCheckForASWebAuthHandoff: so the
+// ASWebAuthentication hand-off lifecycle can be stamped from here. Weak: owned by
+// the request parameters. All addStep: calls are nil-safe.
+@property (nonatomic, weak) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 
 @end
 
@@ -85,13 +93,23 @@
     completion(navigationDecision, nil);
 }
 
-- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
-                                              responseURL:(NSURL *)responseURL
+- (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
+                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
 {
+    NSDictionary *headers = response.allHeaderFields;
+    NSURL *responseURL = response.URL;
+
     // Normalize and capture headers for later use. This also allows for case-insensitive lookup of header values.
     self.lastResponseHeaders = [self normalizeHeaders:headers];
 
-    // TODO: Add telemetry for response headers
+    // Process onboarding telemetry from the response if the builder is available.
+    // This records blocking errors (x-ms-clitelem) and last-loaded domain.
+    MSIDOnboardingBlobBuilder *builder = embeddedWebviewController.onboardingBlobBuilder;
+    self.onboardingBlobBuilder = builder;
+    if (builder && responseURL)
+    {
+        [builder processResponseHeaders:headers responseURL:responseURL];
+    }
 
     NSString *handoffURLString = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
     BOOL hasHandoffHeader = [handoffURLString isKindOfClass:NSString.class] && ((NSString *)handoffURLString).length > 0;
@@ -127,8 +145,37 @@
         return;
     }
 
+    // Stamp the ASWebAuthentication session start and wrap the completion so the
+    // hand-off outcome (completed / cancelled / start-failed) is recorded from here,
+    // keeping all onboarding telemetry inside the navigation handler.
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.onboardingBlobBuilder;
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthSessionStarted timestamp:[NSDate date]];
+
+    void (^completionBlock)(MSIDWebviewNavigationDecision * _Nullable, NSError * _Nullable) = completion;
+    completion = ^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
+    {
+        // The hand-off outcome is carried on the decision (failWithError embeds the
+        // error; loadRequest signals success). The trailing error param is always nil
+        // on this path, so classify the outcome from the decision, falling back to error.
+        NSError *outcomeError = decision.error ?: error;
+        if (outcomeError.code == MSIDErrorUserCancel)
+        {
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthUserCancelled timestamp:[NSDate date]];
+        }
+        else if (outcomeError)
+        {
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthSessionStartFailed timestamp:[NSDate date]];
+        }
+        else
+        {
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthenticationCompleted timestamp:[NSDate date]];
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthCallbackUrlReceived timestamp:[NSDate date]];
+        }
+        completionBlock(decision, error);
+    };
+
     // Retrieve the hand-off URL captured by the most recent
-    // processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: call.
+    // processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: call.
     id rawHandoffURL = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
     NSString *handoffURLString = [rawHandoffURL isKindOfClass:NSString.class] ? (NSString *)rawHandoffURL : nil;
     NSURL *handoffURL = handoffURLString.length > 0 ? [NSURL URLWithString:handoffURLString] : nil;
