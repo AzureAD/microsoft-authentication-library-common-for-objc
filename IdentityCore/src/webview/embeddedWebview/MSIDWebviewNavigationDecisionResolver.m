@@ -28,6 +28,7 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDConstants.h"
 #import "MSIDIntuneDeviceIdCache.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDVersion.h"
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDFlightManager.h"
