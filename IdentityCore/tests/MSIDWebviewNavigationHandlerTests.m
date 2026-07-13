@@ -607,7 +607,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 
 #pragma mark - processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: (response-URL origin gate)
 
-- (void)testProcessResponseHeaders_whenHandoffHeaderPresentButResponseURLIsNil_shouldReturnNOAndStillCacheHeaders
+- (void)testProcessResponseHeaders_whenHandoffHeaderPresentButResponseURLIsInvalid_shouldReturnNOAndStillCacheHeaders
 {
     // Security gate: an attacker-controlled page (or a non-HTTP response somehow reaching here)
     // must not be able to force a hand-off by injecting only the header.
