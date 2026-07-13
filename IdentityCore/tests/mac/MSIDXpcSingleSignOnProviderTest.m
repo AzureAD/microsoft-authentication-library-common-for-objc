@@ -25,6 +25,8 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDXpcSingleSignOnProvider.h"
+#import "MSIDXpcSilentTokenRequestController.h"
+#import "MSIDXpcInteractiveTokenRequestController.h"
 #import "MSIDXpcProviderCacheMock.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDSSOExtensionGetDeviceInfoRequest.h"
@@ -493,6 +495,92 @@
     XCTAssertEqual(mock.setCachedBrokerInstanceEndpointRejectedCount, 1u);
     XCTAssertEqual(mock.cachedBrokerInstanceEndpointSetCount, 0u);
     XCTAssertNil(mock.cachedBrokerInstanceEndpoint);
+}
+
+#pragma mark - Controller wrapper / reason-forwarding
+
+// Locks the contract that the no-arg +canPerformRequest wrapper returns exactly what the
+// +canPerformRequest:reason: overload returns, and that the overload forwards the provider's
+// reason unchanged to the caller's out-param. The provider is swizzled so these controller-level
+// tests don't depend on the shared MSIDXpcProviderCache internals.
+- (void)testXpcSilentController_canPerformRequestOverload_forwardsProviderFailureReason
+{
+    if (@available(macOS 13, *))
+    {
+        [self swizzleProviderCanPerformRequestReturning:NO
+                                                 reason:MSIDXpcCanPerformFailureReasonNoProviderInstalled];
+
+        MSIDXpcCanPerformFailureReason reason = MSIDXpcCanPerformFailureReasonNone;
+        XCTAssertFalse([MSIDXpcSilentTokenRequestController canPerformRequest:&reason]);
+        XCTAssertEqual(reason, MSIDXpcCanPerformFailureReasonNoProviderInstalled);
+
+        // The no-arg wrapper must agree with the overload's result and must not crash on nil out-param.
+        XCTAssertFalse([MSIDXpcSilentTokenRequestController canPerformRequest]);
+    }
+    else
+    {
+        MSIDXpcCanPerformFailureReason reason = MSIDXpcCanPerformFailureReasonNone;
+        XCTAssertFalse([MSIDXpcSilentTokenRequestController canPerformRequest:&reason]);
+        XCTAssertEqual(reason, MSIDXpcCanPerformFailureReasonUnsupportedOSVersion);
+    }
+}
+
+- (void)testXpcInteractiveController_canPerformRequestOverload_forwardsProviderFailureReason
+{
+    if (@available(macOS 13, *))
+    {
+        [self swizzleProviderCanPerformRequestReturning:NO
+                                                 reason:MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed];
+
+        MSIDXpcCanPerformFailureReason reason = MSIDXpcCanPerformFailureReasonNone;
+        XCTAssertFalse([MSIDXpcInteractiveTokenRequestController canPerformRequest:&reason]);
+        XCTAssertEqual(reason, MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed);
+
+        XCTAssertFalse([MSIDXpcInteractiveTokenRequestController canPerformRequest]);
+    }
+    else
+    {
+        MSIDXpcCanPerformFailureReason reason = MSIDXpcCanPerformFailureReasonNone;
+        XCTAssertFalse([MSIDXpcInteractiveTokenRequestController canPerformRequest:&reason]);
+        XCTAssertEqual(reason, MSIDXpcCanPerformFailureReasonUnsupportedOSVersion);
+    }
+}
+
+- (void)testXpcControllers_canPerformRequestOverload_successForwardsNoneReason
+{
+    if (@available(macOS 13, *))
+    {
+        [self swizzleProviderCanPerformRequestReturning:YES
+                                                 reason:MSIDXpcCanPerformFailureReasonNone];
+
+        // Pre-seed a non-None value to confirm the success path leaves it as None.
+        MSIDXpcCanPerformFailureReason silentReason = MSIDXpcCanPerformFailureReasonNoProviderInstalled;
+        XCTAssertTrue([MSIDXpcSilentTokenRequestController canPerformRequest:&silentReason]);
+        XCTAssertEqual(silentReason, MSIDXpcCanPerformFailureReasonNone);
+        XCTAssertTrue([MSIDXpcSilentTokenRequestController canPerformRequest]);
+
+        MSIDXpcCanPerformFailureReason interactiveReason = MSIDXpcCanPerformFailureReasonNoProviderInstalled;
+        XCTAssertTrue([MSIDXpcInteractiveTokenRequestController canPerformRequest:&interactiveReason]);
+        XCTAssertEqual(interactiveReason, MSIDXpcCanPerformFailureReasonNone);
+        XCTAssertTrue([MSIDXpcInteractiveTokenRequestController canPerformRequest]);
+    }
+}
+
+- (void)swizzleProviderCanPerformRequestReturning:(BOOL)result
+                                            reason:(MSIDXpcCanPerformFailureReason)reasonValue
+{
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest:reason:)
+                           class:[MSIDXpcSingleSignOnProvider class]
+                           block:(id)^(__unused id selfRef,
+                                       __unused id cache,
+                                       MSIDXpcCanPerformFailureReason *reasonOut)
+    {
+        if (reasonOut)
+        {
+            *reasonOut = reasonValue;
+        }
+        return result;
+    }];
 }
 
 @end
