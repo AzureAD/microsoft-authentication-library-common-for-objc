@@ -282,16 +282,14 @@
 - (void)handleWebMDMEnrollmentCompletionResponse:(MSIDWebMDMEnrollmentCompletionResponse *)mdmEnrollmentCompletionResponse
                                       completion:(MSIDRequestCompletionBlock)completionBlock
 {
-    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.interactiveRequestParamaters.onboardingBlobBuilder;
-    
     if (!completionBlock)
     {
-        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFailed timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
                           @"Passed nil completionBlock to handleWebMDMEnrollmentCompletionResponse.");
         return;
     }
-
+    
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.interactiveRequestParamaters.onboardingBlobBuilder;
     NSString *status = mdmEnrollmentCompletionResponse.status ?: @"<none>";
 
     // Failure path: MDM enrollment did not complete.
