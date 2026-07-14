@@ -139,7 +139,7 @@ NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason 
         case MSIDXpcCanPerformFailureReasonUnsupportedOSVersion:
             return @"UnsupportedOSVersion";
     }
-    
+
     return @"Unknown";
 }
 

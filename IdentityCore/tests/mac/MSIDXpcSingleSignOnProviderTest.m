@@ -411,7 +411,7 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
     {
         return NO;
     }];
-    
+
     MSIDXpcProviderCacheMock *xpcProviderCacheMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:YES
                                                                                                       isXpcValidated:YES];
     MSIDXpcCanPerformFailureReason reason = MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed;
@@ -473,11 +473,11 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
     {
         return NO;
     }];
-    
+
     MSIDXpcProviderCacheMock *xpcProviderCachedMock = [[MSIDXpcProviderCacheMock alloc]
                                                        initWithXpcInstallationStatus:YES
                                                        isXpcValidated:NO];
-    
+
     MSIDXpcCanPerformFailureReason reason = MSIDXpcCanPerformFailureReasonNone;
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedMock reason:&reason]);
     XCTAssertEqual(reason, MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed);
@@ -492,7 +492,7 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
     {
         return YES;
     }];
-    
+
     SEL selectorForInit = @selector(initWithRequestParameters:error:);
     [MSIDTestSwizzle instanceMethod:selectorForInit
                               class:[MSIDSSOExtensionGetDeviceInfoRequest class]
@@ -501,11 +501,11 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
         // Simulate the SSOExtension request object failing to construct.
         return nil;
     }];
-    
+
     MSIDXpcProviderCacheMock *xpcProviderCachedMock = [[MSIDXpcProviderCacheMock alloc]
                                                        initWithXpcInstallationStatus:YES
                                                        isXpcValidated:NO];
-    
+
     MSIDXpcCanPerformFailureReason reason = MSIDXpcCanPerformFailureReasonNone;
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedMock reason:&reason]);
     XCTAssertEqual(reason, MSIDXpcCanPerformFailureReasonDeviceInfoRequestCreationFailed);
@@ -520,7 +520,7 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
     {
         return YES;
     }];
-    
+
     SEL selectorForExecuteRequest = NSSelectorFromString(@"executeRequestWithCompletion:");
     [MSIDTestSwizzle instanceMethod:selectorForExecuteRequest
                               class:[MSIDSSOExtensionGetDeviceInfoRequest class]
@@ -529,11 +529,11 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
         NSError *error = [NSError errorWithDomain:@"MSIDXpcSingleSignOnProviderTestDomain" code:-1 userInfo:nil];
         completionBlock(nil, error);
      }];
-    
+
     MSIDXpcProviderCacheMock *xpcProviderCachedMock = [[MSIDXpcProviderCacheMock alloc]
                                                        initWithXpcInstallationStatus:YES
                                                        isXpcValidated:NO];
-    
+
     MSIDXpcCanPerformFailureReason reason = MSIDXpcCanPerformFailureReasonNone;
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedMock reason:&reason]);
     XCTAssertEqual(reason, MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeError);
@@ -548,7 +548,7 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
     {
         return YES;
     }];
-    
+
     SEL selectorForExecuteRequest = NSSelectorFromString(@"executeRequestWithCompletion:");
     [MSIDTestSwizzle instanceMethod:selectorForExecuteRequest
                               class:[MSIDSSOExtensionGetDeviceInfoRequest class]
@@ -557,11 +557,11 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
         // Intentionally never invoke the completion block, forcing the production 1 sec
         // dispatch_group_wait in canPerformRequest: to expire.
      }];
-    
+
     MSIDXpcProviderCacheMock *xpcProviderCachedMock = [[MSIDXpcProviderCacheMock alloc]
                                                        initWithXpcInstallationStatus:YES
                                                        isXpcValidated:NO];
-    
+
     MSIDXpcCanPerformFailureReason reason = MSIDXpcCanPerformFailureReasonNone;
     XCTAssertFalse([MSIDXpcSingleSignOnProvider canPerformRequest:xpcProviderCachedMock reason:&reason]);
     XCTAssertEqual(reason, MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeTimeout);
