@@ -414,6 +414,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     return legacyKeys;
 }
 
+/*
 + (void)getDeviceTokenForTenantId:(NSString *)tenantId
                 requestParameters:(MSIDRequestParameters *)requestParameters
                            scopes:(NSOrderedSet<NSString *> *)scopes
@@ -513,6 +514,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         }];
     }];
 }
+ */
 
 + (NSString *)getDeviceTokenRequestJwtForResource:(nonnull NSString *)resource
                                            scopes:(NSSet *)scopes

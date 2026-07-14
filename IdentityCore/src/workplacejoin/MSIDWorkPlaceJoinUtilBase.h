@@ -57,12 +57,13 @@
 // MSIDWPJKeyPairWithCert only contains keys and cert - no IdentityRef. Can be used for PkeyAuth challenges, but not for Client TLS challenges
 + (nullable MSIDWPJKeyPairWithCert *)getWPJKeysWithTenantId:(nullable NSString *)tenantId
                                                     context:(nullable id<MSIDRequestContext>)context;
-
+/* TODO: Remove this method
 + (void)getDeviceTokenForTenantId:(nonnull NSString *)tenantId
                 requestParameters:(nonnull MSIDRequestParameters *)requestParameters
                            scopes:(nullable NSOrderedSet<NSString *> *)scopes
                          resource:(nonnull NSString *)resource
                   completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock;
+*/
 
 + (nullable NSString *)getDeviceTokenRequestJwtForResource:(nonnull NSString *)resource
                                                     scopes:(nullable NSSet *)scopes
