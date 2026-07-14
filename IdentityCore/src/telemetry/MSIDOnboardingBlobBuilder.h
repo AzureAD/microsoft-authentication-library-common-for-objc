@@ -79,9 +79,9 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingSeedClassification)
 - (void)processResponseHeaders:(NSDictionary *)headers
                    responseURL:(NSURL *)responseURL;
 
-/// Flags indicating which remediation steps have been recorded. Used by the base
-/// webview controller's finalizeOnboardingTelemetry:error: to decide which completion
-/// steps (StrongAuthSetupCompleted) to add at flow end.
+/// Flags indicating which remediation steps have been recorded during the session.
+/// The base webview controller currently uses strongAuthSetupStarted in finalizeOnboardingTelemetry:error:
+/// to decide whether to stamp StrongAuthSetupCompleted; MDM completion is stamped elsewhere.
 @property (nonatomic, readonly) BOOL strongAuthSetupStarted;
 @property (nonatomic, readonly) BOOL mdmEnrollmentStarted;
 
