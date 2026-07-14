@@ -126,36 +126,32 @@
 
 - (BOOL)boolForKey:(nonnull NSString *)flightKey 
 {
-    __block BOOL result = NO;
-    // Read and use the provider entirely on the synchronization queue while holding a
-    // strong local reference, so a concurrent setFlightProvider: cannot deallocate it
-    // between the nil-check and the message send (use-after-free -> SIGSEGV).
+    // Capture a strong reference to the provider on the synchronization queue so a concurrent
+    // setFlightProvider: cannot deallocate it (use-after-free -> SIGSEGV). Invoke the provider
+    // AFTER leaving the queue: a provider that re-enters setFlightProvider: from its own
+    // boolForKey: would otherwise deadlock, since setFlightProvider: issues a
+    // dispatch_barrier_sync on this same queue that can never run while this block holds it.
+    __block id<MSIDFlightManagerInterface> provider = nil;
     dispatch_sync(self.synchronizationQueue, ^{
-        id<MSIDFlightManagerInterface> provider = self->_flightProvider;
-        if (provider)
-        {
-            result = [provider boolForKey:flightKey];
-        }
+        provider = self->_flightProvider;
     });
     
-    return result;
+    return provider ? [provider boolForKey:flightKey] : NO;
 }
 
 - (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
 {
-    __block NSString *result = nil;
-    // Read and use the provider entirely on the synchronization queue while holding a
-    // strong local reference, so a concurrent setFlightProvider: cannot deallocate it
-    // between the nil-check and the message send (use-after-free -> SIGSEGV).
+    // Capture a strong reference to the provider on the synchronization queue so a concurrent
+    // setFlightProvider: cannot deallocate it (use-after-free -> SIGSEGV). Invoke the provider
+    // AFTER leaving the queue: a provider that re-enters setFlightProvider: from its own
+    // stringForKey: would otherwise deadlock, since setFlightProvider: issues a
+    // dispatch_barrier_sync on this same queue that can never run while this block holds it.
+    __block id<MSIDFlightManagerInterface> provider = nil;
     dispatch_sync(self.synchronizationQueue, ^{
-        id<MSIDFlightManagerInterface> provider = self->_flightProvider;
-        if (provider)
-        {
-            result = [provider stringForKey:flightKey];
-        }
+        provider = self->_flightProvider;
     });
     
-    return result;
+    return provider ? [provider stringForKey:flightKey] : nil;
 }
 
 
