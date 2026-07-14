@@ -379,7 +379,7 @@
 }
 
 - (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
-                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
+                                   embeddedWebviewController:(nullable MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController
 {
     return [self.navigationHandler processNavigationResponseAndCheckForASWebAuthHandoff:response
                                                               embeddedWebviewController:embeddedWebviewController];

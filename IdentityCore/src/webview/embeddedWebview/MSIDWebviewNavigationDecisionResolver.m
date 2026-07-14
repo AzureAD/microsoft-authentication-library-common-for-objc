@@ -33,7 +33,6 @@
 #import "MSIDUXCallbackProvider.h"
 #import "MSIDFlightManager.h"
 #import "MSIDOnboardingBlobBuilder.h"
-#import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 
 #if !MSID_EXCLUDE_WEBKIT
