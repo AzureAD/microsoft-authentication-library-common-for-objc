@@ -330,7 +330,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     else if ([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"530003"])
     {
         [self addStep:MSIDOnboardingBlobStepMdmEnrollmentRequired timestamp:now];
-        self.mdmEnrollmentStarted = YES;
     }
     // 50127: MAM app, device not registered
     else if ([errorCode isEqualToString:@"50127"])

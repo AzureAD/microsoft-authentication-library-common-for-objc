@@ -72,7 +72,7 @@ extern NSString * const MSIDOnboardingBlobStepComplianceRemediationStarted;
 extern NSString * const MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback;
 extern NSString * const MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled;
 extern NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable;
-extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionStarted;
+extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionRedirectReceived;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed;
 extern NSString * const MSIDOnboardingBlobStepComplianceRequestMalformed;

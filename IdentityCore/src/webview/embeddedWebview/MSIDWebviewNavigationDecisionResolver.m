@@ -375,7 +375,7 @@
                                            embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
-    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentCompletionStarted timestamp:[NSDate date]];
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentCompletionRedirectReceived timestamp:[NSDate date]];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] Processing enrollment completion redirect.");
 
     // Cancel any previously scheduled MDM profile installed notification

@@ -798,17 +798,13 @@ initiatedByFrame:(WKFrameInfo *)frame
         if (flowSucceeded)
         {
             NSDate *now = [NSDate date];
-            // The paired "Started" can be recorded on either path: the new flow processes
-            // headers inside the WebViewManager (sets only the builder flag), while the
-            // legacy flow processes them here (sets both the builder flag and the local ivar).
-            // OR both so the closing step is stamped regardless of which path saw the start.
-            if (_onboardingStrongAuthSetupStarted || onboardingBlobBuilder.strongAuthSetupStarted)
+            // Both the new and legacy flows now process response headers through
+            // processOnboardingTelemetryForResponse:, which keeps this local ivar in sync
+            // with the builder flag, so the ivar alone is sufficient to stamp the closing step.
+            // MDMEnrollmentFinished is stamped from the in_app_enrollment_complete redirect.
+            if (_onboardingStrongAuthSetupStarted)
             {
                 [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepStrongAuthSetupCompleted timestamp:now];
-            }
-            if (_onboardingMdmEnrollmentStarted || onboardingBlobBuilder.mdmEnrollmentStarted)
-            {
-                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFinished timestamp:now];
             }
         }
         

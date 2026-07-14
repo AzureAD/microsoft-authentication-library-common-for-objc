@@ -828,14 +828,12 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepStrongAuthSetupStarted inBlob:parsed], 1);
 }
 
-- (void)testProcessResponseHeaders_whenMdmEnrollmentRequiredErrorCode_shouldRecordStepAndSetFlag
+- (void)testProcessResponseHeaders_whenMdmEnrollmentRequiredErrorCode_shouldRecordStep
 {
     MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
 
     [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,53000,0,,"}
                         responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
-
-    XCTAssertTrue(builder.mdmEnrollmentStarted);
 
     NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
     XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepMdmEnrollmentRequired inBlob:parsed], 1);

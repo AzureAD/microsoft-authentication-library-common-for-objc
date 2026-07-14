@@ -282,15 +282,17 @@
 - (void)handleWebMDMEnrollmentCompletionResponse:(MSIDWebMDMEnrollmentCompletionResponse *)mdmEnrollmentCompletionResponse
                                       completion:(MSIDRequestCompletionBlock)completionBlock
 {
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.interactiveRequestParamaters.onboardingBlobBuilder;
+    
     if (!completionBlock)
     {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFailed timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
                           @"Passed nil completionBlock to handleWebMDMEnrollmentCompletionResponse.");
         return;
     }
 
     NSString *status = mdmEnrollmentCompletionResponse.status ?: @"<none>";
-    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.interactiveRequestParamaters.onboardingBlobBuilder;
 
     // Failure path: MDM enrollment did not complete.
     if (!mdmEnrollmentCompletionResponse.isSuccess)
@@ -313,12 +315,11 @@
         return;
     }
 
-    // MDM enrollment complete. Retry the token request through the appropriate controller.
+    // MDM enrollment complete. Stamp the terminal onboarding step based on the parsed status.
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFinished timestamp:[NSDate date]];
+
+    // Retry the token request through the appropriate controller.
     // If broker is installed and SSO extension is active, the factory returns the SSO controller.
-    if ([status.lowercaseString isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_STATUS_VALUE_CHECK_IN_TIMED_OUT])
-    {
-        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepEnrollmentCheckInTimedOut timestamp:[NSDate date]];
-    }
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
                       @"MDM enrollment complete (status=%@); retrying token request.", status);
 

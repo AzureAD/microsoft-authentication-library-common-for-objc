@@ -311,19 +311,6 @@
     XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepStrongAuthSetupCompleted]);
 }
 
-- (void)testFinalizeOnboardingTelemetry_whenBuilderMdmFlagSetAndSuccess_shouldStampMdmEnrollmentFinished
-{
-    MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
-    MSIDOnboardingBlobBuilder *builder = [self builderForFinalizeTest];
-    [builder processResponseHeaders:@{@"x-ms-clitelem": @"2,53000,0,,"} responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
-    XCTAssertTrue(builder.mdmEnrollmentStarted);
-    webVC.onboardingBlobBuilder = builder;
-
-    [webVC finalizeOnboardingTelemetry:[NSURL URLWithString:@"https://contoso.com/done"] error:nil];
-
-    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepMdmEnrollmentFinished]);
-}
-
 - (void)testFinalizeOnboardingTelemetry_whenFlagSetButError_shouldNotStampCompleted
 {
     MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];

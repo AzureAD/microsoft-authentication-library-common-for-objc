@@ -660,6 +660,7 @@
 
         // Retry telemetry: Started stamped before the retry, Succeeded stamped on the success result.
         NSArray<NSString *> *stepIds = [self stepIdsFromOnboardingBuilder:parameters.onboardingBlobBuilder];
+        XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepMdmEnrollmentFinished]);
         XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryStarted]);
         XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetrySucceeded]);
         XCTAssertFalse([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryFailed]);

@@ -91,6 +91,13 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
 // to the builder. Reused by both non-brokered and brokered flows.
 @property (nonatomic, strong) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 
+// Processes onboarding telemetry from a navigation response: forwards the response
+// headers to the builder (recording blocking errors, last-loaded domain, and
+// remediation steps) and syncs the controller's local onboarding flags. Called by
+// the controller on the legacy flow and by the navigation delegate on the new flow
+// so both paths run the same single processing and flag-sync logic.
+- (void)processOnboardingTelemetryForResponse:(NSHTTPURLResponse *)response;
+
 // Readonly flags exposing whether each remediation step has been recorded against
 // the current onboarding blob builder. Subclasses use these to decide whether to
 // emit matching completion steps when the flow ends successfully.
