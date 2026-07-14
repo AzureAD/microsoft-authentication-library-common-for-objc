@@ -78,8 +78,6 @@ extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed;
 extern NSString * const MSIDOnboardingBlobStepComplianceRequestMalformed;
 extern NSString * const MSIDOnboardingBlobStepProfileInstallUrlMalformed;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentFailed;
-extern NSString * const MSIDOnboardingBlobStepEnrollmentCheckInTimedOut;
-extern NSString * const MSIDOnboardingBlobStepNonHttpsRedirectFailed;
 extern NSString * const MSIDOnboardingBlobStepASWebAuthSessionStarted;
 extern NSString * const MSIDOnboardingBlobStepASWebAuthenticationCompleted;
 extern NSString * const MSIDOnboardingBlobStepASWebAuthCallbackUrlReceived;

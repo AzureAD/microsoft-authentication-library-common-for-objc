@@ -295,16 +295,18 @@
     return stepIds;
 }
 
-// New-flow scenario: the WebViewManager processed headers on the shared builder
-// (setting builder.strongAuthSetupStarted), while the controller's local ivar was
-// never touched. The OR in finalize must still stamp the closing step.
 - (void)testFinalizeOnboardingTelemetry_whenBuilderStrongAuthFlagSetAndSuccess_shouldStampStrongAuthSetupCompleted
 {
     MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
     MSIDOnboardingBlobBuilder *builder = [self builderForFinalizeTest];
-    [builder processResponseHeaders:@{@"x-ms-clitelem": @"2,50079,0,,"} responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
-    XCTAssertTrue(builder.strongAuthSetupStarted);
     webVC.onboardingBlobBuilder = builder;
+
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]
+                                                             statusCode:200
+                                                            HTTPVersion:@"HTTP/1.1"
+                                                           headerFields:@{@"x-ms-clitelem": @"2,50079,0,,"}];
+    [webVC processOnboardingTelemetryForResponse:response];
+    XCTAssertTrue(builder.strongAuthSetupStarted);
 
     [webVC finalizeOnboardingTelemetry:[NSURL URLWithString:@"https://contoso.com/done"] error:nil];
 
