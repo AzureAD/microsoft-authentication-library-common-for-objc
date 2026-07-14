@@ -27,8 +27,6 @@
 #import <Foundation/Foundation.h>
 #import "MSIDDeviceTokenGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
-#import "MSIDKeyOperationUtil.h"
-#import "MSIDJWTHelper.h"
 #import "MSIDNonceTokenRequest.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDRequestParameters.h"
@@ -38,6 +36,7 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDDeviceTokenResponseHandler.h"
 #import "MSIDTokenResponseValidator.h"
+#import "MSIDWorkPlaceJoinUtilBase.h"
 
 @interface MSIDDeviceTokenGrantRequest()
 
@@ -198,14 +197,16 @@
 - (void)tokenRequestWithCompletionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     NSError *jwtError;
-    NSString *jwt = [self getTokenRedemptionJwtForResource:self.resource
-                                                    scopes:self.scopesSet
-                                               redirectUri:self.redirectUri
-                                                  audience:self.urlRequest.URL.absoluteString
-                                                  clientId:self.clientId
-                                        extraPayloadClaims:nil
-                                                   context:self.context
-                                                     error:&jwtError];
+    NSString *jwt = [MSIDWorkPlaceJoinUtilBase getDeviceTokenRequestJwtForResource:self.resource
+                                                                            scopes:self.scopesSet
+                                                                       redirectUri:self.redirectUri
+                                                                          audience:self.urlRequest.URL.absoluteString
+                                                                          clientId:self.clientId
+                                                                             nonce:self.nonce
+                                                           registrationInformation:self.wpjInfo
+                                                                extraPayloadClaims:nil
+                                                                           context:self.context
+                                                                             error:&jwtError];
 
     if ([NSString msidIsStringNilOrBlank:jwt])
     {
@@ -256,69 +257,6 @@
         }];
     }];
 }
-
-#pragma mark standard payload
-
-- (NSString *)getTokenRedemptionJwtForResource:(nonnull NSString *)resource
-                                        scopes:(NSSet *)scopes
-                                   redirectUri:(nonnull NSString *)redirectUri
-                                      audience:(nonnull NSString *)audience
-                                      clientId:(nonnull NSString *)clientId
-                            extraPayloadClaims:(NSDictionary *)extraPayloadClaims
-                                       context:(id<MSIDRequestContext> _Nullable)context
-                                         error:(NSError * __autoreleasing *)error
-{
-    MSIDWPJKeyPairWithCert *workplacejoinData = self.wpjInfo;
-    NSMutableDictionary *jwtPayload = [NSMutableDictionary new];
-    for (NSString *key in extraPayloadClaims)
-    {
-        jwtPayload[key] = extraPayloadClaims[key];
-    }
-    jwtPayload[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_DEVICE_TOKEN;
-    jwtPayload[@"aud"] = audience;
-    jwtPayload[@"iss"] = clientId; // Issuer is the client ID
-    jwtPayload[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
-    [jwtPayload setObject:clientId forKey:MSID_OAUTH2_CLIENT_ID];
-    if (![NSString msidIsStringNilOrBlank:self.nonce])
-    {
-        [jwtPayload setObject:self.nonce forKey:@"request_nonce"];
-    }
-    NSString *scopeString = [scopes.allObjects componentsJoinedByString:@" "];
-    if (![NSString msidIsStringNilOrBlank:scopeString])
-    {
-        [jwtPayload setObject:scopeString forKey:MSID_OAUTH2_SCOPE];
-    }
-    [jwtPayload setObject:resource forKey:@"resource"];
-    
-    NSArray *certificateData = @[[NSString stringWithFormat:@"%@", [[workplacejoinData certificateData] base64EncodedStringWithOptions:kNilOptions]]];
-    MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:self.wpjInfo.privateKeyRef context:context error:error];
-    if (!alg)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Device token] Failed to get JWT algorithm for signing key.");
-        return nil;
-    }
-    
-    NSDictionary *header = @{
-                             @"alg" : alg,
-                             @"typ" : @"JWT",
-                             @"x5c" : certificateData
-                             };
-                                                                                 
-    NSString *signedJwt = [MSIDJWTHelper createSignedJWTforHeader:header payload:jwtPayload signingKey:workplacejoinData.privateKeyRef];
-    if ([NSString msidIsStringNilOrBlank:signedJwt])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Device token] Failed to sign JWT for requesting device token.");
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to sign JWT for requesting device token.", nil, nil, nil, context.correlationId, nil, YES);
-        }
-        return nil;
-    }
-    
-    return signedJwt;
-}
-
-
 
 @end
 #endif

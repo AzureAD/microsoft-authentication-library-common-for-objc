@@ -63,6 +63,17 @@
                            scopes:(nullable NSOrderedSet<NSString *> *)scopes
                          resource:(nonnull NSString *)resource
                   completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock;
+
++ (nullable NSString *)getDeviceTokenRequestJwtForResource:(nonnull NSString *)resource
+                                                    scopes:(nullable NSSet *)scopes
+                                               redirectUri:(nonnull NSString *)redirectUri
+                                                  audience:(nonnull NSString *)audience
+                                                  clientId:(nonnull NSString *)clientId
+                                                     nonce:(nullable NSString *)nonce
+                                   registrationInformation:(nonnull MSIDWPJKeyPairWithCert *)registrationInformation
+                                        extraPayloadClaims:(nullable NSDictionary *)extraPayloadClaims
+                                                   context:(nullable id<MSIDRequestContext>)context
+                                                     error:(NSError *__nullable __autoreleasing *__nullable)error;
 @end
 
 #endif /* MSIDWorkPlaceJoinUtilBase_h */

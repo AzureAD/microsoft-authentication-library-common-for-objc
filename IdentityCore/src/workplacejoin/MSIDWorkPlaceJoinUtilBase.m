@@ -38,6 +38,9 @@
 #import "MSIDNonceTokenRequest.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDOauth2Factory.h"
+#import "MSIDKeyOperationUtil.h"
+#import "MSIDJWTHelper.h"
+#import "MSIDOAuth2Constants.h"
 
 static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
 static NSString *kECPrivateKeyTagSuffix = @"-EC";
@@ -461,7 +464,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
                                                                                                                 oauthFactory:[MSIDOauth2Factory new]];
     
     MSIDDeviceTokenGrantRequest *deviceTokenRequest = [[MSIDDeviceTokenGrantRequest alloc] initWithEndpoint:endpoint
-                                                                                         requestParameters:requestParameters
+                                                                                          requestParameters:requestParameters
                                                                                                      scopes:requestParameters.allTokenRequestScopes
                                                                                     registrationInformation:wpjCerts
                                                                                                    resource:resource
@@ -509,6 +512,67 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
             completionBlock(result, nil);
         }];
     }];
+}
+
++ (NSString *)getDeviceTokenRequestJwtForResource:(nonnull NSString *)resource
+                                           scopes:(NSSet *)scopes
+                                      redirectUri:(nonnull NSString *)redirectUri
+                                         audience:(nonnull NSString *)audience
+                                         clientId:(nonnull NSString *)clientId
+                                            nonce:(NSString *)nonce
+                          registrationInformation:(nonnull MSIDWPJKeyPairWithCert *)registrationInformation
+                               extraPayloadClaims:(NSDictionary *)extraPayloadClaims
+                                          context:(id<MSIDRequestContext> _Nullable)context
+                                            error:(NSError * __autoreleasing *)error
+{
+    MSIDWPJKeyPairWithCert *workplacejoinData = registrationInformation;
+    NSMutableDictionary *jwtPayload = [NSMutableDictionary new];
+    for (NSString *key in extraPayloadClaims)
+    {
+        jwtPayload[key] = extraPayloadClaims[key];
+    }
+    jwtPayload[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_DEVICE_TOKEN;
+    jwtPayload[@"aud"] = audience;
+    jwtPayload[@"iss"] = clientId; // Issuer is the client ID
+    jwtPayload[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
+    [jwtPayload setObject:clientId forKey:MSID_OAUTH2_CLIENT_ID];
+    if (![NSString msidIsStringNilOrBlank:nonce])
+    {
+        [jwtPayload setObject:nonce forKey:@"request_nonce"];
+    }
+    NSString *scopeString = [scopes.allObjects componentsJoinedByString:@" "];
+    if (![NSString msidIsStringNilOrBlank:scopeString])
+    {
+        [jwtPayload setObject:scopeString forKey:MSID_OAUTH2_SCOPE];
+    }
+    [jwtPayload setObject:resource forKey:@"resource"];
+    
+    NSArray *certificateData = @[[NSString stringWithFormat:@"%@", [[workplacejoinData certificateData] base64EncodedStringWithOptions:kNilOptions]]];
+    MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:registrationInformation.privateKeyRef context:context error:error];
+    if (!alg)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Device token] Failed to get JWT algorithm for signing key.");
+        return nil;
+    }
+    
+    NSDictionary *header = @{
+                             @"alg" : alg,
+                             @"typ" : @"JWT",
+                             @"x5c" : certificateData
+                             };
+                                                                                 
+    NSString *signedJwt = [MSIDJWTHelper createSignedJWTforHeader:header payload:jwtPayload signingKey:workplacejoinData.privateKeyRef];
+    if ([NSString msidIsStringNilOrBlank:signedJwt])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Device token] Failed to sign JWT for requesting device token.");
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to sign JWT for requesting device token.", nil, nil, nil, context.correlationId, nil, YES);
+        }
+        return nil;
+    }
+    
+    return signedJwt;
 }
 
 + (NSString *)getPrimaryEccTenantWithSharedAccessGroup:(NSString *)sharedAccessGroup context:(id<MSIDRequestContext>_Nullable)context error:(NSError *__autoreleasing*)error
