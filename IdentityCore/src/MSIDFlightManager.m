@@ -113,7 +113,11 @@
 
 - (void)setFlightProvider:(id<MSIDFlightManagerInterface>)flightProvider
 {
-    dispatch_barrier_async(self.synchronizationQueue, ^{
+    // Use a synchronous barrier so the assignment (and the release of any previously
+    // installed provider) completes before the setter returns. An async barrier let the
+    // previous provider be released on the queue after the setter returned, racing with
+    // concurrent readers and allowing a stale/nil provider to be observed.
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         self->_flightProvider = flightProvider;
     });
 }
@@ -123,25 +127,33 @@
 - (BOOL)boolForKey:(nonnull NSString *)flightKey 
 {
     __block BOOL result = NO;
-    if (self.flightProvider)
-    {
-        dispatch_sync(self.synchronizationQueue, ^{
-            result = [self.flightProvider boolForKey:flightKey];
-        });
-    }
+    // Read and use the provider entirely on the synchronization queue while holding a
+    // strong local reference, so a concurrent setFlightProvider: cannot deallocate it
+    // between the nil-check and the message send (use-after-free -> SIGSEGV).
+    dispatch_sync(self.synchronizationQueue, ^{
+        id<MSIDFlightManagerInterface> provider = self->_flightProvider;
+        if (provider)
+        {
+            result = [provider boolForKey:flightKey];
+        }
+    });
     
     return result;
 }
 
 - (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
 {
-    __block NSString* result = nil;
-    if (self.flightProvider)
-    {
-        dispatch_sync(self.synchronizationQueue, ^{
-            result = [self.flightProvider stringForKey:flightKey];
-        });
-    }
+    __block NSString *result = nil;
+    // Read and use the provider entirely on the synchronization queue while holding a
+    // strong local reference, so a concurrent setFlightProvider: cannot deallocate it
+    // between the nil-check and the message send (use-after-free -> SIGSEGV).
+    dispatch_sync(self.synchronizationQueue, ^{
+        id<MSIDFlightManagerInterface> provider = self->_flightProvider;
+        if (provider)
+        {
+            result = [provider stringForKey:flightKey];
+        }
+    });
     
     return result;
 }
