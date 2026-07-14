@@ -81,7 +81,7 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingSeedClassification)
 
 /// Flags indicating which remediation steps have been recorded. Used by the base
 /// webview controller's finalizeOnboardingTelemetry:error: to decide which completion
-/// steps (StrongAuthSetupCompleted, MdmEnrollmentFinished) to add at flow end.
+/// steps (StrongAuthSetupCompleted) to add at flow end.
 @property (nonatomic, readonly) BOOL strongAuthSetupStarted;
 @property (nonatomic, readonly) BOOL mdmEnrollmentStarted;
 
