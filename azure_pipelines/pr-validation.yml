@@ -21,7 +21,7 @@ resources:
     - repository: pipelinesShared
       type: git
       name: IDDP/MSAL-ObjC-Pipelines
-      ref: refs/heads/main
+      ref: refs/heads/josephpab/xcbeautify-and-shared-step-templates
 
 # Define parallel jobs that run build script for specified targets
 jobs:
