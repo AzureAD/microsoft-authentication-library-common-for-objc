@@ -27,7 +27,6 @@
 #import "MSIDWebviewConstants.h"
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDConstants.h"
-#import "MSIDDeviceId.h"
 #import "MSIDIntuneDeviceIdCache.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDVersion.h"
@@ -56,7 +55,15 @@
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
-    // Validate required parameters
+    return [self resolveDecisionForURL:URL
+             embeddedWebviewController:embeddedWebviewController
+                         brokerVersion:nil];
+}
+
+- (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
+                                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                                     brokerVersion:(NSString * _Nullable)brokerVersion
+{
     if (!URL)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve: URL is nil.");
@@ -86,7 +93,8 @@
     {
         // Handle msauth:// URLs
         return [self handleMSAuthURL:URL
-           embeddedWebviewController:embeddedWebviewController];
+           embeddedWebviewController:embeddedWebviewController
+                       brokerVersion:brokerVersion];
     }
     else if ([scheme isEqualToString:MSID_SCHEME_BROWSER])
     {
@@ -106,6 +114,7 @@
 
 - (MSIDWebviewNavigationDecision *)handleMSAuthURL:(NSURL *)URL
                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                     brokerVersion:(NSString * _Nullable)brokerVersion
 {
     NSString *host = URL.host.lowercaseString;
 
@@ -129,7 +138,8 @@
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
         return [self decisionForEnrollURL:params
-                embeddedWebviewController:embeddedWebviewController];
+                embeddedWebviewController:embeddedWebviewController
+                            brokerVersion:brokerVersion];
     }
     else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
@@ -159,6 +169,7 @@
 
 - (MSIDWebviewNavigationDecision *)decisionForEnrollURL:(NSDictionary *)params
                              embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                         brokerVersion:(NSString * _Nullable)brokerVersion
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
@@ -242,7 +253,6 @@
         additionalHeaders[MSID_VERSION_KEY] = sdkVersion;
     }
 
-    NSString *brokerVersion = [MSIDDeviceId brokerVersion];
     if (brokerVersion.length > 0)
     {
         additionalHeaders[MSID_BROKER_VER_KEY] = brokerVersion;

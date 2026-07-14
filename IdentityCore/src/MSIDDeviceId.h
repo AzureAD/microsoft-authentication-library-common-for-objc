@@ -48,12 +48,6 @@
 + (void)setIdValue:(NSString*)value
             forKey:(NSString*)key;
 
-/*! Returns the broker version. Set only in broker flows; nil otherwise. */
-+ (NSString *)brokerVersion;
-
-/*! Registers the broker version. Called once by the broker at startup. */
-+ (void)setBrokerVersion:(NSString *)brokerVersion;
-
 /*! Returns OS version number */
 + (NSString *)deviceOSVersion;
 

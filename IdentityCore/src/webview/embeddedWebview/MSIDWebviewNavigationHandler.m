@@ -84,12 +84,24 @@
        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
 {
+    [self handleSpecialRedirectURL:URL
+         embeddedWebviewController:embeddedWebviewController
+                     brokerVersion:nil
+                        completion:completion];
+}
+
+- (void)handleSpecialRedirectURL:(NSURL *)URL
+       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                   brokerVersion:(NSString * _Nullable)brokerVersion
+                      completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
+{
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                       @"Handling special redirect: %@", _PII_NULLIFY(URL));
 
     MSIDWebviewNavigationDecisionResolver *util = [MSIDWebviewNavigationDecisionResolver sharedInstance];
     MSIDWebviewNavigationDecision *navigationDecision = [util resolveDecisionForURL:URL
-                                                          embeddedWebviewController:embeddedWebviewController];
+                                                          embeddedWebviewController:embeddedWebviewController
+                                                                      brokerVersion:brokerVersion];
     completion(navigationDecision, nil);
 }
 

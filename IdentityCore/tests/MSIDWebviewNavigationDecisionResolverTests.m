@@ -234,6 +234,38 @@
     XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_VERSION_KEY], [MSIDVersion sdkVersion]);
 }
 
+- (void)testEnrollURL_whenBrokerVersionProvided_attachesBrokerVersionHeader
+{
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 embeddedWebviewController:nil
+                                                                             brokerVersion:@"6.1.2"];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_BROKER_VER_KEY], @"6.1.2");
+}
+
+- (void)testEnrollURL_whenBrokerVersionNil_doesNotAttachBrokerVersionHeader
+{
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    // The two-argument variant forwards a nil broker version, so the header is omitted.
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 embeddedWebviewController:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_BROKER_VER_KEY]);
+}
+
 #pragma mark - Profile download complete host
 
 - (void)testProfileDownloadComplete_missingDeviceId_returnsLoadRequest

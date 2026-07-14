@@ -35,6 +35,7 @@
 #import "MSIDWebviewNavigationDelegate.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDConstants.h"
 
 // Stub conforming to MSIDWebviewNavigationDelegate for delegate-wiring assertions.
 @interface MSIDTestNavigationDelegateStub : NSObject <MSIDWebviewNavigationDelegate>
@@ -511,6 +512,57 @@
                                completion:^(__unused MSIDWebviewNavigationDecision * _Nullable decision,
                                             __unused NSError * _Nullable error)
     {
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testHandleSpecialRedirectURL_whenBrokerVersionProvided_shouldAttachBrokerVersionHeaderOnEnrollRequest
+{
+    // The four-argument overload must forward the broker version through to the
+    // resolver so the MDM enrollment request advertises the x-client-brkrver header.
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *URL = [NSURL URLWithString:urlString];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+
+    [self.handler handleSpecialRedirectURL:URL
+                 embeddedWebviewController:nil
+                             brokerVersion:@"6.1.2"
+                                completion:^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
+    {
+        XCTAssertNotNil(decision);
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+        XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_BROKER_VER_KEY], @"6.1.2");
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testHandleSpecialRedirectURL_whenBrokerVersionOmitted_shouldNotAttachBrokerVersionHeaderOnEnrollRequest
+{
+    // The three-argument variant forwards a nil broker version, so the enrollment
+    // request must not carry the x-client-brkrver header.
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *URL = [NSURL URLWithString:urlString];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+
+    [self.handler handleSpecialRedirectURL:URL
+                 embeddedWebviewController:nil
+                                completion:^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
+    {
+        XCTAssertNotNil(decision);
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+        XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_BROKER_VER_KEY]);
+        XCTAssertNil(error);
         [expectation fulfill];
     }];
 

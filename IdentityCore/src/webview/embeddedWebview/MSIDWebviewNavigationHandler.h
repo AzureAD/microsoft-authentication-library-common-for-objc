@@ -90,6 +90,22 @@ NS_ASSUME_NONNULL_BEGIN
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**
+ * Handles special redirect URLs (msauth://, browser://), optionally carrying the
+ * broker version so the enrollment request can advertise it via the
+ * x-client-brkrver header. Non-broker callers may omit brokerVersion (pass nil);
+ * the base method above forwards nil to this one.
+ *
+ * @param URL The special redirect URL
+ * @param embeddedWebviewController The embedded webview controller instance
+ * @param brokerVersion Optional broker version to stamp on the enrollment request. Pass nil when not in a broker flow.
+ * @param completion Completion block with the navigation decision or error
+ */
+- (void)handleSpecialRedirectURL:(NSURL *)URL
+       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                   brokerVersion:(NSString * _Nullable)brokerVersion
+                      completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
+
+/**
  * Caches response headers, processes onboarding telemetry, and detects an
  * ASWebAuthenticationSession hand-off signal.
  * On YES, caller should cancel the WKWebView navigation and invoke the hand-off method below.
