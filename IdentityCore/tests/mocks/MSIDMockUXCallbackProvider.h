@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -22,20 +23,16 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDTokenRequestProviding.h"
-#import "MSIDRequestControlling.h"
-#import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDUXCallbackProtocol.h"
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDWebWPJResponse;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewNavigationDelegate>
+@interface MSIDMockUXCallbackProvider : NSObject <MSIDUXCallbackProtocol>
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
-
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+@property (nonatomic) BOOL scheduleCalled;
+@property (nonatomic) NSTimeInterval receivedDelay;
+@property (nonatomic) BOOL cancelCalled;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,22 +22,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDTokenRequestProviding.h"
-#import "MSIDRequestControlling.h"
-#import "MSIDWebviewNavigationDelegate.h"
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDWebWPJResponse;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewNavigationDelegate>
+@protocol MSIDUXCallbackProtocol <NSObject>
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
+/// Called when the webview loads a profile install URL during MDM onboarding.
+/// The host app should schedule a local notification after the given delay.
+- (void)scheduleMDMProfileInstalledNotificationWithDelay:(NSTimeInterval)delay;
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+/// Called when enrollment completes successfully. The host app should cancel
+/// any previously scheduled MDM profile installed notification.
+- (void)cancelMDMProfileInstalledNotification;
 
 @end
+
+NS_ASSUME_NONNULL_END

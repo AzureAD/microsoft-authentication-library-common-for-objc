@@ -21,21 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDTokenRequestProviding.h"
-#import "MSIDRequestControlling.h"
-#import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDMobileOnboardingState.h"
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDWebWPJResponse;
-
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewNavigationDelegate>
-
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
-
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+@implementation MSIDMobileOnboardingState
 
 @end

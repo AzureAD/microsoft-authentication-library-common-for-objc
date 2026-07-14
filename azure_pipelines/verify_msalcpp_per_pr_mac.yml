@@ -9,11 +9,19 @@ pr:
     include:
     - '*'
 
-pool:
-  vmImage: 'macOS-14'
+parameters:
+  - name: useAcesPool
+    displayName: 'Run on the ACES shared pool (Sequoia). Disable to use the hosted macOS-14 image.'
+    type: boolean
+    default: false
 
 variables:
 - group: msal-ci-migration-vars
+- name: xcodeVersion
+  ${{ if eq(parameters.useAcesPool, true) }}:
+    value: '16.4'
+  ${{ else }}:
+    value: '15.4'
 
 resources:
  repositories:
@@ -28,6 +36,13 @@ jobs:
   displayName: OneAuth checks per commit for macOS
   timeoutInMinutes: 90
   cancelTimeoutInMinutes: 1
+  pool:
+    ${{ if eq(parameters.useAcesPool, true) }}:
+      name: 'AcesShared'
+      demands:
+        - ImageOverride -equals ACES_VM_SharedPool_Sequoia
+    ${{ else }}:
+      vmImage: 'macOS-14'
   workspace:
     clean: all
 
@@ -52,9 +67,9 @@ jobs:
      arguments: '--skip-checkout --msal-common-repo $(Agent.BuildDirectory)/CommonCore --remote-ref $(commit_number)'
 
   - task: UsePythonVersion@0
-    displayName: 'Switch to use Xcode 15.4'
+    displayName: 'Switch to use Xcode $(xcodeVersion)'
   - script: |
-     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_15.4.app"
+     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_$(xcodeVersion).app"
 
   - template: msal/azure_pipelines/templates/macos-setup.yml@OneAuth
 

@@ -31,3 +31,9 @@
 - (void)activateTextField;
 
 @end
+
+@interface XCUICoordinate (CrossPlat)
+
+- (void)msidTap;
+
+@end

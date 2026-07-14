@@ -112,6 +112,8 @@ NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_POP = @"browser_core_disable_po
 
 NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS = @"browser_core_disable_claims";
 
+NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION = @"browser_core_disable_reqcnf_validation";
+
 NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 
 // This is SsoExt flow only flight
@@ -130,5 +132,9 @@ NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_new_window_in_browser";
 
 NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboarding";
+
+NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_profile_installed_notification_delay";
+
+NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 60.0;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

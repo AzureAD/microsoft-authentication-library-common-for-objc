@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,22 +22,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDTokenRequestProviding.h"
-#import "MSIDRequestControlling.h"
-#import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDUXCallbackProtocol.h"
 
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDWebWPJResponse;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling, MSIDWebviewNavigationDelegate>
+@interface MSIDUXCallbackProvider : NSObject
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
-
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+@property (nonatomic, class, nullable) id<MSIDUXCallbackProtocol> uxCallbackProvider;
 
 @end
+
+NS_ASSUME_NONNULL_END

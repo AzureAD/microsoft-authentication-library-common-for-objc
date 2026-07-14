@@ -260,6 +260,10 @@ extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_POP;
 /// Owner: sedemche
 extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS;
 
+/// Kill switch for the reqCnf presence validation on Pop token requests. Validation is enabled by default; set this flight to disable it.
+/// Owner: maagubuzo
+extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION;
+
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_THREAD_STARVATION;
@@ -286,5 +290,12 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 /// When ON, prevents mobile onboarding even if server signals enrollment.
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
+
+/// Flight key for MDM profile install notification delay (seconds).
+/// Owner: swagup
+extern NSString * _Nonnull const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY;
+
+/// Default delay (in seconds) before the MDM profile install notification fires.
+extern NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]
