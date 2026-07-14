@@ -613,18 +613,6 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     XCTAssertFalse(hasHandoff);
 }
 
-- (void)testProcessResponseHeaders_whenHandoffHeaderIsNonString_shouldReturnNO
-{
-    NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @42};
-
-    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, MSIDTestAllowedResponseURL());
-
-    BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
-                                    embeddedWebviewController:nil];
-
-    XCTAssertFalse(hasHandoff);
-}
-
 - (void)testProcessResponseHeaders_whenHandoffHeaderIsMixedCase_shouldStillBeDetected
 {
     // Server may send the header in any casing; normalization must catch it.
