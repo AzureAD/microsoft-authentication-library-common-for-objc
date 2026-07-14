@@ -74,6 +74,11 @@
                                    context:(nullable id<MSIDRequestContext>)context
                            completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock;
 
+- (void)acquireTokenInteractivelyWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                        request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                        context:(nullable id<MSIDRequestContext>)context
+                                completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock;
+
 - (MSIDDefaultTokenCacheAccessor *)defaultTokenCache:(nullable id<MSIDRequestContext>)context;
 - (MSIDAccountMetadataCacheAccessor *)accountMetadataCache:(nullable id<MSIDRequestContext>)context;
 
@@ -133,6 +138,7 @@
 @property (nonatomic, nullable) MSIDTokenResult *silentResult;
 @property (nonatomic, nullable) NSError *silentError;
 @property (nonatomic) BOOL silentRequestCreated;
+@property (nonatomic) BOOL interactiveRequestCreated;
 @property (nonatomic, nullable) MSIDDefaultSilentTokenRequest *createdSilentRequest;
 
 @end
@@ -166,6 +172,18 @@
     stub.stubError = self.silentError;
     self.createdSilentRequest = stub;
     return stub;
+}
+
+- (void)acquireTokenInteractivelyWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                        request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                        context:(nullable id<MSIDRequestContext>)context
+                                completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock
+{
+    self.interactiveRequestCreated = YES;
+    [super acquireTokenInteractivelyWithParameters:parameters
+                                           request:request
+                                           context:context
+                                   completionBlock:completionBlock];
 }
 
 @end
@@ -348,13 +366,13 @@
 
 #pragma mark - End-to-end routing
 
-// A prompt that forces UI must never be serviced silently; it routes straight to the (not-yet-
-// implemented) interactive path regardless of cached token availability.
-- (void)testAcquireBoundToken_promptForcesUI_routesToInteractive
+// A request that requires UI returns interaction-required when UI is prohibited.
+- (void)testAcquireBoundToken_promptForcesUIAndUIProhibited_returnsInteractionRequired
 {
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
     request.prompt = MSIDPromptTypeLogin;
+    request.canShowUI = NO;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
 
@@ -368,16 +386,18 @@
         [expectation fulfill];
     }];
 
+    XCTAssertFalse(provider.silentRequestCreated);
+    XCTAssertFalse(provider.interactiveRequestCreated);
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
-// With no account identifier the request cannot be serviced silently, so the provider routes to the
-// interactive path and surfaces a clear interaction-required signal.
-- (void)testAcquireBoundToken_noAccountIdentifier_routesToInteractive
+// With no account identifier, UI-prohibited requests return interaction-required.
+- (void)testAcquireBoundToken_noAccountIdentifierAndUIProhibited_returnsInteractionRequired
 {
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
     request.accountId = nil;
+    request.canShowUI = NO;
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
 
@@ -391,6 +411,79 @@
         [expectation fulfill];
     }];
 
+    XCTAssertFalse(provider.silentRequestCreated);
+    XCTAssertFalse(provider.interactiveRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// A request that requires UI routes directly to interactive when UI is allowed.
+- (void)testAcquireBoundToken_promptForcesUIAndUIAllowed_routesToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.prompt = MSIDPromptTypeLogin;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interactive"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        [expectation fulfill];
+    }];
+
+    XCTAssertFalse(provider.silentRequestCreated);
+    XCTAssertTrue(provider.interactiveRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// An eligible request uses the silent engine before considering interactive fallback.
+- (void)testAcquireBoundToken_eligibleRequest_routesToSilent
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.silentResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNotNil(response);
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.silentRequestCreated);
+    XCTAssertFalse(provider.interactiveRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// When silent acquisition requires interaction and UI is allowed, the provider falls back exactly once.
+- (void)testAcquireBoundToken_silentRequiresInteractionAndUIAllowed_fallsBackToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.silentError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
+                                           @"User interaction is required", nil, nil, nil, nil, nil, NO);
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interactive fallback"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.silentRequestCreated);
+    XCTAssertTrue(provider.interactiveRequestCreated);
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
@@ -515,9 +608,9 @@
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
-// When the silent engine reports interaction is required, the provider falls back to the interactive
-// path rather than surfacing the engine error directly.
-- (void)testAcquireTokenSilently_engineReturnsInteractionRequired_routesToInteractive
+// When the silent engine reports interaction is required, the provider returns the original error
+// so the host can explicitly start an interactive request.
+- (void)testAcquireTokenSilently_engineReturnsInteractionRequired_returnsOriginalError
 {
     MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
     provider.silentResult = nil;
@@ -525,6 +618,7 @@
                                            @"User interaction is required", nil, nil, nil, nil, nil, NO);
 
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.canShowUI = NO;
     MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
@@ -537,9 +631,11 @@
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
         XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        XCTAssertEqual(error, provider.silentError);
         [expectation fulfill];
     }];
 
+    XCTAssertFalse(provider.interactiveRequestCreated);
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
@@ -571,15 +667,16 @@
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
-// When the token cache cannot be constructed the silent engine is never created and the provider
-// routes to the interactive path.
-- (void)testAcquireTokenSilently_cacheUnavailable_routesToInteractive
+// When the token cache cannot be constructed, the provider returns interaction-required without
+// creating the silent engine or launching UI.
+- (void)testAcquireTokenSilently_cacheUnavailable_returnsInteractionRequired
 {
     MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
     provider.injectedTokenCache = nil;
     provider.injectedAccountMetadataCache = nil;
 
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.canShowUI = NO;
     MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required"];
@@ -596,6 +693,34 @@
     }];
 
     XCTAssertFalse(provider.silentRequestCreated);
+    XCTAssertFalse(provider.interactiveRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// When the token cache is unavailable and UI is allowed, the provider falls back to interactive.
+- (void)testAcquireTokenSilently_cacheUnavailableAndUIAllowed_routesToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
+    provider.injectedTokenCache = nil;
+    provider.injectedAccountMetadataCache = nil;
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interactive fallback"];
+
+    [provider acquireTokenSilentlyWithParameters:parameters
+                                         request:request
+                                         context:nil
+                                 completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        [expectation fulfill];
+    }];
+
+    XCTAssertFalse(provider.silentRequestCreated);
+    XCTAssertTrue(provider.interactiveRequestCreated);
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 

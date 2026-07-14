@@ -56,15 +56,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 
 @implementation MSIDBoundTokenProvider
 
-- (void)boundTokenProviderLogHelper:(MSIDLogLevel)logLevel
-                            context:(nullable id<MSIDRequestContext>)context
-                            message:(NSString *)logMsg
-{
-    if (!logMsg) { return; }
-    MSID_LOG_WITH_CTX(logLevel, context, @"%@ %@", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, logMsg);
-}
-
-
 - (void)acquireBoundTokenWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                              context:(nullable id<MSIDRequestContext>)context
                      completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock
@@ -101,19 +92,54 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         return;
     }
 
-    if ([self shouldServiceRequestSilently:request parameters:parameters context:context])
+    if (![self shouldServiceRequestSilently:request parameters:parameters context:context])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Routing GetToken request to silent path.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-        [self acquireTokenSilentlyWithParameters:parameters request:request context:context completionBlock:completionBlock];
+        [self completeWithInteractionRequiredOrFallbackForParameters:parameters
+                                                            request:request
+                                                            context:context
+                                                        description:@"Bound token request requires user interaction."
+                                           interactionRequiredError:nil
+                                                    completionBlock:completionBlock];
+        return;
     }
-    else
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Routing GetToken request to interactive path.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-        [self acquireTokenInteractivelyWithParameters:parameters request:request context:context completionBlock:completionBlock];
-    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Routing GetToken request to silent path.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+    [self acquireTokenSilentlyWithParameters:parameters request:request context:context completionBlock:completionBlock];
 }
 
 #pragma mark - Private
+
+- (NSError *)interactionRequiredErrorWithDescription:(NSString *)description
+                                             context:(nullable id<MSIDRequestContext>)context
+{
+    return MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, description,
+                           nil, nil, nil, context.correlationId, nil, YES);
+}
+
+- (void)completeWithInteractionRequiredOrFallbackForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                                       request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                                       context:(nullable id<MSIDRequestContext>)context
+                                                   description:(NSString *)description
+                                      interactionRequiredError:(nullable NSError *)interactionRequiredError
+                                               completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock
+{
+    // canShowUI is not a part of the BNM GetToken contract. see here: https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=%2FMSALJS%2FNativeBrokerExtension%2Fbroker_contract.md&_a=preview
+    // the value for canShowUI must be added by OneAuth before calling MSIDBoundTokenProvider acquireBoundTokenWithRequest:context:completionBlock
+    if (request.canShowUI)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ User interaction is required and UI is allowed; routing to interactive path.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+        [self acquireTokenInteractivelyWithParameters:parameters request:request context:context completionBlock:completionBlock];
+        return;
+    }
+
+    NSError *error = interactionRequiredError ?: [self interactionRequiredErrorWithDescription:description context:context];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
+                      @"%@ Returning interaction-required error because UI is not allowed. Reason: %@ Error: %@",
+                      MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX,
+                      description,
+                      MSID_PII_LOG_MASKABLE(error));
+    completionBlock(nil, error);
+}
 
 - (BOOL)validateRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                 context:(nullable id<MSIDRequestContext>)context
@@ -205,8 +231,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 #pragma mark - Silent / interactive routing
 
 // Silent servicing can be attempted when the request does not force UI and identifies an account.
-// The silent engine performs the authoritative cache lookup and returns interaction-required when
-// no valid access token or Bound App Refresh Token is available.
 - (BOOL)shouldServiceRequestSilently:(MSIDBrowserNativeMessageGetTokenRequest *)request
                           parameters:(MSIDInteractiveTokenRequestParameters *)parameters
                              context:(nullable id<MSIDRequestContext>)context
@@ -245,8 +269,8 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 #pragma mark - Silent path
 
 // Drives the existing silent engine (MSIDDefaultSilentTokenRequest), which performs the AT lookup,
-// BART lookup, DK-signed JWT redemption against ESTS, and STK-decryption. Orchestration of the
-// outcome (success / interaction-required fall-through to interactive / hard failure) is housed here.
+// BART lookup, DK-signed JWT redemption against ESTS, and STK-decryption. When interaction is
+// required, canShowUI determines whether the provider falls back once or returns the error.
 - (void)acquireTokenSilentlyWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                    request:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                    context:(nullable id<MSIDRequestContext>)context
@@ -256,8 +280,13 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     MSIDAccountMetadataCacheAccessor *accountMetadataCache = [self accountMetadataCache:context];
     if (!tokenCache || !accountMetadataCache)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"%@ Token cache unavailable; routing to interactive path.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-        [self acquireTokenInteractivelyWithParameters:parameters request:request context:context completionBlock:completionBlock];
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"%@ Token cache unavailable; user interaction is required.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+        [self completeWithInteractionRequiredOrFallbackForParameters:parameters
+                                                            request:request
+                                                            context:context
+                                                        description:@"Token cache is unavailable; user interaction is required."
+                                           interactionRequiredError:nil
+                                                    completionBlock:completionBlock];
         return;
     }
 
@@ -290,8 +319,13 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 
         if ([error.domain isEqualToString:MSIDErrorDomain] && error.code == MSIDErrorInteractionRequired)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Silent path requires user interaction; falling back to interactive path.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-            [strongSelf acquireTokenInteractivelyWithParameters:parameters request:request context:context completionBlock:completionBlock];
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Silent path requires user interaction.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+            [strongSelf completeWithInteractionRequiredOrFallbackForParameters:parameters
+                                                                       request:request
+                                                                       context:context
+                                                                   description:@"Silent bound token request requires user interaction."
+                                                      interactionRequiredError:error
+                                                               completionBlock:completionBlock];
             return;
         }
 
