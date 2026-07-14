@@ -23,7 +23,6 @@
 // THE SOFTWARE.
 
 
-#if !EXCLUDE_FROM_MSALCPP
 #import <Foundation/Foundation.h>
 #import "MSIDDeviceTokenGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
@@ -321,4 +320,3 @@
 
 
 @end
-#endif

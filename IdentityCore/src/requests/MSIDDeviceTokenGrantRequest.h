@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !EXCLUDE_FROM_MSALCPP
+
 #import "MSIDTokenRequest.h"
 #import "MSIDWPJKeyPairWithCert.h"
 #import "MSIDConstants.h"
@@ -60,4 +60,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 NS_ASSUME_NONNULL_END
-#endif
+
