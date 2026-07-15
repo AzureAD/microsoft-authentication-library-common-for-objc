@@ -140,4 +140,15 @@
     XCTAssertEqualObjects(expectedJson, [response jsonDictionary]);
 }
 
+- (void)testInitWithTokenResponseStateAndFallbackUpn_setsConvenienceProperties
+{
+    __auto_type operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse
+                                                                                           state:@"state"
+                                                                       fallbackRequestAccountUpn:@"user@contoso.com"];
+
+    XCTAssertEqualObjects(response.state, @"state");
+    XCTAssertEqualObjects(response.requestAccountUpn, @"user@contoso.com");
+}
+
 @end

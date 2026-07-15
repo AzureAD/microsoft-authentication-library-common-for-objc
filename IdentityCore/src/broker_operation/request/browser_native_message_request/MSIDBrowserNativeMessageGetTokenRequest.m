@@ -224,8 +224,9 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
         
         if (MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
         {
-            
-            if ([NSString msidIsStringNilOrBlank:reqCnf])
+            BOOL disableReqCnfValidation = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION];
+
+            if (!disableReqCnfValidation && [NSString msidIsStringNilOrBlank:reqCnf])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDBrowserNativeMessageGetTokenRequest: 'reqCnf' is required when token_type is Pop but was missing or empty.");
                 

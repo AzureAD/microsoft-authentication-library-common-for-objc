@@ -25,6 +25,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBoundTokenProvider.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
+#import "MSIDBrowserNativeMessageGetTokenRequestParametersFactory.h"
 #import "MSIDError.h"
 #import "MSIDConstants.h"
 #import "MSIDAADAuthority.h"
@@ -58,16 +59,6 @@
 // Surface the provider's private orchestration methods so the suite can exercise the routing
 // decision and silent path directly, and so the stub subclass below can override the seams.
 @interface MSIDBoundTokenProvider (UnitTest)
-
-- (MSIDInteractiveTokenRequestParameters *)requestParametersFromRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                                                                context:(nullable id<MSIDRequestContext>)context
-                                                                  error:(NSError *__autoreleasing *)error;
-
-- (BOOL)shouldServiceRequestSilently:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                          parameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                             context:(nullable id<MSIDRequestContext>)context;
-
-- (BOOL)promptForcesInteraction:(MSIDPromptType)prompt;
 
 - (void)acquireTokenSilentlyWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                    request:(MSIDBrowserNativeMessageGetTokenRequest *)request
@@ -206,6 +197,8 @@
 
 @interface MSIDBoundTokenProviderTests : XCTestCase
 
+- (MSIDBoundTokenProviderTestStub *)configuredProviderStub;
+
 @end
 
 @implementation MSIDBoundTokenProviderTests
@@ -241,9 +234,12 @@
 - (MSIDInteractiveTokenRequestParameters *)parametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
 {
     NSError *error = nil;
-    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDBoundTokenProvider new] requestParametersFromRequest:request
-                                                                                                          context:nil
-                                                                                                            error:&error];
+    MSIDInteractiveTokenRequestParameters *parameters =
+    [MSIDBrowserNativeMessageGetTokenRequestParametersFactory requestParametersWithRequest:request
+                                                                                requestType:MSIDRequestBrokeredType
+                                                            boundAppRefreshTokenRequested:YES
+                                                                       correlationIdOverride:nil
+                                                                                     error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(parameters);
     return parameters;
@@ -311,57 +307,6 @@
     }];
 
     [self waitForExpectations:@[expectation] timeout:5.0];
-}
-
-#pragma mark - Routing decision
-
-- (void)testShouldServiceRequestSilently_promptForcesUI_returnsNo
-{
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
-    request.prompt = MSIDPromptTypeLogin;
-    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
-
-    XCTAssertFalse([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
-}
-
-- (void)testShouldServiceRequestSilently_noAccountIdentifier_returnsNo
-{
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
-    request.accountId = nil;
-    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
-
-    XCTAssertFalse([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
-}
-
-- (void)testShouldServiceRequestSilently_defaultPromptAndAccount_returnsYes
-{
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
-    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
-
-    XCTAssertTrue([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
-}
-
-- (void)testPromptForcesInteraction_interactivePrompts_returnYes
-{
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-
-    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeLogin]);
-    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeConsent]);
-    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeCreate]);
-    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeSelectAccount]);
-    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeRefreshSession]);
-}
-
-- (void)testPromptForcesInteraction_silentPrompts_returnNo
-{
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-
-    XCTAssertFalse([provider promptForcesInteraction:MSIDPromptTypeDefault]);
-    XCTAssertFalse([provider promptForcesInteraction:MSIDPromptTypePromptIfNecessary]);
-    XCTAssertFalse([provider promptForcesInteraction:MSIDPromptTypeNever]);
 }
 
 #pragma mark - End-to-end routing
@@ -462,6 +407,31 @@
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
+// The in-process BART path can resolve a displayable-ID-only account and must not inherit
+// the broker-local non-STS home-account requirement.
+- (void)testAcquireBoundToken_loginHintOnlyAccount_routesToSilent
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.silentResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.accountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:request.loginHint
+                                                              homeAccountId:nil];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"login hint silent"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNotNil(response);
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.silentRequestCreated);
+    XCTAssertFalse(provider.interactiveRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
 // When silent acquisition requires interaction and UI is allowed, the provider falls back exactly once.
 - (void)testAcquireBoundToken_silentRequiresInteractionAndUIAllowed_fallsBackToInteractive
 {
@@ -484,6 +454,54 @@
 
     XCTAssertTrue(provider.silentRequestCreated);
     XCTAssertTrue(provider.interactiveRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+- (void)testAcquireBoundToken_silentRequiresInteractionAndUIProhibited_returnsInteractionRequired
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.silentError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
+                                           @"User interaction is required", nil, nil, nil, nil, nil, NO);
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.canShowUI = NO;
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interaction required without fallback"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertEqual(error, provider.silentError);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.silentRequestCreated);
+    XCTAssertFalse(provider.interactiveRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+- (void)testAcquireBoundToken_promptNeverSilentRequiresInteraction_doesNotFallBackToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.silentError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
+                                           @"User interaction is required", nil, nil, nil, nil, nil, NO);
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.prompt = MSIDPromptTypeNever;
+    request.canShowUI = YES;
+    XCTestExpectation *expectation = [self expectationWithDescription:@"no interactive fallback"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.silentRequestCreated);
+    XCTAssertFalse(provider.interactiveRequestCreated);
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
@@ -535,8 +553,6 @@
     XCTAssertEqual(response.count, 0);
 }
 
-#if TARGET_OS_IPHONE
-
 #pragma mark - Silent path
 
 - (MSIDDefaultTokenCacheAccessor *)inMemoryTokenCache
@@ -558,6 +574,8 @@
     provider.injectedAccountMetadataCache = [self inMemoryAccountMetadataCache];
     return provider;
 }
+
+#if TARGET_OS_IPHONE
 
 - (void)testDefaultCacheAccessors_useSharedAdalKeychainGroup
 {

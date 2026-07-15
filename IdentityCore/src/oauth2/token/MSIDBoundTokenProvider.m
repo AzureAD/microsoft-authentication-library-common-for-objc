@@ -24,14 +24,14 @@
 
 #import "MSIDBoundTokenProvider.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
+#import "MSIDBrowserNativeMessageGetTokenRequestParametersFactory.h"
+#import "MSIDBrowserNativeMessageGetTokenRoutingPolicy.h"
 #import "MSIDError.h"
 #import "MSIDLogger+Internal.h"
 #import "MSIDConstants.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
-#import "MSIDAADAuthority.h"
-#import "MSIDAuthenticationScheme.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDConfiguration.h"
 #import "MSIDDefaultSilentTokenRequest.h"
@@ -78,9 +78,13 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
                       @"%@ Servicing GetToken request in-process (no SSO extension). clientId: %@",
                       MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, request.clientId);
 
+    // Build the shared request parameters used by both this provider and the broker.
     NSError *parametersError = nil;
-    MSIDInteractiveTokenRequestParameters *parameters = [self requestParametersFromRequest:request
-                                                                                   context:context
+    MSIDInteractiveTokenRequestParameters *parameters =
+    [MSIDBrowserNativeMessageGetTokenRequestParametersFactory requestParametersWithRequest:request
+                                                                                requestType:MSIDRequestBrokeredType
+                                                            boundAppRefreshTokenRequested:YES
+                                                                       correlationIdOverride:context.correlationId
                                                                                      error:&parametersError];
     if (!parameters)
     {
@@ -92,7 +96,13 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         return;
     }
 
-    if (![self shouldServiceRequestSilently:request parameters:parameters context:context])
+    MSIDBrowserNativeMessageGetTokenRoute route =
+    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:NO
+                                                                  promptType:parameters.promptType
+                                                                   canShowUI:request.canShowUI
+                                                            accountIdentifier:parameters.accountIdentifier
+                                                       requiresHomeAccountId:NO];
+    if (route != MSIDBrowserNativeMessageGetTokenRouteSilent)
     {
         [self completeWithInteractionRequiredOrFallbackForParameters:parameters
                                                             request:request
@@ -125,7 +135,13 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 {
     // canShowUI is not a part of the BNM GetToken contract. see here: https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=%2FMSALJS%2FNativeBrokerExtension%2Fbroker_contract.md&_a=preview
     // the value for canShowUI must be added by OneAuth before calling MSIDBoundTokenProvider acquireBoundTokenWithRequest:context:completionBlock
-    if (request.canShowUI)
+    MSIDBrowserNativeMessageGetTokenRoute route =
+    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:YES
+                                                                  promptType:parameters.promptType
+                                                                   canShowUI:request.canShowUI
+                                                            accountIdentifier:parameters.accountIdentifier
+                                                       requiresHomeAccountId:NO];
+    if (route == MSIDBrowserNativeMessageGetTokenRouteInteractive)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ User interaction is required and UI is allowed; routing to interactive path.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
         [self acquireTokenInteractivelyWithParameters:parameters request:request context:context completionBlock:completionBlock];
@@ -165,105 +181,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     }
 
     return YES;
-}
-
-#pragma mark - Request transformation
-
-// Converts the browser-native-message GetToken request into the MSIDInteractiveTokenRequestParameters
-// used across Common Core for token operations (cache lookup, silent redemption, broker flip).
-- (MSIDInteractiveTokenRequestParameters *)requestParametersFromRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                                                                context:(nullable id<MSIDRequestContext>)context
-                                                                  error:(NSError *__autoreleasing *)error
-{
-    MSIDAADAuthority *authority = request.authority;
-    if (!authority)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter,
-                                     @"An authority is required to acquire a bound token.",
-                                     nil, nil, nil, context.correlationId, nil, NO);
-        }
-        return nil;
-    }
-
-    MSIDAuthenticationScheme *authScheme = request.authScheme ?: [MSIDAuthenticationScheme new];
-    NSOrderedSet<NSString *> *scopes = [request.scopes msidScopeSet];
-    NSUUID *correlationId = context.correlationId ?: [NSUUID UUID];
-
-    NSError *parametersError = nil;
-    // TODO: split OIDC scopes (openid/profile/offline_access) from resource scopes once the
-    // interactive broker-flip path is wired; the silent redemption path is unaffected.
-    MSIDInteractiveTokenRequestParameters *parameters =
-    [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
-                                                          authScheme:authScheme
-                                                         redirectUri:request.redirectUri
-                                                            clientId:request.clientId
-                                                              scopes:scopes
-                                                          oidcScopes:nil
-                                                extraScopesToConsent:nil
-                                                       correlationId:correlationId
-                                                      telemetryApiId:nil
-                                                       brokerOptions:nil
-                                                         requestType:MSIDRequestBrokeredType
-                                                 intuneAppIdentifier:nil
-                                                               error:&parametersError];
-    if (!parameters)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter,
-                                     @"Failed to initialize bound token request parameters.",
-                                     nil, nil, parametersError, correlationId, nil, NO);
-        }
-        return nil;
-    }
-
-    parameters.accountIdentifier = request.accountId;
-    parameters.promptType = request.prompt;
-    parameters.loginHint = request.loginHint;
-    parameters.claimsRequest = request.claimsRequest;
-    parameters.isBoundAppRefreshTokenRequested = YES;
-
-    return parameters;
-}
-
-#pragma mark - Silent / interactive routing
-
-// Silent servicing can be attempted when the request does not force UI and identifies an account.
-- (BOOL)shouldServiceRequestSilently:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                          parameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                             context:(nullable id<MSIDRequestContext>)context
-{
-    if ([self promptForcesInteraction:request.prompt])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Prompt forces UI; silent path not allowed.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-        return NO;
-    }
-
-    if (!parameters.accountIdentifier)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ No account identifier on request; silent path not possible.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-        return NO;
-    }
-
-    return YES;
-}
-
-// Prompt types that require user interaction and therefore cannot be serviced silently.
-- (BOOL)promptForcesInteraction:(MSIDPromptType)prompt
-{
-    switch (prompt)
-    {
-        case MSIDPromptTypeLogin:
-        case MSIDPromptTypeConsent:
-        case MSIDPromptTypeCreate:
-        case MSIDPromptTypeSelectAccount:
-        case MSIDPromptTypeRefreshSession:
-            return YES;
-        default:
-            return NO;
-    }
 }
 
 #pragma mark - Silent path
