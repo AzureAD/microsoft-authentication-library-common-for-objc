@@ -102,7 +102,6 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
 // the current onboarding blob builder. Subclasses use these to decide whether to
 // emit matching completion steps when the flow ends successfully.
 @property (nonatomic, readonly) BOOL onboardingStrongAuthSetupStarted;
-@property (nonatomic, readonly) BOOL onboardingMdmEnrollmentStarted;
 @property (nonatomic, readonly) BOOL onboardingDeviceRegistrationStarted;
 @property (nonatomic, readonly) BOOL onboardingRemediationStarted;
 

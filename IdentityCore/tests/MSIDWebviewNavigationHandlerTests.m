@@ -36,6 +36,10 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDConstants.h"
+#import "MSIDTestSwizzle.h"
+#if !MSID_EXCLUDE_SYSTEMWV
+#import "MSIDSystemWebviewTransitionManager.h"
+#endif
 
 // Stub conforming to MSIDWebviewNavigationDelegate for delegate-wiring assertions.
 @interface MSIDTestNavigationDelegateStub : NSObject <MSIDWebviewNavigationDelegate>
@@ -79,6 +83,7 @@
 
 - (void)tearDown
 {
+    [MSIDTestSwizzle reset];
     self.handler = nil;
     self.context = nil;
     [super tearDown];
@@ -760,7 +765,8 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
         XCTAssertNotNil(decision);
         XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
         XCTAssertNotNil(decision.error);
-        XCTAssertNil(error);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error, decision.error);
         [expectation fulfill];
     }];
 
@@ -785,7 +791,8 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
         XCTAssertNotNil(decision);
         XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
         XCTAssertNotNil(decision.error);
-        XCTAssertNil(error);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error, decision.error);
         [expectation fulfill];
     }];
 
@@ -874,6 +881,105 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 
     NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
+}
+
+// Swizzles the ASWeb transition so it completes synchronously with the injected
+// (callbackURL, error), exercising the hand-off outcome classification without
+// launching a real ASWebAuthenticationSession.
+- (void)swizzleTransitionWithCallbackURL:(NSURL *)callbackURL error:(NSError *)error
+{
+    [MSIDTestSwizzle instanceMethod:@selector(transitionToSystemWebviewWithURL:redirectURI:parentController:useAuthenticationSession:allowSafariViewController:useEphemeralSession:additionalHeaders:context:completionBlock:)
+                              class:[MSIDSystemWebviewTransitionManager class]
+                              block:(id)^(__unused id obj,
+                                         __unused NSURL *URL,
+                                         __unused NSString *redirectURI,
+                                         __unused MSIDViewController *parentController,
+                                         __unused BOOL useAuthenticationSession,
+                                         __unused BOOL allowSafariViewController,
+                                         __unused BOOL useEphemeralSession,
+                                         __unused NSDictionary *additionalHeaders,
+                                         __unused id context,
+                                         MSIDWebUICompletionHandler completionBlock)
+    {
+        if (completionBlock) { completionBlock(callbackURL, error); }
+    }];
+}
+
+- (void)testPerformASWebAuthHandoff_whenTransitionCancelledByUser_shouldStampCancelledNotFailed
+{
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
+
+    NSError *cancelError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled", nil, nil, nil, nil, nil, NO);
+    [self swizzleTransitionWithCallbackURL:nil error:cancelError];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+    [self.handler performASWebAuthenticationHandoffWithParentController:parent
+                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowCancelled]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenTransitionFailsWithNonCancelError_shouldStampFailedNotCancelled
+{
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
+
+    NSError *serverError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server error", nil, nil, nil, nil, nil, NO);
+    [self swizzleTransitionWithCallbackURL:nil error:serverError];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+    [self.handler performASWebAuthenticationHandoffWithParentController:parent
+                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowCancelled]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenCancelCodeFromForeignDomain_shouldStampFailedNotCancelled
+{
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
+
+    // Same numeric code as MSIDErrorUserCancel but from a foreign domain: the domain
+    // guard must classify this as Failed, not Cancelled.
+    NSError *foreignError = [NSError errorWithDomain:@"SomeOtherDomain" code:MSIDErrorUserCancel userInfo:nil];
+    [self swizzleTransitionWithCallbackURL:nil error:foreignError];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+    [self.handler performASWebAuthenticationHandoffWithParentController:parent
+                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         NSError * _Nullable error)
+    {
+        (void)decision; (void)error;
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowCancelled]);
 }
 
 - (void)testPerformASWebAuthHandoff_whenNoBuilder_shouldNotCrash

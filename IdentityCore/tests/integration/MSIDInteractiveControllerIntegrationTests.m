@@ -658,8 +658,9 @@
         XCTAssertEqual(retryAcquireTokenCalled, 1u);
         XCTAssertEqual(retryController.acquireTokenCalledCount, 1u);
 
-        // Retry telemetry: Started stamped before the retry; success is implied by the terminal
-        // result (the Succeeded step was removed, TokenIssued covers terminal success).
+        // Retry telemetry: Started stamped before the retry; success is implied by the
+        // terminal result. The Succeeded step was removed and is not re-stamped here
+        // (TokenIssued is stamped upstream, outside IdentityCore).
         NSArray<NSString *> *stepIds = [self stepIdsFromOnboardingBuilder:parameters.onboardingBlobBuilder];
         XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepMdmEnrollmentFinished]);
         XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryStarted]);

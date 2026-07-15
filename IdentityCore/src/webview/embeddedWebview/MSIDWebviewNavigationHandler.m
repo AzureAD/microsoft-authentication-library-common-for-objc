@@ -168,10 +168,10 @@
     completion = ^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
     {
         // The hand-off outcome is carried on the decision (failWithError embeds the
-        // error; loadRequest signals success). The trailing error param is always nil
-        // on this path, so classify the outcome from the decision, falling back to error.
+        // error; loadRequest signals success) and mirrored in the trailing error param.
+        // Classify the outcome from the decision, falling back to the error param.
         NSError *outcomeError = decision.error ?: error;
-        if (outcomeError.code == MSIDErrorUserCancel)
+        if ([outcomeError.domain isEqualToString:MSIDErrorDomain] && outcomeError.code == MSIDErrorUserCancel)
         {
             [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadFlowCancelled timestamp:[NSDate date]];
         }
@@ -196,7 +196,7 @@
                                                    MSIDErrorInternal,
                                                    @"ASWebAuthentication hand-off requested without a valid hand-off URL.",
                                                    nil, nil, nil, self.context.correlationId, nil, YES);
-        completion([MSIDWebviewNavigationDecision failWithError:missingURLError], nil);
+        completion([MSIDWebviewNavigationDecision failWithError:missingURLError], missingURLError);
         return;
     }
 
@@ -225,7 +225,7 @@
                                          MSIDErrorSessionCanceledProgrammatically,
                                          @"ASWebAuthentication handoff URL is invalid",
                                          nil, nil, validationError, self.context.correlationId, nil, YES);
-        completion([MSIDWebviewNavigationDecision failWithError:error], nil);
+        completion([MSIDWebviewNavigationDecision failWithError:error], error);
         return;
     }
     
@@ -264,7 +264,7 @@
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
                                          @"ASWebAuthentication transition called with no URL",
                                          nil, nil, nil, self.context.correlationId, nil, YES);
-        completion([MSIDWebviewNavigationDecision failWithError:error], nil);
+        completion([MSIDWebviewNavigationDecision failWithError:error], error);
         return;
     }
     
@@ -296,13 +296,13 @@
         {
             // Neither URL nor error - unexpected
             MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"[MSIDWebviewNavigationHandler] Transition completed with neither URL nor error");
-            NSError *unexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                                       @"Transition completed with neither URL nor error",
-                                                       nil, nil, nil, self.context.correlationId, nil, YES);
-            navigationDecision = [MSIDWebviewNavigationDecision failWithError:unexpectedError];
+            error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                    @"Transition completed with neither URL nor error",
+                                    nil, nil, nil, self.context.correlationId, nil, YES);
+            navigationDecision = [MSIDWebviewNavigationDecision failWithError:error];
         }
         
-        completion(navigationDecision, nil);
+        completion(navigationDecision, error);
     }];
 }
 

@@ -331,7 +331,6 @@
     MSIDOAuth2EmbeddedWebviewController *webVC = [self createTestWebviewController];
     MSIDOnboardingBlobBuilder *builder = [self builderForFinalizeTest];
     XCTAssertFalse(builder.strongAuthSetupStarted);
-    XCTAssertFalse(builder.mdmEnrollmentStarted);
     webVC.onboardingBlobBuilder = builder;
 
     [webVC finalizeOnboardingTelemetry:[NSURL URLWithString:@"https://contoso.com/done"] error:nil];

@@ -85,7 +85,6 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 @property (nonatomic) MSIDSessionCachePersistence *sessionCachePersistence;
 
 @property (nonatomic, readwrite) BOOL strongAuthSetupStarted;
-@property (nonatomic, readwrite) BOOL mdmEnrollmentStarted;
 
 @end
 

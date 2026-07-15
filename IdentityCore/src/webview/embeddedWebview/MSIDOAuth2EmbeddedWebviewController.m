@@ -71,7 +71,6 @@
 
 // Backed by readonly properties declared in the public header.
 @synthesize onboardingStrongAuthSetupStarted = _onboardingStrongAuthSetupStarted;
-@synthesize onboardingMdmEnrollmentStarted = _onboardingMdmEnrollmentStarted;
 @synthesize endURL = _endURL;
 
 #if AD_BROKER
@@ -897,7 +896,6 @@ initiatedByFrame:(WKFrameInfo *)frame
 
     // Sync local flags from builder for use in finalizeOnboardingTelemetry:error:
     _onboardingStrongAuthSetupStarted = builder.strongAuthSetupStarted;
-    _onboardingMdmEnrollmentStarted = builder.mdmEnrollmentStarted;
 }
 
 @end

@@ -762,7 +762,6 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
     XCTAssertEqual([parsed[@"steps_list"] count], 0);
     XCTAssertFalse(builder.strongAuthSetupStarted);
-    XCTAssertFalse(builder.mdmEnrollmentStarted);
 }
 
 - (void)testProcessResponseHeaders_whenClitelemErrorCodeIsZero_shouldNotRecordBlockingError
@@ -849,7 +848,6 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
     XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepDeviceRegistrationRequired inBlob:parsed], 1);
     XCTAssertFalse(builder.strongAuthSetupStarted);
-    XCTAssertFalse(builder.mdmEnrollmentStarted);
 }
 
 - (void)testProcessResponseHeaders_whenDeviceNotCompliantErrorCode_shouldRecordStep
@@ -896,7 +894,6 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
     XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"50076");
     XCTAssertEqual([parsed[@"steps_list"] count], 0);
     XCTAssertFalse(builder.strongAuthSetupStarted);
-    XCTAssertFalse(builder.mdmEnrollmentStarted);
 }
 
 @end
