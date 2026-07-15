@@ -66,21 +66,17 @@ NSString * const MSIDOnboardingBlobStepComplianceRemediationStarted = @"Complian
 NSString * const MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback = @"MobileOnboardingClientDisabledFallback";
 NSString * const MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled = @"MDMProfileInstallNotificationScheduled";
 NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable = @"SSOExtensionUnavailable";
-NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionRedirectReceived = @"MDMEnrollmentCompletionRedirectReceived";
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded = @"MDMEnrollmentCompletionFallbackErrorUrlLoaded";
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed = @"MDMEnrollmentRequestMalformed";
 NSString * const MSIDOnboardingBlobStepComplianceRequestMalformed = @"ComplianceRequestMalformed";
 NSString * const MSIDOnboardingBlobStepProfileInstallUrlMalformed = @"ProfileInstallUrlMalformed";
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentFailed = @"MDMEnrollmentFailed";
-NSString * const MSIDOnboardingBlobStepASWebAuthSessionStarted = @"ASWebAuthSessionStarted";
-NSString * const MSIDOnboardingBlobStepASWebAuthenticationCompleted = @"ASWebAuthenticationCompleted";
-NSString * const MSIDOnboardingBlobStepASWebAuthCallbackUrlReceived = @"ASWebAuthCallbackUrlReceived";
-NSString * const MSIDOnboardingBlobStepASWebAuthUserCancelled = @"ASWebAuthUserCancelled";
-NSString * const MSIDOnboardingBlobStepASWebAuthSessionStartFailed = @"ASWebAuthSessionStartFailed";
+NSString * const MSIDOnboardingBlobStepProfileDownloadFlowStarted = @"ProfileDownloadFlowStarted";
+NSString * const MSIDOnboardingBlobStepProfileDownloadFlowCancelled = @"ProfileDownloadFlowCancelled";
+NSString * const MSIDOnboardingBlobStepProfileDownloadFlowFailed = @"ProfileDownloadFlowFailed";
 
 // Token-request retry after MDM enrollment completes
 NSString * const MSIDOnboardingBlobStepTokenRequestRetryStarted = @"TokenRequestRetryStarted";
-NSString * const MSIDOnboardingBlobStepTokenRequestRetrySucceeded = @"TokenRequestRetrySucceeded";
 NSString * const MSIDOnboardingBlobStepTokenRequestRetryFailed = @"TokenRequestRetryFailed";
 
 // Step ID values used in C++ aggregation (must match MSAIOnboardingBlobConstants)

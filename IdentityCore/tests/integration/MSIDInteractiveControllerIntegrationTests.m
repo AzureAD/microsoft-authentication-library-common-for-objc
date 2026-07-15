@@ -658,13 +658,13 @@
         XCTAssertEqual(retryAcquireTokenCalled, 1u);
         XCTAssertEqual(retryController.acquireTokenCalledCount, 1u);
 
-        // Retry telemetry: Started stamped before the retry, Succeeded stamped on the success result.
+        // Retry telemetry: Started stamped before the retry; success is implied by the terminal
+        // result (the Succeeded step was removed, TokenIssued covers terminal success).
         NSArray<NSString *> *stepIds = [self stepIdsFromOnboardingBuilder:parameters.onboardingBlobBuilder];
         XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepMdmEnrollmentFinished]);
         XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryStarted]);
-        XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetrySucceeded]);
         XCTAssertFalse([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryFailed]);
-        XCTAssertEqualObjects(stepIds.lastObject, MSIDOnboardingBlobStepTokenRequestRetrySucceeded);
+        XCTAssertEqualObjects(stepIds.lastObject, MSIDOnboardingBlobStepTokenRequestRetryStarted);
 
         [expectation fulfill];
     }];
@@ -1035,7 +1035,6 @@
         NSArray<NSString *> *stepIds = [self stepIdsFromOnboardingBuilder:parameters.onboardingBlobBuilder];
         XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryStarted]);
         XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryFailed]);
-        XCTAssertFalse([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetrySucceeded]);
         XCTAssertEqualObjects(stepIds.lastObject, MSIDOnboardingBlobStepTokenRequestRetryFailed);
 
         [expectation fulfill];

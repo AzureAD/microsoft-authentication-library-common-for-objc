@@ -156,11 +156,13 @@
         return;
     }
 
-    // Stamp the ASWebAuthentication session start and wrap the completion so the
-    // hand-off outcome (completed / cancelled / start-failed) is recorded from here,
-    // keeping all onboarding telemetry inside the navigation handler.
+    // Stamp the profile-download flow start and wrap the completion so the
+    // hand-off outcome (cancelled / failed) is recorded from here, keeping all
+    // onboarding telemetry inside the navigation handler. Successful completion is
+    // recorded downstream as ProfileDownloadCompleted when the profile-install
+    // redirect returns.
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.onboardingBlobBuilder;
-    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthSessionStarted timestamp:[NSDate date]];
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadFlowStarted timestamp:[NSDate date]];
 
     void (^completionBlock)(MSIDWebviewNavigationDecision * _Nullable, NSError * _Nullable) = completion;
     completion = ^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
@@ -171,16 +173,11 @@
         NSError *outcomeError = decision.error ?: error;
         if (outcomeError.code == MSIDErrorUserCancel)
         {
-            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthUserCancelled timestamp:[NSDate date]];
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadFlowCancelled timestamp:[NSDate date]];
         }
         else if (outcomeError)
         {
-            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthSessionStartFailed timestamp:[NSDate date]];
-        }
-        else
-        {
-            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthenticationCompleted timestamp:[NSDate date]];
-            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepASWebAuthCallbackUrlReceived timestamp:[NSDate date]];
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadFlowFailed timestamp:[NSDate date]];
         }
         completionBlock(decision, error);
     };

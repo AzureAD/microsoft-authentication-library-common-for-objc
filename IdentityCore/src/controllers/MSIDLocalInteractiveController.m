@@ -357,9 +357,10 @@
 
     MSIDRequestCompletionBlock retryCompletion = ^(MSIDTokenResult *result, NSError *error)
     {
-        NSString *retryStep = error ? MSIDOnboardingBlobStepTokenRequestRetryFailed
-                                    : MSIDOnboardingBlobStepTokenRequestRetrySucceeded;
-        [onboardingBlobBuilder addStep:retryStep timestamp:[NSDate date]];
+        if (error)
+        {
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepTokenRequestRetryFailed timestamp:[NSDate date]];
+        }
         completionBlock(result, error);
     };
 

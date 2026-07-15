@@ -831,7 +831,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     }];
     [self waitForExpectations:@[expectation] timeout:1.0];
 
-    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepASWebAuthSessionStarted]);
+    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileDownloadFlowStarted]);
 }
 
 - (void)testPerformASWebAuthHandoff_whenNoHandoffURLCaptured_shouldStampSessionStartFailedNotCompleted
@@ -851,10 +851,8 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     [self waitForExpectations:@[expectation] timeout:1.0];
 
     NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
-    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepASWebAuthSessionStarted]);
-    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepASWebAuthSessionStartFailed]);
-    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepASWebAuthenticationCompleted]);
-    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepASWebAuthCallbackUrlReceived]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowStarted]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
 }
 
 - (void)testPerformASWebAuthHandoff_whenHandoffURLFailsValidation_shouldStampSessionStartFailedNotCompleted
@@ -875,8 +873,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     [self waitForExpectations:@[expectation] timeout:1.0];
 
     NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
-    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepASWebAuthSessionStartFailed]);
-    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepASWebAuthenticationCompleted]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowFailed]);
 }
 
 - (void)testPerformASWebAuthHandoff_whenNoBuilder_shouldNotCrash

@@ -72,21 +72,17 @@ extern NSString * const MSIDOnboardingBlobStepComplianceRemediationStarted;
 extern NSString * const MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback;
 extern NSString * const MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled;
 extern NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable;
-extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionRedirectReceived;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed;
 extern NSString * const MSIDOnboardingBlobStepComplianceRequestMalformed;
 extern NSString * const MSIDOnboardingBlobStepProfileInstallUrlMalformed;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentFailed;
-extern NSString * const MSIDOnboardingBlobStepASWebAuthSessionStarted;
-extern NSString * const MSIDOnboardingBlobStepASWebAuthenticationCompleted;
-extern NSString * const MSIDOnboardingBlobStepASWebAuthCallbackUrlReceived;
-extern NSString * const MSIDOnboardingBlobStepASWebAuthUserCancelled;
-extern NSString * const MSIDOnboardingBlobStepASWebAuthSessionStartFailed;
+extern NSString * const MSIDOnboardingBlobStepProfileDownloadFlowStarted;
+extern NSString * const MSIDOnboardingBlobStepProfileDownloadFlowCancelled;
+extern NSString * const MSIDOnboardingBlobStepProfileDownloadFlowFailed;
 
 // Token-request retry after MDM enrollment completes (free-form passthrough; not C++-aggregated).
 extern NSString * const MSIDOnboardingBlobStepTokenRequestRetryStarted;
-extern NSString * const MSIDOnboardingBlobStepTokenRequestRetrySucceeded;
 extern NSString * const MSIDOnboardingBlobStepTokenRequestRetryFailed;
 
 // Step ID values used in C++ aggregation. Values must match
