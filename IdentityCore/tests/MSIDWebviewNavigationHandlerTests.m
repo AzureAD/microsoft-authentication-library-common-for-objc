@@ -901,7 +901,10 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
                                          __unused id context,
                                          MSIDWebUICompletionHandler completionBlock)
     {
-        if (completionBlock) { completionBlock(callbackURL, error); }
+        if (completionBlock)
+        {
+            completionBlock(callbackURL, error);
+        }
     }];
 }
 
@@ -996,6 +999,37 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
         [expectation fulfill];
     }]);
     [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testPerformASWebAuthHandoff_whenHandoffHeaderIsNonString_shouldFailWithoutHandoff
+{
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    // Non-string handoff header value: the isKindOfClass:NSString guard must reject it
+    // so the flow fails cleanly instead of misinterpreting it as a valid hand-off URL.
+    self.handler.lastResponseHeaders = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @42};
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+    MSIDViewController *parent = [MSIDViewController new];
+    __block MSIDWebviewNavigationDecision *capturedDecision = nil;
+    __block NSError *capturedError = nil;
+    [self.handler performASWebAuthenticationHandoffWithParentController:parent
+                                                            completion:^(MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         NSError * _Nullable error)
+    {
+        capturedDecision = decision;
+        capturedError = error;
+        [expectation fulfill];
+    }];
+    [self waitForExpectations:@[expectation] timeout:1.0];
+
+    XCTAssertNotNil(capturedError);
+    XCTAssertEqualObjects(capturedError.domain, MSIDErrorDomain);
+    XCTAssertEqual(capturedError.code, MSIDErrorInternal);
+    XCTAssertNotNil(capturedDecision);
+
+    NSArray<NSString *> *steps = [self stampedStepIdsFromBuilder:builder];
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepProfileDownloadFlowCancelled]);
 }
 
 #endif // !MSID_EXCLUDE_SYSTEMWV
