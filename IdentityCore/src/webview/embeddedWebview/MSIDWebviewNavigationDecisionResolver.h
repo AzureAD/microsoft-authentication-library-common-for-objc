@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param URL The special redirect URL to resolve (msauth://, browser://, etc.). If nil or missing a scheme, returns a failWithError decision.
  * @param embeddedWebviewController The webview controller handling the navigation. May be nil for flows that do not require it.
- * @return Navigation decision to apply, or nil if the URL cannot be processed
+ * @return Navigation decision to apply. Always non-nil: unhandled schemes resolve to continueDefault and invalid/unprocessable URLs resolve to a failWithError decision.
  */
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController;
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param URL The special redirect URL to resolve. If nil or missing a scheme, returns a failWithError decision.
  * @param embeddedWebviewController The webview controller handling the navigation. May be nil for flows that do not require it.
  * @param brokerVersion Optional broker version to advertise on the enrollment request. Pass nil when not in a broker flow; the two-argument variant above forwards nil.
- * @return Navigation decision to apply, or nil if the URL cannot be processed
+ * @return Navigation decision to apply. Always non-nil: unhandled schemes resolve to continueDefault and invalid/unprocessable URLs resolve to a failWithError decision.
  */
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController

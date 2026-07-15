@@ -655,10 +655,11 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 - (void)testProcessResponseHeaders_whenHandoffHeaderPresentButResponseURLIsInvalid_shouldReturnNOAndStillCacheHeaders
 {
     // Security gate: an attacker-controlled page (or a non-HTTP response somehow reaching here)
-    // must not be able to force a hand-off by injecting only the header.
+    // must not be able to force a hand-off by injecting only the header. Use a syntactically valid
+    // but non-HTTPS origin (about:blank) so the origin gate — not URL construction — is exercised.
     NSDictionary *headers = @{MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff"};
 
-    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, [NSURL URLWithString:@""]);
+    NSHTTPURLResponse *response = MSIDTestHTTPResponse(headers, [NSURL URLWithString:@"about:blank"]);
 
     BOOL hasHandoff = [self.handler processNavigationResponseAndCheckForASWebAuthHandoff:response
                                     embeddedWebviewController:nil];
