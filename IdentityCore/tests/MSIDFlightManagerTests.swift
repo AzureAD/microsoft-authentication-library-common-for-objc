@@ -208,6 +208,46 @@ class MSIDFlightManagerTests: XCTestCase {
         XCTAssertTrue(mockFlightProvider.stringForKeyCalled)
     }
     
+    func testConcurrentReads_whileProviderSwappedAndCleared_doNotCrash() {
+        let flightManager = MSIDFlightManager.sharedInstance()
+        
+        let iterations = 100
+        let operationsPerIteration = 3
+        let expectation = XCTestExpectation(description: "All operations complete")
+        expectation.expectedFulfillmentCount = iterations * operationsPerIteration
+        
+        // Interleave provider swaps (including nil) with concurrent reads. Before the reader
+        // fix, boolForKey:/stringForKey: tested the provider through the unsynchronized getter
+        // before dispatching onto the synchronization queue, so a swap-and-release racing a
+        // read could leave the read messaging a freed provider. Reading the provider once from
+        // inside the queue into a strong local removes that window.
+        for i in 0..<iterations {
+            DispatchQueue.global().async {
+                let provider = MockFlightProvider()
+                provider.identifier = "provider-\(i)"
+                provider.boolValues["bool-key"] = true
+                provider.stringValues["string-key"] = "value-\(i)"
+                flightManager.flightProvider = (i % 2 == 0) ? provider : nil
+                expectation.fulfill()
+            }
+            
+            DispatchQueue.global().async {
+                _ = flightManager.bool(forKey: "bool-key")
+                expectation.fulfill()
+            }
+            
+            DispatchQueue.global().async {
+                _ = flightManager.string(forKey: "string-key")
+                expectation.fulfill()
+            }
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Reset shared singleton state mutated by this test.
+        flightManager.flightProvider = nil
+    }
+    
     // MARK: - Edge Cases
     
     func testQueryKeyInstance_WithWhitespaceOnlyKey_ReturnsSharedInstance() {
@@ -235,20 +275,47 @@ class MockFlightProvider: NSObject, MSIDFlightManagerInterface {
     var boolValues: [String: Bool] = [:]
     var stringValues: [String: String] = [:]
     
-    var boolForKeyCalled = false
-    var stringForKeyCalled = false
-    var lastBoolKey: String?
-    var lastStringKey: String?
+    // Call-tracking state is guarded by `lock` so concurrent reads through
+    // bool(forKey:)/string(forKey:) don't race on it (which would trip Thread Sanitizer).
+    private let lock = NSLock()
+    private var _boolForKeyCalled = false
+    private var _stringForKeyCalled = false
+    private var _lastBoolKey: String?
+    private var _lastStringKey: String?
+    
+    var boolForKeyCalled: Bool {
+        lock.lock(); defer { lock.unlock() }
+        return _boolForKeyCalled
+    }
+    
+    var stringForKeyCalled: Bool {
+        lock.lock(); defer { lock.unlock() }
+        return _stringForKeyCalled
+    }
+    
+    var lastBoolKey: String? {
+        lock.lock(); defer { lock.unlock() }
+        return _lastBoolKey
+    }
+    
+    var lastStringKey: String? {
+        lock.lock(); defer { lock.unlock() }
+        return _lastStringKey
+    }
     
     func bool(forKey flightKey: String) -> Bool {
-        boolForKeyCalled = true
-        lastBoolKey = flightKey
+        lock.lock()
+        _boolForKeyCalled = true
+        _lastBoolKey = flightKey
+        lock.unlock()
         return boolValues[flightKey] ?? false
     }
     
     func string(forKey key: String) -> String? {
-        stringForKeyCalled = true
-        lastStringKey = key
+        lock.lock()
+        _stringForKeyCalled = true
+        _lastStringKey = key
+        lock.unlock()
         return stringValues[key]
     }
 }
