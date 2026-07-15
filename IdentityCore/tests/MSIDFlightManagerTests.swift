@@ -275,20 +275,47 @@ class MockFlightProvider: NSObject, MSIDFlightManagerInterface {
     var boolValues: [String: Bool] = [:]
     var stringValues: [String: String] = [:]
     
-    var boolForKeyCalled = false
-    var stringForKeyCalled = false
-    var lastBoolKey: String?
-    var lastStringKey: String?
+    // Call-tracking state is guarded by `lock` so concurrent reads through
+    // bool(forKey:)/string(forKey:) don't race on it (which would trip Thread Sanitizer).
+    private let lock = NSLock()
+    private var _boolForKeyCalled = false
+    private var _stringForKeyCalled = false
+    private var _lastBoolKey: String?
+    private var _lastStringKey: String?
+    
+    var boolForKeyCalled: Bool {
+        lock.lock(); defer { lock.unlock() }
+        return _boolForKeyCalled
+    }
+    
+    var stringForKeyCalled: Bool {
+        lock.lock(); defer { lock.unlock() }
+        return _stringForKeyCalled
+    }
+    
+    var lastBoolKey: String? {
+        lock.lock(); defer { lock.unlock() }
+        return _lastBoolKey
+    }
+    
+    var lastStringKey: String? {
+        lock.lock(); defer { lock.unlock() }
+        return _lastStringKey
+    }
     
     func bool(forKey flightKey: String) -> Bool {
-        boolForKeyCalled = true
-        lastBoolKey = flightKey
+        lock.lock()
+        _boolForKeyCalled = true
+        _lastBoolKey = flightKey
+        lock.unlock()
         return boolValues[flightKey] ?? false
     }
     
     func string(forKey key: String) -> String? {
-        stringForKeyCalled = true
-        lastStringKey = key
+        lock.lock()
+        _stringForKeyCalled = true
+        _lastStringKey = key
+        lock.unlock()
         return stringValues[key]
     }
 }
