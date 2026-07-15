@@ -1244,7 +1244,7 @@
 - (void)testInitWithJSONDictionary_whenPopTokenTypeAndNilReqCnfAndValidationDisabledByFlight_shouldInitWithDefaultScheme
 {
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES};
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES };
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 
     __auto_type json = @{
@@ -1273,7 +1273,7 @@
 - (void)testInitWithJSONDictionary_whenPopTokenTypeInEQPAndNilReqCnfAndValidationDisabledByFlight_shouldInitWithDefaultScheme
 {
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES};
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES };
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 
     __auto_type extraParameters = @{
@@ -1303,7 +1303,7 @@
 - (void)testInitWithJSONDictionary_whenPopTokenTypeAndEmptyReqCnfAndValidationDisabledByFlight_shouldInitWithDefaultScheme
 {
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES};
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES };
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 
     __auto_type json = @{
@@ -1333,7 +1333,7 @@
 - (void)testInitWithJSONDictionary_whenPopTokenTypeAndNilReqCnfAndValidationEnabledByDefaultFlight_shouldReturnNilWithError
 {
     MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
-    flightProvider.boolForKeyContainer = @{MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @NO};
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @NO };
     MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
 
     __auto_type json = @{
