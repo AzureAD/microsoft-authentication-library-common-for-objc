@@ -24,7 +24,7 @@
 
 
 #import "MSIDLocalInteractiveController.h"
-#import "MSIDXpcSingleSignOnProvider.h"
+#import "MSIDXpcCanPerformFailureReason.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
