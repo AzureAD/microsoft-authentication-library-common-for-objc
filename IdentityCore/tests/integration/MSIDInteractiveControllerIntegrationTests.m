@@ -55,6 +55,13 @@
 #import "MSIDTestSwizzle.h"
 #import "MSIDTestLocalInteractiveController.h"
 
+static NSString * const kOnboardingSeedSchemaVersionKey = @"schema_version";
+static NSString * const kOnboardingSeedSessionCorrelationIdKey = @"session_correlation_id";
+static NSString * const kOnboardingSeedModeKey = @"onboarding_mode";
+static NSString * const kOnboardingSeedSchemaVersionValue = @"1.0.0";
+static NSString * const kOnboardingSeedSessionCorrelationIdValue = @"retry-corr";
+static NSString * const kOnboardingSeedModeNonBrokeredValue = @"non-brokered";
+
 @interface MSIDInteractiveControllerIntegrationTests : XCTestCase
 
 @end
@@ -106,9 +113,9 @@
 - (MSIDOnboardingBlobBuilder *)onboardingBuilder
 {
     NSDictionary *seed = @{
-        @"schema_version" : @"1.0.0",
-        @"session_correlation_id" : @"retry-corr",
-        @"onboarding_mode" : @"non-brokered"
+        kOnboardingSeedSchemaVersionKey : kOnboardingSeedSchemaVersionValue,
+        kOnboardingSeedSessionCorrelationIdKey : kOnboardingSeedSessionCorrelationIdValue,
+        kOnboardingSeedModeKey : kOnboardingSeedModeNonBrokeredValue
     };
     NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
     NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
