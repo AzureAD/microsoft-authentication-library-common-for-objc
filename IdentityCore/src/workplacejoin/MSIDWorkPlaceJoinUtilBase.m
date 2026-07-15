@@ -30,14 +30,6 @@
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
 #import "MSIDDIContainer.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDAuthority.h"
-#import "MSIDDeviceTokenResponseHandler.h"
-#import "MSIDDeviceTokenGrantRequest.h"
-#import "MSIDAccountIdentifier.h"
-#import "MSIDNonceTokenRequest.h"
-#import "MSIDAADAuthority.h"
-#import "MSIDOauth2Factory.h"
 
 static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
 static NSString *kECPrivateKeyTagSuffix = @"-EC";

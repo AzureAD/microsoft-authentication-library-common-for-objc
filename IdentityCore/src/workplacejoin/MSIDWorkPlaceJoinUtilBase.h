@@ -25,8 +25,6 @@
 #define MSIDWorkPlaceJoinUtilBase_h
 
 @class MSIDWPJKeyPairWithCert;
-@class MSIDRequestParameters;
-#import "MSIDConstants.h"
 
 #import <Foundation/Foundation.h>
 
