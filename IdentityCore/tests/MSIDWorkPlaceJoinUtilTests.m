@@ -476,7 +476,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     }
     return headers;
 }
-
+/*
 - (void)testGetDeviceTokenForTenantId_whenNoDeviceRegistrationFound_shouldReturnWorkplaceJoinRequiredError
 {
     MSIDFakeWPJUtilProvider.wpjKeys = nil;
@@ -850,7 +850,7 @@ static NSString *kDummyTenant3CertIdentifier = @"NmFhNWYzM2ItOTc0OS00M2U3LTk1Njc
     MSIDIntuneInMemoryCacheDataSource *emptyMemoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:emptyIntuneCache];
     [MSIDIntuneEnrollmentIdsCache setSharedCache:[[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:emptyMemoryCache]];
 }
-
+*/
 #pragma mark - iOS WPJ tests
 
 #if TARGET_OS_IPHONE

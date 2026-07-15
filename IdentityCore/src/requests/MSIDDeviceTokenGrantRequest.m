@@ -36,7 +36,7 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDDeviceTokenResponseHandler.h"
 #import "MSIDTokenResponseValidator.h"
-#import "MSIDWorkPlaceJoinUtilBase.h"
+#import "MSIDDeviceTokenUtil.h"
 
 @interface MSIDDeviceTokenGrantRequest()
 
@@ -197,16 +197,16 @@
 - (void)tokenRequestWithCompletionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     NSError *jwtError;
-    NSString *jwt = [MSIDWorkPlaceJoinUtilBase getDeviceTokenRequestJwtForResource:self.resource
-                                                                            scopes:self.scopesSet
-                                                                       redirectUri:self.redirectUri
-                                                                          audience:self.urlRequest.URL.absoluteString
-                                                                          clientId:self.clientId
-                                                                             nonce:self.nonce
-                                                           registrationInformation:self.wpjInfo
-                                                                extraPayloadClaims:nil
-                                                                           context:self.context
-                                                                             error:&jwtError];
+    NSString *jwt = [MSIDDeviceTokenUtil getDeviceTokenRequestJwtForResource:self.resource
+                                                                     scopes:self.scopesSet
+                                                                redirectUri:self.redirectUri
+                                                                   audience:self.urlRequest.URL.absoluteString
+                                                                   clientId:self.clientId
+                                                                      nonce:self.nonce
+                                                    registrationInformation:self.wpjInfo
+                                                         extraPayloadClaims:nil
+                                                                    context:self.context
+                                                                      error:&jwtError];
 
     if ([NSString msidIsStringNilOrBlank:jwt])
     {
@@ -221,17 +221,9 @@
     __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
     [requestConfigurator configure:self];
 
-    NSMutableDictionary *requestParameters = [NSMutableDictionary new];
-    requestParameters[MSID_OAUTH2_CLIENT_INFO] = @NO;  // Set client_info = 0 to explicitly set that id token is not expected.
-
-    if (self.enrollmentId)
-    {
-        requestParameters[MSID_ENROLLMENT_ID] = self.enrollmentId;
-    }
-    requestParameters[MSID_OAUTH2_GRANT_TYPE] = @"urn:ietf:params:oauth:grant-type:jwt-bearer";
-    requestParameters[@"request"] = jwt;
-
-    self.parameters = requestParameters;
+    self.parameters = [MSIDDeviceTokenUtil deviceTokenRequestBodyParametersWithJwt:jwt
+                                                                     enrollmentId:self.enrollmentId
+                                                                  extraParameters:nil];
     __weak typeof(self) weakSelf = self;
     [self sendWithBlock:^(NSDictionary *tokenJsonResponse, NSError *tokenError)
     {
@@ -248,13 +240,11 @@
             return;
         }
 
-        MSIDDeviceTokenResponseHandler *tokenResponseHandler = (MSIDDeviceTokenResponseHandler *)strongSelf.tokenResponseHandler;
-        [tokenResponseHandler handleTokenResponse:tokenJsonResponse
-                                          context:strongSelf.requestParameters
-                                            error:tokenError
-                                  completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-            completionBlock(result, error);
-        }];
+        [MSIDDeviceTokenUtil handleDeviceTokenResponse:tokenJsonResponse
+                                     requestParameters:strongSelf.requestParameters
+                                       responseHandler:(MSIDDeviceTokenResponseHandler *)strongSelf.tokenResponseHandler
+                                                 error:tokenError
+                                       completionBlock:completionBlock];
     }];
 }
 
