@@ -370,6 +370,20 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
                    continueBlock:completion];
 }
 
+// Drives the interactive public entry point (handleRequestParam:parentViewFrame:...), which disables
+// the fixed broker-reply watchdog because interactive auth is gated on unbounded user interaction.
+- (void)startInteractiveRequestWithProvider:(MSIDXpcSingleSignOnProvider *)provider
+                                      cache:(MSIDXpcProviderCacheMock *)cache
+                                 completion:(MSIDSSOExtensionRequestDelegateCompletionBlock)completion
+{
+    [provider handleRequestParam:@{}
+                 parentViewFrame:CGRectZero
+       assertKindOfResponseClass:MSIDBrokerNativeAppOperationResponse.class
+                xpcProviderCache:cache
+                         context:[MSIDTestContext new]
+                   continueBlock:completion];
+}
+
 - (void)testNoXpcComponentInstalledOnDevice_canPerformRequest_returnsFalse
 {
     MSIDXpcProviderCacheMock *xpcProviderCacheMock = [[MSIDXpcProviderCacheMock alloc] initWithXpcInstallationStatus:NO
@@ -811,6 +825,71 @@ typedef void (^MSIDXpcTestBrokerReplyBlock)(NSDictionary *response, NSDate *star
     XCTAssertEqualObjects(capturedError.domain, MSIDErrorDomain);
     XCTAssertEqual(capturedError.code, MSIDErrorBrokerXpcUnexpectedError);
     XCTAssertEqual(directConnection.suspendAfterInvalidationCount, 0u);
+}
+
+- (void)testSilentRequest_schedulesBrokerReplyWatchdog
+{
+    MSIDXpcTestDispatcherProxy *dispatcherProxy = [MSIDXpcTestDispatcherProxy new];
+    MSIDXpcTestBrokerProxy *brokerProxy = [MSIDXpcTestBrokerProxy new];
+    MSIDXpcTestConnection *dispatcherConnection = [MSIDXpcTestConnection new];
+    MSIDXpcTestConnection *directConnection = [MSIDXpcTestConnection new];
+    dispatcherConnection.remoteProxy = dispatcherProxy;
+    directConnection.remoteProxy = brokerProxy;
+
+    MSIDXpcTestSingleSignOnProvider *provider = [MSIDXpcTestSingleSignOnProvider new];
+    provider.dispatcherConnection = dispatcherConnection;
+    provider.directConnection = directConnection;
+
+    [self startRequestWithProvider:provider
+                            cache:[self configuredXpcProviderCache]
+                       completion:^(__unused id response, __unused NSError *error) {}];
+
+    [dispatcherProxy replyWithEndpoint:[NSXPCListenerEndpoint new] error:nil];
+
+    // Silent requests schedule both the dispatcher endpoint-lookup watchdog and the 60s broker-reply
+    // watchdog, so a hung broker on a non-interactive flow is still reclaimed.
+    XCTAssertEqual(provider.scheduledBlocks.count, 2u);
+    XCTAssertTrue([provider.scheduledTimeouts containsObject:@(60.0)]);
+}
+
+- (void)testInteractiveRequest_doesNotScheduleBrokerReplyWatchdog_delayedReplyStillCompletes
+{
+    MSIDXpcTestDispatcherProxy *dispatcherProxy = [MSIDXpcTestDispatcherProxy new];
+    MSIDXpcTestBrokerProxy *brokerProxy = [MSIDXpcTestBrokerProxy new];
+    MSIDXpcTestConnection *dispatcherConnection = [MSIDXpcTestConnection new];
+    MSIDXpcTestConnection *directConnection = [MSIDXpcTestConnection new];
+    dispatcherConnection.remoteProxy = dispatcherProxy;
+    directConnection.remoteProxy = brokerProxy;
+
+    MSIDXpcTestSingleSignOnProvider *provider = [MSIDXpcTestSingleSignOnProvider new];
+    provider.dispatcherConnection = dispatcherConnection;
+    provider.directConnection = directConnection;
+
+    __block NSUInteger completionCount = 0;
+    __block id capturedResponse = nil;
+    __block NSError *capturedError = nil;
+    [self startInteractiveRequestWithProvider:provider
+                                        cache:[self configuredXpcProviderCache]
+                                   completion:^(id response, NSError *error) {
+        completionCount += 1;
+        capturedResponse = response;
+        capturedError = error;
+    }];
+
+    [dispatcherProxy replyWithEndpoint:[NSXPCListenerEndpoint new] error:nil];
+
+    // Interactive auth is gated on unbounded user interaction (password/MFA/consent), so only the
+    // dispatcher endpoint-lookup watchdog is scheduled — the fixed broker-reply watchdog is disabled
+    // and cannot abort a legitimate in-progress flow with a spurious timeout error.
+    XCTAssertEqual(provider.scheduledBlocks.count, 1u);
+    XCTAssertFalse([provider.scheduledTimeouts containsObject:@(60.0)]);
+
+    // A broker reply that arrives after an arbitrary user-driven delay still completes successfully.
+    [brokerProxy replyWithResponse:[self successfulBrokerResponse] error:nil];
+
+    XCTAssertEqual(completionCount, 1u);
+    XCTAssertNil(capturedError);
+    XCTAssertNotNil(capturedResponse);
 }
 
 - (void)testNilDispatcherConnection_completesOnceWithError

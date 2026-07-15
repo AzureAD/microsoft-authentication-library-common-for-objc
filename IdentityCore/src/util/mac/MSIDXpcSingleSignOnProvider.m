@@ -70,6 +70,13 @@
 static const NSTimeInterval MSIDXpcDispatcherEndpointLookupTimeout = 10.0;
 static const NSTimeInterval MSIDXpcBrokerReplyTimeout = 60.0;
 
+// Interactive broker requests are gated on real user interaction (password, MFA, consent) and
+// therefore have no safe upper bound. Applying the fixed broker-reply watchdog to them could abort
+// a legitimate in-progress flow and surface a spurious MSIDErrorBrokerXpcUnexpectedError, so the
+// watchdog is disabled for interactive requests. A timeout value <= 0 disables the watchdog;
+// connection interruption/invalidation still completes the request via the transport-failure path.
+static const NSTimeInterval MSIDXpcBrokerReplyTimeoutDisabled = 0.0;
+
 static NSError *MSIDXpcCreateTransportError(NSString *description, NSError *underlyingError)
 {
     return MSIDCreateError(MSIDErrorDomain,
@@ -117,6 +124,25 @@ typedef BOOL (^MSIDXpcRequestCompletedBlock)(void);
 - (void)getXpcService:(id<MSIDXpcProviderCaching>)xpcProviderCache
      requestCompleted:(MSIDXpcRequestCompletedBlock)requestCompleted
     withContinueBlock:(NSXPCListenerEndpointCompletionBlock)continueBlock;
+
+// Shared funnel for both the silent and interactive public entry points. brokerReplyTimeout controls
+// the broker-reply watchdog for this request (<= 0 disables it; see MSIDXpcBrokerReplyTimeoutDisabled).
+- (void)handleRequestParam:(NSDictionary *)requestParam
+           parentViewFrame:(NSRect)frame
+ assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                   context:(id<MSIDRequestContext>)context
+        brokerReplyTimeout:(NSTimeInterval)brokerReplyTimeout
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+
+- (void)attemptBrokerRequest:(NSDictionary *)requestParam
+             parentViewFrame:(NSRect)frame
+   assertKindOfResponseClass:(Class)aClass
+            xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
+           useCachedEndpoint:(BOOL)useCachedEndpoint
+          brokerReplyTimeout:(NSTimeInterval)brokerReplyTimeout
+                     context:(id<MSIDRequestContext>)context
+               continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
 @end
 
@@ -170,11 +196,13 @@ NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason 
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
+    // Silent requests are not gated on user interaction, so the standard broker-reply watchdog applies.
     [self handleRequestParam:requestParam
              parentViewFrame:CGRectZero
    assertKindOfResponseClass:(Class)aClass
             xpcProviderCache:xpcProviderCache
                      context:(id<MSIDRequestContext>)context
+          brokerReplyTimeout:MSIDXpcBrokerReplyTimeout
                continueBlock:continueBlock];
 }
 
@@ -185,11 +213,31 @@ NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason 
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
+    // Interactive requests are gated on real user interaction (password, MFA, consent), which has no
+    // safe upper bound, so the broker-reply watchdog is disabled to avoid aborting a legitimate flow.
+    [self handleRequestParam:requestParam
+             parentViewFrame:frame
+   assertKindOfResponseClass:aClass
+            xpcProviderCache:xpcProviderCache
+                     context:context
+          brokerReplyTimeout:MSIDXpcBrokerReplyTimeoutDisabled
+               continueBlock:continueBlock];
+}
+
+- (void)handleRequestParam:(NSDictionary *)requestParam
+           parentViewFrame:(NSRect)frame
+ assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                   context:(id<MSIDRequestContext>)context
+        brokerReplyTimeout:(NSTimeInterval)brokerReplyTimeout
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
+{
     [self attemptBrokerRequest:requestParam
                parentViewFrame:frame
      assertKindOfResponseClass:aClass
               xpcProviderCache:xpcProviderCache
-            useCachedEndpoint:[self isXpcInstanceCacheEnabled]
+             useCachedEndpoint:[self isXpcInstanceCacheEnabled]
+            brokerReplyTimeout:brokerReplyTimeout
                        context:context
                  continueBlock:continueBlock];
 }
@@ -215,6 +263,7 @@ NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason 
    assertKindOfResponseClass:(Class)aClass
             xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
            useCachedEndpoint:(BOOL)useCachedEndpoint
+          brokerReplyTimeout:(NSTimeInterval)brokerReplyTimeout
                      context:(id<MSIDRequestContext>)context
                continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
@@ -308,6 +357,7 @@ NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason 
                        assertKindOfResponseClass:aClass
                                 xpcProviderCache:xpcProviderCache
                                useCachedEndpoint:NO
+                              brokerReplyTimeout:brokerReplyTimeout
                                          context:context
                                    continueBlock:continueBlock];
                 return;
@@ -317,15 +367,21 @@ NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason 
             return;
         }
 
-        NSError *brokerReplyTimeoutError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- broker reply timed out", nil);
-        [self scheduleBlock:^{
-            if (isReplyReceived()) return;
-            if (!claimCompletion()) return;
+        // Broker-reply watchdog. Disabled (brokerReplyTimeout <= 0) for interactive requests, whose
+        // reply is gated on unbounded user interaction; a connection interruption/invalidation still
+        // completes the request via the transport-failure path above.
+        if (brokerReplyTimeout > 0)
+        {
+            NSError *brokerReplyTimeoutError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- broker reply timed out", nil);
+            [self scheduleBlock:^{
+                if (isReplyReceived()) return;
+                if (!claimCompletion()) return;
 
-            [directConnection suspend];
-            [directConnection invalidate];
-            if (continueBlock) continueBlock(nil, brokerReplyTimeoutError);
-        } afterTimeout:MSIDXpcBrokerReplyTimeout];
+                [directConnection suspend];
+                [directConnection invalidate];
+                if (continueBlock) continueBlock(nil, brokerReplyTimeoutError);
+            } afterTimeout:brokerReplyTimeout];
+        }
 
         [xpcService handleXpcWithRequestParams:requestParam parentViewFrame:frame completionBlock:^(NSDictionary<NSString *,id> * _Nullable replyParam, NSDate * _Nonnull __unused xpcStartDate, NSString * _Nonnull __unused processId, NSError * _Nullable callbackError) {
             // Mark synchronously so the connection's invalidation handler (which fires as a side
