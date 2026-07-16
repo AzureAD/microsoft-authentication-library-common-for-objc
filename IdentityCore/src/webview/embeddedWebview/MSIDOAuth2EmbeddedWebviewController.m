@@ -31,6 +31,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDConstants.h"
 #import "MSIDNotifications.h"
 
 #import "MSIDTelemetry+Internal.h"
@@ -479,6 +480,42 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     return ([scheme isEqualToString:@"https"] && !targetFrame) || ![scheme hasPrefix:@"http"];
 }
 
+// Defense-in-depth (IcM 31000000664050 / IDSEC Nightwatch finding eafc733c): the
+// customHeaderProvider is wired from parameters.prtHeaderProvider and can return PRT / SSO
+// credential material (x-ms-RefreshTokenCredential / device headers). Historically IdentityCore
+// delegated 100% of the host-trust decision to the out-of-repo broker implementation of
+// getCustomHeaders:forHost:, applying only an https scheme check. This adds a framework-level
+// trusted-host allow-list so PRT-class headers are only ever offered to known AAD authority hosts,
+// regardless of the consumer's implementation.
+- (BOOL)msidShouldProvideCustomHeadersForHost:(NSString *)host
+{
+    static NSSet<NSString *> *trustedHosts = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        trustedHosts = [NSSet setWithArray:@[
+            MSIDTrustedAuthority,
+            MSIDTrustedAuthorityUS,
+            MSIDTrustedAuthorityChina,
+            MSIDTrustedAuthorityChina2,
+            MSIDTrustedAuthorityGermany,
+            MSIDTrustedAuthorityFrance,
+            MSIDTrustedAuthorityDelos,
+            MSIDTrustedAuthorityGovSG,
+            MSIDTrustedAuthorityWorldWide,
+            MSIDTrustedAuthorityUSGovernment,
+            MSIDTrustedAuthorityCloudGovApi
+        ]];
+    });
+
+    BOOL trusted = host.length > 0 && [trustedHosts containsObject:host.lowercaseString];
+    if (!trusted)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.context, @"Navigation host %@ is not in the framework trusted-authority allow-list; skipping custom (PRT) header injection.", MSID_PII_LOG_TRACKABLE(host));
+    }
+
+    return trusted;
+}
+
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(__unused WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
@@ -528,7 +565,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         return;
     }
     
-    if (self.customHeaderProvider)
+    if (self.customHeaderProvider && [self msidShouldProvideCustomHeadersForHost:requestURL.host])
     {
         [self.customHeaderProvider getCustomHeaders:navigationAction.request
                                             forHost:requestURL.host
