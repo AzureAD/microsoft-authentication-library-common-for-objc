@@ -70,7 +70,6 @@
 }
 
 // Backed by readonly properties declared in the public header.
-@synthesize onboardingStrongAuthSetupStarted = _onboardingStrongAuthSetupStarted;
 @synthesize endURL = _endURL;
 
 #if AD_BROKER
@@ -222,7 +221,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     // Record the terminal onboarding step on the shared builder
     if (_onboardingBlobBuilder && [MSIDWebAuthNUtil amIRunningInExtension])
     {
-        [self finalizeOnboardingTelemetry:endURL error:error];
+        [_onboardingBlobBuilder finalizeForEndURL:endURL error:error];
         _onboardingBlobBuilder = nil;
     }
 
@@ -786,104 +785,6 @@ initiatedByFrame:(WKFrameInfo *)frame
 
 #pragma mark - Onboarding telemetry
 
-- (void)finalizeOnboardingTelemetry:(NSURL *)endURL
-                              error:(NSError *)error
-{
-    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.onboardingBlobBuilder;
-    if (onboardingBlobBuilder)
-    {
-        BOOL flowSucceeded = (endURL != nil && error == nil);
-        if (flowSucceeded)
-        {
-            NSDate *now = [NSDate date];
-            // Both the new and legacy flows now process response headers through
-            // processOnboardingTelemetryForResponse:, which keeps this local ivar in sync
-            // with the builder flag, so the ivar alone is sufficient to stamp the closing step.
-            // MDMEnrollmentFinished is stamped from the in_app_enrollment_complete redirect.
-            if (_onboardingStrongAuthSetupStarted)
-            {
-                [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepStrongAuthSetupCompleted timestamp:now];
-            }
-        }
-        
-        NSString *endUrlStep = [self onboardingStepForEndURL:endURL];
-        if (endUrlStep)
-        {
-            [onboardingBlobBuilder addStep:endUrlStep timestamp:[NSDate date]];
-        }
-    }
-}
-
-// Maps a terminal endURL that points at a well-known go.microsoft.com fwlink
-// (browser://go.microsoft.com/fwlink[/]?...LinkId=<id>...) to the onboarding
-// step that should be recorded against the current blob. The LinkId-to-step
-// map is the single extension point: new LinkIds (potentially mapping to a
-// different step) just add entries here.
-- (NSString *)onboardingStepForEndURL:(NSURL *)endURL
-{
-    if (!endURL)
-    {
-        return nil;
-    }
-
-    NSURLComponents *components = [NSURLComponents componentsWithURL:endURL resolvingAgainstBaseURL:NO];
-    if (!components)
-    {
-        return nil;
-    }
-
-    if ([components.scheme caseInsensitiveCompare:@"browser"] != NSOrderedSame)
-    {
-        return nil;
-    }
-
-    if ([components.host caseInsensitiveCompare:@"go.microsoft.com"] != NSOrderedSame)
-    {
-        return nil;
-    }
-
-    NSString *path = components.path;
-    if ([path caseInsensitiveCompare:@"/fwlink"] != NSOrderedSame
-        && [path caseInsensitiveCompare:@"/fwlink/"] != NSOrderedSame)
-    {
-        return nil;
-    }
-
-    NSString *linkIdValue = nil;
-    for (NSURLQueryItem *item in components.queryItems)
-    {
-        if ([item.name caseInsensitiveCompare:@"LinkId"] == NSOrderedSame)
-        {
-            linkIdValue = item.value;
-            break;
-        }
-    }
-
-    if (linkIdValue.length == 0)
-    {
-        return nil;
-    }
-
-    return [[self.class onboardingStepsByFwlinkLinkId] objectForKey:linkIdValue];
-}
-
-// LinkId value -> onboarding step constant. Extension point: future LinkIds
-// (which may map to a different onboarding step) are added here.
-+ (NSDictionary<NSString *, NSString *> *)onboardingStepsByFwlinkLinkId
-{
-    static NSDictionary<NSString *, NSString *> *map = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        map = @{
-            @"396941"  : MSIDOnboardingBlobStepMdmEnrollmentStarted, // Public
-            @"2132314" : MSIDOnboardingBlobStepMdmEnrollmentStarted, // China
-            @"2114747" : MSIDOnboardingBlobStepMdmEnrollmentStarted, // GOV
-            @"399153"  : MSIDOnboardingBlobStepMdmEnrollmentStarted, // PPE
-        };
-    });
-    return map;
-}
-
 - (void)processOnboardingTelemetryForResponse:(NSHTTPURLResponse *)response
 {
     MSIDOnboardingBlobBuilder *builder = self.onboardingBlobBuilder;
@@ -893,9 +794,6 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
 
     [builder processResponseHeaders:response.allHeaderFields responseURL:response.URL];
-
-    // Sync local flags from builder for use in finalizeOnboardingTelemetry:error:
-    _onboardingStrongAuthSetupStarted = builder.strongAuthSetupStarted;
 }
 
 @end

@@ -392,4 +392,90 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] ?: @"";
 }
 
+- (void)finalizeForEndURL:(NSURL *)endURL error:(NSError *)error
+{
+    BOOL flowSucceeded = (endURL != nil && error == nil);
+    if (flowSucceeded && self.strongAuthSetupStarted)
+    {
+        // MDMEnrollmentFinished is stamped from the in_app_enrollment_complete redirect.
+        [self addStep:MSIDOnboardingBlobStepStrongAuthSetupCompleted timestamp:[NSDate date]];
+    }
+
+    NSString *endUrlStep = [MSIDOnboardingBlobBuilder onboardingStepForEndURL:endURL];
+    if (endUrlStep)
+    {
+        [self addStep:endUrlStep timestamp:[NSDate date]];
+    }
+}
+
+// Maps a terminal endURL that points at a well-known go.microsoft.com fwlink
+// (browser://go.microsoft.com/fwlink[/]?...LinkId=<id>...) to the onboarding
+// step that should be recorded against the current blob. The LinkId-to-step
+// map is the single extension point: new LinkIds (potentially mapping to a
+// different step) just add entries here.
++ (NSString *)onboardingStepForEndURL:(NSURL *)endURL
+{
+    if (!endURL)
+    {
+        return nil;
+    }
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:endURL resolvingAgainstBaseURL:NO];
+    if (!components)
+    {
+        return nil;
+    }
+
+    if ([components.scheme caseInsensitiveCompare:@"browser"] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    if ([components.host caseInsensitiveCompare:@"go.microsoft.com"] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    NSString *path = components.path;
+    if ([path caseInsensitiveCompare:@"/fwlink"] != NSOrderedSame
+        && [path caseInsensitiveCompare:@"/fwlink/"] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    NSString *linkIdValue = nil;
+    for (NSURLQueryItem *item in components.queryItems)
+    {
+        if ([item.name caseInsensitiveCompare:@"LinkId"] == NSOrderedSame)
+        {
+            linkIdValue = item.value;
+            break;
+        }
+    }
+
+    if (linkIdValue.length == 0)
+    {
+        return nil;
+    }
+
+    return [[self onboardingStepsByFwlinkLinkId] objectForKey:linkIdValue];
+}
+
+// LinkId value -> onboarding step constant. Extension point: future LinkIds
+// (which may map to a different onboarding step) are added here.
++ (NSDictionary<NSString *, NSString *> *)onboardingStepsByFwlinkLinkId
+{
+    static NSDictionary<NSString *, NSString *> *map = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        map = @{
+            @"396941"  : MSIDOnboardingBlobStepMdmEnrollmentStarted, // Public
+            @"2132314" : MSIDOnboardingBlobStepMdmEnrollmentStarted, // China
+            @"2114747" : MSIDOnboardingBlobStepMdmEnrollmentStarted, // GOV
+            @"399153"  : MSIDOnboardingBlobStepMdmEnrollmentStarted, // PPE
+        };
+    });
+    return map;
+}
+
 @end

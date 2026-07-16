@@ -29,6 +29,15 @@
 #import "MSIDWKNavigationActionMock.h"
 #import "MSIDWebAuthNUtil.h"
 #import "MSIDTestBundle.h"
+#import "MSIDWebviewConstants.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDTestParametersProvider.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobBuilder+MSIDTestUtil.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -106,6 +115,8 @@
 
 @interface MSIDAADOAuthEmbeddedWebviewControllerTests : XCTestCase
 
+@property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
+
 @end
 
 @implementation MSIDAADOAuthEmbeddedWebviewControllerTests
@@ -113,12 +124,14 @@
 - (void)setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    self.flightProvider = [MSIDFlightManagerMockProvider new];
+    MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
 }
 
 - (void)tearDown
 {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    self.flightProvider = nil;
     [super tearDown];
 }
 
@@ -521,6 +534,90 @@
 
     XCTAssertEqualObjects(queryMap[@"x_ms_caller_redirect_uri"], @"msauth.com.microsoft.outlook://auth");
     XCTAssertNotNil(queryMap[@"x_ms_caller_bundle_id"]);
+}
+
+#pragma mark - Mobile onboarding stamping (msauth://enroll)
+
+- (MSIDAADOAuthEmbeddedWebviewController *)onboardingControllerWithBuilder:(MSIDOnboardingBlobBuilder *)builder
+                                                                  context:(MSIDInteractiveTokenRequestParameters *)parameters
+{
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [[MSIDAADOAuthEmbeddedWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:parameters];
+    webVC.onboardingBlobBuilder = builder;
+    return webVC;
+}
+
+- (void)testDecidePolicyForNavigationAction_whenMsauthEnrollAndOnboardingEnabled_shouldStampPhase1UxFlowAndEnableFlow
+{
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @NO };
+
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDInteractiveTokenRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [self onboardingControllerWithBuilder:builder context:params];
+
+    NSString *encoded = [@"https://manage.microsoft.com/enroll" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@", MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:urlString]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy __unused decision) {
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
+    XCTAssertTrue(params.isNewMobileOnboardingFlow);
+}
+
+- (void)testDecidePolicyForNavigationAction_whenMsauthEnrollAndOnboardingDisabledWithValidIntuneUrl_shouldStampClientDisabledFallback
+{
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @YES };
+
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDInteractiveTokenRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [self onboardingControllerWithBuilder:builder context:params];
+
+    NSString *encoded = [@"https://manage.microsoft.com/enroll" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@", MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:urlString]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy __unused decision) {
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback]);
+    XCTAssertFalse(params.isNewMobileOnboardingFlow);
+}
+
+- (void)testDecidePolicyForNavigationAction_whenMsauthEnrollAndOnboardingDisabledWithMissingIntuneUrl_shouldNotStampFallback
+{
+    self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @YES };
+
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDInteractiveTokenRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDAADOAuthEmbeddedWebviewController *webVC = [self onboardingControllerWithBuilder:builder context:params];
+
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLL_HOST];
+    NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:urlString]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    [webVC decidePolicyAADForNavigationAction:action decisionHandler:^(WKNavigationActionPolicy __unused decision) {
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertFalse([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback]);
+    XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
 }
 
 #pragma mark - openid-vc handler delegation

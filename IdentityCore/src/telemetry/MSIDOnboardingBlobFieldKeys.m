@@ -68,7 +68,10 @@ NSString * const MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled = 
 NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable = @"SSOExtensionUnavailable";
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded = @"MDMEnrollmentCompletionFallbackErrorUrlLoaded";
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed = @"MDMEnrollmentRequestMalformed";
-NSString * const MSIDOnboardingBlobStepComplianceRequestMalformed = @"ComplianceRequestMalformed";
+NSString * const MSIDOnboardingBlobStepMdmEnrollmentUrlMissing = @"MDMEnrollmentUrlMissing";
+NSString * const MSIDOnboardingBlobStepComplianceRemediationRequestMalformed = @"ComplianceRemediationRequestMalformed";
+NSString * const MSIDOnboardingBlobStepComplianceRemediationUrlMissing = @"ComplianceRemediationUrlMissing";
+NSString * const MSIDOnboardingBlobStepProfileInstallUrlMissing = @"ProfileInstallUrlMissing";
 NSString * const MSIDOnboardingBlobStepProfileInstallUrlMalformed = @"ProfileInstallUrlMalformed";
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentFailed = @"MDMEnrollmentFailed";
 NSString * const MSIDOnboardingBlobStepProfileDownloadFlowStarted = @"ProfileDownloadFlowStarted";
@@ -77,7 +80,6 @@ NSString * const MSIDOnboardingBlobStepProfileDownloadFlowFailed = @"ProfileDown
 
 // Token-request retry after MDM enrollment completes
 NSString * const MSIDOnboardingBlobStepTokenRequestRetryStarted = @"TokenRequestRetryStarted";
-NSString * const MSIDOnboardingBlobStepTokenRequestRetryFailed = @"TokenRequestRetryFailed";
 
 // Step ID values used in C++ aggregation (must match MSAIOnboardingBlobConstants)
 NSString * const MSIDOnboardingBlobStepStrongAuthSetupStarted = @"StrongAuthSetupStarted";

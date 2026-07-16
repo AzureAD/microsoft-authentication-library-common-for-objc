@@ -34,8 +34,6 @@
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDLocalInteractiveController+Internal.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
-#import "MSIDOnboardingBlobBuilder.h"
-#import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
 #import "MSIDRefreshToken.h"
@@ -101,30 +99,6 @@
     parameters.loginHint = @"user@contoso.com";
     return parameters;
 
-}
-
-- (MSIDOnboardingBlobBuilder *)onboardingBuilder
-{
-    NSDictionary *seed = @{
-        @"schema_version" : @"1.0.0",
-        @"session_correlation_id" : @"retry-corr",
-        @"onboarding_mode" : @"non-brokered"
-    };
-    NSData *data = [NSJSONSerialization dataWithJSONObject:seed options:0 error:nil];
-    NSString *seedJson = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    return [[MSIDOnboardingBlobBuilder alloc] initWithSeedJson:seedJson clientId:@"my_client_id" target:@"user.read"];
-}
-
-- (NSArray<NSString *> *)stepIdsFromOnboardingBuilder:(MSIDOnboardingBlobBuilder *)builder
-{
-    NSData *data = [[builder finalizeBlob] dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary *parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-    NSMutableArray<NSString *> *stepIds = [NSMutableArray new];
-    for (NSDictionary *step in parsed[@"steps_list"])
-    {
-        [stepIds addObject:step[@"step_id"]];
-    }
-    return stepIds;
 }
 
 - (MSIDTokenResult *)resultWithParameters:(MSIDRequestParameters *)parameters
@@ -598,7 +572,6 @@
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_mdm_success_retry";
-    parameters.onboardingBlobBuilder = [self onboardingBuilder];
 
     NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=success"];
     MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
@@ -657,15 +630,6 @@
         // exactly once on the returned controller.
         XCTAssertEqual(retryAcquireTokenCalled, 1u);
         XCTAssertEqual(retryController.acquireTokenCalledCount, 1u);
-
-        // Retry telemetry: Started stamped before the retry; success is implied by the
-        // terminal result. The Succeeded step was removed and is not re-stamped here
-        // (TokenIssued is stamped upstream, outside IdentityCore).
-        NSArray<NSString *> *stepIds = [self stepIdsFromOnboardingBuilder:parameters.onboardingBlobBuilder];
-        XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepMdmEnrollmentFinished]);
-        XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryStarted]);
-        XCTAssertFalse([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryFailed]);
-        XCTAssertEqualObjects(stepIds.lastObject, MSIDOnboardingBlobStepTokenRequestRetryStarted);
 
         [expectation fulfill];
     }];
@@ -980,7 +944,6 @@
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_mdm_retry_failure";
-    parameters.onboardingBlobBuilder = [self onboardingBuilder];
 
     NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=success"];
     MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
@@ -1031,12 +994,6 @@
         XCTAssertNotNil(acquireTokenError);
         XCTAssertEqualObjects(acquireTokenError, retryError);
         XCTAssertEqual(retryController.acquireTokenCalledCount, 1u);
-
-        // Retry telemetry: Started stamped before the retry, Failed stamped on the error result.
-        NSArray<NSString *> *stepIds = [self stepIdsFromOnboardingBuilder:parameters.onboardingBlobBuilder];
-        XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryStarted]);
-        XCTAssertTrue([stepIds containsObject:MSIDOnboardingBlobStepTokenRequestRetryFailed]);
-        XCTAssertEqualObjects(stepIds.lastObject, MSIDOnboardingBlobStepTokenRequestRetryFailed);
 
         [expectation fulfill];
     }];

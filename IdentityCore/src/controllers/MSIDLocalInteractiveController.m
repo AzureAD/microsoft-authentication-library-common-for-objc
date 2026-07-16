@@ -24,8 +24,6 @@
 #import "MSIDLocalInteractiveController+Internal.h"
 #import "MSIDInteractiveTokenRequest+Internal.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
-#import "MSIDOnboardingBlobBuilder.h"
-#import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDWebviewConstants.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Internal.h"
@@ -289,13 +287,11 @@
         return;
     }
     
-    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.interactiveRequestParamaters.onboardingBlobBuilder;
     NSString *status = mdmEnrollmentCompletionResponse.status ?: @"<none>";
 
     // Failure path: MDM enrollment did not complete.
     if (!mdmEnrollmentCompletionResponse.isSuccess)
     {
-        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFailed timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters,
                           @"MDM enrollment failed (status=%@).", status);
 
@@ -313,9 +309,7 @@
         return;
     }
 
-    // MDM enrollment complete. Stamp the terminal onboarding step based on the parsed status.
-    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentFinished timestamp:[NSDate date]];
-
+    // MDM enrollment complete.
     // Retry the token request through the appropriate controller.
     // If broker is installed and SSO extension is active, the factory returns the SSO controller.
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters,
@@ -352,19 +346,7 @@
     CONDITIONAL_STOP_TELEMETRY_EVENT([self telemetryAPIEvent], nil);
 
     // Retry the request; the result flows back to the caller via completionBlock.
-    // Stamp the retry outcome onto the onboarding blob (free-form passthrough steps).
-    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepTokenRequestRetryStarted timestamp:[NSDate date]];
-
-    MSIDRequestCompletionBlock retryCompletion = ^(MSIDTokenResult *result, NSError *error)
-    {
-        if (error)
-        {
-            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepTokenRequestRetryFailed timestamp:[NSDate date]];
-        }
-        completionBlock(result, error);
-    };
-
-    [brokerController acquireToken:retryCompletion];
+    [brokerController acquireToken:completionBlock];
 }
 
 #pragma mark - Webview Navigation Delegate

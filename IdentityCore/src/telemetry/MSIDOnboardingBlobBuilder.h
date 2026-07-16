@@ -80,10 +80,21 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingSeedClassification)
                    responseURL:(NSURL *)responseURL;
 
 /// Flag indicating whether the strong-auth (MFA) setup step has been recorded during
-/// the session. The base webview controller uses strongAuthSetupStarted in
-/// finalizeOnboardingTelemetry:error: to decide whether to stamp StrongAuthSetupCompleted;
-/// MDM completion is stamped elsewhere.
+/// the session. `finalizeForEndURL:error:` reads this to decide whether to stamp
+/// StrongAuthSetupCompleted on the success path; MDM completion is stamped elsewhere.
 @property (nonatomic, readonly) BOOL strongAuthSetupStarted;
+
+/// Records the terminal onboarding steps when the web flow ends. On the success path
+/// (non-nil `endURL` and nil `error`) stamps StrongAuthSetupCompleted if the strong-auth
+/// setup step was recorded during the session. Independently, if `endURL` points at a
+/// well-known MDM-enrollment fwlink, stamps the mapped enrollment step. Safe to call on
+/// either the success or failure path.
+- (void)finalizeForEndURL:(nullable NSURL *)endURL error:(nullable NSError *)error;
+
+/// Maps a terminal `endURL` that points at a well-known go.microsoft.com fwlink
+/// (browser://go.microsoft.com/fwlink[/]?...LinkId=<id>...) to the onboarding step
+/// that should be recorded. Returns nil for any URL that is not a recognized fwlink.
++ (nullable NSString *)onboardingStepForEndURL:(nullable NSURL *)endURL;
 
 /// Returns the accumulated blob serialized as JSON. Always populated when the builder
 /// was constructed (carries the seed fields plus any recorded steps, blocking errors,

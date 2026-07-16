@@ -179,7 +179,7 @@
     NSString *intuneURLString = [params[MSID_INTUNE_URL_KEY] stringByTrimmingCharactersInSet:whitespace];
     if (intuneURLString.length == 0)
     {
-        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed timestamp:[NSDate date]];
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentUrlMissing timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Enroll] Missing required intuneUrl parameter in msauth enrollment URL.");
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
@@ -316,7 +316,7 @@
     NSString *profileInstallURL = [params[MSID_INTUNE_PROFILE_INSTALL_URL_KEY] stringByTrimmingCharactersInSet:whitespace];
     if (profileInstallURL.length == 0)
     {
-        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallUrlMalformed timestamp:[NSDate date]];
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallUrlMissing timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[ProfileDownload] Missing required profile install URL in profile download completion redirect.");
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
@@ -444,7 +444,7 @@
     NSString *intuneURLString = [params[MSID_INTUNE_URL_KEY] stringByTrimmingCharactersInSet:whitespace];
     if (intuneURLString.length == 0)
     {
-        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRequestMalformed timestamp:[NSDate date]];
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRemediationUrlMissing timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Compliance] Missing required intuneUrl parameter in msauth compliance URL.");
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
@@ -478,7 +478,7 @@
 
     if (!request)
     {
-        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRequestMalformed timestamp:[NSDate date]];
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRemediationRequestMalformed timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Compliance] Failed to build compliance request from intuneUrl: %@", MSID_PII_LOG_MASKABLE(decodedIntuneURL));
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,

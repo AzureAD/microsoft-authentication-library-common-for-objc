@@ -74,7 +74,10 @@ extern NSString * const MSIDOnboardingBlobStepMdmProfileInstallNotificationSched
 extern NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed;
-extern NSString * const MSIDOnboardingBlobStepComplianceRequestMalformed;
+extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentUrlMissing;
+extern NSString * const MSIDOnboardingBlobStepComplianceRemediationRequestMalformed;
+extern NSString * const MSIDOnboardingBlobStepComplianceRemediationUrlMissing;
+extern NSString * const MSIDOnboardingBlobStepProfileInstallUrlMissing;
 extern NSString * const MSIDOnboardingBlobStepProfileInstallUrlMalformed;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentFailed;
 extern NSString * const MSIDOnboardingBlobStepProfileDownloadFlowStarted;
@@ -83,7 +86,6 @@ extern NSString * const MSIDOnboardingBlobStepProfileDownloadFlowFailed;
 
 // Token-request retry after MDM enrollment completes (free-form passthrough; not C++-aggregated).
 extern NSString * const MSIDOnboardingBlobStepTokenRequestRetryStarted;
-extern NSString * const MSIDOnboardingBlobStepTokenRequestRetryFailed;
 
 // Step ID values used in C++ aggregation. Values must match
 // MSAIOnboardingBlobConstants (Djinni-generated) byte-for-byte.
