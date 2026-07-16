@@ -30,6 +30,9 @@
 #import "MSIDRequestContext.h"
 #import "MSIDWebviewNavigationDelegate.h"
 #import "MSIDWebviewConstants.h"
+#import "MSIDConstants.h"
+#import "MSIDUXCallbackProvider.h"
+#import "MSIDFlightManager.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -214,6 +217,13 @@
     }
     
     NSString *redirectURI = [NSString stringWithFormat:@"%@://", callbackURLScheme];
+
+    // Schedule the MDM profile-installed reminder *before* handing off to the system
+    // browser/Settings, so it can fire while the user is away installing the profile.
+    // The post-return `profile_download_complete` callback arrives only after the user is
+    // back in Authenticator (foreground), at which point the banner would be suppressed.
+    [self scheduleMDMProfileInstalledNotificationIfNeededForURL:URL];
+
     // Launch ASWebAuthenticationSession with the provided URL and configuration
     [[MSIDSystemWebviewTransitionManager sharedInstance] transitionToSystemWebviewWithURL:URL
                                                                               redirectURI:redirectURI
@@ -249,6 +259,45 @@
         
         completion(navigationDecision, nil);
     }];
+}
+
+// Arms the MDM profile-installed reminder when the profile-download hand-off begins.
+//
+// This is invoked right before the profile-download ASWebAuthenticationSession is presented,
+// i.e. before the user leaves for Settings. A delayed local notification scheduled here fires
+// while Authenticator is backgrounded (user still in Settings) so the banner is actually shown.
+// Scheduling on the later `profile_download_complete` callback is too late: that callback only
+// arrives after the user returns and the app is foreground again, where banners are suppressed.
+- (void)scheduleMDMProfileInstalledNotificationIfNeededForURL:(NSURL *)URL
+{
+    // Only arm for the MDM profile-download hand-off, not for other ASWebAuthenticationSession transitions.
+    if ([URL.absoluteString rangeOfString:@"downloadprofile" options:NSCaseInsensitiveSearch].location == NSNotFound)
+    {
+        return;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                      @"[ProfileDownload] Detected MDM profile-download hand-off; scheduling profile-installed notification before system webview transition.");
+
+    NSString *delayString = [[MSIDFlightManager sharedInstance] stringForKey:MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY];
+    NSTimeInterval delay = delayString.length > 0 ? delayString.doubleValue : MSIDMDMProfileInstalledNotificationDefaultDelay;
+    if (delay <= 0)
+    {
+        delay = MSIDMDMProfileInstalledNotificationDefaultDelay;
+    }
+
+    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
+    if (provider)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                          @"[ProfileDownload] Scheduling MDM profile-installed notification with delay %.2f seconds.", delay);
+        [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                          @"[ProfileDownload] No UX callback provider registered; cannot schedule MDM profile-installed notification.");
+    }
 }
 
 #endif // !MSID_EXCLUDE_SYSTEMWV
