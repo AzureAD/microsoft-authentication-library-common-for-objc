@@ -73,7 +73,10 @@ typedef unsigned char byte;
 
 + (BOOL)msidIsStringNilOrBlank:(NSString *)string
 {
-    if (!string || [string isKindOfClass:[NSNull class]] || !string.length)
+    // Treat any non-NSString (nil, NSNull, or a mis-typed value such as an NSNumber/__NSCFBoolean
+    // decoded from JSON or an MDM configuration plist) as blank, rather than sending -length to it
+    // and raising an unrecognized-selector exception.
+    if (!string || ![string isKindOfClass:[NSString class]] || !string.length)
     {
         return YES;
     }

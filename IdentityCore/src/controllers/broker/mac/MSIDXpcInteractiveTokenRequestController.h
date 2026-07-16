@@ -24,6 +24,7 @@
 
 
 #import "MSIDLocalInteractiveController.h"
+#import "MSIDXpcCanPerformFailureReason.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,6 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                         error:(NSError * _Nullable __autoreleasing * _Nullable)error NS_DESIGNATED_INITIALIZER;
 
 + (BOOL)canPerformRequest;
+
+// Same as canPerformRequest above, but additionally reports the specific reason for a NO result via the
+// reason out-param, so external callers can surface it to their own telemetry. The reason is left
+// untouched if the caller passes nil.
++ (BOOL)canPerformRequest:(MSIDXpcCanPerformFailureReason * _Nullable)reason;
 
 @end
 

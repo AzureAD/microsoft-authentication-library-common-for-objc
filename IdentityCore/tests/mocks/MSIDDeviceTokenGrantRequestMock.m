@@ -20,23 +20,32 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import "MSIDDeviceTokenGrantRequestMock.h"
 
-#import "MSIDSilentController.h"
-#import "MSIDXpcCanPerformFailureReason.h"
+@implementation MSIDDeviceTokenGrantRequestMock
 
-NS_ASSUME_NONNULL_BEGIN
+- (NSString *)getTokenRedemptionJwtForResource:(__unused NSString *)resource
+                                        scopes:(__unused NSSet *)scopes
+                                   redirectUri:(__unused NSString *)redirectUri
+                                      audience:(__unused NSString *)audience
+                                      clientId:(__unused NSString *)clientId
+                            extraPayloadClaims:(__unused NSDictionary *)extraPayloadClaims
+                                       context:(__unused id<MSIDRequestContext>)context
+                                         error:(__unused NSError * __autoreleasing *)error
+{
+    return @"fake.device.jwt";
+}
 
-@interface MSIDXpcSilentTokenRequestController : MSIDSilentController
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
+{
+    self.sendWithBlockCalled = YES;
 
-+ (BOOL)canPerformRequest;
-
-// Same as canPerformRequest above, but additionally reports the specific reason for a NO result via the
-// reason out-param, so external callers can surface it to their own telemetry. The reason is left
-// untouched if the caller passes nil.
-+ (BOOL)canPerformRequest:(MSIDXpcCanPerformFailureReason * _Nullable)reason;
+    if (completionBlock)
+    {
+        completionBlock(self.expectedResponse, self.expectedError);
+    }
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

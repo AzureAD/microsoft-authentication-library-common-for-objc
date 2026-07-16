@@ -34,6 +34,8 @@
 
 @implementation MSIDFlightManager
 
+@synthesize flightProvider = _flightProvider;
+
 + (instancetype)sharedInstance
 {
     static MSIDFlightManager *sharedInstance = nil;
@@ -122,9 +124,22 @@
     });
 }
 
+- (id<MSIDFlightManagerInterface>)flightProvider
+{
+    __block id<MSIDFlightManagerInterface> flightProvider = nil;
+    // Read on the synchronization queue so external callers are serialized against the
+    // barrier write in setFlightProvider:, matching the internal readers below. Capturing
+    // into a strong local keeps the provider alive for the duration of the call.
+    dispatch_sync(self.synchronizationQueue, ^{
+        flightProvider = self->_flightProvider;
+    });
+    
+    return flightProvider;
+}
+
 #pragma mark - MSIDFlightManagerInterface
 
-- (BOOL)boolForKey:(nonnull NSString *)flightKey 
+- (BOOL)boolForKey:(nonnull NSString *)flightKey
 {
     // Capture a strong reference to the provider on the synchronization queue so a concurrent
     // setFlightProvider: cannot deallocate it (use-after-free -> SIGSEGV). Invoke the provider

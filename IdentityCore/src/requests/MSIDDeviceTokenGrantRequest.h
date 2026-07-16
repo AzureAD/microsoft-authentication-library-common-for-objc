@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) MSIDWPJKeyPairWithCert *wpjInfo;
 
+@property (nonatomic, nullable) NSString *nonce;
+
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
                           requestParameters:(nonnull MSIDRequestParameters *)requestParameters
                                      scopes:(nullable NSString *)scope
