@@ -287,7 +287,7 @@
                                                              statusCode:200
                                                             HTTPVersion:@"HTTP/1.1"
                                                            headerFields:@{@"x-ms-clitelem": @"2,50079,0,,"}];
-    [webVC processOnboardingTelemetryForResponse:response];
+    [webVC.onboardingBlobBuilder processResponseHeaders:response.allHeaderFields responseURL:response.URL];
     XCTAssertTrue(builder.strongAuthSetupStarted);
 
     [webVC.onboardingBlobBuilder finalizeForEndURL:[NSURL URLWithString:@"https://contoso.com/done"] error:nil];

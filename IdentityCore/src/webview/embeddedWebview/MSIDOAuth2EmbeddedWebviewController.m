@@ -417,7 +417,11 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         else
         {
             // Legacy flow: process onboarding telemetry locally.
-            [self processOnboardingTelemetryForResponse:response];
+            MSIDOnboardingBlobBuilder *builder = self.onboardingBlobBuilder;
+            if (builder && response)
+            {
+                [builder processResponseHeaders:response.allHeaderFields responseURL:response.URL];
+            }
         }
 
         if (self.navigationResponseBlock)
@@ -781,19 +785,6 @@ initiatedByFrame:(WKFrameInfo *)frame
             }
         }
     }];
-}
-
-#pragma mark - Onboarding telemetry
-
-- (void)processOnboardingTelemetryForResponse:(NSHTTPURLResponse *)response
-{
-    MSIDOnboardingBlobBuilder *builder = self.onboardingBlobBuilder;
-    if (!builder || !response)
-    {
-        return;
-    }
-
-    [builder processResponseHeaders:response.allHeaderFields responseURL:response.URL];
 }
 
 @end

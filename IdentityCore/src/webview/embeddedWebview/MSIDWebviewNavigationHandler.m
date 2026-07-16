@@ -118,9 +118,10 @@
     // This records blocking errors (x-ms-clitelem) and last-loaded domain.
     MSIDOnboardingBlobBuilder *builder = embeddedWebviewController.onboardingBlobBuilder;
     self.onboardingBlobBuilder = builder;
-    // Route through the controller so the response headers are processed once and the
-    // controller's local onboarding flags stay in sync, keeping parity with the legacy flow.
-    [embeddedWebviewController processOnboardingTelemetryForResponse:response];
+    if (builder && response)
+    {
+        [builder processResponseHeaders:response.allHeaderFields responseURL:response.URL];
+    }
 
     NSString *handoffURLString = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_URL_KEY];
     BOOL hasHandoffHeader = [handoffURLString isKindOfClass:NSString.class] && ((NSString *)handoffURLString).length > 0;
