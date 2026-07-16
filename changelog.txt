@@ -1,5 +1,7 @@
 TBD
 * Add telemetry for the new mobile onboarding flows and refactor the onboarding telemetry pipeline: thread onboarding-blob step fields through the embedded-webview navigation layer (MSIDWebviewNavigationHandler/MSIDWebviewNavigationDelegate/MSIDWebviewNavigationDecisionResolver) and record new step keys via MSIDOnboardingBlobBuilder, covering both broker and non-broker interactive flows. (#1897)
+* Add device token util for common usage in MSAL and oneauth (#1886)
+* Fix a data race in MSIDFlightManager: boolForKey:/stringForKey: read the flight provider once from inside the synchronization queue into a strong local instead of testing it through the unsynchronized property getter first, preventing a use-after-free when a concurrent setFlightProvider: swaps/releases the provider mid-read. Also serialize the public flightProvider getter through the same queue so external callers no longer race the barrier setter.
 * Harden +[NSString(MSIDExtensions) msidIsStringNilOrBlank:] to treat any non-NSString argument (e.g. an NSNumber/__NSCFBoolean decoded from JSON or an MDM configuration plist) as blank instead of sending -length to it and raising an unrecognized-selector exception.
 * Gate the reqCnf presence validation for Pop token requests in MSIDBrowserNativeMessageGetTokenRequest behind the browser_core_disable_reqcnf_validation flight (kill switch, validation enabled by default).
 * iOS: opt-in test injection hook for in-process CBA challenge handling #1889
