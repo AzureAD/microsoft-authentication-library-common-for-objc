@@ -62,11 +62,11 @@ NSString * const MSIDOnboardingBlobStepTokenIssued = @"TokenIssued";
 
 // New mobile-onboarding funnel steps
 NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted = @"ProfileDownloadCompleted";
-NSString * const MSIDOnboardingBlobStepComplianceRemediationStarted = @"ComplianceRemediationStarted";
-NSString * const MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback = @"MobileOnboardingClientDisabledFallback";
-NSString * const MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled = @"MDMProfileInstallNotificationScheduled";
+NSString * const MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect = @"ComplianceRemediationMSAuthRedirect";
+NSString * const MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback = @"MobileOnboardingClientFlightDisabledLegacyFallback";
+NSString * const MSIDOnboardingBlobStepProfileInstallNotificationScheduled = @"ProfileInstallNotificationScheduled";
 NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable = @"SSOExtensionUnavailable";
-NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded = @"MDMEnrollmentCompletionFallbackErrorUrlLoaded";
+NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionRetryStarted = @"MDMEnrollmentCompletionRetryStarted";
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed = @"MDMEnrollmentRequestMalformed";
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentUrlMissing = @"MDMEnrollmentUrlMissing";
 NSString * const MSIDOnboardingBlobStepComplianceRemediationRequestMalformed = @"ComplianceRemediationRequestMalformed";

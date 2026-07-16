@@ -575,7 +575,7 @@
     XCTAssertTrue(params.isNewMobileOnboardingFlow);
 }
 
-- (void)testDecidePolicyForNavigationAction_whenMsauthEnrollAndOnboardingDisabledWithValidIntuneUrl_shouldStampClientDisabledFallback
+- (void)testDecidePolicyForNavigationAction_whenMsauthEnrollAndOnboardingDisabledWithValidIntuneUrl_shouldStampClientFlightDisabledLegacyFallback
 {
     self.flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING: @YES };
 
@@ -594,7 +594,7 @@
     }];
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
-    XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback]);
+    XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback]);
     XCTAssertFalse(params.isNewMobileOnboardingFlow);
 }
 
@@ -616,7 +616,7 @@
     }];
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 
-    XCTAssertFalse([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback]);
+    XCTAssertFalse([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback]);
     XCTAssertFalse([[builder msidUxFlowsUsed] containsObject:MSIDOnboardingUxFlowMobileOnboardingPhase1]);
 }
 

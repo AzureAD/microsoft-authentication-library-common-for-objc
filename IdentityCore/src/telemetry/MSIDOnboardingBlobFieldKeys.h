@@ -68,11 +68,11 @@ extern NSString * const MSIDOnboardingBlobStepTokenIssued;
 
 // New mobile-onboarding funnel steps (free-form passthrough; not C++-aggregated).
 extern NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted;
-extern NSString * const MSIDOnboardingBlobStepComplianceRemediationStarted;
-extern NSString * const MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback;
-extern NSString * const MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled;
+extern NSString * const MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect;
+extern NSString * const MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback;
+extern NSString * const MSIDOnboardingBlobStepProfileInstallNotificationScheduled;
 extern NSString * const MSIDOnboardingBlobStepSSOExtensionUnavailable;
-extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded;
+extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentCompletionRetryStarted;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed;
 extern NSString * const MSIDOnboardingBlobStepMdmEnrollmentUrlMissing;
 extern NSString * const MSIDOnboardingBlobStepComplianceRemediationRequestMalformed;

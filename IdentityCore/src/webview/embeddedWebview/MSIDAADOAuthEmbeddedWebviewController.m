@@ -147,7 +147,7 @@
 
             if (legacyBrowserURL)
             {
-                [self.onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMobileOnboardingClientDisabledFallback
+                [self.onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMobileOnboardingClientFlightDisabledLegacyFallback
                                           timestamp:[NSDate date]];
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
                     @"Mobile onboarding disabled on client; falling back to legacy "

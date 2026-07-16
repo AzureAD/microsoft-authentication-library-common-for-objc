@@ -854,7 +854,7 @@
 
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     NSArray<NSString *> *steps = [builder msidStampedStepIds];
-    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled]);
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadCompleted]);
 }
 
@@ -873,10 +873,10 @@
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     NSArray<NSString *> *steps = [builder msidStampedStepIds];
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadCompleted]);
-    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled]);
 }
 
-- (void)testResolveCompliance_whenValidIntuneUrl_shouldStampComplianceRemediationStarted
+- (void)testResolveCompliance_whenValidIntuneUrl_shouldStampComplianceRemediationMSAuthRedirect
 {
     MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
     MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
@@ -886,7 +886,7 @@
 
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     NSArray<NSString *> *steps = [builder msidStampedStepIds];
-    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationStarted]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect]);
     XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationRequestMalformed]);
 }
 
@@ -900,7 +900,7 @@
 
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     NSArray<NSString *> *steps = [builder msidStampedStepIds];
-    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationStarted]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect]);
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationUrlMissing]);
 }
 
@@ -920,7 +920,7 @@
     XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepSSOExtensionUnavailable]);
 }
 
-- (void)testResolveEnrollmentCompletion_whenSSOUnavailableWithErrorURL_shouldStampFallbackErrorUrlLoaded
+- (void)testResolveEnrollmentCompletion_whenSSOUnavailableWithErrorURL_shouldStampMdmEnrollmentCompletionRetryStarted
 {
     [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
                            class:[MSIDSSOExtensionInteractiveTokenRequestController class]
@@ -937,7 +937,7 @@
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     NSArray<NSString *> *steps = [builder msidStampedStepIds];
     XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepSSOExtensionUnavailable]);
-    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentCompletionRetryStarted]);
 }
 
 @end

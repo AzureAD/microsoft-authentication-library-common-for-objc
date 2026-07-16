@@ -362,7 +362,7 @@
     if (provider)
     {
         [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
-        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmProfileInstallNotificationScheduled timestamp:[NSDate date]];
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallNotificationScheduled timestamp:[NSDate date]];
     }
 
     [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadCompleted timestamp:[NSDate date]];
@@ -411,7 +411,7 @@
         NSURL *errorURL = [NSURL URLWithString:decodedErrorUrlString];
         if (errorURL)
         {
-            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentCompletionFallbackErrorUrlLoaded timestamp:[NSDate date]];
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentCompletionRetryStarted timestamp:[NSDate date]];
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] Loading fallback error URL in webview (host: '%@').", errorURL.host);
             return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:errorURL]];
         }
@@ -435,7 +435,7 @@
                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
-    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRemediationStarted timestamp:[NSDate date]];
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect timestamp:[NSDate date]];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Building compliance request from msauth redirect.");
 
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
