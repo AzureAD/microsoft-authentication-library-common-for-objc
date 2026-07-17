@@ -44,6 +44,8 @@
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDWebAuthNUtil.h"
 #import "MSIDInteractiveRequestParameters.h"
+#import "MSIDExecutionFlowConstants.h"
+#import "MSIDExecutionFlowLogger.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -530,6 +532,21 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     
     if (self.customHeaderProvider)
     {
+        // Only forward custom headers to a known AAD host, consistent with the AAD host check used for other AAD requests.
+        NSString *requestHost = requestURL.host.lowercaseString;
+        if (![MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:requestHost])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Skipped attaching custom headers because the navigation host is not a known AAD host.");
+
+            if (self.context.correlationId)
+            {
+                MSIDExecutionFlowInsertTag(MSIDCustomHeaderTagToString(MSIDCustomHeaderSkippedUntrustedHostTag), nil, self.context.correlationId);
+            }
+
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return;
+        }
+
         [self.customHeaderProvider getCustomHeaders:navigationAction.request
                                             forHost:requestURL.host
                                     completionBlock:^(NSDictionary<NSString *, NSString *> *extraHeaders, NSError *error){
@@ -544,6 +561,11 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
                         {
                             [newUrlRequest setValue:extraHeaders[headerKey] forHTTPHeaderField:headerKey];
                         }
+                    }
+
+                    if (self.context.correlationId)
+                    {
+                        MSIDExecutionFlowInsertTag(MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag), nil, self.context.correlationId);
                     }
                     
                     decisionHandler(WKNavigationActionPolicyCancel);
