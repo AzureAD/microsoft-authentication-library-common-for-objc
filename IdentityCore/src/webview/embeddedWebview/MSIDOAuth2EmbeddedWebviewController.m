@@ -31,6 +31,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAADNetworkConfiguration.h"
+#import "MSIDConstants.h"
 #import "MSIDNotifications.h"
 
 #import "MSIDTelemetry+Internal.h"
@@ -479,6 +480,39 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     return ([scheme isEqualToString:@"https"] && !targetFrame) || ![scheme hasPrefix:@"http"];
 }
 
+// Defense-in-depth: the customHeaderProvider may attach sensitive request headers, so only
+// invoke it for known AAD authority hosts. This adds a framework-level trusted-host allow-list
+// (the same host set used elsewhere in the AAD webview path) instead of relying solely on the
+// https scheme check and the provider's own host handling.
+- (BOOL)msidShouldProvideCustomHeadersForHost:(NSString *)host
+{
+    static NSSet<NSString *> *trustedHosts = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        trustedHosts = [NSSet setWithArray:@[
+            MSIDTrustedAuthority,
+            MSIDTrustedAuthorityUS,
+            MSIDTrustedAuthorityChina,
+            MSIDTrustedAuthorityChina2,
+            MSIDTrustedAuthorityGermany,
+            MSIDTrustedAuthorityFrance,
+            MSIDTrustedAuthorityDelos,
+            MSIDTrustedAuthorityGovSG,
+            MSIDTrustedAuthorityWorldWide,
+            MSIDTrustedAuthorityUSGovernment,
+            MSIDTrustedAuthorityCloudGovApi
+        ]];
+    });
+
+    BOOL trusted = host.length > 0 && [trustedHosts containsObject:host.lowercaseString];
+    if (!trusted)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.context, @"Navigation host %@ is not in the framework trusted-authority allow-list; skipping custom header provider.", MSID_PII_LOG_TRACKABLE(host));
+    }
+
+    return trusted;
+}
+
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                 webview:(__unused WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
@@ -528,7 +562,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
         return;
     }
     
-    if (self.customHeaderProvider)
+    if (self.customHeaderProvider && [self msidShouldProvideCustomHeadersForHost:requestURL.host])
     {
         [self.customHeaderProvider getCustomHeaders:navigationAction.request
                                             forHost:requestURL.host
