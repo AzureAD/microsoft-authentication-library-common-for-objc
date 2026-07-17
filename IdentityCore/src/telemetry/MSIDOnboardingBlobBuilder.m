@@ -25,6 +25,8 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDSessionCachePersistence.h"
+#import "NSString+MSIDExtensions.h"
+#import "MSIDOAuth2Constants.h"
 
 // Seed field keys — must match xplat core (Djinni-generated constants).
 static NSString *const MSID_ONBOARDING_FIELD_SCHEMA_VERSION = @"schema_version";
@@ -81,6 +83,8 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
 @property (nonatomic, copy, nullable) NSString *lastLoadedDomain;
 
 @property (nonatomic) MSIDSessionCachePersistence *sessionCachePersistence;
+
+@property (nonatomic, readwrite) BOOL strongAuthSetupStarted;
 
 @end
 
@@ -248,6 +252,98 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     }
 }
 
+#pragma mark - HTTP Response Telemetry Processing
+
+// Error codes that are returned during normal sign-in flow and should not be
+// treated as blocking onboarding errors.
+//   50058  UserInformationNotProvided      - User not signed in / no valid SSO session found
+//   50097  DeviceAuthenticationRequired    - Device auth interrupt triggered by CA policy
+//   50126  InvalidUserNameOrPassword       - Wrong username or password
++ (NSSet<NSString *> *)nonBlockingOnboardingErrorCodes
+{
+    static NSSet<NSString *> *codes = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        codes = [NSSet setWithObjects:@"50058", @"50097", @"50126", nil];
+    });
+    return codes;
+}
+
+- (void)processResponseHeaders:(NSDictionary *)headers responseURL:(NSURL *)responseURL
+{
+    NSString *host = responseURL.host;
+    if (host.length > 0)
+    {
+        [self setLastLoadedDomain:host];
+    }
+
+    NSString *cliTelem = headers[MSID_OAUTH2_CLIENT_TELEMETRY];
+    if ([NSString msidIsStringNilOrBlank:cliTelem])
+    {
+        return;
+    }
+
+    // Format: <version>,<error_code>,<suberror_code>,<rt_age>,<spe_info>
+    NSArray *components = [cliTelem componentsSeparatedByString:@","];
+    if (components.count < 2)
+    {
+        return;
+    }
+
+    NSString *errorCode = [components[1] msidTrimmedString];
+    if (errorCode.length == 0 || [errorCode isEqualToString:@"0"])
+    {
+        return;
+    }
+
+    if ([[self.class nonBlockingOnboardingErrorCodes] containsObject:errorCode])
+    {
+        return;
+    }
+
+    [self addBlockingError:errorCode];
+    [self recordRemediationStepForErrorCode:errorCode];
+}
+
+- (void)recordRemediationStepForErrorCode:(NSString *)errorCode
+{
+    NSDate *now = [NSDate date];
+
+    // 50079: Strong auth enrollment needed (MFA setup, not MFA fulfillment like 50076/50078)
+    if ([errorCode isEqualToString:@"50079"] && !self.strongAuthSetupStarted)
+    {
+        [self addStep:MSIDOnboardingBlobStepStrongAuthSetupStarted timestamp:now];
+        self.strongAuthSetupStarted = YES;
+    }
+    // 50129 (DeviceIsNotWorkplaceJoined), 501291 (DeviceIsNotWorkplaceJoinedForMamApp): device registration needed
+    else if ([errorCode isEqualToString:@"50129"] || [errorCode isEqualToString:@"501291"])
+    {
+        [self addStep:MSIDOnboardingBlobStepDeviceRegistrationRequired timestamp:now];
+    }
+    // 530001, 530002: Device not compliant
+    else if ([errorCode isEqualToString:@"530001"] || [errorCode isEqualToString:@"530002"])
+    {
+        [self addStep:MSIDOnboardingBlobStepDeviceNotCompliant timestamp:now];
+    }
+    // 53000, 530003: MDM enrollment required
+    else if ([errorCode isEqualToString:@"53000"] || [errorCode isEqualToString:@"530003"])
+    {
+        [self addStep:MSIDOnboardingBlobStepMdmEnrollmentRequired timestamp:now];
+    }
+    // 50127: MAM app, device not registered
+    else if ([errorCode isEqualToString:@"50127"])
+    {
+        [self addStep:MSIDOnboardingBlobStepBrokerInstallPromptedForMAM timestamp:now];
+    }
+    // 501271: Broker app needs to be installed
+    else if ([errorCode isEqualToString:@"501271"])
+    {
+        [self addStep:MSIDOnboardingBlobStepBrokerInstallPrompted timestamp:now];
+    }
+
+    // All other error codes (50076, 50078, 53005, 53003, etc.): blocking error only, no step.
+}
+
 - (NSString *)finalizeBlob
 {
     NSMutableDictionary *blob = [NSMutableDictionary dictionary];
@@ -294,6 +390,92 @@ static NSDictionary * _Nullable MSIDOnboardingParseSeedDictionary(NSString * _Nu
     }
 
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] ?: @"";
+}
+
+- (void)finalizeForEndURL:(NSURL *)endURL error:(NSError *)error
+{
+    BOOL flowSucceeded = (endURL != nil && error == nil);
+    if (flowSucceeded && self.strongAuthSetupStarted)
+    {
+        // MDMEnrollmentFinished is stamped from the in_app_enrollment_complete redirect.
+        [self addStep:MSIDOnboardingBlobStepStrongAuthSetupCompleted timestamp:[NSDate date]];
+    }
+
+    NSString *endUrlStep = [MSIDOnboardingBlobBuilder onboardingStepForEndURL:endURL];
+    if (endUrlStep)
+    {
+        [self addStep:endUrlStep timestamp:[NSDate date]];
+    }
+}
+
+// Maps a terminal endURL that points at a well-known go.microsoft.com fwlink
+// (browser://go.microsoft.com/fwlink[/]?...LinkId=<id>...) to the onboarding
+// step that should be recorded against the current blob. The LinkId-to-step
+// map is the single extension point: new LinkIds (potentially mapping to a
+// different step) just add entries here.
++ (NSString *)onboardingStepForEndURL:(NSURL *)endURL
+{
+    if (!endURL)
+    {
+        return nil;
+    }
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:endURL resolvingAgainstBaseURL:NO];
+    if (!components)
+    {
+        return nil;
+    }
+
+    if ([components.scheme caseInsensitiveCompare:@"browser"] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    if ([components.host caseInsensitiveCompare:@"go.microsoft.com"] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    NSString *path = components.path;
+    if ([path caseInsensitiveCompare:@"/fwlink"] != NSOrderedSame
+        && [path caseInsensitiveCompare:@"/fwlink/"] != NSOrderedSame)
+    {
+        return nil;
+    }
+
+    NSString *linkIdValue = nil;
+    for (NSURLQueryItem *item in components.queryItems)
+    {
+        if ([item.name caseInsensitiveCompare:@"LinkId"] == NSOrderedSame)
+        {
+            linkIdValue = item.value;
+            break;
+        }
+    }
+
+    if (linkIdValue.length == 0)
+    {
+        return nil;
+    }
+
+    return [[self onboardingStepsByFwlinkLinkId] objectForKey:linkIdValue];
+}
+
+// LinkId value -> onboarding step constant. Extension point: future LinkIds
+// (which may map to a different onboarding step) are added here.
++ (NSDictionary<NSString *, NSString *> *)onboardingStepsByFwlinkLinkId
+{
+    static NSDictionary<NSString *, NSString *> *map = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        map = @{
+            @"396941"  : MSIDOnboardingBlobStepMdmEnrollmentStarted, // Public
+            @"2132314" : MSIDOnboardingBlobStepMdmEnrollmentStarted, // China
+            @"2114747" : MSIDOnboardingBlobStepMdmEnrollmentStarted, // GOV
+            @"399153"  : MSIDOnboardingBlobStepMdmEnrollmentStarted, // PPE
+        };
+    });
+    return map;
 }
 
 @end
