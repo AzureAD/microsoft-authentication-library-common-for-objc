@@ -179,9 +179,9 @@ NSString *MSIDCustomHeaderTagToString(MSIDCustomHeaderTag state)
     switch (state)
     {
         case MSIDCustomHeaderAddedTag:
-            return @"UNTAGGED";
+            return @"qiq7c";
         case MSIDCustomHeaderSkippedUntrustedHostTag:
-            return @"UNTAGGED";
+            return @"vz1lh";
     }
     // Fallback for any future enum values
     return [NSString stringWithFormat:@"MSIDCustomHeaderTag(%ld)", (long)state];
