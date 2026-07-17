@@ -65,3 +65,8 @@ NSString * const MSIDOnboardingBlobStepMdmEnrollmentStarted = @"MDMEnrollmentSta
 NSString * const MSIDOnboardingBlobStepMdmEnrollmentFinished = @"MDMEnrollmentFinished";
 NSString * const MSIDOnboardingBlobStepRemediationStarted = @"RemediationStarted";
 NSString * const MSIDOnboardingBlobStepRemediationFinished = @"RemediationFinished";
+NSString * const MSIDOnboardingBlobStepComplianceRemediationStarted = @"ComplianceRemediationStarted";
+NSString * const MSIDOnboardingBlobStepProfileDownloadCompleted = @"ProfileDownloadCompleted";
+
+// UX flow tag values
+NSString * const MSIDOnboardingUxFlowMobileOnboardingPhase1 = @"MobileOnboardingPhase1";

@@ -71,6 +71,19 @@ typedef NS_ENUM(NSInteger, MSIDOnboardingSeedClassification)
 /// itself, sufficient evidence that this session is brokered.
 - (void)ensureBrokeredOnboardingMode;
 
+/// Processes navigation response data for onboarding telemetry signals.
+/// Extracts last-loaded domain from the URL host, reads blocking errors
+/// from the x-ms-clitelem header, and records remediation steps for known error codes.
+/// This consolidates the logic previously in processOnboardingTelemetryForResponse:
+/// so it can be called from both the base webview controller and the navigation handler.
+- (void)processResponseHeaders:(NSDictionary *)headers responseURL:(NSURL *)responseURL;
+
+/// Flags indicating which remediation steps have been recorded. Used by the base
+/// webview controller's finalizeOnboardingTelemetry:error: to decide which completion
+/// steps (StrongAuthSetupCompleted, MdmEnrollmentFinished) to add at flow end.
+@property (nonatomic, readonly) BOOL strongAuthSetupStarted;
+@property (nonatomic, readonly) BOOL mdmEnrollmentStarted;
+
 /// Returns the accumulated blob serialized as JSON. Always populated when the builder
 /// was constructed (carries the seed fields plus any recorded steps, blocking errors,
 /// ux flow, and last loaded domain). Returns @"" only if JSON serialization fails.
