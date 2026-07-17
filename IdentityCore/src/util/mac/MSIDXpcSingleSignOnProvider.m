@@ -67,6 +67,29 @@
 #import "MSIDXpcProviderCaching.h"
 #import "MSIDFlightManager.h"
 
+static const NSTimeInterval MSIDXpcDispatcherEndpointLookupTimeout = 10.0;
+static const NSTimeInterval MSIDXpcBrokerReplyTimeout = 60.0;
+
+// Interactive broker requests are gated on real user interaction (password, MFA, consent) and
+// therefore have no safe upper bound. Applying the fixed broker-reply watchdog to them could abort
+// a legitimate in-progress flow and surface a spurious MSIDErrorBrokerXpcUnexpectedError, so the
+// watchdog is disabled for interactive requests. A timeout value <= 0 disables the watchdog;
+// connection interruption/invalidation still completes the request via the transport-failure path.
+static const NSTimeInterval MSIDXpcBrokerReplyTimeoutDisabled = 0.0;
+
+static NSError *MSIDXpcCreateTransportError(NSString *description, NSError *underlyingError)
+{
+    return MSIDCreateError(MSIDErrorDomain,
+                           MSIDErrorBrokerXpcUnexpectedError,
+                           description,
+                           nil,
+                           nil,
+                           underlyingError,
+                           nil,
+                           nil,
+                           YES);
+}
+
 @protocol MSIDXpcBrokerInstanceProtocol <NSObject>
 
 - (void)handleXpcWithRequestParams:(NSDictionary *)passedInParams
@@ -84,6 +107,7 @@
 @end
 
 typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstanceProtocol> _Nullable xpcService, NSXPCConnection  * _Nullable directConnection, NSError *error);
+typedef BOOL (^MSIDXpcRequestCompletedBlock)(void);
 
 @interface MSIDXpcSingleSignOnProvider ()
 
@@ -92,8 +116,58 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 // Tests swizzle this to honor the flight regardless of build configuration so that
 // flight-controlled behavior can be verified deterministically.
 - (BOOL)isXpcInstanceCacheEnabled;
+- (BOOL)isXpcPlatformSupported;
+
+- (NSXPCConnection *)dispatcherConnectionWithMachServiceName:(NSString *)machServiceName;
+- (NSXPCConnection *)directConnectionWithEndpoint:(NSXPCListenerEndpoint *)endpoint;
+- (void)scheduleBlock:(dispatch_block_t)block afterTimeout:(NSTimeInterval)timeout;
+- (void)getXpcService:(id<MSIDXpcProviderCaching>)xpcProviderCache
+     requestCompleted:(MSIDXpcRequestCompletedBlock)requestCompleted
+    withContinueBlock:(NSXPCListenerEndpointCompletionBlock)continueBlock;
+
+// Shared funnel for both the silent and interactive public entry points. brokerReplyTimeout controls
+// the broker-reply watchdog for this request (<= 0 disables it; see MSIDXpcBrokerReplyTimeoutDisabled).
+- (void)handleRequestParam:(NSDictionary *)requestParam
+           parentViewFrame:(NSRect)frame
+ assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                   context:(id<MSIDRequestContext>)context
+        brokerReplyTimeout:(NSTimeInterval)brokerReplyTimeout
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
+
+- (void)attemptBrokerRequest:(NSDictionary *)requestParam
+             parentViewFrame:(NSRect)frame
+   assertKindOfResponseClass:(Class)aClass
+            xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
+           useCachedEndpoint:(BOOL)useCachedEndpoint
+          brokerReplyTimeout:(NSTimeInterval)brokerReplyTimeout
+                     context:(id<MSIDRequestContext>)context
+               continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
 @end
+
+NSString *MSIDXpcCanPerformFailureReasonToString(MSIDXpcCanPerformFailureReason reason)
+{
+    switch (reason)
+    {
+        case MSIDXpcCanPerformFailureReasonNone:
+            return @"None";
+        case MSIDXpcCanPerformFailureReasonNoProviderInstalled:
+            return @"NoProviderInstalled";
+        case MSIDXpcCanPerformFailureReasonDeviceInfoRequestCreationFailed:
+            return @"DeviceInfoRequestCreationFailed";
+        case MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeError:
+            return @"DeviceInfoHandshakeError";
+        case MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeTimeout:
+            return @"DeviceInfoHandshakeTimeout";
+        case MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed:
+            return @"ValidateCacheProviderFailed";
+        case MSIDXpcCanPerformFailureReasonUnsupportedOSVersion:
+            return @"UnsupportedOSVersion";
+    }
+
+    return @"Unknown";
+}
 
 @implementation MSIDXpcSingleSignOnProvider
 
@@ -106,17 +180,29 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 #endif
 }
 
+- (BOOL)isXpcPlatformSupported
+{
+    if (@available(macOS 13.0, *))
+    {
+        return YES;
+    }
+
+    return NO;
+}
+
 - (void)handleRequestParam:(NSDictionary *)requestParam
  assertKindOfResponseClass:(Class)aClass
           xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
+    // Silent requests are not gated on user interaction, so the standard broker-reply watchdog applies.
     [self handleRequestParam:requestParam
              parentViewFrame:CGRectZero
    assertKindOfResponseClass:(Class)aClass
             xpcProviderCache:xpcProviderCache
                      context:(id<MSIDRequestContext>)context
+          brokerReplyTimeout:MSIDXpcBrokerReplyTimeout
                continueBlock:continueBlock];
 }
 
@@ -127,11 +213,31 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                    context:(id<MSIDRequestContext>)context
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
+    // Interactive requests are gated on real user interaction (password, MFA, consent), which has no
+    // safe upper bound, so the broker-reply watchdog is disabled to avoid aborting a legitimate flow.
+    [self handleRequestParam:requestParam
+             parentViewFrame:frame
+   assertKindOfResponseClass:aClass
+            xpcProviderCache:xpcProviderCache
+                     context:context
+          brokerReplyTimeout:MSIDXpcBrokerReplyTimeoutDisabled
+               continueBlock:continueBlock];
+}
+
+- (void)handleRequestParam:(NSDictionary *)requestParam
+           parentViewFrame:(NSRect)frame
+ assertKindOfResponseClass:(Class)aClass
+          xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                   context:(id<MSIDRequestContext>)context
+        brokerReplyTimeout:(NSTimeInterval)brokerReplyTimeout
+             continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
+{
     [self attemptBrokerRequest:requestParam
                parentViewFrame:frame
      assertKindOfResponseClass:aClass
               xpcProviderCache:xpcProviderCache
-            useCachedEndpoint:[self isXpcInstanceCacheEnabled]
+             useCachedEndpoint:[self isXpcInstanceCacheEnabled]
+            brokerReplyTimeout:brokerReplyTimeout
                        context:context
                  continueBlock:continueBlock];
 }
@@ -157,6 +263,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
    assertKindOfResponseClass:(Class)aClass
             xpcProviderCache:(id<MSIDXpcProviderCaching>)xpcProviderCache
            useCachedEndpoint:(BOOL)useCachedEndpoint
+          brokerReplyTimeout:(NSTimeInterval)brokerReplyTimeout
                      context:(id<MSIDRequestContext>)context
                continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock
 {
@@ -176,6 +283,13 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             if (outerCompleted) return NO;
             outerCompleted = YES;
             return YES;
+        }
+    };
+
+    BOOL (^isCompleted)(void) = ^BOOL {
+        @synchronized (stateLock)
+        {
+            return outerCompleted;
         }
     };
 
@@ -199,7 +313,23 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 
     NSXPCListenerEndpointCompletionBlock continueBlockInternal = ^(id<MSIDXpcBrokerInstanceProtocol> xpcService, NSXPCConnection *directConnection, NSError *error)
     {
-        if (!xpcService || error)
+        if (isCompleted())
+        {
+            [directConnection invalidate];
+            return;
+        }
+
+        NSError *transportError = error;
+        if (!transportError && !xpcService)
+        {
+            transportError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- XPC service proxy is unavailable", nil);
+        }
+        else if (!transportError && !directConnection)
+        {
+            transportError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- XPC direct connection is unavailable", nil);
+        }
+
+        if (!xpcService || !directConnection || transportError)
         {
             // Connection-establishment / connection-handler failure path.
             // If the request reply already came in, this is just our own [directConnection invalidate]
@@ -209,13 +339,13 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 
             if (fromCache && useCachedEndpoint)
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Entra broker] CLIENT - cached XPC endpoint failed (%@), clearing cache and retrying via dispatcher", error);
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Entra broker] CLIENT - cached XPC endpoint failed (%@), clearing cache and retrying via dispatcher", transportError);
                 [xpcProviderCache clearCachedBrokerInstanceEndpoint];
                 __strong typeof(weakSelf) strongSelf = weakSelf;
                 if (!strongSelf)
                 {
                     // Provider deallocated mid-flight — we still owe the caller a callback.
-                    if (continueBlock) continueBlock(nil, error);
+                    if (continueBlock) continueBlock(nil, transportError);
                     return;
                 }
                 // Note: the recursive call has its own __block completion state, so the outer
@@ -227,19 +357,38 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
                        assertKindOfResponseClass:aClass
                                 xpcProviderCache:xpcProviderCache
                                useCachedEndpoint:NO
+                              brokerReplyTimeout:brokerReplyTimeout
                                          context:context
                                    continueBlock:continueBlock];
                 return;
             }
 
-            if (continueBlock) continueBlock(nil, error);
+            if (continueBlock) continueBlock(nil, transportError);
             return;
+        }
+
+        // Broker-reply watchdog. Disabled (brokerReplyTimeout <= 0) for interactive requests, whose
+        // reply is gated on unbounded user interaction; a connection interruption/invalidation still
+        // completes the request via the transport-failure path above.
+        if (brokerReplyTimeout > 0)
+        {
+            NSError *brokerReplyTimeoutError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- broker reply timed out", nil);
+            [self scheduleBlock:^{
+                if (isReplyReceived()) return;
+                if (!claimCompletion()) return;
+
+                [directConnection suspend];
+                [directConnection invalidate];
+                if (continueBlock) continueBlock(nil, brokerReplyTimeoutError);
+            } afterTimeout:brokerReplyTimeout];
         }
 
         [xpcService handleXpcWithRequestParams:requestParam parentViewFrame:frame completionBlock:^(NSDictionary<NSString *,id> * _Nullable replyParam, NSDate * _Nonnull __unused xpcStartDate, NSString * _Nonnull __unused processId, NSError * _Nullable callbackError) {
             // Mark synchronously so the connection's invalidation handler (which fires as a side
             // effect of our own invalidate below) does not treat this as a transport failure.
             (void)markReplyReceived();
+            if (isCompleted()) return;
+
             [directConnection suspend];
             [directConnection invalidate];
 
@@ -283,11 +432,19 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     else
     {
         fromCache = NO;
-        [self getXpcService:xpcProviderCache withContinueBlock:continueBlockInternal];
+        [self getXpcService:xpcProviderCache
+           requestCompleted:isCompleted
+          withContinueBlock:continueBlockInternal];
     }
 }
 
 + (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache
+{
+    return [self canPerformRequest:xpcProviderCache reason:nil];
+}
+
++ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                    reason:(MSIDXpcCanPerformFailureReason *)reason
 {
     // Step 0: If none of the XPC components (CP or MacBrokerApp) exist on the device, return false.
     // Step 1: Read from the userDefaults cache to find the correct XPC configuration based on the active SsoExtension.
@@ -299,15 +456,29 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             // Step 1.2.2: If the handshake fails because canPerformRequest returns NO, use predefined logic to decide the XPC provider/configuration (use the XPC component from the MacBrokerApp first, then from the CompanyPortal App).
                 // Step 1.2.2.1: If using the XPC provider from the MacBroker App, return true.
                 // Step 1.2.2.2: If using the XPC provider from the CompanyPortal App, return true.
-    
+
+    if (reason)
+    {
+        *reason = MSIDXpcCanPerformFailureReasonNone;
+    }
+
     /* Step 0 Start*/
     if (!xpcProviderCache.isXpcProviderInstalledOnDevice)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT Xpc component is not available on device", nil, nil);
+        if (reason)
+        {
+            *reason = MSIDXpcCanPerformFailureReasonNoProviderInstalled;
+        }
         return NO;
     }
     /* Step 0 End*/
     
+    // Tracks whether the getDeviceInfo handshake below hit a hard error or timed out, so that if the
+    // subsequent validateCacheXpcProvider check ultimately fails, we can report the more specific root cause.
+    __block BOOL handshakeHadError = NO;
+    BOOL handshakeTimedOut = NO;
+
     /* Step 1 Start: decide Xpc configuration */
     if (!xpcProviderCache.xpcConfiguration && [MSIDSSOExtensionGetDeviceInfoRequest canPerformRequest])
     {
@@ -328,6 +499,10 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         {
             // This is unlikely to happen, but if it does, return NO
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT get error when creating getDeviceInfoRequest with error: %@", ssoExtensionRequestError);
+            if (reason)
+            {
+                *reason = MSIDXpcCanPerformFailureReasonDeviceInfoRequestCreationFailed;
+            }
             return NO;
         }
     
@@ -339,6 +514,7 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             if (error)
             {
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"[Entra broker] CLIENT did not receive deviceInfo with error: %@", error);
+                handshakeHadError = YES;
                 dispatch_group_leave(group);
                 return;
             }
@@ -349,7 +525,12 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         
         // waiting expired in 1 sec
         dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
-        dispatch_group_wait(group, timeout);
+        long waitResult = dispatch_group_wait(group, timeout);
+        handshakeTimedOut = (waitResult != 0);
+        if (handshakeTimedOut)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT getDeviceInfo handshake timed out after 1 sec", nil, nil);
+        }
     }
     
     if (!xpcProviderCache.xpcConfiguration)
@@ -362,6 +543,23 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT no %@ Xpc component found on device. Failed to validate cached Xpc and skip Xpc flow", xpcProviderCache.xpcConfiguration.xpcHostAppName, nil);
         // Reset the cached Xpc provider/configuration.
         xpcProviderCache.cachedXpcProviderType = MSIDUnknownSsoProvider;
+        if (reason)
+        {
+            // If the getDeviceInfo handshake above timed out or errored, surface that as the root cause
+            // instead of the more generic validation failure it ultimately fell through to.
+            if (handshakeTimedOut)
+            {
+                *reason = MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeTimeout;
+            }
+            else if (handshakeHadError)
+            {
+                *reason = MSIDXpcCanPerformFailureReasonDeviceInfoHandshakeError;
+            }
+            else
+            {
+                *reason = MSIDXpcCanPerformFailureReasonValidateCacheProviderFailed;
+            }
+        }
         return NO;
     }
     
@@ -467,12 +665,31 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     }
 }
 
-- (void)getXpcService:(id<MSIDXpcProviderCaching>)xpcProviderCache withContinueBlock:(NSXPCListenerEndpointCompletionBlock)continueBlock
+- (NSXPCConnection *)dispatcherConnectionWithMachServiceName:(NSString *)machServiceName
+{
+    return [[NSXPCConnection alloc] initWithMachServiceName:machServiceName options:0];
+}
+
+- (NSXPCConnection *)directConnectionWithEndpoint:(NSXPCListenerEndpoint *)endpoint
+{
+    return [[NSXPCConnection alloc] initWithListenerEndpoint:endpoint];
+}
+
+- (void)scheduleBlock:(dispatch_block_t)block afterTimeout:(NSTimeInterval)timeout
+{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)),
+                   dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0),
+                   block);
+}
+
+- (void)getXpcService:(id<MSIDXpcProviderCaching>)xpcProviderCache
+     requestCompleted:(MSIDXpcRequestCompletedBlock)requestCompleted
+    withContinueBlock:(NSXPCListenerEndpointCompletionBlock)continueBlock
 {
     if (!xpcProviderCache.xpcConfiguration)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[Entra broker] CLIENT - Code should not be triggerred at here", nil, nil);
-        continueBlock(nil, nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT - Xpc configuration is not available", nil, nil, nil, nil, nil, YES));
+        continueBlock(nil, nil, MSIDXpcCreateTransportError(@"[Entra broker] CLIENT - Xpc configuration is not available", nil));
         return;
     }
 
@@ -484,7 +701,12 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
     BOOL cacheEnabled = [self isXpcInstanceCacheEnabled];
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - started establishing connection to %@", xpcProviderCache.xpcConfiguration.xpcMachServiceName);
-    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithMachServiceName:xpcProviderCache.xpcConfiguration.xpcMachServiceName options:0];
+    NSXPCConnection *connection = [self dispatcherConnectionWithMachServiceName:xpcProviderCache.xpcConfiguration.xpcMachServiceName];
+    if (!connection)
+    {
+        continueBlock(nil, nil, MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- dispatcher connection is unavailable", nil));
+        return;
+    }
     
     NSString *codeSigningRequirement = [self codeSignRequirementForBundleId:xpcProviderCache.xpcConfiguration.xpcBrokerDispatchServiceBundleId devIdentity:[self signingIdentity]];
     if ([NSString msidIsStringNilOrBlank:codeSigningRequirement])
@@ -494,54 +716,102 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         return;
     }
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(MSIDXpcBrokerDispatcherProtocol)];
-    if (@available(macOS 13.0, *)) {
-        [connection setCodeSigningRequirement:codeSigningRequirement];
-    } else {
-        // Intentionally left empty because the entire XPC flow will only be available on macOS 13 and above and gaurded through canPerformRequest
+    if ([self isXpcPlatformSupported])
+    {
+        if (@available(macOS 13.0, *))
+        {
+            [connection setCodeSigningRequirement:codeSigningRequirement];
+        }
+    }
+    else
+    {
+        continueBlock(nil, nil, MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- unsupported platform for dispatcher connection", nil));
         return;
     }
 
-    // Ensure that both the interruption handler and invalidation handler do not trigger unexpected dispatch_group_leave
-    // when the connection is unavailable or rejected by the XPC. This is achieved by adding a manual check.
-    __block BOOL isConnectionErroredOut = NO;
+    NSObject *dispatcherStateLock = [NSObject new];
+    __block BOOL dispatcherReplyReceived = NO;
+    void (^markDispatcherReplyReceived)(void) = ^{
+        @synchronized (dispatcherStateLock)
+        {
+            dispatcherReplyReceived = YES;
+        }
+    };
+    BOOL (^isDispatcherReplyReceived)(void) = ^BOOL {
+        @synchronized (dispatcherStateLock)
+        {
+            return dispatcherReplyReceived;
+        }
+    };
+
     // Install handlers BEFORE resume so a synchronous failure cannot fire in the gap between
     // resume and handler installation.
     [connection setInterruptionHandler:^{
-        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is interrupted", nil, nil, nil, nil, nil, YES);
-        if (!isConnectionErroredOut && continueBlock)
-        {
-            isConnectionErroredOut = YES;
-            continueBlock(nil, nil, xpcError);
-        }
+        if (isDispatcherReplyReceived() || requestCompleted()) return;
+
+        NSError *xpcError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- dispatcher connection is interrupted", nil);
+        if (continueBlock) continueBlock(nil, nil, xpcError);
     }];
 
     [connection setInvalidationHandler:^{
-        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- dispatcher connection is invalidated", nil, nil, nil, nil, nil, YES);
-        if (!isConnectionErroredOut && continueBlock)
-        {
-            isConnectionErroredOut = YES;
-            continueBlock(nil, nil, xpcError);
-            return;
-        }
+        if (isDispatcherReplyReceived() || requestCompleted()) return;
+
+        NSError *xpcError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- dispatcher connection is invalidated", nil);
+        if (continueBlock) continueBlock(nil, nil, xpcError);
     }];
 
     [connection resume];
 
     id<MSIDXpcBrokerDispatcherProtocol> parentXpcService = [connection remoteObjectProxyWithErrorHandler:^(NSError * _Nonnull error) {
+        if (isDispatcherReplyReceived() || requestCompleted()) return;
+
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Entra broker] CLIENT -- failed to connect to dispatcher, error: %@", error);
+        NSError *xpcError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- failed to connect to dispatcher", error);
+        if (continueBlock) continueBlock(nil, nil, xpcError);
         [connection invalidate];
     }];
+    if (!parentXpcService)
+    {
+        NSError *xpcError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- dispatcher proxy is unavailable", nil);
+        if (continueBlock) continueBlock(nil, nil, xpcError);
+        [connection invalidate];
+        return;
+    }
+
+    NSError *dispatcherTimeoutError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- dispatcher endpoint lookup timed out", nil);
+    [self scheduleBlock:^{
+        if (isDispatcherReplyReceived() || requestCompleted()) return;
+
+        if (continueBlock) continueBlock(nil, nil, dispatcherTimeoutError);
+        [connection invalidate];
+    } afterTimeout:MSIDXpcDispatcherEndpointLookupTimeout];
     
     [parentXpcService getBrokerInstanceEndpointWithReply:^(NSXPCListenerEndpoint * _Nullable listenerEndpoint, NSDictionary<NSString *, id> * _Nullable __unused params, NSError * _Nullable error) {
-        [connection suspend];
-        [connection invalidate];
-        if (error)
+        markDispatcherReplyReceived();
+        if (requestCompleted())
         {
-            NSError *xpcUnexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, [NSString stringWithFormat:@"[Entra broker] CLIENT - get broker instance endpoint failed: %@", error], nil, nil, nil, nil, nil, YES);
-            if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
             return;
         }
 
+        [connection suspend];
+
+        if (error)
+        {
+            NSError *xpcUnexpectedError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT - get broker instance endpoint failed", error);
+            if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
+            [connection invalidate];
+            return;
+        }
+
+        if (!listenerEndpoint)
+        {
+            NSError *xpcUnexpectedError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT - broker instance endpoint is unavailable", nil);
+            if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
+            [connection invalidate];
+            return;
+        }
+
+        [connection invalidate];
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Entra broker] CLIENT - connected to new service endpoint %@", listenerEndpoint);
 
         // Populate cache with the freshly-issued endpoint. CAS against the providerType captured
@@ -556,7 +826,14 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             }
         }
 
-        NSXPCConnection *directConnection = [[NSXPCConnection alloc] initWithListenerEndpoint:listenerEndpoint];
+        NSXPCConnection *directConnection = [self directConnectionWithEndpoint:listenerEndpoint];
+        if (!directConnection)
+        {
+            NSError *xpcUnexpectedError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- direct connection is unavailable", nil);
+            if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
+            return;
+        }
+
         directConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(MSIDXpcBrokerInstanceProtocol)];
         NSString *clientCodeSigningRequirement = [self codeSignRequirementForBundleId:xpcProviderCache.xpcConfiguration.xpcBrokerInstanceServiceBundleId devIdentity:[self signingIdentity]];
         if ([NSString msidIsStringNilOrBlank:clientCodeSigningRequirement])
@@ -566,45 +843,43 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
             return;
         }
         
-        if (@available(macOS 13.0, *)) {
-            [directConnection setCodeSigningRequirement:clientCodeSigningRequirement];
-        } else {
-            // This should not happen since the entry point has been guarded by version
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Entra broker] CLIENT - fall into unsupported platform end XPC disconnect from service!", nil);
+        if ([self isXpcPlatformSupported])
+        {
+            if (@available(macOS 13.0, *))
+            {
+                [directConnection setCodeSigningRequirement:clientCodeSigningRequirement];
+            }
         }
-
-        // Per-instance one-shot gate: interruption + invalidation can both fire on connection
-        // teardown; ensure continueBlock is only invoked once for connection failure.
-        __block BOOL instanceConnectionErroredOut = NO;
+        else
+        {
+            NSError *xpcUnexpectedError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- unsupported platform for direct connection", nil);
+            if (continueBlock) continueBlock(nil, nil, xpcUnexpectedError);
+            return;
+        }
 
         // Install handlers BEFORE resume.
         [directConnection setInterruptionHandler:^{
-            NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- instance connection is interrupted", nil, nil, nil, nil, nil, YES);
-            if (!instanceConnectionErroredOut && continueBlock)
-            {
-                instanceConnectionErroredOut = YES;
-                continueBlock(nil, nil, xpcError);
-            }
+            NSError *xpcError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- instance connection is interrupted", nil);
+            if (continueBlock) continueBlock(nil, nil, xpcError);
         }];
 
         [directConnection setInvalidationHandler:^{
-            NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- instance connection is invalidated", nil, nil, nil, nil, nil, YES);
-            if (!instanceConnectionErroredOut && continueBlock)
-            {
-                instanceConnectionErroredOut = YES;
-                continueBlock(nil, nil, xpcError);
-            }
+            NSError *xpcError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- instance connection is invalidated", nil);
+            if (continueBlock) continueBlock(nil, nil, xpcError);
         }];
 
         id<MSIDXpcBrokerInstanceProtocol> directService = [directConnection remoteObjectProxyWithErrorHandler:^(NSError * _Nonnull callbackError) {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Entra broker] CLIENT -- failed to connect to instance, error: %@", callbackError);
-            if (!instanceConnectionErroredOut && continueBlock)
-            {
-                instanceConnectionErroredOut = YES;
-                continueBlock(nil, nil, callbackError);
-            }
+            if (continueBlock) continueBlock(nil, nil, callbackError);
             [directConnection invalidate];
         }];
+        if (!directService)
+        {
+            NSError *xpcUnexpectedError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- direct proxy is unavailable", nil);
+            if (continueBlock) continueBlock(nil, directConnection, xpcUnexpectedError);
+            [directConnection invalidate];
+            return;
+        }
 
         [directConnection resume];
 
@@ -629,7 +904,19 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"[Entra broker] CLIENT - using cached XPC instance endpoint, skipping dispatcher round-trip");
 
-    NSXPCConnection *directConnection = [[NSXPCConnection alloc] initWithListenerEndpoint:endpoint];
+    if (!endpoint)
+    {
+        if (continueBlock) continueBlock(nil, nil, MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- cached instance endpoint is unavailable", nil));
+        return;
+    }
+
+    NSXPCConnection *directConnection = [self directConnectionWithEndpoint:endpoint];
+    if (!directConnection)
+    {
+        if (continueBlock) continueBlock(nil, nil, MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- cached direct connection is unavailable", nil));
+        return;
+    }
+
     directConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(MSIDXpcBrokerInstanceProtocol)];
 
     NSString *clientCodeSigningRequirement = [self codeSignRequirementForBundleId:xpcProviderCache.xpcConfiguration.xpcBrokerInstanceServiceBundleId devIdentity:[self signingIdentity]];
@@ -639,45 +926,44 @@ typedef void (^NSXPCListenerEndpointCompletionBlock)(id<MSIDXpcBrokerInstancePro
         return;
     }
 
-    if (@available(macOS 13.0, *)) {
-        [directConnection setCodeSigningRequirement:clientCodeSigningRequirement];
-    } else {
+    if ([self isXpcPlatformSupported])
+    {
+        if (@available(macOS 13.0, *))
+        {
+            [directConnection setCodeSigningRequirement:clientCodeSigningRequirement];
+        }
+    }
+    else
+    {
         // Should not happen — XPC flow is gated to macOS 13+ via canPerformRequest:.
         if (continueBlock) continueBlock(nil, nil, MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- unsupported platform for cached endpoint connection", nil, nil, nil, nil, nil, YES));
         return;
     }
 
-    __block BOOL instanceConnectionErroredOut = NO;
-
     // Install handlers BEFORE resume so a synchronous failure on a stale endpoint does not slip
     // through the gap.
     [directConnection setInterruptionHandler:^{
-        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- cached instance connection is interrupted", nil, nil, nil, nil, nil, YES);
-        if (!instanceConnectionErroredOut && continueBlock)
-        {
-            instanceConnectionErroredOut = YES;
-            continueBlock(nil, nil, xpcError);
-        }
+        NSError *xpcError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- cached instance connection is interrupted", nil);
+        if (continueBlock) continueBlock(nil, nil, xpcError);
     }];
 
     [directConnection setInvalidationHandler:^{
-        NSError *xpcError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerXpcUnexpectedError, @"[Entra broker] CLIENT -- cached instance connection is invalidated", nil, nil, nil, nil, nil, YES);
-        if (!instanceConnectionErroredOut && continueBlock)
-        {
-            instanceConnectionErroredOut = YES;
-            continueBlock(nil, nil, xpcError);
-        }
+        NSError *xpcError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- cached instance connection is invalidated", nil);
+        if (continueBlock) continueBlock(nil, nil, xpcError);
     }];
 
     id<MSIDXpcBrokerInstanceProtocol> directService = [directConnection remoteObjectProxyWithErrorHandler:^(NSError * _Nonnull callbackError) {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Entra broker] CLIENT -- failed to connect to cached instance endpoint, error: %@", callbackError);
-        if (!instanceConnectionErroredOut && continueBlock)
-        {
-            instanceConnectionErroredOut = YES;
-            continueBlock(nil, nil, callbackError);
-        }
+        if (continueBlock) continueBlock(nil, nil, callbackError);
         [directConnection invalidate];
     }];
+    if (!directService)
+    {
+        NSError *xpcUnexpectedError = MSIDXpcCreateTransportError(@"[Entra broker] CLIENT -- cached direct proxy is unavailable", nil);
+        if (continueBlock) continueBlock(nil, directConnection, xpcUnexpectedError);
+        [directConnection invalidate];
+        return;
+    }
 
     [directConnection resume];
 
