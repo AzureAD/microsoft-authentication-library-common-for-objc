@@ -125,6 +125,7 @@ extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OS
 extern NSString * _Nonnull const MSID_SOURCE_PLATFORM_KEY;//The source SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_PLATFORM_SEQUENCE_KEY;
 extern NSString * _Nonnull const MSID_VERSION_KEY;
+extern NSString * _Nonnull const MSID_BROKER_VER_KEY;//x-client-brkrver (broker only)
 extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
 extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
 extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S

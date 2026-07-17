@@ -74,9 +74,6 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
                        requestURL:(NSURL *)requestURL
                             error:(NSError *)error;
 
-- (void)finalizeOnboardingTelemetry:(NSURL *)endURL
-                              error:(NSError *)error;
-
 @property (atomic, readonly) NSURL *startURL;
 @property (atomic, readonly) NSURL *endURL;
 @property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *customHeaders;
@@ -94,8 +91,6 @@ typedef NSURLRequest *(^MSIDExternalDecidePolicyForBrowserActionBlock)(MSIDOAuth
 // Readonly flags exposing whether each remediation step has been recorded against
 // the current onboarding blob builder. Subclasses use these to decide whether to
 // emit matching completion steps when the flow ends successfully.
-@property (nonatomic, readonly) BOOL onboardingStrongAuthSetupStarted;
-@property (nonatomic, readonly) BOOL onboardingMdmEnrollmentStarted;
 @property (nonatomic, readonly) BOOL onboardingDeviceRegistrationStarted;
 @property (nonatomic, readonly) BOOL onboardingRemediationStarted;
 
