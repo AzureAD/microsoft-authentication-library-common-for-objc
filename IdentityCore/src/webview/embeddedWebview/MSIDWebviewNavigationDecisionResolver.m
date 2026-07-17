@@ -29,6 +29,7 @@
 #import "MSIDConstants.h"
 #import "MSIDIntuneDeviceIdCache.h"
 #import "MSIDVersion.h"
+#import "MSIDUXCallbackProvider.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -317,12 +318,6 @@
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Built profile install request for host '%@'.", profileURL.host);
 
-    // Note: the MDM profile-installed notification is scheduled earlier, when the profile-download
-    // ASWebAuthenticationSession is launched (see -[MSIDWebviewNavigationHandler
-    // scheduleMDMProfileInstalledNotificationIfNeededForURL:]), so it can fire while the user is away
-    // in Settings. This callback arrives only after the user returns (app foreground), which is too
-    // late for the banner to be shown.
-
     return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:profileURL]];
 }
 
@@ -331,6 +326,13 @@
                                                                params:(NSDictionary *)params
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] Processing enrollment completion redirect.");
+
+    // Cancel any previously scheduled MDM profile installed notification
+    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
+    if (provider)
+    {
+        [provider cancelMDMProfileInstalledNotification];
+    }
 
     // Check if SSO extension can perform request
     if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])

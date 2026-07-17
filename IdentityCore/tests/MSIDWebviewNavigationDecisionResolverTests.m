@@ -614,8 +614,11 @@
 
 #pragma mark - UX Callback Tests
 
-- (void)testProfileDownloadComplete_whenProviderSet_shouldInvokeCallbackWithDefaultDelay
+- (void)testProfileDownloadComplete_whenProviderSet_shouldNotScheduleNotification
 {
+    // Scheduling was moved to the ASWebAuthenticationSession hand-off
+    // (-[MSIDWebviewNavigationHandler scheduleMDMProfileInstalledNotificationIfNeededForURL:]),
+    // so the later profile_download_complete callback must no longer schedule.
     MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
 
@@ -630,52 +633,7 @@
 
     [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
 
-    XCTAssertTrue(mockProvider.scheduleCalled, @"UX callback should be invoked on profile download complete.");
-    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
-}
-
-- (void)testProfileDownloadComplete_whenFlightConfiguresDelay_shouldPassFlightDelay
-{
-    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
-    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
-
-    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"300" };
-
-    NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
-    NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123&%@=%@",
-                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
-                           MSID_INTUNE_DEVICE_ID_KEY,
-                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
-                           encodedURL];
-    NSURL *url = [NSURL URLWithString:urlString];
-
-    [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
-
-    XCTAssertTrue(mockProvider.scheduleCalled);
-    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, 300.0, 0.01);
-}
-
-- (void)testProfileDownloadComplete_whenFlightDelayIsNegative_shouldFallbackToDefault
-{
-    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
-    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
-
-    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"-5" };
-
-    NSString *profileURL = @"https://manage.microsoft.com/profile.mobileconfig";
-    NSString *encodedURL = [profileURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=device123&%@=%@",
-                           MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST,
-                           MSID_INTUNE_DEVICE_ID_KEY,
-                           MSID_INTUNE_PROFILE_INSTALL_URL_KEY,
-                           encodedURL];
-    NSURL *url = [NSURL URLWithString:urlString];
-
-    [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
-
-    XCTAssertTrue(mockProvider.scheduleCalled);
-    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+    XCTAssertFalse(mockProvider.scheduleCalled, @"Scheduling moved to the profile-download hand-off; the resolver must not schedule here.");
 }
 
 - (void)testProfileDownloadComplete_whenProviderIsNil_shouldNotCrash

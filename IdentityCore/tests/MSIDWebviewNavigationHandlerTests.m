@@ -33,6 +33,12 @@
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDTestWebviewInteractingViewController.h"
 #import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDUXCallbackProvider.h"
+#import "MSIDUXCallbackProtocol.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
+#import "MSIDMockUXCallbackProvider.h"
 
 // Stub conforming to MSIDWebviewNavigationDelegate for delegate-wiring assertions.
 @interface MSIDTestNavigationDelegateStub : NSObject <MSIDWebviewNavigationDelegate>
@@ -54,6 +60,7 @@
 - (BOOL)shouldUseEphemeralSession;
 - (nullable NSDictionary<NSString *, NSString *> *)extractAdditionalHeadersToForward;
 - (NSDictionary<NSString *, NSString *> *)buildAdditionalHeadersFromList:(NSString *)attachHeadersList;
+- (void)scheduleMDMProfileInstalledNotificationIfNeededForURL:(NSURL *)URL;
 
 @end
 
@@ -61,6 +68,7 @@
 
 @property (nonatomic) MSIDWebviewNavigationHandler *handler;
 @property (nonatomic) MSIDTestContext *context;
+@property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
 
 @end
 
@@ -71,12 +79,18 @@
     [super setUp];
     self.context = [MSIDTestContext new];
     self.handler = [[MSIDWebviewNavigationHandler alloc] initWithContext:self.context];
+
+    self.flightProvider = [MSIDFlightManagerMockProvider new];
+    MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
 }
 
 - (void)tearDown
 {
     self.handler = nil;
     self.context = nil;
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    self.flightProvider = nil;
     [super tearDown];
 }
 
@@ -716,6 +730,84 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     }];
 
     [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+#pragma mark - scheduleMDMProfileInstalledNotificationIfNeededForURL:
+
+- (void)testScheduleMDMProfileInstalledNotification_whenURLIsProfileDownloadAndProviderSet_shouldScheduleWithDefaultDelay
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/downloadprofile?param=1"];
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+
+    XCTAssertTrue(mockProvider.scheduleCalled, @"Notification should be scheduled for the profile-download hand-off.");
+    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenFlightConfiguresDelay_shouldPassFlightDelay
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"5" };
+
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/downloadprofile?param=1"];
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+
+    XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, 5.0, 0.01);
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenFlightDelayIsNegative_shouldFallbackToDefault
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"-5" };
+
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/downloadprofile?param=1"];
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+
+    XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenURLContainsUppercaseDownloadProfile_shouldSchedule
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/DownloadProfile?param=1"];
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+
+    XCTAssertTrue(mockProvider.scheduleCalled, @"Match on 'downloadprofile' should be case-insensitive.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenURLIsNotProfileDownload_shouldNotSchedule
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize?param=1"];
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+
+    XCTAssertFalse(mockProvider.scheduleCalled, @"Notification must not be scheduled for non profile-download transitions.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenProviderIsNil_shouldNotCrash
+{
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/downloadprofile?param=1"];
+
+    XCTAssertNoThrow([self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url]);
 }
 
 #endif // !MSID_EXCLUDE_SYSTEMWV

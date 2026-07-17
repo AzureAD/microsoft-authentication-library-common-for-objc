@@ -35,6 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// The host app should schedule a local notification after the given delay.
 - (void)scheduleMDMProfileInstalledNotificationWithDelay:(NSTimeInterval)delay;
 
+/// Called when enrollment completes successfully. The host app should cancel
+/// any previously scheduled MDM profile installed notification.
+- (void)cancelMDMProfileInstalledNotification;
+
 @end
 
 NS_ASSUME_NONNULL_END
