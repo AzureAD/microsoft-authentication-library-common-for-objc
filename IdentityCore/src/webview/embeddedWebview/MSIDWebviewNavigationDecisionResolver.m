@@ -329,7 +329,7 @@
 
     // Cancel any previously scheduled MDM profile installed notification
     id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
-    if (provider)
+    if ([provider respondsToSelector:@selector(cancelMDMProfileInstalledNotification)])
     {
         [provider cancelMDMProfileInstalledNotification];
     }
