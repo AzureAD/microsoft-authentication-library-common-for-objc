@@ -617,7 +617,7 @@
 - (void)testProfileDownloadComplete_whenProviderSet_shouldNotScheduleNotification
 {
     // Scheduling was moved to the ASWebAuthenticationSession hand-off
-    // (-[MSIDWebviewNavigationHandler scheduleMDMProfileInstalledNotificationIfNeededForURL:]),
+    // (-[MSIDWebviewNavigationHandler scheduleMDMProfileInstalledNotificationIfNeeded]),
     // so the later profile_download_complete callback must no longer schedule.
     MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;

@@ -60,7 +60,7 @@
 - (BOOL)shouldUseEphemeralSession;
 - (nullable NSDictionary<NSString *, NSString *> *)extractAdditionalHeadersToForward;
 - (NSDictionary<NSString *, NSString *> *)buildAdditionalHeadersFromList:(NSString *)attachHeadersList;
-- (void)scheduleMDMProfileInstalledNotificationIfNeededForURL:(NSURL *)URL;
+- (void)scheduleMDMProfileInstalledNotificationIfNeeded;
 
 @end
 
@@ -732,16 +732,16 @@ static NSURL *MSIDTestAllowedResponseURL(void)
     [self waitForExpectations:@[expectation] timeout:1.0];
 }
 
-#pragma mark - scheduleMDMProfileInstalledNotificationIfNeededForURL:
+#pragma mark - scheduleMDMProfileInstalledNotificationIfNeeded
 
-- (void)testScheduleMDMProfileInstalledNotification_whenURLIsProfileDownloadAndProviderSet_shouldScheduleWithDefaultDelay
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeIsDownloadProfileAndProviderSet_shouldScheduleWithDefaultDelay
 {
     MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
 
-    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/downloadprofile?param=1"];
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
 
-    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
     XCTAssertTrue(mockProvider.scheduleCalled, @"Notification should be scheduled for the profile-download hand-off.");
     XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
@@ -754,9 +754,9 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 
     self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"5" };
 
-    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/downloadprofile?param=1"];
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
 
-    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
     XCTAssertTrue(mockProvider.scheduleCalled);
     XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, 5.0, 0.01);
@@ -769,45 +769,57 @@ static NSURL *MSIDTestAllowedResponseURL(void)
 
     self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"-5" };
 
-    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/downloadprofile?param=1"];
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
 
-    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
     XCTAssertTrue(mockProvider.scheduleCalled);
     XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
 }
 
-- (void)testScheduleMDMProfileInstalledNotification_whenURLContainsUppercaseDownloadProfile_shouldSchedule
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeHasDifferentCase_shouldSchedule
 {
     MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
 
-    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/DownloadProfile?param=1"];
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: @"Download-Profile" };
 
-    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
-    XCTAssertTrue(mockProvider.scheduleCalled, @"Match on 'downloadprofile' should be case-insensitive.");
+    XCTAssertTrue(mockProvider.scheduleCalled, @"Match on the purpose value should be case-insensitive.");
 }
 
-- (void)testScheduleMDMProfileInstalledNotification_whenURLIsNotProfileDownload_shouldNotSchedule
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeIsDifferentValue_shouldNotSchedule
 {
     MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
 
-    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize?param=1"];
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: @"sign-in" };
 
-    [self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url];
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
-    XCTAssertFalse(mockProvider.scheduleCalled, @"Notification must not be scheduled for non profile-download transitions.");
+    XCTAssertFalse(mockProvider.scheduleCalled, @"Notification must not be scheduled for a non profile-download purpose.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeHeaderAbsent_shouldNotSchedule
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    self.handler.lastResponseHeaders = @{};
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertFalse(mockProvider.scheduleCalled, @"With no purpose header (no fallback), the notification must not be scheduled.");
 }
 
 - (void)testScheduleMDMProfileInstalledNotification_whenProviderIsNil_shouldNotCrash
 {
     MSIDUXCallbackProvider.uxCallbackProvider = nil;
 
-    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/common/downloadprofile?param=1"];
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
 
-    XCTAssertNoThrow([self.handler scheduleMDMProfileInstalledNotificationIfNeededForURL:url]);
+    XCTAssertNoThrow([self.handler scheduleMDMProfileInstalledNotificationIfNeeded]);
 }
 
 #endif // !MSID_EXCLUDE_SYSTEMWV

@@ -222,7 +222,7 @@
     // browser/Settings, so it can fire while the user is away installing the profile.
     // The post-return `profile_download_complete` callback arrives only after the user is
     // back in Authenticator (foreground), at which point the banner would be suppressed.
-    [self scheduleMDMProfileInstalledNotificationIfNeededForURL:URL];
+    [self scheduleMDMProfileInstalledNotificationIfNeeded];
 
     // Launch ASWebAuthenticationSession with the provided URL and configuration
     [[MSIDSystemWebviewTransitionManager sharedInstance] transitionToSystemWebviewWithURL:URL
@@ -268,10 +268,16 @@
 // while Authenticator is backgrounded (user still in Settings) so the banner is actually shown.
 // Scheduling on the later `profile_download_complete` callback is too late: that callback only
 // arrives after the user returns and the app is foreground again, where banners are suppressed.
-- (void)scheduleMDMProfileInstalledNotificationIfNeededForURL:(NSURL *)URL
+//
+// Detection is driven by the `x-ms-aswebauth-handoff-purpose` response header (value
+// `download-profile`) rather than matching on the hand-off URL, so we are not coupled to
+// Intune's URL shape. If the purpose header is absent or has any other value, we do not schedule.
+- (void)scheduleMDMProfileInstalledNotificationIfNeeded
 {
     // Only arm for the MDM profile-download hand-off, not for other ASWebAuthenticationSession transitions.
-    if ([URL.absoluteString rangeOfString:@"downloadprofile" options:NSCaseInsensitiveSearch].location == NSNotFound)
+    id purpose = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY];
+    if (![purpose isKindOfClass:NSString.class]
+        || [purpose caseInsensitiveCompare:MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE] != NSOrderedSame)
     {
         return;
     }
