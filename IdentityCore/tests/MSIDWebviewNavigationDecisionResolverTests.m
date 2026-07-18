@@ -43,6 +43,8 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobBuilder+MSIDTestUtil.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDKeychainUtil.h"
+#import "NSBundle+MSIDExtensions.h"
 
 @interface MSIDWebviewNavigationDecisionResolverTests : XCTestCase
 
@@ -267,6 +269,54 @@
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_BROKER_VER_KEY]);
+}
+
+- (void)testEnrollURL_whenMicrosoftFirstPartyApp_shouldAttachAppNameAndVersionHeaders
+{
+    // A Microsoft first-party team ID drives MSIDHelpers.isMicrosoftFirstPartyApp to YES.
+    [MSIDTestSwizzle instanceMethod:@selector(teamId)
+                              class:[MSIDKeychainUtil class]
+                              block:(id)^NSString *(__unused id obj) { return @"UBF8T346G9"; }];
+    [MSIDTestSwizzle classMethod:@selector(msidAppName)
+                           class:[NSBundle class]
+                           block:(id)^NSString *(__unused id obj) { return @"Contoso App"; }];
+    [MSIDTestSwizzle classMethod:@selector(msidAppVersion)
+                           class:[NSBundle class]
+                           block:(id)^NSString *(__unused id obj) { return @"3.4.5"; }];
+
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 embeddedWebviewController:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_APP_NAME_KEY], @"Contoso App");
+    XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_APP_VER_KEY], @"3.4.5");
+}
+
+- (void)testEnrollURL_whenNotMicrosoftFirstPartyApp_shouldNotAttachAppNameAndVersionHeaders
+{
+    // A non first-party team ID must not leak the app name/version to Intune.
+    [MSIDTestSwizzle instanceMethod:@selector(teamId)
+                              class:[MSIDKeychainUtil class]
+                              block:(id)^NSString *(__unused id obj) { return @"43AQ936H96"; }];
+
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 embeddedWebviewController:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_APP_NAME_KEY]);
+    XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_APP_VER_KEY]);
 }
 
 #pragma mark - Profile download complete host

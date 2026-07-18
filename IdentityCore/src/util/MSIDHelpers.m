@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import "MSIDHelpers.h"
+#import "MSIDKeychainUtil.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDHelpers
 
@@ -44,6 +46,12 @@
     NSString *normalized = [userId msidTrimmedString].lowercaseString;
 
     return normalized.length ? normalized : nil;
+}
+
++ (BOOL)isMicrosoftFirstPartyApp
+{
+    NSString *teamId = [MSIDKeychainUtil sharedInstance].teamId;
+    return teamId.length > 0 && [MSID_MICROSOFT_FIRST_PARTY_TEAM_IDS containsObject:teamId];
 }
 
 @end

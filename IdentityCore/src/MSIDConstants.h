@@ -132,6 +132,9 @@ extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
 extern NSString * _Nonnull const MSID_APP_NAME_KEY;
 extern NSString * _Nonnull const MSID_APP_VER_KEY;
 extern NSString * _Nonnull const MSID_CCS_HINT_KEY;
+
+// Apple Developer Team IDs owned by Microsoft, used to identify first-party apps.
+extern NSArray<NSString *> * _Nonnull const MSID_MICROSOFT_FIRST_PARTY_TEAM_IDS;
 extern NSString * _Nonnull const MSID_WEBAUTH_IGNORE_SSO_KEY;
 extern NSString * _Nonnull const MSID_WEBAUTH_REFRESH_TOKEN_KEY;
 extern NSString * _Nonnull const MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY;

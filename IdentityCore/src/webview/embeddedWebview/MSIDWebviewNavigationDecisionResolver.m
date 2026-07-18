@@ -34,6 +34,8 @@
 #import "MSIDFlightManager.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDHelpers.h"
+#import "NSBundle+MSIDExtensions.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -255,6 +257,23 @@
     if (brokerVersion.length > 0)
     {
         additionalHeaders[MSID_BROKER_VER_KEY] = brokerVersion;
+    }
+
+    // For Microsoft first-party apps, forward the app identity to Intune so it can
+    // attribute the enrollment request to the originating app.
+    if ([MSIDHelpers isMicrosoftFirstPartyApp])
+    {
+        NSString *appName = [NSBundle msidAppName];
+        if (appName.length > 0)
+        {
+            additionalHeaders[MSID_APP_NAME_KEY] = appName;
+        }
+
+        NSString *appVersion = [NSBundle msidAppVersion];
+        if (appVersion.length > 0)
+        {
+            additionalHeaders[MSID_APP_VER_KEY] = appVersion;
+        }
     }
 
     // Build the final request with all query params and headers.

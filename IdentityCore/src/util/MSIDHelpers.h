@@ -29,4 +29,9 @@
 + (NSInteger)msidIntegerValue:(id)value;
 + (NSString *)normalizeUserId:(NSString *)userId;
 
+/*! Returns YES if the currently running app is a Microsoft first-party app,
+    determined by matching its Apple Developer Team ID against the known
+    Microsoft team IDs (MSID_MICROSOFT_FIRST_PARTY_TEAM_IDS). */
++ (BOOL)isMicrosoftFirstPartyApp;
+
 @end
