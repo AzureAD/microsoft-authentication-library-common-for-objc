@@ -903,6 +903,52 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     XCTAssertNoThrow([self.handler scheduleMDMProfileInstalledNotificationIfNeeded]);
 }
 
+- (void)testScheduleMDMProfileInstalledNotification_whenScheduled_shouldStampNotificationScheduled
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
+                  @"A successful schedule must stamp ProfileInstallNotificationScheduled.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeIsDifferentValue_shouldNotStampNotificationScheduled
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: @"sign-in" };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertFalse(mockProvider.scheduleCalled);
+    XCTAssertFalse([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
+                   @"No scheduling for a non profile-download purpose means no stamp.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenProviderIsNil_shouldNotStampNotificationScheduled
+{
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertFalse([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
+                   @"The stamp is recorded only alongside an actual schedule, so a nil provider records nothing.");
+}
+
 #pragma mark - performASWebAuthenticationHandoff onboarding telemetry
 
 // Finalizes the given builder and returns the ordered list of stamped step_id values.

@@ -651,9 +651,6 @@
 
 - (void)testProfileDownloadComplete_whenProviderSet_shouldNotScheduleNotification
 {
-    // Scheduling was moved to the ASWebAuthenticationSession hand-off
-    // (-[MSIDWebviewNavigationHandler scheduleMDMProfileInstalledNotificationIfNeeded]),
-    // so the later profile_download_complete callback must no longer schedule.
     MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
     MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
 
@@ -795,25 +792,6 @@
 
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
     XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepProfileInstallUrlMalformed]);
-}
-
-- (void)testResolveProfileDownload_whenValidUrlAndProviderSet_shouldStampNotificationScheduledAndCompleted
-{
-    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
-    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
-
-    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
-    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
-    NSString *encoded = [@"https://manage.microsoft.com/profile.mobileconfig" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@?%@=%@",
-                                       MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST, MSID_INTUNE_PROFILE_INSTALL_URL_KEY, encoded]];
-
-    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
-
-    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
-    NSArray<NSString *> *steps = [builder msidStampedStepIds];
-    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled]);
-    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadCompleted]);
 }
 
 - (void)testResolveProfileDownload_whenValidUrlAndProviderNil_shouldStampCompletedOnly
