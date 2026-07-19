@@ -122,13 +122,12 @@
     
     // Parse query parameters
     NSDictionary<NSString *, NSString *> *params = [URL msidQueryParameters];
-    NSDictionary<NSString *, NSString *> *params1 = [self queryParamsFromURL:URL];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Resolving decision for msauth host '%@'.", host);
     
     // Route based on host
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
-        return [self decisionForEnrollURL:params1
+        return [self decisionForEnrollURL:params
                 embeddedWebviewController:embeddedWebviewController
                             callerHeaders:callerHeaders];
     }
@@ -139,7 +138,7 @@
     }
     else if ([host isEqualToString:MSID_COMPLIANCE_HOST])
     {
-        return [self decisionForComplianceURL:params1
+        return [self decisionForComplianceURL:params
                     embeddedWebviewController:embeddedWebviewController];
     }
     else if ([host isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_HOST])
@@ -232,6 +231,13 @@
     // Prepare additional headers for enrollment.
     NSMutableDictionary *headers = [NSMutableDictionary dictionary];
 
+    // Merge caller-supplied headers first, then stamp the SDK-controlled values so they
+    // are authoritative and cannot be overridden by a caller.
+    if (additionalHeaders.count > 0)
+    {
+        [headers addEntriesFromDictionary:additionalHeaders];
+    }
+
     NSString *platformName = [MSIDVersion platformName];
     if (platformName.length > 0)
     {
@@ -242,11 +248,6 @@
     if (sdkVersion.length > 0)
     {
         headers[MSID_VERSION_KEY] = sdkVersion;
-    }
-
-    if (additionalHeaders.count > 0)
-    {
-        [headers addEntriesFromDictionary:additionalHeaders];
     }
 
     // Build the final request with all query params and headers.
@@ -573,45 +574,6 @@
     }
 
     return request;
-}
-
-- (NSDictionary<NSString *, NSString *> *)queryParamsFromURL:(NSURL *)url
-{
-    if (!url)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: URL is nil");
-        return @{};
-    }
-    
-    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-    if (!components)
-    {
-    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: Failed to parse URL components for URL: %@", MSID_PII_LOG_MASKABLE(url));
-    }
-    
-    NSMutableDictionary<NSString *, NSString *> *result = [NSMutableDictionary new];
-    
-    NSArray<NSURLQueryItem *> *queryItems = components.queryItems;
-    if (!queryItems || queryItems.count == 0)
-    {
-        return @{};
-    }
-    
-    for (NSURLQueryItem *item in queryItems)
-    {
-        // Only add items with both name and value present
-        if (item.name && item.value)
-        {
-            result[item.name] = item.value;
-        }
-        else if (item.name)
-        {
-            // Query parameter with no value - log as warning
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Query parameter '%@' has no value", item.name);
-        }
-    }
-    
-    return [result copy];
 }
 
 

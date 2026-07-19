@@ -114,13 +114,13 @@
 
 // Builds the running process's first-party app-identity headers for the non-broker
 // (in-app) enrollment flow. The current process is the caller, so its keychain team ID
-// gates the headers and its main bundle supplies x-app-name / x-app-ver. Returns nil for
-// non first-party processes so no attribution headers are stamped.
+// gates the headers and its main bundle supplies x-app-name / x-app-ver. Returns an empty
+// dictionary for non first-party processes so no attribution headers are stamped.
 - (NSDictionary<NSString *, NSString *> *)firstPartyAppHeadersForCurrentProcess
 {
     if (![MSIDHelpers isMicrosoftFirstPartyAppWithTeamId:[MSIDKeychainUtil sharedInstance].teamId])
     {
-        return nil;
+        return @{};
     }
 
     NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary new];
@@ -128,7 +128,7 @@
     NSString *appVersion = [NSBundle msidAppVersion];
     if (appName.length) headers[MSID_APP_NAME_KEY] = appName;
     if (appVersion.length) headers[MSID_APP_VER_KEY] = appVersion;
-    return headers.count ? headers : nil;
+    return headers;
 }
 
 - (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
