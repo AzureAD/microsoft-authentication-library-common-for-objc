@@ -34,8 +34,6 @@
 #import "MSIDFlightManager.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
-#import "MSIDHelpers.h"
-#import "NSBundle+MSIDExtensions.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -55,15 +53,7 @@
 
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-{
-    return [self resolveDecisionForURL:URL
-             embeddedWebviewController:embeddedWebviewController
-                         brokerVersion:nil];
-}
-
-- (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
-                                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                                     brokerVersion:(NSString * _Nullable)brokerVersion
+                                                 additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
 {
     if (!URL)
     {
@@ -95,7 +85,7 @@
         // Handle msauth:// URLs
         return [self handleMSAuthURL:URL
            embeddedWebviewController:embeddedWebviewController
-                       brokerVersion:brokerVersion];
+                       callerHeaders:additionalHeaders];
     }
     else if ([scheme isEqualToString:MSID_SCHEME_BROWSER])
     {
@@ -115,7 +105,7 @@
 
 - (MSIDWebviewNavigationDecision *)handleMSAuthURL:(NSURL *)URL
                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                     brokerVersion:(NSString * _Nullable)brokerVersion
+                                     callerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
 {
     NSString *host = URL.host.lowercaseString;
 
@@ -132,15 +122,15 @@
     
     // Parse query parameters
     NSDictionary<NSString *, NSString *> *params = [URL msidQueryParameters];
-    
+    NSDictionary<NSString *, NSString *> *params1 = [self queryParamsFromURL:URL];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Resolving decision for msauth host '%@'.", host);
     
     // Route based on host
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
-        return [self decisionForEnrollURL:params
+        return [self decisionForEnrollURL:params1
                 embeddedWebviewController:embeddedWebviewController
-                            brokerVersion:brokerVersion];
+                            callerHeaders:callerHeaders];
     }
     else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
@@ -149,7 +139,7 @@
     }
     else if ([host isEqualToString:MSID_COMPLIANCE_HOST])
     {
-        return [self decisionForComplianceURL:params
+        return [self decisionForComplianceURL:params1
                     embeddedWebviewController:embeddedWebviewController];
     }
     else if ([host isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_HOST])
@@ -170,7 +160,7 @@
 
 - (MSIDWebviewNavigationDecision *)decisionForEnrollURL:(NSDictionary *)params
                              embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                         brokerVersion:(NSString * _Nullable)brokerVersion
+                                         callerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
@@ -240,45 +230,28 @@
     }
 
     // Prepare additional headers for enrollment.
-    NSMutableDictionary *additionalHeaders = [NSMutableDictionary dictionary];
+    NSMutableDictionary *headers = [NSMutableDictionary dictionary];
 
     NSString *platformName = [MSIDVersion platformName];
     if (platformName.length > 0)
     {
-        additionalHeaders[MSID_PLATFORM_KEY] = platformName;
+        headers[MSID_PLATFORM_KEY] = platformName;
     }
 
     NSString *sdkVersion = [MSIDVersion sdkVersion];
     if (sdkVersion.length > 0)
     {
-        additionalHeaders[MSID_VERSION_KEY] = sdkVersion;
+        headers[MSID_VERSION_KEY] = sdkVersion;
     }
 
-    if (brokerVersion.length > 0)
+    if (additionalHeaders.count > 0)
     {
-        additionalHeaders[MSID_BROKER_VER_KEY] = brokerVersion;
-    }
-
-    // For Microsoft first-party apps, forward the app identity to Intune so it can
-    // attribute the enrollment request to the originating app.
-    if ([MSIDHelpers isMicrosoftFirstPartyApp])
-    {
-        NSString *appName = [NSBundle msidAppName];
-        if (appName.length > 0)
-        {
-            additionalHeaders[MSID_APP_NAME_KEY] = appName;
-        }
-
-        NSString *appVersion = [NSBundle msidAppVersion];
-        if (appVersion.length > 0)
-        {
-            additionalHeaders[MSID_APP_VER_KEY] = appVersion;
-        }
+        [headers addEntriesFromDictionary:additionalHeaders];
     }
 
     // Build the final request with all query params and headers.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
-                                        extraHeaders:additionalHeaders
+                                        extraHeaders:headers
                                          extraParams:allQueryParams];
 
     if (!request)
@@ -601,6 +574,46 @@
 
     return request;
 }
+
+- (NSDictionary<NSString *, NSString *> *)queryParamsFromURL:(NSURL *)url
+{
+    if (!url)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: URL is nil");
+        return @{};
+    }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    if (!components)
+    {
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Cannot extract query params: Failed to parse URL components for URL: %@", MSID_PII_LOG_MASKABLE(url));
+    }
+    
+    NSMutableDictionary<NSString *, NSString *> *result = [NSMutableDictionary new];
+    
+    NSArray<NSURLQueryItem *> *queryItems = components.queryItems;
+    if (!queryItems || queryItems.count == 0)
+    {
+        return @{};
+    }
+    
+    for (NSURLQueryItem *item in queryItems)
+    {
+        // Only add items with both name and value present
+        if (item.name && item.value)
+        {
+            result[item.name] = item.value;
+        }
+        else if (item.name)
+        {
+            // Query parameter with no value - log as warning
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Query parameter '%@' has no value", item.name);
+        }
+    }
+    
+    return [result copy];
+}
+
 
 @end
 

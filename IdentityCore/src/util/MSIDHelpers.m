@@ -22,8 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDHelpers.h"
-#import "MSIDKeychainUtil.h"
-#import "MSIDConstants.h"
 
 @implementation MSIDHelpers
 
@@ -48,10 +46,23 @@
     return normalized.length ? normalized : nil;
 }
 
-+ (BOOL)isMicrosoftFirstPartyApp
++ (NSSet<NSString *> *)microsoft1PAppsTeamIDs
 {
-    NSString *teamId = [MSIDKeychainUtil sharedInstance].teamId;
-    return teamId.length > 0 && [MSID_MICROSOFT_FIRST_PARTY_TEAM_IDS containsObject:teamId];
+    static NSSet<NSString *> *teamIDs = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        teamIDs = [[NSSet alloc] initWithArray:@[@"SGGM6D27TK",
+                                                 @"9KBH5RKYEW", // 9KB* is the prefix for enterprise-signed 1st party iOS apps
+                                                 @"UBF8T346G9"
+                                               ]];
+    });
+
+    return teamIDs;
+}
+
++ (BOOL)isMicrosoftFirstPartyAppWithTeamId:(NSString *)teamId
+{
+    return teamId.length > 0 && [[self microsoft1PAppsTeamIDs] containsObject:teamId];
 }
 
 @end
