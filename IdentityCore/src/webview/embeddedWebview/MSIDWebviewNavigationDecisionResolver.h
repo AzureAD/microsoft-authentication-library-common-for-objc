@@ -62,23 +62,12 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param URL The special redirect URL to resolve (msauth://, browser://, etc.). If nil or missing a scheme, returns a failWithError decision.
  * @param embeddedWebviewController The webview controller handling the navigation. May be nil for flows that do not require it.
- * @return Navigation decision to apply. Always non-nil: unhandled schemes resolve to continueDefault and invalid/unprocessable URLs resolve to a failWithError decision.
- */
-- (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
-                                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController;
-
-/**
- * Resolves a navigation decision for a special redirect URL, optionally stamping
- * the broker version on the MDM enrollment request (x-client-brkrver header).
- *
- * @param URL The special redirect URL to resolve. If nil or missing a scheme, returns a failWithError decision.
- * @param embeddedWebviewController The webview controller handling the navigation. May be nil for flows that do not require it.
- * @param brokerVersion Optional broker version to advertise on the enrollment request. Pass nil when not in a broker flow; the two-argument variant above forwards nil.
+ * @param additionalHeaders Extra headers to merge onto the MDM enrollment request. The broker flow supplies the broker version (x-client-brkrver); the non-broker flow supplies the running process's first-party app-identity headers. Pass nil to add none.
  * @return Navigation decision to apply. Always non-nil: unhandled schemes resolve to continueDefault and invalid/unprocessable URLs resolve to a failWithError decision.
  */
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                                     brokerVersion:(NSString * _Nullable)brokerVersion;
+                                                 additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders;
 
 @end
 NS_ASSUME_NONNULL_END

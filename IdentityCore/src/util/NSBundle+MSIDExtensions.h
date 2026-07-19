@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NSBundle (MSIDExtensions)
 
 + (NSString *)msidAppVersion;
++ (NSString *)msidAppName;
 
 @end
 
