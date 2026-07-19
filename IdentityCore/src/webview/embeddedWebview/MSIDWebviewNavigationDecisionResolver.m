@@ -28,8 +28,11 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDConstants.h"
 #import "MSIDIntuneDeviceIdCache.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDVersion.h"
 #import "MSIDUXCallbackProvider.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -50,7 +53,15 @@
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
-    // Validate required parameters
+    return [self resolveDecisionForURL:URL
+             embeddedWebviewController:embeddedWebviewController
+                         brokerVersion:nil];
+}
+
+- (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
+                                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                                     brokerVersion:(NSString * _Nullable)brokerVersion
+{
     if (!URL)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[NavDecision] Cannot resolve: URL is nil.");
@@ -80,7 +91,8 @@
     {
         // Handle msauth:// URLs
         return [self handleMSAuthURL:URL
-           embeddedWebviewController:embeddedWebviewController];
+           embeddedWebviewController:embeddedWebviewController
+                       brokerVersion:brokerVersion];
     }
     else if ([scheme isEqualToString:MSID_SCHEME_BROWSER])
     {
@@ -100,6 +112,7 @@
 
 - (MSIDWebviewNavigationDecision *)handleMSAuthURL:(NSURL *)URL
                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                     brokerVersion:(NSString * _Nullable)brokerVersion
 {
     NSString *host = URL.host.lowercaseString;
 
@@ -122,11 +135,14 @@
     // Route based on host
     if ([host isEqualToString:MSID_MDM_ENROLL_HOST])
     {
-        return [self decisionForEnrollURL:params];
+        return [self decisionForEnrollURL:params
+                embeddedWebviewController:embeddedWebviewController
+                            brokerVersion:brokerVersion];
     }
     else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
-        return [self decisionForProfileDownloadComplete:params];
+        return [self decisionForProfileDownloadComplete:params
+                              embeddedWebviewController:embeddedWebviewController];
     }
     else if ([host isEqualToString:MSID_COMPLIANCE_HOST])
     {
@@ -136,7 +152,8 @@
     else if ([host isEqualToString:MSID_MDM_ENROLLMENT_COMPLETION_HOST])
     {
         return [self decisionForEnrollmentCompletionURL:URL
-                                                 params:params];
+                                                 params:params
+                              embeddedWebviewController:embeddedWebviewController];
     }
     else
     {
@@ -149,7 +166,10 @@
 #pragma mark - URL Decision Resolvers
 
 - (MSIDWebviewNavigationDecision *)decisionForEnrollURL:(NSDictionary *)params
+                             embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                         brokerVersion:(NSString * _Nullable)brokerVersion
 {
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
 
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
@@ -158,6 +178,7 @@
     NSString *intuneURLString = [params[MSID_INTUNE_URL_KEY] stringByTrimmingCharactersInSet:whitespace];
     if (intuneURLString.length == 0)
     {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentUrlMissing timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Enroll] Missing required intuneUrl parameter in msauth enrollment URL.");
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
@@ -230,6 +251,11 @@
         additionalHeaders[MSID_VERSION_KEY] = sdkVersion;
     }
 
+    if (brokerVersion.length > 0)
+    {
+        additionalHeaders[MSID_BROKER_VER_KEY] = brokerVersion;
+    }
+
     // Build the final request with all query params and headers.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
                                         extraHeaders:additionalHeaders
@@ -237,6 +263,7 @@
 
     if (!request)
     {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Enroll] Failed to build enrollment request from intuneUrl: %@", MSID_PII_LOG_MASKABLE(decodedIntuneURL));
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
@@ -245,12 +272,15 @@
         return [MSIDWebviewNavigationDecision failWithError:error];
     }
 
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentStarted timestamp:[NSDate date]];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Built enrollment request for host '%@'.", request.URL.host);
     return [MSIDWebviewNavigationDecision loadRequest:request];
 }
 
 - (MSIDWebviewNavigationDecision *)decisionForProfileDownloadComplete:(NSDictionary *)params
+                                           embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Processing MDM profile download completion redirect.");
 
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
@@ -285,6 +315,7 @@
     NSString *profileInstallURL = [params[MSID_INTUNE_PROFILE_INSTALL_URL_KEY] stringByTrimmingCharactersInSet:whitespace];
     if (profileInstallURL.length == 0)
     {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallUrlMissing timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[ProfileDownload] Missing required profile install URL in profile download completion redirect.");
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
@@ -306,6 +337,7 @@
     NSURL *profileURL = [NSURL URLWithString:decodedProfileInstallURL];
     if (!profileURL || profileURL.scheme.length == 0 || profileURL.host.length == 0)
     {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallUrlMalformed timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil,
                           @"[ProfileDownload] Profile install URL is malformed (missing scheme or host). URL: %@",
                           MSID_PII_LOG_MASKABLE(decodedProfileInstallURL));
@@ -318,13 +350,20 @@
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Built profile install request for host '%@'.", profileURL.host);
 
+    // The MDM profile-installed reminder is scheduled earlier, in
+    // MSIDWebviewNavigationHandler, at the ASWebAuthenticationSession hand-off launch
+    // (before the user leaves for Settings). Here we only record that the profile
+    // download itself completed and the install redirect returned.
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadCompleted timestamp:[NSDate date]];
     return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:profileURL]];
 }
 
 
 - (MSIDWebviewNavigationDecision *)decisionForEnrollmentCompletionURL:(NSURL *)URL
                                                                params:(NSDictionary *)params
+                                           embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] Processing enrollment completion redirect.");
 
     // Cancel any previously scheduled MDM profile installed notification
@@ -342,6 +381,7 @@
     }
     
     // SSO extension not available - load error URL if provided.
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepSSOExtensionUnavailable timestamp:[NSDate date]];
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"[EnrollmentCompletion] SSO extension is not available; attempting fallback error URL.");
 
     NSString *errorUrlString = [params[MSID_MDM_ENROLLMENT_COMPLETION_ERROR_URL_KEY]
@@ -360,6 +400,7 @@
         NSURL *errorURL = [NSURL URLWithString:decodedErrorUrlString];
         if (errorURL)
         {
+            [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepMdmEnrollmentCompletionRetryStarted timestamp:[NSDate date]];
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[EnrollmentCompletion] Loading fallback error URL in webview (host: '%@').", errorURL.host);
             return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:errorURL]];
         }
@@ -382,6 +423,8 @@
 - (MSIDWebviewNavigationDecision *)decisionForComplianceURL:(NSDictionary *)params
                                   embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
 {
+    MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
+    [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect timestamp:[NSDate date]];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Compliance] Building compliance request from msauth redirect.");
 
     NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
@@ -390,6 +433,7 @@
     NSString *intuneURLString = [params[MSID_INTUNE_URL_KEY] stringByTrimmingCharactersInSet:whitespace];
     if (intuneURLString.length == 0)
     {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRemediationUrlMissing timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Compliance] Missing required intuneUrl parameter in msauth compliance URL.");
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,
@@ -423,6 +467,7 @@
 
     if (!request)
     {
+        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepComplianceRemediationRequestMalformed timestamp:[NSDate date]];
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"[Compliance] Failed to build compliance request from intuneUrl: %@", MSID_PII_LOG_MASKABLE(decodedIntuneURL));
         NSError *error = MSIDCreateError(MSIDErrorDomain,
                                          MSIDErrorInvalidInternalParameter,

@@ -40,6 +40,9 @@
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
 #import "MSIDMockUXCallbackProvider.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobBuilder+MSIDTestUtil.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 @interface MSIDWebviewNavigationDecisionResolverTests : XCTestCase
 
@@ -232,6 +235,38 @@
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
     XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_PLATFORM_KEY], [MSIDVersion platformName]);
     XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_VERSION_KEY], [MSIDVersion sdkVersion]);
+}
+
+- (void)testEnrollURL_whenBrokerVersionProvided_attachesBrokerVersionHeader
+{
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 embeddedWebviewController:nil
+                                                                             brokerVersion:@"6.1.2"];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_BROKER_VER_KEY], @"6.1.2");
+}
+
+- (void)testEnrollURL_whenBrokerVersionNil_doesNotAttachBrokerVersionHeader
+{
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    // The two-argument variant forwards a nil broker version, so the header is omitted.
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url
+                                                                 embeddedWebviewController:nil];
+    XCTAssertNotNil(decision);
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_BROKER_VER_KEY]);
 }
 
 #pragma mark - Profile download complete host
@@ -693,6 +728,174 @@
     MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:nil];
     XCTAssertNotNil(decision);
     XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionCompleteWithURL);
+}
+
+#pragma mark - Onboarding telemetry step stamping
+
+- (MSIDOAuth2EmbeddedWebviewController *)controllerWithOnboardingBuilder:(MSIDOnboardingBlobBuilder *)builder
+{
+    MSIDOAuth2EmbeddedWebviewController *controller = [self createWebviewControllerWithExternalBlock:nil];
+    controller.onboardingBlobBuilder = builder;
+    return controller;
+}
+
+- (NSString *)enrollishURLForHost:(NSString *)host targetURL:(NSString *)targetURL
+{
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    return [NSString stringWithFormat:@"msauth://%@?%@=%@", host, MSID_INTUNE_URL_KEY, encoded];
+}
+
+- (void)testResolveEnroll_whenIntuneUrlMissing_shouldStampMdmEnrollmentUrlMissing
+{
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLL_HOST]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepMdmEnrollmentUrlMissing]);
+}
+
+- (void)testResolveEnroll_whenValidIntuneUrl_shouldStampMdmEnrollmentStarted
+{
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSURL *url = [NSURL URLWithString:[self enrollishURLForHost:MSID_MDM_ENROLL_HOST targetURL:@"https://manage.microsoft.com/enroll"]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    NSArray<NSString *> *steps = [builder msidStampedStepIds];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentStarted]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentRequestMalformed]);
+}
+
+- (void)testResolveProfileDownload_whenContinueUrlMissing_shouldStampProfileInstallUrlMissing
+{
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@?%@=device123",
+                                       MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST, MSID_INTUNE_DEVICE_ID_KEY]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepProfileInstallUrlMissing]);
+}
+
+- (void)testResolveProfileDownload_whenContinueUrlMalformed_shouldStampProfileInstallUrlMalformed
+{
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@?%@=notaurl",
+                                       MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST, MSID_INTUNE_PROFILE_INSTALL_URL_KEY]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepProfileInstallUrlMalformed]);
+}
+
+- (void)testResolveProfileDownload_whenValidUrlAndProviderSet_shouldStampNotificationScheduledAndCompleted
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSString *encoded = [@"https://manage.microsoft.com/profile.mobileconfig" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@?%@=%@",
+                                       MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST, MSID_INTUNE_PROFILE_INSTALL_URL_KEY, encoded]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    NSArray<NSString *> *steps = [builder msidStampedStepIds];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadCompleted]);
+}
+
+- (void)testResolveProfileDownload_whenValidUrlAndProviderNil_shouldStampCompletedOnly
+{
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSString *encoded = [@"https://manage.microsoft.com/profile.mobileconfig" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@?%@=%@",
+                                       MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST, MSID_INTUNE_PROFILE_INSTALL_URL_KEY, encoded]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    NSArray<NSString *> *steps = [builder msidStampedStepIds];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepProfileDownloadCompleted]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled]);
+}
+
+- (void)testResolveCompliance_whenValidIntuneUrl_shouldStampComplianceRemediationMSAuthRedirect
+{
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSURL *url = [NSURL URLWithString:[self enrollishURLForHost:MSID_COMPLIANCE_HOST targetURL:@"https://manage.microsoft.com/compliance"]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    NSArray<NSString *> *steps = [builder msidStampedStepIds];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect]);
+    XCTAssertFalse([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationRequestMalformed]);
+}
+
+- (void)testResolveCompliance_whenIntuneUrlMissing_shouldStampComplianceRemediationUrlMissing
+{
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_COMPLIANCE_HOST]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    NSArray<NSString *> *steps = [builder msidStampedStepIds];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationMSAuthRedirect]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepComplianceRemediationUrlMissing]);
+}
+
+- (void)testResolveEnrollmentCompletion_whenSSOUnavailableNoErrorURL_shouldStampSSOExtensionUnavailable
+{
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void) { return NO; }];
+
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@", MSID_MDM_ENROLLMENT_COMPLETION_HOST]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionFailWithError);
+    XCTAssertTrue([[builder msidStampedStepIds] containsObject:MSIDOnboardingBlobStepSSOExtensionUnavailable]);
+}
+
+- (void)testResolveEnrollmentCompletion_whenSSOUnavailableWithErrorURL_shouldStampMdmEnrollmentCompletionRetryStarted
+{
+    [MSIDTestSwizzle classMethod:@selector(canPerformRequest)
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void) { return NO; }];
+
+    MSIDOnboardingBlobBuilder *builder = [MSIDOnboardingBlobBuilder msidTestBuilder];
+    MSIDOAuth2EmbeddedWebviewController *controller = [self controllerWithOnboardingBuilder:builder];
+    NSString *encoded = [@"https://enroll.microsoft.com/error" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"msauth://%@?%@=%@",
+                                       MSID_MDM_ENROLLMENT_COMPLETION_HOST, MSID_MDM_ENROLLMENT_COMPLETION_ERROR_URL_KEY, encoded]];
+
+    MSIDWebviewNavigationDecision *decision = [self.resolver resolveDecisionForURL:url embeddedWebviewController:controller];
+
+    XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+    NSArray<NSString *> *steps = [builder msidStampedStepIds];
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepSSOExtensionUnavailable]);
+    XCTAssertTrue([steps containsObject:MSIDOnboardingBlobStepMdmEnrollmentCompletionRetryStarted]);
 }
 
 @end

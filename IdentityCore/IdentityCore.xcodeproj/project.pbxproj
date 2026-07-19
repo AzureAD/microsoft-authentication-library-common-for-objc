@@ -1973,6 +1973,9 @@
 		B42C16012CE7E54800553316 /* MSIDFamilyRefreshToken.h in Headers */ = {isa = PBXBuildFile; fileRef = B42C16002CE7E53800553316 /* MSIDFamilyRefreshToken.h */; };
 		B42C16032CE7E55200553316 /* MSIDFamilyRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = B42C16022CE7E54C00553316 /* MSIDFamilyRefreshToken.m */; };
 		B42C16042CE7E55200553316 /* MSIDFamilyRefreshToken.m in Sources */ = {isa = PBXBuildFile; fileRef = B42C16022CE7E54C00553316 /* MSIDFamilyRefreshToken.m */; };
+		B42DA4843008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B42DA4833008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.m */; };
+		B42DA4853008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B42DA4833008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.m */; };
+		B42DA4863008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = B42DA4823008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.h */; };
 		B431B5232AF040450020CD3D /* MSIDBrokerOperationPasskeyAssertionRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B431B5222AF040450020CD3D /* MSIDBrokerOperationPasskeyAssertionRequestTests.m */; };
 		B431B5242AF040450020CD3D /* MSIDBrokerOperationPasskeyAssertionRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B431B5222AF040450020CD3D /* MSIDBrokerOperationPasskeyAssertionRequestTests.m */; };
 		B431B5262AF05B3F0020CD3D /* MSIDBrokerOperationPasskeyCredentialRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B431B5252AF05B3F0020CD3D /* MSIDBrokerOperationPasskeyCredentialRequestTests.m */; };
@@ -3641,6 +3644,8 @@
 		B427657A2F3EC2A100F79587 /* MSIDWebviewNavigationHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewNavigationHandlerTests.m; sourceTree = "<group>"; };
 		B42C16002CE7E53800553316 /* MSIDFamilyRefreshToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFamilyRefreshToken.h; sourceTree = "<group>"; };
 		B42C16022CE7E54C00553316 /* MSIDFamilyRefreshToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFamilyRefreshToken.m; sourceTree = "<group>"; };
+		B42DA4823008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDOnboardingBlobBuilder+MSIDTestUtil.h"; sourceTree = "<group>"; };
+		B42DA4833008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDOnboardingBlobBuilder+MSIDTestUtil.m"; sourceTree = "<group>"; };
 		B431B5222AF040450020CD3D /* MSIDBrokerOperationPasskeyAssertionRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationPasskeyAssertionRequestTests.m; sourceTree = "<group>"; };
 		B431B5252AF05B3F0020CD3D /* MSIDBrokerOperationPasskeyCredentialRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationPasskeyCredentialRequestTests.m; sourceTree = "<group>"; };
 		B431B5282AF05C890020CD3D /* MSIDBrokerOperationGetPasskeyAssertionResponseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationGetPasskeyAssertionResponseTests.m; sourceTree = "<group>"; };
@@ -5981,6 +5986,8 @@
 		D626FFE91FBD200A00EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				B42DA4823008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.h */,
+				B42DA4833008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.m */,
 				23CA0C5B220A540A00768729 /* NSData+MSIDTestUtil.h */,
 				23CA0C5C220A540A00768729 /* NSData+MSIDTestUtil.m */,
 				B233F8B0219CDF5B00DC90E3 /* MSIDTestURLResponse+Util.h */,
@@ -7046,6 +7053,7 @@
 				D6D9A4561FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h in Headers */,
 				B217861823A57ED800839CE8 /* MSIDAuthorizationControllerMock.h in Headers */,
 				B2E4A07B24DDE5D7007CE642 /* NSUUID+MSIDTestUtil.h in Headers */,
+				B42DA4863008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.h in Headers */,
 				B217862923A5839300839CE8 /* MSIDSSOExtensionSignoutRequestMock.h in Headers */,
 				B4134C442FEC495C0037FE68 /* MSIDMockUXCallbackProvider.h in Headers */,
 				2A0278A32D6E3787005655B4 /* MSIDLastRequestTelemetry+Tests.h in Headers */,
@@ -8547,6 +8555,7 @@
 				23D4DEE82D92537D005A77E4 /* MSIDFlightManagerMockProvider.m in Sources */,
 				589842B9252544940075DFED /* MSIDAccountMetadataCacheMockUpdateAuthorityParameters.m in Sources */,
 				D626FFF11FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
+				B42DA4843008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.m in Sources */,
 				963E68E721489A9500D7D0CC /* NSString+MSIDTestUtil.m in Sources */,
 				23185368206D8B1D0024DCA4 /* MSIDTestTokenResponse.m in Sources */,
 				961ACDFD22A1F60800B9266C /* NSData+MSIDTestUtil.m in Sources */,
@@ -8626,6 +8635,7 @@
 				B2BE923D21A0FD2B00F5AB8C /* MSIDTestSwizzle.m in Sources */,
 				B2BE925521A24B8200F5AB8C /* MSIDTestTokenRequestProvider.m in Sources */,
 				B2E4A07924DDE5D4007CE642 /* NSUUID+MSIDTestUtil.m in Sources */,
+				B42DA4853008B0E80098AE41 /* MSIDOnboardingBlobBuilder+MSIDTestUtil.m in Sources */,
 				B253154723DD763E00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.m in Sources */,
 				B217861923A57EDB00839CE8 /* MSIDAuthorizationControllerMock.m in Sources */,
 				B2E4A07624DDE5CD007CE642 /* NSDate+MSIDTestUtil.m in Sources */,
