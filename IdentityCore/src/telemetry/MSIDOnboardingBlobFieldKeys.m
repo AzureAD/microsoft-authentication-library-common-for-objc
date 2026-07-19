@@ -81,6 +81,10 @@ NSString * const MSIDOnboardingBlobStepProfileDownloadFlowFailed = @"ProfileDown
 // Token-request retry after MDM enrollment completes
 NSString * const MSIDOnboardingBlobStepTokenRequestRetryStarted = @"TokenRequestRetryStarted";
 
+// Seeded-BRT silent bootstrap funnel (broker-only; not aggregated in C++).
+NSString * const MSIDOnboardingBlobStepSeededBRTBootstrapStarted = @"SeededBRTBootstrapStarted";
+NSString * const MSIDOnboardingBlobStepSeededBRTBootstrapCompleted = @"SeededBRTBootstrapCompleted";
+
 // Step ID values used in C++ aggregation (must match MSAIOnboardingBlobConstants)
 NSString * const MSIDOnboardingBlobStepStrongAuthSetupStarted = @"StrongAuthSetupStarted";
 NSString * const MSIDOnboardingBlobStepStrongAuthSetupCompleted = @"StrongAuthSetupCompleted";
