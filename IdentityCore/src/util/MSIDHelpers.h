@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*! Returns YES if the given Apple Developer team identifier belongs to a
     Microsoft first-party app (see +microsoft1PAppsTeamIDs). */
-+ (BOOL)isMicrosoftFirstPartyAppWithTeamId:(NSString *)teamId;
++ (BOOL)isMicrosoftFirstPartyAppWithTeamId:(nullable NSString *)teamId;
 
 @end
 

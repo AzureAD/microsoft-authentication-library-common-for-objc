@@ -229,9 +229,9 @@
 
 - (void)testEnrollURL_attachesPlatformAndVersionHeadersFromMSIDVersion
 {
-    // The resolver no longer accepts caller-supplied app name/version; it derives
-    // x-client-SKU / x-client-Ver from MSIDVersion. The test target's MSIDVersion
-    // returns "TEST.iOS" / "1.0.0" (see tests/MSIDVersion.m).
+    // This test asserts the SDK-controlled x-client-SKU / x-client-Ver headers, which the
+    // resolver always derives from MSIDVersion (independent of any caller-supplied headers).
+    // The test target's MSIDVersion returns "TEST.iOS" / "1.0.0" (see tests/MSIDVersion.m).
     NSString *targetURL = @"https://manage.microsoft.com/enroll";
     NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",

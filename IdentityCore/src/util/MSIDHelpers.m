@@ -35,7 +35,7 @@
     return 0;
 }
 
-+ (NSString *)normalizeUserId:(NSString *)userId
++ (nullable NSString *)normalizeUserId:(nullable NSString *)userId
 {
     if (!userId)
     {
@@ -60,7 +60,7 @@
     return teamIDs;
 }
 
-+ (BOOL)isMicrosoftFirstPartyAppWithTeamId:(NSString *)teamId
++ (BOOL)isMicrosoftFirstPartyAppWithTeamId:(nullable NSString *)teamId
 {
     return teamId.length > 0 && [[self microsoft1PAppsTeamIDs] containsObject:teamId];
 }
