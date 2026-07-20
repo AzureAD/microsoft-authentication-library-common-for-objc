@@ -30,6 +30,9 @@
 #import "MSIDRequestContext.h"
 #import "MSIDWebviewNavigationDelegate.h"
 #import "MSIDWebviewConstants.h"
+#import "MSIDConstants.h"
+#import "MSIDUXCallbackProvider.h"
+#import "MSIDFlightManager.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDConstants.h"
@@ -43,11 +46,6 @@
 
 @property (nonatomic) id<MSIDRequestContext> context;
 @property (nonatomic) NSDictionary<NSString *, id> *lastResponseHeaders;
-
-// Per-request onboarding telemetry builder, captured from the embedded webview
-// controller during processNavigationResponseAndCheckForASWebAuthHandoff: so the
-// ASWebAuthentication hand-off lifecycle can be stamped from here. Weak: owned by
-// the request parameters. All addStep: calls are nil-safe.
 @property (nonatomic, weak) MSIDOnboardingBlobBuilder *onboardingBlobBuilder;
 
 @end
@@ -183,11 +181,6 @@
         return;
     }
 
-    // Stamp the profile-download flow start and wrap the completion so the
-    // hand-off outcome (cancelled / failed) is recorded from here, keeping all
-    // onboarding telemetry inside the navigation handler. Successful completion is
-    // recorded downstream as ProfileDownloadCompleted when the profile-install
-    // redirect returns.
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = self.onboardingBlobBuilder;
     [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadFlowStarted timestamp:[NSDate date]];
 
@@ -296,6 +289,13 @@
     }
     
     NSString *redirectURI = [NSString stringWithFormat:@"%@://", callbackURLScheme];
+
+    // Schedule the MDM profile-installed reminder *before* handing off to the system
+    // browser/Settings, so it can fire while the user is away installing the profile.
+    // The post-return `profile_download_complete` callback arrives only after the user is
+    // back in Authenticator (foreground), at which point the banner would be suppressed.
+    [self scheduleMDMProfileInstalledNotificationIfNeeded];
+
     // Launch ASWebAuthenticationSession with the provided URL and configuration
     [[MSIDSystemWebviewTransitionManager sharedInstance] transitionToSystemWebviewWithURL:URL
                                                                               redirectURI:redirectURI
@@ -331,6 +331,49 @@
         
         completion(navigationDecision, error);
     }];
+}
+
+// Schedules the "MDM profile installed" reminder before presenting the
+// profile-download ASWebAuthenticationSession (i.e. before the user leaves
+// for Settings). Must happen here, not in the later `profile_download_complete`
+// callback, since that only fires after we're foreground again, when
+// notifications don't show.
+//
+// Detected via the `x-ms-aswebauth-handoff-purpose: download-profile` response
+// header rather than the hand-off URL, to stay decoupled from Intune's URL shape.
+- (void)scheduleMDMProfileInstalledNotificationIfNeeded
+{
+    // Only arm for the MDM profile-download hand-off, not for other ASWebAuthenticationSession transitions.
+    id purpose = self.lastResponseHeaders[MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY];
+    if (![purpose isKindOfClass:NSString.class]
+        || [purpose caseInsensitiveCompare:MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE] != NSOrderedSame)
+    {
+        return;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                      @"[ProfileDownload] Detected MDM profile-download hand-off; scheduling profile-installed notification before system webview transition.");
+
+    NSString *delayString = [[MSIDFlightManager sharedInstance] stringForKey:MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY];
+    NSTimeInterval delay = delayString.length > 0 ? delayString.doubleValue : MSIDMDMProfileInstalledNotificationDefaultDelay;
+    if (delay <= 0)
+    {
+        delay = MSIDMDMProfileInstalledNotificationDefaultDelay;
+    }
+
+    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
+    if (provider)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                          @"[ProfileDownload] Scheduling MDM profile-installed notification with delay %.2f seconds.", delay);
+        [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
+        [self.onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallNotificationScheduled timestamp:[NSDate date]];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                          @"[ProfileDownload] No UX callback provider registered; cannot schedule MDM profile-installed notification.");
+    }
 }
 
 #endif // !MSID_EXCLUDE_SYSTEMWV

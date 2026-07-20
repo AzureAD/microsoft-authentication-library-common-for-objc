@@ -31,7 +31,6 @@
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDVersion.h"
 #import "MSIDUXCallbackProvider.h"
-#import "MSIDFlightManager.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 
@@ -344,20 +343,10 @@
 
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[ProfileDownload] Built profile install request for host '%@'.", profileURL.host);
 
-    NSString *delayString = [[MSIDFlightManager sharedInstance] stringForKey:MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY];
-    NSTimeInterval delay = delayString.length > 0 ? delayString.doubleValue : MSIDMDMProfileInstalledNotificationDefaultDelay;
-    if (delay <= 0)
-    {
-        delay = MSIDMDMProfileInstalledNotificationDefaultDelay;
-    }
-
-    id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
-    if (provider)
-    {
-        [provider scheduleMDMProfileInstalledNotificationWithDelay:delay];
-        [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileInstallNotificationScheduled timestamp:[NSDate date]];
-    }
-
+    // The MDM profile-installed reminder is scheduled earlier, in
+    // MSIDWebviewNavigationHandler, at the ASWebAuthenticationSession hand-off launch
+    // (before the user leaves for Settings). Here we only record that the profile
+    // download itself completed and the install redirect returned.
     [onboardingBlobBuilder addStep:MSIDOnboardingBlobStepProfileDownloadCompleted timestamp:[NSDate date]];
     return [MSIDWebviewNavigationDecision loadRequest:[NSURLRequest requestWithURL:profileURL]];
 }
@@ -372,7 +361,7 @@
 
     // Cancel any previously scheduled MDM profile installed notification
     id<MSIDUXCallbackProtocol> provider = MSIDUXCallbackProvider.uxCallbackProvider;
-    if (provider)
+    if ([provider respondsToSelector:@selector(cancelMDMProfileInstalledNotification)])
     {
         [provider cancelMDMProfileInstalledNotification];
     }

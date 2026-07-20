@@ -33,9 +33,14 @@
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "MSIDTestWebviewInteractingViewController.h"
 #import "MSIDWebviewNavigationDelegate.h"
+#import "MSIDUXCallbackProvider.h"
+#import "MSIDUXCallbackProtocol.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDConstants.h"
+#import "MSIDMockUXCallbackProvider.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
-#import "MSIDConstants.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDKeychainUtil.h"
 #import "NSBundle+MSIDExtensions.h"
@@ -64,6 +69,7 @@
 - (BOOL)shouldUseEphemeralSession;
 - (nullable NSDictionary<NSString *, NSString *> *)extractAdditionalHeadersToForward;
 - (NSDictionary<NSString *, NSString *> *)buildAdditionalHeadersFromList:(NSString *)attachHeadersList;
+- (void)scheduleMDMProfileInstalledNotificationIfNeeded;
 
 @end
 
@@ -71,6 +77,7 @@
 
 @property (nonatomic) MSIDWebviewNavigationHandler *handler;
 @property (nonatomic) MSIDTestContext *context;
+@property (nonatomic) MSIDFlightManagerMockProvider *flightProvider;
 
 @end
 
@@ -81,6 +88,9 @@
     [super setUp];
     self.context = [MSIDTestContext new];
     self.handler = [[MSIDWebviewNavigationHandler alloc] initWithContext:self.context];
+
+    self.flightProvider = [MSIDFlightManagerMockProvider new];
+    MSIDFlightManager.sharedInstance.flightProvider = self.flightProvider;
 }
 
 - (void)tearDown
@@ -88,6 +98,9 @@
     [MSIDTestSwizzle reset];
     self.handler = nil;
     self.context = nil;
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    self.flightProvider = nil;
     [super tearDown];
 }
 
@@ -865,6 +878,142 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     [self waitForExpectations:@[expectation] timeout:1.0];
 }
 
+#pragma mark - scheduleMDMProfileInstalledNotificationIfNeeded
+
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeIsDownloadProfileAndProviderSet_shouldScheduleWithDefaultDelay
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertTrue(mockProvider.scheduleCalled, @"Notification should be scheduled for the profile-download hand-off.");
+    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenFlightConfiguresDelay_shouldPassFlightDelay
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"5" };
+
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, 5.0, 0.01);
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenFlightDelayIsNegative_shouldFallbackToDefault
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"-5" };
+
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeHasDifferentCase_shouldSchedule
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: @"Download-Profile" };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertTrue(mockProvider.scheduleCalled, @"Match on the purpose value should be case-insensitive.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeIsDifferentValue_shouldNotSchedule
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: @"sign-in" };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertFalse(mockProvider.scheduleCalled, @"Notification must not be scheduled for a non profile-download purpose.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeHeaderAbsent_shouldNotSchedule
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    self.handler.lastResponseHeaders = @{};
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertFalse(mockProvider.scheduleCalled, @"With no purpose header (no fallback), the notification must not be scheduled.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenProviderIsNil_shouldNotCrash
+{
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
+
+    XCTAssertNoThrow([self.handler scheduleMDMProfileInstalledNotificationIfNeeded]);
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenScheduled_shouldStampNotificationScheduled
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertTrue(mockProvider.scheduleCalled);
+    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
+                  @"A successful schedule must stamp ProfileInstallNotificationScheduled.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenPurposeIsDifferentValue_shouldNotStampNotificationScheduled
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: @"sign-in" };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertFalse(mockProvider.scheduleCalled);
+    XCTAssertFalse([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
+                   @"No scheduling for a non profile-download purpose means no stamp.");
+}
+
+- (void)testScheduleMDMProfileInstalledNotification_whenProviderIsNil_shouldNotStampNotificationScheduled
+{
+    MSIDUXCallbackProvider.uxCallbackProvider = nil;
+
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{ MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE };
+
+    [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
+
+    XCTAssertFalse([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled],
+                   @"The stamp is recorded only alongside an actual schedule, so a nil provider records nothing.");
+}
+
 #pragma mark - performASWebAuthenticationHandoff onboarding telemetry
 
 // Finalizes the given builder and returns the ordered list of stamped step_id values.
@@ -954,6 +1103,13 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 // launching a real ASWebAuthenticationSession.
 - (void)swizzleTransitionWithCallbackURL:(NSURL *)callbackURL error:(NSError *)error
 {
+    [self swizzleTransitionWithInvocationBlock:nil callbackURL:callbackURL error:error];
+}
+
+- (void)swizzleTransitionWithInvocationBlock:(void (^ _Nullable)(void))invocationBlock
+                                 callbackURL:(NSURL *)callbackURL
+                                       error:(NSError *)error
+{
     [MSIDTestSwizzle instanceMethod:@selector(transitionToSystemWebviewWithURL:redirectURI:parentController:useAuthenticationSession:allowSafariViewController:useEphemeralSession:additionalHeaders:context:completionBlock:)
                               class:[MSIDSystemWebviewTransitionManager class]
                               block:(id)^(__unused id obj,
@@ -967,11 +1123,81 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
                                          __unused id context,
                                          MSIDWebUICompletionHandler completionBlock)
     {
+        if (invocationBlock)
+        {
+            invocationBlock();
+        }
+
         if (completionBlock)
         {
             completionBlock(callbackURL, error);
         }
     }];
+}
+
+- (void)testPerformASWebAuthHandoff_whenPurposeIsDownloadProfile_shouldScheduleBeforeTransition
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{
+        MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff",
+        MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE
+    };
+
+    XCTestExpectation *transitionExpectation = [self expectationWithDescription:@"system transition invoked"];
+    [self swizzleTransitionWithInvocationBlock:^
+    {
+        XCTAssertTrue(mockProvider.scheduleCalled, @"The reminder must be scheduled before the system transition starts.");
+        XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+        [transitionExpectation fulfill];
+    }
+                                        callbackURL:[NSURL URLWithString:@"msauth://profile_download_complete"]
+                                              error:nil];
+
+    XCTestExpectation *completionExpectation = [self expectationWithDescription:@"completion invoked"];
+    [self.handler performASWebAuthenticationHandoffWithParentController:[MSIDViewController new]
+                                                            completion:^(__unused MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         __unused NSError * _Nullable error)
+    {
+        [completionExpectation fulfill];
+    }];
+
+    [self waitForExpectations:@[transitionExpectation, completionExpectation] timeout:1.0];
+    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenPurposeIsDownloadProfileAndFlightConfiguresDelay_shouldUseFlightDelayBeforeTransition
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"300" };
+    self.handler.lastResponseHeaders = @{
+        MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff",
+        MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE
+    };
+
+    XCTestExpectation *transitionExpectation = [self expectationWithDescription:@"system transition invoked"];
+    [self swizzleTransitionWithInvocationBlock:^
+    {
+        XCTAssertTrue(mockProvider.scheduleCalled, @"The reminder must be scheduled before the system transition starts.");
+        XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, 300.0, 0.01);
+        [transitionExpectation fulfill];
+    }
+                                        callbackURL:[NSURL URLWithString:@"msauth://profile_download_complete"]
+                                              error:nil];
+
+    XCTestExpectation *completionExpectation = [self expectationWithDescription:@"completion invoked"];
+    [self.handler performASWebAuthenticationHandoffWithParentController:[MSIDViewController new]
+                                                            completion:^(__unused MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         __unused NSError * _Nullable error)
+    {
+        [completionExpectation fulfill];
+    }];
+
+    [self waitForExpectations:@[transitionExpectation, completionExpectation] timeout:1.0];
 }
 
 - (void)testPerformASWebAuthHandoff_whenTransitionCancelledByUser_shouldStampCancelledNotFailed
