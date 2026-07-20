@@ -32,6 +32,10 @@
 #import "MSIDWebviewConstants.h"
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDConstants.h"
+#import "MSIDHelpers.h"
+#import "MSIDKeychainUtil.h"
+#import "NSBundle+MSIDExtensions.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -84,15 +88,18 @@
        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
 {
+    // Non-broker (in-app) flow: the running process is the caller, so supply its first-party
+    // app-identity headers rather than nil. The broker flow calls the variant below with the
+    // broker version instead.
     [self handleSpecialRedirectURL:URL
          embeddedWebviewController:embeddedWebviewController
-                     brokerVersion:nil
+                 additionalHeaders:[self firstPartyAppHeadersForCurrentProcess]
                         completion:completion];
 }
 
 - (void)handleSpecialRedirectURL:(NSURL *)URL
        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                   brokerVersion:(NSString * _Nullable)brokerVersion
+               additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
@@ -101,8 +108,27 @@
     MSIDWebviewNavigationDecisionResolver *util = [MSIDWebviewNavigationDecisionResolver sharedInstance];
     MSIDWebviewNavigationDecision *navigationDecision = [util resolveDecisionForURL:URL
                                                           embeddedWebviewController:embeddedWebviewController
-                                                                      brokerVersion:brokerVersion];
+                                                                  additionalHeaders:additionalHeaders];
     completion(navigationDecision, nil);
+}
+
+// Builds the running process's first-party app-identity headers for the non-broker
+// (in-app) enrollment flow. The current process is the caller, so its keychain team ID
+// gates the headers and its main bundle supplies x-app-name / x-app-ver. Returns an empty
+// dictionary for non first-party processes so no attribution headers are stamped.
+- (NSDictionary<NSString *, NSString *> *)firstPartyAppHeadersForCurrentProcess
+{
+    if (![MSIDHelpers isMicrosoftFirstPartyAppWithTeamId:[MSIDKeychainUtil sharedInstance].teamId])
+    {
+        return @{};
+    }
+
+    NSMutableDictionary<NSString *, NSString *> *headers = [NSMutableDictionary new];
+    NSString *appName = [NSBundle msidAppName];
+    NSString *appVersion = [NSBundle msidAppVersion];
+    if (appName.length) headers[MSID_APP_NAME_KEY] = appName;
+    if (appVersion.length) headers[MSID_APP_VER_KEY] = appVersion;
+    return headers;
 }
 
 - (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
