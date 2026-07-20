@@ -52,15 +52,7 @@
 
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
                                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-{
-    return [self resolveDecisionForURL:URL
-             embeddedWebviewController:embeddedWebviewController
-                         brokerVersion:nil];
-}
-
-- (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
-                                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                                     brokerVersion:(NSString * _Nullable)brokerVersion
+                                                 additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
 {
     if (!URL)
     {
@@ -92,7 +84,7 @@
         // Handle msauth:// URLs
         return [self handleMSAuthURL:URL
            embeddedWebviewController:embeddedWebviewController
-                       brokerVersion:brokerVersion];
+                       callerHeaders:additionalHeaders];
     }
     else if ([scheme isEqualToString:MSID_SCHEME_BROWSER])
     {
@@ -112,7 +104,7 @@
 
 - (MSIDWebviewNavigationDecision *)handleMSAuthURL:(NSURL *)URL
                          embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                     brokerVersion:(NSString * _Nullable)brokerVersion
+                                     callerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)callerHeaders
 {
     NSString *host = URL.host.lowercaseString;
 
@@ -129,7 +121,6 @@
     
     // Parse query parameters
     NSDictionary<NSString *, NSString *> *params = [URL msidQueryParameters];
-    
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[NavDecision] Resolving decision for msauth host '%@'.", host);
     
     // Route based on host
@@ -137,7 +128,7 @@
     {
         return [self decisionForEnrollURL:params
                 embeddedWebviewController:embeddedWebviewController
-                            brokerVersion:brokerVersion];
+                            callerHeaders:callerHeaders];
     }
     else if ([host isEqualToString:MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST])
     {
@@ -167,7 +158,7 @@
 
 - (MSIDWebviewNavigationDecision *)decisionForEnrollURL:(NSDictionary *)params
                              embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                                         brokerVersion:(NSString * _Nullable)brokerVersion
+                                         callerHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
 {
     MSIDOnboardingBlobBuilder *onboardingBlobBuilder = embeddedWebviewController.onboardingBlobBuilder;
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"[Enroll] Building enrollment request from msauth redirect.");
@@ -237,28 +228,30 @@
     }
 
     // Prepare additional headers for enrollment.
-    NSMutableDictionary *additionalHeaders = [NSMutableDictionary dictionary];
+    NSMutableDictionary *headers = [NSMutableDictionary dictionary];
+
+    // Merge caller-supplied headers first, then stamp the SDK-controlled values so they
+    // are authoritative and cannot be overridden by a caller.
+    if (additionalHeaders.count > 0)
+    {
+        [headers addEntriesFromDictionary:additionalHeaders];
+    }
 
     NSString *platformName = [MSIDVersion platformName];
     if (platformName.length > 0)
     {
-        additionalHeaders[MSID_PLATFORM_KEY] = platformName;
+        headers[MSID_PLATFORM_KEY] = platformName;
     }
 
     NSString *sdkVersion = [MSIDVersion sdkVersion];
     if (sdkVersion.length > 0)
     {
-        additionalHeaders[MSID_VERSION_KEY] = sdkVersion;
-    }
-
-    if (brokerVersion.length > 0)
-    {
-        additionalHeaders[MSID_BROKER_VER_KEY] = brokerVersion;
+        headers[MSID_VERSION_KEY] = sdkVersion;
     }
 
     // Build the final request with all query params and headers.
     NSURLRequest *request = [self buildRequestForURL:decodedIntuneURL
-                                        extraHeaders:additionalHeaders
+                                        extraHeaders:headers
                                          extraParams:allQueryParams];
 
     if (!request)
@@ -571,6 +564,7 @@
 
     return request;
 }
+
 
 @end
 

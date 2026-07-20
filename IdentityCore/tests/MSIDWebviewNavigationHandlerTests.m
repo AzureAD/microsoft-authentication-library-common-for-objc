@@ -42,6 +42,8 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDTestSwizzle.h"
+#import "MSIDKeychainUtil.h"
+#import "NSBundle+MSIDExtensions.h"
 #if !MSID_EXCLUDE_SYSTEMWV
 #import "MSIDSystemWebviewTransitionManager.h"
 #endif
@@ -536,10 +538,11 @@
     [self waitForExpectations:@[expectation] timeout:1.0];
 }
 
-- (void)testHandleSpecialRedirectURL_whenBrokerVersionProvided_shouldAttachBrokerVersionHeaderOnEnrollRequest
+- (void)testHandleSpecialRedirectURL_whenAdditionalHeadersProvided_shouldAttachBrokerVersionHeaderOnEnrollRequest
 {
-    // The four-argument overload must forward the broker version through to the
-    // resolver so the MDM enrollment request advertises the x-client-brkrver header.
+    // The four-argument overload must forward the caller-supplied additional headers
+    // (here the broker version) through to the resolver so the MDM enrollment request
+    // advertises the x-client-brkrver header.
     NSString *targetURL = @"https://manage.microsoft.com/enroll";
     NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
@@ -549,7 +552,7 @@
 
     [self.handler handleSpecialRedirectURL:URL
                  embeddedWebviewController:nil
-                             brokerVersion:@"6.1.2"
+                         additionalHeaders:@{MSID_BROKER_VER_KEY: @"6.1.2"}
                                 completion:^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
     {
         XCTAssertNotNil(decision);
@@ -564,8 +567,9 @@
 
 - (void)testHandleSpecialRedirectURL_whenBrokerVersionOmitted_shouldNotAttachBrokerVersionHeaderOnEnrollRequest
 {
-    // The three-argument variant forwards a nil broker version, so the enrollment
-    // request must not carry the x-client-brkrver header.
+    // The two-argument variant builds only the current process's first-party app headers
+    // (never a broker version). The unit-test host is not first-party, so no headers at all
+    // are stamped here.
     NSString *targetURL = @"https://manage.microsoft.com/enroll";
     NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
@@ -580,6 +584,67 @@
         XCTAssertNotNil(decision);
         XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
         XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_BROKER_VER_KEY]);
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testHandleSpecialRedirectURL_whenFirstPartyProcess_shouldAttachAppNameAndVersionHeadersOnEnrollRequest
+{
+    // The two-argument (overall/non-broker) overload builds the app-identity headers from the
+    // running process. Force a first-party keychain team ID so the gate opens; assert the
+    // headers equal the same bundle accessors the handler uses.
+    // (Keychain has no DI seam in this repo, so a swizzle is used as a one-off.)
+    [MSIDTestSwizzle instanceMethod:@selector(teamId)
+                              class:[MSIDKeychainUtil class]
+                              block:(id)^NSString *(__unused id obj) { return @"UBF8T346G9"; }];
+
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *URL = [NSURL URLWithString:urlString];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+
+    [self.handler handleSpecialRedirectURL:URL
+                 embeddedWebviewController:nil
+                                completion:^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
+    {
+        XCTAssertNotNil(decision);
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+        XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_APP_NAME_KEY], [NSBundle msidAppName]);
+        XCTAssertEqualObjects([decision.request valueForHTTPHeaderField:MSID_APP_VER_KEY], [NSBundle msidAppVersion]);
+        XCTAssertNil(error);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1.0];
+}
+
+- (void)testHandleSpecialRedirectURL_whenNonFirstPartyProcess_shouldNotAttachAppNameAndVersionHeadersOnEnrollRequest
+{
+    // A non-first-party running process must never have the app name/version headers stamped.
+    [MSIDTestSwizzle instanceMethod:@selector(teamId)
+                              class:[MSIDKeychainUtil class]
+                              block:(id)^NSString *(__unused id obj) { return @"43AQ936H96"; }];
+
+    NSString *targetURL = @"https://manage.microsoft.com/enroll";
+    NSString *encoded = [targetURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlString = [NSString stringWithFormat:@"msauth://%@?%@=%@",
+                           MSID_MDM_ENROLL_HOST, MSID_INTUNE_URL_KEY, encoded];
+    NSURL *URL = [NSURL URLWithString:urlString];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"completion invoked"];
+
+    [self.handler handleSpecialRedirectURL:URL
+                 embeddedWebviewController:nil
+                                completion:^(MSIDWebviewNavigationDecision * _Nullable decision, NSError * _Nullable error)
+    {
+        XCTAssertNotNil(decision);
+        XCTAssertEqual(decision.type, MSIDWebviewNavigationDecisionLoadRequest);
+        XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_APP_NAME_KEY]);
+        XCTAssertNil([decision.request valueForHTTPHeaderField:MSID_APP_VER_KEY]);
         XCTAssertNil(error);
         [expectation fulfill];
     }];
