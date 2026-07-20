@@ -87,6 +87,12 @@ extern NSString * const MSIDOnboardingBlobStepProfileDownloadFlowFailed;
 // Token-request retry after MDM enrollment completes (free-form passthrough; not C++-aggregated).
 extern NSString * const MSIDOnboardingBlobStepTokenRequestRetryStarted;
 
+// Seeded-BRT silent bootstrap funnel (broker-only; not aggregated in C++, fanned
+// out to mo_steps_list via EntityStore's dynamic blob iteration). Stamped at the
+// consumption site in ADBrokerJoinDeviceAction.
+extern NSString * const MSIDOnboardingBlobStepSeededBRTBootstrapStarted;
+extern NSString * const MSIDOnboardingBlobStepSeededBRTBootstrapCompleted;
+
 // Step ID values used in C++ aggregation. Values must match
 // MSAIOnboardingBlobConstants (Djinni-generated) byte-for-byte.
 extern NSString * const MSIDOnboardingBlobStepStrongAuthSetupStarted;
