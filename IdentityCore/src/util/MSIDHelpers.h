@@ -23,10 +23,21 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MSIDHelpers : NSObject
 
 /*! Returns integer value if the passed object can be converted to integer, 0 otherwise */
 + (NSInteger)msidIntegerValue:(id)value;
-+ (NSString *)normalizeUserId:(NSString *)userId;
++ (nullable NSString *)normalizeUserId:(nullable NSString *)userId;
+
+/*! The Apple Developer team identifiers of Microsoft first-party apps. */
++ (NSSet<NSString *> *)microsoft1PAppsTeamIDs;
+
+/*! Returns YES if the given Apple Developer team identifier belongs to a
+    Microsoft first-party app (see +microsoft1PAppsTeamIDs). */
++ (BOOL)isMicrosoftFirstPartyAppWithTeamId:(nullable NSString *)teamId;
 
 @end
+
+NS_ASSUME_NONNULL_END

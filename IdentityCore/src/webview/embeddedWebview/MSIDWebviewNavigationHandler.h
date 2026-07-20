@@ -90,19 +90,19 @@ NS_ASSUME_NONNULL_BEGIN
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**
- * Handles special redirect URLs (msauth://, browser://), optionally carrying the
- * broker version so the enrollment request can advertise it via the
- * x-client-brkrver header. Non-broker callers may omit brokerVersion (pass nil);
- * the base method above forwards nil to this one.
+ * Handles special redirect URLs (msauth://, browser://), merging caller-supplied
+ * additional headers onto the MDM enrollment request. The broker flow supplies the
+ * broker version (x-client-brkrver); the non-broker flow's base method above supplies
+ * the running process's first-party app-identity headers.
  *
  * @param URL The special redirect URL
  * @param embeddedWebviewController The embedded webview controller instance
- * @param brokerVersion Optional broker version to stamp on the enrollment request. Pass nil when not in a broker flow.
+ * @param additionalHeaders Extra headers to stamp on the enrollment request. Pass nil to add none.
  * @param completion Completion block with the navigation decision or error
  */
 - (void)handleSpecialRedirectURL:(NSURL *)URL
        embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
-                   brokerVersion:(NSString * _Nullable)brokerVersion
+               additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**
