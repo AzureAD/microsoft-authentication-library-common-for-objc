@@ -1103,6 +1103,13 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
 // launching a real ASWebAuthenticationSession.
 - (void)swizzleTransitionWithCallbackURL:(NSURL *)callbackURL error:(NSError *)error
 {
+    [self swizzleTransitionWithInvocationBlock:nil callbackURL:callbackURL error:error];
+}
+
+- (void)swizzleTransitionWithInvocationBlock:(void (^ _Nullable)(void))invocationBlock
+                                 callbackURL:(NSURL *)callbackURL
+                                       error:(NSError *)error
+{
     [MSIDTestSwizzle instanceMethod:@selector(transitionToSystemWebviewWithURL:redirectURI:parentController:useAuthenticationSession:allowSafariViewController:useEphemeralSession:additionalHeaders:context:completionBlock:)
                               class:[MSIDSystemWebviewTransitionManager class]
                               block:(id)^(__unused id obj,
@@ -1116,11 +1123,81 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
                                          __unused id context,
                                          MSIDWebUICompletionHandler completionBlock)
     {
+        if (invocationBlock)
+        {
+            invocationBlock();
+        }
+
         if (completionBlock)
         {
             completionBlock(callbackURL, error);
         }
     }];
+}
+
+- (void)testPerformASWebAuthHandoff_whenPurposeIsDownloadProfile_shouldScheduleBeforeTransition
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+
+    MSIDOnboardingBlobBuilder *builder = [self onboardingBuilderForHandoffTest];
+    self.handler.onboardingBlobBuilder = builder;
+    self.handler.lastResponseHeaders = @{
+        MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff",
+        MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE
+    };
+
+    XCTestExpectation *transitionExpectation = [self expectationWithDescription:@"system transition invoked"];
+    [self swizzleTransitionWithInvocationBlock:^
+    {
+        XCTAssertTrue(mockProvider.scheduleCalled, @"The reminder must be scheduled before the system transition starts.");
+        XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
+        [transitionExpectation fulfill];
+    }
+                                        callbackURL:[NSURL URLWithString:@"msauth://profile_download_complete"]
+                                              error:nil];
+
+    XCTestExpectation *completionExpectation = [self expectationWithDescription:@"completion invoked"];
+    [self.handler performASWebAuthenticationHandoffWithParentController:[MSIDViewController new]
+                                                            completion:^(__unused MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         __unused NSError * _Nullable error)
+    {
+        [completionExpectation fulfill];
+    }];
+
+    [self waitForExpectations:@[transitionExpectation, completionExpectation] timeout:1.0];
+    XCTAssertTrue([[self stampedStepIdsFromBuilder:builder] containsObject:MSIDOnboardingBlobStepProfileInstallNotificationScheduled]);
+}
+
+- (void)testPerformASWebAuthHandoff_whenPurposeIsDownloadProfileAndFlightConfiguresDelay_shouldUseFlightDelayBeforeTransition
+{
+    MSIDMockUXCallbackProvider *mockProvider = [MSIDMockUXCallbackProvider new];
+    MSIDUXCallbackProvider.uxCallbackProvider = mockProvider;
+    self.flightProvider.stringForKeyContainer = @{ MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY: @"300" };
+    self.handler.lastResponseHeaders = @{
+        MSID_ASWEBAUTH_HANDOFF_URL_KEY: @"https://portal.manage.microsoft.com/handoff",
+        MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY: MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE
+    };
+
+    XCTestExpectation *transitionExpectation = [self expectationWithDescription:@"system transition invoked"];
+    [self swizzleTransitionWithInvocationBlock:^
+    {
+        XCTAssertTrue(mockProvider.scheduleCalled, @"The reminder must be scheduled before the system transition starts.");
+        XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, 300.0, 0.01);
+        [transitionExpectation fulfill];
+    }
+                                        callbackURL:[NSURL URLWithString:@"msauth://profile_download_complete"]
+                                              error:nil];
+
+    XCTestExpectation *completionExpectation = [self expectationWithDescription:@"completion invoked"];
+    [self.handler performASWebAuthenticationHandoffWithParentController:[MSIDViewController new]
+                                                            completion:^(__unused MSIDWebviewNavigationDecision * _Nullable decision,
+                                                                         __unused NSError * _Nullable error)
+    {
+        [completionExpectation fulfill];
+    }];
+
+    [self waitForExpectations:@[transitionExpectation, completionExpectation] timeout:1.0];
 }
 
 - (void)testPerformASWebAuthHandoff_whenTransitionCancelledByUser_shouldStampCancelledNotFailed
