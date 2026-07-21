@@ -50,11 +50,6 @@ typedef void (^MSIDWebviewConfigurationBlock)(id<MSIDWebviewInteracting> webview
 @property (nonatomic, copy, nullable) NSString *onboardingBlobJson;
 @property (nonatomic) NSString *loginHint;
 @property (nonatomic) NSString *extraScopesToConsent;
-// Bundle identifier of the app that invoked the broker, as reported by the OS.
-// The OS surfaces the caller bundle id only when the originating app is signed under the broker's
-// Apple Developer Team identifier (which every Microsoft first-party app shares), so a non-nil value
-// effectively identifies a first-party caller. Third-party callers leave it nil.
-@property (nonatomic, copy, nullable) NSString *sourceApplication;
 @property (nonatomic) MSIDPromptType promptType;
 @property (nonatomic) BOOL shouldValidateResultAccount;
 // Additional request parameters that will only be appended to authorize requests in addition to extraURLQueryParameters from parent class
