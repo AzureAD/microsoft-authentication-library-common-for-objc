@@ -170,14 +170,21 @@ steps:
       LOG_FILE="$PWD/build/build_output.log"
       echo "BROKER_BUILD_LOG=$LOG_FILE"
       echo "##vso[task.setvariable variable=BROKER_BUILD_LOG]$LOG_FILE"
+      rm -f ./build/status.txt
+      set -o pipefail
       ./build.py --show-build-settings --target ${{ parameters.target }} 2>&1 | tee "$LOG_FILE"
-      final_status=$(<./build/status.txt)
+      build_exit=${PIPESTATUS[0]}
+      final_status=$(cat ./build/status.txt 2>/dev/null || true)
+      if [ -z "${final_status}" ]; then
+        final_status="${build_exit}"
+      fi
       echo "FINAL STATUS  = ${final_status}"
 
-      if [ $final_status != "0" ]; then
-        echo "Build & Testing Failed!" >&2
+      if [ "${final_status}" != "0" ]; then
+        echo "##vso[task.logissue type=error]build.py failed (status ${final_status})"
+        exit "${final_status}"
       fi
-    failOnStderr: true
+    failOnStderr: false
 
 - task: Bash@3
   condition: always()

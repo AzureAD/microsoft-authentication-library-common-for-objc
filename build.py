@@ -28,12 +28,26 @@ import traceback
 import sys
 import re
 import os
+import json
+import xml.etree.ElementTree as ET
 import argparse
+import shutil
 import device_guids
 
 from timeit import default_timer as timer
 
 script_start_time = timer()
+
+def select_formatter(enabled) :
+    if not enabled :
+        return None
+    if shutil.which("xcbeautify") :
+        return "xcbeautify"
+    if shutil.which("xcpretty") :
+        print("Warning: xcbeautify not found; falling back to xcpretty")
+        return "xcpretty"
+    print("Warning: xcbeautify/xcpretty not found; using raw xcodebuild output")
+    return None
 
 ios_sim_device = "iPhone 17"
 ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + ",OS=26.1'"
@@ -46,7 +60,7 @@ vision_sim_flags = "-sdk xrsimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIR
 default_workspace = "IdentityCore.xcworkspace"
 default_config = "Debug"
 
-use_xcpretty = True
+use_formatter = True
 show_build_settings = False
 
 class ColorValues:
@@ -120,7 +134,7 @@ class BuildTarget:
         self.start_time = None
         self.end_time = None
     
-    def xcodebuild_command(self, operation, xcpretty) :
+    def xcodebuild_command(self, operation, formatter) :
         """
         Generate and return an xcodebuild command string based on the ivars and operation provided.
         """
@@ -136,6 +150,7 @@ class BuildTarget:
             command += xcb_operation + " "
             if (xcb_operation in ("test", "test-without-building")) :
                 command += "-parallel-testing-enabled NO "
+                command += "-resultBundlePath './build/reports/" + self.name + ".xcresult' "
         
         if (self.project != None) :
             command += " -project " + self.project
@@ -149,7 +164,7 @@ class BuildTarget:
         if (operation == "build") :
             command += " RUN_CLANG_STATIC_ANALYZER=NO"
         
-        if (operation != None and "codecov" in self.operations) :
+        if (operation != None and "codecov" in self.operations and xcb_operation in ["test", "build-for-testing", "test-without-building"]) :
             command += " -enableCodeCoverage YES"
 
         if (self.platform == "iOS") :
@@ -167,10 +182,14 @@ class BuildTarget:
             log_path = self.log_path(operation)
             command += " 2>&1 | tee '" + log_path + "'"
 
-        if (xcpretty) :
+        if (formatter == "xcbeautify") :
+            command += " | xcbeautify"
+            if (operation == "test") :
+                command += " --report junit --report-path ./build/reports --junit-report-filename '" + self.name + ".xml'"
+        elif (formatter == "xcpretty") :
             command += " | xcpretty"
-        if (xcpretty and operation == "test") :
-            command += " --report junit --output ./build/reports/'" + self.name + ".xml'"
+            if (operation == "test") :
+                command += " --report junit --output ./build/reports/'" + self.name + ".xml'"
 
         return command
 
@@ -338,6 +357,124 @@ class BuildTarget:
             sys.stderr.writelines(lines[-100:])
         sys.stderr.write("----- end excerpt -----\n")
 
+    def load_xcresult_json(self, xcresult, kind) :
+        # `kind` is 'tests' or 'summary'. Returns parsed JSON or None.
+        try :
+            raw = subprocess.check_output("xcrun xcresulttool get test-results " + kind + " --path '" + xcresult + "' 2>/dev/null", shell = True)
+            return json.loads(raw.decode("utf-8"))
+        except Exception :
+            return None
+
+    def collect_failure_messages(self, nodes, messages) :
+        for node in nodes :
+            if node.get("nodeType") == "Failure Message" :
+                text = node.get("name", "")
+                if text :
+                    messages.append(text)
+            self.collect_failure_messages(node.get("children", []) or [], messages)
+
+    def collect_test_cases(self, nodes, suite_path, cases) :
+        # Only bundles and suites contribute to the JUnit classname; the "Test Plan"
+        # wrapper is the same for every case, so it is skipped to avoid noise.
+        suite_types = ("Unit test bundle", "UI test bundle", "Test Suite")
+        for node in nodes :
+            node_type = node.get("nodeType", "")
+            name = node.get("name", "")
+            children = node.get("children", []) or []
+            if node_type == "Test Case" :
+                result = node.get("result", "unknown")
+                messages = []
+                self.collect_failure_messages(children, messages)
+                if result == "Failed" :
+                    status = "failure"
+                elif result == "Skipped" :
+                    status = "skipped"
+                else :
+                    status = "passed"
+                cases.append({
+                    "name" : name,
+                    "classname" : ".".join([p for p in suite_path if p]) or self.name,
+                    "status" : status,
+                    "message" : " ".join(messages).strip(),
+                    "duration" : node.get("durationInSeconds", 0.0) or 0.0,
+                })
+            elif node_type in suite_types :
+                self.collect_test_cases(children, suite_path + [name], cases)
+            else :
+                self.collect_test_cases(children, suite_path, cases)
+
+    def write_junit_from_tests(self, tests_json, junit_path) :
+        # Derive JUnit from the .xcresult (the source of truth) instead of trusting
+        # xcbeautify's stdout scraping. When a test *crashes*, the crash kills the
+        # test process before xcbeautify sees a result line, so xcbeautify's JUnit
+        # silently omits the crashed test. The .xcresult still records the crash.
+        # xcresulttool has no JUnit export (`--format junit` is ignored and prints
+        # JSON), so we walk its test tree. Returns True when a report was written.
+        cases = []
+        self.collect_test_cases(tests_json.get("testNodes", []) or [], [], cases)
+        if not cases :
+            return False
+        total = len(cases)
+        failures = sum(1 for c in cases if c["status"] == "failure")
+        skipped = sum(1 for c in cases if c["status"] == "skipped")
+        attrs = { "name" : self.name, "tests" : str(total), "failures" : str(failures), "skipped" : str(skipped), "errors" : "0" }
+        suites = ET.Element("testsuites", attrs)
+        suite = ET.SubElement(suites, "testsuite", attrs)
+        for c in cases :
+            case_attrs = { "name" : c["name"], "classname" : c["classname"] }
+            if c["duration"] :
+                case_attrs["time"] = "%.3f" % c["duration"]
+            case_el = ET.SubElement(suite, "testcase", case_attrs)
+            if c["status"] == "failure" :
+                fail_el = ET.SubElement(case_el, "failure", { "message" : c["message"] or "Test failed" })
+                fail_el.text = c["message"]
+            elif c["status"] == "skipped" :
+                ET.SubElement(case_el, "skipped")
+        ET.ElementTree(suites).write(junit_path, encoding = "utf-8", xml_declaration = True)
+        return True
+
+    def report_test_failures(self, summary_json) :
+        # Print each failing test and its reason, and raise an ADO error issue per
+        # failure so the cause is visible on the run summary without downloading
+        # the .xcresult or expanding the raw build log.
+        if not summary_json :
+            return
+        failures = summary_json.get("testFailures", []) or []
+        failed_count = summary_json.get("failedTests", len(failures)) or 0
+        if not failures and not failed_count :
+            return
+        print("")
+        print("\u274c " + str(failed_count) + " test(s) failed in " + self.name + ":")
+        for f in failures :
+            name = f.get("testName") or f.get("testIdentifierString") or "Unknown test"
+            target = f.get("targetName", "")
+            reason = (f.get("failureText") or "no failure message").replace("\n", " ").strip()
+            location = (target + " / " + name) if target else name
+            print("  \u2022 " + location + " \u2014 " + reason)
+            if in_ado_ci :
+                print("##vso[task.logissue type=error]" + self.name + ": " + location + " \u2014 " + reason)
+        print("")
+
+    def report_test_results(self) :
+        xcresult = "./build/reports/" + self.name + ".xcresult"
+        if not os.path.isdir(xcresult) :
+            return
+        junit = "./build/reports/" + self.name + ".xml"
+        tests_json = self.load_xcresult_json(xcresult, "tests")
+        if tests_json :
+            self.write_junit_from_tests(tests_json, junit)
+        summary_json = self.load_xcresult_json(xcresult, "summary")
+        summary = "./build/reports/" + self.name + "-summary.txt"
+        subprocess.call("xcrun xcresulttool get test-results summary --path '" + xcresult + "' > '" + summary + "' 2>/dev/null || echo 'Could not extract test-results summary' > '" + summary + "'", shell = True)
+        print("##[group]Test results: " + self.name)
+        subprocess.call("cat '" + summary + "'", shell = True)
+        print("##[endgroup]")
+        self.report_test_failures(summary_json)
+        if in_ado_ci :
+            md = "./build/reports/" + self.name + "-summary.md"
+            subprocess.call("{ echo '### Test results: " + self.name + "'; echo; echo '```text'; cat '" + summary + "'; echo '```'; } > '" + md + "'", shell = True)
+            print("##vso[task.uploadsummary]" + os.path.abspath(md))
+
     def do_operation(self, operation) :
         exit_code = -1;
         print_operation_start(self.name, operation)
@@ -347,7 +484,9 @@ class BuildTarget:
             if (operation == "codecov") :
                 exit_code = self.do_codecov()
             else :
-                command = self.xcodebuild_command(operation, use_xcpretty)
+                command = self.xcodebuild_command(operation, output_formatter)
+                if (operation == "test") :
+                    subprocess.call("mkdir -p ./build/reports; rm -rf './build/reports/" + self.name + ".xcresult' './build/reports/" + self.name + ".xml'", shell = True)
                 if (operation == "build" and self.use_sonarcube == "true" and os.environ.get('TRAVIS') == "true") :
                     subprocess.call("rm -rf .sonar; rm -rf build-wrapper-output", shell = True)
                     command = "build-wrapper-macosx-x86 --out-dir build-wrapper-output " + command
@@ -355,6 +494,8 @@ class BuildTarget:
                 exit_code = subprocess.call("set -o pipefail;" + command, shell = True)
                 if (exit_code != 0) :
                     self.dump_error_context(operation)
+                if (operation == "test") :
+                    self.report_test_results()
             
             if (exit_code != 0) :
                 self.failed = True
@@ -401,14 +542,16 @@ clean = True
 
 parser = argparse.ArgumentParser(description='ADAL SDK Build Script')
 parser.add_argument('--no-clean', action='store_false', help="Skips the clean build products step")
-parser.add_argument('--no-xcpretty', action='store_false', help="Show raw xcodebuild output instead of using xcpretty")
+parser.add_argument('--no-xcpretty', '--no-xcbeautify', dest='use_formatter', action='store_false', help="Show raw xcodebuild output instead of using xcbeautify/xcpretty")
 parser.add_argument('--show-build-settings', action='store_true',  help="Show xcodebuild's settings output")
-parser.add_argument('--targets', nargs='+', help="Specify individual targets to run")
+parser.add_argument('--targets', '--target', dest='targets', nargs='+', help="Specify individual targets to run")
 args = parser.parse_args()
 
 clean = args.no_clean
-use_xcpretty = args.no_xcpretty
+use_formatter = args.use_formatter
 show_build_settings = args.show_build_settings
+output_formatter = select_formatter(use_formatter)
+in_ado_ci = os.environ.get("TF_BUILD", "").lower() == "true"
 
 if (args.targets != None) :
     print("Targets specified: " + str(args.targets))
