@@ -182,6 +182,11 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     return NO;
 }
 
+- (BOOL)isAADAuthority
+{
+    return NO;
+}
+
 - (BOOL)excludeFromAuthorityValidation
 {
     return NO;
@@ -365,6 +370,11 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
                                                        error:(__unused NSError *__autoreleasing*)error
 {
     return nil;
+}
+
+- (BOOL)isRecognizedMicrosoftIdentityHost:(__unused NSString *)host
+{
+    return NO;
 }
 
 #pragma mark - MSIDJsonSerializable

@@ -39,6 +39,7 @@
 #import "MSIDBartFeatureUtil.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDMobileOnboardingState.h"
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
 @end
@@ -727,6 +728,39 @@
     NSURL *actualURL = request.brokerRequestURL;
     NSDictionary *queryParams = [actualURL msidQueryParameters];
     XCTAssertNil(queryParams[MSID_BROKER_NEW_MOBILE_ONBOARDING_FLOW_KEY]);
+}
+
+- (void)testMobileOnboardingState_whenSharedAcrossParams_shouldReflectMutations
+{
+    MSIDMobileOnboardingState *state = [MSIDMobileOnboardingState new];
+    state.isNewMobileOnboardingFlow = NO;
+
+    MSIDInteractiveTokenRequestParameters *params1 = [self defaultTestParameters];
+    params1.mobileOnboardingState = state;
+
+    MSIDInteractiveTokenRequestParameters *params2 = [self defaultTestParameters];
+    params2.mobileOnboardingState = state;
+
+    XCTAssertFalse(params1.isNewMobileOnboardingFlow);
+    XCTAssertFalse(params2.isNewMobileOnboardingFlow);
+
+    // Simulate webview setting the flag on params1
+    params1.isNewMobileOnboardingFlow = YES;
+
+    // params2 should see the mutation through the shared state
+    XCTAssertTrue(params2.isNewMobileOnboardingFlow);
+    XCTAssertTrue(state.isNewMobileOnboardingFlow);
+}
+
+- (void)testMobileOnboardingState_whenSetWithoutState_shouldCreateStateLazily
+{
+    MSIDInteractiveTokenRequestParameters *params = [self defaultTestParameters];
+    XCTAssertNil(params.mobileOnboardingState);
+
+    params.isNewMobileOnboardingFlow = YES;
+
+    XCTAssertNotNil(params.mobileOnboardingState);
+    XCTAssertTrue(params.isNewMobileOnboardingFlow);
 }
 
 - (void)setBoundAppRefreshTokenFlight

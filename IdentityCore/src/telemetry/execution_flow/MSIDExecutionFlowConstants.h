@@ -123,3 +123,21 @@ typedef NS_ENUM(NSInteger, MSIDSSORemoteSilentTokenRequestTag)
 };
 /// Returns the string representation for each MSIDSSORemoteSilentTokenRequestTag value.
 FOUNDATION_EXPORT NSString * _Nonnull MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenRequestTag state);
+
+/// An enum of MSIDCloudInstanceHostNameTag.
+typedef NS_ENUM(NSInteger, MSIDCloudInstanceHostNameTag)
+{
+    MSIDCloudInstanceHostNameIgnoredTag = 0
+};
+/// Returns the string representation for each MSIDCloudInstanceHostNameTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDCloudInstanceHostNameTagToString(MSIDCloudInstanceHostNameTag state);
+
+/// An enum of MSIDPkeyAuthTag.
+typedef NS_ENUM(NSInteger, MSIDPkeyAuthTag)
+{
+    MSIDPkeyAuthAddedRefreshTokenCredentialTag = 0,
+    MSIDPkeyAuthSkippedRefreshTokenCredentialUntrustedHostTag
+};
+
+/// Returns the string representation for each MSIDPkeyAuthTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDPkeyAuthTagToString(MSIDPkeyAuthTag state);

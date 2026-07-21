@@ -27,11 +27,13 @@ NSString *const MSID_PLATFORM_KEY                  = @"x-client-SKU";
 NSString *const MSID_SOURCE_PLATFORM_KEY           = @"x-client-src-SKU";
 NSString *const MSID_PLATFORM_SEQUENCE_KEY         = @"x-client-xtra-sku";
 NSString *const MSID_VERSION_KEY                   = @"x-client-Ver";
+NSString *const MSID_BROKER_VER_KEY                = @"x-client-brkrver";
 NSString *const MSID_CPU_KEY                       = @"x-client-CPU";
 NSString *const MSID_OS_VER_KEY                    = @"x-client-OS";
 NSString *const MSID_DEVICE_MODEL_KEY              = @"x-client-DM";
 NSString *const MSID_APP_NAME_KEY                  = @"x-app-name";
 NSString *const MSID_APP_VER_KEY                   = @"x-app-ver";
+NSString *const MSID_APP_CLIENT_ID_KEY            = @"x-ms-client-id";
 NSString *const MSID_CCS_HINT_KEY                  = @"X-AnchorMailbox";
 NSString *const MSID_WEBAUTH_IGNORE_SSO_KEY        = @"x-ms-sso-Ignore-SSO";
 NSString *const MSID_WEBAUTH_REFRESH_TOKEN_KEY     = @"x-ms-sso-RefreshToken";
@@ -132,5 +134,9 @@ NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_new_window_in_browser";
 
 NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboarding";
+
+NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_profile_installed_notification_delay";
+
+NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 75.0;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

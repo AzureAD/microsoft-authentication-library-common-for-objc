@@ -35,6 +35,7 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDProviderType.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @interface MSIDAADAuthority()
 
@@ -251,6 +252,11 @@
     return YES;
 }
 
+- (BOOL)isAADAuthority
+{
+    return YES;
+}
+
 - (BOOL)supportsMAMScenarios
 {
 #if TARGET_OS_IPHONE
@@ -356,11 +362,42 @@
 
 #pragma mark - Sovereign
 
+- (BOOL)isRecognizedMicrosoftIdentityHost:(NSString *)host
+{
+    if ([NSString msidIsStringNilOrBlank:host]) return NO;
+
+    NSString *lowercaseHost = host.lowercaseString;
+
+    // A known AAD public/sovereign cloud host.
+    if ([MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:lowercaseHost]) return YES;
+
+    // Otherwise, a network environment already discovered via instance metadata.
+    // Host names are case-insensitive, but the cache may store preferred_network
+    // values without case normalization, so match case-insensitively.
+    for (NSString *cloudEnvironment in [MSIDAadAuthorityCache sharedInstance].allCloudNetworkEnvironments)
+    {
+        if ([cloudEnvironment caseInsensitiveCompare:lowercaseHost] == NSOrderedSame) return YES;
+    }
+
+    return NO;
+}
+
 - (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError *__autoreleasing*)error
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostInstanceName]) return nil;
-    
-    NSURL *cloudAuthorityURL = [self.url msidAADAuthorityWithCloudInstanceHostname:cloudHostInstanceName];
+
+    NSString *lowercaseHostName = cloudHostInstanceName.lowercaseString;
+
+    // Only build a cloud authority when the host is a recognized Microsoft identity
+    // host. This mirrors the check in setCloudAuthorityWithCloudHostName: so callers
+    // get consistent behavior.
+    if (![self isRecognizedMicrosoftIdentityHost:lowercaseHostName])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring cloud_instance_host_name in authorityWithUpdatedCloudHostInstanceName: host is not a recognized Microsoft identity host.");
+        return nil;
+    }
+
+    NSURL *cloudAuthorityURL = [self.url msidAADAuthorityWithCloudInstanceHostname:lowercaseHostName];
     return [[MSIDAADAuthority alloc] initWithURL:cloudAuthorityURL context:nil error:error];
 }
 

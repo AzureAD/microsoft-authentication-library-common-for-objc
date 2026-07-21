@@ -90,22 +90,41 @@ NS_ASSUME_NONNULL_BEGIN
                       completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
 
 /**
- * Caches response headers and detects an ASWebAuthenticationSession hand-off signal.
+ * Handles special redirect URLs (msauth://, browser://), merging caller-supplied
+ * additional headers onto the MDM enrollment request. The broker flow supplies the
+ * broker version (x-client-brkrver); the non-broker flow's base method above supplies
+ * the running process's first-party app-identity headers.
+ *
+ * @param URL The special redirect URL
+ * @param embeddedWebviewController The embedded webview controller instance
+ * @param additionalHeaders Extra headers to stamp on the enrollment request. Pass nil to add none.
+ * @param completion Completion block with the navigation decision or error
+ */
+- (void)handleSpecialRedirectURL:(NSURL *)URL
+       embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+               additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders
+                      completion:(void (^)(MSIDWebviewNavigationDecision * _Nullable navigationDecision, NSError * _Nullable error))completion;
+
+/**
+ * Caches response headers, processes onboarding telemetry, and detects an
+ * ASWebAuthenticationSession hand-off signal.
  * On YES, caller should cancel the WKWebView navigation and invoke the hand-off method below.
  *
- * Security: hand-off is honored only when @c responseURL is HTTPS and its host is on the allowlist.
+ * Security: hand-off is honored only when the response URL is HTTPS and its host is on the allowlist.
  *
- * @param headers     HTTP response headers (raw `allHeaderFields`)
- * @param responseURL URL of the response that delivered @c headers (@c NSHTTPURLResponse.URL).
- * @return YES if @c headers signal a hand-off AND @c responseURL is from allowed origin; NO otherwise.
+ * @param response    The HTTP navigation response containing headers and URL.
+ * @param embeddedWebviewController The controller that drove the navigation, passed explicitly
+ *        so the handler can access onboarding telemetry and other per-session state without
+ *        reaching back through shared state (which can race with session-completion cleanup).
+ * @return YES if headers signal a hand-off AND the response URL is from allowed origin; NO otherwise.
  */
-- (BOOL)processResponseHeadersAndCheckForASWebAuthHandoff:(NSDictionary *)headers
-                                              responseURL:(nullable NSURL *)responseURL;
+- (BOOL)processNavigationResponseAndCheckForASWebAuthHandoff:(NSHTTPURLResponse *)response
+                                   embeddedWebviewController:(nullable MSIDOAuth2EmbeddedWebviewController *)embeddedWebviewController;
 
 #if !MSID_EXCLUDE_SYSTEMWV
 /**
  * Performs the hand-off using the headers cached by the last
- * @c processResponseHeadersAndCheckForASWebAuthHandoff:responseURL: call.
+ * @c processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController: call.
  *
  * @param parentController The view controller that presents the webview
  * @param completion Completion block - MUST be called exactly once; failures surface as a @c failWithError decision

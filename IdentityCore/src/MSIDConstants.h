@@ -125,12 +125,15 @@ extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OS
 extern NSString * _Nonnull const MSID_SOURCE_PLATFORM_KEY;//The source SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_PLATFORM_SEQUENCE_KEY;
 extern NSString * _Nonnull const MSID_VERSION_KEY;
+extern NSString * _Nonnull const MSID_BROKER_VER_KEY;//x-client-brkrver (broker only)
 extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
 extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
 extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
 extern NSString * _Nonnull const MSID_APP_NAME_KEY;
 extern NSString * _Nonnull const MSID_APP_VER_KEY;
+extern NSString * _Nonnull const MSID_APP_CLIENT_ID_KEY;//x-ms-client-id (source app OAuth client ID, broker only)
 extern NSString * _Nonnull const MSID_CCS_HINT_KEY;
+
 extern NSString * _Nonnull const MSID_WEBAUTH_IGNORE_SSO_KEY;
 extern NSString * _Nonnull const MSID_WEBAUTH_REFRESH_TOKEN_KEY;
 extern NSString * _Nonnull const MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY;
@@ -290,5 +293,12 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 /// When ON, prevents mobile onboarding even if server signals enrollment.
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
+
+/// Flight key for MDM profile install notification delay (seconds).
+/// Owner: swagup
+extern NSString * _Nonnull const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY;
+
+/// Default delay (in seconds) before the MDM profile install notification fires.
+extern NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

@@ -27,6 +27,7 @@
 #import "MSIDSSOExtensionRequestDelegate.h"
 #import "MSIDRequestContext.h"
 #import "MSIDXpcProviderCaching.h"
+#import "MSIDXpcCanPerformFailureReason.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,6 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
              continueBlock:(MSIDSSOExtensionRequestDelegateCompletionBlock)continueBlock;
 
 + (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache;
+
+// Same as canPerformRequest: above, but additionally reports the specific reason for a NO result via the reason out-param.
+// The reason is left untouched if the caller passes nil.
++ (BOOL)canPerformRequest:(id<MSIDXpcProviderCaching>)xpcProviderCache
+                    reason:(MSIDXpcCanPerformFailureReason * _Nullable)reason;
 
 NS_ASSUME_NONNULL_END
 

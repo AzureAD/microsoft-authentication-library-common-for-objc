@@ -26,6 +26,7 @@
 #import "MSIDOnboardingBlobBuilder.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDSessionCachePersistence.h"
+#import "MSIDOAuth2Constants.h"
 
 static NSString * const kTestSuiteName = @"test.MSIDOnboardingBlobBuilderTests";
 static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_cache";
@@ -724,6 +725,175 @@ static NSString * const kCacheKey = @"com.microsoft.oneauth.session_correlation_
 
     parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
     XCTAssertEqualObjects(parsed[@"onboarding_mode"], @"brokered");
+}
+
+#pragma mark - processResponseHeaders:responseURL:
+
+- (NSUInteger)countOfStep:(NSString *)stepId inBlob:(NSDictionary *)parsed
+{
+    NSUInteger count = 0;
+    for (NSDictionary *step in parsed[@"steps_list"])
+    {
+        if ([step[@"step_id"] isEqualToString:stepId])
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+- (void)testProcessResponseHeaders_whenResponseURLHasHost_shouldSetLastLoadedDomain
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{} responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"last_loaded_domain"], @"login.microsoftonline.com");
+}
+
+- (void)testProcessResponseHeaders_whenNoClitelemHeader_shouldNotRecordBlockingError
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{} responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
+    XCTAssertEqual([parsed[@"steps_list"] count], 0);
+    XCTAssertFalse(builder.strongAuthSetupStarted);
+}
+
+- (void)testProcessResponseHeaders_whenClitelemErrorCodeIsZero_shouldNotRecordBlockingError
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,0,0,,"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
+    XCTAssertEqual([parsed[@"steps_list"] count], 0);
+}
+
+- (void)testProcessResponseHeaders_whenClitelemMalformed_shouldNotRecordBlockingError
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
+    XCTAssertEqual([parsed[@"steps_list"] count], 0);
+}
+
+- (void)testProcessResponseHeaders_whenNonBlockingErrorCode_shouldNotRecordBlockingErrorOrStep
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,50126,0,,"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([parsed[@"blocking_errors"] count], 0);
+    XCTAssertEqual([parsed[@"steps_list"] count], 0);
+}
+
+- (void)testProcessResponseHeaders_whenStrongAuthSetupErrorCode_shouldRecordStepAndSetFlag
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,50079,0,,"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    XCTAssertTrue(builder.strongAuthSetupStarted);
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"50079");
+    XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepStrongAuthSetupStarted inBlob:parsed], 1);
+}
+
+- (void)testProcessResponseHeaders_whenStrongAuthSetupErrorCodeSeenTwice_shouldRecordStepOnce
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    NSDictionary *headers = @{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,50079,0,,"};
+    NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com"];
+    [builder processResponseHeaders:headers responseURL:url];
+    [builder processResponseHeaders:headers responseURL:url];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepStrongAuthSetupStarted inBlob:parsed], 1);
+}
+
+- (void)testProcessResponseHeaders_whenMdmEnrollmentRequiredErrorCode_shouldRecordStep
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,53000,0,,"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepMdmEnrollmentRequired inBlob:parsed], 1);
+}
+
+- (void)testProcessResponseHeaders_whenDeviceRegistrationErrorCode_shouldRecordStep
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,50129,0,,"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepDeviceRegistrationRequired inBlob:parsed], 1);
+    XCTAssertFalse(builder.strongAuthSetupStarted);
+}
+
+- (void)testProcessResponseHeaders_whenDeviceNotCompliantErrorCode_shouldRecordStep
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,530001,0,,"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepDeviceNotCompliant inBlob:parsed], 1);
+}
+
+- (void)testProcessResponseHeaders_whenBrokerInstallForMamErrorCode_shouldRecordStep
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,50127,0,,"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepBrokerInstallPromptedForMAM inBlob:parsed], 1);
+}
+
+- (void)testProcessResponseHeaders_whenBrokerInstallErrorCode_shouldRecordStep
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,501271,0,,"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqual([self countOfStep:MSIDOnboardingBlobStepBrokerInstallPrompted inBlob:parsed], 1);
+}
+
+- (void)testProcessResponseHeaders_whenBlockingErrorNotMappedToStep_shouldRecordBlockingErrorOnly
+{
+    MSIDOnboardingBlobBuilder *builder = [self builderWithTestDefaults];
+
+    [builder processResponseHeaders:@{MSID_OAUTH2_CLIENT_TELEMETRY: @"2,50076,0,,"}
+                        responseURL:[NSURL URLWithString:@"https://login.microsoftonline.com"]];
+
+    NSDictionary *parsed = [self parsedJsonFromBlob:[builder finalizeBlob]];
+    XCTAssertEqualObjects(parsed[@"last_blocking_error"], @"50076");
+    XCTAssertEqual([parsed[@"steps_list"] count], 0);
+    XCTAssertFalse(builder.strongAuthSetupStarted);
 }
 
 @end
