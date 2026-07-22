@@ -43,7 +43,12 @@
             signingError = CFBridgingRelease(subError);
         }
 
-        NSString *errorDescription = [NSString stringWithFormat:@"Failed to sign JWT data with key. Underlying error: %@", signingError];
+        NSString *errorDescription = @"Failed to sign JWT data with key.";
+        if (signingError)
+        {
+            errorDescription = [NSString stringWithFormat:@"%@ Underlying error: %@", errorDescription, signingError];
+        }
+
         MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, signingError, nil, nil, YES);
     }
     return signature;
