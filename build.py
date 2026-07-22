@@ -136,10 +136,12 @@ class BuildTarget:
             command += xcb_operation + " "
             if (xcb_operation in ("test", "test-without-building")) :
                 command += "-parallel-testing-enabled NO "
-                # Fail fast on a wedged simulator/test instead of letting the job hang
-                # until the pipeline's 60-minute timeout. These bound how long any single
+                # Fail fast on a wedged visionOS simulator/test instead of letting the
+                # job hang until the pipeline's 60-minute timeout. Scoped to visionOS so
+                # iOS/Mac test behavior is unchanged. These bound how long any single
                 # test may run before xcodebuild aborts it and reports a failure.
-                command += "-test-timeouts-enabled YES -default-test-execution-time-allowance 300 -maximum-test-execution-time-allowance 600 "
+                if (self.platform == "visionOS") :
+                    command += "-test-timeouts-enabled YES -default-test-execution-time-allowance 300 -maximum-test-execution-time-allowance 600 "
         
         if (self.project != None) :
             command += " -project " + self.project
