@@ -54,6 +54,20 @@
     return self;
 }
 
+- (instancetype)initWithTokenResponse:(MSIDBrokerOperationTokenResponse *)operationTokenResponse
+                                state:(NSString *)state
+            fallbackRequestAccountUpn:(NSString *)fallbackRequestAccountUpn
+{
+    self = [self initWithTokenResponse:operationTokenResponse];
+    if (self)
+    {
+        _state = state;
+        _requestAccountUpn = fallbackRequestAccountUpn;
+    }
+
+    return self;
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error

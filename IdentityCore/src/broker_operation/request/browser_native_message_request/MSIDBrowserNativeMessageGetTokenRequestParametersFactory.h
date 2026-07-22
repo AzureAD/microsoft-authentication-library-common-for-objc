@@ -1,3 +1,4 @@
+//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -20,28 +21,25 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
+#import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
-
-@class MSIDBrokerOperationTokenResponse;
-@class MSIDBrokerOperationBrowserNativeMessageMATSReport;
+@class MSIDBrowserNativeMessageGetTokenRequest;
+@class MSIDInteractiveTokenRequestParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
+@interface MSIDBrowserNativeMessageGetTokenRequestParametersFactory : NSObject
 
-- (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse
-                                          state:(nullable NSString *)state
-                      fallbackRequestAccountUpn:(nullable NSString *)fallbackRequestAccountUpn;
-
-@property (nonatomic, nullable) NSString *state;
-@property (nonatomic, nullable) NSString *requestAccountUpn;
-@property (nonatomic, nullable) MSIDBrokerOperationBrowserNativeMessageMATSReport *matsReport;
-
++ (nullable MSIDInteractiveTokenRequestParameters *)requestParametersWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                                                     requestType:(MSIDRequestType)requestType
+                                                  boundAppRefreshTokenRequested:(BOOL)boundAppRefreshTokenRequested
+                                                            correlationIdOverride:(nullable NSUUID *)correlationIdOverride
+                                                                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

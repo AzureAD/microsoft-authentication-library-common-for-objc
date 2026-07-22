@@ -169,6 +169,11 @@
 
 - (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
+    if (self.requiresBoundRefreshToken)
+    {
+        return nil;
+    }
+
     self.appMetadata = [self appMetadataWithError:error];
     self.defaultAccessor.shouldSkipBoundAppRefreshTokenLookup = self.shouldSkipBoundAppRefreshTokenUsage;
 
@@ -190,11 +195,18 @@
 - (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self.defaultAccessor.shouldSkipBoundAppRefreshTokenLookup = self.shouldSkipBoundAppRefreshTokenUsage;
-    return [self.defaultAccessor getRefreshTokenWithAccount:self.requestParameters.accountIdentifier
-                                                   familyId:nil
-                                              configuration:self.requestParameters.msidConfiguration
-                                                    context:self.requestParameters
-                                                      error:error];
+    MSIDRefreshToken *refreshToken = [self.defaultAccessor getRefreshTokenWithAccount:self.requestParameters.accountIdentifier
+                                                                             familyId:nil
+                                                                        configuration:self.requestParameters.msidConfiguration
+                                                                              context:self.requestParameters
+                                                                                error:error];
+    if (self.requiresBoundRefreshToken && refreshToken && !refreshToken.isBoundRefreshToken)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Ignoring regular refresh token because a bound refresh token is required.");
+        return nil;
+    }
+
+    return refreshToken;
 }
 
 - (BOOL)updateFamilyIdCacheWithServerError:(NSError *)serverError

@@ -173,3 +173,4 @@ NSString *MSIDPkeyAuthTagToString(MSIDPkeyAuthTag state)
     // Fallback for any future enum values
     return [NSString stringWithFormat:@"MSIDPkeyAuthTag(%ld)", (long)state];
 }
+

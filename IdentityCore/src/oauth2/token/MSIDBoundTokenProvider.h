@@ -41,9 +41,13 @@ typedef void (^MSIDBoundTokenProviderCompletionBlock)(NSString *_Nullable respon
 /// broker through `ASAuthorizationSingleSignOnProvider`. Instead the host hands the GetToken request to
 /// this provider, which owns the orchestration that would otherwise live behind the SSO Extension:
 ///   - transforms `MSIDBrowserNativeMessageGetTokenRequest` into the parameters used across Common Core,
-///   - decides whether to service the request silently or interactively,
+///   - attempts silent acquisition when possible,
+///   - falls back to interactive acquisition at most once when the request allows UI,
 ///   - silent path: redeems a cached BART SPA against ESTS in-process (no broker flip),
 ///   - interactive path: flips to the broker (Authenticator) via URL scheme to mint the initial token.
+///
+/// `MSIDBrowserNativeMessageGetTokenRequest.canShowUI` controls fallback behavior. When UI is not
+/// allowed, the provider returns `MSIDErrorInteractionRequired` instead of launching interactive acquisition.
 @interface MSIDBoundTokenProvider : NSObject
 
 /// Acquire a bound token for the supplied browser-native-message GetToken request.
