@@ -89,14 +89,6 @@ stages:
           targetType: 'inline'
           script: |
             rm -rf ./build/status.txt
-      - task: PublishTestResults@2
-        condition: always()
-        displayName: Publish Test Report
-        inputs:
-          testResultsFormat: 'JUnit'
-          testResultsFiles: '$(Agent.BuildDirectory)/s/build/reports/*'
-          failTaskOnFailedTests: true
-          testRunTitle: 'Test Run - IdentityCore visionOS'
 
 # Stage 2: MSAL visionOS Framework validation
 - stage: Stage_MSAL_VisionOS
@@ -143,15 +135,7 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            rm -rf $(Agent.BuildDirectory)/s/build/status.txt
-      - task: PublishTestResults@2
-        condition: always()
-        displayName: Publish Test Report
-        inputs:
-          testResultsFormat: 'JUnit'
-          testResultsFiles: '$(Agent.BuildDirectory)/s/build/reports/*'
-          failTaskOnFailedTests: true
-          testRunTitle: 'Test Run - MSAL visionOS'
+            rm -rf $(Agent.BuildDirectory)/s/microsoft-authentication-library-for-objc/build/status.txt
 
 # Stage 3: Broker visionOS validation
 - stage: Stage_Broker_VisionOS

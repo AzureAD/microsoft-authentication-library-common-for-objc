@@ -12,7 +12,8 @@ steps:
     targetType: 'inline'
     script: |
       echo "=== Setting up visionOS SDK ==="
-      echo "Active developer directory: $(xcode-select -p)"
+      echo "Active developer directory:"
+      xcode-select -p
 
       # Check if visionOS SDK is already installed and simulator device exists
       if xcodebuild -showsdks 2>/dev/null | grep -qi vision; then
@@ -68,7 +69,7 @@ steps:
       echo "Available visionOS runtimes:"
       xcrun simctl list runtimes | grep -i visionOS || echo "No visionOS runtimes found"
 
-      if xcrun simctl list devices | grep -q "Apple Vision Pro"; then
+      if xcrun simctl list devices available | grep -q "Apple Vision Pro"; then
           echo "Apple Vision Pro simulator device already exists."
       else
           echo "Creating Apple Vision Pro simulator device..."
