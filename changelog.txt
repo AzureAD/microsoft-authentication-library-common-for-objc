@@ -1,5 +1,5 @@
 TBD
-* Prevent a crash when JWT signing is attempted with a NULL private key.
+* Prevent a crash when JWT signing is attempted with a NULL private key. (#1917)
 * Raise the minimum deployment targets to iOS 16.0 and macOS 12.0, and replace deprecated macOS SecTransform JWT signing with SecKeyCreateSignature. (#1915)
 
 Version 1.26.0
