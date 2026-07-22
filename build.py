@@ -136,6 +136,10 @@ class BuildTarget:
             command += xcb_operation + " "
             if (xcb_operation in ("test", "test-without-building")) :
                 command += "-parallel-testing-enabled NO "
+                # Fail fast on a wedged simulator/test instead of letting the job hang
+                # until the pipeline's 60-minute timeout. These bound how long any single
+                # test may run before xcodebuild aborts it and reports a failure.
+                command += "-test-timeouts-enabled YES -default-test-execution-time-allowance 300 -maximum-test-execution-time-allowance 600 "
         
         if (self.project != None) :
             command += " -project " + self.project
@@ -386,16 +390,24 @@ def launch_simulator(targets) :
     for target in targets :
         if target.platform == "iOS" :
             print("Booting iOS simulator...")
-            command = "xcrun simctl boot " + device_guids.get_ios(ios_sim_device)
+            udid = device_guids.get_ios(ios_sim_device)
             break
         else :
             print("Booting visionOS simulator...")
-            command = "xcrun simctl boot " + device_guids.get_ios(vision_sim_device)
+            udid = device_guids.get_ios(vision_sim_device)
             break
-    print(command)
-    
-    # This spawns a new process without us having to wait for it
-    subprocess.Popen(command, shell = True)
+
+    # Boot the simulator and BLOCK until it has finished booting. The previous
+    # implementation used a fire-and-forget Popen, which let xcodebuild start
+    # launching the test host into a not-yet-ready simulator. On visionOS this
+    # races the system shell (SurfBoard) and produces "Host is down" launch
+    # crashes and multi-minute hangs (which then hit the pipeline's job timeout).
+    # `simctl bootstatus <udid> -b` boots the device if needed and waits until
+    # boot completes, so the subsequent build/test runs against a ready simulator.
+    print("xcrun simctl boot " + udid)
+    subprocess.call("xcrun simctl boot " + udid, shell = True)
+    print("xcrun simctl bootstatus " + udid + " -b")
+    subprocess.call("xcrun simctl bootstatus " + udid + " -b", shell = True)
 
 clean = True
 

@@ -101,3 +101,30 @@ steps:
       echo "VisionOS specific check:"
       xcodebuild -showsdks | grep -i vision || echo "WARNING: VisionOS SDK not found after download"
     failOnStderr: false
+
+# Boot the Apple Vision Pro simulator and BLOCK until it is fully booted BEFORE the
+# build/test step runs. A cold or half-booted visionOS simulator crashes the system
+# shell (SurfBoard) with "Host is down" when xcodebuild launches the test host, which
+# surfaces either as test-host launch crashes or as multi-minute hangs that hit the
+# job timeout. build.py also boots+waits, but pre-booting here warms the simulator as
+# early as possible. This is a separate step so it still runs when the step above
+# short-circuits (SDK + device already present).
+- task: Bash@3
+  displayName: boot visionOS simulator
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo "=== Booting Apple Vision Pro simulator and waiting until ready ==="
+      VISION_UDID=$(xcrun simctl list devices available | grep "Apple Vision Pro" | grep -Eo '[0-9A-Fa-f-]{36}' | head -1)
+      if [ -z "$VISION_UDID" ]; then
+          echo "WARNING: Could not resolve an available Apple Vision Pro simulator to pre-boot." >&2
+          xcrun simctl list devices | grep -i "vision" || true
+          exit 0
+      fi
+      echo "Apple Vision Pro UDID: $VISION_UDID"
+      xcrun simctl boot "$VISION_UDID" || true
+      # bootstatus -b boots the device if needed and blocks until boot completes.
+      xcrun simctl bootstatus "$VISION_UDID" -b || true
+      echo "Final simulator state:"
+      xcrun simctl list devices | grep "Apple Vision Pro" || true
+    failOnStderr: false
