@@ -845,6 +845,71 @@
     XCTAssertEqualObjects(requestParameters.nestedAuthBrokerRedirectUri, @"my_redirect_uri");
 }
 
+#if TARGET_OS_IPHONE
+- (void)testInteractiveController_whenPromptCreate_andSsoExtensionEnabled_usesLocalInteractiveController
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.promptType = MSIDPromptTypeCreate;
+
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionInteractiveTokenRequestController
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters tokenRequestProvider:provider error:&error];
+
+    // prompt=create must bypass the broker / SSO extension so the account creation
+    // experience is shown instead of the Authenticator stored-account UI.
+    XCTAssertTrue([controller isMemberOfClass:MSIDLocalInteractiveController.class]);
+}
+
+- (void)testInteractiveController_whenPromptLogin_andSsoExtensionEnabled_usesSsoExtensionController
+{
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.promptType = MSIDPromptTypeLogin;
+
+    NSError *error;
+    SEL selectorForMSIDSSOExtensionInteractiveTokenRequestController = NSSelectorFromString(@"canPerformRequest");
+    [MSIDTestSwizzle classMethod:selectorForMSIDSSOExtensionInteractiveTokenRequestController
+                           class:[MSIDSSOExtensionInteractiveTokenRequestController class]
+                           block:(id)^(void)
+    {
+        return YES;
+    }];
+
+    SEL selectorForMSIDRequestParameters = NSSelectorFromString(@"shouldUseBroker");
+    [MSIDTestSwizzle instanceMethod:selectorForMSIDRequestParameters
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+        return YES;
+    }];
+
+    id<MSIDRequestControlling> controller = [MSIDRequestControllerFactory interactiveControllerForParameters:parameters tokenRequestProvider:provider error:&error];
+
+    // Any non-create interactive request should still be routed to the SSO extension.
+    XCTAssertTrue([controller isMemberOfClass:MSIDSSOExtensionInteractiveTokenRequestController.class]);
+}
+#endif
+
 - (MSIDInteractiveTokenRequestParameters *)requestParameters
 {
     MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
