@@ -26,6 +26,209 @@
 #import "MSIDBoundTokenProvider.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
 #import "MSIDError.h"
+#import "MSIDConstants.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDDefaultSilentTokenRequest.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDTokenResponseValidator.h"
+#import "MSIDTokenResult.h"
+#import "MSIDAccessToken.h"
+#import "MSIDAccount.h"
+#import "MSIDConfiguration.h"
+#import "MSIDAADV2TokenResponse.h"
+#import "MSIDTestConfiguration.h"
+#import "MSIDTestTokenResponse.h"
+#import "MSIDTestCacheDataSource.h"
+#import "MSIDTestIdTokenUtil.h"
+#import "MSIDBartFeatureUtil.h"
+#import "MSIDBoundRefreshToken.h"
+#import "MSIDRefreshToken.h"
+#import "MSIDBrokerConstants.h"
+#import "MSIDCacheAccessor.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDRequestControlling.h"
+#import "MSIDTokenRequestProviding.h"
+#import "NSString+MSIDExtensions.h"
+
+#pragma mark - Test seam (private methods under test)
+
+// Surface the provider's private orchestration methods so the suite can exercise the routing
+// decision and silent path directly, and so the stub subclass below can override the seams.
+@interface MSIDBoundTokenProvider (UnitTest)
+
+- (MSIDInteractiveTokenRequestParameters *)requestParametersFromRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                                                context:(nullable id<MSIDRequestContext>)context
+                                                                  error:(NSError *__autoreleasing *)error;
+
+- (BOOL)shouldServiceRequestSilently:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                          parameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                             context:(nullable id<MSIDRequestContext>)context;
+
+- (BOOL)promptForcesInteraction:(MSIDPromptType)prompt;
+
+- (void)acquireTokenSilentlyWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                   request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                   context:(nullable id<MSIDRequestContext>)context
+                           completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock;
+
+- (MSIDDefaultTokenCacheAccessor *)defaultTokenCache:(nullable id<MSIDRequestContext>)context;
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCache:(nullable id<MSIDRequestContext>)context;
+
+- (MSIDDefaultSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                                         tokenCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
+                                               accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+
+- (void)acquireTokenInteractivelyWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                        request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                        context:(nullable id<MSIDRequestContext>)context
+                                completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock;
+
+- (BOOL)isBartFeatureEnabled;
+- (BOOL)canPerformInteractiveRequest:(MSIDInteractiveTokenRequestParameters *)parameters;
+
+- (id<MSIDTokenRequestProviding>)tokenRequestProviderWithTokenCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
+                                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+
+- (id<MSIDRequestControlling>)interactiveControllerForParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                           tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                          error:(NSError *__autoreleasing *)error;
+
+@end
+
+#pragma mark - Interactive controller stub
+
+// Stands in for the real broker interactive controller so tests can drive the provider's interactive
+// orchestration with a canned result/error instead of flipping to the broker.
+@interface MSIDBoundTokenProviderTestControllerStub : NSObject <MSIDRequestControlling>
+
+@property (nonatomic, nullable) MSIDTokenResult *stubResult;
+@property (nonatomic, nullable) NSError *stubError;
+@property (nonatomic) BOOL acquireTokenCalled;
+
+@end
+
+@implementation MSIDBoundTokenProviderTestControllerStub
+
+- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
+{
+    self.acquireTokenCalled = YES;
+    completionBlock(self.stubResult, self.stubError);
+}
+
+@end
+
+#pragma mark - Silent engine stub
+
+// Stands in for the real MSIDDefaultSilentTokenRequest so tests can drive the provider's silent
+// orchestration with canned outcomes instead of resolving an authority and hitting the network.
+@interface MSIDBoundTokenProviderTestSilentRequestStub : MSIDDefaultSilentTokenRequest
+
+@property (nonatomic, nullable) MSIDTokenResult *stubResult;
+@property (nonatomic, nullable) NSError *stubError;
+
+@end
+
+@implementation MSIDBoundTokenProviderTestSilentRequestStub
+
+- (void)executeRequestWithCompletion:(MSIDRequestCompletionBlock)completionBlock
+{
+    completionBlock(self.stubResult, self.stubError);
+}
+
+@end
+
+#pragma mark - Provider stub (injectable dependencies)
+
+// Overrides the provider's dependency seams so the silent path runs against in-memory caches and a
+// stubbed silent engine. Mirrors how production would wire a real cache + MSIDDefaultSilentTokenRequest.
+@interface MSIDBoundTokenProviderTestStub : MSIDBoundTokenProvider
+
+@property (nonatomic, nullable) MSIDDefaultTokenCacheAccessor *injectedTokenCache;
+@property (nonatomic, nullable) MSIDAccountMetadataCacheAccessor *injectedAccountMetadataCache;
+@property (nonatomic, nullable) MSIDTokenResult *silentResult;
+@property (nonatomic, nullable) NSError *silentError;
+@property (nonatomic) BOOL silentRequestCreated;
+
+// Interactive path controls.
+@property (nonatomic) BOOL bartFeatureEnabled;
+@property (nonatomic) BOOL brokerAvailable;
+@property (nonatomic, nullable) MSIDTokenResult *interactiveResult;
+@property (nonatomic, nullable) NSError *interactiveError;
+@property (nonatomic, nullable) NSError *interactiveControllerBuildError;
+@property (nonatomic) BOOL interactiveControllerCreated;
+
+@end
+
+@implementation MSIDBoundTokenProviderTestStub
+
+- (MSIDDefaultTokenCacheAccessor *)defaultTokenCache:(__unused id<MSIDRequestContext>)context
+{
+    return self.injectedTokenCache;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCache:(__unused id<MSIDRequestContext>)context
+{
+    return self.injectedAccountMetadataCache;
+}
+
+- (MSIDDefaultSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                                         tokenCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
+                                               accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+{
+    self.silentRequestCreated = YES;
+
+    MSIDBoundTokenProviderTestSilentRequestStub *stub =
+    [[MSIDBoundTokenProviderTestSilentRequestStub alloc] initWithRequestParameters:parameters
+                                                                     forceRefresh:NO
+                                                                     oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                           tokenResponseValidator:[MSIDTokenResponseValidator new]
+                                                                       tokenCache:tokenCache
+                                                             accountMetadataCache:accountMetadataCache];
+    stub.stubResult = self.silentResult;
+    stub.stubError = self.silentError;
+    return stub;
+}
+
+- (BOOL)isBartFeatureEnabled
+{
+    return self.bartFeatureEnabled;
+}
+
+- (BOOL)canPerformInteractiveRequest:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+{
+    return self.brokerAvailable;
+}
+
+- (id<MSIDTokenRequestProviding>)tokenRequestProviderWithTokenCache:(__unused MSIDDefaultTokenCacheAccessor *)tokenCache
+                                              accountMetadataCache:(__unused MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+{
+    // The injected controller stub ignores the provider, so any non-nil sentinel keeps the flow going.
+    return (id<MSIDTokenRequestProviding>)[NSObject new];
+}
+
+- (id<MSIDRequestControlling>)interactiveControllerForParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+                                           tokenRequestProvider:(__unused id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                          error:(NSError *__autoreleasing *)error
+{
+    if (self.interactiveControllerBuildError)
+    {
+        if (error) *error = self.interactiveControllerBuildError;
+        return nil;
+    }
+
+    self.interactiveControllerCreated = YES;
+
+    MSIDBoundTokenProviderTestControllerStub *stub = [MSIDBoundTokenProviderTestControllerStub new];
+    stub.stubResult = self.interactiveResult;
+    stub.stubError = self.interactiveError;
+    return stub;
+}
+
+@end
 
 @interface MSIDBoundTokenProviderTests : XCTestCase
 
@@ -33,12 +236,19 @@
 
 @implementation MSIDBoundTokenProviderTests
 
-// A production-shaped GetToken request built from the real MSIDBrowserNativeMessageGetTokenRequest properties.
+#pragma mark - Fixtures
+
+// A production-shaped GetToken request built from the real MSIDBrowserNativeMessageGetTokenRequest
+// properties. Includes an account identifier, so it is eligible for the silent path by default.
 - (MSIDBrowserNativeMessageGetTokenRequest *)validRequest
 {
     MSIDBrowserNativeMessageGetTokenRequest *request = [MSIDBrowserNativeMessageGetTokenRequest new];
     request.clientId = @"00000000-0000-0000-0000-000000000001";
     request.redirectUri = @"brk-com.microsoft.test://auth";
+    request.authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                                    rawTenant:nil
+                                                      context:nil
+                                                        error:nil];
     request.scopes = @"user.read";
     request.state = @"test-state";
     request.prompt = MSIDPromptTypeDefault;
@@ -49,65 +259,42 @@
     request.instanceAware = NO;
     request.platformSequence = @"oneauth|1.2.3,msal|1.0.0";
     request.extraParameters = @{ @"foo": @"bar" };
+    request.accountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                              homeAccountId:@"uid.utid"];
     return request;
 }
 
-- (NSDictionary *)payloadDictionaryFromResponse:(NSString *)response
+- (MSIDInteractiveTokenRequestParameters *)parametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
 {
-    NSData *data = [response dataUsingEncoding:NSUTF8StringEncoding];
-    XCTAssertNotNil(data);
-
-    NSError *jsonError = nil;
-    NSDictionary *payload = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-    XCTAssertNil(jsonError);
-    XCTAssertTrue([payload isKindOfClass:NSDictionary.class]);
-
-    return payload;
+    NSError *error = nil;
+    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDBoundTokenProvider new] requestParametersFromRequest:request
+                                                                                                          context:nil
+                                                                                                            error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    return parameters;
 }
 
-// A GetToken request handed to the provider is serviced entirely in-process,
-// returning a payload, with no SSO extension / ASAuthorization involvement.
-- (void)testAcquireBoundToken_inProc_returnsPayload
+// A token result shaped like a cache hit (no fresh server response), which the provider serializes
+// directly from the cached access token.
+- (MSIDTokenResult *)cachedTokenResult
 {
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"in-proc completion"];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
 
-    [provider acquireBoundTokenWithRequest:[self validRequest]
-                                   context:nil
-                           completionBlock:^(NSString *response, NSError *error) {
-        XCTAssertNil(error);
-        XCTAssertNotNil(response);
-
-        NSDictionary *payload = [self payloadDictionaryFromResponse:response];
-        XCTAssertEqualObjects(payload[@"clientId"], @"00000000-0000-0000-0000-000000000001");
-        XCTAssertEqualObjects(payload[@"redirectUri"], @"brk-com.microsoft.test://auth");
-        XCTAssertEqualObjects(payload[@"scope"], @"user.read");
-        XCTAssertEqualObjects(payload[@"state"], @"test-state");
-        XCTAssertEqualObjects(payload[@"transport"], @"in_proc_common_core");
-        XCTAssertEqualObjects(payload[@"servicedBy"], @"MSIDBoundTokenProvider");
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectations:@[expectation] timeout:5.0];
+    return [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                           refreshToken:nil
+                                                idToken:response.idToken
+                                                account:account
+                                              authority:configuration.authority
+                                          correlationId:[NSUUID UUID]
+                                          tokenResponse:nil];
 }
 
-- (void)testAcquireBoundToken_nilRequest_returnsInvalidInternalParameterError
-{
-    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-    MSIDBrowserNativeMessageGetTokenRequest *nilRequest = nil;
-    XCTestExpectation *expectation = [self expectationWithDescription:@"nil request error"];
-
-    [provider acquireBoundTokenWithRequest:nilRequest
-                                   context:nil
-                           completionBlock:^(NSString *response, NSError *error) {
-        XCTAssertNil(response);
-        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-        XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
-        [expectation fulfill];
-    }];
-
-    [self waitForExpectations:@[expectation] timeout:5.0];
-}
+#pragma mark - Request validation
 
 - (void)testAcquireBoundToken_missingClientId_returnsError
 {
@@ -121,6 +308,7 @@
                                    context:nil
                            completionBlock:^(NSString *response, NSError *error) {
         XCTAssertNil(response);
+        XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
         XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
         [expectation fulfill];
@@ -129,18 +317,19 @@
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
 
-- (void)testAcquireBoundToken_missingRedirectUri_returnsInvalidDeveloperParameterError
+- (void)testAcquireBoundToken_missingAuthority_returnsError
 {
     MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
-    request.redirectUri = @"";
+    request.authority = nil;
 
-    XCTestExpectation *expectation = [self expectationWithDescription:@"redirect validation error"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"missing authority error"];
 
     [provider acquireBoundTokenWithRequest:request
                                    context:nil
                            completionBlock:^(NSString *response, NSError *error) {
         XCTAssertNil(response);
+        XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
         XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
         [expectation fulfill];
@@ -148,5 +337,543 @@
 
     [self waitForExpectations:@[expectation] timeout:5.0];
 }
+
+#pragma mark - Routing decision
+
+- (void)testShouldServiceRequestSilently_promptForcesUI_returnsNo
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.prompt = MSIDPromptTypeLogin;
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTAssertFalse([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
+}
+
+- (void)testShouldServiceRequestSilently_noAccountIdentifier_returnsNo
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.accountId = nil;
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTAssertFalse([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
+}
+
+- (void)testPromptForcesInteraction_interactivePrompts_returnYes
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+
+    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeLogin]);
+    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeConsent]);
+    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeCreate]);
+    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeSelectAccount]);
+    XCTAssertTrue([provider promptForcesInteraction:MSIDPromptTypeRefreshSession]);
+}
+
+- (void)testPromptForcesInteraction_silentPrompts_returnNo
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+
+    XCTAssertFalse([provider promptForcesInteraction:MSIDPromptTypeDefault]);
+    XCTAssertFalse([provider promptForcesInteraction:MSIDPromptTypePromptIfNecessary]);
+    XCTAssertFalse([provider promptForcesInteraction:MSIDPromptTypeNever]);
+}
+
+#if TARGET_OS_IPHONE
+
+#pragma mark - Silent path
+
+- (MSIDDefaultTokenCacheAccessor *)inMemoryTokenCache
+{
+    MSIDTestCacheDataSource *dataSource = [MSIDTestCacheDataSource new];
+    return [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+}
+
+- (MSIDAccountMetadataCacheAccessor *)inMemoryAccountMetadataCache
+{
+    MSIDTestCacheDataSource *dataSource = [MSIDTestCacheDataSource new];
+    return [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+}
+
+- (MSIDBoundTokenProviderTestStub *)configuredProviderStub
+{
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
+    provider.injectedTokenCache = [self inMemoryTokenCache];
+    provider.injectedAccountMetadataCache = [self inMemoryAccountMetadataCache];
+    // Default the interactive path to a usable broker flip; individual tests override the outcome.
+    provider.bartFeatureEnabled = YES;
+    provider.brokerAvailable = YES;
+    return provider;
+}
+
+- (void)testDefaultCacheAccessors_useSharedAdalKeychainGroup
+{
+    MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
+
+    MSIDDefaultTokenCacheAccessor *tokenCache = [provider defaultTokenCache:nil];
+    XCTAssertNotNil(tokenCache);
+    XCTAssertEqualObjects([(id)tokenCache.accountCredentialCache.dataSource valueForKey:@"keychainGroup"],
+                          [MSIDKeychainTokenCache defaultKeychainGroup]);
+
+    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [provider accountMetadataCache:nil];
+    XCTAssertNotNil(accountMetadataCache);
+
+    id metadataCache = [accountMetadataCache valueForKey:@"metadataCache"];
+    XCTAssertEqualObjects([[metadataCache valueForKey:@"dataSource"] valueForKey:@"keychainGroup"],
+                          [MSIDKeychainTokenCache defaultKeychainGroup]);
+}
+
+// When the silent engine returns a token result, the provider serializes it into the GetToken
+// response payload and reports success.
+- (void)testAcquireTokenSilently_engineReturnsResult_returnsPayload
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.silentResult = [self cachedTokenResult];
+    provider.silentError = nil;
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"payload"];
+
+    [provider acquireTokenSilentlyWithParameters:parameters
+                                         request:request
+                                         context:nil
+                                 completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(response);
+        XCTAssertTrue([response containsString:@"access_token"]);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.silentRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// When the silent engine reports interaction is required, the provider falls back to the interactive
+// broker flip. Here the injected controller returns a token result, so the flip yields a payload.
+- (void)testAcquireTokenSilently_engineReturnsInteractionRequired_fallsBackToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.silentResult = nil;
+    provider.silentError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
+                                           @"User interaction is required", nil, nil, nil, nil, nil, NO);
+    provider.interactiveResult = [self cachedTokenResult];
+    provider.interactiveError = nil;
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interactive fallback payload"];
+
+    [provider acquireTokenSilentlyWithParameters:parameters
+                                         request:request
+                                         context:nil
+                                 completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(response);
+        XCTAssertTrue([response containsString:@"access_token"]);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// A hard failure from the silent engine (not interaction-required) is propagated to the caller as-is.
+- (void)testAcquireTokenSilently_engineReturnsHardError_propagatesError
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.silentResult = nil;
+    provider.silentError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerOauth,
+                                           @"server rejected the request", nil, nil, nil, nil, nil, NO);
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"hard error"];
+
+    [provider acquireTokenSilentlyWithParameters:parameters
+                                         request:request
+                                         context:nil
+                                 completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorServerOauth);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// When the token cache cannot be constructed the silent engine is never created; the provider routes
+// to the interactive path, which also finds no cache and surfaces MSIDErrorInternal.
+- (void)testAcquireTokenSilently_cacheUnavailable_routesToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
+    provider.injectedTokenCache = nil;
+    provider.injectedAccountMetadataCache = nil;
+    provider.bartFeatureEnabled = YES;
+    provider.brokerAvailable = YES;
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"cache unavailable"];
+
+    [provider acquireTokenSilentlyWithParameters:parameters
+                                         request:request
+                                         context:nil
+                                 completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation fulfill];
+    }];
+
+    XCTAssertFalse(provider.silentRequestCreated);
+    XCTAssertFalse(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+#pragma mark - Interactive path
+
+// When the interactive controller returns a token result, the provider serializes it into the
+// GetToken response payload and reports success.
+- (void)testAcquireTokenInteractively_controllerReturnsResult_returnsPayload
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveResult = [self cachedTokenResult];
+    provider.interactiveError = nil;
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"payload"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(response);
+        XCTAssertTrue([response containsString:@"access_token"]);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// An error from the interactive controller is propagated to the caller as-is.
+- (void)testAcquireTokenInteractively_controllerReturnsError_propagatesError
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveResult = nil;
+    provider.interactiveError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel,
+                                                @"User cancelled the interactive flow", nil, nil, nil, nil, nil, NO);
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"interactive error"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorUserCancel);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// The BART feature flag is the load-bearing minting trigger: with it disabled the provider must refuse
+// the flip (a flip would mint an unbound token) and never build a controller.
+- (void)testAcquireTokenInteractively_bartFeatureDisabled_returnsInternalErrorWithoutFlipping
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.bartFeatureEnabled = NO;
+    provider.interactiveResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"bart disabled"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation fulfill];
+    }];
+
+    XCTAssertFalse(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// When the broker (Authenticator) is unavailable, the provider surfaces the dedicated
+// broker-not-available error rather than attempting the flip.
+- (void)testAcquireTokenInteractively_brokerUnavailable_returnsBrokerNotAvailable
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.brokerAvailable = NO;
+    provider.interactiveResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"broker unavailable"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorBrokerNotAvailable);
+        [expectation fulfill];
+    }];
+
+    XCTAssertFalse(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// A failure to construct the interactive controller is propagated to the caller.
+- (void)testAcquireTokenInteractively_controllerBuildFails_propagatesError
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveControllerBuildError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                                               @"could not build controller", nil, nil, nil, nil, nil, NO);
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"controller build fails"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// The interactive path also guards against a missing token cache and surfaces MSIDErrorInternal.
+- (void)testAcquireTokenInteractively_cacheUnavailable_returnsInternalError
+{
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
+    provider.injectedTokenCache = nil;
+    provider.injectedAccountMetadataCache = nil;
+    provider.bartFeatureEnabled = YES;
+    provider.brokerAvailable = YES;
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"cache unavailable"];
+
+    [provider acquireTokenInteractivelyWithParameters:parameters
+                                              request:request
+                                              context:nil
+                                      completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(response);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation fulfill];
+    }];
+
+    XCTAssertFalse(provider.interactiveControllerCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// End-to-end routing: a UI-forcing prompt bypasses the silent path and reaches the interactive flip,
+// which (with an injected controller) yields a payload.
+- (void)testAcquireBoundToken_promptForcesUI_routesToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.prompt = MSIDPromptTypeLogin;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"routes to interactive"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(response);
+        XCTAssertTrue([response containsString:@"access_token"]);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.interactiveControllerCreated);
+    XCTAssertFalse(provider.silentRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+// End-to-end routing: with no account identifier the request cannot be serviced silently, so it
+// reaches the interactive flip.
+- (void)testAcquireBoundToken_noAccountIdentifier_routesToInteractive
+{
+    MSIDBoundTokenProviderTestStub *provider = [self configuredProviderStub];
+    provider.interactiveResult = [self cachedTokenResult];
+
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    request.accountId = nil;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"routes to interactive"];
+
+    [provider acquireBoundTokenWithRequest:request
+                                   context:nil
+                           completionBlock:^(NSString *response, NSError *error) {
+        XCTAssertNil(error);
+        XCTAssertNotNil(response);
+        [expectation fulfill];
+    }];
+
+    XCTAssertTrue(provider.interactiveControllerCreated);
+    XCTAssertFalse(provider.silentRequestCreated);
+    [self waitForExpectations:@[expectation] timeout:5.0];
+}
+
+#pragma mark - Bound token cache lookup
+
+// Seeds a refresh token into the supplied cache for the account/configuration derived from the
+// request. When boundDeviceId is non-nil a Bound App Refresh Token (BART) is persisted; otherwise a
+// regular (non-bound) refresh token is persisted.
+- (void)seedRefreshTokenInCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
+                     parameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                  boundDeviceId:(NSString *)boundDeviceId
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"user@contoso.com" subject:@"subject"];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2TokenResponseWithAT:@"cached-at"
+                                                                                RT:@"some-rt"
+                                                                            scopes:[@"user.read" msidScopeSet]
+                                                                           idToken:idToken
+                                                                               uid:@"uid"
+                                                                              utid:@"utid"
+                                                                          familyId:nil];
+
+    // A device-bound RT is denoted by the BART device id; re-hydrate the response from JSON so the
+    // factory persists a MSIDBoundRefreshToken.
+    if (boundDeviceId)
+    {
+        NSMutableDictionary *json = [NSMutableDictionary dictionaryWithDictionary:response.jsonDictionary];
+        json[MSID_BART_DEVICE_ID_KEY] = boundDeviceId;
+        response = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:nil];
+    }
+
+    NSError *saveError = nil;
+    BOOL saved = [tokenCache saveTokensWithConfiguration:parameters.msidConfiguration
+                                                response:response
+                                                 factory:[MSIDAADV2Oauth2Factory new]
+                                                 context:nil
+                                                   error:&saveError];
+    XCTAssertNil(saveError);
+    XCTAssertTrue(saved);
+}
+
+// Walkable proof of what MSIDBoundTokenProvider retrieves at hasCachedTokenForParameters (the
+// getRefreshTokenWithAccount: call): when a BART is cached and the feature is enabled, the lookup
+// returns a bound token (MSIDBoundRefreshToken), not a regular refresh token.
+- (void)testCachedRefreshTokenLookup_whenBoundTokenSeeded_returnsBoundToken
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+
+    MSIDDefaultTokenCacheAccessor *tokenCache = [self inMemoryTokenCache];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:[self validRequest]];
+    [self seedRefreshTokenInCache:tokenCache parameters:parameters boundDeviceId:@"test-device-id"];
+
+    NSError *lookupError = nil;
+    MSIDRefreshToken *refreshToken = [tokenCache getRefreshTokenWithAccount:parameters.accountIdentifier
+                                                                  familyId:nil
+                                                             configuration:parameters.msidConfiguration
+                                                                   context:nil
+                                                                     error:&lookupError];
+
+    XCTAssertNil(lookupError);
+    XCTAssertNotNil(refreshToken);
+    XCTAssertTrue([refreshToken isKindOfClass:[MSIDBoundRefreshToken class]]);
+    XCTAssertEqualObjects([(MSIDBoundRefreshToken *)refreshToken boundDeviceId], @"test-device-id");
+
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+}
+
+// Drives the provider's actual routing gate: with only a BART cached (no valid access token), the
+// gate falls through to the refresh-token lookup and deems the request silent-eligible.
+- (void)testShouldServiceRequestSilently_whenOnlyBoundRefreshTokenCached_returnsYes
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+
+    MSIDDefaultTokenCacheAccessor *tokenCache = [self inMemoryTokenCache];
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+    [self seedRefreshTokenInCache:tokenCache parameters:parameters boundDeviceId:@"test-device-id"];
+
+    // Remove the cached access token so the gate must consult the refresh-token lookup.
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:parameters.accountIdentifier
+                                                         configuration:parameters.msidConfiguration
+                                                               context:nil
+                                                                 error:nil];
+    XCTAssertNotNil(accessToken);
+    XCTAssertTrue([tokenCache removeToken:accessToken context:nil error:nil]);
+
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
+    provider.injectedTokenCache = tokenCache;
+
+    XCTAssertTrue([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
+
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+}
+
+// Per the BART SPA design, a regular (non-bound) refresh token does not make the request silent-
+// eligible: with no cached BART the gate returns NO so orchestration falls back to interactive.
+- (void)testShouldServiceRequestSilently_whenOnlyRegularRefreshTokenCached_returnsNo
+{
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:YES];
+
+    MSIDDefaultTokenCacheAccessor *tokenCache = [self inMemoryTokenCache];
+    MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
+    MSIDInteractiveTokenRequestParameters *parameters = [self parametersForRequest:request];
+    [self seedRefreshTokenInCache:tokenCache parameters:parameters boundDeviceId:nil];
+
+    // Remove the cached access token so the gate must consult the refresh-token lookup.
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:parameters.accountIdentifier
+                                                         configuration:parameters.msidConfiguration
+                                                               context:nil
+                                                                 error:nil];
+    XCTAssertNotNil(accessToken);
+    XCTAssertTrue([tokenCache removeToken:accessToken context:nil error:nil]);
+
+    MSIDBoundTokenProviderTestStub *provider = [MSIDBoundTokenProviderTestStub new];
+    provider.injectedTokenCache = tokenCache;
+
+    XCTAssertFalse([provider shouldServiceRequestSilently:request parameters:parameters context:nil]);
+
+    [[MSIDBartFeatureUtil sharedInstance] setBartSupportInAppCache:NO];
+}
+
+#endif
 
 @end

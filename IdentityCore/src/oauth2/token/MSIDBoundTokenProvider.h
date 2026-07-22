@@ -54,6 +54,18 @@ typedef void (^MSIDBoundTokenProviderCompletionBlock)(NSString *_Nullable respon
                              context:(nullable id<MSIDRequestContext>)context
                      completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock;
 
+/// Completes an in-flight interactive broker flip when the host app receives the broker callback URL
+/// (e.g. Edge receives `msauth.<edge-bundle-id>://auth?...`). The host's app delegate routes the URL
+/// here, which correlates the response back to the controller that started the flip and drives the
+/// completion block supplied to `acquireBoundTokenWithRequest:context:completionBlock:`.
+/// @param url The callback URL delivered to the host app.
+/// @param sourceApplication The bundle id of the app that opened the URL (the broker), if known.
+/// @param context Optional request context used for correlation and logging.
+/// @return YES if the callback was consumed as a broker response, otherwise NO.
++ (BOOL)completeInteractiveRequestWithURL:(NSURL *)url
+                        sourceApplication:(nullable NSString *)sourceApplication
+                                  context:(nullable id<MSIDRequestContext>)context;
+
 @end
 
 NS_ASSUME_NONNULL_END
