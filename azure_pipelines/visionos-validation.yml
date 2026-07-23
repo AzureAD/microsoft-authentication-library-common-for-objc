@@ -79,7 +79,7 @@ stages:
             echo "POSSIBLE ERRORS: ${output}"
 
             if [ $final_status != "0" ]; then
-              echo "Build & Testing Failed! \n ${output}" >&2
+              echo "Build Failed! \n ${output}" >&2
             fi
           failOnStderr: true
       - task: Bash@3
@@ -126,7 +126,7 @@ stages:
             echo "POSSIBLE ERRORS: ${output}"
 
             if [ $final_status != "0" ]; then
-              echo "Build & Testing Failed! \n ${output}" >&2
+              echo "Build Failed! \n ${output}" >&2
             fi
           failOnStderr: true
       - task: Bash@3
