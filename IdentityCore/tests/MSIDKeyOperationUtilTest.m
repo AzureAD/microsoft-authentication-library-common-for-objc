@@ -220,6 +220,12 @@
     XCTAssertNil(rsaDataSignature);
 }
 
+- (void)testSignHashWithPrivateKey_NullPrivateKey_ReturnsNil
+{
+    NSData *dataDigest = [[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
+    XCTAssertNil([dataDigest msidSignHashWithPrivateKey:NULL]);
+}
+
 #pragma mark -- Test Utility
 
 -(void) populateRsaKeys

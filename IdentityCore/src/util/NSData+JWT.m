@@ -29,6 +29,12 @@
 
 - (NSData *)msidSignHashWithPrivateKey:(SecKeyRef)privateKey
 {
+    if (!privateKey)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot sign JWT data with a NULL private key.");
+        return nil;
+    }
+
     CFErrorRef subError = NULL;
     NSData *signature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
                                                                           kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256,
