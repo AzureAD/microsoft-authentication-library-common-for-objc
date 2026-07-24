@@ -276,7 +276,14 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 1200.0;
     id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
     if (![parsed isKindOfClass:[NSDictionary class]])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Could not parse onboarding blob JSON to extract session correlation id: %@", jsonError);
+        if (jsonError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Could not parse onboarding blob JSON to extract session correlation id: %@", jsonError);
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Could not extract session correlation id from onboarding blob JSON: expected a JSON object");
+        }
         return nil;
     }
 
