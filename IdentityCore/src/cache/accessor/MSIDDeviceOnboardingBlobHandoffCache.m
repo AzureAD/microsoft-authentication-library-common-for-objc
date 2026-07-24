@@ -125,6 +125,12 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 1200.0;
 {
     if (![dictionary isKindOfClass:[NSDictionary class]])
     {
+        // A nil dictionary is just a cache miss (no entry) and isn't worth logging; a non-nil,
+        // non-dictionary payload means something malformed is actually stored in the keychain.
+        if (dictionary != nil)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Ignoring hand-off entry: stored envelope is not a JSON object");
+        }
         return nil;
     }
 
@@ -395,13 +401,10 @@ forSessionCorrelationId:(NSString *)sessionCorrelationId
         return nil;
     }
 
-    NSDictionary *jsonDictionary = [jsonObjects.firstObject jsonDictionary];
-    if (![jsonDictionary isKindOfClass:[NSDictionary class]])
-    {
-        return nil;
-    }
-
-    return jsonDictionary;
+    // Return the raw payload and let MSIDDeviceOnboardingBlobHandoffEnvelope validate it, so
+    // malformed-entry detection and logging live in one place rather than being silently swallowed
+    // here.
+    return [jsonObjects.firstObject jsonDictionary];
 }
 
 - (BOOL)writeEnvelopeLocked:(NSDictionary *)envelope forSessionCorrelationId:(NSString *)sessionCorrelationId
