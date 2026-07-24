@@ -27,7 +27,6 @@
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDCacheKey.h"
 #import "MSIDJsonObject.h"
-#import "MSIDDIContainer.h"
 
 static NSString *const kFieldVersion = @"version";
 static NSString *const kFieldSessionCorrelationId = @"session_correlation_id";
@@ -48,7 +47,6 @@ static NSString *const kFieldWrittenAt = @"written_at";
 
 @property (nonatomic) MSIDDeviceOnboardingBlobHandoffCache *cache;
 @property (nonatomic) MSIDTestCacheDataSource *testDataSource;
-@property (nonatomic) id<MSIDExtendedTokenCacheDataSource> originalDataSource;
 
 @end
 
@@ -58,26 +56,12 @@ static NSString *const kFieldWrittenAt = @"written_at";
 {
     [super setUp];
 
-    // The shared MSIDDIContainer is process-wide, and several unrelated suites call -reset in their
-    // tearDown, which wipes the production +load registration for this class. Re-register a fresh
-    // instance here so this suite is self-contained and MSIDDeviceOnboardingBlobHandoffCache.sharedInstance
-    // resolves regardless of test ordering. registerClass: also clears any cached singleton, so each
-    // test gets its own isolated instance.
-    [[MSIDDIContainer sharedInstance] registerClass:[MSIDDeviceOnboardingBlobHandoffCache class]
-                                           lifetime:MSIDDIContainerLifetimeSingleton
-                                            factory:^id { return [[MSIDDeviceOnboardingBlobHandoffCache alloc] init]; }];
-
-    self.cache = MSIDDeviceOnboardingBlobHandoffCache.sharedInstance;
-    self.originalDataSource = self.cache.dataSource;
+    // Exercise a fresh, fully-isolated instance with a test data source rather than the process-wide
+    // shared instance. This keeps the suite independent of test ordering and DI container state, and
+    // avoids having to capture and restore a real keychain data source in tearDown.
+    self.cache = [[MSIDDeviceOnboardingBlobHandoffCache alloc] init];
     self.testDataSource = [MSIDTestCacheDataSource new];
     self.cache.dataSource = self.testDataSource;
-}
-
-- (void)tearDown
-{
-    [self.testDataSource reset];
-    self.cache.dataSource = self.originalDataSource;
-    [super tearDown];
 }
 
 #pragma mark - Helpers
