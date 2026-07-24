@@ -79,7 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
 ///   }
 @interface MSIDDeviceOnboardingBlobHandoffCache : NSObject <MSIDDeviceOnboardingBlobHandoffReading>
 
-- (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
 /// Shared instance backed by the default keychain group.

@@ -106,9 +106,11 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 1200.0;
     // consumed downstream as JSON (correlation-id extraction, OneAuth merge), so persisting a
     // malformed value would just plant a silent failure in the shared keychain.
     NSData *data = [onboardingBlob dataUsingEncoding:NSUTF8StringEncoding];
-    id parsed = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+    NSError *jsonError = nil;
+    id parsed = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError] : nil;
     if (![parsed isKindOfClass:[NSDictionary class]])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Rejecting write: onboarding blob is not a valid JSON object: %@", jsonError);
         return nil;
     }
 
@@ -183,12 +185,10 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 1200.0;
 @end
 
 @interface MSIDDeviceOnboardingBlobHandoffCache ()
-{
-    dispatch_queue_t _accessQueue;
-}
 
 @property (nonatomic) id<MSIDExtendedTokenCacheDataSource> dataSource;
 @property (nonatomic) MSIDCacheItemJsonSerializer *serializer;
+@property (nonatomic) dispatch_queue_t accessQueue;
 
 @end
 
@@ -196,21 +196,21 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 1200.0;
 
 #pragma mark - Shared Instance
 
++ (void)load
+{
+    // Register the production factory once, at class load, with singleton lifetime so the container
+    // owns and vends the single shared instance (the factory is invoked at most once, lazily on the
+    // first resolve). Doing this in +load rather than in +sharedInstance means a test can override
+    // the registration with its own MSIDDIContainerLifetimeSingleton factory before the first
+    // +sharedInstance call without the production registration clobbering it.
+    [[MSIDDIContainer sharedInstance] registerClass:[MSIDDeviceOnboardingBlobHandoffCache class]
+                                           lifetime:MSIDDIContainerLifetimeSingleton
+                                            factory:^id { return [[MSIDDeviceOnboardingBlobHandoffCache alloc] init]; }];
+}
+
 + (instancetype)sharedInstance
 {
-    MSIDDIContainer *container = [MSIDDIContainer sharedInstance];
-
-    // Register the production factory once with singleton lifetime so the container owns and
-    // vends the single shared instance (the factory is invoked at most once). Tests override this
-    // by registering their own MSIDDIContainerLifetimeSingleton factory that returns a fake.
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [container registerClass:[MSIDDeviceOnboardingBlobHandoffCache class]
-                        lifetime:MSIDDIContainerLifetimeSingleton
-                         factory:^id { return [[MSIDDeviceOnboardingBlobHandoffCache alloc] init]; }];
-    });
-
-    return [container resolveClass:[MSIDDeviceOnboardingBlobHandoffCache class]];
+    return [[MSIDDIContainer sharedInstance] resolveClass:[MSIDDeviceOnboardingBlobHandoffCache class]];
 }
 
 + (NSTimeInterval)defaultTtlSeconds
@@ -356,11 +356,17 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 1200.0;
     }
 
     dispatch_sync(_accessQueue, ^{
-        // The key is scoped to this session, so this can only ever remove our own entry.
+        // The key is scoped to this session, so this can only ever remove our own entry. This is
+        // the correctness-critical part callers wait on: after clear returns, this session's blob
+        // is gone and can't bleed into a later request.
         [self removeEnvelopeLockedForSessionCorrelationId:sessionCorrelationId];
-        // Opportunistically GC entries left behind by requests that were never read back (e.g. the
-        // user never returned from the system browser), so stale blobs don't linger in the shared
-        // keychain past their TTL.
+    });
+
+    // Opportunistically GC entries left behind by requests that were never read back (e.g. the
+    // user never returned from the system browser), so stale blobs don't linger in the shared
+    // keychain past their TTL. This is best-effort hygiene nothing waits on, so run it async on the
+    // same serial queue (ordered after the removal above) to keep it off the caller's clear path.
+    dispatch_async(_accessQueue, ^{
         [self removeExpiredEntriesLocked];
     });
 }

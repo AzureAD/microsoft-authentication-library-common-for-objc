@@ -37,6 +37,7 @@ static NSString *const kFieldWrittenAt = @"written_at";
 
 @property (nonatomic) id<MSIDExtendedTokenCacheDataSource> dataSource;
 @property (nonatomic) MSIDCacheItemJsonSerializer *serializer;
+@property (nonatomic) dispatch_queue_t accessQueue;
 
 - (MSIDCacheKey *)cacheKeyForSessionCorrelationId:(NSString *)sessionCorrelationId;
 
@@ -69,6 +70,14 @@ static NSString *const kFieldWrittenAt = @"written_at";
 }
 
 #pragma mark - Helpers
+
+// clearBlobForSessionCorrelationId: removes the caller's own entry synchronously but runs the
+// opportunistic expired-entry sweep asynchronously on the cache's serial queue. Block on that queue
+// so sweep assertions observe a settled state instead of racing the async GC.
+- (void)waitForClearSweep
+{
+    dispatch_sync(self.cache.accessQueue, ^{});
+}
 
 // Builds a realistic broker onboarding blob JSON string carrying an embedded session correlation id.
 - (NSString *)blobJsonWithSessionId:(NSString *)sessionId payload:(NSString *)payload
@@ -377,6 +386,7 @@ static NSString *const kFieldWrittenAt = @"written_at";
                                    writtenAt:now - 5.0];
 
     [self.cache clearBlobForSessionCorrelationId:cleared];
+    [self waitForClearSweep];
 
     // The cleared session's own entry is gone.
     XCTAssertNil([self readEnvelopeDirectlyForSessionId:cleared]);
@@ -424,6 +434,7 @@ static NSString *const kFieldWrittenAt = @"written_at";
     } forSessionId:corrupt];
 
     [self.cache clearBlobForSessionCorrelationId:trigger];
+    [self waitForClearSweep];
 
     XCTAssertNil([self readEnvelopeDirectlyForSessionId:corrupt]);
 }
@@ -446,6 +457,7 @@ static NSString *const kFieldWrittenAt = @"written_at";
     } forSessionId:noIdKey];
 
     [self.cache clearBlobForSessionCorrelationId:trigger];
+    [self waitForClearSweep];
 
     XCTAssertNotNil([self readEnvelopeDirectlyForSessionId:noIdKey]);
 }
