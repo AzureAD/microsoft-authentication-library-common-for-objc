@@ -61,10 +61,7 @@
      BOOL isSSOExtensionInteractionRequiredError = NO;
      
  #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 150000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
-     if (@available(iOS 15.0, macOS 12.0, *))
-     {
-         isSSOExtensionInteractionRequiredError = isSSOExtensionError && error.code == ASAuthorizationErrorNotInteractive;
-     }
+     isSSOExtensionInteractionRequiredError = isSSOExtensionError && error.code == ASAuthorizationErrorNotInteractive;
  #endif
      
      if (isSSOExtensionError && error.code == MSIDSSOExtensionUnderlyingError)

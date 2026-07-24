@@ -877,29 +877,10 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     [self tapElementAndWaitForKeyboardToAppear:element app:[XCUIApplication new]];
 }
 
-- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(XCUIApplication *)application
+- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(__unused XCUIApplication *)application
 {
 #if TARGET_OS_IPHONE
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 13.0f)
-    {
-        [element tap];
-        return;
-    }
-
-    XCUIElement *keyboard = [[application keyboards] element];
-
-    while (true)
-    {
-        [element pressForDuration:0.2f];
-
-        if (keyboard.exists && keyboard.hittable)
-        {
-            sleep(0.2f);
-            break;
-        }
-
-        sleep(0.2f);
-    }
+    [element tap];
 #endif
 }
 
