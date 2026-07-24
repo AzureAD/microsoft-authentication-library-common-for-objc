@@ -31,12 +31,17 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol MSIDDeviceOnboardingBlobHandoffReading <NSObject>
 
 /// Returns the onboarding blob JSON persisted for @c sessionCorrelationId, or nil when there
-/// is no (unexpired, matching) entry. Implementations validate that the stored envelope's
-/// session correlation id equals the argument and that the entry is within TTL.
+/// is no entry. The keychain slot is keyed by @c sessionCorrelationId, so a read can only ever
+/// surface the blob written for this exact request. The read is intentionally TTL-free: a blob is
+/// always returned to its own session, even after a long detour through the system browser, so
+/// late-returning users still get the broker-built steps. Residency is bounded by the clear-time
+/// sweep, not by read.
 - (nullable NSString *)readBlobJsonForSessionCorrelationId:(NSString *)sessionCorrelationId;
 
 /// Removes the hand-off entry for @c sessionCorrelationId. Callers clear immediately after a
-/// successful read so a stale blob can never bleed into a later request.
+/// successful read so a stale blob can never bleed into a later request. As a side effect this
+/// also garbage-collects EVERY other entry whose TTL has elapsed (e.g. a request the consumer never
+/// read back), so abandoned blobs don't linger in the shared keychain.
 - (void)clearBlobForSessionCorrelationId:(NSString *)sessionCorrelationId;
 
 @end
@@ -56,25 +61,32 @@ NS_ASSUME_NONNULL_BEGIN
 /// broker and OneAuth share ONE definition of the wire contract — the broker consumes it as
 /// @c MSIDDeviceOnboardingBlobHandoffCache, OneAuth as the prefixed fork.
 ///
-/// Storage: a single keychain item in @c MSIDKeychainTokenCache.defaultKeychainGroup (the same
-/// shared access group @c MSIDOnboardingStatusCache already relies on). A single slot is
-/// sufficient — at most one interactive request is in flight per app, and the read validates
-/// @c session_correlation_id so an unrelated request can never consume a stale slot.
+/// Storage: one keychain item per in-flight request in @c MSIDKeychainTokenCache.defaultKeychainGroup
+/// (the same shared access group @c MSIDOnboardingStatusCache relies on), keyed by the request's
+/// @c session_correlation_id. Keying by session id means a read only ever surfaces the blob for
+/// that exact request and a clear only ever removes its own entry — no single-slot contention and
+/// no need to validate a stored id against the caller.
 ///
 /// Envelope (JSON):
 ///   {
 ///     "version":                <int>,     // schema version of THIS envelope (== envelopeVersion)
-///     "session_correlation_id": "<uuid>",  // MUST equal the seed's session correlation id
+///     "session_correlation_id": "<uuid>",  // stored only so the clear-time TTL sweep can address
+///                                          //   an expired entry by its key; the read path keys
+///                                          //   off the keychain slot, not this field
 ///     "onboardingBlob":         "<blob>",  // the finalized onboarding blob JSON string
-///     "written_at":             <epoch s>  // unix time; the reader enforces the TTL
+///     "written_at":             <epoch s>  // unix time; the clear-time sweep bounds residency
+///                                          //   against the TTL (read does NOT enforce a TTL)
 ///   }
 @interface MSIDDeviceOnboardingBlobHandoffCache : NSObject <MSIDDeviceOnboardingBlobHandoffReading>
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 /// Shared instance backed by the default keychain group.
 + (instancetype)sharedInstance;
 
-/// Time-to-live applied to hand-off entries. Kept short: the entry only needs to survive the
-/// user's round trip through the system browser back into OneAuth.
+/// TTL used only by the clear-time garbage-collection sweep to decide when an abandoned entry
+/// (a request the consumer never read back) may be evicted. The read path does NOT apply this.
 + (NSTimeInterval)defaultTtlSeconds;
 
 /// Envelope schema version stamped into every write.
@@ -84,9 +96,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// the blob is missing/unparseable or carries no session id. Used to key the keychain slot.
 + (nullable NSString *)sessionCorrelationIdFromBlobJson:(nullable NSString *)blobJson;
 
-/// Write side. In production the BROKER is the writer. @c blobJson must be a non-empty JSON
-/// string whose @c session_correlation_id equals @c sessionCorrelationId. Overwrites any prior
-/// slot (single-item cache). Returns NO on invalid input or a keychain failure.
+/// Write side. In production the BROKER is the writer. @c blobJson is the finalized onboarding
+/// blob JSON string and @c sessionCorrelationId is the request's session correlation id (the
+/// broker derives it from the blob via @c sessionCorrelationIdFromBlobJson:). Stores under the
+/// per-session key, overwriting any prior entry for the same id. Returns NO on blank input, a
+/// @c blobJson that is not a valid JSON object, or a keychain failure.
 - (BOOL)writeBlobJson:(NSString *)blobJson
 forSessionCorrelationId:(NSString *)sessionCorrelationId;
 

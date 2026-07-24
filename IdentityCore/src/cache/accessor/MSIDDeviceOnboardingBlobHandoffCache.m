@@ -31,13 +31,19 @@
 #import "MSIDTokenCacheDataSource.h"
 #import "NSString+MSIDExtensions.h"
 
-// Single-item keychain coordinates. Both consumers (broker writer, OneAuth reader) resolve to
-// this same slot in the shared access group.
+// Per-session keychain coordinates. Each in-flight request stores its blob under an account
+// derived from its session correlation id, so a read/clear addresses exactly one request and
+// can never observe or stomp another. Both consumers (broker writer, OneAuth reader) resolve to
+// the same slot for a given session id in the shared access group.
 static NSString *const kHandoffCacheService = @"DeviceOnboardingBlobHandoff";
-static NSString *const kHandoffCacheAccount = @"com.microsoft.deviceOnboardingBlobHandoff";
+static NSString *const kHandoffCacheAccountPrefix = @"com.microsoft.deviceOnboardingBlobHandoff";
 
 // Envelope field keys.
 static NSString *const kFieldVersion = @"version";
+// session_correlation_id is both (a) the field name INSIDE the onboarding blob (written by
+// MSIDOnboardingBlobBuilder), from which we derive the keychain key, and (b) a field we copy into
+// our envelope so the clear-time TTL sweep can recover an entry's id and delete it by key. The
+// read path does NOT use it — the keychain slot is already keyed on the session id.
 static NSString *const kFieldSessionCorrelationId = @"session_correlation_id";
 static NSString *const kFieldOnboardingBlob = @"onboardingBlob";
 static NSString *const kFieldWrittenAt = @"written_at";
@@ -46,8 +52,129 @@ static NSString *const kFieldWrittenAt = @"written_at";
 // fields do not require a bump because the reader keys off field names.
 static const NSInteger kEnvelopeVersion = 1;
 
-// The entry only needs to outlive the user's round trip through the system browser.
-static const NSTimeInterval kDefaultHandoffTtlSeconds = 300.0;
+// GC hygiene / residency window used by the clear-time sweep only. The read path does not enforce
+// this — a blob is always returned to its own session regardless of age. This bounds how long an
+// entry may linger in the shared keychain, and gives a slow user (bounced out to the system browser
+// for SSO/MFA/consent) headroom so their still-in-flight blob isn't swept by another session's
+// clear before they return.
+static const NSTimeInterval kDefaultHandoffTtlSeconds = 1200.0;
+
+#pragma mark - Envelope
+
+/// Value type owning the on-the-wire envelope shape: it builds the dictionary we persist, parses
+/// one back leniently for read / GC, validates the schema version, and answers TTL-expiry. Keeping
+/// this in one place means write, read, and the clear-time sweep don't each re-implement the field
+/// names, parsing, and expiry rules.
+@interface MSIDDeviceOnboardingBlobHandoffEnvelope : NSObject
+
+@property (nonatomic, readonly) NSInteger version;
+@property (nonatomic, readonly, nullable) NSString *sessionCorrelationId;
+@property (nonatomic, readonly, nullable) NSString *onboardingBlob;
+@property (nonatomic, readonly) BOOL hasWrittenAt;
+@property (nonatomic, readonly) NSTimeInterval writtenAt;
+
+/// Builds an envelope for a write, stamped with the current schema version and @c writtenAt (unix
+/// seconds). Returns nil when @c onboardingBlob is not a valid JSON object, so a malformed payload
+/// never reaches the shared keychain (where it would be served back unchanged and silently fail
+/// downstream correlation-id parsing).
++ (nullable instancetype)envelopeWithSessionCorrelationId:(NSString *)sessionCorrelationId
+                                  onboardingBlob:(NSString *)onboardingBlob
+                                       writtenAt:(NSTimeInterval)writtenAt;
+
+/// Parses a stored dictionary. Returns nil only when @c dictionary isn't a dictionary at all;
+/// otherwise fields are populated best-effort so the caller can make read vs. GC decisions.
++ (nullable instancetype)envelopeFromJSONDictionary:(nullable NSDictionary *)dictionary;
+
+/// The serialized form persisted to the keychain.
+- (NSDictionary *)jsonDictionary;
+
+/// YES when the stamped version matches what this build understands.
+- (BOOL)isSupportedVersion;
+
+/// YES when the entry has no usable written_at, or is older than @c ttl at @c now (unix seconds).
+- (BOOL)isExpiredAtTime:(NSTimeInterval)now ttl:(NSTimeInterval)ttl;
+
+@end
+
+@implementation MSIDDeviceOnboardingBlobHandoffEnvelope
+
++ (nullable instancetype)envelopeWithSessionCorrelationId:(NSString *)sessionCorrelationId
+                                  onboardingBlob:(NSString *)onboardingBlob
+                                       writtenAt:(NSTimeInterval)writtenAt
+{
+    // Reject anything that isn't a valid JSON object: the blob is opaque to this cache but is
+    // consumed downstream as JSON (correlation-id extraction, OneAuth merge), so persisting a
+    // malformed value would just plant a silent failure in the shared keychain.
+    NSData *data = [onboardingBlob dataUsingEncoding:NSUTF8StringEncoding];
+    id parsed = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+    if (![parsed isKindOfClass:[NSDictionary class]])
+    {
+        return nil;
+    }
+
+    MSIDDeviceOnboardingBlobHandoffEnvelope *envelope = [[MSIDDeviceOnboardingBlobHandoffEnvelope alloc] init];
+    envelope->_version = kEnvelopeVersion;
+    envelope->_sessionCorrelationId = [sessionCorrelationId copy];
+    envelope->_onboardingBlob = [onboardingBlob copy];
+    envelope->_writtenAt = writtenAt;
+    envelope->_hasWrittenAt = YES;
+    return envelope;
+}
+
++ (nullable instancetype)envelopeFromJSONDictionary:(nullable NSDictionary *)dictionary
+{
+    if (![dictionary isKindOfClass:[NSDictionary class]])
+    {
+        return nil;
+    }
+
+    MSIDDeviceOnboardingBlobHandoffEnvelope *envelope = [[MSIDDeviceOnboardingBlobHandoffEnvelope alloc] init];
+
+    id version = dictionary[kFieldVersion];
+    envelope->_version = [version isKindOfClass:[NSNumber class]] ? [(NSNumber *)version integerValue] : 0;
+
+    id sessionId = dictionary[kFieldSessionCorrelationId];
+    envelope->_sessionCorrelationId = ([sessionId isKindOfClass:[NSString class]] && ((NSString *)sessionId).length > 0) ? sessionId : nil;
+
+    id blob = dictionary[kFieldOnboardingBlob];
+    envelope->_onboardingBlob = ([blob isKindOfClass:[NSString class]] && ((NSString *)blob).length > 0) ? blob : nil;
+
+    id writtenAt = dictionary[kFieldWrittenAt];
+    if ([writtenAt isKindOfClass:[NSNumber class]])
+    {
+        envelope->_writtenAt = [(NSNumber *)writtenAt doubleValue];
+        envelope->_hasWrittenAt = YES;
+    }
+
+    return envelope;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    return @{
+        kFieldVersion: @(self.version),
+        // Stored so the clear-time sweep can recover an expired entry's id and delete it by key.
+        kFieldSessionCorrelationId: self.sessionCorrelationId ?: @"",
+        kFieldOnboardingBlob: self.onboardingBlob ?: @"",
+        kFieldWrittenAt: @(self.writtenAt),
+    };
+}
+
+- (BOOL)isSupportedVersion
+{
+    return self.version == kEnvelopeVersion;
+}
+
+- (BOOL)isExpiredAtTime:(NSTimeInterval)now ttl:(NSTimeInterval)ttl
+{
+    if (!self.hasWrittenAt)
+    {
+        return YES;
+    }
+    return (now - self.writtenAt) > ttl;
+}
+
+@end
 
 @interface MSIDDeviceOnboardingBlobHandoffCache ()
 {
@@ -101,9 +228,24 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 300.0;
     return self;
 }
 
-- (MSIDCacheKey *)cacheKey
+- (MSIDCacheKey *)cacheKeyForSessionCorrelationId:(NSString *)sessionCorrelationId
 {
-    return [[MSIDCacheKey alloc] initWithAccount:kHandoffCacheAccount
+    // Bake the session correlation id into the account so each in-flight request gets its own
+    // keychain slot. Addressing by id means a read never has to validate a stored id against the
+    // request, and a clear can only ever remove its own entry.
+    NSString *account = [NSString stringWithFormat:@"%@.%@", kHandoffCacheAccountPrefix, sessionCorrelationId];
+    return [[MSIDCacheKey alloc] initWithAccount:account
+                                         service:kHandoffCacheService
+                                         generic:nil
+                                            type:nil];
+}
+
+- (MSIDCacheKey *)cacheKeyForAllEntries
+{
+    // Service-only key (nil account) matches every hand-off entry regardless of session id, so the
+    // TTL sweep can enumerate them. Never pass this to a remove — a service-only delete would wipe
+    // every entry, including fresh ones; expired entries are removed one-by-one via their own key.
+    return [[MSIDCacheKey alloc] initWithAccount:nil
                                          service:kHandoffCacheService
                                          generic:nil
                                             type:nil];
@@ -128,6 +270,7 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 300.0;
     id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
     if (![parsed isKindOfClass:[NSDictionary class]])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Could not parse onboarding blob JSON to extract session correlation id: %@", jsonError);
         return nil;
     }
 
@@ -159,41 +302,30 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 300.0;
 
 - (nullable NSString *)readBlobJsonForSessionCorrelationIdLocked:(NSString *)sessionCorrelationId
 {
-    NSDictionary *envelope = [self readEnvelopeLocked];
+    NSDictionary *jsonDictionary = [self readEnvelopeLockedForSessionCorrelationId:sessionCorrelationId];
+    MSIDDeviceOnboardingBlobHandoffEnvelope *envelope = [MSIDDeviceOnboardingBlobHandoffEnvelope envelopeFromJSONDictionary:jsonDictionary];
     if (!envelope)
     {
         return nil;
     }
 
-    // Validate the entry belongs to this request before trusting it.
-    id storedSessionId = envelope[kFieldSessionCorrelationId];
-    if (![storedSessionId isKindOfClass:[NSString class]] ||
-        ![(NSString *)storedSessionId isEqualToString:sessionCorrelationId])
+    // Reject envelopes this build doesn't understand rather than risk mis-merging a differently
+    // shaped blob. The keychain key already scopes the entry to this exact session.
+    if (![envelope isSupportedVersion])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Session correlation id mismatch; ignoring entry");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Ignoring hand-off entry with unsupported envelope version %ld", (long)envelope.version);
         return nil;
     }
 
-    // Enforce the TTL so a blob abandoned by a prior request can never resurface.
-    id writtenAt = envelope[kFieldWrittenAt];
-    if ([writtenAt isKindOfClass:[NSNumber class]])
-    {
-        NSTimeInterval age = [[NSDate date] timeIntervalSince1970] - [(NSNumber *)writtenAt doubleValue];
-        if (age < 0 || age > kDefaultHandoffTtlSeconds)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Entry outside TTL (age=%.0fs); removing", age);
-            [self removeEnvelopeLocked];
-            return nil;
-        }
-    }
-
-    id blob = envelope[kFieldOnboardingBlob];
-    if (![blob isKindOfClass:[NSString class]] || ((NSString *)blob).length == 0)
+    // Intentionally TTL-free on read: a blob is always returned to its own session, even after a
+    // long detour through the system browser, so a late-returning user still gets the broker-built
+    // steps. Residency is bounded by the clear-time sweep (removeExpiredEntriesLocked), not by read.
+    if ([NSString msidIsStringNilOrBlank:envelope.onboardingBlob])
     {
         return nil;
     }
 
-    return (NSString *)blob;
+    return envelope.onboardingBlob;
 }
 
 #pragma mark - Clear
@@ -206,14 +338,12 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 300.0;
     }
 
     dispatch_sync(_accessQueue, ^{
-        NSDictionary *envelope = [self readEnvelopeLocked];
-        id storedSessionId = envelope[kFieldSessionCorrelationId];
-        // Only clear the entry if it is the one we recovered — never stomp another request's blob.
-        if ([storedSessionId isKindOfClass:[NSString class]] &&
-            [(NSString *)storedSessionId isEqualToString:sessionCorrelationId])
-        {
-            [self removeEnvelopeLocked];
-        }
+        // The key is scoped to this session, so this can only ever remove our own entry.
+        [self removeEnvelopeLockedForSessionCorrelationId:sessionCorrelationId];
+        // Opportunistically GC entries left behind by requests that were never read back (e.g. the
+        // user never returned from the system browser), so stale blobs don't linger in the shared
+        // keychain past their TTL.
+        [self removeExpiredEntriesLocked];
     });
 }
 
@@ -230,13 +360,16 @@ forSessionCorrelationId:(NSString *)sessionCorrelationId
 
     __block BOOL success = NO;
     dispatch_sync(_accessQueue, ^{
-        NSDictionary *envelope = @{
-            kFieldVersion: @(kEnvelopeVersion),
-            kFieldSessionCorrelationId: sessionCorrelationId,
-            kFieldOnboardingBlob: blobJson,
-            kFieldWrittenAt: @([[NSDate date] timeIntervalSince1970]),
-        };
-        success = [self writeEnvelopeLocked:envelope];
+        MSIDDeviceOnboardingBlobHandoffEnvelope *envelope =
+            [MSIDDeviceOnboardingBlobHandoffEnvelope envelopeWithSessionCorrelationId:sessionCorrelationId
+                                                                      onboardingBlob:blobJson
+                                                                           writtenAt:[[NSDate date] timeIntervalSince1970]];
+        if (!envelope)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Skipping write: onboarding blob is not valid JSON");
+            return;
+        }
+        success = [self writeEnvelopeLocked:[envelope jsonDictionary] forSessionCorrelationId:sessionCorrelationId];
     });
 
     return success;
@@ -244,13 +377,19 @@ forSessionCorrelationId:(NSString *)sessionCorrelationId
 
 #pragma mark - Keychain plumbing
 
-- (nullable NSDictionary *)readEnvelopeLocked
+- (nullable NSDictionary *)readEnvelopeLockedForSessionCorrelationId:(NSString *)sessionCorrelationId
 {
     NSError *error = nil;
-    NSArray<MSIDJsonObject *> *jsonObjects = [self.dataSource jsonObjectsWithKey:[self cacheKey]
+    NSArray<MSIDJsonObject *> *jsonObjects = [self.dataSource jsonObjectsWithKey:[self cacheKeyForSessionCorrelationId:sessionCorrelationId]
                                                                       serializer:self.serializer
                                                                          context:nil
                                                                            error:&error];
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Failed to read hand-off entry: %@", error);
+        return nil;
+    }
+
     if (!jsonObjects || jsonObjects.count == 0)
     {
         return nil;
@@ -265,7 +404,7 @@ forSessionCorrelationId:(NSString *)sessionCorrelationId
     return jsonDictionary;
 }
 
-- (BOOL)writeEnvelopeLocked:(NSDictionary *)envelope
+- (BOOL)writeEnvelopeLocked:(NSDictionary *)envelope forSessionCorrelationId:(NSString *)sessionCorrelationId
 {
     NSError *error = nil;
     MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:envelope error:&error];
@@ -277,7 +416,7 @@ forSessionCorrelationId:(NSString *)sessionCorrelationId
 
     BOOL success = [self.dataSource saveJsonObject:jsonObject
                                         serializer:self.serializer
-                                               key:[self cacheKey]
+                                               key:[self cacheKeyForSessionCorrelationId:sessionCorrelationId]
                                            context:nil
                                              error:&error];
     if (!success)
@@ -288,10 +427,52 @@ forSessionCorrelationId:(NSString *)sessionCorrelationId
     return success;
 }
 
-- (void)removeEnvelopeLocked
+- (void)removeEnvelopeLockedForSessionCorrelationId:(NSString *)sessionCorrelationId
 {
     NSError *error = nil;
-    [self.dataSource removeAccountsWithKey:[self cacheKey] context:nil error:&error];
+    BOOL success = [self.dataSource removeAccountsWithKey:[self cacheKeyForSessionCorrelationId:sessionCorrelationId] context:nil error:&error];
+    if (!success)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Failed to remove hand-off entry: %@", error);
+    }
+}
+
+// Enumerates every hand-off entry and removes those whose written_at is older than the TTL (or
+// whose written_at is missing/unusable, i.e. a corrupt entry). Each expired entry is deleted by
+// its own per-session key, recovered from the envelope's session_correlation_id field.
+- (void)removeExpiredEntriesLocked
+{
+    NSError *error = nil;
+    NSArray<MSIDJsonObject *> *jsonObjects = [self.dataSource jsonObjectsWithKey:[self cacheKeyForAllEntries]
+                                                                      serializer:self.serializer
+                                                                         context:nil
+                                                                           error:&error];
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"(MSIDDeviceOnboardingBlobHandoffCache) Failed to enumerate hand-off entries for sweep: %@", error);
+        return;
+    }
+
+    if (!jsonObjects.count)
+    {
+        return;
+    }
+
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    for (MSIDJsonObject *jsonObject in jsonObjects)
+    {
+        MSIDDeviceOnboardingBlobHandoffEnvelope *envelope = [MSIDDeviceOnboardingBlobHandoffEnvelope envelopeFromJSONDictionary:[jsonObject jsonDictionary]];
+        if ([NSString msidIsStringNilOrBlank:envelope.sessionCorrelationId])
+        {
+            // No id to address the entry by, so it can't be selectively removed here; leave it.
+            continue;
+        }
+
+        if ([envelope isExpiredAtTime:now ttl:kDefaultHandoffTtlSeconds])
+        {
+            [self removeEnvelopeLockedForSessionCorrelationId:envelope.sessionCorrelationId];
+        }
+    }
 }
 
 @end
