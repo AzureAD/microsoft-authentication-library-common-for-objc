@@ -28,7 +28,6 @@
 #import "MSIDJsonObject.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDLogger+Internal.h"
-#import "MSIDTokenCacheDataSource.h"
 #import "NSString+MSIDExtensions.h"
 
 // Per-session keychain coordinates. Each in-flight request stores its blob under an account
