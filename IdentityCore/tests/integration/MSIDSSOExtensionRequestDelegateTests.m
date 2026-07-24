@@ -57,7 +57,6 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 150000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
 - (void)testAuthorizationControllerDidCompleteWithError_whenErrorIsSSOUIRequired_shouldReturnSSOUIRequired
 {
     MSIDSSOExtensionRequestDelegate *delegate = [MSIDSSOExtensionRequestDelegate new];
@@ -80,7 +79,6 @@
     [delegate authorizationController:controller didCompleteWithError:testError];
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
-#endif
 
 - (void)testAuthorizationControllerDidCompleteWithError_whenErrorIsMSALError_shouldReturnUnderlyingError
 {
