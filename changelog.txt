@@ -1,4 +1,4 @@
-TBD
+Version 1.26.1
 * Add MSIDDeviceOnboardingBlobHandoffCache, a shared-keychain accessor that hands the device onboarding telemetry blob across the broker <-> OneAuth process boundary when the broker's embedded webview navigation resolves to a browser:// URL and cancels the interactive session without an IPC response. The broker persists its finalized blob keyed by session correlation id before the hand-off; OneAuth recovers it on the MSIDErrorBrokerResponseNotReceived path and merges it with its own seed. Read is scoped to the exact session and TTL-free so a late-returning user still gets the broker-built steps; a bounded TTL sweep on clear garbage-collects abandoned entries. (#1918)
 
 Version 1.26.0
