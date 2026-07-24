@@ -133,6 +133,23 @@ static NSString *const kFieldWrittenAt = @"written_at";
     return [jsonObjects.firstObject jsonDictionary];
 }
 
+// Writes an arbitrary envelope dictionary straight into the data source under the per-session key.
+// Used for corrupt/partial envelopes (missing written_at or session id) that the public writer
+// would never produce, so the read/sweep tolerance for those can be exercised.
+- (void)writeRawEnvelopeDict:(NSDictionary *)envelope forSessionId:(NSString *)sessionId
+{
+    NSError *error = nil;
+    MSIDJsonObject *jsonObject = [[MSIDJsonObject alloc] initWithJSONDictionary:envelope error:&error];
+    XCTAssertNotNil(jsonObject, @"Failed to build json object: %@", error);
+
+    BOOL result = [self.testDataSource saveJsonObject:jsonObject
+                                           serializer:self.cache.serializer
+                                                  key:[self.cache cacheKeyForSessionCorrelationId:sessionId]
+                                              context:nil
+                                                error:&error];
+    XCTAssertTrue(result, @"Failed to write raw envelope: %@", error);
+}
+
 #pragma mark - Write then read
 
 - (void)testWriteThenRead_whenSessionMatches_shouldReturnBlob
@@ -290,6 +307,33 @@ static NSString *const kFieldWrittenAt = @"written_at";
     XCTAssertEqualObjects([self.cache readBlobJsonForSessionCorrelationId:sessionId], blob);
 }
 
+- (void)testRead_whenStoredBlobIsEmpty_shouldReturnNil
+{
+    // A supported, in-TTL envelope whose onboardingBlob itself is empty has nothing usable to hand
+    // back, so read yields nil rather than an empty string that would fail downstream parsing.
+    NSString *sessionId = @"12121212-0000-0000-0000-000000000000";
+    [self writeEnvelopeDirectlyWithSessionId:sessionId
+                                        blob:@""
+                                   writtenAt:[[NSDate date] timeIntervalSince1970]];
+
+    XCTAssertNil([self.cache readBlobJsonForSessionCorrelationId:sessionId]);
+}
+
+- (void)testRead_whenEnvelopeVersionMissing_shouldReturnNilAndNotDelete
+{
+    // version 0 stands in for a missing/unrecognized version field: like a future version, it is
+    // treated as unsupported and ignored on read (and left for the sweep, not purged here).
+    NSString *sessionId = @"13131313-0000-0000-0000-000000000000";
+    NSString *blob = [self blobJsonWithSessionId:sessionId payload:@"steps"];
+    [self writeEnvelopeDirectlyWithSessionId:sessionId
+                                        blob:blob
+                                   writtenAt:[[NSDate date] timeIntervalSince1970]
+                                     version:0];
+
+    XCTAssertNil([self.cache readBlobJsonForSessionCorrelationId:sessionId]);
+    XCTAssertNotNil([self readEnvelopeDirectlyForSessionId:sessionId]);
+}
+
 #pragma mark - Clear
 
 - (void)testClear_whenSessionMatches_shouldRemoveEntry
@@ -342,6 +386,70 @@ static NSString *const kFieldWrittenAt = @"written_at";
     XCTAssertNotNil([self readEnvelopeDirectlyForSessionId:fresh]);
 }
 
+- (void)testClear_whenSessionIdIsBlank_shouldBeNoOpAndNotSweep
+{
+    // A blank id must make clear bail out entirely — including the opportunistic sweep — so even an
+    // already-expired orphan is left in place rather than being collected as a side effect.
+    NSString *fresh = @"14141414-0000-0000-0000-000000000000";
+    NSString *expired = @"15151515-0000-0000-0000-000000000000";
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    [self writeEnvelopeDirectlyWithSessionId:fresh
+                                        blob:[self blobJsonWithSessionId:fresh payload:@"fresh"]
+                                   writtenAt:now - 5.0];
+    [self writeEnvelopeDirectlyWithSessionId:expired
+                                        blob:[self blobJsonWithSessionId:expired payload:@"expired"]
+                                   writtenAt:now - (MSIDDeviceOnboardingBlobHandoffCache.defaultTtlSeconds + 60.0)];
+
+    [self.cache clearBlobForSessionCorrelationId:@""];
+    [self.cache clearBlobForSessionCorrelationId:@"   "];
+
+    XCTAssertNotNil([self readEnvelopeDirectlyForSessionId:fresh]);
+    XCTAssertNotNil([self readEnvelopeDirectlyForSessionId:expired]);
+}
+
+- (void)testClear_shouldSweepEntryMissingWrittenAt
+{
+    // An entry with no written_at is corrupt/unusable; the sweep treats it as expired and removes
+    // it, addressed by the session id carried inside its own envelope.
+    NSString *trigger = @"16161616-0000-0000-0000-000000000000";
+    NSString *corrupt = @"17171717-0000-0000-0000-000000000000";
+    [self writeEnvelopeDirectlyWithSessionId:trigger
+                                        blob:[self blobJsonWithSessionId:trigger payload:@"t"]
+                                   writtenAt:[[NSDate date] timeIntervalSince1970] - 5.0];
+    [self writeRawEnvelopeDict:@{
+        kFieldVersion: @(MSIDDeviceOnboardingBlobHandoffCache.envelopeVersion),
+        kFieldSessionCorrelationId: corrupt,
+        kFieldOnboardingBlob: [self blobJsonWithSessionId:corrupt payload:@"c"],
+        // Deliberately no written_at.
+    } forSessionId:corrupt];
+
+    [self.cache clearBlobForSessionCorrelationId:trigger];
+
+    XCTAssertNil([self readEnvelopeDirectlyForSessionId:corrupt]);
+}
+
+- (void)testClear_shouldNotSweepEntryMissingSessionId
+{
+    // An expired entry whose envelope carries no session_correlation_id can't be addressed for a
+    // targeted delete, so the sweep leaves it rather than risk a broad removal.
+    NSString *trigger = @"18181818-0000-0000-0000-000000000000";
+    NSString *noIdKey = @"19191919-0000-0000-0000-000000000000";
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    [self writeEnvelopeDirectlyWithSessionId:trigger
+                                        blob:[self blobJsonWithSessionId:trigger payload:@"t"]
+                                   writtenAt:now - 5.0];
+    [self writeRawEnvelopeDict:@{
+        kFieldVersion: @(MSIDDeviceOnboardingBlobHandoffCache.envelopeVersion),
+        kFieldOnboardingBlob: [self blobJsonWithSessionId:noIdKey payload:@"c"],
+        kFieldWrittenAt: @(now - (MSIDDeviceOnboardingBlobHandoffCache.defaultTtlSeconds + 60.0)),
+        // Deliberately no session_correlation_id.
+    } forSessionId:noIdKey];
+
+    [self.cache clearBlobForSessionCorrelationId:trigger];
+
+    XCTAssertNotNil([self readEnvelopeDirectlyForSessionId:noIdKey]);
+}
+
 #pragma mark - sessionCorrelationIdFromBlobJson
 
 - (void)testSessionCorrelationIdFromBlobJson_whenPresent_shouldReturnId
@@ -358,6 +466,34 @@ static NSString *const kFieldWrittenAt = @"written_at";
     XCTAssertNil([MSIDDeviceOnboardingBlobHandoffCache sessionCorrelationIdFromBlobJson:@""]);
     XCTAssertNil([MSIDDeviceOnboardingBlobHandoffCache sessionCorrelationIdFromBlobJson:@"not-json"]);
     XCTAssertNil([MSIDDeviceOnboardingBlobHandoffCache sessionCorrelationIdFromBlobJson:[self blobJsonWithSessionId:nil payload:@"steps"]]);
+}
+
+- (void)testSessionCorrelationIdFromBlobJson_whenIdIsNonStringOrBlank_shouldReturnNil
+{
+    // Valid JSON object, but session_correlation_id isn't a usable string.
+    XCTAssertNil([MSIDDeviceOnboardingBlobHandoffCache sessionCorrelationIdFromBlobJson:@"{\"session_correlation_id\":12345}"]);
+    XCTAssertNil([MSIDDeviceOnboardingBlobHandoffCache sessionCorrelationIdFromBlobJson:@"{\"session_correlation_id\":\"\"}"]);
+    XCTAssertNil([MSIDDeviceOnboardingBlobHandoffCache sessionCorrelationIdFromBlobJson:@"{\"session_correlation_id\":\"   \"}"]);
+}
+
+#pragma mark - Concurrency
+
+- (void)testConcurrentWriteReadClear_acrossSessions_shouldStayConsistent
+{
+    // All public access is funneled through a private serial queue. Hammer it from many threads
+    // with per-session write/read/clear cycles to catch regressions if that serialization is ever
+    // weakened (each session id addresses its own slot, so results must stay deterministic).
+    const NSUInteger iterations = 200;
+    dispatch_apply(iterations, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(size_t i) {
+        NSString *sessionId = [NSString stringWithFormat:@"concurrent-%zu", i];
+        NSString *blob = [self blobJsonWithSessionId:sessionId payload:@"steps"];
+
+        XCTAssertTrue([self.cache writeBlobJson:blob forSessionCorrelationId:sessionId]);
+        XCTAssertEqualObjects([self.cache readBlobJsonForSessionCorrelationId:sessionId], blob);
+
+        [self.cache clearBlobForSessionCorrelationId:sessionId];
+        XCTAssertNil([self.cache readBlobJsonForSessionCorrelationId:sessionId]);
+    });
 }
 
 @end
