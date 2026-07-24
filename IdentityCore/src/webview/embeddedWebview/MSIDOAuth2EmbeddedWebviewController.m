@@ -219,7 +219,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     self.complete = YES;
     
     // Record the terminal onboarding step on the shared builder
-    if (_onboardingBlobBuilder && [MSIDWebAuthNUtil amIRunningInExtension])
+    if (_onboardingBlobBuilder)
     {
         [_onboardingBlobBuilder finalizeForEndURL:endURL error:error];
         _onboardingBlobBuilder = nil;

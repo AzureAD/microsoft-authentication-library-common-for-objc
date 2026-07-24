@@ -91,7 +91,14 @@
     #endif
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, correlationId, nil, YES);
+        // Distinguish this deliberate hand-off to the system browser from a generic programmatic
+        // cancel. The top-level code stays MSIDErrorSessionCanceledProgrammatically for backward
+        // compatibility with callers that treat all programmatic cancels alike; callers that need
+        // to detect the browser hand-off specifically can inspect NSUnderlyingErrorKey for
+        // MSIDErrorSessionCanceledBrowserHandoff.
+        NSError *browserHandoffError = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledBrowserHandoff, @"Authorization session was cancelled because control was handed to the system browser.", nil, nil, nil, correlationId, nil, NO);
+        
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, browserHandoffError, correlationId, nil, YES);
     }
     return YES;
 }
