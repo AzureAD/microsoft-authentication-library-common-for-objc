@@ -27,6 +27,7 @@
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDCacheKey.h"
 #import "MSIDJsonObject.h"
+#import "MSIDDIContainer.h"
 
 static NSString *const kFieldVersion = @"version";
 static NSString *const kFieldSessionCorrelationId = @"session_correlation_id";
@@ -56,6 +57,16 @@ static NSString *const kFieldWrittenAt = @"written_at";
 - (void)setUp
 {
     [super setUp];
+
+    // The shared MSIDDIContainer is process-wide, and several unrelated suites call -reset in their
+    // tearDown, which wipes the production +load registration for this class. Re-register a fresh
+    // instance here so this suite is self-contained and MSIDDeviceOnboardingBlobHandoffCache.sharedInstance
+    // resolves regardless of test ordering. registerClass: also clears any cached singleton, so each
+    // test gets its own isolated instance.
+    [[MSIDDIContainer sharedInstance] registerClass:[MSIDDeviceOnboardingBlobHandoffCache class]
+                                           lifetime:MSIDDIContainerLifetimeSingleton
+                                            factory:^id { return [[MSIDDeviceOnboardingBlobHandoffCache alloc] init]; }];
+
     self.cache = MSIDDeviceOnboardingBlobHandoffCache.sharedInstance;
     self.originalDataSource = self.cache.dataSource;
     self.testDataSource = [MSIDTestCacheDataSource new];
