@@ -25,6 +25,7 @@
 #import "MSIDDeviceOnboardingBlobHandoffCache.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDCacheKey.h"
+#import "MSIDDIContainer.h"
 #import "MSIDJsonObject.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDLogger+Internal.h"
@@ -197,14 +198,19 @@ static const NSTimeInterval kDefaultHandoffTtlSeconds = 1200.0;
 
 + (instancetype)sharedInstance
 {
-    static MSIDDeviceOnboardingBlobHandoffCache *singleton = nil;
-    static dispatch_once_t onceToken;
+    MSIDDIContainer *container = [MSIDDIContainer sharedInstance];
 
+    // Register the production factory once with singleton lifetime so the container owns and
+    // vends the single shared instance (the factory is invoked at most once). Tests override this
+    // by registering their own MSIDDIContainerLifetimeSingleton factory that returns a fake.
+    static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        singleton = [[self alloc] init];
+        [container registerClass:[MSIDDeviceOnboardingBlobHandoffCache class]
+                        lifetime:MSIDDIContainerLifetimeSingleton
+                         factory:^id { return [[MSIDDeviceOnboardingBlobHandoffCache alloc] init]; }];
     });
 
-    return singleton;
+    return [container resolveClass:[MSIDDeviceOnboardingBlobHandoffCache class]];
 }
 
 + (NSTimeInterval)defaultTtlSeconds
