@@ -89,6 +89,19 @@ target_specifiers = [
         "min_warn_codecov" : 70.0,
         "platform" : "visionOS"
     },
+    {
+        # EXPERIMENT ONLY — do NOT merge to dev.
+        # Lives on the scratch branch mipetriu-visionos-test-diagnostics so the
+        # visionos-test-diagnostics pipeline can re-enable the visionOS unit tests
+        # and capture *why* the test host hangs on launch. Production visionOS
+        # validation stays build-only via the "vision_library" target above.
+        "name" : "Vision Library Test (diagnostics)",
+        "target" : "vision_library_test",
+        "scheme" : "IdentityCore iOS",
+        "operations" : [ "build", "test" ],
+        "min_warn_codecov" : 70.0,
+        "platform" : "visionOS"
+    },
 ]
 
 def print_operation_start(name, operation) :
