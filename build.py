@@ -75,10 +75,17 @@ target_specifiers = [
         "platform" : "Mac"
     },
     {
+        # visionOS validation is build-only. The visionOS unit tests cannot be
+        # executed reliably in CI: xcodebuild hangs indefinitely launching the
+        # test host into the visionOS simulator (see the consolidated
+        # visionos-validation pipeline), so running "test" here only ever ends in
+        # the job's 60-minute timeout. Compiling the framework for the xrsimulator
+        # SDK is what actually guards against source breakage, and it matches the
+        # Broker repo, whose visionOS target is likewise build-only.
         "name" : "Vision Library",
         "target" : "vision_library",
         "scheme" : "IdentityCore iOS",
-        "operations" : [ "build", "test" ],
+        "operations" : [ "build" ],
         "min_warn_codecov" : 70.0,
         "platform" : "visionOS"
     },
