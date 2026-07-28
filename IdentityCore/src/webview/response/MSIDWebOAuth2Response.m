@@ -55,6 +55,7 @@
     
     if (self)
     {
+        // nil if self.parameters does not contain MSID_OAUTH2_ERROR
         _oauthError = [self oauthErrorFromParameters:self.parameters];
     }
     
@@ -74,11 +75,14 @@
     {
         NSString *errorDescription = parameters[MSID_OAUTH2_ERROR_DESCRIPTION];
         NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
+        // client-data for /authorize failures is returned by STS in redirect URL query parameter `clidata`.
+        NSString *clientData = parameters[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM];
         MSIDErrorCode errorCode = MSIDErrorCodeForOAuthErrorWithSubErrorCode(serverOAuth2Error, MSIDErrorAuthorizationFailed, subError);
+        NSDictionary *additionalUserInfo = [NSString msidIsStringNilOrBlank:clientData] ? nil : @{MSID_CLIENT_DATA_RESPONSE : clientData};
         
         MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Failed authorization code response with error %@, sub error %@, description %@", serverOAuth2Error, subError, MSID_PII_LOG_MASKABLE(errorDescription));
         
-        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil, NO);
+        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, additionalUserInfo, NO);
     }
     
     return nil;

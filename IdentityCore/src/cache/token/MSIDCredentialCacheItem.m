@@ -409,6 +409,7 @@
     key.target = self.target;
     key.applicationIdentifier = self.applicationIdentifier;
     key.tokenType = self.tokenType;
+    key.requestedClaims = self.requestedClaims;
     return key;
 }
 

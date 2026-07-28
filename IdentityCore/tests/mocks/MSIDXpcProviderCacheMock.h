@@ -29,9 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDXpcProviderCacheMock : NSObject <MSIDXpcProviderCaching>
 
+// Counters for assertions in unit tests.
+@property (nonatomic, readonly) NSUInteger cachedBrokerInstanceEndpointGetCount;
+@property (nonatomic, readonly) NSUInteger cachedBrokerInstanceEndpointSetCount;
+@property (nonatomic, readonly) NSUInteger setCachedBrokerInstanceEndpointRejectedCount;
+@property (nonatomic, readonly) NSUInteger clearCachedBrokerInstanceEndpointCallCount;
+
 - (instancetype)initWithXpcInstallationStatus:(BOOL)xpcInstallationStatus
-                               isXpcValidated:(BOOL)isXpcValidated
-                  shouldReturnCachedXpcStatus:(BOOL)shouldReturnCachedXpcStatus;
+                               isXpcValidated:(BOOL)isXpcValidated;
 
 @end
 

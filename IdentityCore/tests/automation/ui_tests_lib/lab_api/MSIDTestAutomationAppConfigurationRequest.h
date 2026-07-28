@@ -56,6 +56,11 @@ extern MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI;
 @property (nonatomic) MSIDTestAppWhiteListType appWhiteListType;
 @property (nonatomic) NSString *appId;
 
+/// Build a compound lookup key from request properties.
+/// Format: <appType>[_<audience>][_<whiteListType>][_<environment>]
+/// Only non-default values are appended.
++ (NSString *)keyForAppConfigurationRequest:(MSIDTestAutomationAppConfigurationRequest *)request;
+
 @end
 
 NS_ASSUME_NONNULL_END

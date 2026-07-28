@@ -49,6 +49,7 @@ NSString *const MSID_BROKER_CORRELATION_ID_KEY     = @"correlation_id";
 NSString *const MSID_BROKER_REQUEST_PARAMETERS_KEY = @"request_parameters";
 NSString *const MSID_BROKER_LOGIN_HINT_KEY         = @"login_hint";
 NSString *const MSID_BROKER_PROMPT_KEY             = @"prompt";
+NSString *const MSID_BROKER_NEW_MOBILE_ONBOARDING_FLOW_KEY = @"new_mobile_onboarding_flow";
 NSString *const MSID_BROKER_CLIENT_SDK_KEY         = @"client_sdk";
 NSString *const MSID_BROKER_CLIENT_ID_KEY          = @"client_id";
 NSString *const MSID_BROKER_FAMILY_ID_KEY          = @"family_id";
@@ -95,15 +96,8 @@ NSString *const MSID_PRIMARY_REGISTRATION_CLOUD = @"primary_registration_metadat
 NSString *const MSID_PRIMARY_REGISTRATION_CERTIFICATE_THUMBPRINT = @"primary_registration_metadata_certificate_thumbprint";
 NSString *const MSID_PLATFORM_SSO_STATUS_KEY = @"platform_sso_status";
 NSString *const MSID_JIT_TROUBLESHOOTING_HOST = @"jit_troubleshooting";
+NSString *const MSID_IGNORE_BROKER_REQUEST = @"ignore_broker_request";
 NSString *const MSID_IS_CALLER_MANAGED_KEY = @"isCallerAppManaged";
 NSString *const MSID_BROKER_SDM_WPJ_ATTEMPTED = @"sdm_reg_attempted";
 NSString *const MSID_BART_DEVICE_ID_KEY = @"bart_device_id";
 NSString *const MSID_FORCE_REFRESH_KEY = @"force_refresh";
-
-// Experiments
-NSString *const MSID_EXP_RETRY_ON_NETWORK = @"exp_retry_on_network";
-NSString *const MSID_EXP_ENABLE_CONNECTION_CLOSE = @"exp_enable_connection_close";
-NSString *const MSID_CREATE_NEW_URL_SESSION = @"create_new_url_session";
-// Http header
-NSString *const MSID_HTTP_CONNECTION = @"Connection";
-NSString *const MSID_HTTP_CONNECTION_VALUE = @"close";

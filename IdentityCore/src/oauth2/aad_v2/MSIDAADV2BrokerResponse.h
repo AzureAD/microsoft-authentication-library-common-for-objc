@@ -33,4 +33,9 @@
 @property (atomic, readonly) NSString *subError;
 @property (atomic, readonly) NSDictionary *httpHeaders;
 
+/// Optional onboarding telemetry blob populated by the broker (Authenticator) during the
+/// interactive flow and round-tripped via the URL-scheme broker response. Mirrors the
+/// SSO-extension contract on `MSIDBrokerOperationTokenResponse.onboardingBlob`.
+@property (atomic, readonly) NSString *onboardingBlob;
+
 @end

@@ -102,8 +102,8 @@
                certificatePassword:(NSString *)password
                  completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler
 {
-    // Validate required parameters
-    if (!authorityString || !resource || !clientId || !certificateData || !password)
+    // Validate required parameters (password can be empty for passwordless certs like LabAuth)
+    if (!authorityString || !resource || !clientId || !certificateData)
     {
         if (completionHandler)
         {
@@ -112,6 +112,9 @@
         }
         return;
     }
+    
+    // Default to empty string for passwordless certs
+    if (!password) password = @"";
     
     MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authorityString]
                                                                                   clientId:clientId
@@ -321,7 +324,9 @@
 + (SecIdentityRef)createIdentityFromData:(NSData *)data password:(NSString *)password
 {
     CFArrayRef resultArray = nil;
-    NSDictionary *options = @{(id)kSecImportExportPassphrase : password};
+    // Use empty string for passwordless certs (LabAuth from Key Vault has no password)
+    NSString *effectivePassword = password ?: @"";
+    NSDictionary *options = @{(id)kSecImportExportPassphrase : effectivePassword};
     OSStatus result = SecPKCS12Import((CFDataRef)data, (CFDictionaryRef)options, &resultArray);
     
     if (result != errSecSuccess)

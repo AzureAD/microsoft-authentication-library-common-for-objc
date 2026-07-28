@@ -213,7 +213,7 @@
         @"realm" : @"common",
         @"storage_environment" : @"login.windows2.net",
         @"username" : @"username",
-        @"is_sso_account": @NO, 
+        @"is_sso_account": @"0",
         @"id_token_claims" : @{ @"sub" : @"abc",
                                 @"middle_name" : @"Middle" }
     };
@@ -238,7 +238,8 @@
         @"realm" : @"common",
         @"storage_environment" : @"login.windows2.net",
         @"username" : @"username",
-        @"id_token_claims" : idTokenClaims
+        @"id_token_claims" : idTokenClaims,
+        @"is_sso_account"  : @"1",
     };
     
     NSError *error;
@@ -262,6 +263,7 @@
     XCTAssertEqualObjects(account.idTokenClaims.jsonDictionary, idTokenClaims);
     XCTAssertEqualObjects(account.idTokenClaims.subject, @"abc");
     XCTAssertEqualObjects(account.idTokenClaims.middleName, @"Middle");
+    XCTAssertTrue(account.isSSOAccount);
 }
 
 - (void)testInitWithJSONDictionary_whenAccountIdentifierNotDictionary_shouldReturnNil {

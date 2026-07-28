@@ -32,6 +32,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAadAuthorityCache.h"
@@ -48,6 +49,7 @@
 #import "MSIDBrokerConstants.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDOAuth2Constants.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -110,6 +112,69 @@
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
 
+- (void)testAuthorizationParametersFromParameters_whenClidataPassedInExtraQPs_shouldIncludeClidataInParameters
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.promptType = MSIDPromptTypeLogin;
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1" };
+    parameters.loginHint = @"fakeuser@contoso.com";
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
+                                        @{
+                                          @"client_id" : DEFAULT_TEST_CLIENT_ID,
+                                          @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
+                                          @"response_type" : @"code",
+                                          @"eqp1" : @"val1",
+                                          @"eqp2" : @"val2",
+                                          @"return-client-request-id" : @"true",
+                                          @"client-request-id" : parameters.correlationId.UUIDString,
+                                          @"login_hint" : @"fakeuser@contoso.com",
+                                          @"state" : requestState.msidBase64UrlEncode,
+                                          @"prompt" : @"login",
+                                          @"haschrome" : @"1",
+                                          @"scope" : @"scope1",
+                                          @"x-app-name" : [MSIDTestRequireValueSentinel new],
+                                          @"x-app-ver" : [MSIDTestRequireValueSentinel new],
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
+                                          @"code_challenge_method" : @"S256",
+                                          @"code_challenge" : pkce.codeChallenge,
+                                          @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
+                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
+                                          }];
+    [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+#if TARGET_OS_IPHONE
+    if ([MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SUPPORT_DUNA_CBA])
+    {
+        expectedQPs[@"switch_browser"] = @"1";
+    }
+#endif
+
+    XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
+- (void)testAuthorizationParametersFromParameters_whenClidataNotPassed_shouldNotIncludeClidataInParameters
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.promptType = MSIDPromptTypeLogin;
+    parameters.loginHint = @"fakeuser@contoso.com";
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    XCTAssertNil(params[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM]);
+}
+
 - (void)testWebViewConfiguration_whenNonPreferredNetworkAuthorityProvided_shouldSetPreferredAuthorityToConfiguration
 {
     MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
@@ -166,7 +231,7 @@
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
                                           @"code_challenge_method" : @"S256",
-                                          @"code_challenge" : pkce.codeChallenge
+                                          @"code_challenge" : pkce.codeChallenge,
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
 #if TARGET_OS_IPHONE
@@ -236,6 +301,108 @@
     XCTAssertNotNil(upgradeResponse.clientInfo, @"clientInfo should be valid");
     XCTAssertEqualObjects(upgradeResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
     XCTAssertEqualObjects(upgradeResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
+    XCTAssertNil(error);
+}
+
+#pragma mark - MDM enrollment completion
+
+- (void)testResponseWithURL_whenURLSchemeMsauthAndHostMDMEnrollmentComplete_shouldReturnMDMEnrollmentCompletionResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=success"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.status, @"success");
+    XCTAssertTrue(mdmResponse.isSuccess);
+    XCTAssertNil(mdmResponse.errorUrl);
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenMDMEnrollmentCompleteStatusIsCheckInTimedOut_shouldReturnMDMResponseWithIsSuccessYES
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=check_in_timed_out"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.status, @"check_in_timed_out");
+    XCTAssertTrue(mdmResponse.isSuccess, @"check_in_timed_out is contractually a success status.");
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenMDMEnrollmentCompleteStatusIsFailed_shouldReturnMDMResponseWithIsSuccessNO
+{
+    // Verifies the factory routes to MDM-completion regardless of the status value;
+    // status interpretation (success vs. failure) is the response's responsibility, not the factory's.
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=failed"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.status, @"failed");
+    XCTAssertFalse(mdmResponse.isSuccess);
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenMDMEnrollmentCompleteHasErrorUrl_shouldExtractErrorUrl
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    NSString *responseUrl = @"msauth://in_app_enrollment_complete?status=failed&errorUrl=https%3A%2F%2Flogin.microsoftonline.com%2Ferror";
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:responseUrl]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.errorUrl, @"https://login.microsoftonline.com/error");
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenURLSchemeMsauthAndHostMDMEnrollmentCompleteWithDifferentCapitalLetters_shouldReturnMDMResponse
+{
+    // Mirrors the existing UpgradeReg case-insensitive test; the host check is case-insensitive
+    // per MSIDWebMDMEnrollmentCompletionResponse's isEnrollmentCompletionResponse: implementation.
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://In_App_Enrollment_Complete?status=success"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.status, @"success");
+    XCTAssertTrue(mdmResponse.isSuccess);
     XCTAssertNil(error);
 }
 

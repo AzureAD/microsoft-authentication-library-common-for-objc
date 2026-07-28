@@ -27,6 +27,9 @@
 
 @interface MSIDTestSilentTokenRequest : MSIDSilentTokenRequest
 
+@property (nonatomic) MSIDTokenResult *testTokenResult;
+@property (nonatomic) NSError *testError;
+
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error;
 

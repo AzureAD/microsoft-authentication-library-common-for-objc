@@ -120,6 +120,33 @@
     
     XCTAssertEqualObjects(response.oauthError.userInfo[MSIDOAuthErrorKey], errorString);
     XCTAssertEqualObjects(response.oauthError.userInfo[MSIDOAuthSubErrorKey], subError);
+    XCTAssertNil(response.oauthError.userInfo[MSID_CLIENT_DATA_RESPONSE]);
+}
+
+- (void)testInitWithParameters_whenOAuthServerErrorContainsCliData_shouldPopulateClientDataInOAuthErrorUserInfo
+{
+    NSError *error = nil;
+    NSString *errorString = @"invalid_grant";
+    NSString *errorDescription = @"error description";
+    NSString *subError = @"suberror";
+    NSString *clientData = @"1|50076|basic_action||";
+
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
+    urlComponents.queryItems = @{
+                                 MSID_OAUTH2_ERROR : errorString,
+                                 MSID_OAUTH2_ERROR_DESCRIPTION : errorDescription,
+                                 MSID_OAUTH2_SUB_ERROR : subError,
+                                 MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : clientData,
+                                 }.urlQueryItemsArray;
+
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:urlComponents.URL
+                                                                                         context:nil
+                                                                                           error:&error];
+
+    XCTAssertNil(response.authorizationCode);
+    XCTAssertNil(error);
+    XCTAssertNotNil(response.oauthError);
+    XCTAssertEqualObjects(response.oauthError.userInfo[MSID_CLIENT_DATA_RESPONSE], clientData);
 }
 
 
@@ -155,6 +182,7 @@
     
     XCTAssertEqualObjects(response.oauthError.userInfo[MSIDOAuthErrorKey], errorString);
     XCTAssertEqualObjects(response.oauthError.userInfo[MSIDOAuthSubErrorKey], subError);
+    XCTAssertNil(response.oauthError.userInfo[MSID_CLIENT_DATA_RESPONSE]);
 }
 
 - (void)testInitWithParameters_whenNoStateReturnedAndNoAuthcodeAndNoOAuthError_shouldReturnNilWithInvalidStateError

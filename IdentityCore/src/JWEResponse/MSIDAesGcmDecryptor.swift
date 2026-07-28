@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
+#if !os(macOS)
 import Foundation
 import CryptoKit
 
@@ -37,3 +37,4 @@ public class MSIDAesGcmDecryptor: NSObject {
         return try AES.GCM.open(sealedBox, using: key, authenticating: aad)
     }
 }
+#endif

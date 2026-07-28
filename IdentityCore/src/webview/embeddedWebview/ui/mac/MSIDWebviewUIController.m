@@ -47,7 +47,7 @@ static WKWebViewConfiguration *s_webConfig;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        // initialize method can never be called simultaneously with any other MSAIMSIDWebviewUIController method
+        // initialize method can never be called simultaneously with any other MSIDWebviewUIController method
         // hence there is no need to synchronize access to s_webConfig here
         s_webConfig = [MSIDWebviewUIController defaultWKWebviewConfiguration];
     });

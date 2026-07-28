@@ -44,6 +44,7 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDTestParametersProvider.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDOAuth2Constants.h"
 
 @interface MSIDWebviewFactoryTests : XCTestCase
 
@@ -86,6 +87,57 @@
                                           }];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
+- (void)testAuthorizationParametersFromRequestParameters_whenClidataPassedInExtraQPs_shouldIncludeClidataInParameters
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1" };
+    parameters.loginHint = @"fakeuser@contoso.com";
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
+                                        @{
+                                          @"client_id" : DEFAULT_TEST_CLIENT_ID,
+                                          @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
+                                          @"response_type" : @"code",
+                                          @"code_challenge_method" : @"S256",
+                                          @"code_challenge" : pkce.codeChallenge,
+                                          @"eqp1" : @"val1",
+                                          @"eqp2" : @"val2",
+                                          @"login_hint" : @"fakeuser@contoso.com",
+                                          @"state" : requestState.msidBase64UrlEncode,
+                                          @"scope" : @"scope1",
+                                          @"x-app-name" : [MSIDTestRequireValueSentinel new],
+                                          @"x-app-ver" : [MSIDTestRequireValueSentinel new],
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
+                                          @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
+                                          MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM : @"1",
+                                          }];
+
+    XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
+- (void)testAuthorizationParametersFromRequestParameters_whenClidataNotPassed_shouldNotIncludeClidataInParameters
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.loginHint = @":)_@contoso.com";
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    XCTAssertNil(params[MSID_OAUTH2_CLIENT_DATA_QUERY_PARAM]);
 }
 
 - (void)testLogoutParametersFromRequestParameters_whenValidParameters_shouldReturnExpectedParams
@@ -213,7 +265,6 @@
                                     @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
                                     @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
     };
-
     NSURL *actualURL = conf.startURL;
     XCTAssertTrue([expectedRequest compareAndPrintDiff:actualURL.msidQueryParameters]);
     

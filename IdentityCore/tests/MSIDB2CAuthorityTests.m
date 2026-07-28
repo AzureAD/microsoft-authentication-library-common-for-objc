@@ -87,6 +87,17 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitB2CAuthority_whenB2CAuthorityValidWithEQP_shouldReturnNormalizedAuthority
+{
+    __auto_type authorityUrl = [@"https://login.microsoftonline.com/tfp/tenant/policy/qwe?bad=param" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.url, [@"https://login.microsoftonline.com/tfp/tenant/policy" msidUrl]);
+    XCTAssertNil(error);
+}
+
 - (void)testNormalizeAuthority_whenB2CAuthorityValidAndSlash_shouldReturnNormalizedAuthority
 {
     __auto_type authorityUrl = [@"https://login.microsoftonline.com/tfp/tenant/policy/" msidUrl];

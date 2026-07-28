@@ -170,6 +170,7 @@
 - (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self.appMetadata = [self appMetadataWithError:error];
+    self.defaultAccessor.shouldSkipBoundAppRefreshTokenLookup = self.shouldSkipBoundAppRefreshTokenUsage;
 
     //On first network try, app metadata will be nil but on every subsequent attempt, it should reflect if clientId is part of family
     NSString *familyId = self.appMetadata ? self.appMetadata.familyId : MSID_DEFAULT_FAMILY_ID;
@@ -188,6 +189,7 @@
 
 - (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
+    self.defaultAccessor.shouldSkipBoundAppRefreshTokenLookup = self.shouldSkipBoundAppRefreshTokenUsage;
     return [self.defaultAccessor getRefreshTokenWithAccount:self.requestParameters.accountIdentifier
                                                    familyId:nil
                                               configuration:self.requestParameters.msidConfiguration

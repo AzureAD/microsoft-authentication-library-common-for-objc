@@ -31,6 +31,7 @@
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializer.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 
 NSString *const MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY = @"additional_token_reponse";
 
@@ -70,6 +71,8 @@ NSString *const MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY = @"additional_to
             NSDictionary *tokenResponseJson = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:tokenResponseJsonString ofType:NSDictionary.class context:nil error:nil];
             _additionalTokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:tokenResponseJson classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:nil];
         }
+
+        _onboardingBlob = [json msidStringObjectForKey:MSIDOnboardingBlobIPCKey];
     }
     
     return self;
@@ -113,7 +116,12 @@ NSString *const MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY = @"additional_to
     }
     
     [json addEntriesFromDictionary:responseJson];
-    
+
+    if (self.onboardingBlob.length > 0)
+    {
+        json[MSIDOnboardingBlobIPCKey] = self.onboardingBlob;
+    }
+
     return json;
 }
 

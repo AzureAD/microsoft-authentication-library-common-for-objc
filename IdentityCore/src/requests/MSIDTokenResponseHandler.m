@@ -95,9 +95,8 @@ brokerRequestReceivedTimeStamp:(nullable NSDate *)brokerRequestReceivedTimeStamp
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     tokenResult.brokerAppVersion = brokerAppVersion;
 #pragma clang diagnostic pop
-    if (brokerAppVersion) {
-        [tokenResult insertBrokerMetaData:brokerAppVersion forKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
-    }
+    [tokenResult insertBrokerMetaData:brokerAppVersion forKey:MSID_TOKEN_RESULT_BROKER_APP_VERSION];
+
     // Calculate time intervals before storing
     double responseLatency = 0;
     double brokerHandlingTime = 0;

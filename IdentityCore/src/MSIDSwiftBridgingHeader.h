@@ -38,6 +38,11 @@
  MSAL podspec defines MSAL_COCOAPOD macro during pod creation and oneAuth defines ONEAUTH_COCOAPOD macro in its podspec.
  */
 
+/*  Concat KDF key derivation & AESGCM decryption relies on CryptoKit which is a swift dependency.
+    Certain macOS partners do not support swift in their build system.
+    Hence excluding swift bridging header generation for macOS platform until they upgrade their build system.
+*/
+#if !TARGET_OS_OSX
 #if defined(MSAL_COCOAPOD)
 #if __has_include(<MSAL/MSAL-Swift.h>)
 #import <MSAL/MSAL-Swift.h>
@@ -52,4 +57,5 @@
 #endif
 #else
 #import "IdentityCore-Swift.h"
+#endif
 #endif

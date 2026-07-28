@@ -25,8 +25,9 @@
 #import "MSIDThrottlingMetaData.h"
 #import "MSIDRequestContext.h"
 #import "MSIDExtendedTokenCacheDataSource.h"
+#import "MSIDThrottlingMetaDataReading.h"
 
-@interface MSIDThrottlingMetaDataCache : NSObject
+@interface MSIDThrottlingMetaDataCache : NSObject <MSIDThrottlingMetaDataReading>
 
 + (BOOL)updateLastRefreshTimeWithDatasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
                                      context:(id<MSIDRequestContext> __nullable)context
@@ -38,5 +39,22 @@
                                               context:(id<MSIDRequestContext> __nullable)context
                                                 error:(NSError *__nullable*__nullable)error;
 
+/**
+ Resolve the throttling metadata-reader implementation registered with
+ @c MSIDDIContainer, falling back to @c MSIDThrottlingMetaDataCache itself when
+ no override or registration is installed.
+
+ Production callers should send class messages through the resolved class, e.g.:
+ @code
+ NSDate *lastRefresh =
+     [[MSIDThrottlingMetaDataCache resolvedMetaDataReader]
+         getLastRefreshTimeWithDatasource:datasource context:ctx error:&error];
+ @endcode
+
+ Unit tests can install a fake conforming to @c MSIDThrottlingMetaDataReading
+ via @c -[MSIDDIContainer registerProtocol:lifetime:factory:] without runtime
+ swizzling.
+ */
++ (Class<MSIDThrottlingMetaDataReading> _Nonnull)resolvedMetaDataReader;
 
 @end

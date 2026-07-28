@@ -165,6 +165,17 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitCIAMAuthority_whenCIAMAuthorityValidNoSlashAndEQP_shouldReturnNormalizedAuthority
+{
+    __auto_type authorityUrl = [@"https://msidlab1.ciamlogin.com?bad=param" msidUrl];
+    NSError *error;
+    
+    __auto_type authority = [[MSIDCIAMAuthority alloc] initWithURL:authorityUrl context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.url, [@"https://msidlab1.ciamlogin.com/msidlab1.onmicrosoft.com" msidUrl]);
+    XCTAssertNil(error);
+}
+
 - (void)testInitCIAMAuthority_whenCIAMAuthorityValidAndSlash_shouldReturnNormalizedAuthority
 {
     __auto_type authorityUrl = [@"https://msidlab1.ciamlogin.com/" msidUrl];

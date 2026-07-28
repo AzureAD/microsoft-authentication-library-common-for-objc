@@ -44,7 +44,7 @@
         
         MSIDRedirectUriValidationResult validationResult = [MSIDRedirectUri redirectUriIsBrokerCapable:customRedirectURL
                                                                                                  error:error];
-        BOOL isBrokerCapable = validationResult == MSIDRedirectUriValidationResultMatched || bypassRedirectValidation;
+        BOOL isBrokerCapable = !bypassRedirectValidation && validationResult == MSIDRedirectUriValidationResultMatched;
         return [[MSIDRedirectUri alloc] initWithRedirectUri:customRedirectURL
                                               brokerCapable:isBrokerCapable];
     }

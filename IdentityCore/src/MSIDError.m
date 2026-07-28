@@ -75,6 +75,20 @@ NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescri
                                   userInfo:additionalUserInfo];
 }
 
+MSIDErrorCode MSIDErrorCodeForOAuthErrorWithSTSErrorCodes(NSString *oauthError, MSIDErrorCode defaultCode, NSArray<NSNumber *> *stsErrorCodes)
+{
+    if (!stsErrorCodes || !stsErrorCodes.count)
+    {
+        return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame
+        && [stsErrorCodes containsObject:@(MSIDSTSErrorCodeResetPasswordRequired)])
+    {
+        return MSIDErrorServerInvalidRequestResetPasswordRequired;
+    }
+    return MSIDErrorCodeForOAuthError(oauthError, defaultCode);
+}
+
 MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode)
 {
     if (oauthError && [oauthError caseInsensitiveCompare:@"invalid_request"] == NSOrderedSame)
@@ -169,6 +183,8 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorAttemptToOpenURLFromExtension),
                       @(MSIDErrorUINotSupportedInExtension),
                       @(MSIDErrorInsufficientDeviceStrength),
+                      @(MSIDErrorMDMEnrollmentCompletedNeedsRetry),
+                      @(MSIDErrorInvalidASWebAuthenticationURL),
                       // Broker errors
                       @(MSIDErrorBrokerResponseNotReceived),
                       @(MSIDErrorBrokerNoResumeStateFound),
@@ -228,6 +244,7 @@ NSDictionary* MSIDErrorDomainsAndCodes(void)
                       @(MSIDErrorServerProtectionPoliciesRequired),
                       @(MSIDErrorAuthorizationFailed),
                       @(MSIDErrorServerError),
+                      @(MSIDErrorServerInvalidRequestResetPasswordRequired),
                       ],
               MSIDHttpErrorCodeDomain : @[
                       @(MSIDErrorServerUnhandledResponse),
@@ -307,6 +324,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorServerProtectionPoliciesRequired";
         case MSIDErrorAuthorizationFailed:
             return @"MSIDErrorAuthorizationFailed";
+        case MSIDErrorServerInvalidRequestResetPasswordRequired:
+            return @"MSIDErrorServerInvalidRequestResetPasswordRequired";
             // HTTP errors
         case MSIDErrorServerUnhandledResponse:
             return @"MSIDErrorServerUnhandledResponse";
@@ -332,6 +351,10 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             return @"MSIDErrorUINotSupportedInExtension";
         case MSIDErrorInsufficientDeviceStrength:
             return @"MSIDErrorInsufficientDeviceStrength";
+        case MSIDErrorMDMEnrollmentCompletedNeedsRetry:
+            return @"MSIDErrorMDMEnrollmentCompletedNeedsRetry";
+        case MSIDErrorInvalidASWebAuthenticationURL:
+            return @"MSIDErrorInvalidASWebAuthenticationURL";
             // Broker flow errors
         case MSIDErrorBrokerResponseNotReceived:
             return @"MSIDErrorBrokerResponseNotReceived";
@@ -450,6 +473,8 @@ NSString *MSIDErrorCodeToString(MSIDErrorCode errorCode)
             // Broker Xpc internal error
         case MSIDErrorBrokerXpcUnexpectedError:
             return @"MSIDErrorBrokerXpcUnexpectedError";
+        case MSIDErrorBoundAppRefreshTokenRedemptionError:
+            return @"MSIDErrorBoundAppRefreshTokenRedemptionError";
     }
     
     return [NSString stringWithFormat:@"Unknown: %@", @(errorCode)];

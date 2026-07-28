@@ -35,7 +35,26 @@
 @end
 
 @implementation MSIDJweResponseDecryptionTests
+#if TARGET_OS_OSX
+- (void)testJweResponseEcdhAesGcmSelectors_whenRunningOnMacOS_shouldNotBeExposed
+{
+    MSIDJweResponse *jweResponse = [[MSIDJweResponse alloc] initWithRawJWE:@"a.b.c.d.e"];
 
+    SEL decryptSelector = NSSelectorFromString(@"decryptJweResponseWithPrivateStk:jweCrypto:error:");
+    SEL supportedAlgorithmSelector = NSSelectorFromString(@"IsJweResponseAlgorithmSupported:");
+
+    XCTAssertFalse([jweResponse respondsToSelector:decryptSelector]);
+    XCTAssertFalse([jweResponse respondsToSelector:supportedAlgorithmSelector]);
+}
+
+- (void)testSwiftCryptoClasses_whenRunningOnMacOS_shouldNotBeLinked
+{
+    XCTAssertNil(NSClassFromString(@"MSIDConcatKdfProvider"));
+    XCTAssertNil(NSClassFromString(@"MSIDAesGcmDecryptor"));
+}
+#endif
+
+#if !TARGET_OS_OSX
 - (void)testJWEDecryption_withCorrectJWE_andValidKeys_shouldReturnDecryptedContent
 {
     SecKeyRef privateKeyRef = [self testPrivateKey];
@@ -163,5 +182,5 @@
                                          &cfError);
     return key;
 }
-
+#endif
 @end

@@ -94,7 +94,7 @@ static NSInteger const MSID_THROTTLING_DEFAULT_UI_REQUIRED = 120;
 {
     NSError *error;
     NSDate *currentTime = [NSDate date];
-    NSDate *lastRefreshTime = [MSIDThrottlingMetaDataCache getLastRefreshTimeWithDatasource:self.datasource context:self.context error:&error];
+    NSDate *lastRefreshTime = [[MSIDThrottlingMetaDataCache resolvedMetaDataReader] getLastRefreshTimeWithDatasource:self.datasource context:self.context error:&error];
     // If currentTime is later than the expiration Time or the lastRefreshTime is later then the expiration Time, we don't throttle the request
     if ([currentTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending
         || (lastRefreshTime && [lastRefreshTime compare:self.cacheRecord.creationTime] != NSOrderedAscending))

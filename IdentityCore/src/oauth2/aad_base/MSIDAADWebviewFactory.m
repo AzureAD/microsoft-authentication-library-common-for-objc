@@ -25,6 +25,7 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
 #import "MSIDWebAADAuthCodeResponse.h"
 #import "MSIDDeviceId.h"
@@ -171,6 +172,7 @@
     
     embeddedWebviewController.externalDecidePolicyForBrowserAction = externalDecidePolicyForBrowserAction;
     embeddedWebviewController.customHeaderProvider = configuration.customHeaderProvider;
+    embeddedWebviewController.onboardingBlobBuilder = configuration.onboardingBlobBuilder;
 
     return embeddedWebviewController;
 }
@@ -218,6 +220,12 @@
     
 #endif
 
+    // Try to create a MDM Enrollment Completion response
+    MSIDWebMDMEnrollmentCompletionResponse *mdmEnrollmentCompletionResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:url
+                                                                                                                                  context:context
+                                                                                                                                    error:nil];
+    if (mdmEnrollmentCompletionResponse) return mdmEnrollmentCompletionResponse;
+    
     // Try to create a upgrade registration response
     MSIDWebUpgradeRegResponse *upgradeRegResponse = [[MSIDWebUpgradeRegResponse alloc] initWithURL:url context:context error:nil];
     if (upgradeRegResponse) return upgradeRegResponse;
@@ -225,7 +233,7 @@
     // Try to create a WPJ response
     MSIDWebWPJResponse *wpjResponse = [[MSIDWebWPJResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;
-    
+
     // Try to create a browser response
     MSIDWebOpenBrowserResponse *browserResponse = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url
                                                                                           context:context

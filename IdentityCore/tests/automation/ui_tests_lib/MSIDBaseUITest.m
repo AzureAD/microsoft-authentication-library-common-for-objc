@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 
 #import "MSIDBaseUITest.h"
@@ -36,8 +36,18 @@
 #import "MSIDAutomationOperationResponseHandler.h"
 #import "MSIDTestAutomationApplication.h"
 #import "MSIDAutomationReturnedTokensResult.h"
+#import "MSIDKeyVaultAccountProvider.h"
+#import "MSIDKeyVaultAppConfigProvider.h"
+#import "MSIDKeyVaultCredentialProvider.h"
+#import "MSIDTestAutomationAccountConfigurationRequest.h"
+#import "MSIDTestAutomationAppConfigurationRequest.h"
 
 static MSIDTestConfigurationProvider *s_confProvider;
+static MSIDKeyVaultAccountProvider *s_keyVaultAccountProvider;
+static MSIDKeyVaultAppConfigProvider *s_keyVaultAppConfigProvider;
+
+static NSTimeInterval const MSIDPasswordEntryPollingTimeout = 45.0;
+static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
 
 @implementation MSIDBaseUITest
 
@@ -49,6 +59,26 @@ static MSIDTestConfigurationProvider *s_confProvider;
 + (void)setConfProvider:(MSIDTestConfigurationProvider *)accountsProvider
 {
     s_confProvider = accountsProvider;
+}
+
++ (MSIDKeyVaultAccountProvider *)keyVaultAccountProvider
+{
+    return s_keyVaultAccountProvider;
+}
+
++ (void)setKeyVaultAccountProvider:(MSIDKeyVaultAccountProvider *)provider
+{
+    s_keyVaultAccountProvider = provider;
+}
+
++ (MSIDKeyVaultAppConfigProvider *)keyVaultAppConfigProvider
+{
+    return s_keyVaultAppConfigProvider;
+}
+
++ (void)setKeyVaultAppConfigProvider:(MSIDKeyVaultAppConfigProvider *)provider
+{
+    s_keyVaultAppConfigProvider = provider;
 }
 
 #pragma mark - Pipelines
@@ -82,8 +112,12 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)closeResultPipeline:(XCUIApplication *)application
 {
+    [self closeResultPipeline:application waitInMs:10];
+}
+
+- (void)closeResultPipeline:(XCUIApplication *)application waitInMs:(int)count
+{
 #if TARGET_OS_SIMULATOR
-    int count = 10;
     double interval = 1;
     __auto_type resultPipelineExpectation = [[XCTestExpectation alloc] initWithDescription:@"Wait for result pipeline."];
     
@@ -220,9 +254,9 @@ static MSIDTestConfigurationProvider *s_confProvider;
     }
     
     sleep(1);
-    [application.buttons[action] msidTap];
+    [self tapActionButtonWhenHittable:application.buttons[action] application:application];
 #else
-    [application.buttons[action] msidTap];
+    [self tapActionButtonWhenHittable:application.buttons[action] application:application];
     
     if (jsonString)
     {
@@ -232,6 +266,58 @@ static MSIDTestConfigurationProvider *s_confProvider;
         [application.buttons[@"Go"] msidTap];
     }
 #endif
+}
+
+// The automation host app's action buttons are arranged subviews of a
+// UIStackView with no enclosing scroll container (see MainAutomation.storyboard).
+// Diagnostics ruled out a degenerate-frame issue: the button reports
+// exists=1, isHittable=1, and a perfectly valid, fully on-screen frame right
+// before tapping.
+//
+// The activity log revealed the real race: between us requesting the tap
+// and XCTest synthesizing it, XCTest runs its own "make frontmost" dance —
+// "Check for interrupting elements affecting <button>" (looking for a
+// system alert/permission prompt from another app, e.g.
+// com.microsoft.azureauthenticator) followed by re-"Open"/"Activate"-ing
+// our target app to bring it back to the front. That dance can happen
+// *during* the tap call itself, so the coordinate we resolved beforehand
+// can go stale by the time the touch is actually delivered (e.g. if the
+// re-activation triggers a layout pass), and the touch is silently dropped.
+// Confirmed via the simulator's unified log (not just the XCTest driver's
+// own log, which never surfaces output from the app under test) that the
+// button's real UIKit target-action only fires reliably once this race is
+// removed.
+//
+// Explicitly activating the application and waiting for it to settle in
+// the foreground *before* resolving the button's coordinate avoids that
+// race: any interruption dance happens here, before we snapshot the tap
+// point, rather than concurrently with the tap itself. Tapping via an
+// explicit coordinate (rather than XCUIElement's own tap) also sidesteps a
+// separate, unrelated bug where XCTest's "scroll element to visible"
+// step (run unconditionally as part of its tap synthesis) corrupts the
+// hit-point computation to {-1, -1} on iOS/iPadOS 26 simulators even when
+// the button never needed to scroll.
+- (void)tapActionButtonWhenHittable:(XCUIElement *)button application:(XCUIApplication *)application
+{
+    if (application.state != XCUIApplicationStateRunningForeground)
+    {
+        [application activate];
+    }
+
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:10.0];
+    while (application.state != XCUIApplicationStateRunningForeground && deadline.timeIntervalSinceNow > 0)
+    {
+        [NSThread sleepForTimeInterval:0.2];
+    }
+
+    deadline = [NSDate dateWithTimeIntervalSinceNow:10.0];
+    while (!button.isHittable && deadline.timeIntervalSinceNow > 0)
+    {
+        [NSThread sleepForTimeInterval:0.2];
+    }
+
+    XCUICoordinate *tapPoint = [button coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)];
+    [tapPoint msidTap];
 }
 
 - (void)assertAccessTokenNotNil:(XCUIApplication *)application
@@ -273,6 +359,19 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)aadEnterPassword:(XCUIApplication *)application
 {
+    if (![self tapPasswordSelectionButtonIfPresentInApp:application])
+    {
+        // Same rationale as tapPasswordSelectionButtonIfPresentInApp: stay
+        // inside the web view so an identically-labeled QuickType / AutoFill
+        // suggestion never wins the first-match query. The polling loop in
+        // enterPassword: handles the "not present yet" case.
+        XCUIElement *useYourPasswordElement = application.webViews.staticTexts[@"Use your password"];
+        if ([self waitForElementsAndContinueIfNotAppear:useYourPasswordElement timeout:1.0f] == XCTWaiterResultCompleted)
+        {
+            [useYourPasswordElement msidTap];
+        }
+    }
+
     [self enterPassword:self.primaryAccount.password app:application];
     // New Password reset API requires to force providing a new password after logging in with original password.
     [self setupPassword:self.primaryAccount.password app:application];
@@ -290,7 +389,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)setupPassword:(NSString *)password app:(XCUIApplication *)application isMainApp:(BOOL)isMainApp
 {
-    sleep(3);
+    sleep(1);
     if (application.secureTextFields.count > 1)
     {
         // New password flow
@@ -312,88 +411,127 @@ static MSIDTestConfigurationProvider *s_confProvider;
         [self tapElementAndWaitForKeyboardToAppear:confirmPasswordSecureTextField app:application];
         passwordString = [NSString stringWithFormat:@"%@apple\n", password];
         [self enterText:confirmPasswordSecureTextField isMainApp:isMainApp text:passwordString];
-    
     }
 }
 
+- (BOOL)dismissKeyboardIfVerifyEmailPagePresentInApp:(XCUIApplication *)application
+{
+    // The MSA "Verify your email" interstitial (shown during B2C / MSA login
+    // flows when the account needs proof-of-control) auto-focuses the email
+    // text field, which raises the iOS keyboard. The keyboard covers the
+    // lower part of the page, including the "Use your password" link we want.
+    // The link is in the view hierarchy (so .exists is YES) and XCUI may
+    // even report it as .isHittable, but synthesized taps land on the
+    // keyboard's hit area and get absorbed — the link never receives the tap
+    // and the page never progresses.
+    //
+    // Dismiss the keyboard by tapping the "Verify your email" header itself.
+    // Tapping a static text in a webview is a no-op for the page (no link, no
+    // event handler), but it defocuses the email text field, which causes
+    // iOS to dismiss the keyboard. After dismissal the page reflows and the
+    // password link becomes truly tappable. The polling loop in enterPassword:
+    // re-invokes tapPasswordSelectionButtonIfPresentInApp: on the next tick.
+    //
+    // This is more reliable than searching for the keyboard's "Done" accessory
+    // button — Done lives under different parents (toolbars/keyboards/
+    // otherElements) on different iOS versions and surface owners
+    // (SafariViewController vs WKWebView), and on some iOS 18+ sims isn't
+    // exposed to XCUI at all.
+    XCUIElement *header = application.webViews.staticTexts[@"Verify your email"];
+    if (!header.exists || !header.isHittable)
+    {
+        return NO;
+    }
+
+    XCUIElement *keyboard = application.keyboards.firstMatch;
+    if (!keyboard.exists)
+    {
+        // Page is showing but no keyboard up — nothing to dismiss.
+        return NO;
+    }
+
+    [header msidTap];
+
+    // Best-effort wait for dismissal to avoid immediately re-hitting the covered link.
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:2.0];
+    while (keyboard.exists && deadline.timeIntervalSinceNow > 0)
+    {
+        [NSThread sleepForTimeInterval:0.1];
+    }
+
+    return YES;
+}
+
+- (BOOL)tapPasswordSelectionButtonIfPresentInApp:(XCUIApplication *)application
+{
+    // If we're on the MSA "Verify your email" interstitial with the keyboard
+    // up, the "Use your password" link is covered by the keyboard. Dismiss
+    // the keyboard first so the link is hittable on the next loop iteration.
+    if ([self dismissKeyboardIfVerifyEmailPagePresentInApp:application])
+    {
+        // Keyboard dismissal is an intentional state transition; avoid attempting
+        // other password-selection taps until the next polling iteration.
+        return YES;
+    }
+
+    NSArray<NSString *> *passwordButtonTitles = @[
+        @"Use my password",
+        @"Use your password",
+        @"Use your password instead",
+        @"Other ways to sign in"
+    ];
+
+    // Password-selection buttons only ever appear inside the AAD/MSA/B2C web
+    // page (rendered in a WKWebView / SFSafariViewController inside the test
+    // host). Restrict the lookup to web views so we never match an iOS
+    // QuickType bar / Passwords AutoFill accessory button that happens to
+    // carry the same label — tapping those opens the empty system password
+    // picker on CI sims with no saved credentials and the test loops forever.
+    // The polling loop in enterPassword: retries every second, so returning NO
+    // here when the web button hasn't rendered yet is the desired behavior.
+    for (NSString *buttonTitle in passwordButtonTitles)
+    {
+        XCUIElement *button = application.webViews.buttons[buttonTitle];
+        if (!button.exists || !button.isHittable)
+        {
+            continue;
+        }
+
+        [button msidTap];
+        return YES;
+    }
+
+    return NO;
+}
 
 - (void)enterPassword:(NSString *)password app:(XCUIApplication *)application isMainApp:(BOOL)isMainApp
 {
-    // Enter password
-    XCUIElement *passwordSecureTextField = [application.secureTextFields elementBoundByIndex:0];
-    // This is explicitly to check the new screen where to ask user to signin with the following 2 options. This caused several automation failures
-    
-    XCTWaiterResult result = [self waitForElementsAndContinueIfNotAppear:passwordSecureTextField];
-    if (result == XCTWaiterResultCompleted)
+    XCUIElement *passwordSecureTextField = application.secureTextFields.firstMatch;
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:MSIDPasswordEntryPollingTimeout];
+
+    while (deadline.timeIntervalSinceNow > 0)
     {
-        [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
-        NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
-        [self enterText:passwordSecureTextField isMainApp:isMainApp text:passwordString];
+        // Require .isHittable in addition to .exists so we don't tap and type
+        // into a stale SecureTextField that's still in the view hierarchy from
+        // a previous sign-in step. Without this, a second acquireToken call
+        // (e.g. prompt=force with a login_hint after a prior sign-in) can find
+        // the previous step's password field, send keystrokes that go nowhere,
+        // and leave the broker waiting on an empty password — the test then
+        // times out in waitForRedirectToClientApp.
+        if (passwordSecureTextField.exists && passwordSecureTextField.isHittable)
+        {
+            [self tapElementAndWaitForKeyboardToAppear:passwordSecureTextField app:application];
+            NSString *passwordString = [NSString stringWithFormat:@"%@\n", password];
+            [self enterText:passwordSecureTextField isMainApp:isMainApp text:passwordString];
+            return;
+        }
+
+        [self tapPasswordSelectionButtonIfPresentInApp:application];
+
+        [NSThread sleepForTimeInterval:MSIDPasswordEntryPollingInterval];
     }
-    else
-    {
-        // 1. Use my password
-        // 2. Sign in to an orgnization
-        XCUIElement *useMyPasswordButton = application.buttons[@"Use my password"];
-        result = [self waitForElementsAndContinueIfNotAppear:useMyPasswordButton];
-        if (result == XCTWaiterResultCompleted)
-        {
-            [useMyPasswordButton tap];
-            [self enterPassword:password
-                            app:application
-                      isMainApp:isMainApp];
-            return;
-        }
-        
-        useMyPasswordButton = application.buttons[@"Use your password"];
-        if (useMyPasswordButton.exists)
-        {
-            [useMyPasswordButton tap];
-            [self enterPassword:password
-                            app:application
-                      isMainApp:isMainApp];
-            return;
-        }
-        
-        useMyPasswordButton = application.buttons[@"Use your password instead"];
-        if (useMyPasswordButton.exists)
-        {
-            [useMyPasswordButton tap];
-            [self enterPassword:password
-                            app:application
-                      isMainApp:isMainApp];
-            return;
-        }
-        
-        useMyPasswordButton = application.buttons[@"Other ways to sign in"];
-        if (useMyPasswordButton.exists)
-        {
-            [useMyPasswordButton tap];
-            
-            useMyPasswordButton = application.buttons[@"Use your password"];
-            result = [self waitForElementsAndContinueIfNotAppear:useMyPasswordButton];
-            if (result == XCTWaiterResultCompleted)
-            {
-                [useMyPasswordButton tap];
-                [self enterPassword:password
-                                app:application
-                          isMainApp:isMainApp];
-                
-                return;
-            }
-            
-            useMyPasswordButton = application.buttons[@"Use my password"];
-            if (useMyPasswordButton.exists)
-            {
-                [useMyPasswordButton tap];
-                [self enterPassword:password
-                                app:application
-                          isMainApp:isMainApp];
-                return;
-            }
-        }
-    }
-    
+
+    XCTFail(@"Timed out waiting for the password field or a password selection button to appear.");
 }
 
 - (void)adfsEnterPassword:(XCUIApplication *)application
@@ -413,6 +551,29 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (void)loadTestApp:(MSIDTestAutomationAppConfigurationRequest *)appRequest
 {
+    // Try Key Vault JSON first if available
+    if (s_keyVaultAppConfigProvider && s_keyVaultAppConfigProvider.hasCachedAppConfigs)
+    {
+        NSString *appConfigKey = [MSIDTestAutomationAppConfigurationRequest keyForAppConfigurationRequest:appRequest];
+
+        NSError *error = nil;
+        MSIDTestAutomationApplication *app = [s_keyVaultAppConfigProvider appConfigForKey:appConfigKey error:&error];
+
+        if (app)
+        {
+            NSLog(@"[MSIDBaseUITest] Loaded app config from Key Vault JSON with key: %@, appId: %@", appConfigKey, app.appId);
+            app.redirectUriPrefix = self.redirectUriPrefix;
+            self.testApplication = app;
+            self.testApplications = @[app];
+            return;
+        }
+        else
+        {
+            NSLog(@"[MSIDBaseUITest] App config key '%@' not found in Key Vault JSON, falling back to API. Error: %@", appConfigKey, error.localizedDescription);
+        }
+    }
+
+    // Fall back to Lab API / in-memory cache
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get configuration"];
     
     MSIDAutomationOperationResponseHandler *responseHandler = [[MSIDAutomationOperationResponseHandler alloc] initWithClass:MSIDTestAutomationApplication.class];
@@ -466,7 +627,142 @@ static MSIDTestConfigurationProvider *s_confProvider;
     self.testAccounts = allAccounts;
 }
 
+#pragma mark - Key Vault compound key
+
+/// Build a compound lookup key from a configuration request.
+/// Format: <accountType>[_<protectionPolicy>][_<mfa>][_<federationProvider>]
+///                      [_<b2cProvider>][_<environment>][_<userRole>]
+/// Only non-default values are appended.
++ (NSString *)keyForAccountConfigurationRequest:(MSIDTestAutomationAccountConfigurationRequest *)request
+{
+    NSMutableString *key = [NSMutableString stringWithString:request.accountType ?: @"unknown"];
+    
+    // Protection policy (default: "none")
+    if (request.protectionPolicyType
+        && ![request.protectionPolicyType isEqualToString:MSIDTestAccountProtectionPolicyTypeNone])
+    {
+        [key appendFormat:@"_%@", request.protectionPolicyType];
+    }
+    
+    // MFA (default: "none")
+    if (request.mfaType
+        && ![request.mfaType isEqualToString:MSIDTestAccountMFATypeNone])
+    {
+        [key appendFormat:@"_%@", request.mfaType];
+    }
+    
+    // Federation provider (default: "none")
+    if (request.federationProviderType
+        && ![request.federationProviderType isEqualToString:MSIDTestAccountFederationProviderTypeNone])
+    {
+        [key appendFormat:@"_%@", request.federationProviderType];
+    }
+    
+    // B2C provider (default: "none")
+    if (request.b2cProviderType
+        && ![request.b2cProviderType isEqualToString:MSIDTestAccountB2CProviderTypeNone])
+    {
+        [key appendFormat:@"_%@", request.b2cProviderType];
+    }
+    
+    // Environment (default: "azurecloud")
+    if (request.environmentType
+        && ![request.environmentType isEqualToString:MSIDTestAccountEnvironmentTypeWWCloud])
+    {
+        [key appendFormat:@"_%@", request.environmentType];
+    }
+    
+    // User role (default: nil/empty)
+    if (request.userRole.length > 0)
+    {
+        [key appendFormat:@"_%@", request.userRole.lowercaseString];
+    }
+    
+    // Guest home azure environment from additional query params (disambiguates cross-cloud guest accounts)
+    NSString *guestHomeEnv = request.additionalQueryParameters[@"guesthomeazureenvironment"];
+    if (guestHomeEnv.length > 0)
+    {
+        [key appendFormat:@"_%@", guestHomeEnv];
+    }
+    
+    return [key copy];
+}
+
+#pragma mark - Account loading
+
 - (NSArray *)loadTestAccountRequest:(MSIDAutomationBaseApiRequest *)accountRequest
+{
+    // Try Key Vault JSON first if available
+    if (s_keyVaultAccountProvider && s_keyVaultAccountProvider.hasCachedAccounts)
+    {
+        // Check if this is an account configuration request we can use
+        if ([accountRequest isKindOfClass:[MSIDTestAutomationAccountConfigurationRequest class]])
+        {
+            MSIDTestAutomationAccountConfigurationRequest *configRequest = (MSIDTestAutomationAccountConfigurationRequest *)accountRequest;
+            
+            // Build compound key from all request properties
+            NSString *accountType = [self.class keyForAccountConfigurationRequest:configRequest];
+            
+            NSError *error = nil;
+            NSArray<MSIDTestAutomationAccount *> *kvAccounts = [s_keyVaultAccountProvider accountsForType:accountType error:&error];
+            if (kvAccounts.count > 0)
+            {
+                NSLog(@"[MSIDBaseUITest] Loaded %lu account(s) from Key Vault JSON with key: %@", (unsigned long)kvAccounts.count, accountType);
+                
+                // Load passwords for all accounts
+                XCTestExpectation *passwordExpectation = [self expectationWithDescription:@"Get password from Key Vault"];
+                passwordExpectation.expectedFulfillmentCount = kvAccounts.count;
+                
+                for (MSIDTestAutomationAccount *account in kvAccounts)
+                {
+                    [self.class.confProvider.passwordRequestHandler loadPasswordForTestAccount:account
+                                                                             completionHandler:^(NSString *password, NSError *pwdError)
+                     {
+                        if (password)
+                        {
+                            NSLog(@"[MSIDBaseUITest] Password loaded successfully for Key Vault account: %@", account.upn);
+                        }
+                        else
+                        {
+                            NSLog(@"[MSIDBaseUITest] Failed to load password for Key Vault account %@: %@", account.upn, pwdError.localizedDescription);
+                        }
+                        [passwordExpectation fulfill];
+                    }];
+                }
+                
+                [self waitForExpectations:@[passwordExpectation] timeout:60];
+                
+                // Filter to accounts that have passwords
+                NSMutableArray *accountsWithPasswords = [NSMutableArray array];
+                for (MSIDTestAutomationAccount *account in kvAccounts)
+                {
+                    if (account.password)
+                    {
+                        [accountsWithPasswords addObject:account];
+                    }
+                }
+                
+                if (accountsWithPasswords.count > 0)
+                {
+                    return [accountsWithPasswords copy];
+                }
+                else
+                {
+                    NSLog(@"[MSIDBaseUITest] No Key Vault accounts have passwords, falling back to Lab API");
+                }
+            }
+            else
+            {
+                NSLog(@"[MSIDBaseUITest] Account key '%@' not found in Key Vault JSON, falling back to Lab API. Error: %@", accountType, error.localizedDescription);
+            }
+        }
+    }
+    
+    // Fall back to Lab API
+    return [self loadTestAccountRequestFromLabAPI:accountRequest];
+}
+
+- (NSArray *)loadTestAccountRequestFromLabAPI:(MSIDAutomationBaseApiRequest *)accountRequest
 {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Get account"];
     
@@ -483,7 +779,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
         
         results = (NSArray *)result;
         
-        if (!results.count) 
+        if (!results.count)
         {
             // Try again because Lab API is sometimes flaky
             [self.class.confProvider.operationAPIRequestHandler executeAPIRequest:accountRequest
@@ -540,7 +836,7 @@ static MSIDTestConfigurationProvider *s_confProvider;
 {
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"exists == 1"];
     [self expectationForPredicate:existsPredicate evaluatedWithObject:object handler:nil];
-    [self waitForExpectationsWithTimeout:30.0f handler:nil];
+    [self waitForExpectationsWithTimeout:60.0f handler:nil];
 }
 
 - (XCUIElement *)waitForEitherElements:(XCUIElement *)object1 and:(XCUIElement *)object2
@@ -553,10 +849,35 @@ static MSIDTestConfigurationProvider *s_confProvider;
 
 - (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object
 {
+    return [self waitForElementsAndContinueIfNotAppear:object timeout:30.0f];
+}
+
+- (XCTWaiterResult)waitForElementsAndContinueIfNotAppear:(XCUIElement *)object timeout:(NSTimeInterval)timeout
+{
     NSPredicate *existsPredicate = [NSPredicate predicateWithFormat:@"%@.exists == 1" argumentArray:@[object]];
 
     XCTestExpectation *expectation = [[XCTNSPredicateExpectation alloc] initWithPredicate:existsPredicate object:object];
-    return [XCTWaiter waitForExpectations:@[expectation] timeout:30.0f enforceOrder:YES];
+    return [XCTWaiter waitForExpectations:@[expectation] timeout:timeout enforceOrder:YES];
+}
+
+- (void)dismissCookieSharingDialogIfNecessary
+{
+    XCUIApplication *springBoardApp = [[XCUIApplication alloc] initWithBundleIdentifier:@"com.apple.springboard"];
+    XCUIElement *allowButton = springBoardApp.alerts.buttons[@"Allow"];
+
+    XCTWaiterResult waitResult = [self waitForElementsAndContinueIfNotAppear:allowButton timeout:5.0f];
+
+    if (waitResult == XCTWaiterResultCompleted)
+    {
+        XCUIElement *alert = springBoardApp.alerts.element;
+        BOOL isCookieAlert = [alert.label containsString:@"cookies"]
+                             || [alert.label containsString:@"website data"];
+
+        if (isCookieAlert)
+        {
+            [allowButton msidTap];
+        }
+    }
 }
 
 - (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element

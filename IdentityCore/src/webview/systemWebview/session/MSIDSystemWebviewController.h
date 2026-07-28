@@ -42,6 +42,15 @@
       ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
                          context:(id<MSIDRequestContext>)context;
 
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                     redirectURI:(NSString *)redirectURI
+                parentController:(MSIDViewController *)parentController
+        useAuthenticationSession:(BOOL)useAuthenticationSession
+       allowSafariViewController:(BOOL)allowSafariViewController
+      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
+               additionalHeaders:(NSDictionary<NSString *, NSString *> *)additionalHeaders
+                         context:(id<MSIDRequestContext>)context;
+
 - (BOOL)handleURLResponse:(NSURL *)url;
 
 @property (atomic, readonly) NSURL *startURL;

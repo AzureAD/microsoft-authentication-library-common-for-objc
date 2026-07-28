@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSString *actionIdentifier;
 @property (nonatomic, readonly) BOOL needsRequestParameters;
 
-- (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
+- (void)performActionWithParameters:(nullable MSIDAutomationTestRequest *)parameters
                 containerController:(MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock;
 

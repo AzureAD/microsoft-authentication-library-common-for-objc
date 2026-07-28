@@ -29,6 +29,7 @@
 #import "MSIDWPJMetadata.h"
 #import "MSIDFlightManager.h"
 #import "MSIDConstants.h"
+#import "MSIDDIContainer.h"
 
 static NSString *kWPJPrivateKeyIdentifier = @"com.microsoft.workplacejoin.privatekey\0";
 static NSString *kECPrivateKeyTagSuffix = @"-EC";
@@ -118,7 +119,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (!accessGroup) return NO;
     
     NSError *error;
-    [MSIDWorkPlaceJoinUtilBase getPrimaryEccTenantWithSharedAccessGroup:accessGroup context:context error:&error];
+    [[self resolvedProvider] getPrimaryEccTenantWithSharedAccessGroup:accessGroup context:context error:&error];
     
     if (error && [error.domain isEqual:MSIDKeychainErrorDomain] && error.code == errSecMissingEntitlement)
     {
@@ -138,18 +139,18 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         if (!accessGroup) return nil;
         
         // If tenantId is nil, the caller requested primary registration. Query keychain to get the ECC primary registration first.
-        NSString* primaryEccTenantId = [self getPrimaryEccTenantWithSharedAccessGroup:accessGroup context:context error:nil];
+        NSString* primaryEccTenantId = [[self resolvedProvider] getPrimaryEccTenantWithSharedAccessGroup:accessGroup context:context error:nil];
         
         if (primaryEccTenantId)
         {
             NSError *subError;
             
             // ECC primary registration was found. Fill the data and return.
-            MSIDWPJMetadata *metadata = [self readWPJMetadataWithSharedAccessGroup:accessGroup
-                                                                  tenantIdentifier:primaryEccTenantId
-                                                                        domainName:nil
-                                                                           context:context
-                                                                             error:&subError];
+            MSIDWPJMetadata *metadata = [[self resolvedProvider] readWPJMetadataWithSharedAccessGroup:accessGroup
+                                                                                     tenantIdentifier:primaryEccTenantId
+                                                                                           domainName:nil
+                                                                                              context:context
+                                                                                                error:&subError];
             if (metadata && !subError)
             {
                 return [metadata serializeWithFormat:usePrimaryFormat];
@@ -157,7 +158,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
         }
     }
  
-    MSIDWPJKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithTenantId:tenantId context:context];
+    MSIDWPJKeyPairWithCert *wpjCerts = [[self resolvedProvider] getWPJKeysWithTenantId:tenantId context:context];
     if (wpjCerts)
     {
         MSIDWPJMetadata *metadata = [MSIDWPJMetadata new];
@@ -177,11 +178,11 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
             if (!accessGroup) return nil;
     
 
-            metadata = [self readWPJMetadataWithSharedAccessGroup:accessGroup
-                                                 tenantIdentifier:tenantId
-                                                       domainName:nil
-                                                          context:context
-                                                            error:&subError];
+            metadata = [[self resolvedProvider] readWPJMetadataWithSharedAccessGroup:accessGroup
+                                                                    tenantIdentifier:tenantId
+                                                                          domainName:nil
+                                                                             context:context
+                                                                               error:&subError];
         }
     
         if (metadata && !subError)
@@ -354,7 +355,7 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     if (tenantId == nil)
     {
         NSError *error;
-        NSString *primaryRegTenantId = [MSIDWorkPlaceJoinUtilBase getPrimaryEccTenantWithSharedAccessGroup:defaultSharedAccessGroup context:context error:&error];
+        NSString *primaryRegTenantId = [[self resolvedProvider] getPrimaryEccTenantWithSharedAccessGroup:defaultSharedAccessGroup context:context error:&error];
         if (!primaryRegTenantId)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, error.description, error.code);
@@ -553,4 +554,13 @@ static NSString *kECPrivateKeyTagSuffix = @"-EC";
     }
 #endif
 }
+
++ (Class<MSIDWorkPlaceJoinUtilProviding>)resolvedProvider
+{
+    return (Class<MSIDWorkPlaceJoinUtilProviding>)
+        [[MSIDDIContainer sharedInstance]
+            resolveImplClassForProtocol:@protocol(MSIDWorkPlaceJoinUtilProviding)
+                              orDefault:^Class { return [MSIDWorkPlaceJoinUtil class]; }];
+}
+
 @end

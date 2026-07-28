@@ -30,7 +30,7 @@
 
 @property (nonatomic) MSIDTokenResult *testTokenResult;
 @property (nonatomic) NSError *testError;
-@property (nonatomic) MSIDWebWPJResponse *testBrokerResponse;
+@property (nonatomic) MSIDWebviewResponse *testBrokerResponse;
 @property (nonatomic) NSURL *testBrokerRequestURL;
 @property (nonatomic) NSDictionary *testResumeDictionary;
 
@@ -42,7 +42,7 @@
 
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
+               testWebMSAuthResponse:(MSIDWebviewResponse *)brokerResponse
 {
     self = [super init];
 
@@ -58,7 +58,7 @@
 
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
+               testWebMSAuthResponse:(MSIDWebviewResponse *)brokerResponse
                     brokerRequestURL:(NSURL *)brokerRequestURL
                     resumeDictionary:(NSDictionary *)brokerResumeDictionary
 {
@@ -88,7 +88,12 @@
 - (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull __unused MSIDRequestParameters *)parameters
                                                          forceRefresh:(__unused BOOL)forceRefresh
 {
-    return [[MSIDTestSilentTokenRequest alloc] initWithTestResponse:self.testTokenResult testError:self.testError];
+    if (!self.silentRequest)
+    {
+        _silentRequest = [[MSIDTestSilentTokenRequest alloc] initWithTestResponse:self.testTokenResult testError:self.testError];
+        return self.silentRequest;
+    }
+    return self.silentRequest;
 }
 
 
