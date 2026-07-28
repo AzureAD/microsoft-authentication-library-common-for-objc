@@ -368,6 +368,53 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+- (void)testDecidePolicyForNavigationAction_whenMixedCaseAADHost_andProviderReturnsHeaders_shouldInjectHeadersAndReload
+{
+    MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.correlationId = [NSUUID UUID];
+    MSIDExecutionFlowRegister(context.correlationId);
+
+    MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:context];
+
+    MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+    provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"FakeHeaderValue" };
+    webVC.customHeaderProvider = provider;
+
+    // The trusted-host gate relies on .lowercaseString normalization. A mixed-case host must still be
+    // treated as a known AAD host so headers are injected; dropping the normalization would silently skip injection.
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://LOGIN.microsoftonline.com/common/oauth2/authorize"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyAllow;
+    [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        capturedDecision = decision;
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(provider.wasCalled);
+    XCTAssertEqual(capturedDecision, WKNavigationActionPolicyCancel);
+    XCTAssertNotNil(webVC.capturedLoadRequest);
+    XCTAssertEqualObjects([[webVC.capturedLoadRequest allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"FakeHeaderValue");
+
+    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the added tag"];
+    MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        // Assert presence only: both tags share the placeholder string until unique codes are assigned.
+        XCTAssertTrue([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag)]);
+        [flowExpectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 - (void)testDecidePolicyForNavigationAction_whenUntrustedHost_shouldSkipProviderAndAllowNavigation
 {
     MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
