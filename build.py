@@ -28,6 +28,7 @@ import traceback
 import sys
 import re
 import os
+import json
 import argparse
 import device_guids
 
@@ -42,6 +43,65 @@ ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUI
 vision_sim_device = "Apple Vision Pro"
 vision_sim_dest = "-destination 'platform=visionOS Simulator,name=" + vision_sim_device + ",OS=26.1'"
 vision_sim_flags = "-sdk xrsimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
+
+# EXPERIMENT (lever #2) — do NOT merge to dev.
+# Cache for the dynamically resolved visionOS destination (see
+# get_vision_pro_destination). Resolved once per build.py invocation.
+_vision_dest_cache = None
+
+def get_vision_pro_destination() :
+    """
+    Resolve the visionOS Simulator destination dynamically, by UDID.
+
+    Instead of the legacy name + hardcoded-OS destination
+    ('name=Apple Vision Pro,OS=26.1'), pin xcodebuild to the exact Vision Pro
+    simulator via 'id=<UDID>'. The hardcoded 'OS=26.1' can mismatch the xrOS
+    runtime actually installed on the agent (Xcode 26.3), which silently wedges
+    the test host at launch. Pinning to the booted device's UDID removes the OS
+    guess entirely.
+
+    Prefers an already-Booted Vision Pro; otherwise the first available one;
+    finally falls back to the legacy name+OS destination if nothing resolves.
+    """
+    global _vision_dest_cache
+    if _vision_dest_cache is not None :
+        return _vision_dest_cache
+
+    try :
+        out = subprocess.check_output(
+            "xcrun simctl list devices available --json", shell = True
+        ).decode(sys.stdout.encoding)
+        data = json.loads(out)
+        booted = None
+        first = None
+        for runtime, devices in data.get("devices", {}).items() :
+            if ("xrOS" not in runtime) and ("visionOS" not in runtime) :
+                continue
+            for dev in devices :
+                if vision_sim_device not in dev.get("name", "") :
+                    continue
+                if not dev.get("isAvailable", False) :
+                    continue
+                udid = dev.get("udid")
+                if first is None :
+                    first = udid
+                if dev.get("state") == "Booted" :
+                    booted = udid
+                    break
+            if booted :
+                break
+        udid = booted or first
+        if udid :
+            _vision_dest_cache = "-destination 'platform=visionOS Simulator,id=" + udid + "'"
+            print("Resolved visionOS destination by UDID: " + udid
+                  + (" (Booted)" if booted else " (available)"))
+            return _vision_dest_cache
+        print("No available 'Apple Vision Pro' simulator found; falling back to name+OS destination.")
+    except Exception as e :
+        print("Failed to resolve visionOS UDID dynamically; falling back to name+OS. Error: " + str(e))
+
+    _vision_dest_cache = vision_sim_dest
+    return _vision_dest_cache
 
 default_workspace = "IdentityCore.xcworkspace"
 default_config = "Debug"
@@ -176,7 +236,7 @@ class BuildTarget:
             command += " " + ios_sim_flags + " " + ios_sim_dest
         
         if (self.platform == "visionOS") :
-            command += " " + vision_sim_flags + " " + vision_sim_dest
+            command += " " + vision_sim_flags + " " + get_vision_pro_destination()
 
         # Tee raw xcodebuild output to a per-operation log so the real error context
         # is preserved even when xcpretty filters stdout. The log is consulted on
