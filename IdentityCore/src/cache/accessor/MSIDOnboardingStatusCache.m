@@ -53,6 +53,7 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 - (MSIDOnboardingStatus *)getOnboardingStatusLocked;
 - (BOOL)clearLocked:(NSString *)bundleId;
 - (BOOL)isOwnerOverride:(MSIDOnboardingStatus *)status;
+- (BOOL)isInProgressPhase:(MSIDOnboardingPhase)phase;
 - (BOOL)caseInsensitiveString:(NSString *)left matchesString:(NSString *)right;
 
 @end
@@ -286,6 +287,13 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
     return [self caseInsensitiveString:currentBundleId matchesString:status.ownerBundleId];
 }
 
+- (BOOL)isInProgressPhase:(MSIDOnboardingPhase)phase
+{
+    // Terminal phases (none/failed) are not in progress and may be overwritten by any app.
+    return phase == MSIDOnboardingPhaseBrokerInteractiveInProgress
+        || phase == MSIDOnboardingPhaseMdmEnrollmentInProgress;
+}
+
 - (BOOL)setWithStatus:(MSIDOnboardingStatus *)status
 {
     __block BOOL success = NO;
@@ -305,10 +313,11 @@ static NSString *const MSID_ONBOARDING_STATUS_CACHE_ACCOUNT = @"com.microsoft.on
 
     MSIDOnboardingStatus *current = [self getOnboardingStatusLocked];
 
-    // If there's an existing status with a phase other than none, validate that the new status is either
-    // from the same originating bundle or is an owner override. This prevents different apps from overwriting
-    // each other's onboarding status.
-    if (current && current.phase != MSIDOnboardingPhaseNone)
+    // If there's an existing status whose phase is still in progress, validate that the new status is
+    // either from the same originating bundle or is an owner override. This prevents different apps from
+    // overwriting each other's in-progress onboarding status. Terminal phases (none/failed) are not in
+    // progress, so a different app is free to overwrite them.
+    if (current && [self isInProgressPhase:current.phase])
     {
         BOOL originatingBundleMatches = [self caseInsensitiveString:current.originatingBundleId matchesString:status.originatingBundleId];
 
