@@ -123,6 +123,21 @@ static NSString *const kMSIDTestCertBase64 =
 
 @end
 
+#pragma mark - Mock WebView
+
+@interface MSIDMockWebView : WKWebView
+@property (nonatomic, strong) NSURL *mockURL;
+@end
+
+@implementation MSIDMockWebView
+
+- (NSURL *)URL
+{
+    return self.mockURL;
+}
+
+@end
+
 #pragma mark - Fake Identity Provider (DI seam)
 
 // Conforms to the production seam protocol so tests can drive every branch of
@@ -272,6 +287,11 @@ static BOOL gPromptInvoked = NO;
 @property (nonatomic, strong) MSIDFlightManagerMockProvider *flightProvider;
 @property (nonatomic, assign) SecIdentityRef testIdentity; // SecCertificateRef cast as SecIdentityRef
 
+- (void)runChallengeWithHost:(NSString *)host
+                  webviewURL:(NSURL *)webviewURL
+                 disposition:(NSURLSessionAuthChallengeDisposition *)outDisposition
+                  credential:(NSURLCredential * __autoreleasing *)outCredential;
+
 @end
 
 @implementation MSIDCertAuthHandlerTests
@@ -284,8 +304,8 @@ static BOOL gPromptInvoked = NO;
 
     // Enable identity persistence by default (flight = NO means NOT disabled).
     // Enable the origin-confusion fix by default (flight = YES) so the existing
-    // secure-behavior tests below exercise host-only lookup; the flag-OFF (legacy
-    // URL-string fallback) branch is covered explicitly in its own tests.
+    // secure-behavior tests below block cross-host fallback; the flag-OFF legacy
+    // behavior is covered explicitly in its own tests.
     self.flightProvider = [MSIDFlightManagerMockProvider new];
     self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
                                                 MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES};
@@ -341,8 +361,21 @@ static BOOL gPromptInvoked = NO;
                   disposition:(NSURLSessionAuthChallengeDisposition *)outDisposition
                    credential:(NSURLCredential * __autoreleasing *)outCredential
 {
+    NSURL *webviewURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/authorize", host]];
+    [self runChallengeWithHost:host
+                    webviewURL:webviewURL
+                   disposition:outDisposition
+                    credential:outCredential];
+}
+
+- (void)runChallengeWithHost:(NSString *)host
+                  webviewURL:(NSURL *)webviewURL
+                 disposition:(NSURLSessionAuthChallengeDisposition *)outDisposition
+                  credential:(NSURLCredential * __autoreleasing *)outCredential
+{
     NSURLAuthenticationChallenge *challenge = [self challengeWithHost:host];
-    WKWebView *webview = [[WKWebView alloc] initWithFrame:NSZeroRect];
+    MSIDMockWebView *webview = [[MSIDMockWebView alloc] initWithFrame:NSZeroRect];
+    webview.mockURL = webviewURL;
     MSIDBasicContext *context = [MSIDBasicContext new];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"completion called once"];
@@ -413,20 +446,27 @@ static BOOL gPromptInvoked = NO;
 - (void)testHandleChallenge_whenChallengeHostDiffersFromWebviewURL_shouldQueryPreferredIdentityWithChallengeHostOnly
 {
     NSString *challengeHost = @"attacker.example.com";
+    NSURL *webviewURL = [NSURL URLWithString:@"https://login.microsoftonline.com/authorize"];
     MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = nil; // no stored preference -> NULL
     MSIDFakeCertAuthIdentityProvider.promptIdentity = NULL;       // user cancels
 
     NSURLSessionAuthChallengeDisposition disposition;
-    [self runChallengeWithHost:challengeHost disposition:&disposition credential:nil];
+    [self runChallengeWithHost:challengeHost
+                    webviewURL:webviewURL
+                   disposition:&disposition
+                    credential:nil];
 
     XCTAssertEqualObjects(MSIDFakeCertAuthIdentityProvider.queriedHosts, @[challengeHost],
                           @"Lookup must be performed exactly once, with the challenge host only");
+    XCTAssertEqual(MSIDFakeCertAuthIdentityProvider.queriedURLStrings.count, 0u,
+                   @"Cross-host challenges must not use the top-level webview URL fallback");
 }
 
 // Security contract: an attacker-controlled host that issues a CBA challenge while
 // the trusted page is loaded must NEVER receive the enterprise credential.
 - (void)testHandleChallenge_whenAttackerHostHasNoPreferredIdentity_shouldNotUseCredential
 {
+    NSURL *webviewURL = [NSURL URLWithString:@"https://login.microsoftonline.com/authorize"];
     // A preferred identity exists for the trusted host, but the challenge comes
     // from the attacker host -> lookup for the attacker host returns NULL.
     MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = @"login.microsoftonline.com";
@@ -435,7 +475,10 @@ static BOOL gPromptInvoked = NO;
 
     NSURLSessionAuthChallengeDisposition disposition;
     NSURLCredential *credential = nil;
-    [self runChallengeWithHost:@"attacker.example.com" disposition:&disposition credential:&credential];
+    [self runChallengeWithHost:@"attacker.example.com"
+                    webviewURL:webviewURL
+                   disposition:&disposition
+                    credential:&credential];
 
     XCTAssertNotEqual(disposition, NSURLSessionAuthChallengeUseCredential,
                       @"The enterprise certificate must never be sent to an untrusted host");
@@ -478,29 +521,50 @@ static BOOL gPromptInvoked = NO;
 
 #pragma mark - MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX
 
-// Flight ENABLED (the fix): after a host miss the handler must NOT perform the
-// legacy URL-string fallback and instead falls through to the picker.
-- (void)testHandleChallenge_whenOriginFixEnabledAndHostMisses_shouldNotQueryURLStringFallback
+// Flight ENABLED: preserve the URL-string fallback when the challenge and
+// top-level webview hosts match.
+- (void)testHandleChallenge_whenOriginFixEnabledAndSameHostFallbackMatches_shouldUseCredential
 {
     self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
                                                 MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES};
-    MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = nil; // host lookup returns NULL
-    MSIDFakeCertAuthIdentityProvider.urlStringLookupSucceeds = YES; // would match if consulted
-    MSIDFakeCertAuthIdentityProvider.promptIdentity = NULL;        // user cancels
+    MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = nil;
+    MSIDFakeCertAuthIdentityProvider.urlStringLookupSucceeds = YES;
+    MSIDFakeCertAuthIdentityProvider.validityResult = YES;
 
     NSURLSessionAuthChallengeDisposition disposition;
     [self runChallengeWithHost:@"login.microsoftonline.com" disposition:&disposition credential:nil];
 
+    XCTAssertEqualObjects(MSIDFakeCertAuthIdentityProvider.queriedURLStrings,
+                          @[@"https://login.microsoftonline.com/authorize"]);
+    XCTAssertFalse(MSIDFakeCertAuthIdentityProvider.promptInvoked);
+    XCTAssertEqual(disposition, NSURLSessionAuthChallengeUseCredential);
+}
+
+// Flight ENABLED: after a host miss, a cross-host challenge must not query the
+// top-level webview URL and must fall through to the picker.
+- (void)testHandleChallenge_whenOriginFixEnabledAndHostsDiffer_shouldNotQueryURLStringFallback
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
+                                                MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES};
+    MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = nil;
+    MSIDFakeCertAuthIdentityProvider.urlStringLookupSucceeds = YES;
+    MSIDFakeCertAuthIdentityProvider.promptIdentity = NULL;
+
+    NSURLSessionAuthChallengeDisposition disposition;
+    [self runChallengeWithHost:@"attacker.example.com"
+                    webviewURL:[NSURL URLWithString:@"https://login.microsoftonline.com/authorize"]
+                   disposition:&disposition
+                    credential:nil];
+
     XCTAssertEqual(MSIDFakeCertAuthIdentityProvider.queriedURLStrings.count, 0u,
-                   @"The URL-string fallback must not be consulted when the origin-confusion fix is enabled");
+                   @"The URL-string fallback must not be consulted for a cross-host challenge");
     XCTAssertTrue(MSIDFakeCertAuthIdentityProvider.promptInvoked);
     XCTAssertEqual(disposition, NSURLSessionAuthChallengeRejectProtectionSpace);
 }
 
 // Flight DISABLED (legacy): after a host miss the handler falls back to the
-// wildcard URL-string lookup; when that matches a valid identity, the handler
-// responds with a credential without prompting.
-- (void)testHandleChallenge_whenOriginFixDisabledAndHostMissButURLStringMatches_shouldUseCredentialViaFallback
+// wildcard URL-string lookup even when the challenge and webview hosts differ.
+- (void)testHandleChallenge_whenOriginFixDisabledAndHostsDiffer_shouldUseCredentialViaFallback
 {
     self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
                                                 MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @NO};
@@ -509,10 +573,13 @@ static BOOL gPromptInvoked = NO;
     MSIDFakeCertAuthIdentityProvider.validityResult = YES;
 
     NSURLSessionAuthChallengeDisposition disposition;
-    [self runChallengeWithHost:@"login.microsoftonline.com" disposition:&disposition credential:nil];
+    [self runChallengeWithHost:@"attacker.example.com"
+                    webviewURL:[NSURL URLWithString:@"https://login.microsoftonline.com/authorize"]
+                   disposition:&disposition
+                    credential:nil];
 
     XCTAssertEqual(MSIDFakeCertAuthIdentityProvider.queriedURLStrings.count, 1u,
-                   @"The URL-string fallback must be consulted once after a host miss when the fix is disabled");
+                   @"Legacy behavior must consult the URL-string fallback when the fix is disabled");
     XCTAssertFalse(MSIDFakeCertAuthIdentityProvider.promptInvoked);
     XCTAssertEqual(disposition, NSURLSessionAuthChallengeUseCredential);
 }

@@ -64,16 +64,37 @@
         // Check if a preferred identity is set for this host.
         identity = [identityProvider copyPreferredIdentityForHost:host distinguishedNames:distinguishedNames];
 
-        if (!identity && ![self isCBAOriginFixEnabled])
+        NSString *webviewHost = webview.URL.host;
+        BOOL isSameHost = host.length > 0
+            && webviewHost.length > 0
+            && [host caseInsensitiveCompare:webviewHost] == NSOrderedSame;
+        BOOL isOriginFixEnabled = [self isCBAOriginFixEnabled];
+
+        if (!identity && (!isOriginFixEnabled || isSameHost))
         {
-            // Legacy behavior (flight disabled): if no identity matched the exact host,
-            // fall back to a wildcard URL-string match. This URL-string fallback is the
-            // origin confusion vector closed by MSRC-42fca33e; it is retained only while
-            // MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX is ramping so the fix can roll out gradually.
-            // When the flight is enabled, SecIdentityCopyPreferred(host) is the sole automatic
-            // lookup and the handler falls through to promptUserForIdentity:.
+            // Preserve wildcard matching for same-host challenges. While the flight is
+            // disabled, retain the legacy cross-host fallback for controlled rollout.
+            if (isSameHost)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo,
+                                  context,
+                                  @"CBA preferred identity URL-string fallback used. scope=same_host");
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo,
+                                  context,
+                                  @"CBA preferred identity URL-string fallback used. scope=cross_host");
+            }
+
             identity = [identityProvider copyPreferredIdentityForURLString:webview.URL.absoluteString
                                                        distinguishedNames:distinguishedNames];
+        }
+        else if (!identity)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo,
+                              context,
+                              @"CBA preferred identity URL-string fallback blocked. scope=cross_host");
         }
 
         isIdentityValid  = [identityProvider isIdentityValid:identity context:context];

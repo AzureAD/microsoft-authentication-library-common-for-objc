@@ -63,9 +63,11 @@ NS_ASSUME_NONNULL_BEGIN
  webview's top-level @c urlString (matching the supplied issuer
  @c distinguishedNames), or @c NULL when none exists.
 
- This lookup is the origin-confusion vector closed by MSRC-42fca33e and is only
- used while @c MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX is disabled. The returned
- identity is owned by the caller (+1 retain, matching @c SecIdentityCopyPreferred).
+ With @c MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX enabled, this lookup is used only
+ when the challenge host matches the top-level webview host. With the flight
+ disabled, the legacy cross-host behavior is retained for controlled rollout.
+ The returned identity is owned by the caller (+1 retain, matching
+ @c SecIdentityCopyPreferred).
  */
 + (nullable SecIdentityRef)copyPreferredIdentityForURLString:(nullable NSString *)urlString
                                           distinguishedNames:(nullable NSArray<NSData *> *)distinguishedNames CF_RETURNS_RETAINED;

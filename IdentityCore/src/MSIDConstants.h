@@ -228,9 +228,9 @@ extern NSString * _Nonnull const MSID_FLIGHT_CLIENT_SFRT_STATUS;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA;
 /**
  Enable flight for the macOS CBA origin-confusion fix (MSRC-42fca33e). When
- enabled, the preferred-identity lookup is keyed only by the challenge host and
- the legacy wildcard URL-string fallback is skipped. Default (disabled) preserves
- the legacy host-then-URL-string behavior so the fix can be rolled out gradually.
+ enabled, the legacy wildcard URL-string fallback is allowed only when the
+ challenge host matches the top-level webview host. Default (disabled) preserves
+ the legacy cross-host fallback behavior so the fix can be rolled out gradually.
  */
 extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA;
