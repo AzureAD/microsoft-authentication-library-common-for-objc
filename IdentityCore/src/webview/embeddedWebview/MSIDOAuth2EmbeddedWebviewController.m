@@ -556,23 +556,31 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
                 if (extraHeaders && extraHeaders.count > 0)
                 {
                     NSMutableURLRequest *newUrlRequest = [navigationAction.request mutableCopy];
-                    
+                    BOOL didApplyHeader = NO;
+
                     for (NSString *headerKey in extraHeaders)
                     {
                         if (![NSString msidIsStringNilOrBlank:extraHeaders[headerKey]])
                         {
                             [newUrlRequest setValue:extraHeaders[headerKey] forHTTPHeaderField:headerKey];
+                            didApplyHeader = YES;
                         }
                     }
 
-                    if (self.context.correlationId)
+                    // Only cancel + reload when at least one nonblank header was actually attached.
+                    // A dictionary of only blank values would otherwise reload the identical request,
+                    // looping on every navigation while falsely recording that headers were added.
+                    if (didApplyHeader)
                     {
-                        MSIDExecutionFlowInsertTag(MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag), nil, self.context.correlationId);
+                        if (self.context.correlationId)
+                        {
+                            MSIDExecutionFlowInsertTag(MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag), nil, self.context.correlationId);
+                        }
+
+                        decisionHandler(WKNavigationActionPolicyCancel);
+                        [self loadRequest:newUrlRequest];
+                        return;
                     }
-                    
-                    decisionHandler(WKNavigationActionPolicyCancel);
-                    [self loadRequest:newUrlRequest];
-                    return;
                 }
                 
                 if (error)

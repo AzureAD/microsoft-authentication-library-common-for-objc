@@ -474,6 +474,51 @@
     }
 }
 
+- (void)testDecidePolicyForNavigationAction_whenProviderReturnsOnlyBlankHeaderValues_shouldContinueNavigationWithoutReload
+{
+    // A nonempty dictionary whose values are all blank must not cancel + reload the identical
+    // request (which would loop on every navigation) nor record that headers were added.
+    MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.correlationId = [NSUUID UUID];
+    MSIDExecutionFlowRegister(context.correlationId);
+
+    MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:context];
+
+    MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+    provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"   " };
+    webVC.customHeaderProvider = provider;
+
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyCancel;
+    [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        capturedDecision = decision;
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertTrue(provider.wasCalled);
+    XCTAssertEqual(capturedDecision, WKNavigationActionPolicyAllow);
+    XCTAssertNil(webVC.capturedLoadRequest);
+
+    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should not contain the added tag"];
+    MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        // No header was attached, so the Added tag must not be recorded.
+        XCTAssertFalse([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag)]);
+        [flowExpectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 - (void)testDecidePolicyForNavigationAction_whenUntrustedHost_shouldSkipProviderAndAllowNavigation
 {
     MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
