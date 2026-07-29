@@ -78,6 +78,12 @@ extern NSString *const MSID_TOKEN_RESULT_CLIENT_DATA;
 /* Broker app meta data used for brokered authentication */
 @property (nonatomic, nullable, readonly) MSIDCache *brokerMetaData;
 
+/// Onboarding telemetry blob populated by the broker during the interactive
+/// flow. The wire key on the request/response envelopes is
+/// `MSIDOnboardingBlobIPCKey`; this property holds the round-tripped value
+/// so consumers can forward it without reaching into `brokerMetaData`.
+@property (nonatomic, copy, nullable) NSString *onboardingBlob;
+
 - (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
                                 refreshToken:(nullable id<MSIDRefreshableToken>)refreshToken
                                      idToken:(nonnull NSString *)rawIdToken

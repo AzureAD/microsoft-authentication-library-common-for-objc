@@ -32,6 +32,7 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDAccessToken.h"
 #import "MSIDLocalInteractiveController.h"
+#import "MSIDLocalInteractiveController+Internal.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
@@ -47,6 +48,10 @@
 #import "MSIDTestURLSession.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
+#import "MSIDRequestControllerFactory.h"
+#import "MSIDTestSwizzle.h"
+#import "MSIDTestLocalInteractiveController.h"
 
 @interface MSIDInteractiveControllerIntegrationTests : XCTestCase
 
@@ -73,6 +78,8 @@
 #if TARGET_OS_IPHONE
     [MSIDApplicationTestUtil reset];
 #endif
+
+    [MSIDTestSwizzle reset];
 }
 
 
@@ -453,7 +460,7 @@
                                                                                        resumeDictionary:nil];
 
     NSError *error = nil;
-    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters 
+    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                                                                     tokenRequestProvider:provider
                                                                                                                                    error:&error];
 
@@ -555,5 +562,443 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 #endif
+
+#pragma mark - MDM Enrollment Completion Tests
+
+// Verifies that when the webview returns an MSIDWebMDMEnrollmentCompletionResponse with a
+// successful status, the local controller asks the factory for a (potentially broker-backed)
+// controller and forwards the result of its acquireToken: call to the original completion block.
+- (void)testAcquireToken_whenMDMEnrollmentCompletionResponse_andSuccessStatus_shouldRetryViaFactoryAndReturnSuccess
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_mdm_success_retry";
+
+    NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=success"];
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
+                                                                                                              context:nil
+                                                                                                                error:nil];
+    XCTAssertNotNil(mdmResponse);
+    XCTAssertTrue(mdmResponse.isSuccess);
+
+    // The initial interactive request returns the MDM completion response (no result, no error).
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:mdmResponse];
+
+    MSIDTokenResult *retryResult = [self resultWithParameters:parameters];
+
+    // Stub the factory: after MDM enrollment completion the controller asks the factory for a
+    // controller and calls -acquireToken: on it. We return a stub controller that completes with
+    // a successful token result.
+    __block NSUInteger retryAcquireTokenCalled = 0;
+    MSIDTestLocalInteractiveController *retryController =
+        [[MSIDTestLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                    tokenRequestProvider:provider
+                                                                                   error:nil];
+    retryController.acquireTokenResult = retryResult;
+    // Leave acquireTokenError unset (defaults to nil); the property is nonnull-annotated.
+
+    [MSIDTestSwizzle classMethod:@selector(interactiveControllerForParameters:tokenRequestProvider:error:)
+                           class:[MSIDRequestControllerFactory class]
+                           block:(id)^(__unused id obj,
+                                       __unused MSIDInteractiveTokenRequestParameters *p,
+                                       __unused id<MSIDTokenRequestProviding> tp,
+                                       __unused NSError **err)
+    {
+        retryAcquireTokenCalled++;
+        return retryController;
+    }];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController =
+        [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                tokenRequestProvider:provider
+                                                                               error:&error];
+    XCTAssertNotNil(interactiveController);
+    XCTAssertNil(error);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token (MDM retry success)"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        XCTAssertNil(acquireTokenError);
+        XCTAssertNotNil(result);
+        XCTAssertEqualObjects(result.accessToken, retryResult.accessToken);
+        XCTAssertEqualObjects(result.rawIdToken, retryResult.rawIdToken);
+
+        // The factory must have been consulted exactly once, and acquireToken: must have run
+        // exactly once on the returned controller.
+        XCTAssertEqual(retryAcquireTokenCalled, 1u);
+        XCTAssertEqual(retryController.acquireTokenCalledCount, 1u);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+// Same as above but for the "check_in_timed_out" status, which the response object treats as
+// a success.
+- (void)testAcquireToken_whenMDMEnrollmentCompletionResponse_andCheckInTimedOutStatus_shouldRetryViaFactory
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_mdm_timeout_retry";
+
+    NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=check_in_timed_out"];
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
+                                                                                                              context:nil
+                                                                                                                error:nil];
+    XCTAssertNotNil(mdmResponse);
+    XCTAssertTrue(mdmResponse.isSuccess);
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:mdmResponse];
+
+    MSIDTokenResult *retryResult = [self resultWithParameters:parameters];
+
+    __block NSUInteger retryAcquireTokenCalled = 0;
+    MSIDTestLocalInteractiveController *retryController =
+        [[MSIDTestLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                    tokenRequestProvider:provider
+                                                                                   error:nil];
+    retryController.acquireTokenResult = retryResult;
+
+    [MSIDTestSwizzle classMethod:@selector(interactiveControllerForParameters:tokenRequestProvider:error:)
+                           class:[MSIDRequestControllerFactory class]
+                           block:(id)^(__unused id obj,
+                                       __unused MSIDInteractiveTokenRequestParameters *p,
+                                       __unused id<MSIDTokenRequestProviding> tp,
+                                       __unused NSError **err)
+    {
+        retryAcquireTokenCalled++;
+        return retryController;
+    }];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController =
+        [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                tokenRequestProvider:provider
+                                                                               error:&error];
+    XCTAssertNotNil(interactiveController);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token (MDM timeout retry success)"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        XCTAssertNil(acquireTokenError);
+        XCTAssertNotNil(result);
+        XCTAssertEqualObjects(result.accessToken, retryResult.accessToken);
+        XCTAssertEqual(retryAcquireTokenCalled, 1u);
+        XCTAssertEqual(retryController.acquireTokenCalledCount, 1u);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+// Verifies that when the webview returns an MSIDWebMDMEnrollmentCompletionResponse with a
+// failure status, the controller short-circuits (does NOT consult the factory) and returns an
+// MSIDErrorInternal whose description carries the MDM enrollment status.
+- (void)testAcquireToken_whenMDMEnrollmentCompletionResponse_andFailureStatus_shouldReturnInternalErrorAndNotRetry
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_mdm_failure";
+
+    NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=failed"];
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
+                                                                                                              context:nil
+                                                                                                                error:nil];
+    XCTAssertNotNil(mdmResponse);
+    XCTAssertFalse(mdmResponse.isSuccess);
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:mdmResponse];
+
+    // Sentinel: the factory must NOT be invoked on the failure path.
+    __block NSUInteger factoryCallCount = 0;
+    [MSIDTestSwizzle classMethod:@selector(interactiveControllerForParameters:tokenRequestProvider:error:)
+                           class:[MSIDRequestControllerFactory class]
+                           block:(id)^(__unused id obj,
+                                       __unused MSIDInteractiveTokenRequestParameters *p,
+                                       __unused id<MSIDTokenRequestProviding> tp,
+                                       __unused NSError **err)
+    {
+        factoryCallCount++;
+        return nil;
+    }];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController =
+        [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                tokenRequestProvider:provider
+                                                                               error:&error];
+    XCTAssertNotNil(interactiveController);
+    XCTAssertNil(error);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token (MDM failure)"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqualObjects(acquireTokenError.domain, MSIDErrorDomain);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorInternal);
+
+        // No retry must have been attempted via the factory.
+        XCTAssertEqual(factoryCallCount, 0u);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+// When the MDM response has no status (or an unrecognized one), the controller treats it as a
+// failure and returns an MSIDErrorInternal whose description records the missing-status sentinel.
+- (void)testAcquireToken_whenMDMEnrollmentCompletionResponse_andMissingStatus_shouldReturnInternalErrorWithNoneSentinel
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_mdm_missing_status";
+
+    NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete"];
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
+                                                                                                              context:nil
+                                                                                                                error:nil];
+    XCTAssertNotNil(mdmResponse);
+    XCTAssertNil(mdmResponse.status);
+    XCTAssertFalse(mdmResponse.isSuccess);
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:mdmResponse];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController =
+        [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                tokenRequestProvider:provider
+                                                                               error:&error];
+    XCTAssertNotNil(interactiveController);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token (MDM missing status)"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqualObjects(acquireTokenError.domain, MSIDErrorDomain);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorInternal);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+// Verifies the nil-completionBlock guard early-returns without crashing.
+- (void)testHandleWebMDMEnrollmentCompletionResponse_whenCompletionBlockIsNil_shouldReturnSafely
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+
+    NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=succeeded"];
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
+                                                                                                              context:nil
+                                                                                                                error:nil];
+    XCTAssertNotNil(mdmResponse);
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController =
+        [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                tokenRequestProvider:[[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                                                                     testError:nil
+                                                                                                                         testWebMSAuthResponse:nil]
+                                                                               error:&error];
+    XCTAssertNotNil(interactiveController);
+
+    // Should not crash when completionBlock is nil.
+    MSIDRequestCompletionBlock completionBlock = nil;
+    XCTAssertNoThrow([interactiveController handleWebMDMEnrollmentCompletionResponse:mdmResponse completion:completionBlock]);
+}
+
+// Controller-factory fallback path: MDM enrollment succeeded but the factory cannot produce a
+// controller for the retry. The local controller must surface an error (rather than silently
+// dropping the completion or crashing) and must propagate the factory's own error if provided.
+- (void)testAcquireToken_whenMDMEnrollmentSuccess_butFactoryReturnsNilWithError_shouldReturnFactoryError
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_mdm_factory_error";
+
+    NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=success"];
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
+                                                                                                              context:nil
+                                                                                                                error:nil];
+    XCTAssertNotNil(mdmResponse);
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:mdmResponse];
+
+    NSError *factoryError = MSIDCreateError(MSIDErrorDomain,
+                                            MSIDErrorInternal,
+                                            @"Cannot build controller",
+                                            nil, nil, nil,
+                                            parameters.correlationId,
+                                            nil,
+                                            NO);
+
+    // The factory returns nil AND writes an error into the out-pointer.
+    __block NSUInteger factoryCallCount = 0;
+    [MSIDTestSwizzle classMethod:@selector(interactiveControllerForParameters:tokenRequestProvider:error:)
+                           class:[MSIDRequestControllerFactory class]
+                           block:(id)^(__unused id obj,
+                                       __unused MSIDInteractiveTokenRequestParameters *p,
+                                       __unused id<MSIDTokenRequestProviding> tp,
+                                       NSError **err)
+    {
+        factoryCallCount++;
+        if (err)
+        {
+            *err = factoryError;
+        }
+        return nil;
+    }];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController =
+        [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                tokenRequestProvider:provider
+                                                                               error:&error];
+    XCTAssertNotNil(interactiveController);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token (MDM factory error)"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        // The error produced by the factory must be propagated as-is.
+        XCTAssertEqualObjects(acquireTokenError, factoryError);
+        XCTAssertEqual(factoryCallCount, 1u);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+// Controller-factory fallback path with no underlying error: when the factory returns nil
+// without populating an NSError, the controller must synthesize its own MSIDErrorInternal so
+// the completion block always fires with a non-nil error.
+- (void)testAcquireToken_whenMDMEnrollmentSuccess_butFactoryReturnsNilWithoutError_shouldReturnSynthesizedInternalError
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_mdm_factory_nil";
+
+    NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=success"];
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
+                                                                                                              context:nil
+                                                                                                                error:nil];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:mdmResponse];
+
+    [MSIDTestSwizzle classMethod:@selector(interactiveControllerForParameters:tokenRequestProvider:error:)
+                           class:[MSIDRequestControllerFactory class]
+                           block:(id)^(__unused id obj,
+                                       __unused MSIDInteractiveTokenRequestParameters *p,
+                                       __unused id<MSIDTokenRequestProviding> tp,
+                                       __unused NSError **err)
+    {
+        // Intentionally do not set *err — exercises the synthesized-error path.
+        return nil;
+    }];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController =
+        [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                tokenRequestProvider:provider
+                                                                               error:&error];
+    XCTAssertNotNil(interactiveController);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token (MDM factory nil)"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqualObjects(acquireTokenError.domain, MSIDErrorDomain);
+        XCTAssertEqual(acquireTokenError.code, MSIDErrorInternal);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+// The retry controller produced by the factory is allowed to fail. In that case the error from
+// the retry must reach the original caller untouched.
+- (void)testAcquireToken_whenMDMEnrollmentSuccess_andRetryControllerFails_shouldPropagateRetryError
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_mdm_retry_failure";
+
+    NSURL *mdmURL = [NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=success"];
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = [[MSIDWebMDMEnrollmentCompletionResponse alloc] initWithURL:mdmURL
+                                                                                                              context:nil
+                                                                                                                error:nil];
+
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil
+                                                                                              testError:nil
+                                                                                  testWebMSAuthResponse:mdmResponse];
+
+    NSError *retryError = MSIDCreateError(MSIDErrorDomain,
+                                          MSIDErrorInteractiveSessionStartFailure,
+                                          @"Retry interactive failed",
+                                          nil, nil, nil,
+                                          parameters.correlationId,
+                                          nil,
+                                          NO);
+
+    MSIDTestLocalInteractiveController *retryController =
+        [[MSIDTestLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                    tokenRequestProvider:provider
+                                                                                   error:nil];
+    // Leave acquireTokenResult unset (defaults to nil); the property is nonnull-annotated.
+    retryController.acquireTokenError = retryError;
+
+    [MSIDTestSwizzle classMethod:@selector(interactiveControllerForParameters:tokenRequestProvider:error:)
+                           class:[MSIDRequestControllerFactory class]
+                           block:(id)^(__unused id obj,
+                                       __unused MSIDInteractiveTokenRequestParameters *p,
+                                       __unused id<MSIDTokenRequestProviding> tp,
+                                       __unused NSError **err)
+    {
+        return retryController;
+    }];
+
+    NSError *error = nil;
+    MSIDLocalInteractiveController *interactiveController =
+        [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                tokenRequestProvider:provider
+                                                                               error:&error];
+    XCTAssertNotNil(interactiveController);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token (MDM retry failure)"];
+
+    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable acquireTokenError) {
+
+        XCTAssertNil(result);
+        XCTAssertNotNil(acquireTokenError);
+        XCTAssertEqualObjects(acquireTokenError, retryError);
+        XCTAssertEqual(retryController.acquireTokenCalledCount, 1u);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
 
 @end

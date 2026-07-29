@@ -28,17 +28,21 @@
 
 NSString * const MSID_SCHEME_MSAUTH  = @"msauth";
 NSString * const MSID_SCHEME_BROWSER  = @"browser";
+NSString * const MSID_SCHEME_OPENID_VC = @"openid-vc";
 
 #pragma mark - URL Hosts
 
 NSString * const MSID_MDM_ENROLL_HOST = @"enroll";
 NSString * const MSID_COMPLIANCE_HOST = @"compliance";
 NSString * const MSID_MDM_ENROLLMENT_COMPLETION_HOST = @"in_app_enrollment_complete";
+NSString * const MSID_MDM_PROFILE_DOWNLOAD_COMPLETE_HOST = @"profile_download_complete";
 
 #pragma mark - Enrollment Query Parameters
 
 NSString * const MSID_INTUNE_URL_KEY = @"intuneRedirectUrl";
 NSString * const MSID_IN_APP_KEY = @"in-app";
+NSString * const MSID_INTUNE_DEVICE_ID_KEY = @"intuneDeviceId";
+NSString * const MSID_INTUNE_PROFILE_INSTALL_URL_KEY = @"continueUrl";
 
 #pragma mark - Enrollment Completion Query Parameters
 
@@ -55,11 +59,19 @@ NSString *const MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY          = @"x-ms-asweb
 NSString *const MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY        = @"x-ms-aswebauth-handoff-redirect-scheme";
 NSString *const MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY        = @"x-ms-aswebauth-handoff-include-headers";
 NSString *const MSID_ASWEBAUTH_HANDOFF_ATTACH_HEADERS_KEY         = @"x-ms-aswebauth-handoff-attach-headers";
+NSString *const MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY               = @"x-ms-aswebauth-handoff-purpose";
 NSString *const MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX              = @"x-ms-aswebauth-handoff-";
 
 // ASWebAuthentication handoff header values
 NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_TRUE                 = @"true";
 NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_FALSE                = @"false";
+NSString *const MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE = @"download-profile";
+
+#pragma mark - OpenID4VC bring-back query parameters
+
+NSString * const MSID_OPENID_VC_CALLER_REDIRECT_URI_KEY            = @"x_ms_caller_redirect_uri";
+NSString * const MSID_OPENID_VC_CALLER_BUNDLE_ID_KEY               = @"x_ms_caller_bundle_id";
+NSString * const MSID_OPENID_VC_CORRELATION_ID_KEY                 = @"x_ms_correlation_id";
 
 #pragma mark - ASWebAuthentication Allowed Domains
 

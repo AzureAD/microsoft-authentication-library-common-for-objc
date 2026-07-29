@@ -32,6 +32,7 @@
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDKeychainTokenCache.h"
 #import "NSDate+MSIDExtensions.h"
+#import "MSIDDIContainer.h"
 
 @implementation MSIDThrottlingMetaDataCache
 
@@ -93,6 +94,14 @@
                                                     type:nil];
     });
     return cacheKey;
+}
+
++ (Class<MSIDThrottlingMetaDataReading>)resolvedMetaDataReader
+{
+    return (Class<MSIDThrottlingMetaDataReading>)
+        [[MSIDDIContainer sharedInstance]
+            resolveImplClassForProtocol:@protocol(MSIDThrottlingMetaDataReading)
+                              orDefault:^Class { return [MSIDThrottlingMetaDataCache class]; }];
 }
 
 @end

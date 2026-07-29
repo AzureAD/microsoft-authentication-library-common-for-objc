@@ -180,7 +180,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -237,7 +237,7 @@
                                 __unused id<MSIDRequestContext> context,
                                 MSIDWebviewAuthCompletionHandler completionHandler)
     {
-         NSString *responseString = [NSString stringWithFormat:@"x-msauth-test://com.microsoft.testapp?code=iamafakecode&cloud_instance_host_name=contoso.onmicrosoft.cn&client_info=%@", [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson]];
+         NSString *responseString = [NSString stringWithFormat:@"x-msauth-test://com.microsoft.testapp?code=iamafakecode&cloud_instance_host_name=login.partner.microsoftonline.cn&client_info=%@", [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson]];
 
          MSIDWebAADAuthCodeResponse *oauthResponse = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:[NSURL URLWithString:responseString]
                                                                                              context:nil error:nil];
@@ -247,7 +247,7 @@
     NSMutableDictionary *reqHeaders = [[MSIDTestURLResponse msidDefaultRequestHeaders] mutableCopy];
     [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
 
-    NSString *url = @"https://contoso.onmicrosoft.cn/common/oauth2/v2.0/token";
+    NSString *url = @"https://login.partner.microsoftonline.cn/common/oauth2/v2.0/token";
     
     MSIDTestURLResponse *response =
     [MSIDTestURLResponse requestURLString:url
@@ -259,7 +259,7 @@
                                              @"grant_type" : @"authorization_code",
                                              @"code_verifier" : [MSIDTestRequireValueSentinel sentinel],
                                              @"client_info" : @"1"}
-                        responseURLString:@"https://contoso.onmicrosoft.cn/oauth2/v2.0/token"
+                        responseURLString:@"https://login.partner.microsoftonline.cn/oauth2/v2.0/token"
                              responseCode:200
                          httpHeaderFields:nil
                          dictionaryAsJSON:@{ @"access_token" : @"i am a access token!",
@@ -285,7 +285,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -296,7 +296,7 @@
         XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://contoso.onmicrosoft.cn/"DEFAULT_TEST_UTID);
+        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.partner.microsoftonline.cn/"DEFAULT_TEST_UTID);
         XCTAssertNil(installBrokerResponse);
         XCTAssertNil(error);
 
@@ -392,7 +392,7 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -486,7 +486,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -582,7 +582,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -651,7 +651,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -719,13 +719,14 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
-
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
         XCTAssertNil(result);
         XCTAssertNil(error);
         XCTAssertNotNil(installBrokerResponse);
-        XCTAssertEqualObjects(installBrokerResponse.appInstallLink, @"https://login.microsoftonline.appinstall.test");
-        XCTAssertTrue(installBrokerResponse.tokenProtectionRequired);
+        XCTAssertTrue([installBrokerResponse isKindOfClass:[MSIDWebWPJResponse class]]);
+        MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)installBrokerResponse;
+        XCTAssertEqualObjects(wpjResponse.appInstallLink, @"https://login.microsoftonline.appinstall.test");
+        XCTAssertTrue(wpjResponse.tokenProtectionRequired);
 
         [expectation fulfill];
 
@@ -789,11 +790,13 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable upgradeRegBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable response) {
 
         XCTAssertNil(result);
         XCTAssertNil(error);
-        XCTAssertNotNil(upgradeRegBrokerResponse);
+        XCTAssertNotNil(response);
+        XCTAssertTrue([response isKindOfClass:[MSIDWebUpgradeRegResponse class]]);
+        MSIDWebUpgradeRegResponse *upgradeRegBrokerResponse = (MSIDWebUpgradeRegResponse *)response;
         XCTAssertEqualObjects(upgradeRegBrokerResponse.upn, @"user");
         XCTAssertEqualObjects(upgradeRegBrokerResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
         XCTAssertEqualObjects(upgradeRegBrokerResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
@@ -892,7 +895,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -966,7 +969,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebviewResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);

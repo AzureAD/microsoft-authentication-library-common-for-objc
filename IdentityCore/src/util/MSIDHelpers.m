@@ -35,7 +35,7 @@
     return 0;
 }
 
-+ (NSString *)normalizeUserId:(NSString *)userId
++ (nullable NSString *)normalizeUserId:(nullable NSString *)userId
 {
     if (!userId)
     {
@@ -44,6 +44,25 @@
     NSString *normalized = [userId msidTrimmedString].lowercaseString;
 
     return normalized.length ? normalized : nil;
+}
+
++ (NSSet<NSString *> *)microsoft1PAppsTeamIDs
+{
+    static NSSet<NSString *> *teamIDs = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        teamIDs = [[NSSet alloc] initWithArray:@[@"SGGM6D27TK",
+                                                 @"9KBH5RKYEW", // 9KB* is the prefix for enterprise-signed 1st party iOS apps
+                                                 @"UBF8T346G9"
+                                               ]];
+    });
+
+    return teamIDs;
+}
+
++ (BOOL)isMicrosoftFirstPartyAppWithTeamId:(nullable NSString *)teamId
+{
+    return teamId.length > 0 && [[self microsoft1PAppsTeamIDs] containsObject:teamId];
 }
 
 @end

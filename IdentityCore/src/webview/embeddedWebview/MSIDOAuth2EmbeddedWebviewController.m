@@ -39,6 +39,14 @@
 #import "MSIDMainThreadUtil.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDFlightManager.h"
+#import "MSIDWebviewNavigationDecision.h"
+#import "MSIDOnboardingBlobBuilder.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDWebAuthNUtil.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDExecutionFlowConstants.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDAADAuthority.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -63,6 +71,9 @@
     MSIDTelemetryUIEvent *_telemetryEvent;
 #endif
 }
+
+// Backed by readonly properties declared in the public header.
+@synthesize endURL = _endURL;
 
 #if AD_BROKER
 NSString *const SSO_EXTENSION_USER_DEFAULTS_KEY = @"group.com.microsoft.azureauthenticator.sso";
@@ -210,6 +221,13 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     }
     self.complete = YES;
     
+    // Record the terminal onboarding step on the shared builder
+    if (_onboardingBlobBuilder && [MSIDWebAuthNUtil amIRunningInExtension])
+    {
+        [_onboardingBlobBuilder finalizeForEndURL:endURL error:error];
+        _onboardingBlobBuilder = nil;
+    }
+
     BOOL enableSpinnerFix = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_SPINNER_FIX];
     
     if (enableSpinnerFix)
@@ -356,16 +374,66 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
-    if (self.navigationResponseBlock && navigationResponse && navigationResponse.response)
+    WKNavigationResponsePolicy responsePolicy = WKNavigationResponsePolicyAllow;
+
+    NSHTTPURLResponse *response = nil;
+    if (navigationResponse && [navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]])
     {
-        NSHTTPURLResponse *response = (NSHTTPURLResponse *)navigationResponse.response;
-        if (response)
+        response = (NSHTTPURLResponse *)navigationResponse.response;
+    }
+
+    if (response)
+    {
+        id contextObject = self.context;
+        MSIDInteractiveRequestParameters *interactiveRequestParameters =
+            [contextObject isKindOfClass:[MSIDInteractiveRequestParameters class]]
+                ? (MSIDInteractiveRequestParameters *)contextObject : nil;
+
+        if (interactiveRequestParameters.isNewMobileOnboardingFlow)
+        {
+            // In the new onboarding flow, the navigation delegate processes telemetry
+            // and checks for ASWebAuthenticationSession hand-off in a single call.
+            id<MSIDWebviewNavigationDelegate> strongNavigationDelegate = self.navigationDelegate;
+            if ((strongNavigationDelegate)
+                && [strongNavigationDelegate respondsToSelector:@selector(processNavigationResponseAndCheckForASWebAuthHandoff:embeddedWebviewController:)])
+            {
+                BOOL didHandoff = [strongNavigationDelegate processNavigationResponseAndCheckForASWebAuthHandoff:response
+                                                            embeddedWebviewController:self];
+
+#if !MSID_EXCLUDE_SYSTEMWV
+                // If a hand-off is signaled, and the navigation delegate implements the hand-off method, perform the hand-off to ASWebAuthenticationSession and cancel the current navigation.
+                if (didHandoff
+                    && [strongNavigationDelegate respondsToSelector:@selector(performASWebAuthenticationHandoffWithCompletion:)])
+                {
+                    NSURL *responseURL = response.URL;
+                    responsePolicy = WKNavigationResponsePolicyCancel;
+                    [strongNavigationDelegate performASWebAuthenticationHandoffWithCompletion:^(MSIDWebviewNavigationDecision *decision, NSError *error)
+                    {
+                        [self performNavigationDecision:decision
+                                             requestURL:responseURL
+                                                  error:error];
+                    }];
+                }
+#endif // !MSID_EXCLUDE_SYSTEMWV
+            }
+        }
+        else
+        {
+            // Legacy flow: process onboarding telemetry locally.
+            MSIDOnboardingBlobBuilder *builder = self.onboardingBlobBuilder;
+            if (builder && response)
+            {
+                [builder processResponseHeaders:response.allHeaderFields responseURL:response.URL];
+            }
+        }
+
+        if (self.navigationResponseBlock)
         {
             self.navigationResponseBlock(response);
         }
     }
-    
-    decisionHandler(WKNavigationResponsePolicyAllow);
+
+    decisionHandler(responsePolicy);
 }
 
 - (void)completeWebAuthWithURL:(NSURL *)endURL
@@ -470,6 +538,24 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     
     if (self.customHeaderProvider)
     {
+        // Only forward custom headers to a recognized AAD host (known static cloud or a cloud
+        // discovered via instance metadata), matching the hosts the custom header provider accepts.
+        // requestURL.host can be nil even for https URLs; treat a missing host as untrusted so we
+        // never hand a nil host to the trust check or the provider, and let navigation continue.
+        NSString *requestHost = requestURL.host.lowercaseString;
+        if ([NSString msidIsStringNilOrBlank:requestHost] || ![MSIDAADAuthority isRecognizedAADHost:requestHost])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Skipped attaching custom headers because the navigation host is not a known AAD host.");
+
+            if (self.context.correlationId)
+            {
+                MSIDExecutionFlowInsertTag(MSIDCustomHeaderTagToString(MSIDCustomHeaderSkippedUntrustedHostTag), nil, self.context.correlationId);
+            }
+
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return;
+        }
+
         [self.customHeaderProvider getCustomHeaders:navigationAction.request
                                             forHost:requestURL.host
                                     completionBlock:^(NSDictionary<NSString *, NSString *> *extraHeaders, NSError *error){
@@ -477,18 +563,31 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
                 if (extraHeaders && extraHeaders.count > 0)
                 {
                     NSMutableURLRequest *newUrlRequest = [navigationAction.request mutableCopy];
-                    
+                    BOOL didApplyHeader = NO;
+
                     for (NSString *headerKey in extraHeaders)
                     {
                         if (![NSString msidIsStringNilOrBlank:extraHeaders[headerKey]])
                         {
                             [newUrlRequest setValue:extraHeaders[headerKey] forHTTPHeaderField:headerKey];
+                            didApplyHeader = YES;
                         }
                     }
-                    
-                    decisionHandler(WKNavigationActionPolicyCancel);
-                    [self loadRequest:newUrlRequest];
-                    return;
+
+                    // Only cancel + reload when at least one nonblank header was actually attached.
+                    // A dictionary of only blank values would otherwise reload the identical request,
+                    // looping on every navigation while falsely recording that headers were added.
+                    if (didApplyHeader)
+                    {
+                        if (self.context.correlationId)
+                        {
+                            MSIDExecutionFlowInsertTag(MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag), nil, self.context.correlationId);
+                        }
+
+                        decisionHandler(WKNavigationActionPolicyCancel);
+                        [self loadRequest:newUrlRequest];
+                        return;
+                    }
                 }
                 
                 if (error)
@@ -637,6 +736,89 @@ initiatedByFrame:(WKFrameInfo *)frame
     }
     
     return YES;
+}
+
+#pragma mark - Navigation Decision
+
+- (void)performNavigationDecision:(MSIDWebviewNavigationDecision *)navigationDecision
+                       requestURL:(NSURL *)requestURL
+                            error:(NSError *)error
+{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        if (error)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                              @"Navigation delegate returned error: %@", error);
+            [self endWebAuthWithURL:nil error:error];
+            return;
+        }
+        
+        // Default to completing the web auth with the current URL if no decision is returned
+        if (!navigationDecision)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                              @"Navigation delegate returned nil action");
+            [self completeWebAuthWithURL:requestURL];
+            return;
+        }
+        
+        // Check validity
+        if (![navigationDecision isValid])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                              @"Navigation validation failed, using fallback");
+            [self completeWebAuthWithURL:requestURL];
+            return;
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                          @"Applying navigation decision type: %ld", (long)navigationDecision.type);
+        
+        switch (navigationDecision.type)
+        {
+            case MSIDWebviewNavigationDecisionLoadRequest:
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                      @"Loading request: %@",
+                                      MSID_PII_LOG_MASKABLE(navigationDecision.request.URL));
+                [self loadRequest:navigationDecision.request];
+                break;
+            }
+                
+            case MSIDWebviewNavigationDecisionCompleteWithURL:
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context,
+                                      @"Completing webauth with URL: %@",
+                                      MSID_PII_LOG_MASKABLE(navigationDecision.URL));
+                [self completeWebAuthWithURL:navigationDecision.URL];
+                break;
+            }
+                
+            case MSIDWebviewNavigationDecisionFailWithError:
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context,
+                                  @"Failing webauth with error: %@", navigationDecision.error);
+                [self endWebAuthWithURL:nil error:navigationDecision.error];
+                break;
+            }
+                
+            case MSIDWebviewNavigationDecisionContinueDefault:
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context,
+                                  @"Continuing with default behavior");
+                [self completeWebAuthWithURL:requestURL];
+                break;
+            }
+                
+            default:
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context,
+                                  @"Unknown decision type: %ld, using fallback", (long)navigationDecision.type);
+                [self completeWebAuthWithURL:requestURL];
+                break;
+            }
+        }
+    }];
 }
 
 @end

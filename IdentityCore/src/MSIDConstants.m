@@ -27,11 +27,13 @@ NSString *const MSID_PLATFORM_KEY                  = @"x-client-SKU";
 NSString *const MSID_SOURCE_PLATFORM_KEY           = @"x-client-src-SKU";
 NSString *const MSID_PLATFORM_SEQUENCE_KEY         = @"x-client-xtra-sku";
 NSString *const MSID_VERSION_KEY                   = @"x-client-Ver";
+NSString *const MSID_BROKER_VER_KEY                = @"x-client-brkrver";
 NSString *const MSID_CPU_KEY                       = @"x-client-CPU";
 NSString *const MSID_OS_VER_KEY                    = @"x-client-OS";
 NSString *const MSID_DEVICE_MODEL_KEY              = @"x-client-DM";
 NSString *const MSID_APP_NAME_KEY                  = @"x-app-name";
 NSString *const MSID_APP_VER_KEY                   = @"x-app-ver";
+NSString *const MSID_APP_CLIENT_ID_KEY            = @"x-ms-client-id";
 NSString *const MSID_CCS_HINT_KEY                  = @"X-AnchorMailbox";
 NSString *const MSID_WEBAUTH_IGNORE_SSO_KEY        = @"x-ms-sso-Ignore-SSO";
 NSString *const MSID_WEBAUTH_REFRESH_TOKEN_KEY     = @"x-ms-sso-RefreshToken";
@@ -49,6 +51,8 @@ NSString *const MSIDTrustedAuthorityChina          = @"login.chinacloudapi.cn";
 NSString *const MSIDTrustedAuthorityChina2         = @"login.partner.microsoftonline.cn";
 NSString *const MSIDTrustedAuthorityGermany        = @"login.microsoftonline.de";
 NSString *const MSIDTrustedAuthorityFrance         = @"login.sovcloud-identity.fr";
+NSString *const MSIDTrustedAuthorityDelos          = @"login.sovcloud-identity.de";
+NSString *const MSIDTrustedAuthorityGovSG          = @"login.sovcloud-identity.sg";
 NSString *const MSIDTrustedAuthorityWorldWide      = @"login.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityUSGovernment   = @"login-us.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityCloudGovApi    = @"login.usgovcloudapi.net";
@@ -63,6 +67,9 @@ NSString *const MSID_POP_TOKEN_PRIVATE_KEY = @"com.microsoft.token.private.key";
 NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN = @"com.microsoft.identity.throttling.metadata";
 NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";
+
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN = @"com.microsoft.identity.intune.deviceid";
+NSString *const MSID_INTUNE_DEVICE_ID_KEYCHAIN_VERSION = @"Ver1";
 
 NSString *const MSID_USE_SINGLE_FRT_KEYCHAIN          = @"useSingleFRT";
 NSString *const MSID_USE_SINGLE_FRT_KEY               = @"use_single_frt";
@@ -107,6 +114,8 @@ NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_POP = @"browser_core_disable_po
 
 NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS = @"browser_core_disable_claims";
 
+NSString *const MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION = @"browser_core_disable_reqcnf_validation";
+
 NSString *const MSID_DOMAIN_HINT_KEY  = @"domain_hint";
 
 // This is SsoExt flow only flight
@@ -115,10 +124,19 @@ NSString *const MSID_FLIGHT_ENABLE_THREAD_STARVATION = @"ts_en";
 // This is SsoExt flow only flight
 NSString *const MSID_FLIGHT_ENABLE_SKIP_BROKER_CACHE = @"skip_brk_cache";
 
+// Enables caching and reuse of the Broker XPC instance endpoint (macOS only).
+NSString *const MSID_FLIGHT_BROKER_XPC_INSTANCE_CACHE_ENABLED = @"broker_xpc_instance_cache_enabled";
+
 NSString *const MSID_FLIGHT_IS_BART_SUPPORTED = @"is_bound_app_rt_supported";
 
 NSString *const MSID_FLIGHT_SPINNER_FIX = @"enable_spinner_fix";
 
 NSString *const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER = @"disable_open_new_window_in_browser";
+
+NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboarding";
+
+NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_profile_installed_notification_delay";
+
+NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 75.0;
 
 #define METHODANDLINE   [NSString stringWithFormat:@"%s [Line %d]", __PRETTY_FUNCTION__, __LINE__]

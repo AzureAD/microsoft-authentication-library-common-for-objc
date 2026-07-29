@@ -43,6 +43,8 @@ static NSSet<NSString *> *s_trustedHostList;
                              MSIDTrustedAuthorityChina2,
                              MSIDTrustedAuthorityGermany,
                              MSIDTrustedAuthorityFrance,
+                             MSIDTrustedAuthorityDelos,
+                             MSIDTrustedAuthorityGovSG,
                              MSIDTrustedAuthorityWorldWide,
                              MSIDTrustedAuthorityUSGovernment,
                              MSIDTrustedAuthorityCloudGovApi, nil];

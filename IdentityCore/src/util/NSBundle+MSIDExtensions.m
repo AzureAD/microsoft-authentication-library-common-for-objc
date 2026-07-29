@@ -36,4 +36,16 @@
     return appVersion;
 }
 
++ (NSString *)msidAppName
+{
+    NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+    NSString *appName = info[@"CFBundleDisplayName"];
+    if (!appName)
+    {
+        appName = info[@"CFBundleName"];
+    }
+
+    return appName ?: @"";
+}
+
 @end

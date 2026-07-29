@@ -29,6 +29,8 @@
 #import "MSIDPromptType_Internal.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
+#import "MSIDBrokerConstants.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
 
@@ -56,7 +58,9 @@
     request.extraQueryParameters = [parameters allAuthorizeRequestExtraParametersWithMetadata:NO];
     request.extraScopesToConsent = parameters.extraScopesToConsent;
     request.userFederatedIdentityToken = parameters.userFederatedIdentityToken;
-    
+    request.onboardingBlob = parameters.onboardingBlobJson;
+    request.isNewMobileOnboardingFlow = parameters.isNewMobileOnboardingFlow;
+
     return request;
 }
 
@@ -81,6 +85,8 @@
         NSString *promptString = [json msidStringObjectForKey:MSID_BROKER_PROMPT_KEY];
         _promptType = MSIDPromptTypeFromString(promptString);
         _extraScopesToConsent = [json msidStringObjectForKey:MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY];
+        _onboardingBlob = [json msidStringObjectForKey:MSIDOnboardingBlobIPCKey];
+        _isNewMobileOnboardingFlow = [[json msidStringObjectForKey:MSID_BROKER_NEW_MOBILE_ONBOARDING_FLOW_KEY] boolValue];
     }
     
     return self;
@@ -102,7 +108,17 @@
     {
         json[MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY] = self.userFederatedIdentityToken;
     }
-    
+
+    if (self.onboardingBlob.length > 0)
+    {
+        json[MSIDOnboardingBlobIPCKey] = self.onboardingBlob;
+    }
+
+    if (self.isNewMobileOnboardingFlow)
+    {
+        json[MSID_BROKER_NEW_MOBILE_ONBOARDING_FLOW_KEY] = @"1";
+    }
+
     return json;
 }
 

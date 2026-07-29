@@ -10,90 +10,181 @@ pr:
 # Not triggering for CI since it is triggered for PRs 
 trigger: none
 
+resources:
+  repositories:
+    - repository: automationHealthTracker
+      type: git
+      name: IDDP/MSAL-ObjC-Pipelines
+      ref: main
+    # Shared ACES macOS job template (pool + Xcode + tool setup) — source of truth.
+    # TODO: switch ref to 'main' once ameyapat/common-aces-config is merged.
+    - repository: pipelinesShared
+      type: git
+      name: IDDP/MSAL-ObjC-Pipelines
+      ref: refs/heads/main
+
 # Define parallel jobs that run build script for specified targets
 jobs:
-- job: 'Validate_Pull_Request'
-  strategy:
-    maxParallel: 2
-    matrix:
-      IOS_LIB: 
-        target: "ios_library"
-      MAC_LIB: 
-        target: "mac_library"
-  displayName: Validate Pull Request
-  pool:
-    vmImage: 'macos-15'
-    timeOutInMinutes: 30
-
+- job: DetectAutomationHealthChanges
+  pool: { vmImage: 'ubuntu-latest' }
+  displayName: Detect automation health changes
   steps:
-  - task: CmdLine@2
-    displayName: Uninstalling xcpretty v0.4.0
-    inputs:
-      script: |
-        gem uninstall xcpretty -I --version 0.4.0
-      failOnStderr: false
-  - task: CmdLine@2
-    displayName: Installing xcpretty v0.3.0
-    inputs:
-      script: |
-        gem install xcpretty -N -v 0.3.0
-      failOnStderr: true
-  - task: CmdLine@2
-    displayName: Installing slather
-    inputs:
-      script: |
-        gem install slather -N
-      failOnStderr: true
-  - checkout: self
-    clean: true
-    submodules: true
-    fetchDepth: 1
-    persistCredentials: false
-  - task: Bash@3
-    displayName: 'Select Xcode version'
-    inputs:
-      targetType: 'inline'
-      script: '/bin/bash -c "sudo xcode-select -s /Applications/Xcode_26.2.app"'
-  - task: Bash@3
-    displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
-    inputs:
-      targetType: 'inline'
-      script: |
-        find . -name "*.gcda" -print0 | xargs -0 rm
-  - task: Bash@3
-    displayName: Run CPP script
-    inputs:
-      targetType: 'inline'
-      script: |
-        python ./scripts/update_xcode_config_cpp_checks.py
-      failOnStderr: true
-  - task: Bash@3
-    displayName: Run Build script & check for Errors
-    inputs:
-      targetType: 'inline'
-      script: |
-        { output=$(./build.py --no-clean --show-build-settings --target $(target) 2>&1 1>&3-) ;} 3>&1
-        final_status=$(<./build/status.txt)
-        echo "FINAL STATUS  = ${final_status}"
-        echo "POSSIBLE ERRORS: ${output}"
-        
-        if [ $final_status != "0" ]; then
-          echo "Build & Testing Failed! \n ${output}" >&2
-        fi
-      failOnStderr: true
-  - task: Bash@3
-    condition: always()
-    displayName: Cleanup
-    inputs:
-      targetType: 'inline'
-      script: |
-        rm -rf ./build/status.txt
-  - task: PublishTestResults@2
-    condition: always()
-    displayName: Publish Test Report
-    inputs:
-      testResultsFormat: 'JUnit'
-      testResultsFiles: '$(Agent.BuildDirectory)/s/build/reports/*'
-      failTaskOnFailedTests: true
-      testRunTitle: 'Test Run - $(target)'
+    - checkout: self
+      clean: true
+      fetchDepth: 0
+      persistCredentials: true
+    - task: Bash@3
+      name: detectChanges
+      displayName: Detect non-test changes
+      inputs:
+        targetType: 'inline'
+        script: |
+          set -euo pipefail
+
+          target_branch_ref="${SYSTEM_PULLREQUEST_TARGETBRANCH:-}"
+          if [[ "${target_branch_ref}" != refs/* ]]; then
+            target_branch_ref="refs/heads/${target_branch_ref}"
+          fi
+
+          # Fail open: if change detection can't run, default to running AutomationHealth.
+          run_automation_health=true
+          if git fetch --no-tags origin "+${target_branch_ref}:refs/remotes/origin/pr-target"; then
+            run_automation_health=false
+
+            changed_files="$(git diff --name-only refs/remotes/origin/pr-target...HEAD)" || {
+              run_automation_health=true
+              changed_files=""
+            }
+
+            while IFS= read -r changed_file
+            do
+              case "$changed_file" in
+                ""|IdentityCore/tests/*)
+                  ;;
+                *)
+                  run_automation_health=true
+                  break
+                  ;;
+              esac
+            done <<< "${changed_files}"
+          fi
+
+          echo "##vso[task.setvariable variable=runAutomationHealth;isOutput=true]${run_automation_health}"
+- job: AutomationHealth
+  dependsOn: DetectAutomationHealthChanges
+  condition: and(succeeded(), eq(dependencies.DetectAutomationHealthChanges.outputs['detectChanges.runAutomationHealth'], 'true'))
+  pool: { vmImage: 'ubuntu-latest' }
+  displayName: Automation pipeline health check
+  steps:
+    - template: Pipeline YAMLs/automation-health-tracker.yml@automationHealthTracker
+      parameters:
+        automationPipelineIds: [1956, 1284]
+
+- template: Pipeline YAMLs/shared/aces-macos-job.yml@pipelinesShared
+  parameters:
+    jobName: Validate_Pull_Request_iOS
+    displayName: Validate Pull Request (iOS)
+    timeoutInMinutes: 30
+    steps:
+      - checkout: self
+        clean: true
+        submodules: true
+        fetchDepth: 1
+        persistCredentials: false
+      - task: Bash@3
+        displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
+        inputs:
+          targetType: 'inline'
+          script: |
+            find . -name "*.gcda" -print0 | xargs -0 rm
+      - task: Bash@3
+        displayName: Run CPP script
+        inputs:
+          targetType: 'inline'
+          script: |
+            python3 ./scripts/update_xcode_config_cpp_checks.py
+          failOnStderr: true
+      - task: Bash@3
+        displayName: Run Build script & check for Errors
+        inputs:
+          targetType: 'inline'
+          script: |
+            { output=$(./build.py --no-clean --show-build-settings --target ios_library 2>&1 1>&3-) ;} 3>&1
+            final_status=$(<./build/status.txt)
+            echo "FINAL STATUS  = ${final_status}"
+            echo "POSSIBLE ERRORS: ${output}"
+
+            if [ $final_status != "0" ]; then
+              echo "Build & Testing Failed! \n ${output}" >&2
+            fi
+          failOnStderr: true
+      - task: Bash@3
+        condition: always()
+        displayName: Cleanup
+        inputs:
+          targetType: 'inline'
+          script: |
+            rm -rf ./build/status.txt
+      - task: PublishTestResults@2
+        condition: always()
+        displayName: Publish Test Report
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '$(Agent.BuildDirectory)/s/build/reports/*'
+          failTaskOnFailedTests: true
+          testRunTitle: 'Test Run - ios_library'
+
+- template: Pipeline YAMLs/shared/aces-macos-job.yml@pipelinesShared
+  parameters:
+    jobName: Validate_Pull_Request_macOS
+    displayName: Validate Pull Request (macOS)
+    timeoutInMinutes: 30
+    steps:
+      - checkout: self
+        clean: true
+        submodules: true
+        fetchDepth: 1
+        persistCredentials: false
+      - task: Bash@3
+        displayName: Removing any lingering codecov files. These can cause issues when the xcode version changes
+        inputs:
+          targetType: 'inline'
+          script: |
+            find . -name "*.gcda" -print0 | xargs -0 rm
+      - task: Bash@3
+        displayName: Run CPP script
+        inputs:
+          targetType: 'inline'
+          script: |
+            python3 ./scripts/update_xcode_config_cpp_checks.py
+          failOnStderr: true
+      - task: Bash@3
+        displayName: Run Build script & check for Errors
+        inputs:
+          targetType: 'inline'
+          script: |
+            { output=$(./build.py --no-clean --show-build-settings --target mac_library 2>&1 1>&3-) ;} 3>&1
+            final_status=$(<./build/status.txt)
+            echo "FINAL STATUS  = ${final_status}"
+            echo "POSSIBLE ERRORS: ${output}"
+
+            if [ $final_status != "0" ]; then
+              echo "Build & Testing Failed! \n ${output}" >&2
+            fi
+          failOnStderr: true
+      - task: Bash@3
+        condition: always()
+        displayName: Cleanup
+        inputs:
+          targetType: 'inline'
+          script: |
+            rm -rf ./build/status.txt
+      - task: PublishTestResults@2
+        condition: always()
+        displayName: Publish Test Report
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '$(Agent.BuildDirectory)/s/build/reports/*'
+          failTaskOnFailedTests: true
+          testRunTitle: 'Test Run - mac_library'
   

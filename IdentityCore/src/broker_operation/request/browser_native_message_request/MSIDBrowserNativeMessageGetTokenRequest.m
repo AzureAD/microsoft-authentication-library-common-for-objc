@@ -217,11 +217,23 @@ NSString *const MSID_BROWSER_NATIVE_MESSAGE_CLAIMS_KEY = @"claims";
     if (!disablePop)
     {
         NSString *reqCnf = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_REQUEST_CONFIRMATION_KEY];
-        NSString *tokenType = [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY] ?: [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
+        // Read tokenType from the extra query parameters, falling back to the top-level request.
+        NSString *tokenType = [_extraParameters msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY]
+            ?: [requestJson msidStringObjectForKey:MSID_BROWSER_NATIVE_MESSAGE_TOKEN_TYPE_KEY];
         tokenType = tokenType.capitalizedString;
         
         if (MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
         {
+            BOOL disableReqCnfValidation = [MSIDFlightManager.sharedInstance boolForKey:MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION];
+
+            if (!disableReqCnfValidation && [NSString msidIsStringNilOrBlank:reqCnf])
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDBrowserNativeMessageGetTokenRequest: 'reqCnf' is required when token_type is Pop but was missing or empty.");
+                
+                if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"'reqCnf' is required when token_type is Pop.", nil, nil, nil, nil, nil, YES);
+                return nil;
+            }
+            
             NSMutableDictionary *schemeParams = [NSMutableDictionary new];
             schemeParams[MSID_OAUTH2_TOKEN_TYPE] = tokenType;
             schemeParams[MSID_OAUTH2_REQUEST_CONFIRMATION] = reqCnf;

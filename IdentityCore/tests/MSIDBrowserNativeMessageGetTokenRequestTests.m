@@ -29,6 +29,10 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDError.h"
+#import "MSIDConstants.h"
+#import "MSIDFlightManager.h"
+#import "MSIDFlightManagerMockProvider.h"
 
 @interface MSIDBrowserNativeMessageGetTokenRequestTests : XCTestCase
 
@@ -42,6 +46,8 @@
 
 - (void)tearDown 
 {
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    [super tearDown];
 }
 
 - (void)testOperation_shouldBeCorrect
@@ -754,6 +760,60 @@
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
+- (void)testInitWithJSONDictionary_whenAuthenticationSchemeProvided_shouldBeIgnoredAndDefaultToBearer
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2"
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters,
+            @"authenticationScheme": @"pop",
+            @"reqCnf": @"eyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0"
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertEqualObjects(@"https://login.microsoft.com", request.sender.absoluteString);
+    XCTAssertEqualObjects(@"uid", request.accountId.uid);
+    XCTAssertEqualObjects(@"utid", request.accountId.utid);
+    XCTAssertEqualObjects(@"29a788ca-7bcf-4732-b23c-c8d294347e5b", request.clientId);
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.authority.url.absoluteString);
+    XCTAssertEqualObjects(@"user.read openid profile offline_access", request.scopes);
+    XCTAssertEqualObjects(@"https://login.microsoft.com", request.redirectUri);
+    XCTAssertEqualObjects(@"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D", request.correlationId.UUIDString);
+    XCTAssertEqual(MSIDPromptTypeLogin, request.prompt);
+    XCTAssertTrue(request.isSts);
+    XCTAssertFalse(request.canShowUI);
+    XCTAssertEqualObjects(@"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47", request.nonce);
+    XCTAssertEqualObjects(@"state1", request.state);
+    XCTAssertEqualObjects(@"user@microsoft.com", request.loginHint);
+    XCTAssertTrue(request.instanceAware);
+    XCTAssertEqualObjects(extraParameters, request.extraParameters);
+    XCTAssertNotNil(request.authScheme);
+    // authenticationScheme is not read; only tokenType is honored, so this defaults to Bearer.
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+}
+
 - (void)testInitWithJSONDictionary_whenJsonValidAndPopTokenType_shouldInit
 {
     __auto_type extraParameters = @{
@@ -787,24 +847,47 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(request);
-    XCTAssertEqualObjects(@"https://login.microsoft.com", request.sender.absoluteString);
-    XCTAssertEqualObjects(@"uid", request.accountId.uid);
-    XCTAssertEqualObjects(@"utid", request.accountId.utid);
-    XCTAssertEqualObjects(@"29a788ca-7bcf-4732-b23c-c8d294347e5b", request.clientId);
-    XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.authority.url.absoluteString);
-    XCTAssertEqualObjects(@"user.read openid profile offline_access", request.scopes);
-    XCTAssertEqualObjects(@"https://login.microsoft.com", request.redirectUri);
-    XCTAssertEqualObjects(@"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D", request.correlationId.UUIDString);
-    XCTAssertEqual(MSIDPromptTypeLogin, request.prompt);
-    XCTAssertTrue(request.isSts);
-    XCTAssertFalse(request.canShowUI);
-    XCTAssertEqualObjects(@"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47", request.nonce);
-    XCTAssertEqualObjects(@"state1", request.state);
-    XCTAssertEqualObjects(@"user@microsoft.com", request.loginHint);
-    XCTAssertTrue(request.instanceAware);
-    XCTAssertEqualObjects(extraParameters, request.extraParameters);
     XCTAssertNotNil(request.authScheme);
     XCTAssertEqual(MSIDAuthSchemePop, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenBothAuthenticationSchemeAndTokenType_shouldUseTokenType
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2"
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters,
+            @"authenticationScheme": @"pop",
+            @"tokenType": @"bearer",
+            @"reqCnf": @"eyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0"
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNotNil(request.authScheme);
+    // authenticationScheme is ignored; tokenType ("bearer") is used.
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValidAndPopTokenTypeInEQP_shouldInit
@@ -840,27 +923,52 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(request);
-    XCTAssertEqualObjects(@"https://login.microsoft.com", request.sender.absoluteString);
-    XCTAssertEqualObjects(@"uid", request.accountId.uid);
-    XCTAssertEqualObjects(@"utid", request.accountId.utid);
-    XCTAssertEqualObjects(@"29a788ca-7bcf-4732-b23c-c8d294347e5b", request.clientId);
-    XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.authority.url.absoluteString);
-    XCTAssertEqualObjects(@"user.read openid profile offline_access", request.scopes);
-    XCTAssertEqualObjects(@"https://login.microsoft.com", request.redirectUri);
-    XCTAssertEqualObjects(@"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D", request.correlationId.UUIDString);
-    XCTAssertEqual(MSIDPromptTypeLogin, request.prompt);
-    XCTAssertTrue(request.isSts);
-    XCTAssertFalse(request.canShowUI);
-    XCTAssertEqualObjects(@"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47", request.nonce);
-    XCTAssertEqualObjects(@"state1", request.state);
-    XCTAssertEqualObjects(@"user@microsoft.com", request.loginHint);
-    XCTAssertTrue(request.instanceAware);
     XCTAssertEqualObjects(extraParameters, request.extraParameters);
     XCTAssertNotNil(request.authScheme);
+    // tokenType is read from extraParameters first.
     XCTAssertEqual(MSIDAuthSchemePop, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndInvalidPopTokenReqCnf_shouldInit
+- (void)testInitWithJSONDictionary_whenTokenTypeInBothEQPAndTopLevel_shouldPrioritizeEQP
+{
+    __auto_type extraParameters = @{
+        @"k1": @"v1",
+        @"k2": @"v2",
+        @"tokenType": @"pop",
+        @"reqCnf": @"eyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0"
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"accountId": @"uid.utid",
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"prompt": @"login",
+            @"isSts": @(YES),
+            @"canShowUI": @(NO),
+            @"nonce": @"e98aba90-bc47-4ff9-8809-b6e1c7e7cd47",
+            @"state": @"state1",
+            @"loginHint": @"user@microsoft.com",
+            @"instance_aware": @(YES),
+            @"extraParameters": extraParameters,
+            @"tokenType": @"bearer",
+        }
+    };
+
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(request);
+    XCTAssertNotNil(request.authScheme);
+    // tokenType in extraParameters ("pop") wins over the top-level tokenType ("bearer").
+    XCTAssertEqual(MSIDAuthSchemePop, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenJsonValidAndInvalidPopTokenTypeReqCnf_shouldInit
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -913,7 +1021,7 @@
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnf_shouldNotFail
+- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnf_shouldReturnNilWithError
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -944,9 +1052,9 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNotNil(request);
-    XCTAssertNil(error);
-    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenType_shouldNotFail
@@ -985,7 +1093,7 @@
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValidAndNumberReqCnfAsEQP_shouldNotFail
+- (void)testInitWithJSONDictionary_whenPopTokenTypeInEQPAndReqCnfAsNumber_shouldReturnNilWithError
 {
     __auto_type extraParameters = @{
         @"k1": @"v1",
@@ -1016,9 +1124,10 @@
     NSError *error;
     __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNotNil(request);
-    XCTAssertNil(error);
-    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+    // tokenType in extraParameters is Pop but reqCnf is not a valid string, so the request is rejected.
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValidAndNumberTokenTypeAsEQP_shouldNotFail
@@ -1054,7 +1163,199 @@
     
     XCTAssertNotNil(request);
     XCTAssertNil(error);
+    // tokenType in extraParameters is not a string, so it is ignored and defaults to Bearer.
     XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndNilReqCnf_shouldReturnNilWithError
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndEmptyReqCnf_shouldReturnNilWithError
+{
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+            @"reqCnf": @""
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeInEQPAndNilReqCnf_shouldReturnNilWithError
+{
+    __auto_type extraParameters = @{
+        @"tokenType": @"pop",
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"extraParameters": extraParameters,
+        }
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    // tokenType in extraParameters is Pop but reqCnf is missing, so the request is rejected.
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndNilReqCnfAndValidationDisabledByFlight_shouldInitWithDefaultScheme
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+        }
+    };
+
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+
+    // Kill switch is enabled, so the missing reqCnf validation is skipped. Initialization succeeds; the Pop scheme
+    // cannot be built without reqCnf, so the request falls back to the default (Bearer) scheme instead of failing.
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeInEQPAndNilReqCnfAndValidationDisabledByFlight_shouldInitWithDefaultScheme
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    __auto_type extraParameters = @{
+        @"tokenType": @"pop",
+    };
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"extraParameters": extraParameters,
+        }
+    };
+
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndEmptyReqCnfAndValidationDisabledByFlight_shouldInitWithDefaultScheme
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @YES };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+            @"reqCnf": @""
+        }
+    };
+
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+
+    // Kill switch is enabled, so the empty reqCnf validation is skipped. Initialization succeeds; the Pop scheme
+    // cannot be built without reqCnf, so the request falls back to the default (Bearer) scheme instead of failing.
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqual(MSIDAuthSchemeBearer, request.authScheme.authScheme);
+}
+
+- (void)testInitWithJSONDictionary_whenPopTokenTypeAndNilReqCnfAndValidationEnabledByDefaultFlight_shouldReturnNilWithError
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION: @NO };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+
+    __auto_type json = @{
+        @"sender": @"https://login.microsoft.com",
+        @"request": @{
+            @"clientId": @"29a788ca-7bcf-4732-b23c-c8d294347e5b",
+            @"authority": @"https://login.microsoftonline.com/common",
+            @"scope": @"user.read openid profile offline_access",
+            @"redirectUri": @"https://login.microsoft.com",
+            @"correlationId": @"9BBCA391-33A9-4EC9-A00E-A0FBFA71013D",
+            @"isSts": @(YES),
+            @"tokenType": @"pop",
+        }
+    };
+
+    NSError *error;
+    __auto_type request = [[MSIDBrowserNativeMessageGetTokenRequest alloc] initWithJSONDictionary:json error:&error];
+
+    // Kill switch is explicitly off, so validation remains active and the request is rejected.
+    XCTAssertNil(request);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
 @end

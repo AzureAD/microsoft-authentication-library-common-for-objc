@@ -38,8 +38,27 @@ NS_ASSUME_NONNULL_BEGIN
 // xpcConfiguration will be used for the Xpc flow, the value will be determined based on the cachedXpcProvider
 @property (nonatomic) MSIDXpcConfiguration *xpcConfiguration;
 
+// Cached NSXPCListenerEndpoint pointing at the broker instance. When non-nil, callers may build an
+// instance NSXPCConnection directly from this endpoint and skip the dispatcher round-trip. The
+// endpoint is in-memory only (not persisted) and must be cleared on connection interruption,
+// invalidation, transport failure, or provider-type switch. Read-only externally; use
+// setCachedBrokerInstanceEndpoint:forProviderType: to populate.
+@property (nonatomic, readonly, nullable) NSXPCListenerEndpoint *cachedBrokerInstanceEndpoint;
+
 - (BOOL)isXpcProviderInstalledOnDevice;
 - (BOOL)validateCacheXpcProvider;
+
+// Atomically stores the broker instance endpoint, but only if the cache's current
+// cachedXpcProviderType still matches `providerType`. Returns YES on store, NO if the cache has
+// switched providers since the dispatcher round-trip began (in which case the caller should
+// discard the endpoint without retrying through the cache for this request).
+//
+// Use the cachedXpcProviderType captured before the dispatcher round-trip as `providerType`.
+- (BOOL)setCachedBrokerInstanceEndpoint:(nullable NSXPCListenerEndpoint *)endpoint
+                        forProviderType:(MSIDSsoProviderType)providerType;
+
+// Clears the cached broker instance endpoint. Safe to call from any thread.
+- (void)clearCachedBrokerInstanceEndpoint;
 
 @end
 

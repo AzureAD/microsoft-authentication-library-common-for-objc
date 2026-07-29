@@ -32,6 +32,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebUpgradeRegResponse.h"
+#import "MSIDWebMDMEnrollmentCompletionResponse.h"
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAadAuthorityCache.h"
@@ -300,6 +301,108 @@
     XCTAssertNotNil(upgradeResponse.clientInfo, @"clientInfo should be valid");
     XCTAssertEqualObjects(upgradeResponse.clientInfo.uid, @"9f4880d8-80ba-4c40-97bc-f7a23c703084");
     XCTAssertEqualObjects(upgradeResponse.clientInfo.utid, @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca");
+    XCTAssertNil(error);
+}
+
+#pragma mark - MDM enrollment completion
+
+- (void)testResponseWithURL_whenURLSchemeMsauthAndHostMDMEnrollmentComplete_shouldReturnMDMEnrollmentCompletionResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=success"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.status, @"success");
+    XCTAssertTrue(mdmResponse.isSuccess);
+    XCTAssertNil(mdmResponse.errorUrl);
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenMDMEnrollmentCompleteStatusIsCheckInTimedOut_shouldReturnMDMResponseWithIsSuccessYES
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=check_in_timed_out"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.status, @"check_in_timed_out");
+    XCTAssertTrue(mdmResponse.isSuccess, @"check_in_timed_out is contractually a success status.");
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenMDMEnrollmentCompleteStatusIsFailed_shouldReturnMDMResponseWithIsSuccessNO
+{
+    // Verifies the factory routes to MDM-completion regardless of the status value;
+    // status interpretation (success vs. failure) is the response's responsibility, not the factory's.
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://in_app_enrollment_complete?status=failed"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.status, @"failed");
+    XCTAssertFalse(mdmResponse.isSuccess);
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenMDMEnrollmentCompleteHasErrorUrl_shouldExtractErrorUrl
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    NSString *responseUrl = @"msauth://in_app_enrollment_complete?status=failed&errorUrl=https%3A%2F%2Flogin.microsoftonline.com%2Ferror";
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:responseUrl]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.errorUrl, @"https://login.microsoftonline.com/error");
+    XCTAssertNil(error);
+}
+
+- (void)testResponseWithURL_whenURLSchemeMsauthAndHostMDMEnrollmentCompleteWithDifferentCapitalLetters_shouldReturnMDMResponse
+{
+    // Mirrors the existing UpgradeReg case-insensitive test; the host check is case-insensitive
+    // per MSIDWebMDMEnrollmentCompletionResponse's isEnrollmentCompletionResponse: implementation.
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://In_App_Enrollment_Complete?status=success"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                          endRedirectUri:nil
+                                                 context:nil
+                                                   error:&error];
+
+    XCTAssertTrue([response isKindOfClass:MSIDWebMDMEnrollmentCompletionResponse.class]);
+    MSIDWebMDMEnrollmentCompletionResponse *mdmResponse = (MSIDWebMDMEnrollmentCompletionResponse *)response;
+    XCTAssertEqualObjects(mdmResponse.status, @"success");
+    XCTAssertTrue(mdmResponse.isSuccess);
     XCTAssertNil(error);
 }
 

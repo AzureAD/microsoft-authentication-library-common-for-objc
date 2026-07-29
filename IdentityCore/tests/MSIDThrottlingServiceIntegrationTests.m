@@ -61,6 +61,9 @@
 #import "MSIDAuthority.h"
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "MSIDThrottlingMetaDataCache.h"
+#import "MSIDThrottlingMetaDataReading.h"
+#import "MSIDThrottlingRefreshing.h"
+#import "MSIDDIContainer.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #if MSID_ENABLE_SSO_EXTENSION
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
@@ -146,6 +149,32 @@
                                        refreshToken:(id<MSIDRefreshableToken>)refreshToken
                                               error:(__unused NSError * _Nullable __autoreleasing * _Nullable)error;
 
+@end
+
+#pragma mark - Throttling DI fakes (macOS keychain workaround)
+
+@interface MSIDThrottlingITFakeRefresher : NSObject <MSIDThrottlingRefreshing>
+@end
+
+@implementation MSIDThrottlingITFakeRefresher
++ (BOOL)updateLastRefreshTimeDatasource:(__unused id<MSIDExtendedTokenCacheDataSource>)datasource
+                                context:(__unused id<MSIDRequestContext>)context
+                                  error:(__unused NSError *__autoreleasing *)error
+{
+    return YES;
+}
+@end
+
+@interface MSIDThrottlingITFakeMetaDataReader : NSObject <MSIDThrottlingMetaDataReading>
+@end
+
+@implementation MSIDThrottlingITFakeMetaDataReader
++ (NSDate *)getLastRefreshTimeWithDatasource:(__unused id<MSIDExtendedTokenCacheDataSource>)datasource
+                                     context:(__unused id<MSIDRequestContext>)context
+                                       error:(__unused NSError *__autoreleasing *)error
+{
+    return [NSDate date];
+}
 @end
 
 @interface MSIDThrottlingServiceIntegrationTests : XCTestCase
@@ -257,6 +286,7 @@
     [MSIDIntuneMAMResourcesCache.sharedCache clear];
     [self.keychainTokenCache clearWithContext:nil error:nil];
     [MSIDTestSwizzle reset];
+    [[MSIDDIContainer sharedInstance] reset];
 }
 
 
@@ -947,26 +977,18 @@
    }];
 
 #if !TARGET_OS_IOS
-      //swizzle interactive method - MacOS test app doesn't have entitlements that support keychain access group.
-      //adding a host app that has valid entitlements would also require enabling code-signing, which could break CI/CD check
-      //So at the moment, the best approach is to swizzle keychain access APIs
-      [MSIDTestSwizzle classMethod:@selector(updateLastRefreshTimeDatasource:
-                                                                     context:
-                                                                       error:)
-                                class:[MSIDThrottlingService class]
-                                block:(id)^(void)
-       {
-            return TRUE;
-      }];
-
-      [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:
-                                                                      context:
-                                                                        error:)
-                                class:[MSIDThrottlingMetaDataCache class]
-                                block:(id)^(void)
-       {
-            return [NSDate date];
-      }];
+      // macOS test app doesn't have entitlements for the keychain access group;
+      // adding a host app with valid entitlements would require enabling code-signing,
+      // which could break CI/CD. Route the throttling write/read seams through the
+      // DI container so the keychain isn't touched on macOS.
+      [[MSIDDIContainer sharedInstance]
+          registerProtocol:@protocol(MSIDThrottlingRefreshing)
+                  lifetime:MSIDDIContainerLifetimeSingleton
+                   factory:^id { return (id)[MSIDThrottlingITFakeRefresher class]; }];
+      [[MSIDDIContainer sharedInstance]
+          registerProtocol:@protocol(MSIDThrottlingMetaDataReading)
+                  lifetime:MSIDDIContainerLifetimeSingleton
+                   factory:^id { return (id)[MSIDThrottlingITFakeMetaDataReader class]; }];
 #endif
 
 

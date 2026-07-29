@@ -26,11 +26,13 @@
 #import "MSIDBrokerResponse+Internal.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDOnboardingBlobFieldKeys.h"
 #import "NSJSONSerialization+MSIDExtensions.h"
 
 @implementation MSIDAADV2BrokerResponse
 
 MSID_FORM_ACCESSOR(@"scope", scope);
+MSID_FORM_ACCESSOR(MSIDOnboardingBlobIPCKey, onboardingBlob);
 
 - (instancetype)initWithDictionary:(NSDictionary *)form
                              error:(NSError *__autoreleasing*)error

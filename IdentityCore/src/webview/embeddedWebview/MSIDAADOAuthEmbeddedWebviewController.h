@@ -26,16 +26,29 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDOAuth2EmbeddedWebviewController.h"
+#import "MSIDOpenIdVcHandling.h"
 
 #if !MSID_EXCLUDE_WEBKIT
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAADOAuthEmbeddedWebviewController : MSIDOAuth2EmbeddedWebviewController
 
 - (id)init NS_UNAVAILABLE;
 
+/// Optional handler for `openid-vc://` navigations encountered by the embedded
+/// webview. When set, the controller delegates handoff entirely to the handler
+/// (allowing in-process VID UI to be presented on top of the webview without
+/// any cross-process round trip). When nil, the controller falls back to its
+/// default behavior of mutating the URL with Microsoft-namespaced query
+/// parameters and dispatching `UIApplication.openURL` to a registered wallet.
+@property (nonatomic, weak, nullable) id<MSIDOpenIdVcHandling> openIdVcHandler;
+
 - (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
-                           decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
+                           decisionHandler:(nullable void (^)(WKNavigationActionPolicy))decisionHandler;
 
 @end
+
+NS_ASSUME_NONNULL_END
 
 #endif

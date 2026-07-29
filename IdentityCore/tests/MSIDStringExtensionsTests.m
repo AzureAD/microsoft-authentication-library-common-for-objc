@@ -96,6 +96,18 @@
     XCTAssertFalse([NSString msidIsStringNilOrBlank:str], "Not an empty string %@", str);
 }
 
+- (void)testMsidIsStringNilOrBlank_whenNonStringObject_shouldReturnTrue
+{
+    // Regression: a mis-typed value (e.g. a JSON/plist boolean decoded as __NSCFBoolean, or any
+    // other non-NSString) must be treated as blank rather than crashing with an unrecognized
+    // selector when -length is sent to it.
+    XCTAssertTrue([NSString msidIsStringNilOrBlank:(NSString *)@YES]);
+    XCTAssertTrue([NSString msidIsStringNilOrBlank:(NSString *)@NO]);
+    XCTAssertTrue([NSString msidIsStringNilOrBlank:(NSString *)@42]);
+    XCTAssertTrue([NSString msidIsStringNilOrBlank:(NSString *)@[@"a"]]);
+    XCTAssertTrue([NSString msidIsStringNilOrBlank:(NSString *)@{@"a": @"b"}]);
+}
+
 - (void)testMsidTrimmedString
 {
     XCTAssertEqualObjects([@" \t\r\n  test" msidTrimmedString], @"test");
