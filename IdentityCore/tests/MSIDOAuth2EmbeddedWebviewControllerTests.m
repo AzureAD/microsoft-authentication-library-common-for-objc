@@ -31,7 +31,9 @@
 #import "MSIDFlightManagerMockProvider.h"
 #import "MSIDConstants.h"
 #import "MSIDOnboardingBlobFieldKeys.h"
+#if !MSID_EXCLUDE_WEBKIT
 #import "MSIDWKNavigationActionMock.h"
+#endif
 #import "MSIDCustomHeaderProviding.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
