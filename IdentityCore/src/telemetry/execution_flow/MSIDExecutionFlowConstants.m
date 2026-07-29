@@ -173,3 +173,16 @@ NSString *MSIDPkeyAuthTagToString(MSIDPkeyAuthTag state)
     // Fallback for any future enum values
     return [NSString stringWithFormat:@"MSIDPkeyAuthTag(%ld)", (long)state];
 }
+
+NSString *MSIDCustomHeaderTagToString(MSIDCustomHeaderTag state)
+{
+    switch (state)
+    {
+        case MSIDCustomHeaderAddedTag:
+            return @"qiq7c";
+        case MSIDCustomHeaderSkippedUntrustedHostTag:
+            return @"vz1lh";
+    }
+    // Fallback for any future enum values
+    return [NSString stringWithFormat:@"MSIDCustomHeaderTag(%ld)", (long)state];
+}
