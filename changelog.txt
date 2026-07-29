@@ -1,6 +1,8 @@
+
 TBD
 * Prevent a crash when JWT signing is attempted with a NULL private key. (#1917)
 * Raise the minimum deployment targets to iOS 16.0 and macOS 12.0, and replace deprecated macOS SecTransform JWT signing with SecKeyCreateSignature. (#1915)
+* Skip broker key keychain lookup when the client cannot persist a broker key, avoiding noisy -34018/-51808 errors on macOS runtime/unentitled contexts. (#1812)\
 
 Version 1.26.0
 * Add telemetry for the new mobile onboarding flows and refactor the onboarding telemetry pipeline: thread onboarding-blob step fields through the embedded-webview navigation layer (MSIDWebviewNavigationHandler/MSIDWebviewNavigationDelegate/MSIDWebviewNavigationDecisionResolver) and record new step keys via MSIDOnboardingBlobBuilder, covering both broker and non-broker interactive flows. (#1897)
