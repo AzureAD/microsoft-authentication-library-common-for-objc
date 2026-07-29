@@ -77,7 +77,7 @@
     NSError *error = nil;
 
     MSIDInteractiveTokenRequestParameters *parameters =
-    [MSIDBrowserNativeMessageGetTokenRequestParametersFactory requestParametersWithRequest:request
+    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
                                                                                 requestType:MSIDRequestBrokeredType
                                                             boundAppRefreshTokenRequested:YES
                                                                        correlationIdOverride:correlationOverride
@@ -116,7 +116,7 @@
     request.extraParameters = @{@"child_client_id": @"child-client", @"custom": @"value"};
 
     MSIDInteractiveTokenRequestParameters *parameters =
-    [MSIDBrowserNativeMessageGetTokenRequestParametersFactory requestParametersWithRequest:request
+    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
                                                                                 requestType:MSIDRequestLocalType
                                                             boundAppRefreshTokenRequested:NO
                                                                        correlationIdOverride:nil
@@ -139,7 +139,7 @@
     NSError *error = nil;
 
     MSIDInteractiveTokenRequestParameters *parameters =
-    [MSIDBrowserNativeMessageGetTokenRequestParametersFactory requestParametersWithRequest:request
+    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
                                                                                 requestType:MSIDRequestLocalType
                                                             boundAppRefreshTokenRequested:NO
                                                                        correlationIdOverride:nil
@@ -158,7 +158,7 @@
     NSError *error = nil;
 
     MSIDInteractiveTokenRequestParameters *parameters =
-    [MSIDBrowserNativeMessageGetTokenRequestParametersFactory requestParametersWithRequest:request
+    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
                                                                                 requestType:MSIDRequestLocalType
                                                             boundAppRefreshTokenRequested:NO
                                                                        correlationIdOverride:nil

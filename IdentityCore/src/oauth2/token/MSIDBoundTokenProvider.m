@@ -30,7 +30,6 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDConstants.h"
 #import "NSString+MSIDExtensions.h"
-#import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDConfiguration.h"
@@ -41,7 +40,6 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
-#import "MSIDAccessToken.h"
 #import "MSIDAccount.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDBrowserNativeMessageGetTokenResponse.h"
@@ -81,7 +79,7 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     // Build the shared request parameters used by both this provider and the broker.
     NSError *parametersError = nil;
     MSIDInteractiveTokenRequestParameters *parameters =
-    [MSIDBrowserNativeMessageGetTokenRequestParametersFactory requestParametersWithRequest:request
+    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
                                                                                 requestType:MSIDRequestBrokeredType
                                                             boundAppRefreshTokenRequested:YES
                                                                        correlationIdOverride:context.correlationId
@@ -97,7 +95,7 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     }
 
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:NO
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:NO
                                                                   promptType:parameters.promptType
                                                                    canShowUI:request.canShowUI
                                                             accountIdentifier:parameters.accountIdentifier
@@ -136,7 +134,7 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     // canShowUI is not a part of the BNM GetToken contract. see here: https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=%2FMSALJS%2FNativeBrokerExtension%2Fbroker_contract.md&_a=preview
     // the value for canShowUI must be added by OneAuth before calling MSIDBoundTokenProvider acquireBoundTokenWithRequest:context:completionBlock
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:YES
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:YES
                                                                   promptType:parameters.promptType
                                                                    canShowUI:request.canShowUI
                                                             accountIdentifier:parameters.accountIdentifier
@@ -334,9 +332,14 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 
+// Delegates GetToken response shaping to MSIDBrowserNativeMessageGetTokenResponse for both the
+// fresh server-response path (silent redemption / interactive) and the access-token cache-hit path,
+// so the response contract lives in one place.
 - (NSDictionary *)responseDictionaryFromResult:(MSIDTokenResult *)result
                                        request:(MSIDBrowserNativeMessageGetTokenRequest *)request
 {
+    MSIDBrowserNativeMessageGetTokenResponse *getTokenResponse;
+
     // Preferred: a fresh server token response (silent redemption) maps to the canonical shape.
     if (result.tokenResponse)
     {
@@ -344,83 +347,21 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         operationTokenResponse.tokenResponse = result.tokenResponse;
         operationTokenResponse.authority = result.authority;
 
-        MSIDBrowserNativeMessageGetTokenResponse *getTokenResponse =
-        [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse];
-        getTokenResponse.state = request.state;
-        getTokenResponse.requestAccountUpn = result.account.username ?: request.loginHint;
-        return [getTokenResponse jsonDictionary];
+        getTokenResponse =
+        [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse
+                                                                          state:request.state
+                                                      fallbackRequestAccountUpn:(result.account.username ?: request.loginHint)];
     }
-
-    // Cache hit (no fresh server response): shape the payload from the cached result directly.
-    return [self responseDictionaryFromCachedResult:result request:request];
-}
-
-- (NSDictionary *)responseDictionaryFromCachedResult:(MSIDTokenResult *)result
-                                             request:(MSIDBrowserNativeMessageGetTokenRequest *)request
-{
-    MSIDAccessToken *accessToken = result.accessToken;
-    if (!accessToken)
+    else
     {
-        return nil;
+        // Cache hit (no fresh server response): shape the payload from the cached result directly.
+        getTokenResponse =
+        [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithCachedTokenResult:result
+                                                                             state:request.state
+                                                         fallbackRequestAccountUpn:request.loginHint];
     }
 
-    NSMutableDictionary *response = [NSMutableDictionary new];
-    if (![NSString msidIsStringNilOrBlank:accessToken.accessToken])
-    {
-        response[@"access_token"] = accessToken.accessToken;
-    }
-
-    if (![NSString msidIsStringNilOrBlank:accessToken.tokenType])
-    {
-        response[@"token_type"] = accessToken.tokenType;
-    }
-
-    if (![NSString msidIsStringNilOrBlank:result.rawIdToken])
-    {
-        response[@"id_token"] = result.rawIdToken;
-    }
-
-    NSString *scope = [accessToken.scopes msidToString];
-    if (![NSString msidIsStringNilOrBlank:scope])
-    {
-        response[@"scope"] = scope;
-    }
-
-    if (accessToken.expiresOn)
-    {
-        response[@"expires_on"] = [@((long long)[accessToken.expiresOn timeIntervalSince1970]) stringValue];
-        response[@"expires_in"] = [@((long long)MAX(0, (NSInteger)[accessToken.expiresOn timeIntervalSinceNow])) stringValue];
-    }
-
-    NSMutableDictionary *account = [NSMutableDictionary new];
-    NSString *homeAccountId = result.account.accountIdentifier.homeAccountId;
-    if (![NSString msidIsStringNilOrBlank:homeAccountId])
-    {
-        account[@"id"] = homeAccountId;
-    }
-
-    NSString *username = result.account.username;
-    if ([NSString msidIsStringNilOrBlank:username])
-    {
-        username = request.loginHint;
-    }
-
-    if (![NSString msidIsStringNilOrBlank:username])
-    {
-        account[@"userName"] = username;
-    }
-
-    if (account.count)
-    {
-        response[@"account"] = account;
-    }
-
-    if (![NSString msidIsStringNilOrBlank:request.state])
-    {
-        response[@"state"] = request.state;
-    }
-
-    return response;
+    return [getTokenResponse jsonDictionary];
 }
 
 #pragma mark - Dependencies

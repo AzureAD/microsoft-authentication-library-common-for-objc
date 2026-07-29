@@ -42,18 +42,22 @@ typedef NS_ENUM(NSInteger, MSIDBrowserNativeMessageGetTokenRoute)
 
 @interface MSIDBrowserNativeMessageGetTokenRoutingPolicy : NSObject
 
-+ (MSIDBrowserNativeMessageGetTokenRoute)routeWithForceInteractive:(BOOL)forceInteractive
+/// Shared instance. Routing decisions live on instance methods (rather than class/static methods)
+/// so callers can substitute a mock instance in tests without swizzling.
+@property (class, readonly, nonnull) MSIDBrowserNativeMessageGetTokenRoutingPolicy *sharedInstance;
+
+- (MSIDBrowserNativeMessageGetTokenRoute)routeWithForceInteractive:(BOOL)forceInteractive
                                                         promptType:(MSIDPromptType)promptType
                                                          canShowUI:(BOOL)canShowUI
                                                   accountIdentifier:(nullable MSIDAccountIdentifier *)accountIdentifier
                                              requiresHomeAccountId:(BOOL)requiresHomeAccountId;
 
-+ (BOOL)shouldAttemptSilentWithForceInteractive:(BOOL)forceInteractive
+- (BOOL)shouldAttemptSilentWithForceInteractive:(BOOL)forceInteractive
                                       promptType:(MSIDPromptType)promptType
                                accountIdentifier:(nullable MSIDAccountIdentifier *)accountIdentifier
                           requiresHomeAccountId:(BOOL)requiresHomeAccountId;
 
-+ (BOOL)shouldAttemptInteractiveWithCanShowUI:(BOOL)canShowUI
+- (BOOL)shouldAttemptInteractiveWithCanShowUI:(BOOL)canShowUI
                                     promptType:(MSIDPromptType)promptType;
 
 @end

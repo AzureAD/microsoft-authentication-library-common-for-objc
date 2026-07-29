@@ -30,7 +30,19 @@
 
 @implementation MSIDBrowserNativeMessageGetTokenRoutingPolicy
 
-+ (MSIDBrowserNativeMessageGetTokenRoute)routeWithForceInteractive:(BOOL)forceInteractive
++ (MSIDBrowserNativeMessageGetTokenRoutingPolicy *)sharedInstance
+{
+    static MSIDBrowserNativeMessageGetTokenRoutingPolicy *singleton = nil;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+        singleton = [[self alloc] init];
+    });
+
+    return singleton;
+}
+
+- (MSIDBrowserNativeMessageGetTokenRoute)routeWithForceInteractive:(BOOL)forceInteractive
                                                         promptType:(MSIDPromptType)promptType
                                                          canShowUI:(BOOL)canShowUI
                                                   accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
@@ -59,7 +71,7 @@
     return MSIDBrowserNativeMessageGetTokenRouteInteractive;
 }
 
-+ (BOOL)shouldAttemptSilentWithForceInteractive:(BOOL)forceInteractive
+- (BOOL)shouldAttemptSilentWithForceInteractive:(BOOL)forceInteractive
                                       promptType:(MSIDPromptType)promptType
                                accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                           requiresHomeAccountId:(BOOL)requiresHomeAccountId
@@ -94,7 +106,7 @@
     return accountIdentifier.homeAccountId != nil;
 }
 
-+ (BOOL)shouldAttemptInteractiveWithCanShowUI:(BOOL)canShowUI
+- (BOOL)shouldAttemptInteractiveWithCanShowUI:(BOOL)canShowUI
                                     promptType:(MSIDPromptType)promptType
 {
     // prompt=none is a protocol guarantee that UI will not be shown, regardless of caller capability.

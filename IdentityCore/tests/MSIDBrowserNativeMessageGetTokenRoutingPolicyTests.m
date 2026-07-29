@@ -41,7 +41,7 @@
                                                                             homeAccountId:@"uid.utid"];
 
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:NO
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:NO
                                                                   promptType:MSIDPromptTypePromptIfNecessary
                                                                    canShowUI:NO
                                                             accountIdentifier:account
@@ -56,7 +56,7 @@
                                                                             homeAccountId:@"uid.utid"];
 
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:YES
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:YES
                                                                   promptType:MSIDPromptTypePromptIfNecessary
                                                                    canShowUI:YES
                                                             accountIdentifier:account
@@ -71,7 +71,7 @@
                                                                             homeAccountId:@"uid.utid"];
 
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:YES
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:YES
                                                                   promptType:MSIDPromptTypePromptIfNecessary
                                                                    canShowUI:NO
                                                             accountIdentifier:account
@@ -86,7 +86,7 @@
                                                                             homeAccountId:@"uid.utid"];
 
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:YES
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:YES
                                                                   promptType:MSIDPromptTypeNever
                                                                    canShowUI:YES
                                                             accountIdentifier:account
@@ -101,7 +101,7 @@
                                                                             homeAccountId:@"uid.utid"];
 
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:NO
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:NO
                                                                   promptType:MSIDPromptTypeLogin
                                                                    canShowUI:NO
                                                             accountIdentifier:account
@@ -116,13 +116,13 @@
                                                                             homeAccountId:nil];
 
     MSIDBrowserNativeMessageGetTokenRoute providerRoute =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:NO
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:NO
                                                                   promptType:MSIDPromptTypePromptIfNecessary
                                                                    canShowUI:YES
                                                             accountIdentifier:account
                                                        requiresHomeAccountId:NO];
     MSIDBrowserNativeMessageGetTokenRoute brokerNonStsRoute =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:NO
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:NO
                                                                   promptType:MSIDPromptTypePromptIfNecessary
                                                                    canShowUI:YES
                                                             accountIdentifier:account
@@ -135,7 +135,7 @@
 - (void)testRoute_missingAccountAndPromptNever_returnsInteractionRequired
 {
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [MSIDBrowserNativeMessageGetTokenRoutingPolicy routeWithForceInteractive:NO
+    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:NO
                                                                   promptType:MSIDPromptTypeNever
                                                                    canShowUI:YES
                                                             accountIdentifier:nil
@@ -149,7 +149,7 @@
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
                                                                             homeAccountId:nil];
 
-    XCTAssertTrue([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptSilentWithForceInteractive:NO
+    XCTAssertTrue([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptSilentWithForceInteractive:NO
                                                                                                promptType:MSIDPromptTypeNever
                                                                                         accountIdentifier:account
                                                                                    requiresHomeAccountId:NO]);
@@ -160,7 +160,7 @@
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
                                                                             homeAccountId:nil];
 
-    XCTAssertFalse([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptSilentWithForceInteractive:NO
+    XCTAssertFalse([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptSilentWithForceInteractive:NO
                                                                                                 promptType:MSIDPromptTypePromptIfNecessary
                                                                                          accountIdentifier:account
                                                                                     requiresHomeAccountId:YES]);
@@ -171,7 +171,7 @@
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
                                                                             homeAccountId:@"uid.utid"];
 
-    XCTAssertTrue([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptSilentWithForceInteractive:NO
+    XCTAssertTrue([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptSilentWithForceInteractive:NO
                                                                                                promptType:MSIDPromptTypePromptIfNecessary
                                                                                         accountIdentifier:account
                                                                                    requiresHomeAccountId:YES]);
@@ -182,15 +182,15 @@
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
                                                                             homeAccountId:@"uid.utid"];
 
-    XCTAssertFalse([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptSilentWithForceInteractive:YES
+    XCTAssertFalse([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptSilentWithForceInteractive:YES
                                                                                                 promptType:MSIDPromptTypeNever
                                                                                          accountIdentifier:account
                                                                                     requiresHomeAccountId:YES]);
-    XCTAssertFalse([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptSilentWithForceInteractive:NO
+    XCTAssertFalse([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptSilentWithForceInteractive:NO
                                                                                                 promptType:MSIDPromptTypeLogin
                                                                                          accountIdentifier:account
                                                                                     requiresHomeAccountId:YES]);
-    XCTAssertFalse([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptSilentWithForceInteractive:NO
+    XCTAssertFalse([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptSilentWithForceInteractive:NO
                                                                                                 promptType:MSIDPromptTypeNever
                                                                                          accountIdentifier:nil
                                                                                     requiresHomeAccountId:NO]);
@@ -208,7 +208,7 @@
 
     for (NSNumber *prompt in interactivePrompts)
     {
-        XCTAssertFalse([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptSilentWithForceInteractive:NO
+        XCTAssertFalse([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptSilentWithForceInteractive:NO
                                                                                                     promptType:prompt.integerValue
                                                                                              accountIdentifier:account
                                                                                         requiresHomeAccountId:NO]);
@@ -225,11 +225,11 @@
 
     for (NSNumber *prompt in silentPrompts)
     {
-        XCTAssertTrue([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptSilentWithForceInteractive:NO
+        XCTAssertTrue([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptSilentWithForceInteractive:NO
                                                                                                    promptType:prompt.integerValue
                                                                                             accountIdentifier:displayableIdOnlyAccount
                                                                                        requiresHomeAccountId:NO]);
-        XCTAssertFalse([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptSilentWithForceInteractive:NO
+        XCTAssertFalse([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptSilentWithForceInteractive:NO
                                                                                                     promptType:prompt.integerValue
                                                                                              accountIdentifier:displayableIdOnlyAccount
                                                                                         requiresHomeAccountId:YES]);
@@ -238,11 +238,11 @@
 
 - (void)testShouldAttemptInteractive_requiresUIAndNonNeverPrompt
 {
-    XCTAssertTrue([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptInteractiveWithCanShowUI:YES
+    XCTAssertTrue([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptInteractiveWithCanShowUI:YES
                                                                                             promptType:MSIDPromptTypeLogin]);
-    XCTAssertFalse([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptInteractiveWithCanShowUI:NO
+    XCTAssertFalse([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptInteractiveWithCanShowUI:NO
                                                                                              promptType:MSIDPromptTypeLogin]);
-    XCTAssertFalse([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptInteractiveWithCanShowUI:YES
+    XCTAssertFalse([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptInteractiveWithCanShowUI:YES
                                                                                              promptType:MSIDPromptTypeNever]);
 }
 
@@ -257,9 +257,9 @@
 
     for (NSNumber *prompt in interactivePrompts)
     {
-        XCTAssertTrue([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptInteractiveWithCanShowUI:YES
+        XCTAssertTrue([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptInteractiveWithCanShowUI:YES
                                                                                                 promptType:prompt.integerValue]);
-        XCTAssertFalse([MSIDBrowserNativeMessageGetTokenRoutingPolicy shouldAttemptInteractiveWithCanShowUI:NO
+        XCTAssertFalse([[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] shouldAttemptInteractiveWithCanShowUI:NO
                                                                                                  promptType:prompt.integerValue]);
     }
 }

@@ -28,10 +28,17 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDOAuth2Constants.h"
 #import "MSIDBrokerOperationBrowserNativeMessageMATSReport.h"
+#import "MSIDTokenResult.h"
+#import "MSIDAccessToken.h"
+#import "MSIDAccount.h"
+#import "MSIDAccountIdentifier.h"
+#import "NSString+MSIDExtensions.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @interface MSIDBrowserNativeMessageGetTokenResponse()
 
 @property (nonatomic) MSIDBrokerOperationTokenResponse *operationTokenResponse;
+@property (nonatomic) MSIDTokenResult *cachedTokenResult;
 
 @end
 
@@ -68,6 +75,27 @@
     return self;
 }
 
+- (instancetype)initWithCachedTokenResult:(MSIDTokenResult *)tokenResult
+                                    state:(NSString *)state
+                fallbackRequestAccountUpn:(NSString *)fallbackRequestAccountUpn
+{
+    if (!tokenResult.accessToken)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create browser 'GetToken' response: cached result has no access token.");
+        return nil;
+    }
+
+    self = [super initWithDeviceInfo:nil];
+    if (self)
+    {
+        _cachedTokenResult = tokenResult;
+        _state = state;
+        _requestAccountUpn = fallbackRequestAccountUpn;
+    }
+
+    return self;
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing*)error
@@ -77,6 +105,12 @@
 
 - (NSDictionary *)jsonDictionary
 {
+    // Cache hit (no fresh server token response): shape the payload from the cached result directly.
+    if (self.cachedTokenResult)
+    {
+        return [self cachedResultJsonDictionary];
+    }
+
     __auto_type tokenResponse = self.operationTokenResponse.tokenResponse;
     NSMutableDictionary *response = [[tokenResponse jsonDictionary] mutableCopy];
     if (!response)
@@ -100,6 +134,76 @@
     
     response[@"properties"] = propertiesJson;
     
+    return response;
+}
+
+// Shapes the GetToken payload from a cached token result (access token cache hit). Optional fields
+// are omitted when blank/nil so downstream required-field validation can fail cleanly rather than
+// receiving empty placeholder values.
+- (NSDictionary *)cachedResultJsonDictionary
+{
+    MSIDAccessToken *accessToken = self.cachedTokenResult.accessToken;
+    if (!accessToken)
+    {
+        return nil;
+    }
+
+    NSMutableDictionary *response = [NSMutableDictionary new];
+    if (![NSString msidIsStringNilOrBlank:accessToken.accessToken])
+    {
+        response[@"access_token"] = accessToken.accessToken;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:accessToken.tokenType])
+    {
+        response[@"token_type"] = accessToken.tokenType;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:self.cachedTokenResult.rawIdToken])
+    {
+        response[@"id_token"] = self.cachedTokenResult.rawIdToken;
+    }
+
+    NSString *scope = [accessToken.scopes msidToString];
+    if (![NSString msidIsStringNilOrBlank:scope])
+    {
+        response[@"scope"] = scope;
+    }
+
+    if (accessToken.expiresOn)
+    {
+        response[@"expires_on"] = [@((long long)[accessToken.expiresOn timeIntervalSince1970]) stringValue];
+        response[@"expires_in"] = [@((long long)MAX(0, (NSInteger)[accessToken.expiresOn timeIntervalSinceNow])) stringValue];
+    }
+
+    NSMutableDictionary *account = [NSMutableDictionary new];
+    NSString *homeAccountId = self.cachedTokenResult.account.accountIdentifier.homeAccountId;
+    if (![NSString msidIsStringNilOrBlank:homeAccountId])
+    {
+        account[@"id"] = homeAccountId;
+    }
+
+    NSString *username = self.cachedTokenResult.account.username;
+    if ([NSString msidIsStringNilOrBlank:username])
+    {
+        username = self.requestAccountUpn;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:username])
+    {
+        account[@"userName"] = username;
+    }
+
+    if (account.count)
+    {
+        response[@"account"] = account;
+    }
+
+    if (![NSString msidIsStringNilOrBlank:self.state])
+    {
+        response[@"state"] = self.state;
+    }
+
     return response;
 }
 

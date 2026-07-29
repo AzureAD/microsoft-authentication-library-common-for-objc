@@ -48,6 +48,12 @@ typedef void (^MSIDBoundTokenProviderCompletionBlock)(NSString *_Nullable respon
 ///
 /// `MSIDBrowserNativeMessageGetTokenRequest.canShowUI` controls fallback behavior. When UI is not
 /// allowed, the provider returns `MSIDErrorInteractionRequired` instead of launching interactive acquisition.
+///
+/// Naming: this provider is "Bound" because its purpose is to acquire a hardware-bound token — a BART
+/// (Bound App Refresh Token) for SPA — signed with the Secure Enclave Device Key so it meets the PRT v4
+/// token-binding security bar. Acquiring a *non*-bound token for a SPA app is a separate, degraded
+/// fallback (only when no Conditional Access policy enforces binding and the broker is unavailable);
+/// that path is handled by the existing non-bound acquisition flow, not by this provider.
 @interface MSIDBoundTokenProvider : NSObject
 
 /// Acquire a bound token for the supplied browser-native-message GetToken request.

@@ -84,9 +84,6 @@
 - (NSDictionary *)responseDictionaryFromResult:(MSIDTokenResult *)result
                                        request:(MSIDBrowserNativeMessageGetTokenRequest *)request;
 
-- (NSDictionary *)responseDictionaryFromCachedResult:(MSIDTokenResult *)result
-                                             request:(MSIDBrowserNativeMessageGetTokenRequest *)request;
-
 @end
 
 #pragma mark - Silent request test seam
@@ -235,7 +232,7 @@
 {
     NSError *error = nil;
     MSIDInteractiveTokenRequestParameters *parameters =
-    [MSIDBrowserNativeMessageGetTokenRequestParametersFactory requestParametersWithRequest:request
+    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
                                                                                 requestType:MSIDRequestBrokeredType
                                                             boundAppRefreshTokenRequested:YES
                                                                        correlationIdOverride:nil
@@ -525,8 +522,8 @@
 - (void)testResponseDictionaryFromCachedResult_whenExpirationIsPresent_returnsStringValues
 {
     MSIDBoundTokenProvider *provider = [MSIDBoundTokenProvider new];
-    NSDictionary *response = [provider responseDictionaryFromCachedResult:[self cachedTokenResult]
-                                                                  request:[self validRequest]];
+    NSDictionary *response = [provider responseDictionaryFromResult:[self cachedTokenResult]
+                                                            request:[self validRequest]];
 
     XCTAssertTrue([response[@"expires_on"] isKindOfClass:NSString.class]);
     XCTAssertTrue([response[@"expires_in"] isKindOfClass:NSString.class]);
@@ -548,7 +545,7 @@
     request.loginHint = @"";
     request.state = @"";
 
-    NSDictionary *response = [provider responseDictionaryFromCachedResult:result request:request];
+    NSDictionary *response = [provider responseDictionaryFromResult:result request:request];
 
     XCTAssertEqual(response.count, 0);
 }

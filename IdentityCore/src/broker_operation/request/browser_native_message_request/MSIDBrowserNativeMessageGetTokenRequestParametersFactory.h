@@ -35,7 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrowserNativeMessageGetTokenRequestParametersFactory : NSObject
 
-+ (nullable MSIDInteractiveTokenRequestParameters *)requestParametersWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
+/// Shared instance. The transformation logic lives on instance methods (rather than class/static
+/// methods) so callers can substitute a mock instance in tests without swizzling.
+@property (class, readonly, nonnull) MSIDBrowserNativeMessageGetTokenRequestParametersFactory *sharedInstance;
+
+- (nullable MSIDInteractiveTokenRequestParameters *)requestParametersWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                                                      requestType:(MSIDRequestType)requestType
                                                   boundAppRefreshTokenRequested:(BOOL)boundAppRefreshTokenRequested
                                                             correlationIdOverride:(nullable NSUUID *)correlationIdOverride

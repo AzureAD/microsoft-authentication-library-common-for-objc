@@ -41,7 +41,19 @@ static NSString * const MSIDBrowserNativeMessageChildRedirectUriKey = @"child_re
 
 @implementation MSIDBrowserNativeMessageGetTokenRequestParametersFactory
 
-+ (MSIDInteractiveTokenRequestParameters *)requestParametersWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
++ (MSIDBrowserNativeMessageGetTokenRequestParametersFactory *)sharedInstance
+{
+    static MSIDBrowserNativeMessageGetTokenRequestParametersFactory *singleton = nil;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+        singleton = [[self alloc] init];
+    });
+
+    return singleton;
+}
+
+- (MSIDInteractiveTokenRequestParameters *)requestParametersWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                                             requestType:(MSIDRequestType)requestType
                                          boundAppRefreshTokenRequested:(BOOL)boundAppRefreshTokenRequested
                                                    correlationIdOverride:(NSUUID *)correlationIdOverride
@@ -78,6 +90,13 @@ static NSString * const MSIDBrowserNativeMessageChildRedirectUriKey = @"child_re
     if (![NSString msidIsStringNilOrBlank:childClientId]
         && ![NSString msidIsStringNilOrBlank:childRedirectUri])
     {
+        // Map child_* params to brk_* params:
+        // Windows              -> Other platforms
+        // child_client_id      -> client_id
+        // client_id            -> brk_client_id
+        // child_redirect_uri   -> redirect_uri
+        // redirect_uri         -> brk_redirect_uri
+        // Spec ref: https://msazure.visualstudio.com/One/_git/ests-docs?path=%2FProtocols%2FAuthentication%2FITP%2Fdouble-broker.md
         nestedAuthBrokerClientId = clientId;
         clientId = childClientId;
         nestedAuthBrokerRedirectUri = redirectUri;
