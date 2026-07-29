@@ -46,6 +46,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDExecutionFlowConstants.h"
 #import "MSIDExecutionFlowLogger.h"
+#import "MSIDAADAuthority.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -532,9 +533,10 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     
     if (self.customHeaderProvider)
     {
-        // Only forward custom headers to a known AAD host, consistent with the AAD host check used for other AAD requests.
+        // Only forward custom headers to a recognized AAD host (known static cloud or a cloud
+        // discovered via instance metadata), matching the hosts the custom header provider accepts.
         NSString *requestHost = requestURL.host.lowercaseString;
-        if (![MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:requestHost])
+        if (![MSIDAADAuthority isRecognizedAADHost:requestHost])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Skipped attaching custom headers because the navigation host is not a known AAD host.");
 

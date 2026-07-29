@@ -37,6 +37,7 @@
 #import "MSIDExecutionFlowConstants.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDOAuth2Constants.h"
+#import "MSIDAadAuthorityCache.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -413,6 +414,64 @@
         [flowExpectation fulfill];
     });
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testDecidePolicyForNavigationAction_whenHostDiscoveredViaInstanceMetadata_andProviderReturnsHeaders_shouldInjectHeadersAndReload
+{
+    // A sovereign/private-cloud host that is not on the static AAD cloud list, but has been
+    // discovered via instance metadata, must still be trusted so the provider can attach the PRT.
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    NSSet *savedEnvironments = cache.allCloudNetworkEnvironments;
+    cache.allCloudNetworkEnvironments = [NSSet setWithObject:@"login.contoso-sovereign.com"];
+
+    @try
+    {
+        MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+        context.appRequestMetadata = nil;
+        context.correlationId = [NSUUID UUID];
+        MSIDExecutionFlowRegister(context.correlationId);
+
+        MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+                initWithStartURL:[NSURL URLWithString:@"https://login.contoso-sovereign.com/common/oauth2/authorize"]
+                          endURL:[NSURL URLWithString:@"endurl://host"]
+                         webview:nil
+                   customHeaders:nil
+                  platfromParams:nil
+                         context:context];
+
+        MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+        provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"FakeHeaderValue" };
+        webVC.customHeaderProvider = provider;
+
+        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://login.contoso-sovereign.com/common/oauth2/authorize"]];
+        MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+        XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+        __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyAllow;
+        [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+            capturedDecision = decision;
+            [expectation fulfill];
+        }];
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+        XCTAssertTrue(provider.wasCalled);
+        XCTAssertEqual(capturedDecision, WKNavigationActionPolicyCancel);
+        XCTAssertNotNil(webVC.capturedLoadRequest);
+        XCTAssertEqualObjects([[webVC.capturedLoadRequest allHTTPHeaderFields] objectForKey:MSID_REFRESH_TOKEN_CREDENTIAL], @"FakeHeaderValue");
+
+        XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the added tag"];
+        MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+            XCTAssertNotNil(executionFlow);
+            // Assert presence only: both tags share the placeholder string until unique codes are assigned.
+            XCTAssertTrue([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag)]);
+            [flowExpectation fulfill];
+        });
+        [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    }
+    @finally
+    {
+        cache.allCloudNetworkEnvironments = savedEnvironments;
+    }
 }
 
 - (void)testDecidePolicyForNavigationAction_whenUntrustedHost_shouldSkipProviderAndAllowNavigation

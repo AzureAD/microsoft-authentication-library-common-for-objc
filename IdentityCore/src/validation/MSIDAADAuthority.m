@@ -359,6 +359,11 @@
 
 - (BOOL)isRecognizedMicrosoftIdentityHost:(NSString *)host
 {
+    return [MSIDAADAuthority isRecognizedAADHost:host];
+}
+
++ (BOOL)isRecognizedAADHost:(NSString *)host
+{
     if ([NSString msidIsStringNilOrBlank:host]) return NO;
 
     NSString *lowercaseHost = host.lowercaseString;
