@@ -141,3 +141,13 @@ typedef NS_ENUM(NSInteger, MSIDPkeyAuthTag)
 
 /// Returns the string representation for each MSIDPkeyAuthTag value.
 FOUNDATION_EXPORT NSString * _Nonnull MSIDPkeyAuthTagToString(MSIDPkeyAuthTag state);
+
+/// An enum of MSIDCustomHeaderTag.
+typedef NS_ENUM(NSInteger, MSIDCustomHeaderTag)
+{
+    MSIDCustomHeaderAddedTag = 0,
+    MSIDCustomHeaderSkippedUntrustedHostTag
+};
+
+/// Returns the string representation for each MSIDCustomHeaderTag value.
+FOUNDATION_EXPORT NSString * _Nonnull MSIDCustomHeaderTagToString(MSIDCustomHeaderTag state);

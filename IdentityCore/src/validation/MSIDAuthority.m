@@ -182,6 +182,11 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     return NO;
 }
 
+- (BOOL)isAADAuthority
+{
+    return NO;
+}
+
 - (BOOL)excludeFromAuthorityValidation
 {
     return NO;

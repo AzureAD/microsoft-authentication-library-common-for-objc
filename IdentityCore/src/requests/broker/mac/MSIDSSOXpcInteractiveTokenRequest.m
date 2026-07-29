@@ -84,8 +84,8 @@
     }
 
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        [self performXpcRequest:jsonDictionary];
         self.requestCompletionBlock = completionBlock;
+        [self performXpcRequest:jsonDictionary];
     }];
 }
 

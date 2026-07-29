@@ -34,6 +34,8 @@
 
 @implementation MSIDFlightManager
 
+@synthesize flightProvider = _flightProvider;
+
 + (instancetype)sharedInstance
 {
     static MSIDFlightManager *sharedInstance = nil;
@@ -118,30 +120,51 @@
     });
 }
 
+- (id<MSIDFlightManagerInterface>)flightProvider
+{
+    __block id<MSIDFlightManagerInterface> flightProvider = nil;
+    // Read on the synchronization queue so external callers are serialized against the
+    // barrier write in setFlightProvider:, matching the internal readers below. Capturing
+    // into a strong local keeps the provider alive for the duration of the call.
+    dispatch_sync(self.synchronizationQueue, ^{
+        flightProvider = self->_flightProvider;
+    });
+    
+    return flightProvider;
+}
+
 #pragma mark - MSIDFlightManagerInterface
 
-- (BOOL)boolForKey:(nonnull NSString *)flightKey 
+- (BOOL)boolForKey:(nonnull NSString *)flightKey
 {
     __block BOOL result = NO;
-    if (self.flightProvider)
-    {
-        dispatch_sync(self.synchronizationQueue, ^{
-            result = [self.flightProvider boolForKey:flightKey];
-        });
-    }
+    // Read the provider only from within the synchronization queue. Testing it via the
+    // unsynchronized property getter first would race the barrier write in setFlightProvider:,
+    // and capturing it into a strong local keeps it alive for the duration of the call.
+    dispatch_sync(self.synchronizationQueue, ^{
+        id<MSIDFlightManagerInterface> flightProvider = self->_flightProvider;
+        if (flightProvider)
+        {
+            result = [flightProvider boolForKey:flightKey];
+        }
+    });
     
     return result;
 }
 
 - (nullable NSString *)stringForKey:(nonnull NSString *)flightKey
 {
-    __block NSString* result = nil;
-    if (self.flightProvider)
-    {
-        dispatch_sync(self.synchronizationQueue, ^{
-            result = [self.flightProvider stringForKey:flightKey];
-        });
-    }
+    __block NSString *result = nil;
+    // Read the provider only from within the synchronization queue. Testing it via the
+    // unsynchronized property getter first would race the barrier write in setFlightProvider:,
+    // and capturing it into a strong local keeps it alive for the duration of the call.
+    dispatch_sync(self.synchronizationQueue, ^{
+        id<MSIDFlightManagerInterface> flightProvider = self->_flightProvider;
+        if (flightProvider)
+        {
+            result = [flightProvider stringForKey:flightKey];
+        }
+    });
     
     return result;
 }

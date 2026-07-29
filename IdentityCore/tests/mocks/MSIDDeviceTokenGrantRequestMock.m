@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,31 +22,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "NSBundle+MSIDExtensions.h"
+#import "MSIDDeviceTokenGrantRequestMock.h"
 
-@implementation NSBundle (MSIDExtensions)
+@implementation MSIDDeviceTokenGrantRequestMock
 
-+ (NSString *)msidAppVersion
+- (NSString *)getTokenRedemptionJwtForResource:(__unused NSString *)resource
+                                        scopes:(__unused NSSet *)scopes
+                                   redirectUri:(__unused NSString *)redirectUri
+                                      audience:(__unused NSString *)audience
+                                      clientId:(__unused NSString *)clientId
+                            extraPayloadClaims:(__unused NSDictionary *)extraPayloadClaims
+                                       context:(__unused id<MSIDRequestContext>)context
+                                         error:(__unused NSError * __autoreleasing *)error
 {
-    NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
-    if (!appVersion)
-    {
-        appVersion = @"Unknown";
-    }
-    
-    return appVersion;
+    return @"fake.device.jwt";
 }
 
-+ (NSString *)msidAppName
+- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-    NSString *appName = info[@"CFBundleDisplayName"];
-    if (!appName)
-    {
-        appName = info[@"CFBundleName"];
-    }
+    self.sendWithBlockCalled = YES;
 
-    return appName ?: @"";
+    if (completionBlock)
+    {
+        completionBlock(self.expectedResponse, self.expectedError);
+    }
 }
 
 @end

@@ -21,31 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "NSBundle+MSIDExtensions.h"
+#import "MSIDOnboardingBlobBuilder.h"
 
-@implementation NSBundle (MSIDExtensions)
+NS_ASSUME_NONNULL_BEGIN
 
-+ (NSString *)msidAppVersion
-{
-    NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
-    if (!appVersion)
-    {
-        appVersion = @"Unknown";
-    }
-    
-    return appVersion;
-}
+@interface MSIDOnboardingBlobBuilder (MSIDTestUtil)
 
-+ (NSString *)msidAppName
-{
-    NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-    NSString *appName = info[@"CFBundleDisplayName"];
-    if (!appName)
-    {
-        appName = info[@"CFBundleName"];
-    }
+// A builder seeded with stable test defaults (schema 1.0.0, non-brokered mode,
+// clientId "clientA", target "resource1"). Use across onboarding-telemetry tests
+// instead of re-seeding a builder inline.
++ (instancetype)msidTestBuilder;
 
-    return appName ?: @"";
-}
+// Finalizes the blob and returns the ordered list of stamped step_id values from
+// the "steps_list" array. Convenience for asserting which onboarding steps were stamped.
+- (NSArray<NSString *> *)msidStampedStepIds;
+
+// Finalizes the blob and returns the list of ux flow tags from the "ux_flow_used"
+// array. Convenience for asserting which onboarding ux flows were tagged.
+- (NSArray<NSString *> *)msidUxFlowsUsed;
 
 @end
+
+NS_ASSUME_NONNULL_END
