@@ -26,43 +26,50 @@
 #import "MSIDRequestContext.h"
 
 @class MSIDBrowserNativeMessageGetTokenRequest;
+@protocol MSIDSPATokenAcquiring;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Completion block for a bound-token acquisition.
+/// Completion block for a SPA token acquisition.
 /// @param response Serialized browser-native-message response payload (JSON string) on success, otherwise nil.
 /// @param error Populated when acquisition fails, otherwise nil.
-typedef void (^MSIDBoundTokenProviderCompletionBlock)(NSString *_Nullable response, NSError *_Nullable error);
+typedef void (^MSIDSPATokenProviderCompletionBlock)(NSString *_Nullable response, NSError *_Nullable error);
 
-/// Common Core orchestrator that services a browser-native-message GetToken request for a host such as
-/// OneAuth (embedded in Edge).
+/// Common Core orchestrator that services a browser-native-message GetToken request for a Single Page
+/// Application (SPA) host such as OneAuth (embedded in Edge).
 ///
 /// On unmanaged iOS the platform SSO Extension is unavailable, so the host cannot silently invoke the
 /// broker through `ASAuthorizationSingleSignOnProvider`. Instead the host hands the GetToken request to
-/// this provider, which owns the orchestration that would otherwise live behind the SSO Extension:
+/// this provider, which owns the shared orchestration that would otherwise live behind the SSO Extension:
 ///   - transforms `MSIDBrowserNativeMessageGetTokenRequest` into the parameters used across Common Core,
 ///   - attempts silent acquisition when possible,
 ///   - falls back to interactive acquisition at most once when the request allows UI,
-///   - silent path: redeems a cached BART SPA against ESTS in-process (no broker flip),
-///   - interactive path: flips to the broker (Authenticator) via URL scheme to mint the initial token.
+///   - shapes the browser-native-message GetToken response.
+///
+/// The actual silent/interactive acquisition and the backend-specific request-parameter shaping are
+/// delegated to a pluggable `id<MSIDSPATokenAcquiring>` backend so the same orchestration serves both
+/// the in-process local app flow (`MSIDLocalSPATokenAcquirer`) and the broker flow. The default backend
+/// is `MSIDLocalSPATokenAcquirer`, which redeems a cached BART (Bound App Refresh Token) SPA against
+/// ESTS in-process.
 ///
 /// `MSIDBrowserNativeMessageGetTokenRequest.canShowUI` controls fallback behavior. When UI is not
 /// allowed, the provider returns `MSIDErrorInteractionRequired` instead of launching interactive acquisition.
-///
-/// Naming: this provider is "Bound" because its purpose is to acquire a hardware-bound token — a BART
-/// (Bound App Refresh Token) for SPA — signed with the Secure Enclave Device Key so it meets the PRT v4
-/// token-binding security bar. Acquiring a *non*-bound token for a SPA app is a separate, degraded
-/// fallback (only when no Conditional Access policy enforces binding and the broker is unavailable);
-/// that path is handled by the existing non-bound acquisition flow, not by this provider.
-@interface MSIDBoundTokenProvider : NSObject
+@interface MSIDSPATokenProvider : NSObject
 
-/// Acquire a bound token for the supplied browser-native-message GetToken request.
+/// Creates a provider backed by the default in-process local acquirer (`MSIDLocalSPATokenAcquirer`).
+- (instancetype)init;
+
+/// Creates a provider backed by the supplied acquisition backend.
+/// @param acquirer The pluggable backend that performs silent/interactive acquisition.
+- (instancetype)initWithAcquirer:(id<MSIDSPATokenAcquiring>)acquirer NS_DESIGNATED_INITIALIZER;
+
+/// Acquire a SPA token for the supplied browser-native-message GetToken request.
 /// @param request The GetToken request constructed by the host (e.g. OneAuth).
 /// @param context Optional request context used for correlation and logging.
 /// @param completionBlock Invoked with the serialized response payload or an error.
-- (void)acquireBoundTokenWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                             context:(nullable id<MSIDRequestContext>)context
-                     completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock;
+- (void)acquireTokenWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                        context:(nullable id<MSIDRequestContext>)context
+                completionBlock:(MSIDSPATokenProviderCompletionBlock)completionBlock;
 
 @end
 
