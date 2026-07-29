@@ -565,6 +565,53 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+- (void)testDecidePolicyForNavigationAction_whenHostMissing_shouldSkipProviderAndAllowNavigation
+{
+    // An https URL can still have a nil host (e.g. "https:///path"). A missing host must be treated
+    // as untrusted so no nil host is passed to the trust check or the provider.
+    MSIDInteractiveTokenRequestParameters *context = [MSIDInteractiveTokenRequestParameters new];
+    context.appRequestMetadata = nil;
+    context.correlationId = [NSUUID UUID];
+    MSIDExecutionFlowRegister(context.correlationId);
+
+    MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]
+            initWithStartURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/authorize"]
+                      endURL:[NSURL URLWithString:@"endurl://host"]
+                     webview:nil
+               customHeaders:nil
+              platfromParams:nil
+                     context:context];
+
+    MSIDTestCustomHeaderProvider *provider = [MSIDTestCustomHeaderProvider new];
+    provider.headersToReturn = @{ MSID_REFRESH_TOKEN_CREDENTIAL : @"FakeHeaderValue" };
+    webVC.customHeaderProvider = provider;
+
+    NSURL *hostlessURL = [NSURL URLWithString:@"https:///common/oauth2/authorize"];
+    XCTAssertNil(hostlessURL.host);
+    NSURLRequest *request = [NSURLRequest requestWithURL:hostlessURL];
+    MSIDWKNavigationActionMock *action = [[MSIDWKNavigationActionMock alloc] initWithRequest:request];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"decision handler"];
+    __block WKNavigationActionPolicy capturedDecision = WKNavigationActionPolicyCancel;
+    [webVC decidePolicyForNavigationAction:action webview:nil decisionHandler:^(WKNavigationActionPolicy decision) {
+        capturedDecision = decision;
+        [expectation fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+
+    XCTAssertFalse(provider.wasCalled);
+    XCTAssertEqual(capturedDecision, WKNavigationActionPolicyAllow);
+    XCTAssertNil(webVC.capturedLoadRequest);
+
+    XCTestExpectation *flowExpectation = [self expectationWithDescription:@"execution flow should contain the skipped tag"];
+    MSIDExecutionFlowRetrieve(context.correlationId, nil, YES, ^(NSString * _Nullable executionFlow) {
+        XCTAssertNotNil(executionFlow);
+        XCTAssertTrue([executionFlow containsString:MSIDCustomHeaderTagToString(MSIDCustomHeaderSkippedUntrustedHostTag)]);
+        [flowExpectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 - (void)testDecidePolicyForNavigationAction_whenRedirectChangesHostToUntrusted_shouldSkipProviderOnUntrustedHost
 {
     MSIDCustomHeaderCapturingWebviewController *webVC = [[MSIDCustomHeaderCapturingWebviewController alloc]

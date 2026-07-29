@@ -535,8 +535,10 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     {
         // Only forward custom headers to a recognized AAD host (known static cloud or a cloud
         // discovered via instance metadata), matching the hosts the custom header provider accepts.
+        // requestURL.host can be nil even for https URLs; treat a missing host as untrusted so we
+        // never hand a nil host to the trust check or the provider, and let navigation continue.
         NSString *requestHost = requestURL.host.lowercaseString;
-        if (![MSIDAADAuthority isRecognizedAADHost:requestHost])
+        if ([NSString msidIsStringNilOrBlank:requestHost] || ![MSIDAADAuthority isRecognizedAADHost:requestHost])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Skipped attaching custom headers because the navigation host is not a known AAD host.");
 
