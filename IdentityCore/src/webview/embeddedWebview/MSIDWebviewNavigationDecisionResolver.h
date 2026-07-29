@@ -62,10 +62,12 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param URL The special redirect URL to resolve (msauth://, browser://, etc.). If nil or missing a scheme, returns a failWithError decision.
  * @param embeddedWebviewController The webview controller handling the navigation. May be nil for flows that do not require it.
- * @return Navigation decision to apply, or nil if the URL cannot be processed
+ * @param additionalHeaders Extra headers to merge onto the MDM enrollment request. The broker flow supplies the broker version (x-client-brkrver); the non-broker flow supplies the running process's first-party app-identity headers. Pass nil to add none.
+ * @return Navigation decision to apply. Always non-nil: unhandled schemes resolve to continueDefault and invalid/unprocessable URLs resolve to a failWithError decision.
  */
 - (MSIDWebviewNavigationDecision * _Nullable)resolveDecisionForURL:(NSURL * _Nullable)URL
-                                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController;
+                                         embeddedWebviewController:(MSIDOAuth2EmbeddedWebviewController * _Nullable)embeddedWebviewController
+                                                 additionalHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)additionalHeaders;
 
 @end
 NS_ASSUME_NONNULL_END

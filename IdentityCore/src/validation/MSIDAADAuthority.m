@@ -252,6 +252,11 @@
     return YES;
 }
 
+- (BOOL)isAADAuthority
+{
+    return YES;
+}
+
 - (BOOL)supportsMAMScenarios
 {
 #if TARGET_OS_IPHONE
