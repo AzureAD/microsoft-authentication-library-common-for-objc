@@ -117,9 +117,22 @@
         if (completionHandler) completionHandler(callbackURL, authError);
     };
     
-    self.webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:self.startURL
-                                                        callbackURLScheme:self.callbackURLScheme
-                                                        completionHandler:authCompletion];
+    if (self.callbackURLScheme && @available(iOS 17.4, macOS 14.4, visionOS 1.1, *))
+    {
+        ASWebAuthenticationSessionCallback *callback = [ASWebAuthenticationSessionCallback callbackWithCustomScheme:self.callbackURLScheme];
+        self.webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:self.startURL
+                                                                     callback:callback
+                                                            completionHandler:authCompletion];
+    }
+    else
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        self.webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:self.startURL
+                                                            callbackURLScheme:self.callbackURLScheme
+                                                            completionHandler:authCompletion];
+#pragma clang diagnostic pop
+    }
     
     self.webAuthSession.presentationContextProvider = self;
     self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
