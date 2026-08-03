@@ -24,7 +24,7 @@
 
 #import "MSIDLocalSPATokenAcquirer.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
-#import "MSIDBrowserNativeMessageGetTokenRequestParametersFactory.h"
+#import "MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDConstants.h"
 #import "MSIDError.h"
@@ -81,12 +81,12 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
                                                                context:(id<MSIDRequestContext>)context
                                                                  error:(NSError *__autoreleasing *)error
 {
-    // Local-app bound flow: brokered request type + BART requested, mirroring the previous provider.
-    return [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
-                                                                                                      requestType:MSIDRequestBrokeredType
-                                                                                    boundAppRefreshTokenRequested:YES
-                                                                                            correlationIdOverride:context.correlationId
-                                                                                                            error:error];
+    // Local-app bound flow: brokered request type + BART requested.
+    return [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
+                                                                       requestType:MSIDRequestBrokeredType
+                                                     boundAppRefreshTokenRequested:YES
+                                                             correlationIdOverride:context.correlationId
+                                                                             error:error];
 }
 
 - (MSIDSPAPreRouteDecision *)preRouteDecisionForParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters

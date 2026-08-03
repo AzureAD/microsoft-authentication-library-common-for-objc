@@ -25,7 +25,6 @@
 
 #import "MSIDBrokerNativeAppOperationResponse.h"
 
-@class MSIDBrokerOperationTokenResponse;
 @class MSIDBrokerOperationBrowserNativeMessageMATSReport;
 @class MSIDTokenResult;
 
@@ -34,21 +33,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
 
 - (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse;
 
-/// Convenience initializer that also carries the browser-native-message `state` echo and the
-/// fallback account UPN, so a caller does not have to set those properties individually after
-/// construction. Used when shaping a fresh server token response (silent redemption / interactive).
-- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse
-                                          state:(nullable NSString *)state
-                      fallbackRequestAccountUpn:(nullable NSString *)fallbackRequestAccountUpn;
-
-/// Shapes a browser-native-message GetToken response directly from a cached token result (an access
-/// token cache hit, where no fresh server token response is available). Returns nil if the cached
-/// result has no access token. Keeps response parsing/shaping owned by this response class.
-- (instancetype _Nullable)initWithCachedTokenResult:(nonnull MSIDTokenResult *)tokenResult
-                                              state:(nullable NSString *)state
-                          fallbackRequestAccountUpn:(nullable NSString *)fallbackRequestAccountUpn;
+/// Shapes a browser-native-message GetToken response from the canonical token result. Works for both
+/// a freshly redeemed result (its `tokenResponse` is present, so base fields come from the server
+/// response) and an access-token cache hit (no `tokenResponse`, base fields derived from
+/// `accessToken`). Returns nil when the result has neither an access token nor a token response.
+/// Also carries the browser-native-message `state` echo and the fallback account UPN so a caller does
+/// not have to set those properties individually after construction. Keeps response parsing/shaping
+/// owned by this response class, depending on a single response type (`MSIDTokenResult`).
+- (instancetype _Nullable)initWithTokenResult:(nonnull MSIDTokenResult *)result
+                                        state:(nullable NSString *)state
+                    fallbackRequestAccountUpn:(nullable NSString *)fallbackRequestAccountUpn NS_DESIGNATED_INITIALIZER;
 
 @property (nonatomic, nullable) NSString *state;
 @property (nonatomic, nullable) NSString *requestAccountUpn;

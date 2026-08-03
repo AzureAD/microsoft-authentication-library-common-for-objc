@@ -25,9 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDBrowserNativeMessageGetTokenRequestParametersFactory.h"
+#import "MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
-#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDRequestParameters.h"
@@ -39,25 +38,13 @@
 static NSString * const MSIDBrowserNativeMessageChildClientIdKey = @"child_client_id";
 static NSString * const MSIDBrowserNativeMessageChildRedirectUriKey = @"child_redirect_uri";
 
-@implementation MSIDBrowserNativeMessageGetTokenRequestParametersFactory
+@implementation MSIDInteractiveTokenRequestParameters (BrowserNativeMessageGetToken)
 
-+ (MSIDBrowserNativeMessageGetTokenRequestParametersFactory *)sharedInstance
-{
-    static MSIDBrowserNativeMessageGetTokenRequestParametersFactory *singleton = nil;
-    static dispatch_once_t onceToken;
-
-    dispatch_once(&onceToken, ^{
-        singleton = [[self alloc] init];
-    });
-
-    return singleton;
-}
-
-- (MSIDInteractiveTokenRequestParameters *)requestParametersWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                                                            requestType:(MSIDRequestType)requestType
-                                         boundAppRefreshTokenRequested:(BOOL)boundAppRefreshTokenRequested
-                                                   correlationIdOverride:(NSUUID *)correlationIdOverride
-                                                                 error:(NSError *__autoreleasing *)error
++ (MSIDInteractiveTokenRequestParameters *)msidParametersWithGetTokenRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                                                 requestType:(MSIDRequestType)requestType
+                                               boundAppRefreshTokenRequested:(BOOL)boundAppRefreshTokenRequested
+                                                       correlationIdOverride:(NSUUID *)correlationIdOverride
+                                                                       error:(NSError *__autoreleasing *)error
 {
     MSIDAADAuthority *authority = request.authority;
     if (!authority)

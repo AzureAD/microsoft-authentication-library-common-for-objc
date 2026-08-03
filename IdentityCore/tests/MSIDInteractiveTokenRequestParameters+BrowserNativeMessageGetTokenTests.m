@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <XCTest/XCTest.h>
-#import "MSIDBrowserNativeMessageGetTokenRequestParametersFactory.h"
+#import "MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAADAuthority.h"
@@ -36,11 +36,11 @@
 #import "MSIDClaimsRequest.h"
 #import "MSIDOAuth2Constants.h"
 
-@interface MSIDBrowserNativeMessageGetTokenRequestParametersFactoryTests : XCTestCase
+@interface MSIDInteractiveTokenRequestParametersBrowserNativeMessageGetTokenTests : XCTestCase
 
 @end
 
-@implementation MSIDBrowserNativeMessageGetTokenRequestParametersFactoryTests
+@implementation MSIDInteractiveTokenRequestParametersBrowserNativeMessageGetTokenTests
 
 - (MSIDBrowserNativeMessageGetTokenRequest *)request
 {
@@ -77,7 +77,7 @@
     NSError *error = nil;
 
     MSIDInteractiveTokenRequestParameters *parameters =
-    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
+    [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
                                                                                 requestType:MSIDRequestBrokeredType
                                                             boundAppRefreshTokenRequested:YES
                                                                        correlationIdOverride:correlationOverride
@@ -116,7 +116,7 @@
     request.extraParameters = @{@"child_client_id": @"child-client", @"custom": @"value"};
 
     MSIDInteractiveTokenRequestParameters *parameters =
-    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
+    [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
                                                                                 requestType:MSIDRequestLocalType
                                                             boundAppRefreshTokenRequested:NO
                                                                        correlationIdOverride:nil
@@ -139,7 +139,7 @@
     NSError *error = nil;
 
     MSIDInteractiveTokenRequestParameters *parameters =
-    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
+    [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
                                                                                 requestType:MSIDRequestLocalType
                                                             boundAppRefreshTokenRequested:NO
                                                                        correlationIdOverride:nil
@@ -158,7 +158,7 @@
     NSError *error = nil;
 
     MSIDInteractiveTokenRequestParameters *parameters =
-    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
+    [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
                                                                                 requestType:MSIDRequestLocalType
                                                             boundAppRefreshTokenRequested:NO
                                                                        correlationIdOverride:nil

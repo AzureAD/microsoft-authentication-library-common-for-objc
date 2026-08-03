@@ -27,7 +27,7 @@
 #import "MSIDSPATokenAcquiring.h"
 #import "MSIDLocalSPATokenAcquirer.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
-#import "MSIDBrowserNativeMessageGetTokenRequestParametersFactory.h"
+#import "MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.h"
 #import "MSIDError.h"
 #import "MSIDConstants.h"
 #import "MSIDAADAuthority.h"
@@ -71,8 +71,8 @@
                                  correlationId:(nullable NSUUID *)correlationId
                                          error:(NSError *__autoreleasing *)error;
 
-- (NSDictionary *)responseDictionaryFromResult:(MSIDTokenResult *)result
-                                       request:(MSIDBrowserNativeMessageGetTokenRequest *)request;
+- (NSDictionary *)responseDictionaryFromOutcome:(MSIDSPATokenAcquisitionResult *)outcome
+                                        request:(MSIDBrowserNativeMessageGetTokenRequest *)request;
 
 @end
 
@@ -127,11 +127,11 @@
         return nil;
     }
 
-    return [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
-                                                                                                      requestType:MSIDRequestBrokeredType
-                                                                                    boundAppRefreshTokenRequested:YES
-                                                                                            correlationIdOverride:context.correlationId
-                                                                                                            error:error];
+    return [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
+                                                                       requestType:MSIDRequestBrokeredType
+                                                     boundAppRefreshTokenRequested:YES
+                                                             correlationIdOverride:context.correlationId
+                                                                             error:error];
 }
 
 - (MSIDSPAPreRouteDecision *)preRouteDecisionForParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
@@ -230,11 +230,11 @@
 {
     NSError *error = nil;
     MSIDInteractiveTokenRequestParameters *parameters =
-    [[MSIDBrowserNativeMessageGetTokenRequestParametersFactory sharedInstance] requestParametersWithRequest:request
-                                                                                requestType:MSIDRequestBrokeredType
-                                                            boundAppRefreshTokenRequested:YES
-                                                                       correlationIdOverride:nil
-                                                                                     error:&error];
+    [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
+                                                                requestType:MSIDRequestBrokeredType
+                                              boundAppRefreshTokenRequested:YES
+                                                      correlationIdOverride:nil
+                                                                      error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(parameters);
     return parameters;
@@ -552,7 +552,9 @@
 - (void)testResponseDictionaryFromCachedResult_whenExpirationIsPresent_returnsStringValues
 {
     MSIDSPATokenProvider *provider = [MSIDSPATokenProvider new];
-    NSDictionary *response = [provider responseDictionaryFromResult:[self cachedTokenResult]
+    MSIDSPATokenAcquisitionResult *outcome = [MSIDSPATokenAcquisitionResult new];
+    outcome.tokenResult = [self cachedTokenResult];
+    NSDictionary *response = [provider responseDictionaryFromOutcome:outcome
                                                             request:[self validRequest]];
 
     XCTAssertTrue([response[@"expires_on"] isKindOfClass:NSString.class]);
@@ -575,7 +577,9 @@
     request.loginHint = @"";
     request.state = @"";
 
-    NSDictionary *response = [provider responseDictionaryFromResult:result request:request];
+    MSIDSPATokenAcquisitionResult *outcome = [MSIDSPATokenAcquisitionResult new];
+    outcome.tokenResult = result;
+    NSDictionary *response = [provider responseDictionaryFromOutcome:outcome request:request];
 
     XCTAssertEqual(response.count, 0);
 }

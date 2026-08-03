@@ -60,11 +60,14 @@
 
     if (promptType == MSIDPromptTypeNever)
     {
+        // Silent authentication cannot continue, and prompt=none explicitly forbids showing UI
+        // even when the caller is otherwise capable of presenting it.
         return MSIDBrowserNativeMessageGetTokenRouteInteractionRequired;
     }
 
     if (!canShowUI)
     {
+        // The prompt permits interaction, but the caller has indicated that UI cannot be shown.
         return MSIDBrowserNativeMessageGetTokenRouteUIBlocked;
     }
 

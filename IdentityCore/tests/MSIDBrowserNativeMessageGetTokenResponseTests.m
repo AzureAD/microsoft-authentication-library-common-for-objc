@@ -30,6 +30,8 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDTestIdentifiers.h"
+#import "MSIDTokenResult.h"
+#import "MSIDTokenResult+MSIDBrokerOperationTokenResponse.h"
 
 @interface MSIDTokenResponseMock : MSIDTokenResponse
 
@@ -66,10 +68,35 @@
     XCTAssertEqualObjects(@"operation_generic_response", [MSIDBrowserNativeMessageGetTokenResponse responseType]);
 }
 
+#pragma mark - MSIDTokenResult+MSIDBrokerOperationTokenResponse
+
+- (void)testMsidTokenResultFromBrokerOperationTokenResponse_whenNoTokenResponse_returnsNil
+{
+    __auto_type operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+
+    XCTAssertNil([MSIDTokenResult msidTokenResultFromBrokerOperationTokenResponse:operationTokenResponse]);
+}
+
+- (void)testMsidTokenResultFromBrokerOperationTokenResponse_whenTokenResponsePresent_carriesTokenResponse
+{
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+
+    __auto_type operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+    operationTokenResponse.tokenResponse = tokenResponseMock;
+
+    MSIDTokenResult *result = [MSIDTokenResult msidTokenResultFromBrokerOperationTokenResponse:operationTokenResponse];
+
+    XCTAssertNotNil(result);
+    XCTAssertEqualObjects(result.tokenResponse, tokenResponseMock);
+}
+
 - (void)testJsonDictionary_whenNoResposne_shouldReturnNil
 {
     __auto_type tokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
-    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:tokenResponse];
+    MSIDTokenResult *result = [MSIDTokenResult msidTokenResultFromBrokerOperationTokenResponse:tokenResponse];
+    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                                          state:nil
+                                                                      fallbackRequestAccountUpn:nil];
     
     XCTAssertNil([response jsonDictionary]);
 }
@@ -87,8 +114,10 @@
     __auto_type operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
     operationTokenResponse.tokenResponse = tokenResponseMock;
     
-    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse];
-    response.state = @"1234";
+    MSIDTokenResult *result = [MSIDTokenResult msidTokenResultFromBrokerOperationTokenResponse:operationTokenResponse];
+    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                                          state:@"1234"
+                                                                      fallbackRequestAccountUpn:nil];
     
     __auto_type expectedJson = @{
         @"account": @{
@@ -120,9 +149,10 @@
     __auto_type operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
     operationTokenResponse.tokenResponse = tokenResponseMock;
     
-    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse];
-    response.state = @"1234";
-    response.requestAccountUpn = @"a@b.c";
+    MSIDTokenResult *result = [MSIDTokenResult msidTokenResultFromBrokerOperationTokenResponse:operationTokenResponse];
+    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                                          state:@"1234"
+                                                                      fallbackRequestAccountUpn:@"a@b.c"];
     
     __auto_type expectedJson = @{
         @"account": @{
@@ -140,15 +170,56 @@
     XCTAssertEqualObjects(expectedJson, [response jsonDictionary]);
 }
 
-- (void)testInitWithTokenResponseStateAndFallbackUpn_setsConvenienceProperties
+- (void)testInitWithTokenResultStateAndFallbackUpn_setsConvenienceProperties
 {
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+    tokenResponseMock.responseJson = @{@"some_key": @"some_value"};
+
     __auto_type operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
-    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse
-                                                                                           state:@"state"
-                                                                       fallbackRequestAccountUpn:@"user@contoso.com"];
+    operationTokenResponse.tokenResponse = tokenResponseMock;
+
+    MSIDTokenResult *result = [MSIDTokenResult msidTokenResultFromBrokerOperationTokenResponse:operationTokenResponse];
+    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                                          state:@"state"
+                                                                      fallbackRequestAccountUpn:@"user@contoso.com"];
 
     XCTAssertEqualObjects(response.state, @"state");
     XCTAssertEqualObjects(response.requestAccountUpn, @"user@contoso.com");
+}
+
+// Lookup / discovery mode (nativebroker_mode = Lookup) returns a token response whose access_token
+// and id_token are "none". The response must NOT be gated on a materialized access token; the raw
+// token response fields pass through untouched. Mirrors dev behavior, which only required a non-nil
+// underlying token response payload.
+- (void)testJsonDictionary_whenLookupModeAccessTokenIsNone_passesThroughWithoutGating
+{
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{} error:nil];
+    tokenResponseMock.responseJson = @{
+        @"access_token": @"none",
+        @"id_token": @"none",
+        @"refresh_token": @"1.wqeqweqwe",
+        @"token_type": @"Bearer",
+        @"scope": @"https://management.core.windows.net//.default"
+    };
+
+    __auto_type operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+    operationTokenResponse.tokenResponse = tokenResponseMock;
+
+    MSIDTokenResult *result = [MSIDTokenResult msidTokenResultFromBrokerOperationTokenResponse:operationTokenResponse];
+    // The result carries only a token response (no materialized MSIDAccessToken).
+    XCTAssertNil(result.accessToken);
+    XCTAssertNotNil(result.tokenResponse);
+
+    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:result
+                                                                                          state:@"1234"
+                                                                      fallbackRequestAccountUpn:@"idlab@msidlab4.onmicrosoft.com"];
+
+    NSDictionary *json = [response jsonDictionary];
+    XCTAssertNotNil(json);
+    XCTAssertEqualObjects(json[@"access_token"], @"none");
+    XCTAssertEqualObjects(json[@"id_token"], @"none");
+    XCTAssertEqualObjects(json[@"refresh_token"], @"1.wqeqweqwe");
+    XCTAssertEqualObjects(json[@"state"], @"1234");
 }
 
 @end

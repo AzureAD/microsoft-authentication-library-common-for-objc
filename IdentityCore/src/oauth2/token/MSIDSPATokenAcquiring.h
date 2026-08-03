@@ -27,7 +27,6 @@
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDBrowserNativeMessageGetTokenRequest;
 @class MSIDTokenResult;
-@class MSIDBrokerOperationTokenResponse;
 @class MSIDAccountIdentifier;
 @protocol MSIDRequestContext;
 
@@ -37,14 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// @c MSIDSPATokenProvider, which feeds it to @c MSIDBrowserNativeMessageGetTokenResponse so response
 /// shaping stays single-sourced.
 ///
-/// A backend sets exactly one of:
-///  - @c tokenResult            (local app flow: the provider maps the fresh-vs-cached shape exactly
-///                               as the previous @c MSIDBoundTokenProvider did), or
-///  - @c operationTokenResponse (broker flow: a freshly redeemed broker operation token response).
+/// The outcome carries a single canonical @c tokenResult. A broker backend maps its freshly redeemed
+/// @c MSIDBrokerOperationTokenResponse into a @c MSIDTokenResult via the
+/// @c MSIDTokenResult+MSIDBrokerOperationTokenResponse category before populating this outcome.
 @interface MSIDSPATokenAcquisitionResult : NSObject
 
 @property (nonatomic, nullable) MSIDTokenResult *tokenResult;
-@property (nonatomic, nullable) MSIDBrokerOperationTokenResponse *operationTokenResponse;
 
 /// Backend-supplied fallback account UPN used when the token result does not carry a username.
 /// Local supplies @c result.account.username ?: request.loginHint; a broker backend can supply
@@ -57,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @c MSIDBrowserNativeMessageGetTokenRoutingPolicy runs. This is where backend-specific behavior the
 /// shared routing policy does not model lives (for a broker backend: a missing PRT forcing
 /// interactive, a signed-out early error, or a resolved default account). The local backend returns
-/// an all-defaults instance, so routing is identical to the previous provider behavior.
+/// an all-defaults instance, so routing follows the shared @c MSIDBrowserNativeMessageGetTokenRoutingPolicy.
 @interface MSIDSPAPreRouteDecision : NSObject
 
 /// When YES, skip the silent attempt and route straight to interactive.
@@ -87,8 +84,8 @@ typedef void (^MSIDSPATokenAcquirerCompletionBlock)(MSIDSPATokenAcquisitionResul
 @protocol MSIDSPATokenAcquiring <NSObject>
 
 /// Build the shared @c MSIDInteractiveTokenRequestParameters for this backend. Implementations call
-/// the shared @c MSIDBrowserNativeMessageGetTokenRequestParametersFactory with backend-specific
-/// arguments and apply any backend augmentations.
+/// the @c MSIDInteractiveTokenRequestParameters (BrowserNativeMessageGetToken) category with
+/// backend-specific arguments and apply any backend augmentations.
 - (nullable MSIDInteractiveTokenRequestParameters *)requestParametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                                                         context:(nullable id<MSIDRequestContext>)context
                                                                           error:(NSError *_Nullable *_Nullable)error;

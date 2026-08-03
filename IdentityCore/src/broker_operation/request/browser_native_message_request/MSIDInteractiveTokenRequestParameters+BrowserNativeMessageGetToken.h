@@ -25,25 +25,22 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDConstants.h"
 
 @class MSIDBrowserNativeMessageGetTokenRequest;
-@class MSIDInteractiveTokenRequestParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrowserNativeMessageGetTokenRequestParametersFactory : NSObject
+@interface MSIDInteractiveTokenRequestParameters (BrowserNativeMessageGetToken)
 
-/// Shared instance. The transformation logic lives on instance methods (rather than class/static
-/// methods) so callers can substitute a mock instance in tests without swizzling.
-@property (class, readonly, nonnull) MSIDBrowserNativeMessageGetTokenRequestParametersFactory *sharedInstance;
-
-- (nullable MSIDInteractiveTokenRequestParameters *)requestParametersWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                                                                     requestType:(MSIDRequestType)requestType
-                                                  boundAppRefreshTokenRequested:(BOOL)boundAppRefreshTokenRequested
-                                                            correlationIdOverride:(nullable NSUUID *)correlationIdOverride
-                                                                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+/// Builds validated interactive request parameters from a Browser Native Message GetToken request.
+/// Returns nil (and populates @c error) when the request is missing required state such as an authority.
++ (nullable MSIDInteractiveTokenRequestParameters *)msidParametersWithGetTokenRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                                                          requestType:(MSIDRequestType)requestType
+                                                        boundAppRefreshTokenRequested:(BOOL)boundAppRefreshTokenRequested
+                                                                correlationIdOverride:(nullable NSUUID *)correlationIdOverride
+                                                                                error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

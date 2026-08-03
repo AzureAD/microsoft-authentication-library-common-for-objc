@@ -36,7 +36,6 @@
 #import "MSIDAccount.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDBrowserNativeMessageGetTokenResponse.h"
-#import "MSIDBrokerOperationTokenResponse.h"
 
 NSString *const MSID_SPA_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDSPATokenProvider]";
 
@@ -63,6 +62,8 @@ NSString *const MSID_SPA_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDSPATokenProvider]";
     return self;
 }
 
+// acquire Token With Result takes a BNM GetToken Request, Ctx and a completion block for
+// oneAuth. The completion block is required to deliver the result back to oneAuth.
 - (void)acquireTokenWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                         context:(nullable id<MSIDRequestContext>)context
                 completionBlock:(MSIDSPATokenProviderCompletionBlock)completionBlock
@@ -340,52 +341,18 @@ NSString *const MSID_SPA_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDSPATokenProvider]";
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 
-// Maps a normalized outcome to the canonical GetToken response dictionary. A freshly redeemed broker
-// operation token response is shaped directly; otherwise the (local) token result is shaped via
-// responseDictionaryFromResult:request:.
+// Delegates GetToken response shaping to MSIDBrowserNativeMessageGetTokenResponse from the outcome's
+// single canonical MSIDTokenResult, so the response contract lives in one place and depends on a
+// single response type. The token result handles both the redeemed (tokenResponse present) and
+// access-token cache-hit cases; a broker backend maps its MSIDBrokerOperationTokenResponse into a
+// MSIDTokenResult (via the MSIDTokenResult+MSIDBrokerOperationTokenResponse category) before this.
 - (NSDictionary *)responseDictionaryFromOutcome:(MSIDSPATokenAcquisitionResult *)outcome
                                         request:(MSIDBrowserNativeMessageGetTokenRequest *)request
 {
-    if (outcome.operationTokenResponse)
-    {
-        MSIDBrowserNativeMessageGetTokenResponse *getTokenResponse =
-        [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:outcome.operationTokenResponse
-                                                                          state:request.state
-                                                      fallbackRequestAccountUpn:(outcome.fallbackRequestAccountUpn ?: request.loginHint)];
-        return [getTokenResponse jsonDictionary];
-    }
-
-    return [self responseDictionaryFromResult:outcome.tokenResult request:request];
-}
-
-// Delegates GetToken response shaping to MSIDBrowserNativeMessageGetTokenResponse for both the
-// fresh server-response path (silent redemption / interactive) and the access-token cache-hit path,
-// so the response contract lives in one place.
-- (NSDictionary *)responseDictionaryFromResult:(MSIDTokenResult *)result
-                                       request:(MSIDBrowserNativeMessageGetTokenRequest *)request
-{
-    MSIDBrowserNativeMessageGetTokenResponse *getTokenResponse;
-
-    // Preferred: a fresh server token response (silent redemption) maps to the canonical shape.
-    if (result.tokenResponse)
-    {
-        MSIDBrokerOperationTokenResponse *operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
-        operationTokenResponse.tokenResponse = result.tokenResponse;
-        operationTokenResponse.authority = result.authority;
-
-        getTokenResponse =
-        [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse
-                                                                          state:request.state
-                                                      fallbackRequestAccountUpn:(result.account.username ?: request.loginHint)];
-    }
-    else
-    {
-        // Cache hit (no fresh server response): shape the payload from the cached result directly.
-        getTokenResponse =
-        [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithCachedTokenResult:result
-                                                                             state:request.state
-                                                         fallbackRequestAccountUpn:request.loginHint];
-    }
+    MSIDBrowserNativeMessageGetTokenResponse *getTokenResponse =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:outcome.tokenResult
+                                                                   state:request.state
+                                               fallbackRequestAccountUpn:(outcome.fallbackRequestAccountUpn ?: request.loginHint)];
 
     return [getTokenResponse jsonDictionary];
 }

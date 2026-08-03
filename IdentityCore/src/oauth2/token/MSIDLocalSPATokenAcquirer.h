@@ -45,8 +45,8 @@ typedef MSIDDefaultSilentTokenRequest *_Nonnull (^MSIDLocalSPASilentTokenRequest
 
 /// Local-app (no SSO extension) acquisition backend for @c MSIDSPATokenProvider.
 ///
-/// This backend owns the in-process silent engine wiring that was previously inlined in
-/// @c MSIDBoundTokenProvider: it builds a bound-token request (BART requested), constructs the
+/// This backend owns the in-process silent engine wiring for the local bound-token flow: it builds a
+/// bound-token request (BART requested), constructs the
 /// default silent token request against the shared adalcache keychain, and redeems a cached BART
 /// against ESTS. Interactive acquisition (the broker app flip) is not yet implemented and currently
 /// surfaces @c MSIDErrorInteractionRequired.
