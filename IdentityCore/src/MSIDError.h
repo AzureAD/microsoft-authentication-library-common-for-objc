@@ -199,6 +199,11 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     // The interactive flow was cancelled programmatically.
     MSIDErrorSessionCanceledProgrammatically = -51701,
     
+    // The interactive flow was cancelled because control was handed off to the system browser.
+    // Carried as the underlying error of an MSIDErrorSessionCanceledProgrammatically failure so
+    // callers can distinguish a deliberate browser hand-off from a generic programmatic cancel.
+    MSIDErrorSessionCanceledBrowserHandoff = -51703,
+    
     // Interactive authentication session failed to start.
     MSIDErrorInteractiveSessionStartFailure = -51702,
     /*!
