@@ -1,6 +1,6 @@
 
 TBD
-* Fix macOS certificate-based authentication origin confusion (MSRC-42fca33e): allow the SecIdentityCopyPreferred(webview.URL.absoluteString) fallback only when the challenge host matches the top-level page host. The fix is gated behind the MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX flight (default disabled retains the legacy cross-host fallback) for gradual rollout. Add non-PII, countable logs distinguishing same-host fallback use, legacy cross-host fallback use, and flight-enabled cross-host blocking. Route the keychain/prompt calls through the new MSIDCertAuthIdentityProviding DI seam so the regression tests run without MSIDTestSwizzle.
+* Fix macOS CBA origin confusion by restricting preferred-identity URL fallback to same-host challenges behind a flight, with non-PII rollout logs.
 * Prevent a crash when JWT signing is attempted with a NULL private key. (#1917)
 * Raise the minimum deployment targets to iOS 16.0 and macOS 12.0, and replace deprecated macOS SecTransform JWT signing with SecKeyCreateSignature. (#1915)
 * Skip broker key keychain lookup when the client cannot persist a broker key, avoiding noisy -34018/-51808 errors on macOS runtime/unentitled contexts. (#1812)\
