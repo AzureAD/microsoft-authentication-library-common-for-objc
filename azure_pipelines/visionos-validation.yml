@@ -71,7 +71,7 @@ extends:
               targetType: 'inline'
               script: |
                 find . -name "*.gcda" -print0 | xargs -0 rm
-          - template: /azure_pipelines/templates/download-visionos-sdk.yml
+          - template: /azure_pipelines/templates/download-visionos-sdk.yml@self
           - task: Bash@3
             displayName: Run CPP script
             inputs:
@@ -112,7 +112,7 @@ extends:
           displayName: MSAL visionOSFramework
           timeoutInMinutes: 60
           steps:
-          - template: /azure_pipelines/templates/download-visionos-sdk.yml
+          - template: /azure_pipelines/templates/download-visionos-sdk.yml@self
           - checkout: microsoft-authentication-library-for-objc
             displayName: 'Checkout MSAL'
             clean: true
@@ -159,10 +159,10 @@ extends:
           displayName: Broker vision_library
           timeoutInMinutes: 60
           steps:
-          - template: /azure_pipelines/templates/download-visionos-sdk.yml
+          - template: /azure_pipelines/templates/download-visionos-sdk.yml@self
           # Repo checkouts, submodules and build. Xcode is inherited from the shared
           # ACES job template, so selectLocalXcode is false.
-          - template: /azure_pipelines/broker_build_steps.yml
+          - template: /azure_pipelines/broker_build_steps.yml@self
             parameters:
               target: vision_library
               selectLocalXcode: false
