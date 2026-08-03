@@ -2045,6 +2045,9 @@
 		B4B591B32F3AC8ED00CBA6A9 /* MSIDOnboardingStatusCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B591B22F3AC8ED00CBA6A9 /* MSIDOnboardingStatusCache.m */; };
 		B4B591B42F3AC90600CBA6A9 /* MSIDOnboardingStatusCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B591B22F3AC8ED00CBA6A9 /* MSIDOnboardingStatusCache.m */; };
 		B4B591B52F3AC90C00CBA6A9 /* MSIDOnboardingStatusCache.h in Headers */ = {isa = PBXBuildFile; fileRef = B4B591B12F3AC8ED00CBA6A9 /* MSIDOnboardingStatusCache.h */; };
+		AAB0FF0200000000000000B3 /* MSIDDeviceOnboardingBlobHandoffCache.m in Sources */ = {isa = PBXBuildFile; fileRef = AAB0FF0200000000000000B1 /* MSIDDeviceOnboardingBlobHandoffCache.m */; };
+		AAB0FF0200000000000000B4 /* MSIDDeviceOnboardingBlobHandoffCache.m in Sources */ = {isa = PBXBuildFile; fileRef = AAB0FF0200000000000000B1 /* MSIDDeviceOnboardingBlobHandoffCache.m */; };
+		AAB0FF0200000000000000B5 /* MSIDDeviceOnboardingBlobHandoffCache.h in Headers */ = {isa = PBXBuildFile; fileRef = AAB0FF0200000000000000B2 /* MSIDDeviceOnboardingBlobHandoffCache.h */; };
 		B4C8501629E79E220055B0D3 /* MSIDTestURLSessionUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C8501429E79E140055B0D3 /* MSIDTestURLSessionUploadTask.m */; };
 		B4C8501729E79E230055B0D3 /* MSIDTestURLSessionUploadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C8501429E79E140055B0D3 /* MSIDTestURLSessionUploadTask.m */; };
 		B4C8501829E79E250055B0D3 /* MSIDTestURLSessionUploadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C8501329E79E050055B0D3 /* MSIDTestURLSessionUploadTask.h */; };
@@ -2076,6 +2079,8 @@
 		B4FBF0382EF33AAA00EDE1E9 /* MSIDOnboardingStatusTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FBF0362EF33AAA00EDE1E9 /* MSIDOnboardingStatusTests.m */; };
 		B4FBF0402EF44BBB00EDE1E9 /* MSIDOnboardingStatusCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FBF03F2EF44BBB00EDE1E9 /* MSIDOnboardingStatusCacheTests.m */; };
 		B4FBF0412EF44BBB00EDE1E9 /* MSIDOnboardingStatusCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FBF03F2EF44BBB00EDE1E9 /* MSIDOnboardingStatusCacheTests.m */; };
+		AAB0FF0300000000000000C3 /* MSIDDeviceOnboardingBlobHandoffCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AAB0FF0300000000000000C0 /* MSIDDeviceOnboardingBlobHandoffCacheTests.m */; };
+		AAB0FF0300000000000000C4 /* MSIDDeviceOnboardingBlobHandoffCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AAB0FF0300000000000000C0 /* MSIDDeviceOnboardingBlobHandoffCacheTests.m */; };
 		B4FDC6F72F3EFFD300091B6C /* MSIDWebviewNavigationDecisionResolver.h in Headers */ = {isa = PBXBuildFile; fileRef = B4FDC6F62F3EFFB600091B6C /* MSIDWebviewNavigationDecisionResolver.h */; };
 		B4FDC6F92F3EFFDB00091B6C /* MSIDWebviewNavigationDecisionResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FDC6F82F3EFFD800091B6C /* MSIDWebviewNavigationDecisionResolver.m */; };
 		B500F7322F1144A900E64911 /* MSIDBrokerOperationGetDefaultAccountRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B500F7302F1144A900E64911 /* MSIDBrokerOperationGetDefaultAccountRequestTests.m */; };
@@ -3690,6 +3695,8 @@
 		B4A93B522FA5A65A008FE445 /* MSIDSystemWebviewTransitionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSystemWebviewTransitionManager.m; sourceTree = "<group>"; };
 		B4B591B12F3AC8ED00CBA6A9 /* MSIDOnboardingStatusCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDOnboardingStatusCache.h; sourceTree = "<group>"; };
 		B4B591B22F3AC8ED00CBA6A9 /* MSIDOnboardingStatusCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOnboardingStatusCache.m; sourceTree = "<group>"; };
+		AAB0FF0200000000000000B2 /* MSIDDeviceOnboardingBlobHandoffCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDDeviceOnboardingBlobHandoffCache.h; sourceTree = "<group>"; };
+		AAB0FF0200000000000000B1 /* MSIDDeviceOnboardingBlobHandoffCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceOnboardingBlobHandoffCache.m; sourceTree = "<group>"; };
 		B4C8501329E79E050055B0D3 /* MSIDTestURLSessionUploadTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestURLSessionUploadTask.h; sourceTree = "<group>"; };
 		B4C8501429E79E140055B0D3 /* MSIDTestURLSessionUploadTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestURLSessionUploadTask.m; sourceTree = "<group>"; };
 		B4CC965F2F982FEA007F281A /* MSIDSessionCachePersistence.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSessionCachePersistence.h; sourceTree = "<group>"; };
@@ -3710,6 +3717,7 @@
 		B4FBF0322EF33A7600EDE1E9 /* MSIDOnboardingStatus.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOnboardingStatus.m; sourceTree = "<group>"; };
 		B4FBF0362EF33AAA00EDE1E9 /* MSIDOnboardingStatusTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOnboardingStatusTests.m; sourceTree = "<group>"; };
 		B4FBF03F2EF44BBB00EDE1E9 /* MSIDOnboardingStatusCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOnboardingStatusCacheTests.m; sourceTree = "<group>"; };
+		AAB0FF0300000000000000C0 /* MSIDDeviceOnboardingBlobHandoffCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDeviceOnboardingBlobHandoffCacheTests.m; sourceTree = "<group>"; };
 		B4FDC6F62F3EFFB600091B6C /* MSIDWebviewNavigationDecisionResolver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebviewNavigationDecisionResolver.h; sourceTree = "<group>"; };
 		B4FDC6F82F3EFFD800091B6C /* MSIDWebviewNavigationDecisionResolver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewNavigationDecisionResolver.m; sourceTree = "<group>"; };
 		B500F7302F1144A900E64911 /* MSIDBrokerOperationGetDefaultAccountRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationGetDefaultAccountRequestTests.m; sourceTree = "<group>"; };
@@ -5148,6 +5156,8 @@
 			children = (
 				B4B591B12F3AC8ED00CBA6A9 /* MSIDOnboardingStatusCache.h */,
 				B4B591B22F3AC8ED00CBA6A9 /* MSIDOnboardingStatusCache.m */,
+				AAB0FF0200000000000000B2 /* MSIDDeviceOnboardingBlobHandoffCache.h */,
+				AAB0FF0200000000000000B1 /* MSIDDeviceOnboardingBlobHandoffCache.m */,
 				B29CB6D01FEC993D00F880ED /* MSIDLegacyTokenCacheAccessor.h */,
 				B214C39D1FE854FE0070C4F2 /* MSIDLegacyTokenCacheAccessor.m */,
 				B214C3A11FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.h */,
@@ -6370,6 +6380,7 @@
 				B434A1382F8E475700CCC890 /* MSIDMDMEnrollmentCompletionResponseTests.m */,
 				729357F22DDBD3F60001D03C /* MSIDNonceTokenRequestTest.m */,
 				B4FBF03F2EF44BBB00EDE1E9 /* MSIDOnboardingStatusCacheTests.m */,
+				AAB0FF0300000000000000C0 /* MSIDDeviceOnboardingBlobHandoffCacheTests.m */,
 				B4FBF0362EF33AAA00EDE1E9 /* MSIDOnboardingStatusTests.m */,
 				B427657A2F3EC2A100F79587 /* MSIDWebviewNavigationHandlerTests.m */,
 				B47844F52FB7DF180059EFCD /* MSIDWebviewNavigationDecisionResolverTests.m */,
@@ -6598,6 +6609,7 @@
 				B4FDC6F72F3EFFD300091B6C /* MSIDWebviewNavigationDecisionResolver.h in Headers */,
 				2A24814E2CB06A1A006FCB34 /* MSIDSSORemoteSilentTokenRequest.h in Headers */,
 				B4B591B52F3AC90C00CBA6A9 /* MSIDOnboardingStatusCache.h in Headers */,
+				AAB0FF0200000000000000B5 /* MSIDDeviceOnboardingBlobHandoffCache.h in Headers */,
 				B217863823A5994300839CE8 /* MSIDSSOExtensionSignoutController.h in Headers */,
 				A0C7DE4425D4522300F5B5B6 /* MSIDThrottlingModelFactory.h in Headers */,
 				B286B9942389DC76007833AD /* MSIDDefaultTokenRequestProvider+Internal.h in Headers */,
@@ -7647,6 +7659,7 @@
 				B274DEC721FC002300DB7757 /* MSIDInteractiveTokenRequestParametersTests.m in Sources */,
 				B4FBF0382EF33AAA00EDE1E9 /* MSIDOnboardingStatusTests.m in Sources */,
 				B4FBF0412EF44BBB00EDE1E9 /* MSIDOnboardingStatusCacheTests.m in Sources */,
+				AAB0FF0300000000000000C4 /* MSIDDeviceOnboardingBlobHandoffCacheTests.m in Sources */,
 				2376D8DD2D88FDE900ADC271 /* MSIDBrowserNativeMessageGetSupportedContractsResponseTests.m in Sources */,
 				5828740724D49C4100466916 /* MSIDBrokerRedirectUriTest.m in Sources */,
 				583BFCB124D907410035B901 /* MSIDRedirectUriVerifierTests.m in Sources */,
@@ -8050,6 +8063,7 @@
 				B4F104C22FE3A16500EBEB5F /* MSIDUXCallbackProvider.m in Sources */,
 				B2C0748D246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m in Sources */,
 				B4B591B42F3AC90600CBA6A9 /* MSIDOnboardingStatusCache.m in Sources */,
+				AAB0FF0200000000000000B4 /* MSIDDeviceOnboardingBlobHandoffCache.m in Sources */,
 				9641B5251FCF3EEF00AFA0EC /* MSIDMacTokenCache.m in Sources */,
 				728209D126FEA0F600B5F018 /* MSIDKeyOperationUtil.m in Sources */,
 				962EA03E2190D4930049C4C8 /* MSIDCertAuthHandler.m in Sources */,
@@ -8473,6 +8487,7 @@
 				B431B5452AF1E5050020CD3D /* MSIDSSOExtensionPasskeyCredentialRequestTests.m in Sources */,
 				B4FBF0372EF33AAA00EDE1E9 /* MSIDOnboardingStatusTests.m in Sources */,
 				B4FBF0402EF44BBB00EDE1E9 /* MSIDOnboardingStatusCacheTests.m in Sources */,
+				AAB0FF0300000000000000C3 /* MSIDDeviceOnboardingBlobHandoffCacheTests.m in Sources */,
 				2361DE8C2048B6F8005FD48A /* MSIDAccountTests.m in Sources */,
 				B2DD5BA5204761720084313F /* MSIDRefreshTokenTests.m in Sources */,
 				23AE9DBC2148574F00B285F3 /* MSIDErrorExtensionsTests.m in Sources */,
@@ -8727,6 +8742,7 @@
 				2394F1FE2D4893DA00E44F6E /* MSIDWebWPJOperation.m in Sources */,
 				B227035A22A3678A00030ADC /* MSIDMaskedUsernameLogParameter.m in Sources */,
 				B4B591B32F3AC8ED00CBA6A9 /* MSIDOnboardingStatusCache.m in Sources */,
+				AAB0FF0200000000000000B3 /* MSIDDeviceOnboardingBlobHandoffCache.m in Sources */,
 				96A2D5A8209D102900F80E3A /* MSIDAuthorizeWebRequestConfiguration.m in Sources */,
 				B23ECEF01FF2F6270015FC1D /* MSIDAADV2IdTokenClaims.m in Sources */,
 				60B3855E20A96E0600D546D0 /* MSIDWebviewUIController.m in Sources */,
