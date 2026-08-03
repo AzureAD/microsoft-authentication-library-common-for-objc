@@ -125,12 +125,15 @@ extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OS
 extern NSString * _Nonnull const MSID_SOURCE_PLATFORM_KEY;//The source SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_PLATFORM_SEQUENCE_KEY;
 extern NSString * _Nonnull const MSID_VERSION_KEY;
+extern NSString * _Nonnull const MSID_BROKER_VER_KEY;//x-client-brkrver (broker only)
 extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
 extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
 extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
 extern NSString * _Nonnull const MSID_APP_NAME_KEY;
 extern NSString * _Nonnull const MSID_APP_VER_KEY;
+extern NSString * _Nonnull const MSID_APP_CLIENT_ID_KEY;//x-ms-client-id (source app OAuth client ID, broker only)
 extern NSString * _Nonnull const MSID_CCS_HINT_KEY;
+
 extern NSString * _Nonnull const MSID_WEBAUTH_IGNORE_SSO_KEY;
 extern NSString * _Nonnull const MSID_WEBAUTH_REFRESH_TOKEN_KEY;
 extern NSString * _Nonnull const MSID_USER_FEDERATED_IDENTITY_CREDENTIAL_KEY;
@@ -266,6 +269,10 @@ extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_POP;
 
 /// Owner: sedemche
 extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_CLAIMS;
+
+/// Kill switch for the reqCnf presence validation on Pop token requests. Validation is enabled by default; set this flight to disable it.
+/// Owner: maagubuzo
+extern NSString * _Nonnull const MSID_FLIGHT_BROWSER_CORE_DISABLE_REQ_CNF_VALIDATION;
 
 extern NSString * _Nonnull const MSID_DOMAIN_HINT_KEY;
 

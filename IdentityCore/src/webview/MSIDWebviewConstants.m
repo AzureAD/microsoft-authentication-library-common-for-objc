@@ -59,11 +59,13 @@ NSString *const MSID_ASWEBAUTH_HANDOFF_USE_EPHEMERAL_KEY          = @"x-ms-asweb
 NSString *const MSID_ASWEBAUTH_HANDOFF_REDIRECT_SCHEME_KEY        = @"x-ms-aswebauth-handoff-redirect-scheme";
 NSString *const MSID_ASWEBAUTH_HANDOFF_INCLUDE_HEADERS_KEY        = @"x-ms-aswebauth-handoff-include-headers";
 NSString *const MSID_ASWEBAUTH_HANDOFF_ATTACH_HEADERS_KEY         = @"x-ms-aswebauth-handoff-attach-headers";
+NSString *const MSID_ASWEBAUTH_HANDOFF_PURPOSE_KEY               = @"x-ms-aswebauth-handoff-purpose";
 NSString *const MSID_ASWEBAUTH_HANDOFF_HEADER_PREFIX              = @"x-ms-aswebauth-handoff-";
 
 // ASWebAuthentication handoff header values
 NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_TRUE                 = @"true";
 NSString *const MSID_ASWEBAUTH_HANDOFF_VALUE_FALSE                = @"false";
+NSString *const MSID_ASWEBAUTH_HANDOFF_PURPOSE_VALUE_DOWNLOAD_PROFILE = @"download-profile";
 
 #pragma mark - OpenID4VC bring-back query parameters
 

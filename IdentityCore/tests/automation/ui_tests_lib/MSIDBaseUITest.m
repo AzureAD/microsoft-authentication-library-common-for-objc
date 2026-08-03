@@ -246,9 +246,9 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     }
     
     sleep(1);
-    [application.buttons[action] msidTap];
+    [self tapActionButtonWhenHittable:application.buttons[action] application:application];
 #else
-    [application.buttons[action] msidTap];
+    [self tapActionButtonWhenHittable:application.buttons[action] application:application];
     
     if (jsonString)
     {
@@ -258,6 +258,58 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
         [application.buttons[@"Go"] msidTap];
     }
 #endif
+}
+
+// The automation host app's action buttons are arranged subviews of a
+// UIStackView with no enclosing scroll container (see MainAutomation.storyboard).
+// Diagnostics ruled out a degenerate-frame issue: the button reports
+// exists=1, isHittable=1, and a perfectly valid, fully on-screen frame right
+// before tapping.
+//
+// The activity log revealed the real race: between us requesting the tap
+// and XCTest synthesizing it, XCTest runs its own "make frontmost" dance —
+// "Check for interrupting elements affecting <button>" (looking for a
+// system alert/permission prompt from another app, e.g.
+// com.microsoft.azureauthenticator) followed by re-"Open"/"Activate"-ing
+// our target app to bring it back to the front. That dance can happen
+// *during* the tap call itself, so the coordinate we resolved beforehand
+// can go stale by the time the touch is actually delivered (e.g. if the
+// re-activation triggers a layout pass), and the touch is silently dropped.
+// Confirmed via the simulator's unified log (not just the XCTest driver's
+// own log, which never surfaces output from the app under test) that the
+// button's real UIKit target-action only fires reliably once this race is
+// removed.
+//
+// Explicitly activating the application and waiting for it to settle in
+// the foreground *before* resolving the button's coordinate avoids that
+// race: any interruption dance happens here, before we snapshot the tap
+// point, rather than concurrently with the tap itself. Tapping via an
+// explicit coordinate (rather than XCUIElement's own tap) also sidesteps a
+// separate, unrelated bug where XCTest's "scroll element to visible"
+// step (run unconditionally as part of its tap synthesis) corrupts the
+// hit-point computation to {-1, -1} on iOS/iPadOS 26 simulators even when
+// the button never needed to scroll.
+- (void)tapActionButtonWhenHittable:(XCUIElement *)button application:(XCUIApplication *)application
+{
+    if (application.state != XCUIApplicationStateRunningForeground)
+    {
+        [application activate];
+    }
+
+    NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:10.0];
+    while (application.state != XCUIApplicationStateRunningForeground && deadline.timeIntervalSinceNow > 0)
+    {
+        [NSThread sleepForTimeInterval:0.2];
+    }
+
+    deadline = [NSDate dateWithTimeIntervalSinceNow:10.0];
+    while (!button.isHittable && deadline.timeIntervalSinceNow > 0)
+    {
+        [NSThread sleepForTimeInterval:0.2];
+    }
+
+    XCUICoordinate *tapPoint = [button coordinateWithNormalizedOffset:CGVectorMake(0.5, 0.5)];
+    [tapPoint msidTap];
 }
 
 - (void)assertAccessTokenNotNil:(XCUIApplication *)application

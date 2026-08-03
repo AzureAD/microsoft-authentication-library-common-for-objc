@@ -16,11 +16,6 @@ pr:
     - '*'
   drafts: true
 
-pool:
-  name: 'AcesShared'
-  demands:
-    - ImageOverride -equals ACES_VM_SharedPool_Sequoia
-
 # Pipeline parameter: supply the branch of azure-activedirectory-tokenbroker-for-objc to validate against.
 # Defaults to 'dev'. Can be overridden when manually queuing the pipeline or via /azp run.
 parameters:
@@ -42,38 +37,41 @@ resources:
      endpoint: 'MSAL ObjC Service Connection'
      name: AzureAD/WorkplaceJoin-for-iOS
 
+   # Shared ACES macOS job template (pool + Xcode + tool setup) — source of truth.
+   # TODO: switch ref to 'main' once ameyapat/common-aces-config is merged.
+   - repository: pipelinesShared
+     type: git
+     name: IDDP/MSAL-ObjC-Pipelines
+     ref: refs/heads/main
+
 stages:
 - stage: Stage_IOS
   displayName: "Validate iOS"
   dependsOn: []
   jobs:
-  - job: Validate_Pull_Request_IOS
-    displayName: Validate Pull Request (iOS)
-    # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
-    timeoutInMinutes: 0
-    pool:
-      name: 'AcesShared'
-      demands:
-        - ImageOverride -equals ACES_VM_SharedPool_Sequoia
-    variables:
-      target: "ios_library"
-    steps:
-    - template: broker_submodule_steps.yml
+  - template: Pipeline YAMLs/shared/aces-macos-job.yml@pipelinesShared
+    parameters:
+      jobName: Validate_Pull_Request_IOS
+      displayName: Validate Pull Request (iOS)
+      # 0 = use the maximum limit allowed by the pool.
+      timeoutInMinutes: 0
+      steps:
+        - template: /azure_pipelines/broker_build_steps.yml
+          parameters:
+            target: ios_library
 
 - stage: Stage_MAC
   displayName: "Validate Mac"
   dependsOn: []
   jobs:
-  - job: Validate_Pull_Request_MAC
-    displayName: Validate Pull Request (Mac)
-    # When 0 is specified, the maximum limit is used. On Microsoft-hosted agents, jobs can't run longer than this interval, regardless of any job level timeouts specified in the job.
-    timeoutInMinutes: 0
-    pool:
-      name: 'AcesShared'
-      demands:
-        - ImageOverride -equals ACES_VM_SharedPool_Sequoia
-    variables:
-      target: "mac_library"
-    steps:
-    - template: broker_submodule_steps.yml
+  - template: Pipeline YAMLs/shared/aces-macos-job.yml@pipelinesShared
+    parameters:
+      jobName: Validate_Pull_Request_MAC
+      displayName: Validate Pull Request (Mac)
+      # 0 = use the maximum limit allowed by the pool.
+      timeoutInMinutes: 0
+      steps:
+        - template: /azure_pipelines/broker_build_steps.yml
+          parameters:
+            target: mac_library
         

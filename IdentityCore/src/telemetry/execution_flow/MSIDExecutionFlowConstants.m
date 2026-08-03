@@ -150,6 +150,17 @@ NSString *MSIDSSORemoteSilentTokenRequestTagToString(MSIDSSORemoteSilentTokenReq
     return [NSString stringWithFormat:@"MSIDSSORemoteSilentTokenRequestTag(%ld)", (long)state];
 }
 
+NSString *MSIDCloudInstanceHostNameTagToString(MSIDCloudInstanceHostNameTag state)
+{
+    switch (state)
+    {
+        case MSIDCloudInstanceHostNameIgnoredTag:
+            return @"lziv8";
+    }
+    // Fallback for any future enum values
+    return [NSString stringWithFormat:@"MSIDCloudInstanceHostNameTag(%ld)", (long)state];
+}
+
 NSString *MSIDPkeyAuthTagToString(MSIDPkeyAuthTag state)
 {
     switch (state)
@@ -163,4 +174,15 @@ NSString *MSIDPkeyAuthTagToString(MSIDPkeyAuthTag state)
     return [NSString stringWithFormat:@"MSIDPkeyAuthTag(%ld)", (long)state];
 }
 
-
+NSString *MSIDCustomHeaderTagToString(MSIDCustomHeaderTag state)
+{
+    switch (state)
+    {
+        case MSIDCustomHeaderAddedTag:
+            return @"qiq7c";
+        case MSIDCustomHeaderSkippedUntrustedHostTag:
+            return @"vz1lh";
+    }
+    // Fallback for any future enum values
+    return [NSString stringWithFormat:@"MSIDCustomHeaderTag(%ld)", (long)state];
+}

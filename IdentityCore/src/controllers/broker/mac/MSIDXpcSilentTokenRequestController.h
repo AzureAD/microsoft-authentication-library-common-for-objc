@@ -24,12 +24,18 @@
 
 
 #import "MSIDSilentController.h"
+#import "MSIDXpcCanPerformFailureReason.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDXpcSilentTokenRequestController : MSIDSilentController
 
 + (BOOL)canPerformRequest;
+
+// Same as canPerformRequest above, but additionally reports the specific reason for a NO result via the
+// reason out-param, so external callers can surface it to their own telemetry. The reason is left
+// untouched if the caller passes nil.
++ (BOOL)canPerformRequest:(MSIDXpcCanPerformFailureReason * _Nullable)reason;
 
 @end
 

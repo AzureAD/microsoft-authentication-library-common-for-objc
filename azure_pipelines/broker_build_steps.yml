@@ -1,3 +1,34 @@
+# =============================================================================
+# Broker repo-specific build steps (checkouts, submodules, CocoaPods, build).
+#
+# These are the steps that are unique to the Broker submodule validation. The
+# generic macOS tool setup (pool, Xcode, Python, Ruby gems) is intentionally
+# NOT here so it can be provided by whichever environment runs these steps:
+#
+#   * ACES pipelines  -> Pipeline YAMLs/shared/aces-macos-job.yml provides the
+#                        pool + Xcode + tooling, then injects these steps
+#                        (with selectLocalXcode: false).
+#
+# selectLocalXcode is retained as an escape hatch for any future consumer that
+# does NOT get Xcode from the shared job template; all current consumers inherit
+# Xcode from that template.
+#
+# Parameters:
+#   target            build.py target (e.g. ios_library, mac_library, vision_library).
+#   selectLocalXcode  when true, run the Broker repo's select_xcode.sh (used by
+#                     consumers that do NOT get Xcode from the shared job template).
+#   localXcodeVersion Xcode version passed to select_xcode.sh when selectLocalXcode.
+# =============================================================================
+parameters:
+- name: target
+  type: string
+- name: selectLocalXcode
+  type: boolean
+  default: false
+- name: localXcodeVersion
+  type: string
+  default: '16.4'
+
 steps:
 - checkout: azure-activedirectory-tokenbroker-for-objc
   displayName: 'Checkout Broker'
@@ -79,76 +110,54 @@ steps:
       cd azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Frameworks/WorkplaceJoin-for-iOS
       git submodule update --init --recursive Frameworks/microsoft-authentication-library-for-objc
 
-- task: Cache@2
-  displayName: 'Cache CocoaPods'
-  condition: eq(variables['target'], 'mac_library')
-  inputs:
-    key: 'cocoapods | "$(Agent.OS)" | azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Podfile.lock'
-    path: '$(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Pods'
+- ${{ if eq(parameters.target, 'mac_library') }}:
+  - task: Cache@2
+    displayName: 'Cache CocoaPods'
+    inputs:
+      key: 'cocoapods | "$(Agent.OS)" | azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Podfile.lock'
+      path: '$(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker/Pods'
 
-- task: Bash@3
-  displayName: 'Install CocoaPods (if needed)'
-  condition: eq(variables['target'], 'mac_library')
-  inputs:
-    targetType: 'inline'
-    script: |
-      if ! command -v pod >/dev/null 2>&1; then
-        export HOMEBREW_NO_AUTO_UPDATE=1
-        if command -v brew >/dev/null 2>&1; then
-          brew install cocoapods
-        else
-          sudo gem install cocoapods -N
+  - task: Bash@3
+    displayName: 'Install CocoaPods (if needed)'
+    inputs:
+      targetType: 'inline'
+      script: |
+        if ! command -v pod >/dev/null 2>&1; then
+          export HOMEBREW_NO_AUTO_UPDATE=1
+          if command -v brew >/dev/null 2>&1; then
+            brew install cocoapods
+          else
+            sudo gem install cocoapods -N
+          fi
         fi
-      fi
 
-- task: Bash@3
-  displayName: 'Install CocoaPods dependencies'
-  condition: eq(variables['target'], 'mac_library')
-  env:
-    AAD_TOKEN: $(aadToken)
-  inputs:
-    workingDirectory: $(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker
-    targetType: 'inline'
-    script: |
-      # CocoaPods requires a UTF-8 locale; otherwise Ruby's unicode_normalize
-      # raises Encoding::CompatibilityError on ASCII-8BIT paths.
-      export LANG=en_US.UTF-8
-      export LC_ALL=en_US.UTF-8
-      GIT_CONFIG_COUNT=1 \
-      GIT_CONFIG_KEY_0=http.https://office.visualstudio.com/.extraheader \
-      GIT_CONFIG_VALUE_0="AUTHORIZATION: bearer $AAD_TOKEN" \
-      pod install
-  retryCountOnTaskFailure: 1
+  - task: Bash@3
+    displayName: 'Install CocoaPods dependencies'
+    env:
+      AAD_TOKEN: $(aadToken)
+    inputs:
+      workingDirectory: $(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/ADAuthenticationBroker
+      targetType: 'inline'
+      script: |
+        # CocoaPods requires a UTF-8 locale; otherwise Ruby's unicode_normalize
+        # raises Encoding::CompatibilityError on ASCII-8BIT paths.
+        export LANG=en_US.UTF-8
+        export LC_ALL=en_US.UTF-8
+        GIT_CONFIG_COUNT=1 \
+        GIT_CONFIG_KEY_0=http.https://office.visualstudio.com/.extraheader \
+        GIT_CONFIG_VALUE_0="AUTHORIZATION: bearer $AAD_TOKEN" \
+        pod install
+    retryCountOnTaskFailure: 1
 
-- script: 'gem uninstall xcpretty -I --version 0.4.0'
-  displayName: 'Uninstall xcpretty v0.4.0'
-
-- script: 'sudo gem install xcpretty -N -v 0.3.0'
-  displayName: 'Install xcpretty v0.3.0'
-
-- script: |
-      # System Ruby on macOS agents is 2.6, too old for current slather/bundler.
-      # Install a modern Ruby via Homebrew and prepend it to PATH for all subsequent steps.
-      export HOMEBREW_NO_AUTO_UPDATE=1
-      export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
-      brew list ruby >/dev/null 2>&1 || brew install ruby
-      RUBY_BIN="$(brew --prefix ruby)/bin"
-      echo "##vso[task.prependpath]$GEM_HOME/bin"
-      echo "##vso[task.prependpath]$RUBY_BIN"
-      "$RUBY_BIN/ruby" --version
-  displayName: 'Install modern Ruby'
-
-- script: 'sudo gem install securerandom -N -v 0.3.2 && sudo gem install slather -N'
-  displayName: 'Install slather'
-
-- task: UsePythonVersion@0
-  displayName: 'Use Python 3.x'
-
-- task: Bash@3
-  displayName: 'Select Xcode version'
-  inputs:
-    targetType: 'inline'
-    script: 'bash $(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/scripts/select_xcode.sh 16.4'
+# Xcode selection for consumers that do not get Xcode from the shared ACES job
+# template (e.g. the hosted visionOS broker stage). Runs after checkout because
+# select_xcode.sh lives inside the Broker repo.
+- ${{ if eq(parameters.selectLocalXcode, true) }}:
+  - task: Bash@3
+    displayName: 'Select Xcode version'
+    inputs:
+      targetType: 'inline'
+      script: 'bash $(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/scripts/select_xcode.sh ${{ parameters.localXcodeVersion }}'
 
 - task: Bash@3
   displayName: 'Run a python script for Broker'
@@ -163,7 +172,7 @@ steps:
       LOG_FILE="$PWD/build/build_output.log"
       echo "BROKER_BUILD_LOG=$LOG_FILE"
       echo "##vso[task.setvariable variable=BROKER_BUILD_LOG]$LOG_FILE"
-      ./build.py --show-build-settings --target $(target) 2>&1 | tee "$LOG_FILE"
+      ./build.py --show-build-settings --target ${{ parameters.target }} 2>&1 | tee "$LOG_FILE"
       final_status=$(<./build/status.txt)
       echo "FINAL STATUS  = ${final_status}"
 
@@ -186,4 +195,4 @@ steps:
       else
         echo "No build log found at $LOG_FILE (build step likely did not run)."
       fi
-      rm -rf ./build/status.txt
+      rm -rf $(Pipeline.Workspace)/s/azure-activedirectory-tokenbroker-for-objc/build/status.txt
