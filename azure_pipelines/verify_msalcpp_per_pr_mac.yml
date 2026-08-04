@@ -71,7 +71,29 @@ jobs:
   - script: |
      /bin/bash -c "sudo xcode-select -s /Applications/Xcode_$(xcodeVersion).app"
 
-  - template: msal/azure_pipelines/templates/macos-setup.yml@OneAuth
+  # Keep Apple signing assets aligned with the OneAuth macOS pipeline. Do not
+  # use macos-setup.yml here: it supplies the legacy IDDP certificate password
+  # outside the OneAuth project, while BudMacDevCert.p12 is installed without one.
+  - template: msal/azure_pipelines/templates/download-labcert.yml@OneAuth
+
+  - template: azure_pipelines/templates/setup-python.yml@OneAuth
+
+  - task: InstallAppleCertificate@2
+    displayName: 'Install code signing certificate'
+    retryCountOnTaskFailure: 3
+    inputs:
+      certSecureFile: 'BudMacDevCert.p12'
+
+  - task: PythonScript@0
+    displayName: 'Detect UUID from Virtual Image'
+    inputs:
+      scriptPath: msal/scripts/check_pipelines_macos_uuid.py
+
+  - task: InstallAppleProvisioningProfile@1
+    displayName: 'Install an Apple provisioning profile'
+    retryCountOnTaskFailure: 3
+    inputs:
+      provProfileSecureFile: 'Mac_Team_Provisioning_Profile.provisionprofile'
 
   - task: PythonScript@0
     name: Build
