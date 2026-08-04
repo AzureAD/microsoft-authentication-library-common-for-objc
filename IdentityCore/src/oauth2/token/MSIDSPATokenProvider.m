@@ -113,7 +113,11 @@ NSString *const MSID_SPA_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDSPATokenProvider]";
         return;
     }
 
-    MSIDAccountIdentifier *accountIdentifier = decision.resolvedAccountIdentifier ?: parameters.accountIdentifier;
+MSIDAccountIdentifier *accountIdentifier = decision.resolvedAccountIdentifier ?: parameters.accountIdentifier;
+if (decision.resolvedAccountIdentifier)
+{
+    parameters.accountIdentifier = decision.resolvedAccountIdentifier;
+}
 
     MSIDBrowserNativeMessageGetTokenRoutingPolicy *routingPolicy =
     [[MSIDDIContainer sharedInstance] resolveClass:[MSIDBrowserNativeMessageGetTokenRoutingPolicy class]];
