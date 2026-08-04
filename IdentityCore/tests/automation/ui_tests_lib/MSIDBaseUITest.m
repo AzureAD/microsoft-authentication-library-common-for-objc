@@ -872,16 +872,19 @@ static NSTimeInterval const MSIDPasswordEntryPollingInterval = 1;
     }
 }
 
-- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element
-{
-    [self tapElementAndWaitForKeyboardToAppear:element app:[XCUIApplication new]];
-}
-
-- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(__unused XCUIApplication *)application
+- (void)tapElementAndWaitForKeyboardToAppear:(__unused XCUIElement *)element
 {
 #if TARGET_OS_IPHONE
     [element tap];
 #endif
+}
+
+// Kept as a wrapper because this overload is public API of this shared test
+// library and is still called from MSAL's automation tests. The application
+// argument is no longer needed to tap the element.
+- (void)tapElementAndWaitForKeyboardToAppear:(XCUIElement *)element app:(__unused XCUIApplication *)application
+{
+    [self tapElementAndWaitForKeyboardToAppear:element];
 }
 
 - (void)enterText:(XCUIElement *)textField isMainApp:(BOOL)isMainApp text:(NSString *)textToEnter
