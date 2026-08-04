@@ -42,9 +42,12 @@ typedef NS_ENUM(NSInteger, MSIDBrowserNativeMessageGetTokenRoute)
 
 @interface MSIDBrowserNativeMessageGetTokenRoutingPolicy : NSObject
 
-/// Shared instance. Routing decisions live on instance methods (rather than class/static methods)
-/// so callers can substitute a mock instance in tests without swizzling.
-@property (class, readonly, nonnull) MSIDBrowserNativeMessageGetTokenRoutingPolicy *sharedInstance;
+/// The routing policy is registered as a singleton with @c MSIDDIContainer (see @c +load).
+/// Resolve it via @c -[MSIDDIContainer resolveClass:] rather than constructing it directly, so
+/// callers can substitute a mock instance in tests by registering an alternate factory.
+///
+/// Routing decisions live on instance methods (rather than class/static methods) so callers can
+/// substitute a mock instance in tests without swizzling.
 
 - (MSIDBrowserNativeMessageGetTokenRoute)routeWithForceInteractive:(BOOL)forceInteractive
                                                         promptType:(MSIDPromptType)promptType

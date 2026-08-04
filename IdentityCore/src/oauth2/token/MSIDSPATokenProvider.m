@@ -27,6 +27,7 @@
 #import "MSIDLocalSPATokenAcquirer.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
 #import "MSIDBrowserNativeMessageGetTokenRoutingPolicy.h"
+#import "MSIDDIContainer.h"
 #import "MSIDError.h"
 #import "MSIDLogger+Internal.h"
 #import "NSString+MSIDExtensions.h"
@@ -114,12 +115,14 @@ NSString *const MSID_SPA_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDSPATokenProvider]";
 
     MSIDAccountIdentifier *accountIdentifier = decision.resolvedAccountIdentifier ?: parameters.accountIdentifier;
 
+    MSIDBrowserNativeMessageGetTokenRoutingPolicy *routingPolicy =
+    [[MSIDDIContainer sharedInstance] resolveClass:[MSIDBrowserNativeMessageGetTokenRoutingPolicy class]];
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:decision.forceInteractive
-                                                                  promptType:parameters.promptType
-                                                                   canShowUI:request.canShowUI
-                                                            accountIdentifier:accountIdentifier
-                                                       requiresHomeAccountId:NO];
+    [routingPolicy routeWithForceInteractive:decision.forceInteractive
+                                  promptType:parameters.promptType
+                                   canShowUI:request.canShowUI
+                           accountIdentifier:accountIdentifier
+                       requiresHomeAccountId:NO];
     if (route != MSIDBrowserNativeMessageGetTokenRouteSilent)
     {
         [self completeWithInteractionRequiredOrFallbackForParameters:parameters
@@ -153,12 +156,14 @@ NSString *const MSID_SPA_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDSPATokenProvider]";
 {
     // canShowUI is not a part of the BNM GetToken contract. see here: https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=%2FMSALJS%2FNativeBrokerExtension%2Fbroker_contract.md&_a=preview
     // the value for canShowUI must be added by OneAuth before calling MSIDSPATokenProvider acquireTokenWithRequest:context:completionBlock
+    MSIDBrowserNativeMessageGetTokenRoutingPolicy *routingPolicy =
+    [[MSIDDIContainer sharedInstance] resolveClass:[MSIDBrowserNativeMessageGetTokenRoutingPolicy class]];
     MSIDBrowserNativeMessageGetTokenRoute route =
-    [[MSIDBrowserNativeMessageGetTokenRoutingPolicy sharedInstance] routeWithForceInteractive:YES
-                                                                  promptType:parameters.promptType
-                                                                   canShowUI:request.canShowUI
-                                                            accountIdentifier:parameters.accountIdentifier
-                                                       requiresHomeAccountId:NO];
+    [routingPolicy routeWithForceInteractive:YES
+                                  promptType:parameters.promptType
+                                   canShowUI:request.canShowUI
+                           accountIdentifier:parameters.accountIdentifier
+                       requiresHomeAccountId:NO];
     if (route == MSIDBrowserNativeMessageGetTokenRouteInteractive)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ User interaction is required and UI is allowed; routing to interactive path.", MSID_SPA_TOKEN_PROVIDER_LOG_PREFIX);

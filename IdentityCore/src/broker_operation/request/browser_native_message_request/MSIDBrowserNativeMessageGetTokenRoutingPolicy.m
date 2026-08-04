@@ -27,19 +27,17 @@
 
 #import "MSIDBrowserNativeMessageGetTokenRoutingPolicy.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDDIContainer.h"
 
 @implementation MSIDBrowserNativeMessageGetTokenRoutingPolicy
 
-+ (MSIDBrowserNativeMessageGetTokenRoutingPolicy *)sharedInstance
++ (void)load
 {
-    static MSIDBrowserNativeMessageGetTokenRoutingPolicy *singleton = nil;
-    static dispatch_once_t onceToken;
+    MSIDDIContainer *container = [MSIDDIContainer sharedInstance];
 
-    dispatch_once(&onceToken, ^{
-        singleton = [[self alloc] init];
-    });
-
-    return singleton;
+    [container registerClass:[MSIDBrowserNativeMessageGetTokenRoutingPolicy class]
+                    lifetime:MSIDDIContainerLifetimeSingleton
+                     factory:^id { return [[MSIDBrowserNativeMessageGetTokenRoutingPolicy alloc] init]; }];
 }
 
 - (MSIDBrowserNativeMessageGetTokenRoute)routeWithForceInteractive:(BOOL)forceInteractive
