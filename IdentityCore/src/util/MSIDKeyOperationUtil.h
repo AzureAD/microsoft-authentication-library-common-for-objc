@@ -25,6 +25,19 @@
 #import "MSIDRequestContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSInteger, MSIDExternalKeyPairValidationFailureReason)
+{
+    MSIDExternalKeyPairValidationFailureReasonNone = 0,
+    MSIDExternalKeyPairValidationFailureReasonInvalidKeyHandle,
+    MSIDExternalKeyPairValidationFailureReasonUnsupportedKeyType,
+    MSIDExternalKeyPairValidationFailureReasonKeySizeTooSmall,
+    MSIDExternalKeyPairValidationFailureReasonInvalidKeyClass,
+    MSIDExternalKeyPairValidationFailureReasonNotSigningCapable,
+    MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch,
+    MSIDExternalKeyPairValidationFailureReasonPublicKeySerializationFailed
+};
+
 @interface MSIDKeyOperationUtil : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -68,5 +81,10 @@ NS_ASSUME_NONNULL_BEGIN
                                 signingAlgorithm:(SecKeyAlgorithm)algorithm
                                          context:(_Nullable id<MSIDRequestContext>)context
                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
+- (BOOL)validateExternalRSAKeyPair:(SecKeyRef _Nullable)privateKey
+                        publicKey:(SecKeyRef _Nullable)publicKey
+                    failureReason:(MSIDExternalKeyPairValidationFailureReason * _Nullable)failureReason
+                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 @end
 NS_ASSUME_NONNULL_END

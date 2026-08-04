@@ -90,6 +90,24 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
     XCTAssertNil(error);
 }
 
+- (void)test_initWithExternalKeyPair_ShouldUseProvidedPairWithoutKeyGenerator
+{
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
+    MSIDAssymetricKeyLookupAttributes *attributes = [MSIDAssymetricKeyLookupAttributes new];
+    attributes.privateKeyIdentifier = [NSString stringWithFormat:@"%@.%@", MSID_POP_TOKEN_PRIVATE_KEY, NSUUID.UUID.UUIDString];
+    NSError *error = nil;
+    MSIDAssymetricKeyPair *keyPair = [generator generateKeyPairForAttributes:attributes error:&error];
+    XCTAssertNotNil(keyPair);
+    XCTAssertNil(error);
+
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithExternalKeyPair:keyPair];
+    XCTAssertEqual(manager.keyPair, keyPair);
+    XCTAssertNil([manager valueForKey:@"keyGeneratorFactory"]);
+    XCTAssertNil([manager valueForKey:@"keyPairAttributes"]);
+
+    [self deleteKeyWithTag:attributes.privateKeyIdentifier];
+}
+
 - (void)test_createSignedAccess_DeletePublickey_ShouldRegeneratePublicKey_AndReturnSignedAT
 {
     

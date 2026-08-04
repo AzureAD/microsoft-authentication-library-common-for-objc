@@ -56,6 +56,17 @@
     return self;
 }
 
+- (instancetype)initWithExternalKeyPair:(MSIDAssymetricKeyPair *)keyPair
+{
+    self = [super init];
+    if (self)
+    {
+        _keyPair = keyPair;
+    }
+
+    return self;
+}
+
  - (MSIDAssymetricKeyPair *)keyPair
 {
     if (!_keyPair)
