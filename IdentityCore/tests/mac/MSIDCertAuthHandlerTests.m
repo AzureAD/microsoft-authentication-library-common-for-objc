@@ -540,6 +540,49 @@ static BOOL gPromptInvoked = NO;
     XCTAssertEqual(disposition, NSURLSessionAuthChallengeUseCredential);
 }
 
+// Flight ENABLED: a challenge from a child of the top-level webview host remains
+// eligible for the URL-string fallback.
+- (void)testHandleChallenge_whenOriginFixEnabledAndChallengeHostIsSubdomain_shouldUseCredential
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
+                                                MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES};
+    MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = nil;
+    MSIDFakeCertAuthIdentityProvider.urlStringLookupSucceeds = YES;
+    MSIDFakeCertAuthIdentityProvider.validityResult = YES;
+
+    NSURLSessionAuthChallengeDisposition disposition;
+    [self runChallengeWithHost:@"device.login.microsoftonline.com"
+                    webviewURL:[NSURL URLWithString:@"https://login.microsoftonline.com/authorize"]
+                   disposition:&disposition
+                    credential:nil];
+
+    XCTAssertEqualObjects(MSIDFakeCertAuthIdentityProvider.queriedURLStrings,
+                          @[@"https://login.microsoftonline.com/authorize"]);
+    XCTAssertFalse(MSIDFakeCertAuthIdentityProvider.promptInvoked);
+    XCTAssertEqual(disposition, NSURLSessionAuthChallengeUseCredential);
+}
+
+// Flight ENABLED: sharing a registrable domain does not make sibling hosts
+// equivalent.
+- (void)testHandleChallenge_whenOriginFixEnabledAndChallengeHostIsSibling_shouldNotQueryURLStringFallback
+{
+    self.flightProvider.boolForKeyContainer = @{MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA: @NO,
+                                                MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX: @YES};
+    MSIDFakeCertAuthIdentityProvider.preferredIdentityHost = nil;
+    MSIDFakeCertAuthIdentityProvider.urlStringLookupSucceeds = YES;
+    MSIDFakeCertAuthIdentityProvider.promptIdentity = NULL;
+
+    NSURLSessionAuthChallengeDisposition disposition;
+    [self runChallengeWithHost:@"evil.microsoftonline.com"
+                    webviewURL:[NSURL URLWithString:@"https://login.microsoftonline.com/authorize"]
+                   disposition:&disposition
+                    credential:nil];
+
+    XCTAssertEqual(MSIDFakeCertAuthIdentityProvider.queriedURLStrings.count, 0u);
+    XCTAssertTrue(MSIDFakeCertAuthIdentityProvider.promptInvoked);
+    XCTAssertEqual(disposition, NSURLSessionAuthChallengeRejectProtectionSpace);
+}
+
 // Flight ENABLED: after a host miss, a cross-host challenge must not query the
 // top-level webview URL and must fall through to the picker.
 - (void)testHandleChallenge_whenOriginFixEnabledAndHostsDiffer_shouldNotQueryURLStringFallback

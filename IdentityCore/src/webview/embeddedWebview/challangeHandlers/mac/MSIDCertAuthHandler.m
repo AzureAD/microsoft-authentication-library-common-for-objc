@@ -65,20 +65,26 @@
         identity = [identityProvider copyPreferredIdentityForHost:host distinguishedNames:distinguishedNames];
 
         NSString *webviewHost = webview.URL.host;
-        BOOL isSameHost = host.length > 0
+        NSString *normalizedHost = host.lowercaseString;
+        NSString *normalizedWebviewHost = webviewHost.lowercaseString;
+        NSString *subdomainSuffix = normalizedWebviewHost.length > 0
+            ? [@"." stringByAppendingString:normalizedWebviewHost]
+            : @"";
+        BOOL isSameHostOrSubdomain = host.length > 0
             && webviewHost.length > 0
-            && [host caseInsensitiveCompare:webviewHost] == NSOrderedSame;
+            && ([normalizedHost isEqualToString:normalizedWebviewHost]
+                || [normalizedHost hasSuffix:subdomainSuffix]);
         BOOL isOriginFixEnabled = [self isCBAOriginFixEnabled];
 
-        if (!identity && (!isOriginFixEnabled || isSameHost))
+        if (!identity && (!isOriginFixEnabled || isSameHostOrSubdomain))
         {
-            // Preserve wildcard matching for same-host challenges. While the flight is
-            // disabled, retain the legacy cross-host fallback for controlled rollout.
-            if (isSameHost)
+            // Preserve wildcard matching within the top-level host's DNS boundary.
+            // While the flight is disabled, retain the legacy cross-host fallback.
+            if (isSameHostOrSubdomain)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo,
                                   context,
-                                  @"CBA preferred identity URL-string fallback used. scope=same_host");
+                                  @"CBA preferred identity URL-string fallback used. scope=same_host_or_subdomain");
             }
             else
             {
