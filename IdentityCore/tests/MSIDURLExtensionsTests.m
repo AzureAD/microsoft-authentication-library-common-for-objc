@@ -378,6 +378,34 @@
     XCTAssertEqualObjects(resultURL, expectedResultURL);
 }
 
+- (void)testMsidURLWithQueryParameters_when27_existingQueryHasPreEncodedValue_shouldNotDoubleEncode
+{
+    // iOS/macOS 27 (radar 161588649): NSURL must not re-encode an already-percent-encoded existing query.
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?redirect_uri=msauth%3A%2F%2Fcom.example%2Fcb"];
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"key2": @"value2"}];
+    XCTAssertEqualObjects(resultURL.absoluteString, @"https://somehost.com:652?redirect_uri=msauth%3A%2F%2Fcom.example%2Fcb&key2=value2");
+    // Guard: the pre-encoded %3A/%2F must NOT become %253A/%252F.
+    XCTAssertFalse([resultURL.absoluteString containsString:@"%253A"]);
+    XCTAssertFalse([resultURL.absoluteString containsString:@"%252F"]);
+}
+
+- (void)testMsidURLWithQueryParameters_when27_appendedValueHasLiteralPercent_shouldEncodeOnce
+{
+    // iOS/macOS 27 (radar 161588649): a literal % in an appended value must be encoded exactly once (%25), never doubled.
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2"];
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"discount": @"50%off"}];
+    XCTAssertEqualObjects(resultURL.absoluteString, @"https://somehost.com:652?existing1=value2&discount=50%25off");
+    XCTAssertFalse([resultURL.absoluteString containsString:@"%2525"]);
+}
+
+- (void)testMsidURLWithQueryParameters_when27_appendedValueLooksLikeEscape_shouldEncodePercentLiterally
+{
+    // iOS/macOS 27 (radar 161588649): an appended value that looks like a valid escape (%20) is literal text; msidURLEncode escapes the % so it becomes %2520.
+    NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2"];
+    NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"raw": @"a%20b"}];
+    XCTAssertEqualObjects(resultURL.absoluteString, @"https://somehost.com:652?existing1=value2&raw=a%2520b");
+}
+
 - (void)testMsidURLWithQueryParameters_whenNonEmptyQuery_andQueryParametersWithSimilarNames_shouldReturnCombinedURL
 {
     NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&longer-return-client-request-id=true"];
