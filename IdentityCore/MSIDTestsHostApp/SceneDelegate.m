@@ -29,12 +29,4 @@
 
 @implementation SceneDelegate
 
-- (void)scene:(UIScene *)scene willConnectToSession:(__unused UISceneSession *)session options:(__unused UISceneConnectionOptions *)connectionOptions
-{
-    if (![scene isKindOfClass:[UIWindowScene class]])
-    {
-        return;
-    }
-}
-
 @end
