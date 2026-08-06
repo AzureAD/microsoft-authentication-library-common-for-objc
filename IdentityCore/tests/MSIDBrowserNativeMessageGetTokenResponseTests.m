@@ -135,6 +135,29 @@
     XCTAssertEqualObjects(expectedJson, [response jsonDictionary]);
 }
 
+- (void)testJsonDictionary_whenInitializedWithLegacyTokenResponse_shouldPreserveLegacyShape
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
+                                                                  subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
+    MSIDTokenResponseMock *tokenResponseMock = [[MSIDTokenResponseMock alloc] initWithJSONDictionary:@{@"id_token": idToken} error:nil];
+    tokenResponseMock.responseJson = @{@"some_key": @"some_value"};
+
+    __auto_type operationTokenResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:nil];
+    operationTokenResponse.tokenResponse = tokenResponseMock;
+
+    __auto_type response = [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResponse:operationTokenResponse];
+    response.state = @"1234";
+    response.requestAccountUpn = @"fallback@contoso.com";
+
+    NSDictionary *json = [response jsonDictionary];
+
+    XCTAssertEqualObjects(json[@"some_key"], @"some_value");
+    XCTAssertEqualObjects(json[@"state"], @"1234");
+    XCTAssertEqualObjects(json[@"account"][@"userName"], tokenResponseMock.accountUpn);
+    XCTAssertEqualObjects(json[@"account"][@"id"], tokenResponseMock.accountIdentifier);
+    XCTAssertEqualObjects(json[@"properties"][@"UPN"], tokenResponseMock.accountUpn);
+}
+
 - (void)testJsonDictionary_whenNoUpnInReponse_shouldUseProvidedUpn
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME

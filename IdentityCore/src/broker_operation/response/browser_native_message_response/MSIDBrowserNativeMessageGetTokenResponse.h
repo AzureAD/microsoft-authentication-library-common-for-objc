@@ -26,6 +26,7 @@
 #import "MSIDBrokerNativeAppOperationResponse.h"
 
 @class MSIDBrokerOperationBrowserNativeMessageMATSReport;
+@class MSIDBrokerOperationTokenResponse;
 @class MSIDTokenResult;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -33,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBrowserNativeMessageGetTokenResponse : MSIDBrokerNativeAppOperationResponse
 
 - (instancetype)initWithDeviceInfo:(nullable MSIDDeviceInfo *)deviceInfo NS_UNAVAILABLE;
+
+/// Compatibility initializer for callers that still shape the response from the broker operation response.
+- (instancetype _Nullable)initWithTokenResponse:(nonnull MSIDBrokerOperationTokenResponse *)tokenResponse NS_DESIGNATED_INITIALIZER;
 
 /// Shapes a browser-native-message GetToken response from the canonical token result. Works for both
 /// a freshly redeemed result (its `tokenResponse` is present, so base fields come from the server

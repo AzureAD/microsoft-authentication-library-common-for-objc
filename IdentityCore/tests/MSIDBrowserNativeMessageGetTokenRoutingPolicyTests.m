@@ -28,7 +28,6 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBrowserNativeMessageGetTokenRoutingPolicy.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDDIContainer.h"
 
 @interface MSIDBrowserNativeMessageGetTokenRoutingPolicyTests : XCTestCase
 
@@ -41,7 +40,7 @@
 - (void)setUp
 {
     [super setUp];
-    self.routingPolicy = [[MSIDDIContainer sharedInstance] resolveClass:[MSIDBrowserNativeMessageGetTokenRoutingPolicy class]];
+    self.routingPolicy = [MSIDBrowserNativeMessageGetTokenRoutingPolicy new];
 }
 
 - (void)testRoute_defaultPromptWithEligibleAccount_returnsSilent

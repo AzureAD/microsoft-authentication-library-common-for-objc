@@ -120,7 +120,11 @@ if (decision.resolvedAccountIdentifier)
 }
 
     MSIDBrowserNativeMessageGetTokenRoutingPolicy *routingPolicy =
-    [[MSIDDIContainer sharedInstance] resolveClass:[MSIDBrowserNativeMessageGetTokenRoutingPolicy class]];
+    [[MSIDDIContainer sharedInstance]
+        resolveClass:[MSIDBrowserNativeMessageGetTokenRoutingPolicy class]
+           orDefault:^id {
+               return [MSIDBrowserNativeMessageGetTokenRoutingPolicy new];
+           }];
     MSIDBrowserNativeMessageGetTokenRoute route =
     [routingPolicy routeWithForceInteractive:decision.forceInteractive
                                   promptType:parameters.promptType
@@ -161,7 +165,11 @@ if (decision.resolvedAccountIdentifier)
     // canShowUI is not a part of the BNM GetToken contract. see here: https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=%2FMSALJS%2FNativeBrokerExtension%2Fbroker_contract.md&_a=preview
     // the value for canShowUI must be added by OneAuth before calling MSIDSPATokenProvider acquireTokenWithRequest:context:completionBlock
     MSIDBrowserNativeMessageGetTokenRoutingPolicy *routingPolicy =
-    [[MSIDDIContainer sharedInstance] resolveClass:[MSIDBrowserNativeMessageGetTokenRoutingPolicy class]];
+    [[MSIDDIContainer sharedInstance]
+        resolveClass:[MSIDBrowserNativeMessageGetTokenRoutingPolicy class]
+           orDefault:^id {
+               return [MSIDBrowserNativeMessageGetTokenRoutingPolicy new];
+           }];
     MSIDBrowserNativeMessageGetTokenRoute route =
     [routingPolicy routeWithForceInteractive:YES
                                   promptType:parameters.promptType

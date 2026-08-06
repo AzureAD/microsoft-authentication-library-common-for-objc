@@ -24,6 +24,7 @@
 
 
 #import "MSIDBrowserNativeMessageGetTokenResponse.h"
+#import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDOAuth2Constants.h"
 #import "MSIDBrokerOperationBrowserNativeMessageMATSReport.h"
@@ -36,11 +37,29 @@
 
 @interface MSIDBrowserNativeMessageGetTokenResponse()
 
+@property (nonatomic) MSIDBrokerOperationTokenResponse *operationTokenResponse;
 @property (nonatomic) MSIDTokenResult *tokenResult;
 
 @end
 
 @implementation MSIDBrowserNativeMessageGetTokenResponse
+
+- (instancetype)initWithTokenResponse:(MSIDBrokerOperationTokenResponse *)operationTokenResponse
+{
+    if (!operationTokenResponse)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create browser 'GetToken' response: operation token response is nil.");
+        return nil;
+    }
+
+    self = [super initWithDeviceInfo:operationTokenResponse.deviceInfo];
+    if (self)
+    {
+        _operationTokenResponse = operationTokenResponse;
+    }
+
+    return self;
+}
 
 // Designated initializer: constructs the response from a single canonical token result.
 - (instancetype)initWithTokenResult:(MSIDTokenResult *)result
@@ -84,6 +103,31 @@
 // placeholder values. The account, state, and properties blocks are shared across both sources.
 - (NSDictionary *)jsonDictionary
 {
+    if (self.operationTokenResponse)
+    {
+        MSIDTokenResponse *tokenResponse = self.operationTokenResponse.tokenResponse;
+        NSMutableDictionary *response = [[tokenResponse jsonDictionary] mutableCopy];
+        if (!response)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create token json response.");
+            return nil;
+        }
+
+        NSMutableDictionary *accountJson = [NSMutableDictionary new];
+        accountJson[@"userName"] = tokenResponse.accountUpn ?: self.requestAccountUpn;
+        accountJson[@"id"] = tokenResponse.accountIdentifier;
+
+        response[@"account"] = accountJson;
+        response[@"state"] = self.state;
+
+        NSMutableDictionary *propertiesJson = [NSMutableDictionary new];
+        propertiesJson[@"UPN"] = accountJson[@"userName"];
+        propertiesJson[@"MATS"] = [self.matsReport jsonString];
+        response[@"properties"] = propertiesJson;
+
+        return response;
+    }
+
     MSIDTokenResponse *tokenResponse = self.tokenResult.tokenResponse;
     MSIDAccessToken *accessToken = self.tokenResult.accessToken;
 
