@@ -48,6 +48,9 @@
 @property (nonatomic) BOOL forceRefresh;
 // Temporary property to skip bound app RT lookup for fallback to regular RTs when BART fails.
 @property (nonatomic) BOOL shouldSkipBoundAppRefreshTokenUsage;
+// When enabled, access-token lookup is unchanged, but only an app-specific bound refresh token may
+// be redeemed. Family refresh-token lookup is intentionally disabled.
+@property (nonatomic) BOOL requiresBoundRefreshToken;
 
 #if TARGET_OS_OSX && !EXCLUDE_FROM_MSALCPP
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;

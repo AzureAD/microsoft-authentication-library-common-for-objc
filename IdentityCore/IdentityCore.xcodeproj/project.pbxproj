@@ -2185,6 +2185,8 @@
 		FA7100030000000000000001 /* MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.m in Sources */ = {isa = PBXBuildFile; fileRef = FA7100120000000000000001 /* MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.m */; };
 		FA7100070000000000000001 /* MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA7100150000000000000001 /* MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetTokenTests.m */; };
 		FA7100080000000000000001 /* MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA7100150000000000000001 /* MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetTokenTests.m */; };
+		FA7200010000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA7200030000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m */; };
+		FA7200020000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA7200030000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3832,6 +3834,7 @@
 		FA7100110000000000000001 /* MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.h"; sourceTree = "<group>"; };
 		FA7100120000000000000001 /* MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.m"; sourceTree = "<group>"; };
 		FA7100150000000000000001 /* MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetTokenTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetTokenTests.m"; sourceTree = "<group>"; };
+		FA7200030000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6307,6 +6310,7 @@
 				2321532C1FDF4FD800C6960D /* MSIDBaseTokenTests.m */,
 				724C9DD32E6906270039BAA0 /* MSIDBoundRefreshTokenRedemptionTests.m */,
 				72C764F82E09CFA400043AB1 /* MSIDBoundRefreshTokenTests.m */,
+				FA7200030000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m */,
 				BA000000000000000000D001 /* MSIDBoundTokenProviderTests.m */,
 				B48FC0612D7A90F4007B80DB /* MSIDBrokerFlightProviderTests.m */,
 				B2E97FB22914CC4500AFD558 /* MSIDBrokerNativeAppOperationResponseTests.m */,
@@ -7733,6 +7737,7 @@
 				B286B9F12389F866007833AD /* MSIDWebviewFactoryTests.m in Sources */,
 				B252913B2096698100E78695 /* MSIDAADIdTokenClaimsFactoryTests.m in Sources */,
 				72C764FA2E09CFB800043AB1 /* MSIDBoundRefreshTokenTests.m in Sources */,
+				FA7200020000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m in Sources */,
 				BA000000000000000000D101 /* MSIDBoundTokenProviderTests.m in Sources */,
 				B2BE923121A0EFB100F5AB8C /* MSIDDefaultTokenRequestProviderTests.m in Sources */,
 				729357F42DDBD3F80001D03C /* MSIDNonceTokenRequestTest.m in Sources */,
@@ -8494,6 +8499,7 @@
 				B2BE923521A0F80100F5AB8C /* MSIDLegacyTokenRequestProviderTests.m in Sources */,
 				B48FC0632D7A90FA007B80DB /* MSIDBrokerFlightProviderTests.m in Sources */,
 				72C764F92E09CFB800043AB1 /* MSIDBoundRefreshTokenTests.m in Sources */,
+				FA7200010000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m in Sources */,
 				BA000000000000000000D102 /* MSIDBoundTokenProviderTests.m in Sources */,
 				23FB5C21225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */,
 				E75DD02625D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */,
