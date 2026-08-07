@@ -171,6 +171,7 @@
 {
     if (self.requiresBoundRefreshToken)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Skipping family refresh token lookup because an app-specific bound refresh token is required.");
         return nil;
     }
 
