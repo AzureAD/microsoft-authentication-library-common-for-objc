@@ -229,6 +229,13 @@ extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_JIT_TROUBLESHOOTING_LEGACY_AUTH;
 extern NSString * _Nonnull const MSID_FLIGHT_CLIENT_SFRT_STATUS;
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_PREFERRED_IDENTITY_CBA;
+/**
+ Enable stricter host validation for the macOS CBA preferred-identity fallback.
+ When enabled, the legacy wildcard URL-string fallback is allowed only when the
+ challenge host matches or is a child of the top-level webview host. Default
+ (disabled) preserves the legacy cross-host fallback for controlled rollout.
+ */
+extern NSString * _Nonnull const MSID_FLIGHT_ENABLE_CBA_ORIGIN_FIX;
 extern NSString * _Nonnull const MSID_FLIGHT_SUPPORT_STATE_DUNA_CBA;
 extern NSString * _Nonnull const MSID_FLIGHT_IGNORE_COOKIES_IN_DUNA_RESUME;
 

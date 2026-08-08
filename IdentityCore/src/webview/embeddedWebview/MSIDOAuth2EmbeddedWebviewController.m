@@ -44,6 +44,9 @@
 #import "MSIDOnboardingBlobFieldKeys.h"
 #import "MSIDWebAuthNUtil.h"
 #import "MSIDInteractiveRequestParameters.h"
+#import "MSIDExecutionFlowConstants.h"
+#import "MSIDExecutionFlowLogger.h"
+#import "MSIDAADAuthority.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -219,7 +222,7 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     self.complete = YES;
     
     // Record the terminal onboarding step on the shared builder
-    if (_onboardingBlobBuilder && [MSIDWebAuthNUtil amIRunningInExtension])
+    if (_onboardingBlobBuilder)
     {
         [_onboardingBlobBuilder finalizeForEndURL:endURL error:error];
         _onboardingBlobBuilder = nil;
@@ -535,6 +538,24 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
     
     if (self.customHeaderProvider)
     {
+        // Only forward custom headers to a recognized AAD host (known static cloud or a cloud
+        // discovered via instance metadata), matching the hosts the custom header provider accepts.
+        // requestURL.host can be nil even for https URLs; treat a missing host as untrusted so we
+        // never hand a nil host to the trust check or the provider, and let navigation continue.
+        NSString *requestHost = requestURL.host.lowercaseString;
+        if ([NSString msidIsStringNilOrBlank:requestHost] || ![MSIDAADAuthority isRecognizedAADHost:requestHost])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Skipped attaching custom headers because the navigation host is not a known AAD host.");
+
+            if (self.context.correlationId)
+            {
+                MSIDExecutionFlowInsertTag(MSIDCustomHeaderTagToString(MSIDCustomHeaderSkippedUntrustedHostTag), nil, self.context.correlationId);
+            }
+
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return;
+        }
+
         [self.customHeaderProvider getCustomHeaders:navigationAction.request
                                             forHost:requestURL.host
                                     completionBlock:^(NSDictionary<NSString *, NSString *> *extraHeaders, NSError *error){
@@ -542,18 +563,31 @@ NSString *const SDM_CAMERA_CONSENT_PROMPT_SUPPRESS_KEY = @"Microsoft.Broker.Feat
                 if (extraHeaders && extraHeaders.count > 0)
                 {
                     NSMutableURLRequest *newUrlRequest = [navigationAction.request mutableCopy];
-                    
+                    BOOL didApplyHeader = NO;
+
                     for (NSString *headerKey in extraHeaders)
                     {
                         if (![NSString msidIsStringNilOrBlank:extraHeaders[headerKey]])
                         {
                             [newUrlRequest setValue:extraHeaders[headerKey] forHTTPHeaderField:headerKey];
+                            didApplyHeader = YES;
                         }
                     }
-                    
-                    decisionHandler(WKNavigationActionPolicyCancel);
-                    [self loadRequest:newUrlRequest];
-                    return;
+
+                    // Only cancel + reload when at least one nonblank header was actually attached.
+                    // A dictionary of only blank values would otherwise reload the identical request,
+                    // looping on every navigation while falsely recording that headers were added.
+                    if (didApplyHeader)
+                    {
+                        if (self.context.correlationId)
+                        {
+                            MSIDExecutionFlowInsertTag(MSIDCustomHeaderTagToString(MSIDCustomHeaderAddedTag), nil, self.context.correlationId);
+                        }
+
+                        decisionHandler(WKNavigationActionPolicyCancel);
+                        [self loadRequest:newUrlRequest];
+                        return;
+                    }
                 }
                 
                 if (error)
