@@ -33,11 +33,13 @@
 #import "NSString+MSIDExtensions.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
 
 @interface MSIDAuthenticationSchemePop()
 
 @property (nonatomic) NSString *kid;
 @property (nonatomic) NSString *req_cnf;
+@property (nonatomic) NSString *externalKeyPop;
 
 @end
 
@@ -61,6 +63,7 @@
             return nil;
         }
         _req_cnf = [_schemeParameters msidObjectForKey:MSID_OAUTH2_REQUEST_CONFIRMATION ofClass:[NSString class]];
+        _externalKeyPop = [_schemeParameters msidObjectForKey:MSID_OAUTH2_EXTERNAL_KEY_POP ofClass:[NSString class]];
         
         if ([NSString msidIsStringNilOrBlank:_req_cnf])
         {
@@ -148,6 +151,7 @@
     
     [schemeParameters setObject:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
     [schemeParameters setObject:authScheme forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [schemeParameters msidSetNonEmptyString:json[MSID_OAUTH2_EXTERNAL_KEY_POP] forKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
     
     return [self initWithSchemeParameters:schemeParameters];
 }
@@ -170,6 +174,7 @@
     }
     
     json[MSID_OAUTH2_REQUEST_CONFIRMATION] = self.req_cnf;
+    [json msidSetNonEmptyString:self.externalKeyPop forKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
     
     return json;
 }
@@ -179,6 +184,7 @@
     MSIDAuthenticationSchemePop *authScheme = [super copyWithZone:zone];
     authScheme->_kid = [_kid copyWithZone:zone];
     authScheme->_req_cnf = [_req_cnf copyWithZone:zone];
+    authScheme->_externalKeyPop = [_externalKeyPop copyWithZone:zone];
     return authScheme;
 }
 

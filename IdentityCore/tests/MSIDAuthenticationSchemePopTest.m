@@ -65,6 +65,29 @@
     XCTAssertFalse([scheme matchAccessTokenKeyThumbprint:incorrectToken]);
 }
 
+- (void)testMatchAccessTokenKeyThumbprint_whenKeysDiffer_shouldIsolateCachedTokens
+{
+    NSDictionary *firstParameters = @{
+        MSID_OAUTH2_TOKEN_TYPE : MSID_OAUTH2_POP,
+        MSID_OAUTH2_REQUEST_CONFIRMATION : @"eyJraWQiOiJmaXJzdC1rZXkifQ"
+    };
+    NSDictionary *secondParameters = @{
+        MSID_OAUTH2_TOKEN_TYPE : MSID_OAUTH2_POP,
+        MSID_OAUTH2_REQUEST_CONFIRMATION : @"eyJraWQiOiJzZWNvbmQta2V5In0"
+    };
+    MSIDAuthenticationSchemePop *firstScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:firstParameters];
+    MSIDAuthenticationSchemePop *secondScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:secondParameters];
+    MSIDAccessToken *firstToken = [MSIDAccessToken new];
+    firstToken.kid = @"first-key";
+    MSIDAccessToken *secondToken = [MSIDAccessToken new];
+    secondToken.kid = @"second-key";
+
+    XCTAssertTrue([firstScheme matchAccessTokenKeyThumbprint:firstToken]);
+    XCTAssertFalse([firstScheme matchAccessTokenKeyThumbprint:secondToken]);
+    XCTAssertTrue([secondScheme matchAccessTokenKeyThumbprint:secondToken]);
+    XCTAssertFalse([secondScheme matchAccessTokenKeyThumbprint:firstToken]);
+}
+
 - (void) test_InitWithCorrectJson_shouldReturnCompleteScheme
 {
     NSDictionary *json = [self preparePopSchemeParameter];
@@ -73,6 +96,19 @@
     XCTAssertNotNil(scheme);
     XCTAssertNil(error);
     [self test_assertDefaultAttributesInScheme:scheme];
+}
+
+- (void)testInitWithExternalKeyMarker_shouldPreserveMarkerInJsonAndCopy
+{
+    NSMutableDictionary *parameters = [[self preparePopSchemeParameter] mutableCopy];
+    parameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"1";
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:parameters];
+
+    XCTAssertEqualObjects(scheme.schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
+    XCTAssertEqualObjects([scheme jsonDictionary][MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
+
+    MSIDAuthenticationSchemePop *schemeCopy = [scheme copy];
+    XCTAssertEqualObjects(schemeCopy.schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
 }
 
 - (void) test_InitWithIncorrectJson_shouldReturnNil{
