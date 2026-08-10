@@ -34,16 +34,13 @@ typedef void (^MSIDSPATokenAcquirerCompletionBlock)(MSIDSPATokenAcquisitionResul
 - (nullable MSIDInteractiveTokenRequestParameters *)requestParametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                                                         context:(nullable id<MSIDRequestContext>)context
                                                                           error:(NSError *_Nullable *_Nullable)error;
-
 - (void)acquireSilentWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                             request:(MSIDBrowserNativeMessageGetTokenRequest *)request
                             context:(nullable id<MSIDRequestContext>)context
                     completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock;
-
 - (void)acquireInteractiveWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                 request:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                 context:(nullable id<MSIDRequestContext>)context
                         completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock;
-
 @end
 NS_ASSUME_NONNULL_END

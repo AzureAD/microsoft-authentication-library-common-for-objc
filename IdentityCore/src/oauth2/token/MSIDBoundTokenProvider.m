@@ -203,6 +203,10 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 {
     if (route != MSIDBrowserNativeMessageGetTokenRouteInteractive)
     {
+        NSString *routeReason = route == MSIDBrowserNativeMessageGetTokenRouteUIBlocked ? @"canShowUI is NO" : @"prompt=none forbids UI";
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
+                          @"%@ Interactive fallback rejected. Route: %ld. Reason: %@. promptType: %ld, canShowUI: %@.",
+                          MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, (long)route, routeReason, (long)parameters.promptType, request.canShowUI ? @"YES" : @"NO");
         NSError *error = interactionRequiredError
             ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
                                @"Bound token acquisition requires user interaction.",

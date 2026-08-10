@@ -48,7 +48,6 @@ typedef void (^MSIDBoundTokenProviderCompletionBlock)(NSString *_Nullable respon
 @interface MSIDBoundTokenProvider : NSObject
 
 - (instancetype)init;
-
 - (instancetype)initWithAcquirer:(id<MSIDSPATokenAcquiring>)acquirer NS_DESIGNATED_INITIALIZER;
 
 /// Acquire a bound token for the supplied browser-native-message GetToken request.
