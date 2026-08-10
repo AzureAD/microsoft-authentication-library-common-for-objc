@@ -51,6 +51,7 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
 
 - (instancetype)initWithAcquirer:(id<MSIDSPATokenAcquiring>)acquirer
 {
+    NSParameterAssert(acquirer);
     self = [super init];
     if (self)
     {

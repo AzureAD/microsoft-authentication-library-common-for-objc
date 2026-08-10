@@ -134,8 +134,14 @@
 
 - (NSDictionary *)payloadFromResponse:(NSString *)response
 {
+    XCTAssertNotNil(response);
     NSData *data = [response dataUsingEncoding:NSUTF8StringEncoding];
-    return [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    XCTAssertNotNil(data);
+    NSError *error = nil;
+    id payload = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:&error] : nil;
+    XCTAssertNotNil(payload, @"Failed to parse response JSON: %@", error);
+    XCTAssertTrue([payload isKindOfClass:NSDictionary.class]);
+    return [payload isKindOfClass:NSDictionary.class] ? payload : nil;
 }
 
 - (void)testAcquireBoundToken_whenSilentSucceeds_shouldReturnBrowserResponse
@@ -145,7 +151,6 @@
     MSIDBoundTokenProvider *provider = [[MSIDBoundTokenProvider alloc] initWithAcquirer:acquirer];
     __block NSString *response = nil;
     __block NSError *responseError = nil;
-
     [provider acquireBoundTokenWithRequest:[self validRequest]
                                    context:nil
                            completionBlock:^(NSString *result, NSError *error) {
@@ -170,7 +175,6 @@
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
     request.prompt = MSIDPromptTypeSelectAccount;
     __block NSString *response = nil;
-
     [provider acquireBoundTokenWithRequest:request
                                    context:nil
                            completionBlock:^(NSString *result, __unused NSError *error) {
@@ -190,7 +194,6 @@
     acquirer.interactiveOutcome = [self successfulOutcome];
     MSIDBoundTokenProvider *provider = [[MSIDBoundTokenProvider alloc] initWithAcquirer:acquirer];
     __block NSString *response = nil;
-
     [provider acquireBoundTokenWithRequest:[self validRequest]
                                    context:nil
                            completionBlock:^(NSString *result, __unused NSError *error) {
@@ -210,7 +213,6 @@
     request.prompt = MSIDPromptTypeSelectAccount;
     request.canShowUI = NO;
     __block NSError *responseError = nil;
-
     [provider acquireBoundTokenWithRequest:request
                                    context:nil
                            completionBlock:^(__unused NSString *result, NSError *error) {
@@ -230,7 +232,6 @@
     acquirer.silentError = silentError;
     MSIDBoundTokenProvider *provider = [[MSIDBoundTokenProvider alloc] initWithAcquirer:acquirer];
     __block NSError *responseError = nil;
-
     [provider acquireBoundTokenWithRequest:[self validRequest]
                                    context:nil
                            completionBlock:^(__unused NSString *result, NSError *error) {
@@ -248,7 +249,6 @@
                                                @"Mapping failed.", nil, nil, nil, nil, nil, NO);
     MSIDBoundTokenProvider *provider = [[MSIDBoundTokenProvider alloc] initWithAcquirer:acquirer];
     __block NSError *responseError = nil;
-
     [provider acquireBoundTokenWithRequest:[self validRequest]
                                    context:nil
                            completionBlock:^(__unused NSString *result, NSError *error) {
