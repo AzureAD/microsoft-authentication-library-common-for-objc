@@ -2113,6 +2113,12 @@
 		BA000000000000000000C003 /* MSIDBoundTokenProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = BA000000000000000000B002 /* MSIDBoundTokenProvider.m */; };
 		BA000000000000000000D101 /* MSIDBoundTokenProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BA000000000000000000D001 /* MSIDBoundTokenProviderTests.m */; };
 		BA000000000000000000D102 /* MSIDBoundTokenProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BA000000000000000000D001 /* MSIDBoundTokenProviderTests.m */; };
+		BA000000000000000000F001 /* MSIDSPATokenAcquiring.h in Headers */ = {isa = PBXBuildFile; fileRef = BA000000000000000000E001 /* MSIDSPATokenAcquiring.h */; };
+		BA000000000000000000F002 /* MSIDLocalSPATokenAcquirer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA000000000000000000E003 /* MSIDLocalSPATokenAcquirer.h */; };
+		BA000000000000000000F005 /* MSIDLocalSPATokenAcquirer.m in Sources */ = {isa = PBXBuildFile; fileRef = BA000000000000000000E004 /* MSIDLocalSPATokenAcquirer.m */; };
+		BA000000000000000000F006 /* MSIDLocalSPATokenAcquirer.m in Sources */ = {isa = PBXBuildFile; fileRef = BA000000000000000000E004 /* MSIDLocalSPATokenAcquirer.m */; };
+		BA000000000000000000F007 /* MSIDLocalSPATokenAcquirerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BA000000000000000000E005 /* MSIDLocalSPATokenAcquirerTests.m */; };
+		BA000000000000000000F008 /* MSIDLocalSPATokenAcquirerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BA000000000000000000E005 /* MSIDLocalSPATokenAcquirerTests.m */; };
 		C2E599251DB14C46D8DD6261 /* MSIDDIContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 30CDFCBD388F4440556637F9 /* MSIDDIContainer.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		C69BEEDD552FAEE33A6BE2FF /* MSIDCertAuthHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E83F7EE40617833162571023 /* MSIDCertAuthHandlerTests.m */; };
 		D11DF760D8901DDC5186BC7A /* MSIDDIContainerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2E356C396133919B12FB4F01 /* MSIDDIContainerTests.m */; };
@@ -3762,6 +3768,10 @@
 		BA000000000000000000B001 /* MSIDBoundTokenProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBoundTokenProvider.h; sourceTree = "<group>"; };
 		BA000000000000000000B002 /* MSIDBoundTokenProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundTokenProvider.m; sourceTree = "<group>"; };
 		BA000000000000000000D001 /* MSIDBoundTokenProviderTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBoundTokenProviderTests.m; sourceTree = "<group>"; };
+		BA000000000000000000E001 /* MSIDSPATokenAcquiring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSPATokenAcquiring.h; sourceTree = "<group>"; };
+		BA000000000000000000E003 /* MSIDLocalSPATokenAcquirer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLocalSPATokenAcquirer.h; sourceTree = "<group>"; };
+		BA000000000000000000E004 /* MSIDLocalSPATokenAcquirer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLocalSPATokenAcquirer.m; sourceTree = "<group>"; };
+		BA000000000000000000E005 /* MSIDLocalSPATokenAcquirerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLocalSPATokenAcquirerTests.m; sourceTree = "<group>"; };
 		CACE5D66E6234506B9936BC5 /* MSIDThrottlingRefreshing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingRefreshing.h; sourceTree = "<group>"; };
 		D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDExtensions.m"; sourceTree = "<group>"; };
 		D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
@@ -5395,6 +5405,9 @@
 				72C1EBF42DE91ABE004C40A4 /* MSIDBoundRefreshToken.h */,
 				BA000000000000000000B002 /* MSIDBoundTokenProvider.m */,
 				BA000000000000000000B001 /* MSIDBoundTokenProvider.h */,
+				BA000000000000000000E001 /* MSIDSPATokenAcquiring.h */,
+				BA000000000000000000E003 /* MSIDLocalSPATokenAcquirer.h */,
+				BA000000000000000000E004 /* MSIDLocalSPATokenAcquirer.m */,
 				B2675689228CE6FC000F01D7 /* protocols */,
 				B251CC4E204105AD005E0179 /* MSIDCredentialType.h */,
 				B251CC4F204105AD005E0179 /* MSIDCredentialType.m */,
@@ -6312,6 +6325,7 @@
 				72C764F82E09CFA400043AB1 /* MSIDBoundRefreshTokenTests.m */,
 				FA7200030000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m */,
 				BA000000000000000000D001 /* MSIDBoundTokenProviderTests.m */,
+				BA000000000000000000E005 /* MSIDLocalSPATokenAcquirerTests.m */,
 				B48FC0612D7A90F4007B80DB /* MSIDBrokerFlightProviderTests.m */,
 				B2E97FB22914CC4500AFD558 /* MSIDBrokerNativeAppOperationResponseTests.m */,
 				2318D7882E12B8E800A5A46E /* MSIDBrokerOperationBrowserNativeMessageMATSReportTests.m */,
@@ -6985,6 +6999,8 @@
 				23AE20982342D3BF00108F76 /* MSIDSilentController+Internal.h in Headers */,
 				72C1EBF52DE91AC8004C40A4 /* MSIDBoundRefreshToken.h in Headers */,
 				BA000000000000000000C001 /* MSIDBoundTokenProvider.h in Headers */,
+				BA000000000000000000F001 /* MSIDSPATokenAcquiring.h in Headers */,
+				BA000000000000000000F002 /* MSIDLocalSPATokenAcquirer.h in Headers */,
 				23B39A8620993572000AA905 /* MSIDAADAuthorityMetadataRequest.h in Headers */,
 				B28D90AA218FD1F800E230D6 /* MSIDDefaultTokenResponseValidator.h in Headers */,
 				B2F671E82467A34400649855 /* MSIDAuthorizationCodeResult.h in Headers */,
@@ -7739,6 +7755,7 @@
 				72C764FA2E09CFB800043AB1 /* MSIDBoundRefreshTokenTests.m in Sources */,
 				FA7200020000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m in Sources */,
 				BA000000000000000000D101 /* MSIDBoundTokenProviderTests.m in Sources */,
+				BA000000000000000000F007 /* MSIDLocalSPATokenAcquirerTests.m in Sources */,
 				B2BE923121A0EFB100F5AB8C /* MSIDDefaultTokenRequestProviderTests.m in Sources */,
 				729357F42DDBD3F80001D03C /* MSIDNonceTokenRequestTest.m in Sources */,
 				23FB5C20225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */,
@@ -7999,6 +8016,7 @@
 				23FB5C3122551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.m in Sources */,
 				72C1EBF72DE91AD0004C40A4 /* MSIDBoundRefreshToken.m in Sources */,
 				BA000000000000000000C002 /* MSIDBoundTokenProvider.m in Sources */,
+				BA000000000000000000F005 /* MSIDLocalSPATokenAcquirer.m in Sources */,
 				23B39ACD209CF317000AA905 /* MSIDAADNetworkConfiguration.m in Sources */,
 				B5AAE11A2F03D7AA0026B21B /* MSIDBrokerOperationGetDefaultAccountResponse.m in Sources */,
 				23FB5C462255A135002BF1EB /* MSIDIndividualClaimRequest.m in Sources */,
@@ -8501,6 +8519,7 @@
 				72C764F92E09CFB800043AB1 /* MSIDBoundRefreshTokenTests.m in Sources */,
 				FA7200010000000000000001 /* MSIDDefaultSilentTokenRequestBoundRefreshTokenTests.m in Sources */,
 				BA000000000000000000D102 /* MSIDBoundTokenProviderTests.m in Sources */,
+				BA000000000000000000F008 /* MSIDLocalSPATokenAcquirerTests.m in Sources */,
 				23FB5C21225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */,
 				E75DD02625D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */,
 				B286BA07238A110A007833AD /* MSIDOIDCSignoutRequestTests.m in Sources */,
@@ -9012,6 +9031,7 @@
 				B2C708182195283500D917B8 /* MSIDBrokerTokenRequest.m in Sources */,
 				72C1EBF82DE91AD0004C40A4 /* MSIDBoundRefreshToken.m in Sources */,
 				BA000000000000000000C003 /* MSIDBoundTokenProvider.m in Sources */,
+				BA000000000000000000F006 /* MSIDLocalSPATokenAcquirer.m in Sources */,
 				232173E22182A998009852C6 /* NSDictionary+MSIDJsonSerializable.m in Sources */,
 				B2C707F42192524700D917B8 /* MSIDDefaultTokenRequestProvider.m in Sources */,
 				724C9E332E6FAB170039BAA0 /* MSIDConcatKdfProvider.swift in Sources */,
