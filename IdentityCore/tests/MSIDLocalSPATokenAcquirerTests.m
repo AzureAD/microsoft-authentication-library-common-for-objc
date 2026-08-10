@@ -105,11 +105,11 @@
     XCTAssertEqualObjects(parameters.accountIdentifier.homeAccountId, @"uid.utid");
 }
 
-- (void)testAcquireSilent_whenEngineReturnsResult_shouldRequireBoundRefreshToken
+- (void)testAcquireSilent_whenEngineReturnsBlankUsername_shouldUseLoginHintAndRequireBoundRefreshToken
 {
     MSIDTokenResult *result = [MSIDTokenResult new];
     result.account = [MSIDAccount new];
-    result.account.username = @"cached@contoso.com";
+    result.account.username = @"";
 
     MSIDLocalSPATokenAcquirer *acquirer = [self acquirerWithResult:result error:nil];
     __block MSIDSPATokenAcquisitionResult *outcome = nil;
@@ -125,7 +125,7 @@
 
     XCTAssertNil(acquisitionError);
     XCTAssertEqual(outcome.tokenResult, result);
-    XCTAssertEqualObjects(outcome.fallbackRequestAccountUpn, @"cached@contoso.com");
+    XCTAssertEqualObjects(outcome.fallbackRequestAccountUpn, @"user@contoso.com");
     XCTAssertTrue(self.silentRequest.requiresBoundRefreshToken);
 }
 
@@ -182,6 +182,21 @@
     }];
 
     XCTAssertEqualObjects(acquisitionError.domain, MSIDErrorDomain);
+    XCTAssertEqual(acquisitionError.code, MSIDErrorInteractionRequired);
+}
+
+- (void)testAcquireInteractive_whenNotImplemented_shouldReturnInteractionRequired
+{
+    MSIDLocalSPATokenAcquirer *acquirer = [MSIDLocalSPATokenAcquirer new];
+    __block NSError *acquisitionError = nil;
+
+    [acquirer acquireInteractiveWithParameters:[self parametersWithAcquirer:acquirer]
+                                       request:[self request]
+                                       context:nil
+                               completionBlock:^(__unused MSIDSPATokenAcquisitionResult *outcome, NSError *error) {
+        acquisitionError = error;
+    }];
+
     XCTAssertEqual(acquisitionError.code, MSIDErrorInteractionRequired);
 }
 

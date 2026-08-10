@@ -1,4 +1,5 @@
 TBD
+* Add in-process Browser Native Message BART SPA token orchestration for unmanaged iOS hosts.
 * Restrict macOS CBA preferred-identity URL fallback to the same host or its child subdomains behind a flight, with non-PII rollout logs.
 * Prevent a crash when JWT signing is attempted with a NULL private key. (#1917)
 * Raise the minimum deployment targets to iOS 16.0 and macOS 12.0, and replace deprecated macOS SecTransform JWT signing with SecKeyCreateSignature. (#1915)

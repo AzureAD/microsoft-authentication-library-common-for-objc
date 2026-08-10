@@ -23,42 +23,104 @@
 // THE SOFTWARE.
 
 #import "MSIDBoundTokenProvider.h"
+#import "MSIDLocalSPATokenAcquirer.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
+#import "MSIDBrowserNativeMessageGetTokenRoutingPolicy.h"
+#import "MSIDBrowserNativeMessageGetTokenResponse.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDSPATokenAcquisitionResult.h"
+#import "MSIDDIContainer.h"
 #import "MSIDError.h"
 #import "MSIDLogger+Internal.h"
 #import "NSString+MSIDExtensions.h"
 
 NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider]";
 
+@interface MSIDBoundTokenProvider ()
+
+@property (nonatomic) id<MSIDSPATokenAcquiring> acquirer;
+
+@end
+
 @implementation MSIDBoundTokenProvider
+
+- (instancetype)init
+{
+    return [self initWithAcquirer:[MSIDLocalSPATokenAcquirer new]];
+}
+
+- (instancetype)initWithAcquirer:(id<MSIDSPATokenAcquiring>)acquirer
+{
+    self = [super init];
+    if (self)
+    {
+        _acquirer = acquirer;
+    }
+    return self;
+}
 
 - (void)acquireBoundTokenWithRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                              context:(nullable id<MSIDRequestContext>)context
                      completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock
 {
     NSParameterAssert(completionBlock);
-    if (!completionBlock) return;
+    if (!completionBlock)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ completionBlock is nil.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
+        return;
+    }
 
     if (![self validateRequest:request context:context completionBlock:completionBlock])
     {
         return;
     }
 
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
-                      @"%@ Servicing GetToken request in-process (no SSO extension). clientId: %@",
-                      MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, request.clientId);
+    NSError *parametersError = nil;
+    MSIDInteractiveTokenRequestParameters *parameters =
+    [self.acquirer requestParametersForRequest:request context:context error:&parametersError];
+    if (!parameters)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ Failed to build request parameters: %@", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(parametersError));
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter,
+                                         @"Failed to build bound token request parameters.",
+                                         nil, nil, parametersError, context.correlationId, nil, NO);
+        completionBlock(nil, error);
+        return;
+    }
 
-    // Stub seam: the real silent-redemption / interactive-broker-flip orchestration is layered on top of
-    // this provider. Returns the serialized browser-native-message response payload.
-    NSString *responsePayload = [self stubResponsePayloadForRequest:request];
+    MSIDBrowserNativeMessageGetTokenRoute route =
+    [[self routingPolicy] routeWithForceInteractive:NO
+                                         promptType:parameters.promptType
+                                          canShowUI:request.canShowUI
+                                  accountIdentifier:parameters.accountIdentifier
+                              requiresHomeAccountId:NO];
+    if (route == MSIDBrowserNativeMessageGetTokenRouteSilent)
+    {
+        [self acquireSilentlyWithParameters:parameters
+                                    request:request
+                                    context:context
+                            completionBlock:completionBlock];
+        return;
+    }
 
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context,
-                      @"%@ In-process GetToken request completed.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
-
-    completionBlock(responsePayload, nil);
+    [self completeInteractiveRoute:route
+                        parameters:parameters
+                           request:request
+                           context:context
+                   completionBlock:completionBlock
+          interactionRequiredError:nil];
 }
 
 #pragma mark - Private
+
+- (MSIDBrowserNativeMessageGetTokenRoutingPolicy *)routingPolicy
+{
+    return [[MSIDDIContainer sharedInstance]
+        resolveClass:MSIDBrowserNativeMessageGetTokenRoutingPolicy.class
+           orDefault:^id {
+               return [MSIDBrowserNativeMessageGetTokenRoutingPolicy new];
+           }];
+}
 
 - (BOOL)validateRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                 context:(nullable id<MSIDRequestContext>)context
@@ -86,28 +148,129 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
     return YES;
 }
 
-- (NSString *)stubResponsePayloadForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
+- (void)acquireSilentlyWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                              request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                              context:(nullable id<MSIDRequestContext>)context
+                      completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock
 {
-    NSMutableDictionary *payload = [NSMutableDictionary new];
-    payload[@"clientId"] = request.clientId ?: @"";
-    payload[@"redirectUri"] = request.redirectUri ?: @"";
-    payload[@"scope"] = request.scopes ?: @"";
-    payload[@"servicedBy"] = @"MSIDBoundTokenProvider";
-    payload[@"transport"] = @"in_proc_common_core";
-    if (request.state)
+    [self.acquirer acquireSilentWithParameters:parameters
+                                       request:request
+                                       context:context
+                               completionBlock:^(MSIDSPATokenAcquisitionResult *outcome, NSError *error) {
+        if (outcome)
+        {
+            [self completeWithOutcome:outcome
+                                error:nil
+                              request:request
+                              context:context
+                      completionBlock:completionBlock];
+            return;
+        }
+
+        BOOL interactionRequired = [error.domain isEqualToString:MSIDErrorDomain]
+            && error.code == MSIDErrorInteractionRequired;
+        if (interactionRequired)
+        {
+            MSIDBrowserNativeMessageGetTokenRoute route =
+            [[self routingPolicy] routeWithForceInteractive:YES
+                                                 promptType:parameters.promptType
+                                                  canShowUI:request.canShowUI
+                                          accountIdentifier:parameters.accountIdentifier
+                                      requiresHomeAccountId:NO];
+            [self completeInteractiveRoute:route
+                                parameters:parameters
+                                   request:request
+                                   context:context
+                           completionBlock:completionBlock
+                  interactionRequiredError:error];
+            return;
+        }
+
+        [self completeWithOutcome:nil
+                            error:error
+                          request:request
+                          context:context
+                  completionBlock:completionBlock];
+    }];
+}
+
+- (void)completeInteractiveRoute:(MSIDBrowserNativeMessageGetTokenRoute)route
+                      parameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                         request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                         context:(nullable id<MSIDRequestContext>)context
+                 completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock
+        interactionRequiredError:(nullable NSError *)interactionRequiredError
+{
+    if (route != MSIDBrowserNativeMessageGetTokenRouteInteractive)
     {
-        payload[@"state"] = request.state;
+        NSError *error = interactionRequiredError
+            ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
+                               @"Bound token acquisition requires user interaction.",
+                               nil, nil, nil, context.correlationId, nil, YES);
+        completionBlock(nil, error);
+        return;
+    }
+
+    [self.acquirer acquireInteractiveWithParameters:parameters
+                                            request:request
+                                            context:context
+                                    completionBlock:^(MSIDSPATokenAcquisitionResult *outcome, NSError *error) {
+        [self completeWithOutcome:outcome
+                            error:error
+                          request:request
+                          context:context
+                  completionBlock:completionBlock];
+    }];
+}
+
+- (void)completeWithOutcome:(MSIDSPATokenAcquisitionResult *)outcome
+                      error:(nullable NSError *)error
+                    request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                    context:(nullable id<MSIDRequestContext>)context
+            completionBlock:(MSIDBoundTokenProviderCompletionBlock)completionBlock
+{
+    if (!outcome)
+    {
+        NSError *completionError = error
+            ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                               @"Bound token acquisition completed without a result or error.",
+                               nil, nil, nil, context.correlationId, nil, NO);
+        completionBlock(nil, completionError);
+        return;
+    }
+
+    NSString *fallbackUpn = outcome.fallbackRequestAccountUpn;
+    if ([NSString msidIsStringNilOrBlank:fallbackUpn])
+    {
+        fallbackUpn = request.loginHint;
+    }
+
+    MSIDBrowserNativeMessageGetTokenResponse *response =
+    [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:outcome.tokenResult
+                                                                    state:request.state
+                                                fallbackRequestAccountUpn:fallbackUpn];
+    NSDictionary *responseDictionary = [response jsonDictionary];
+    if (!responseDictionary)
+    {
+        NSError *responseError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                                 @"Failed to create bound token response.",
+                                                 nil, nil, nil, context.correlationId, nil, NO);
+        completionBlock(nil, responseError);
+        return;
     }
 
     NSError *serializationError = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:payload options:0 error:&serializationError];
-    if (serializationError || !data)
+    NSData *data = [NSJSONSerialization dataWithJSONObject:responseDictionary options:0 error:&serializationError];
+    if (!data)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@ Failed to serialize bound token payload: %@", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX, serializationError);
-        return @"{}";
+        NSError *responseError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
+                                                 @"Failed to serialize bound token response.",
+                                                 nil, nil, serializationError, context.correlationId, nil, NO);
+        completionBlock(nil, responseError);
+        return;
     }
 
-    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    completionBlock([[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], nil);
 }
 
 @end

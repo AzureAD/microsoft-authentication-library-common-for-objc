@@ -23,27 +23,14 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDSPATokenAcquisitionResult.h"
-#import "MSIDSPATokenAcquiring.h"
-
-@class MSIDDefaultSilentTokenRequest;
-@class MSIDInteractiveTokenRequestParameters;
 @class MSIDBrowserNativeMessageGetTokenRequest;
+@class MSIDInteractiveTokenRequestParameters;
+@class MSIDSPATokenAcquisitionResult;
 @protocol MSIDRequestContext;
-
 NS_ASSUME_NONNULL_BEGIN
-
-typedef void (^MSIDLocalSPATokenAcquirerCompletionBlock)(MSIDSPATokenAcquisitionResult *_Nullable result,
-                                                          NSError *_Nullable error);
-typedef MSIDDefaultSilentTokenRequest *_Nullable (^MSIDLocalSPASilentTokenRequestProvider)(
-    MSIDInteractiveTokenRequestParameters *parameters, id<MSIDRequestContext> _Nullable context);
-
-@interface MSIDLocalSPATokenAcquirer : NSObject <MSIDSPATokenAcquiring>
-
-- (instancetype)init;
-
-- (instancetype)initWithSilentTokenRequestProvider:(nullable MSIDLocalSPASilentTokenRequestProvider)silentTokenRequestProvider NS_DESIGNATED_INITIALIZER;
-
+typedef void (^MSIDSPATokenAcquirerCompletionBlock)(MSIDSPATokenAcquisitionResult *_Nullable result,
+                                                     NSError *_Nullable error);
+@protocol MSIDSPATokenAcquiring <NSObject>
 - (nullable MSIDInteractiveTokenRequestParameters *)requestParametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                                                         context:(nullable id<MSIDRequestContext>)context
                                                                           error:(NSError *_Nullable *_Nullable)error;
@@ -51,8 +38,12 @@ typedef MSIDDefaultSilentTokenRequest *_Nullable (^MSIDLocalSPASilentTokenReques
 - (void)acquireSilentWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                             request:(MSIDBrowserNativeMessageGetTokenRequest *)request
                             context:(nullable id<MSIDRequestContext>)context
-                    completionBlock:(MSIDLocalSPATokenAcquirerCompletionBlock)completionBlock;
+                    completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock;
+
+- (void)acquireInteractiveWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                context:(nullable id<MSIDRequestContext>)context
+                        completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock;
 
 @end
-
 NS_ASSUME_NONNULL_END

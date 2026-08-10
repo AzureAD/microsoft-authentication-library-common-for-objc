@@ -35,6 +35,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "NSError+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -104,7 +105,8 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
         {
             MSIDSPATokenAcquisitionResult *outcome = [MSIDSPATokenAcquisitionResult new];
             outcome.tokenResult = result;
-            outcome.fallbackRequestAccountUpn = result.account.username ?: request.loginHint;
+            NSString *username = result.account.username;
+            outcome.fallbackRequestAccountUpn = [NSString msidIsStringNilOrBlank:username] ? request.loginHint : username;
             completionBlock(outcome, nil);
             return;
         }
@@ -123,6 +125,18 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
 
         completionBlock(nil, error);
     }];
+}
+
+- (void)acquireInteractiveWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+                                request:(__unused MSIDBrowserNativeMessageGetTokenRequest *)request
+                                context:(nullable id<MSIDRequestContext>)context
+                        completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ Interactive broker acquisition is not implemented.", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
+                                     @"Interactive broker acquisition is required but not implemented.",
+                                     nil, nil, nil, context.correlationId, nil, NO);
+    completionBlock(nil, error);
 }
 
 - (nullable MSIDDefaultSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
