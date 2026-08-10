@@ -384,9 +384,6 @@
     NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?redirect_uri=msauth%3A%2F%2Fcom.example%2Fcb"];
     NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"key2": @"value2"}];
     XCTAssertEqualObjects(resultURL.absoluteString, @"https://somehost.com:652?redirect_uri=msauth%3A%2F%2Fcom.example%2Fcb&key2=value2");
-    // Guard: the pre-encoded %3A/%2F must NOT become %253A/%252F.
-    XCTAssertFalse([resultURL.absoluteString containsString:@"%253A"]);
-    XCTAssertFalse([resultURL.absoluteString containsString:@"%252F"]);
 }
 
 - (void)testMsidURLWithQueryParameters_whenAppendedValueHasLiteralPercent_shouldEncodeOnce
@@ -395,7 +392,6 @@
     NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2"];
     NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"discount": @"50%off"}];
     XCTAssertEqualObjects(resultURL.absoluteString, @"https://somehost.com:652?existing1=value2&discount=50%25off");
-    XCTAssertFalse([resultURL.absoluteString containsString:@"%2525"]);
 }
 
 - (void)testMsidURLWithQueryParameters_whenAppendedValueLooksLikeEscape_shouldEncodePercentLiterally

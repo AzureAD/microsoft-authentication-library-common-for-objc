@@ -290,9 +290,9 @@
 - (void)testMsidURLEncodedStringFromDictionary_whenValueHasReservedChars_shouldEncodeOnce
 {
     // iOS/macOS 27 (radar 161588649): reserved chars in a redirect_uri-style value are encoded exactly once.
-    NSString *encoded = [NSString msidURLEncodedStringFromDictionary:@{@"redirect_uri": @"msauth://com.example/cb"}];
-    XCTAssertEqualObjects(encoded, @"redirect_uri=msauth%3A%2F%2Fcom.example%2Fcb");
-    XCTAssertFalse([encoded containsString:@"%253A"]);
+    // The space pins the non-form encoder: msidWWWFormURLEncodedStringFromDictionary would emit '+' instead of %20.
+    NSString *encoded = [NSString msidURLEncodedStringFromDictionary:@{@"redirect_uri": @"msauth://com.example/cb path"}];
+    XCTAssertEqualObjects(encoded, @"redirect_uri=msauth%3A%2F%2Fcom.example%2Fcb%20path");
 }
 
 - (void)testmsidJson_whenNotJson_shouldReturnNil
