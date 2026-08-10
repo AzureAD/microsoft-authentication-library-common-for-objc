@@ -378,7 +378,7 @@
     XCTAssertEqualObjects(resultURL, expectedResultURL);
 }
 
-- (void)testMsidURLWithQueryParameters_when27_existingQueryHasPreEncodedValue_shouldNotDoubleEncode
+- (void)testMsidURLWithQueryParameters_whenExistingQueryHasPreEncodedValue_shouldNotDoubleEncode
 {
     // iOS/macOS 27 (radar 161588649): NSURL must not re-encode an already-percent-encoded existing query.
     NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?redirect_uri=msauth%3A%2F%2Fcom.example%2Fcb"];
@@ -389,7 +389,7 @@
     XCTAssertFalse([resultURL.absoluteString containsString:@"%252F"]);
 }
 
-- (void)testMsidURLWithQueryParameters_when27_appendedValueHasLiteralPercent_shouldEncodeOnce
+- (void)testMsidURLWithQueryParameters_whenAppendedValueHasLiteralPercent_shouldEncodeOnce
 {
     // iOS/macOS 27 (radar 161588649): a literal % in an appended value must be encoded exactly once (%25), never doubled.
     NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2"];
@@ -398,7 +398,7 @@
     XCTAssertFalse([resultURL.absoluteString containsString:@"%2525"]);
 }
 
-- (void)testMsidURLWithQueryParameters_when27_appendedValueLooksLikeEscape_shouldEncodePercentLiterally
+- (void)testMsidURLWithQueryParameters_whenAppendedValueLooksLikeEscape_shouldEncodePercentLiterally
 {
     // iOS/macOS 27 (radar 161588649): an appended value that looks like a valid escape (%20) is literal text; msidURLEncode escapes the % so it becomes %2520.
     NSURL *inputURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2"];

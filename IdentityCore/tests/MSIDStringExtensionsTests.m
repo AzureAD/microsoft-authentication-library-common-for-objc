@@ -279,7 +279,7 @@
     XCTAssertEqualObjects(result, @"key=");
 }
 
-- (void)testMsidURLEncode_when27_hasLiteralPercent_shouldEncodeToPercent25
+- (void)testMsidURLEncode_whenLiteralPercent_shouldEncodeToPercent25
 {
     // iOS/macOS 27 (radar 161588649): msidURLEncode escapes a literal % to %25 so the non-re-encoding setter stays correct.
     XCTAssertEqualObjects([@"50%off" msidURLEncode], @"50%25off");
@@ -287,7 +287,7 @@
     XCTAssertEqualObjects([@"a%20b" msidURLEncode], @"a%2520b");
 }
 
-- (void)testMsidURLEncodedStringFromDictionary_when27_valueHasReservedChars_shouldEncodeOnce
+- (void)testMsidURLEncodedStringFromDictionary_whenValueHasReservedChars_shouldEncodeOnce
 {
     // iOS/macOS 27 (radar 161588649): reserved chars in a redirect_uri-style value are encoded exactly once.
     NSString *encoded = [NSString msidURLEncodedStringFromDictionary:@{@"redirect_uri": @"msauth://com.example/cb"}];
