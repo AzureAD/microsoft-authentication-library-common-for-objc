@@ -23,22 +23,34 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDSPATokenAcquiring.h"
+#import "MSIDSPATokenAcquisitionResult.h"
 
 @class MSIDDefaultSilentTokenRequest;
+@class MSIDInteractiveTokenRequestParameters;
+@class MSIDBrowserNativeMessageGetTokenRequest;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void (^MSIDLocalSPATokenAcquirerCompletionBlock)(MSIDSPATokenAcquisitionResult *_Nullable result,
+                                                          NSError *_Nullable error);
 typedef MSIDDefaultSilentTokenRequest *_Nullable (^MSIDLocalSPASilentTokenRequestProvider)(
-    MSIDInteractiveTokenRequestParameters *parameters,
-    id<MSIDRequestContext> _Nullable context);
+    MSIDInteractiveTokenRequestParameters *parameters, id<MSIDRequestContext> _Nullable context);
 
-/// In-process SPA token acquisition backed by the shared ADAL keychain cache.
-@interface MSIDLocalSPATokenAcquirer : NSObject <MSIDSPATokenAcquiring>
+@interface MSIDLocalSPATokenAcquirer : NSObject
 
 - (instancetype)init;
 
 - (instancetype)initWithSilentTokenRequestProvider:(nullable MSIDLocalSPASilentTokenRequestProvider)silentTokenRequestProvider NS_DESIGNATED_INITIALIZER;
+
+- (nullable MSIDInteractiveTokenRequestParameters *)requestParametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                                                        context:(nullable id<MSIDRequestContext>)context
+                                                                          error:(NSError *_Nullable *_Nullable)error;
+
+- (void)acquireSilentWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                            request:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                            context:(nullable id<MSIDRequestContext>)context
+                    completionBlock:(MSIDLocalSPATokenAcquirerCompletionBlock)completionBlock;
 
 @end
 

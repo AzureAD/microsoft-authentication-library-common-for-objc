@@ -146,6 +146,25 @@
     XCTAssertEqual(acquisitionError, engineError);
 }
 
+- (void)testAcquireSilent_whenBARTRedemptionFails_shouldRequireInteractionWithoutRegularRTFallback
+{
+    NSError *bartError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBoundAppRefreshTokenRedemptionError,
+                                         @"BART redemption failed.", nil, nil, nil, nil, nil, YES);
+    MSIDLocalSPATokenAcquirer *acquirer = [self acquirerWithResult:nil error:bartError];
+    __block NSError *acquisitionError = nil;
+
+    [acquirer acquireSilentWithParameters:[self parametersWithAcquirer:acquirer]
+                                  request:[self request]
+                                  context:nil
+                          completionBlock:^(__unused MSIDSPATokenAcquisitionResult *outcome, NSError *error) {
+        acquisitionError = error;
+    }];
+
+    XCTAssertEqualObjects(acquisitionError.domain, MSIDErrorDomain);
+    XCTAssertEqual(acquisitionError.code, MSIDErrorInteractionRequired);
+    XCTAssertEqual(acquisitionError.userInfo[NSUnderlyingErrorKey], bartError);
+}
+
 - (void)testAcquireSilent_whenCacheUnavailable_shouldReturnInteractionRequired
 {
     MSIDLocalSPATokenAcquirer *acquirer = [[MSIDLocalSPATokenAcquirer alloc]

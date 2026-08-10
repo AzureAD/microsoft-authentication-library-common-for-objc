@@ -25,8 +25,6 @@
 #import "MSIDLocalSPATokenAcquirer.h"
 #import "MSIDBrowserNativeMessageGetTokenRequest.h"
 #import "MSIDInteractiveTokenRequestParameters+BrowserNativeMessageGetToken.h"
-#import "MSIDInteractiveTokenRequestParameters.h"
-#import "MSIDConstants.h"
 #import "MSIDError.h"
 #import "MSIDLogger+Internal.h"
 #import "MSIDDefaultSilentTokenRequest.h"
@@ -36,6 +34,7 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "NSError+MSIDExtensions.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -50,10 +49,6 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
 
 @end
 
-@implementation MSIDSPATokenAcquisitionResult
-
-@end
-
 @implementation MSIDLocalSPATokenAcquirer
 
 - (instancetype)init
@@ -61,7 +56,7 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
     return [self initWithSilentTokenRequestProvider:nil];
 }
 
-- (instancetype)initWithSilentTokenRequestProvider:(MSIDLocalSPASilentTokenRequestProvider)silentTokenRequestProvider
+- (instancetype)initWithSilentTokenRequestProvider:(nullable MSIDLocalSPASilentTokenRequestProvider)silentTokenRequestProvider
 {
     self = [super init];
     if (self)
@@ -71,11 +66,9 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
     return self;
 }
 
-#pragma mark - MSIDSPATokenAcquiring
-
-- (MSIDInteractiveTokenRequestParameters *)requestParametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                                                               context:(id<MSIDRequestContext>)context
-                                                                 error:(NSError *__autoreleasing *)error
+- (nullable MSIDInteractiveTokenRequestParameters *)requestParametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
+                                                                        context:(nullable id<MSIDRequestContext>)context
+                                                                          error:(NSError *_Nullable __autoreleasing *_Nullable)error
 {
     return [MSIDInteractiveTokenRequestParameters msidParametersWithGetTokenRequest:request
                                                                        requestType:MSIDRequestBrokeredType
@@ -86,8 +79,8 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
 
 - (void)acquireSilentWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                             request:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                            context:(id<MSIDRequestContext>)context
-                    completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock
+                            context:(nullable id<MSIDRequestContext>)context
+                    completionBlock:(MSIDLocalSPATokenAcquirerCompletionBlock)completionBlock
 {
     MSIDDefaultSilentTokenRequest *silentRequest = self.silentTokenRequestProvider
         ? self.silentTokenRequestProvider(parameters, context)
@@ -101,13 +94,11 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
         completionBlock(nil, error);
         return;
     }
-
     silentRequest.requiresBoundRefreshToken = YES;
 
-    // Retain the request until its asynchronous completion runs.
-    __block MSIDDefaultSilentTokenRequest *pendingRequest = silentRequest;
     [silentRequest executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error) {
-        pendingRequest = nil;
+        // Keep the request alive until its completion finishes.
+        (void)silentRequest;
 
         if (result)
         {
@@ -118,17 +109,44 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
             return;
         }
 
+        if ([error.domain isEqualToString:MSIDErrorDomain]
+            && error.code == MSIDErrorBoundAppRefreshTokenRedemptionError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"%@ App-specific BART redemption failed; user interaction is required.", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX);
+            NSError *interactionRequiredError =
+            MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
+                            @"App-specific bound refresh token redemption failed; user interaction is required.",
+                            error.msidOauthError, error.msidSubError, error, context.correlationId, nil, YES);
+            completionBlock(nil, interactionRequiredError);
+            return;
+        }
+
         completionBlock(nil, error);
     }];
 }
 
-- (MSIDDefaultSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                                           context:(id<MSIDRequestContext>)context
+- (nullable MSIDDefaultSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                                                     context:(nullable id<MSIDRequestContext>)context
 {
-    MSIDDefaultTokenCacheAccessor *tokenCache = [self defaultTokenCache:context];
-    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [self accountMetadataCache:context];
+#if TARGET_OS_IPHONE
+    NSError *dataSourceError = nil;
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:[MSIDKeychainTokenCache defaultKeychainGroup]
+                                                                               error:&dataSourceError];
+    if (!dataSource)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ Failed to initialize the shared ADAL keychain cache: %@", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(dataSourceError));
+        return nil;
+    }
+
+    MSIDLegacyTokenCacheAccessor *otherAccessor =
+    [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+    MSIDDefaultTokenCacheAccessor *tokenCache =
+    [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
+    MSIDAccountMetadataCacheAccessor *accountMetadataCache =
+    [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
     if (!tokenCache || !accountMetadataCache)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ Failed to initialize local SPA token cache accessors.", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX);
         return nil;
     }
 
@@ -141,43 +159,8 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
                                                     tokenResponseValidator:tokenResponseValidator
                                                                 tokenCache:tokenCache
                                                       accountMetadataCache:accountMetadataCache];
-}
-
-#pragma mark - Dependencies
-
-- (MSIDDefaultTokenCacheAccessor *)defaultTokenCache:(id<MSIDRequestContext>)context
-{
-#if TARGET_OS_IPHONE
-    NSError *dataSourceError = nil;
-    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:[MSIDKeychainTokenCache defaultKeychainGroup] error:&dataSourceError];
-    if (!dataSource)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ Failed to initialize keychain token cache: %@", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(dataSourceError));
-        return nil;
-    }
-
-    MSIDLegacyTokenCacheAccessor *otherAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
-    return [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
 #else
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"%@ Local SPA token cache is only supported on iOS.", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX);
-    return nil;
-#endif
-}
-
-- (MSIDAccountMetadataCacheAccessor *)accountMetadataCache:(id<MSIDRequestContext>)context
-{
-#if TARGET_OS_IPHONE
-    NSError *dataSourceError = nil;
-    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:[MSIDKeychainTokenCache defaultKeychainGroup] error:&dataSourceError];
-    if (!dataSource)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ Failed to initialize account metadata cache: %@", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX, MSID_PII_LOG_MASKABLE(dataSourceError));
-        return nil;
-    }
-
-    return [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
-#else
-    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"%@ Local SPA account metadata cache is only supported on iOS.", MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX);
     return nil;
 #endif
 }

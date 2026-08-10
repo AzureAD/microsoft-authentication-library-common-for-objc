@@ -23,36 +23,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDBrowserNativeMessageGetTokenRequest;
 @class MSIDTokenResult;
-@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
-
 @interface MSIDSPATokenAcquisitionResult : NSObject
-
 @property (nonatomic, nullable) MSIDTokenResult *tokenResult;
 @property (nonatomic, nullable) NSString *fallbackRequestAccountUpn;
-
 @end
-
-typedef void (^MSIDSPATokenAcquirerCompletionBlock)(MSIDSPATokenAcquisitionResult *_Nullable result,
-                                                     NSError *_Nullable error);
-
-/// Backend-specific silent token acquisition used by the shared SPA provider.
-@protocol MSIDSPATokenAcquiring <NSObject>
-
-- (nullable MSIDInteractiveTokenRequestParameters *)requestParametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                                                                        context:(nullable id<MSIDRequestContext>)context
-                                                                          error:(NSError *_Nullable *_Nullable)error;
-
-- (void)acquireSilentWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                           request:(MSIDBrowserNativeMessageGetTokenRequest *)request
-                           context:(nullable id<MSIDRequestContext>)context
-                   completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock;
-
-@end
-
 NS_ASSUME_NONNULL_END
