@@ -76,17 +76,11 @@
                                             code:MSIDErrorInvalidInternalParameter
                                         description:@"Failed to create ECDH APV data for bound RT redemption JWT."
                                             context:context];
-        if (publicTransportKeyRef)
-        {
-            CFRelease(publicTransportKeyRef);
-        }
+        [self releaseKeyIfNeeded:publicTransportKeyRef];
         return nil;
     }
     
-    if (publicTransportKeyRef)
-    {
-        CFRelease(publicTransportKeyRef);
-    }
+    [self releaseKeyIfNeeded:publicTransportKeyRef];
 
     MSIDJWECrypto *jweCryptoObj = [[MSIDJWECrypto alloc] initWithKeyExchangeAlg:MSID_JWT_ALG_ECDH
                                                             encryptionAlgorithm:MSID_JWT_ALG_A256GCM
@@ -244,7 +238,7 @@
         return nil;
     }
     
-    CFRelease(publicSessionTransportKeyRef);
+    [self releaseKeyIfNeeded:publicSessionTransportKeyRef];
     
     if (![[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:workplacejoinData.privateKeyRef])
     {
@@ -281,5 +275,13 @@
                            context:(id<MSIDRequestContext>)context
 {
     return MSIDCreateError(domain, code, description, nil, nil, nil, context.correlationId, nil, YES);
+}
+
+- (void)releaseKeyIfNeeded:(SecKeyRef)keyRef
+{
+    if (keyRef)
+    {
+        CFRelease(keyRef);
+    }
 }
 @end
