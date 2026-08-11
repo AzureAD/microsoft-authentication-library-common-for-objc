@@ -187,7 +187,7 @@
     
     if (![self.boundDeviceId isEqualToString:deviceId])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] Bound device ID %@ in refresh token does not match device ID %@ from WPJ registration details.", self.boundDeviceId, deviceId);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"[Bound Refresh token redemption] Bound device ID %@ in refresh token does not match device ID %@ from WPJ registration details.", self.boundDeviceId, deviceId);
         if (error)
             *error = [self createErrorWithDomain:MSIDErrorDomain
                                             code:MSIDErrorInteractionRequired
