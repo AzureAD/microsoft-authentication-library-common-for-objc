@@ -138,6 +138,7 @@
 - (BOOL)validateExternalRSAKeyPair:(SecKeyRef)privateKey
                         publicKey:(SecKeyRef)publicKey
                     failureReason:(MSIDExternalKeyPairValidationFailureReason *)failureReason
+                          context:(id<MSIDRequestContext>)context
                             error:(NSError *__autoreleasing *)error
 {
     if (failureReason) *failureReason = MSIDExternalKeyPairValidationFailureReasonNone;
@@ -147,6 +148,7 @@
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonInvalidKeyHandle
                                           message:@"Both private and public key handles are required."
                                     failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
@@ -157,6 +159,7 @@
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonInvalidKeyHandle
                                           message:@"Unable to read key attributes."
                                     failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
@@ -167,6 +170,7 @@
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonUnsupportedKeyType
                                           message:@"External AT PoP keys must be RSA keys."
                                     failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
@@ -177,6 +181,7 @@
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonInvalidKeyClass
                                           message:@"External AT PoP keys must contain one private key and one public key."
                                     failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
@@ -187,6 +192,7 @@
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonKeySizeTooSmall
                                           message:@"External AT PoP RSA keys must be at least 2048 bits."
                                     failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
@@ -195,6 +201,7 @@
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch
                                           message:@"External AT PoP RSA keys must have matching key sizes."
                                     failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
@@ -205,6 +212,7 @@
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonNotSigningCapable
                                           message:@"External AT PoP key pair does not support RS256 signing and verification."
                                     failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
@@ -217,61 +225,40 @@
                                           message:@"External AT PoP public key cannot be serialized."
                                  underlyingError:underlyingError
                                     failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
     SecKeyRef derivedPublicKey = SecKeyCopyPublicKey(privateKey);
-    if (derivedPublicKey)
+    if (!derivedPublicKey)
     {
-        CFErrorRef derivedKeyError = NULL;
-        NSData *derivedPublicKeyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(derivedPublicKey, &derivedKeyError));
-        CFRelease(derivedPublicKey);
-
-        if (derivedPublicKeyData)
-        {
-            if (![derivedPublicKeyData isEqualToData:publicKeyData])
-            {
-                return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch
-                                                  message:@"External AT PoP public and private keys do not match."
-                                            failureReason:failureReason
-                                                    error:error];
-            }
-
-            return YES;
-        }
-
-        if (derivedKeyError) CFRelease(derivedKeyError);
-    }
-
-    NSData *challenge = [@"MSAL external AT PoP key pair validation" dataUsingEncoding:NSUTF8StringEncoding];
-    CFErrorRef signingError = NULL;
-    NSData *signature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
-                                                                          algorithm,
-                                                                          (__bridge CFDataRef)challenge,
-                                                                          &signingError));
-    if (!signature)
-    {
-        NSError *underlyingError = CFBridgingRelease(signingError);
-        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonNotSigningCapable
-                                          message:@"External AT PoP private key failed validation signing."
-                                 underlyingError:underlyingError
+        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonPublicKeySerializationFailed
+                                          message:@"Unable to derive the public key from the external AT PoP private key."
                                     failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
-    CFErrorRef verificationError = NULL;
-    BOOL verified = SecKeyVerifySignature(publicKey,
-                                          algorithm,
-                                          (__bridge CFDataRef)challenge,
-                                          (__bridge CFDataRef)signature,
-                                          &verificationError);
-    if (!verified)
+    CFErrorRef derivedKeyError = NULL;
+    NSData *derivedPublicKeyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(derivedPublicKey, &derivedKeyError));
+    CFRelease(derivedPublicKey);
+    if (!derivedPublicKeyData)
     {
-        NSError *underlyingError = CFBridgingRelease(verificationError);
-        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch
-                                          message:@"External AT PoP public and private keys do not match."
+        NSError *underlyingError = CFBridgingRelease(derivedKeyError);
+        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonPublicKeySerializationFailed
+                                          message:@"The public key derived from the external AT PoP private key cannot be serialized."
                                  underlyingError:underlyingError
                                     failureReason:failureReason
+                                          context:context
+                                            error:error];
+    }
+
+    if (![derivedPublicKeyData isEqualToData:publicKeyData])
+    {
+        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch
+                                          message:@"External AT PoP public and private keys do not match."
+                                    failureReason:failureReason
+                                          context:context
                                             error:error];
     }
 
@@ -281,23 +268,26 @@
 - (BOOL)failExternalKeyPairValidation:(MSIDExternalKeyPairValidationFailureReason)reason
                               message:(NSString *)message
                         failureReason:(MSIDExternalKeyPairValidationFailureReason *)failureReason
+                              context:(id<MSIDRequestContext>)context
                                 error:(NSError *__autoreleasing *)error
 {
     return [self failExternalKeyPairValidation:reason
-                                       message:message
-                              underlyingError:nil
-                                 failureReason:failureReason
-                                         error:error];
+                                      message:message
+                             underlyingError:nil
+                                failureReason:failureReason
+                                      context:context
+                                        error:error];
 }
 
 - (BOOL)failExternalKeyPairValidation:(MSIDExternalKeyPairValidationFailureReason)reason
                               message:(NSString *)message
                      underlyingError:(NSError *)underlyingError
                         failureReason:(MSIDExternalKeyPairValidationFailureReason *)failureReason
+                              context:(id<MSIDRequestContext>)context
                                 error:(NSError *__autoreleasing *)error
 {
     if (failureReason) *failureReason = reason;
-    [self generateErrorWithMessage:message underlyingError:underlyingError context:nil error:error];
+    [self generateErrorWithMessage:message underlyingError:underlyingError context:context error:error];
     return NO;
 }
 

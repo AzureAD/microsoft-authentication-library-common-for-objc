@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig
                   keyPairAttributes:(MSIDAssymetricKeyLookupAttributes *)keyPairAttributes;
 
-- (instancetype)initWithExternalKeyPair:(MSIDAssymetricKeyPair *)keyPair;
+- (nullable instancetype)initWithExternalKeyPair:(nullable MSIDAssymetricKeyPair *)keyPair;
 
 - (nullable NSString *)createSignedAccessToken:(NSString *)accessToken
                                     httpMethod:(NSString *)httpMethod

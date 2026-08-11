@@ -108,6 +108,12 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
     [self deleteKeyWithTag:attributes.privateKeyIdentifier];
 }
 
+- (void)test_initWithExternalKeyPair_NilKeyPair_ShouldReturnNil
+{
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithExternalKeyPair:nil];
+    XCTAssertNil(manager);
+}
+
 - (void)test_createSignedAccess_DeletePublickey_ShouldRegeneratePublicKey_AndReturnSignedAT
 {
     

@@ -58,6 +58,11 @@
 
 - (instancetype)initWithExternalKeyPair:(MSIDAssymetricKeyPair *)keyPair
 {
+    if (!keyPair)
+    {
+        return nil;
+    }
+
     self = [super init];
     if (self)
     {
@@ -67,7 +72,7 @@
     return self;
 }
 
- - (MSIDAssymetricKeyPair *)keyPair
+- (MSIDAssymetricKeyPair *)keyPair
 {
     if (!_keyPair)
     {

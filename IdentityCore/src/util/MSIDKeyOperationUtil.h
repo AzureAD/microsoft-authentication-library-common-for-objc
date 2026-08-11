@@ -82,9 +82,16 @@ typedef NS_ENUM(NSInteger, MSIDExternalKeyPairValidationFailureReason)
                                          context:(_Nullable id<MSIDRequestContext>)context
                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+/// Validates that the supplied keys form an RSA key pair suitable for AT PoP signing.
+/// @param privateKey private key to validate
+/// @param publicKey public key to validate
+/// @param failureReason validation failure reason
+/// @param context request context
+/// @param error error if validation fails
 - (BOOL)validateExternalRSAKeyPair:(SecKeyRef _Nullable)privateKey
                         publicKey:(SecKeyRef _Nullable)publicKey
                     failureReason:(MSIDExternalKeyPairValidationFailureReason * _Nullable)failureReason
+                          context:(_Nullable id<MSIDRequestContext>)context
                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 @end
 NS_ASSUME_NONNULL_END
