@@ -182,10 +182,18 @@
 
     NSNumber *privateKeySize = privateAttributes[(id)kSecAttrKeySizeInBits];
     NSNumber *publicKeySize = publicAttributes[(id)kSecAttrKeySizeInBits];
-    if (privateKeySize.integerValue < 2048 || publicKeySize.integerValue < 2048 || ![privateKeySize isEqualToNumber:publicKeySize])
+    if (privateKeySize.integerValue < 2048 || publicKeySize.integerValue < 2048)
     {
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonKeySizeTooSmall
-                                          message:@"External AT PoP RSA keys must have a matching size of at least 2048 bits."
+                                          message:@"External AT PoP RSA keys must be at least 2048 bits."
+                                    failureReason:failureReason
+                                            error:error];
+    }
+
+    if (![privateKeySize isEqualToNumber:publicKeySize])
+    {
+        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch
+                                          message:@"External AT PoP RSA keys must have matching key sizes."
                                     failureReason:failureReason
                                             error:error];
     }
