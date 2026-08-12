@@ -66,6 +66,12 @@
                                 context:(id<MSIDRequestContext>)context
                                   error:(NSError *__autoreleasing *)error
 {
+    self = [super init];
+    if (!self)
+    {
+        return nil;
+    }
+
     MSIDExternalKeyPairValidationFailureReason validationReason = MSIDExternalKeyPairValidationFailureReasonNone;
     BOOL valid = [[MSIDKeyOperationUtil sharedInstance] validateExternalRSAKeyPair:keyPair.privateKeyRef
                                                                         publicKey:keyPair.publicKeyRef
@@ -77,12 +83,8 @@
         return nil;
     }
 
-    self = [super init];
-    if (self)
-    {
-        _keyPair = keyPair;
-        _usesExternalKeyPair = YES;
-    }
+    _keyPair = keyPair;
+    _usesExternalKeyPair = YES;
 
     return self;
 }
