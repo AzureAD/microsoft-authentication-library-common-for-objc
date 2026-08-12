@@ -39,8 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig
                   keyPairAttributes:(MSIDAssymetricKeyLookupAttributes *)keyPairAttributes;
 
+/// Initializes a manager with a caller-owned RSA key pair.
+/// The public key is required for JWK generation and is compared with the public key derived from
+/// the private key. Validation fails without signing when public-key derivation is unavailable, so
+/// initialization never triggers caller-key user-presence UI.
 - (nullable instancetype)initWithExternalKeyPair:(nullable MSIDAssymetricKeyPair *)keyPair;
 
+/// Initializes a manager with a validated caller-owned RSA key pair and returns validation errors.
 - (nullable instancetype)initWithExternalKeyPair:(nullable MSIDAssymetricKeyPair *)keyPair
                                          context:(nullable id<MSIDRequestContext>)context
                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;

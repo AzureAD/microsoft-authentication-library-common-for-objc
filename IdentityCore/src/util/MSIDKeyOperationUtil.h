@@ -84,6 +84,8 @@ typedef NS_ENUM(NSInteger, MSIDExternalKeyPairValidationFailureReason)
                                            error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 /// Validates that the supplied keys form an RSA key pair suitable for AT PoP signing.
+/// Validation derives the public key from the private key and fails closed if derivation is
+/// unavailable. It does not sign a challenge because caller-owned keys may require user presence.
 /// @param privateKey private key to validate
 /// @param publicKey public key to validate
 /// @param failureReason validation failure reason
