@@ -29,6 +29,7 @@
 #import "MSIDErrorConverter.h"
 #import "MSIDOAuth2Constants.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthenticationSchemePop.h"
 
 @interface MSIDBaseRequestController()
 
@@ -89,7 +90,8 @@
     NSString *tokenType = self.requestParameters.authScheme.tokenType;
     if (tokenType && [tokenType caseInsensitiveCompare:MSID_OAUTH2_POP] == NSOrderedSame)
     {
-        BOOL isExternalKeyPop = [self.requestParameters.authScheme.schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP] boolValue];
+        BOOL isExternalKeyPop = [self.requestParameters.authScheme isKindOfClass:MSIDAuthenticationSchemePop.class]
+            && ((MSIDAuthenticationSchemePop *)self.requestParameters.authScheme).isExternalKeyPop;
         [event setProperty:MSID_TELEMETRY_KEY_POP_KEY_SOURCE
                      value:isExternalKeyPop ? MSID_TELEMETRY_VALUE_EXTERNAL : MSID_TELEMETRY_VALUE_INTERNAL];
     }

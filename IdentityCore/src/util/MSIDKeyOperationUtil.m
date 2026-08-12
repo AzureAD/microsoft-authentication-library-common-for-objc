@@ -25,6 +25,8 @@
 #import "MSIDJwtAlgorithm.h"
 #import "NSData+MSIDExtensions.h"
 
+static const NSUInteger MSIDMinimumExternalPoPKeySizeInBits = 2048;
+
 @implementation MSIDKeyOperationUtil
 
 + (MSIDKeyOperationUtil *)sharedInstance
@@ -187,7 +189,17 @@
 
     NSNumber *privateKeySize = privateAttributes[(id)kSecAttrKeySizeInBits];
     NSNumber *publicKeySize = publicAttributes[(id)kSecAttrKeySizeInBits];
-    if (privateKeySize.integerValue < 2048 || publicKeySize.integerValue < 2048)
+    if (![privateKeySize isKindOfClass:NSNumber.class] || ![publicKeySize isKindOfClass:NSNumber.class])
+    {
+        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonInvalidKeyHandle
+                                          message:@"Unable to read external AT PoP key sizes."
+                                    failureReason:failureReason
+                                          context:context
+                                            error:error];
+    }
+
+    if (privateKeySize.unsignedIntegerValue < MSIDMinimumExternalPoPKeySizeInBits
+        || publicKeySize.unsignedIntegerValue < MSIDMinimumExternalPoPKeySizeInBits)
     {
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonKeySizeTooSmall
                                           message:@"External AT PoP RSA keys must be at least 2048 bits."
@@ -205,12 +217,46 @@
                                             error:error];
     }
 
-    SecKeyAlgorithm algorithm = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
-    if (!SecKeyIsAlgorithmSupported(privateKey, kSecKeyOperationTypeSign, algorithm)
-        || !SecKeyIsAlgorithmSupported(publicKey, kSecKeyOperationTypeVerify, algorithm))
+    NSError *algorithmError = nil;
+    MSIDJwtAlgorithm jwtAlgorithm = [self getJwtAlgorithmForKey:privateKey context:context error:&algorithmError];
+    if (![jwtAlgorithm isEqualToString:MSID_JWT_ALG_RS256])
     {
         return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonNotSigningCapable
-                                          message:@"External AT PoP key pair does not support RS256 signing and verification."
+                                          message:@"External AT PoP private key does not support the RS256 digest algorithm."
+                                 underlyingError:algorithmError
+                                    failureReason:failureReason
+                                          context:context
+                                            error:error];
+    }
+
+    SecKeyAlgorithm messageAlgorithm = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
+    algorithmError = nil;
+    BOOL supportsMessageSigning = [self isOperationSupportedByKey:kSecKeyOperationTypeSign
+                                                        algorithm:messageAlgorithm
+                                                              key:privateKey
+                                                          context:context
+                                                            error:&algorithmError];
+    if (!supportsMessageSigning)
+    {
+        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonNotSigningCapable
+                                          message:@"External AT PoP private key does not support RS256 message signing."
+                                 underlyingError:algorithmError
+                                    failureReason:failureReason
+                                          context:context
+                                            error:error];
+    }
+
+    algorithmError = nil;
+    BOOL supportsMessageVerification = [self isOperationSupportedByKey:kSecKeyOperationTypeVerify
+                                                             algorithm:messageAlgorithm
+                                                                   key:publicKey
+                                                               context:context
+                                                                 error:&algorithmError];
+    if (!supportsMessageVerification)
+    {
+        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonNotSigningCapable
+                                          message:@"External AT PoP public key does not support RS256 message verification."
+                                 underlyingError:algorithmError
                                     failureReason:failureReason
                                           context:context
                                             error:error];
@@ -232,7 +278,9 @@
     SecKeyRef derivedPublicKey = SecKeyCopyPublicKey(privateKey);
     if (!derivedPublicKey)
     {
-        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonPublicKeySerializationFailed
+        // Do not fall back to signing a challenge here because caller-owned keys may require
+        // user presence. Validation must remain non-interactive and fail closed instead.
+        return [self failExternalKeyPairValidation:MSIDExternalKeyPairValidationFailureReasonPublicKeyDerivationFailed
                                           message:@"Unable to derive the public key from the external AT PoP private key."
                                     failureReason:failureReason
                                           context:context

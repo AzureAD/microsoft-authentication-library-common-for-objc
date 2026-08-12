@@ -35,7 +35,8 @@ typedef NS_ENUM(NSInteger, MSIDExternalKeyPairValidationFailureReason)
     MSIDExternalKeyPairValidationFailureReasonInvalidKeyClass,
     MSIDExternalKeyPairValidationFailureReasonNotSigningCapable,
     MSIDExternalKeyPairValidationFailureReasonKeyPairMismatch,
-    MSIDExternalKeyPairValidationFailureReasonPublicKeySerializationFailed
+    MSIDExternalKeyPairValidationFailureReasonPublicKeySerializationFailed,
+    MSIDExternalKeyPairValidationFailureReasonPublicKeyDerivationFailed
 };
 
 @interface MSIDKeyOperationUtil : NSObject

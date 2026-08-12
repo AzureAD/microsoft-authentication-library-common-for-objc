@@ -63,7 +63,13 @@
             return nil;
         }
         _req_cnf = [_schemeParameters msidObjectForKey:MSID_OAUTH2_REQUEST_CONFIRMATION ofClass:[NSString class]];
-        _externalKeyPop = [_schemeParameters msidObjectForKey:MSID_OAUTH2_EXTERNAL_KEY_POP ofClass:[NSString class]];
+        id externalKeyPop = _schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP];
+        if (externalKeyPop && (![externalKeyPop isKindOfClass:NSString.class] || ![externalKeyPop isEqualToString:@"1"]))
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Invalid external_key_pop marker.");
+            return nil;
+        }
+        _externalKeyPop = externalKeyPop;
         
         if ([NSString msidIsStringNilOrBlank:_req_cnf])
         {
@@ -125,6 +131,11 @@
     return MSIDAuthSchemeParamFromType(self.authScheme);
 }
 
+- (BOOL)isExternalKeyPop
+{
+    return [self.externalKeyPop isEqualToString:@"1"];
+}
+
 - (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken
 {
     return accessToken.kid && self.kid && [self.kid isEqualToString:accessToken.kid];
@@ -151,7 +162,18 @@
     
     [schemeParameters setObject:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
     [schemeParameters setObject:authScheme forKey:MSID_OAUTH2_TOKEN_TYPE];
-    [schemeParameters msidSetNonEmptyString:json[MSID_OAUTH2_EXTERNAL_KEY_POP] forKey:MSID_OAUTH2_EXTERNAL_KEY_POP];
+    id externalKeyPop = json[MSID_OAUTH2_EXTERNAL_KEY_POP];
+    if (externalKeyPop)
+    {
+        if (![externalKeyPop isKindOfClass:NSString.class] || ![externalKeyPop isEqualToString:@"1"])
+        {
+            NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: invalid external_key_pop marker", self.class];
+            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
+            return nil;
+        }
+
+        schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = externalKeyPop;
+    }
     
     return [self initWithSchemeParameters:schemeParameters];
 }

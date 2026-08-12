@@ -104,11 +104,43 @@
     parameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"1";
     MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:parameters];
 
+    XCTAssertTrue(scheme.isExternalKeyPop);
     XCTAssertEqualObjects(scheme.schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
     XCTAssertEqualObjects([scheme jsonDictionary][MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
 
     MSIDAuthenticationSchemePop *schemeCopy = [scheme copy];
+    XCTAssertTrue(schemeCopy.isExternalKeyPop);
     XCTAssertEqualObjects(schemeCopy.schemeParameters[MSID_OAUTH2_EXTERNAL_KEY_POP], @"1");
+}
+
+- (void)testInitWithInvalidExternalKeyMarker_shouldReturnNil
+{
+    NSMutableDictionary *parameters = [[self preparePopSchemeParameter] mutableCopy];
+    parameters[MSID_OAUTH2_EXTERNAL_KEY_POP] = @"true";
+
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:parameters];
+
+    XCTAssertNil(scheme);
+}
+
+- (void)testInitWithNumericExternalKeyMarkerJson_shouldReturnNilAndError
+{
+    NSMutableDictionary *json = [[self preparePopSchemeParameter] mutableCopy];
+    json[MSID_OAUTH2_EXTERNAL_KEY_POP] = @1;
+    NSError *error = nil;
+
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNil(scheme);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testInitWithoutExternalKeyMarker_shouldNotBeExternal
+{
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter]];
+
+    XCTAssertFalse(scheme.isExternalKeyPop);
 }
 
 - (void) test_InitWithIncorrectJson_shouldReturnNil{

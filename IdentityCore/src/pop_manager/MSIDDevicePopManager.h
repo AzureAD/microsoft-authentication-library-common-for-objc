@@ -28,6 +28,7 @@
 @class MSIDAssymetricKeyLookupAttributes;
 @class MSIDAssymetricKeyPair;
 @protocol MSIDAssymetricKeyGenerating;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,6 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
                   keyPairAttributes:(MSIDAssymetricKeyLookupAttributes *)keyPairAttributes;
 
 - (nullable instancetype)initWithExternalKeyPair:(nullable MSIDAssymetricKeyPair *)keyPair;
+
+- (nullable instancetype)initWithExternalKeyPair:(nullable MSIDAssymetricKeyPair *)keyPair
+                                         context:(nullable id<MSIDRequestContext>)context
+                                           error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 - (nullable NSString *)createSignedAccessToken:(NSString *)accessToken
                                     httpMethod:(NSString *)httpMethod

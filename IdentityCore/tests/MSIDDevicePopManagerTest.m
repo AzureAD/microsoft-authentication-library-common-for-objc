@@ -114,6 +114,54 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
     XCTAssertNil(manager);
 }
 
+- (void)test_initWithExternalKeyPair_MismatchedPair_ShouldReturnNilAndError
+{
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
+    MSIDAssymetricKeyLookupAttributes *firstAttributes = [MSIDAssymetricKeyLookupAttributes new];
+    firstAttributes.privateKeyIdentifier = [NSString stringWithFormat:@"%@.%@", MSID_POP_TOKEN_PRIVATE_KEY, NSUUID.UUID.UUIDString];
+    MSIDAssymetricKeyLookupAttributes *secondAttributes = [MSIDAssymetricKeyLookupAttributes new];
+    secondAttributes.privateKeyIdentifier = [NSString stringWithFormat:@"%@.%@", MSID_POP_TOKEN_PRIVATE_KEY, NSUUID.UUID.UUIDString];
+    NSError *error = nil;
+    MSIDAssymetricKeyPair *firstKeyPair = [generator generateKeyPairForAttributes:firstAttributes error:&error];
+    XCTAssertNotNil(firstKeyPair);
+    XCTAssertNil(error);
+    MSIDAssymetricKeyPair *secondKeyPair = [generator generateKeyPairForAttributes:secondAttributes error:&error];
+    XCTAssertNotNil(secondKeyPair);
+    XCTAssertNil(error);
+
+    MSIDAssymetricKeyPair *mismatchedKeyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:firstKeyPair.privateKeyRef
+                                                                                       publicKey:secondKeyPair.publicKeyRef
+                                                                                  privateKeyDict:@{}];
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithExternalKeyPair:mismatchedKeyPair
+                                                                                  context:nil
+                                                                                    error:&error];
+    XCTAssertNil(manager);
+    XCTAssertNotNil(error);
+
+    [self deleteKeyWithTag:firstAttributes.privateKeyIdentifier];
+    [self deleteKeyWithTag:secondAttributes.privateKeyIdentifier];
+}
+
+- (void)test_keyPair_whenExternalPairIsCleared_ShouldNotGenerateReplacement
+{
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
+    MSIDAssymetricKeyLookupAttributes *attributes = [MSIDAssymetricKeyLookupAttributes new];
+    attributes.privateKeyIdentifier = [NSString stringWithFormat:@"%@.%@", MSID_POP_TOKEN_PRIVATE_KEY, NSUUID.UUID.UUIDString];
+    NSError *error = nil;
+    MSIDAssymetricKeyPair *keyPair = [generator generateKeyPairForAttributes:attributes error:&error];
+    XCTAssertNotNil(keyPair);
+    XCTAssertNil(error);
+
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithExternalKeyPair:keyPair];
+    [manager setValue:generator forKey:@"keyGeneratorFactory"];
+    [manager setValue:attributes forKey:@"keyPairAttributes"];
+    [manager setValue:nil forKey:@"keyPair"];
+
+    XCTAssertNil(manager.keyPair);
+
+    [self deleteKeyWithTag:attributes.privateKeyIdentifier];
+}
+
 - (void)test_createSignedAccess_DeletePublickey_ShouldRegeneratePublicKey_AndReturnSignedAT
 {
     
