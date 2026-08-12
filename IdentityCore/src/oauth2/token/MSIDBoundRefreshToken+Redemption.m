@@ -76,8 +76,11 @@
                                             code:MSIDErrorInvalidInternalParameter
                                         description:@"Failed to create ECDH APV data for bound RT redemption JWT."
                                             context:context];
+        [self releaseKeyIfNeeded:publicTransportKeyRef];
         return nil;
     }
+    
+    [self releaseKeyIfNeeded:publicTransportKeyRef];
 
     MSIDJWECrypto *jweCryptoObj = [[MSIDJWECrypto alloc] initWithKeyExchangeAlg:MSID_JWT_ALG_ECDH
                                                             encryptionAlgorithm:MSID_JWT_ALG_A256GCM
@@ -235,6 +238,8 @@
         return nil;
     }
     
+    [self releaseKeyIfNeeded:publicSessionTransportKeyRef];
+    
     if (![[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:workplacejoinData.privateKeyRef])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"[Bound Refresh token redemption] The private device key for bound RT redemption JWT is not from Secure Enclave. Binding will not be satisfied.");
@@ -270,5 +275,13 @@
                            context:(id<MSIDRequestContext>)context
 {
     return MSIDCreateError(domain, code, description, nil, nil, nil, context.correlationId, nil, YES);
+}
+
+- (void)releaseKeyIfNeeded:(SecKeyRef)keyRef
+{
+    if (keyRef)
+    {
+        CFRelease(keyRef);
+    }
 }
 @end
