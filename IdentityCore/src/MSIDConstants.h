@@ -301,6 +301,13 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_OPEN_NEW_WINDOW_IN_BROWSER;
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
 
+/// Enforces broker_nonce validation on broker responses even when sourceApplication is available.
+/// sourceApplication establishes the origin of a response, not its freshness, so it is not a
+/// substitute for the nonce. Flighted so impact on brokers that do not echo the nonce back can be
+/// measured before enforcement is turned on.
+/// Default: OFF
+extern NSString * _Nonnull const MSID_FLIGHT_ENFORCE_BROKER_NONCE;
+
 /// Flight key for MDM profile install notification delay (seconds).
 /// Owner: swagup
 extern NSString * _Nonnull const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY;
