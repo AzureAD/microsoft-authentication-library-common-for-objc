@@ -890,6 +890,7 @@ static NSHTTPURLResponse *MSIDTestHTTPResponse(NSDictionary *headers, NSURL *url
     [self.handler scheduleMDMProfileInstalledNotificationIfNeeded];
 
     XCTAssertTrue(mockProvider.scheduleCalled, @"Notification should be scheduled for the profile-download hand-off.");
+    XCTAssertEqualWithAccuracy(MSIDMDMProfileInstalledNotificationDefaultDelay, 45.0, 0.01);
     XCTAssertEqualWithAccuracy(mockProvider.receivedDelay, MSIDMDMProfileInstalledNotificationDefaultDelay, 0.01);
 }
 
