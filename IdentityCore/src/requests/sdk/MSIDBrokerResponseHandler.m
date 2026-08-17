@@ -308,7 +308,9 @@
         return NO;
     }
 
-    NSString *nonceMissing = responseDict[@"broker_nonce"] ? @"NO" : @"YES";
+    // A response carrying "broker_nonce=" decodes to a present-but-empty string, so presence alone
+    // would report such a broker as having echoed a nonce. Treat nil and blank alike.
+    NSString *nonceMissing = [NSString msidIsStringNilOrBlank:responseDict[@"broker_nonce"]] ? @"YES" : @"NO";
 
     if (![[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENFORCE_BROKER_NONCE])
     {
