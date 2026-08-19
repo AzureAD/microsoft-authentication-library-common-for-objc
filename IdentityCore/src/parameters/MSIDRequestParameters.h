@@ -137,6 +137,30 @@
 
 - (BOOL)validateParametersWithError:(NSError *__autoreleasing*)error;
 
+#pragma mark Reserved query parameters
+
+/*
+ OAuth2 query parameters that IdentityCore owns when it builds authorize and logout URLs.
+ Callers must not supply these through extra query parameters, otherwise they could silently
+ redirect the request to another client, redirect URI or response type, or defeat PKCE and
+ state validation.
+ */
++ (NSSet<NSString *> *)reservedURLQueryParameterKeys;
+
+/*
+ Returns the subset of `parameters` keys that collide with reservedURLQueryParameterKeys.
+ Matching is case insensitive so that variations such as "Client_Id" cannot be used to smuggle
+ a duplicate parameter into the request.
+ */
++ (NSSet<NSString *> *)reservedKeysInParameters:(NSDictionary *)parameters;
+
+/*
+ Returns a copy of `parameters` with all reserved keys removed, logging every dropped key.
+ Returns `parameters` unchanged when allowAnyExtraURLQueryParameters is set, which the broker
+ uses to relay a nested request verbatim.
+ */
+- (NSDictionary *)parametersByRemovingReservedKeys:(NSDictionary *)parameters;
+
 - (void)updateAppRequestMetadata:(NSString *)homeAccountId;
 
 - (BOOL)isNestedAuthProtocol;

@@ -36,6 +36,7 @@
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDExecutionFlowLogger.h"
 #import "MSIDExecutionFlowConstants.h"
+#import "MSIDOAuth2Constants.h"
 
 @implementation MSIDRequestParameters
 
@@ -372,6 +373,81 @@
     }
 
     return YES;
+}
+
+#pragma mark - Reserved query parameters
+
++ (NSSet<NSString *> *)reservedURLQueryParameterKeys
+{
+    static NSSet<NSString *> *reservedKeys;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+        NSArray<NSString *> *keys = @[MSID_OAUTH2_CLIENT_ID,
+                                      MSID_OAUTH2_REDIRECT_URI,
+                                      MSID_OAUTH2_RESPONSE_TYPE,
+                                      MSID_OAUTH2_SCOPE,
+                                      MSID_OAUTH2_STATE,
+                                      MSID_OAUTH2_CODE_CHALLENGE,
+                                      MSID_OAUTH2_CODE_CHALLENGE_METHOD,
+                                      MSID_OAUTH2_SIGNOUT_REDIRECT_URI];
+
+        NSMutableSet<NSString *> *lowercasedKeys = [NSMutableSet setWithCapacity:keys.count];
+
+        for (NSString *key in keys)
+        {
+            [lowercasedKeys addObject:key.lowercaseString];
+        }
+
+        reservedKeys = lowercasedKeys;
+    });
+
+    return reservedKeys;
+}
+
++ (NSSet<NSString *> *)reservedKeysInParameters:(NSDictionary *)parameters
+{
+    if (parameters.count == 0)
+    {
+        return [NSSet set];
+    }
+
+    NSSet<NSString *> *reservedKeys = [self reservedURLQueryParameterKeys];
+    NSMutableSet<NSString *> *matchedKeys = [NSMutableSet new];
+
+    for (id key in parameters)
+    {
+        if (![key isKindOfClass:[NSString class]]) continue;
+
+        if ([reservedKeys containsObject:[(NSString *)key lowercaseString]])
+        {
+            [matchedKeys addObject:key];
+        }
+    }
+
+    return matchedKeys;
+}
+
+- (NSDictionary *)parametersByRemovingReservedKeys:(NSDictionary *)parameters
+{
+    if (parameters.count == 0 || self.allowAnyExtraURLQueryParameters)
+    {
+        return parameters;
+    }
+
+    NSSet<NSString *> *reservedKeys = [self.class reservedKeysInParameters:parameters];
+
+    if (reservedKeys.count == 0)
+    {
+        return parameters;
+    }
+
+    // Only key names are logged. Values are caller controlled and may carry PII.
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self, @"Ignoring reserved OAuth2 parameters supplied through extra query parameters: %@. Values set by the SDK are used instead.", [[reservedKeys.allObjects sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "]);
+
+    NSMutableDictionary *filteredParameters = [parameters mutableCopy];
+    [filteredParameters removeObjectsForKeys:reservedKeys.allObjects];
+    return filteredParameters;
 }
 
 #pragma mark - NSCopying

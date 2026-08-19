@@ -30,6 +30,11 @@
 #import "MSIDTestIdentifiers.h"
 #import "MSIDConfiguration.h"
 #import "MSIDAuthenticationSchemeSshCert.h"
+#import "MSIDTestParametersProvider.h"
+#import "MSIDFlightManagerMockProvider.h"
+#import "MSIDOAuth2Constants.h"
+#import "MSIDConstants.h"
+#import "MSIDError.h"
 
 @interface MSIDInteractiveTokenRequestParametersTests : XCTestCase
 
@@ -341,6 +346,96 @@
 
     XCTAssertEqualObjects(jsonConfiguration[MSID_NESTED_AUTH_BROKER_CLIENT_ID_JSON_KEY], @"123-456-7890-123");
     XCTAssertEqualObjects(jsonConfiguration[MSID_NESTED_AUTH_BROKER_REDIRECT_URI_JSON_KEY], @"msauth.com.app.id://auth");
+}
+
+#pragma mark - Reserved extra query parameters
+
+- (void)tearDown
+{
+    MSIDFlightManager.sharedInstance.flightProvider = nil;
+    [super tearDown];
+}
+
+- (void)setRejectReservedExtraQueryParametersFlight:(BOOL)enabled
+{
+    MSIDFlightManagerMockProvider *flightProvider = [MSIDFlightManagerMockProvider new];
+    flightProvider.boolForKeyContainer = @{ MSID_FLIGHT_REJECT_RESERVED_EXTRA_QUERY_PARAMETERS: @(enabled) };
+    MSIDFlightManager.sharedInstance.flightProvider = flightProvider;
+}
+
+- (void)testAllAuthorizeRequestExtraParameters_whenReservedKeysProvided_shouldRemoveOnlyReservedKeys
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraAuthorizeURLQueryParameters = @{ MSID_OAUTH2_SCOPE : @"attacker_scope", @"eqp1" : @"val1" };
+    parameters.extraURLQueryParameters = @{ MSID_OAUTH2_CLIENT_ID : @"attacker_client_id", @"eqp2" : @"val2" };
+
+    NSDictionary *extraParameters = [parameters allAuthorizeRequestExtraParametersWithMetadata:NO];
+
+    XCTAssertNil(extraParameters[MSID_OAUTH2_SCOPE]);
+    XCTAssertNil(extraParameters[MSID_OAUTH2_CLIENT_ID]);
+    XCTAssertEqualObjects(extraParameters[@"eqp1"], @"val1");
+    XCTAssertEqualObjects(extraParameters[@"eqp2"], @"val2");
+}
+
+- (void)testValidateParameters_whenReservedKeysProvidedAndFlightDisabled_shouldSucceed
+{
+    [self setRejectReservedExtraQueryParametersFlight:NO];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraURLQueryParameters = @{ MSID_OAUTH2_CLIENT_ID : @"attacker_client_id" };
+
+    NSError *error = nil;
+    BOOL result = [parameters validateParametersWithError:&error];
+
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testValidateParameters_whenReservedKeysProvidedAndFlightEnabled_shouldFailWithInvalidDeveloperParameter
+{
+    [self setRejectReservedExtraQueryParametersFlight:YES];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraAuthorizeURLQueryParameters = @{ MSID_OAUTH2_SCOPE : @"attacker_scope" };
+    parameters.extraURLQueryParameters = @{ MSID_OAUTH2_CLIENT_ID : @"attacker_client_id" };
+
+    NSError *error = nil;
+    BOOL result = [parameters validateParametersWithError:&error];
+
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
+    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:MSID_OAUTH2_CLIENT_ID]);
+    XCTAssertTrue([error.userInfo[MSIDErrorDescriptionKey] containsString:MSID_OAUTH2_SCOPE]);
+}
+
+- (void)testValidateParameters_whenNoReservedKeysProvidedAndFlightEnabled_shouldSucceed
+{
+    [self setRejectReservedExtraQueryParametersFlight:YES];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraURLQueryParameters = @{ @"domain_hint" : @"contoso.com" };
+
+    NSError *error = nil;
+    BOOL result = [parameters validateParametersWithError:&error];
+
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testValidateParameters_whenAllowAnyExtraURLQueryParametersAndFlightEnabled_shouldSucceed
+{
+    [self setRejectReservedExtraQueryParametersFlight:YES];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.allowAnyExtraURLQueryParameters = YES;
+    parameters.extraURLQueryParameters = @{ MSID_OAUTH2_CLIENT_ID : @"nested_client_id" };
+
+    NSError *error = nil;
+    BOOL result = [parameters validateParametersWithError:&error];
+
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
 }
 
 @end

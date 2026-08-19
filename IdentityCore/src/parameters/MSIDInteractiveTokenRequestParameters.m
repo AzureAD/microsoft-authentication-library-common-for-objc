@@ -25,6 +25,7 @@
 #import "MSIDRequestParameters+Internal.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDFlightManager.h"
 
 @implementation MSIDInteractiveTokenRequestParameters
 
@@ -94,14 +95,18 @@
 {
     NSMutableDictionary *authorizeParams = includeMetadata ? [[NSMutableDictionary alloc] initWithDictionary:self.appRequestMetadata] : [NSMutableDictionary new];
     
-    if (self.extraAuthorizeURLQueryParameters && self.extraAuthorizeURLQueryParameters.count > 0)
+    // Reserved OAuth2 parameters are owned by the SDK and are dropped here so that caller supplied
+    // extra query parameters can never override them further down when the authorize URL is built.
+    NSDictionary *extraAuthorizeURLQueryParameters = [self parametersByRemovingReservedKeys:self.extraAuthorizeURLQueryParameters];
+    if (extraAuthorizeURLQueryParameters.count > 0)
     {
-        [authorizeParams addEntriesFromDictionary:self.extraAuthorizeURLQueryParameters];
+        [authorizeParams addEntriesFromDictionary:extraAuthorizeURLQueryParameters];
     }
     
-    if (self.extraURLQueryParameters && self.extraURLQueryParameters.count > 0)
+    NSDictionary *extraURLQueryParameters = [self parametersByRemovingReservedKeys:self.extraURLQueryParameters];
+    if (extraURLQueryParameters.count > 0)
     {
-        [authorizeParams addEntriesFromDictionary:self.extraURLQueryParameters];
+        [authorizeParams addEntriesFromDictionary:extraURLQueryParameters];
     }
     
     return authorizeParams;
@@ -120,10 +125,36 @@
     if (self.claimsRequest.hasClaims && allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
-        result = NO;
+        return NO;
     }
 
-    return result;
+    return [self validateReservedExtraQueryParametersWithError:error];
+}
+
+- (BOOL)validateReservedExtraQueryParametersWithError:(NSError *__autoreleasing*)error
+{
+    if (self.allowAnyExtraURLQueryParameters)
+    {
+        return YES;
+    }
+
+    if (![[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_REJECT_RESERVED_EXTRA_QUERY_PARAMETERS])
+    {
+        return YES;
+    }
+
+    NSMutableSet<NSString *> *reservedKeys = [NSMutableSet new];
+    [reservedKeys unionSet:[MSIDRequestParameters reservedKeysInParameters:self.extraAuthorizeURLQueryParameters]];
+    [reservedKeys unionSet:[MSIDRequestParameters reservedKeysInParameters:self.extraURLQueryParameters]];
+
+    if (reservedKeys.count == 0)
+    {
+        return YES;
+    }
+
+    NSString *reservedKeyList = [[reservedKeys.allObjects sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@", "];
+    MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, [NSString stringWithFormat:@"Reserved OAuth2 parameters are found in extraQueryParameters: %@. Please remove them.", reservedKeyList], self.correlationId);
+    return NO;
 }
 
 - (void)updateAppRequestMetadata:(NSString *)homeAccountId

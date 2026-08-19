@@ -308,6 +308,16 @@ extern NSString * _Nonnull const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING;
 /// Default: OFF
 extern NSString * _Nonnull const MSID_FLIGHT_ENFORCE_BROKER_NONCE;
 
+/// Rejects requests whose extra query parameters contain reserved OAuth2 parameters that the SDK owns
+/// (client_id, redirect_uri, response_type, scope, state, code_challenge, code_challenge_method,
+/// post_logout_redirect_uri), matching the behaviour of MSAL .NET.
+/// Regardless of this flight, reserved keys are always dropped before the authorize or logout URL is
+/// built, so the SDK-supplied values always win. The flight only controls whether such a request fails
+/// fast with an error instead of succeeding with the caller's keys ignored. Flighted so impact on apps
+/// that pass these keys today can be measured before hard failures are turned on.
+/// Default: OFF
+extern NSString * _Nonnull const MSID_FLIGHT_REJECT_RESERVED_EXTRA_QUERY_PARAMETERS;
+
 /// Flight key for MDM profile install notification delay (seconds).
 /// Owner: swagup
 extern NSString * _Nonnull const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY;
