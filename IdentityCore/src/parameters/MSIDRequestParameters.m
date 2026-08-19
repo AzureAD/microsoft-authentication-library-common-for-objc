@@ -186,7 +186,7 @@
 
         if (self.correlationId)
         {
-            MSIDExecutionFlowInsertTag(MSIDCloudInstanceHostNameTagToString(MSIDCloudInstanceHostNameIgnoredTag), nil, self.correlationId);
+            MSIDExecutionFlowInsertTag(MSIDStringFromCloudInstanceHostNameTag(MSIDCloudInstanceHostNameIgnoredTag), nil, self.correlationId);
         }
 
         return;
