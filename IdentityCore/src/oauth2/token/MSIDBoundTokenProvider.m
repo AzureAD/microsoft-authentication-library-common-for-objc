@@ -28,7 +28,7 @@
 #import "MSIDLogger+Internal.h"
 #import "NSString+MSIDExtensions.h"
 
-NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider]";
+static NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider]";
 
 @implementation MSIDBoundTokenProvider
 
