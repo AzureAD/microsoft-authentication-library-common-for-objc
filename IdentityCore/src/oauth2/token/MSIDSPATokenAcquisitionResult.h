@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,24 +22,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "AppDelegate.h"
+#import <Foundation/Foundation.h>
+@class MSIDTokenResult;
 
-@interface AppDelegate ()
-
+NS_ASSUME_NONNULL_BEGIN
+@interface MSIDSPATokenAcquisitionResult : NSObject
+@property (nonatomic, nullable) MSIDTokenResult *tokenResult;
+@property (nonatomic, nullable) NSString *fallbackRequestAccountUpn;
 @end
-
-@implementation AppDelegate
-
-- (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(__unused NSDictionary *)launchOptions
-{
-    return YES;
-}
-
-#pragma mark - UISceneSession lifecycle
-
-- (UISceneConfiguration *)application:(__unused UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(__unused UISceneConnectionOptions *)options
-{
-    return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
-}
-
-@end
+NS_ASSUME_NONNULL_END

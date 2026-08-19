@@ -213,7 +213,17 @@
     signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] privateKey:self.eccPublicKey signingAlgorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 context:nil error:&error];
     XCTAssertNil(signature);
     XCTAssertNotNil(error);
-    error = nil;
+
+    // Trying to sign a digest using an RSA public key
+    NSData *dataDigest = [[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
+    NSData *rsaDataSignature = [dataDigest msidSignHashWithPrivateKey:self.rsaPublicKey];
+    XCTAssertNil(rsaDataSignature);
+}
+
+- (void)testSignHashWithPrivateKey_NullPrivateKey_ReturnsNil
+{
+    NSData *dataDigest = [[@"TEST" dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
+    XCTAssertNil([dataDigest msidSignHashWithPrivateKey:NULL]);
 }
 
 #pragma mark -- Test Utility

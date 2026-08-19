@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,24 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "AppDelegate.h"
+#import "MSIDSPATokenAcquisitionResult.h"
 
-@interface AppDelegate ()
-
-@end
-
-@implementation AppDelegate
-
-- (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(__unused NSDictionary *)launchOptions
-{
-    return YES;
-}
-
-#pragma mark - UISceneSession lifecycle
-
-- (UISceneConfiguration *)application:(__unused UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(__unused UISceneConnectionOptions *)options
-{
-    return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
-}
-
+@implementation MSIDSPATokenAcquisitionResult
 @end

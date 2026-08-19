@@ -6,10 +6,12 @@
 # NOT here so it can be provided by whichever environment runs these steps:
 #
 #   * ACES pipelines  -> Pipeline YAMLs/shared/aces-macos-job.yml provides the
-#                        pool + Xcode + tooling, then injects these steps.
-#   * visionOS (hosted) -> broker_submodule_steps.yml provides its own tool
-#                        setup (and selectLocalXcode below) and then includes
-#                        these steps.
+#                        pool + Xcode + tooling, then injects these steps
+#                        (with selectLocalXcode: false).
+#
+# selectLocalXcode is retained as an escape hatch for any future consumer that
+# does NOT get Xcode from the shared job template; all current consumers inherit
+# Xcode from that template.
 #
 # Parameters:
 #   target            build.py target (e.g. ios_library, mac_library, vision_library).
