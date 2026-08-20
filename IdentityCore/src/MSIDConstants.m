@@ -138,6 +138,8 @@ NSString *const MSID_FLIGHT_DISABLE_MOBILE_ONBOARDING = @"disable_mobile_onboard
 
 NSString *const MSID_FLIGHT_ENFORCE_BROKER_NONCE = @"enforce_broker_nonce";
 
+NSString *const MSID_FLIGHT_REJECT_RESERVED_EXTRA_QUERY_PARAMETERS = @"reject_reserved_extra_query_parameters";
+
 NSString *const MSID_FLIGHT_MDM_PROFILE_INSTALLED_NOTIFICATION_DELAY = @"mdm_profile_installed_notification_delay";
 
 NSTimeInterval const MSIDMDMProfileInstalledNotificationDefaultDelay = 75.0;

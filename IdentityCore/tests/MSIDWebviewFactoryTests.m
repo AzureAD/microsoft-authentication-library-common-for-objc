@@ -164,6 +164,105 @@
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
 
+#pragma mark - Reserved query parameters
+
+- (void)testAuthorizationParametersFromRequestParameters_whenReservedKeysInExtraAuthorizeQueryParameters_shouldIgnoreReservedKeys
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraAuthorizeURLQueryParameters = @{
+        MSID_OAUTH2_CLIENT_ID : @"attacker_client_id",
+        MSID_OAUTH2_REDIRECT_URI : @"https://attacker.example.com",
+        MSID_OAUTH2_RESPONSE_TYPE : @"token",
+        MSID_OAUTH2_SCOPE : @"attacker_scope",
+        @"eqp1" : @"val1"
+    };
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    XCTAssertEqualObjects(params[MSID_OAUTH2_CLIENT_ID], DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(params[MSID_OAUTH2_REDIRECT_URI], DEFAULT_TEST_REDIRECT_URI);
+    XCTAssertEqualObjects(params[MSID_OAUTH2_RESPONSE_TYPE], MSID_OAUTH2_CODE);
+    XCTAssertEqualObjects(params[MSID_OAUTH2_SCOPE], @"scope1");
+    // Non reserved parameters must still be forwarded.
+    XCTAssertEqualObjects(params[@"eqp1"], @"val1");
+}
+
+- (void)testAuthorizationParametersFromRequestParameters_whenReservedKeysInExtraURLQueryParameters_shouldIgnoreReservedKeys
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraURLQueryParameters = @{
+        MSID_OAUTH2_CLIENT_ID : @"attacker_client_id",
+        MSID_OAUTH2_STATE : @"attacker_state",
+        MSID_OAUTH2_CODE_CHALLENGE : @"attacker_challenge",
+        MSID_OAUTH2_CODE_CHALLENGE_METHOD : @"plain",
+        @"domain_hint" : @"contoso.com"
+    };
+
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    XCTAssertEqualObjects(params[MSID_OAUTH2_CLIENT_ID], DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(params[MSID_OAUTH2_STATE], requestState.msidBase64UrlEncode);
+    XCTAssertEqualObjects(params[MSID_OAUTH2_CODE_CHALLENGE], pkce.codeChallenge);
+    XCTAssertEqualObjects(params[MSID_OAUTH2_CODE_CHALLENGE_METHOD], pkce.codeChallengeMethod);
+    XCTAssertEqualObjects(params[@"domain_hint"], @"contoso.com");
+}
+
+- (void)testAuthorizationParametersFromRequestParameters_whenReservedKeyInDifferentCase_shouldIgnoreReservedKey
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraAuthorizeURLQueryParameters = @{ @"Client_Id" : @"attacker_client_id" };
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:[MSIDPkce new] requestState:@"state"];
+
+    XCTAssertNil(params[@"Client_Id"]);
+    XCTAssertEqualObjects(params[MSID_OAUTH2_CLIENT_ID], DEFAULT_TEST_CLIENT_ID);
+}
+
+- (void)testAuthorizationParametersFromRequestParameters_whenAllowAnyExtraURLQueryParameters_shouldKeepReservedKeys
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.allowAnyExtraURLQueryParameters = YES;
+    parameters.extraAuthorizeURLQueryParameters = @{ MSID_OAUTH2_CLIENT_ID : @"nested_client_id" };
+
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:[MSIDPkce new] requestState:@"state"];
+
+    XCTAssertEqualObjects(params[MSID_OAUTH2_CLIENT_ID], @"nested_client_id");
+}
+
+- (void)testLogoutParametersFromRequestParameters_whenReservedKeysInExtraQueryParameters_shouldIgnoreReservedKeys
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraURLQueryParameters = @{
+        MSID_OAUTH2_STATE : @"attacker_state",
+        MSID_OAUTH2_SIGNOUT_REDIRECT_URI : @"https://attacker.example.com",
+        @"key1" : @"value1"
+    };
+
+    NSString *requestState = @"state";
+
+    NSDictionary *params = [factory logoutParametersFromRequestParameters:parameters requestState:requestState];
+
+    XCTAssertEqualObjects(params[MSID_OAUTH2_STATE], requestState.msidBase64UrlEncode);
+    XCTAssertEqualObjects(params[MSID_OAUTH2_SIGNOUT_REDIRECT_URI], DEFAULT_TEST_REDIRECT_URI);
+    XCTAssertEqualObjects(params[@"key1"], @"value1");
+}
+
 - (void)testLogoutWebRequestConfiguration_whenNilParameters_shouldReturnNil
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];

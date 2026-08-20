@@ -230,7 +230,15 @@
     result[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
     [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
     [result addEntriesFromDictionary:parameters.appRequestMetadata];
-    [result addEntriesFromDictionary:parameters.extraURLQueryParameters];
+
+    // Reserved OAuth2 parameters are dropped so that caller supplied extra query parameters cannot
+    // override the sign out redirect URI or the request state validated on the response.
+    NSDictionary *extraURLQueryParameters = [parameters parametersByRemovingReservedKeys:parameters.extraURLQueryParameters];
+    if (extraURLQueryParameters.count > 0)
+    {
+        [result addEntriesFromDictionary:extraURLQueryParameters];
+    }
+
     return result;
 }
 
