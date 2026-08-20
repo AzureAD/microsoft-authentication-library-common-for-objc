@@ -41,6 +41,7 @@
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDAuthScheme.h"
+#import "MSIDFlightManager.h"
 
 @interface MSIDBrokerResponseHandler()
 
@@ -293,13 +294,34 @@
 
 - (BOOL)checkBrokerNonce:(NSDictionary *)responseDict
 {
-    // only verify nonce if sourceApplication is nil
+    if ([self.brokerNonce isEqualToString:responseDict[@"broker_nonce"]])
+    {
+        return YES;
+    }
+
+    // Historically the nonce was verified only when sourceApplication was nil, on the basis that a
+    // non-nil sourceApplication is asserted by the OS and is validated against the broker bundle id
+    // before this handler is reached. sourceApplication establishes the origin of a response, not its
+    // freshness, so it does not protect against replay of a previously captured response. Enforcement
+    // on that path is flighted so that impact on brokers which do not echo the nonce back can be
+    // measured before it is turned on.
     if (!self.sourceApplicationAvailable)
     {
-        return [self.brokerNonce isEqualToString:responseDict[@"broker_nonce"]];
+        return NO;
     }
-    
-    return YES;
+
+    // A response carrying "broker_nonce=" decodes to a present-but-empty string, so presence alone
+    // would report such a broker as having echoed a nonce. Treat nil and blank alike.
+    NSString *nonceMissing = [NSString msidIsStringNilOrBlank:responseDict[@"broker_nonce"]] ? @"YES" : @"NO";
+
+    if (![[MSIDFlightManager sharedInstance] boolForKey:MSID_FLIGHT_ENFORCE_BROKER_NONCE])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Broker nonce mismatch on the sourceApplication code path, allowed because enforcement is disabled. Nonce missing from response: %@", nonceMissing);
+        return YES;
+    }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Broker nonce mismatch on the sourceApplication code path, rejecting response. Nonce missing from response: %@", nonceMissing);
+    return NO;
 }
 
 #pragma mark - Abstract
