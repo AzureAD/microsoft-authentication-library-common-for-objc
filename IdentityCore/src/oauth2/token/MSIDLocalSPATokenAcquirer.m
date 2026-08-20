@@ -81,7 +81,7 @@ static NSString *const MSID_LOCAL_SPA_ACQUIRER_LOG_PREFIX = @"[MSIDLocalSPAToken
 - (void)acquireSilentWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                             request:(MSIDBrowserNativeMessageGetTokenRequest *)request
                             context:(nullable id<MSIDRequestContext>)context
-                    completionBlock:(MSIDLocalSPATokenAcquirerCompletionBlock)completionBlock
+                    completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock
 {
     MSIDDefaultSilentTokenRequest *silentRequest = self.silentTokenRequestProvider
         ? self.silentTokenRequestProvider(parameters, context)

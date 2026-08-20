@@ -37,9 +37,7 @@
 NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider]";
 
 @interface MSIDBoundTokenProvider ()
-
 @property (nonatomic) id<MSIDSPATokenAcquiring> acquirer;
-
 @end
 
 @implementation MSIDBoundTokenProvider
@@ -70,12 +68,10 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@ completionBlock is nil.", MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX);
         return;
     }
-
     if (![self validateRequest:request context:context completionBlock:completionBlock])
     {
         return;
     }
-
     NSError *parametersError = nil;
     MSIDInteractiveTokenRequestParameters *parameters =
     [self.acquirer requestParametersForRequest:request context:context error:&parametersError];
@@ -88,7 +84,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         completionBlock(nil, error);
         return;
     }
-
     MSIDBrowserNativeMessageGetTokenRoute route =
     [[self routingPolicy] routeWithForceInteractive:NO
                                          promptType:parameters.promptType
@@ -103,7 +98,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
                             completionBlock:completionBlock];
         return;
     }
-
     [self completeInteractiveRoute:route
                         parameters:parameters
                            request:request
@@ -135,7 +129,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         completionBlock(nil, error);
         return NO;
     }
-
     if ([NSString msidIsStringNilOrBlank:request.clientId] ||
         [NSString msidIsStringNilOrBlank:request.redirectUri])
     {
@@ -145,7 +138,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         completionBlock(nil, error);
         return NO;
     }
-
     return YES;
 }
 
@@ -167,7 +159,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
                       completionBlock:completionBlock];
             return;
         }
-
         BOOL interactionRequired = [error.domain isEqualToString:MSIDErrorDomain]
             && error.code == MSIDErrorInteractionRequired;
         if (interactionRequired)
@@ -186,7 +177,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
                   interactionRequiredError:error];
             return;
         }
-
         [self completeWithOutcome:nil
                             error:error
                           request:request
@@ -215,7 +205,6 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         completionBlock(nil, error);
         return;
     }
-
     [self.acquirer acquireInteractiveWithParameters:parameters
                                             request:request
                                             context:context
@@ -239,43 +228,45 @@ NSString *const MSID_BOUND_TOKEN_PROVIDER_LOG_PREFIX = @"[MSIDBoundTokenProvider
         NSError *completionError = error
             ?: MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
                                @"Bound token acquisition completed without a result or error.",
-                               nil, nil, nil, context.correlationId, nil, NO);
+                               nil, nil, nil, context.correlationId, nil, YES);
         completionBlock(nil, completionError);
         return;
     }
-
     NSString *fallbackUpn = outcome.fallbackRequestAccountUpn;
     if ([NSString msidIsStringNilOrBlank:fallbackUpn])
     {
         fallbackUpn = request.loginHint;
     }
-
     MSIDBrowserNativeMessageGetTokenResponse *response =
     [[MSIDBrowserNativeMessageGetTokenResponse alloc] initWithTokenResult:outcome.tokenResult
                                                                     state:request.state
                                                 fallbackRequestAccountUpn:fallbackUpn];
-    NSDictionary *responseDictionary = [response jsonDictionary];
-    if (!responseDictionary)
-    {
-        NSError *responseError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                                 @"Failed to create bound token response.",
-                                                 nil, nil, nil, context.correlationId, nil, NO);
-        completionBlock(nil, responseError);
-        return;
-    }
-
+    NSDictionary *responseDictionary = response ? [response jsonDictionary] : nil;
     NSError *serializationError = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:responseDictionary options:0 error:&serializationError];
-    if (!data)
+    NSData *data = responseDictionary ? [NSJSONSerialization dataWithJSONObject:responseDictionary options:0 error:&serializationError] : nil;
+    NSString *responseString = data ? [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] : nil;
+    if (!responseString)
     {
-        NSError *responseError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal,
-                                                 @"Failed to serialize bound token response.",
-                                                 nil, nil, serializationError, context.correlationId, nil, NO);
+        NSString *description = @"Failed to encode bound token response.";
+        if (!response)
+        {
+            description = @"Failed to initialize bound token response.";
+        }
+        else if (!responseDictionary)
+        {
+            description = @"Failed to create bound token response.";
+        }
+        else if (!data)
+        {
+            description = @"Failed to serialize bound token response.";
+        }
+        NSError *responseError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, description,
+                                                 nil, nil, serializationError,
+                                                 context.correlationId, nil, YES);
         completionBlock(nil, responseError);
         return;
     }
-
-    completionBlock([[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], nil);
+    completionBlock(responseString, nil);
 }
 
 @end

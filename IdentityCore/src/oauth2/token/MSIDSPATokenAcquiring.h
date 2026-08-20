@@ -30,7 +30,9 @@
 NS_ASSUME_NONNULL_BEGIN
 typedef void (^MSIDSPATokenAcquirerCompletionBlock)(MSIDSPATokenAcquisitionResult *_Nullable result,
                                                      NSError *_Nullable error);
+/// Completion blocks must be invoked exactly once and may run synchronously or asynchronously on an arbitrary queue.
 @protocol MSIDSPATokenAcquiring <NSObject>
+/// Returns nil only after populating error.
 - (nullable MSIDInteractiveTokenRequestParameters *)requestParametersForRequest:(MSIDBrowserNativeMessageGetTokenRequest *)request
                                                                         context:(nullable id<MSIDRequestContext>)context
                                                                           error:(NSError *_Nullable *_Nullable)error;

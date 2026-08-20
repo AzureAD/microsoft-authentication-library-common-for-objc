@@ -37,8 +37,8 @@
 
 @interface MSIDSPATokenAcquirerMock : NSObject <MSIDSPATokenAcquiring>
 
-@property (nonatomic) BOOL silentCalled;
-@property (nonatomic) BOOL interactiveCalled;
+@property (nonatomic) NSUInteger silentCallCount;
+@property (nonatomic) NSUInteger interactiveCallCount;
 @property (nonatomic, nullable) NSError *parametersError;
 @property (nonatomic, nullable) MSIDSPATokenAcquisitionResult *silentOutcome;
 @property (nonatomic, nullable) NSError *silentError;
@@ -71,7 +71,7 @@
                             context:(nullable __unused id<MSIDRequestContext>)context
                     completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock
 {
-    self.silentCalled = YES;
+    self.silentCallCount++;
     completionBlock(self.silentOutcome, self.silentError);
 }
 
@@ -80,7 +80,7 @@
                                 context:(nullable __unused id<MSIDRequestContext>)context
                         completionBlock:(MSIDSPATokenAcquirerCompletionBlock)completionBlock
 {
-    self.interactiveCalled = YES;
+    self.interactiveCallCount++;
     completionBlock(self.interactiveOutcome, self.interactiveError);
 }
 
@@ -116,16 +116,13 @@
     accessToken.accessToken = @"access-token";
     accessToken.tokenType = @"Bearer";
     accessToken.scopes = [NSOrderedSet orderedSetWithObject:@"user.read"];
-
     MSIDAccount *account = [MSIDAccount new];
     account.username = @"user@contoso.com";
     account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:account.username
                                                                       homeAccountId:@"uid.utid"];
-
     MSIDTokenResult *tokenResult = [MSIDTokenResult new];
     tokenResult.accessToken = accessToken;
     tokenResult.account = account;
-
     MSIDSPATokenAcquisitionResult *outcome = [MSIDSPATokenAcquisitionResult new];
     outcome.tokenResult = tokenResult;
     outcome.fallbackRequestAccountUpn = account.username;
@@ -157,11 +154,10 @@
         response = result;
         responseError = error;
     }];
-
     NSDictionary *payload = [self payloadFromResponse:response];
     XCTAssertNil(responseError);
-    XCTAssertTrue(acquirer.silentCalled);
-    XCTAssertFalse(acquirer.interactiveCalled);
+    XCTAssertEqual(acquirer.silentCallCount, 1);
+    XCTAssertEqual(acquirer.interactiveCallCount, 0);
     XCTAssertEqualObjects(payload[@"access_token"], @"access-token");
     XCTAssertEqualObjects(payload[@"account"][@"userName"], @"user@contoso.com");
     XCTAssertEqualObjects(payload[@"state"], @"test-state");
@@ -180,9 +176,8 @@
                            completionBlock:^(NSString *result, __unused NSError *error) {
         response = result;
     }];
-
-    XCTAssertFalse(acquirer.silentCalled);
-    XCTAssertTrue(acquirer.interactiveCalled);
+    XCTAssertEqual(acquirer.silentCallCount, 0);
+    XCTAssertEqual(acquirer.interactiveCallCount, 1);
     XCTAssertEqualObjects([self payloadFromResponse:response][@"access_token"], @"access-token");
 }
 
@@ -199,9 +194,8 @@
                            completionBlock:^(NSString *result, __unused NSError *error) {
         response = result;
     }];
-
-    XCTAssertTrue(acquirer.silentCalled);
-    XCTAssertTrue(acquirer.interactiveCalled);
+    XCTAssertEqual(acquirer.silentCallCount, 1);
+    XCTAssertEqual(acquirer.interactiveCallCount, 1);
     XCTAssertNotNil(response);
 }
 
@@ -218,9 +212,8 @@
                            completionBlock:^(__unused NSString *result, NSError *error) {
         responseError = error;
     }];
-
-    XCTAssertFalse(acquirer.silentCalled);
-    XCTAssertFalse(acquirer.interactiveCalled);
+    XCTAssertEqual(acquirer.silentCallCount, 0);
+    XCTAssertEqual(acquirer.interactiveCallCount, 0);
     XCTAssertEqual(responseError.code, MSIDErrorInteractionRequired);
 }
 
@@ -237,9 +230,8 @@
                            completionBlock:^(__unused NSString *result, NSError *error) {
         responseError = error;
     }];
-
     XCTAssertEqual(responseError, silentError);
-    XCTAssertFalse(acquirer.interactiveCalled);
+    XCTAssertEqual(acquirer.interactiveCallCount, 0);
 }
 
 - (void)testAcquireBoundToken_whenParameterMappingFails_shouldReturnDeveloperError
@@ -254,7 +246,6 @@
                            completionBlock:^(__unused NSString *result, NSError *error) {
         responseError = error;
     }];
-
     XCTAssertEqual(responseError.code, MSIDErrorInvalidDeveloperParameter);
     XCTAssertEqual(responseError.userInfo[NSUnderlyingErrorKey], acquirer.parametersError);
 }
@@ -264,13 +255,11 @@
     MSIDBoundTokenProvider *provider = [[MSIDBoundTokenProvider alloc] initWithAcquirer:[MSIDSPATokenAcquirerMock new]];
     MSIDBrowserNativeMessageGetTokenRequest *nilRequest = nil;
     __block NSError *responseError = nil;
-
     [provider acquireBoundTokenWithRequest:nilRequest
                                    context:nil
                            completionBlock:^(__unused NSString *result, NSError *error) {
         responseError = error;
     }];
-
     XCTAssertEqual(responseError.code, MSIDErrorInvalidInternalParameter);
 }
 
@@ -280,13 +269,11 @@
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
     request.clientId = @"";
     __block NSError *responseError = nil;
-
     [provider acquireBoundTokenWithRequest:request
                                    context:nil
                            completionBlock:^(__unused NSString *result, NSError *error) {
         responseError = error;
     }];
-
     XCTAssertEqual(responseError.code, MSIDErrorInvalidDeveloperParameter);
 }
 
@@ -296,13 +283,11 @@
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
     request.redirectUri = @"";
     __block NSError *responseError = nil;
-
     [provider acquireBoundTokenWithRequest:request
                                    context:nil
                            completionBlock:^(__unused NSString *result, NSError *error) {
         responseError = error;
     }];
-
     XCTAssertEqual(responseError.code, MSIDErrorInvalidDeveloperParameter);
 }
 
