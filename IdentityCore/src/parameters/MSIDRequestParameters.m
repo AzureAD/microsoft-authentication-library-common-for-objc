@@ -399,7 +399,7 @@
             [lowercasedKeys addObject:key.lowercaseString];
         }
 
-        reservedKeys = lowercasedKeys;
+        reservedKeys = [lowercasedKeys copy];
     });
 
     return reservedKeys;
@@ -425,7 +425,7 @@
         }
     }
 
-    return matchedKeys;
+    return [matchedKeys copy];
 }
 
 - (NSDictionary *)parametersByRemovingReservedKeys:(NSDictionary *)parameters
@@ -447,7 +447,7 @@
 
     NSMutableDictionary *filteredParameters = [parameters mutableCopy];
     [filteredParameters removeObjectsForKeys:reservedKeys.allObjects];
-    return filteredParameters;
+    return [filteredParameters copy];
 }
 
 #pragma mark - NSCopying
