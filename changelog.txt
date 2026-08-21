@@ -1,5 +1,6 @@
 TBD
 * Add in-process Browser Native Message BART SPA token orchestration for unmanaged iOS hosts.
+* Gate browser native GetToken response serialization behind the MSID_FLIGHT_ENABLE_BROWSER_GETTOKEN_RESPONSE_SANITIZATION flight (default OFF). When enabled, only contract-verified OAuth fields (access_token, id_token, token_type, expires_in, expires_on, scope, req_cnf) plus the existing account/state/properties wrappers are emitted, excluding broker-internal fields such as refresh_token, client_info, foci, and arbitrary server metadata.
 
 Version 2.15.0
 * Add the enforce_broker_nonce flight (default OFF). When enabled, broker_nonce is validated on every broker response, including the legacy application:openURL:sourceApplication: path where the check was previously skipped. When disabled, a mismatch on that path is logged as a warning and still accepted, preserving current behavior.
