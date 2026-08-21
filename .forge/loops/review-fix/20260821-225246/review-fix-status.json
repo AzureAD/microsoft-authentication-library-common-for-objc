@@ -3,21 +3,20 @@
   "stepsTotal": 5,
   "stepsCompleted": [
     "review",
-    "fix"
+    "fix",
+    "commit-push",
+    "test-fix"
   ],
   "stepsFailed": [],
   "stepsSkipped": [],
   "stepsRunning": [
-    "commit-push",
-    "test-fix"
-  ],
-  "stepsWaiting": [
     "commit-push-tests"
   ],
+  "stepsWaiting": [],
   "findingsCount": 3,
-  "elapsedSeconds": 892.9707916,
-  "lastCompletedStep": "fix",
-  "lastUpdate": "2026-08-21T23:07:40.728989Z",
+  "elapsedSeconds": 928.1442203,
+  "lastCompletedStep": "test-fix",
+  "lastUpdate": "2026-08-21T23:08:15.9024Z",
   "findings": [
     {
       "id": "missing-owner-tag-flight-constant",
@@ -49,14 +48,19 @@
   ],
   "fileChanges": [
     {
-      "path": "IdentityCore/src/MSIDConstants.h",
+      "path": ".forge/loops/review-fix/20260821-225246/review-fix-status.html",
       "added": 1,
-      "removed": 0
+      "removed": 1
     },
     {
-      "path": "IdentityCore/tests/MSIDBrowserNativeMessageGetTokenResponseTests.m",
-      "added": 59,
-      "removed": 7
+      "path": ".forge/loops/review-fix/20260821-225246/review-fix-status.json",
+      "added": 15,
+      "removed": 10
+    },
+    {
+      "path": ".forge/output/review-fix-20260821-225246/forge-loop.log",
+      "added": 44,
+      "removed": 0
     }
   ]
 }
