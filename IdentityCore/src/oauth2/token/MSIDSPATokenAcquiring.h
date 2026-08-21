@@ -23,13 +23,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-@class MSIDBrowserNativeMessageGetTokenRequest;
-@class MSIDInteractiveTokenRequestParameters;
-@class MSIDSPATokenAcquisitionResult;
+@class MSIDBrowserNativeMessageGetTokenRequest, MSIDInteractiveTokenRequestParameters, MSIDSPATokenAcquisitionResult;
 @protocol MSIDRequestContext;
 NS_ASSUME_NONNULL_BEGIN
-typedef void (^MSIDSPATokenAcquirerCompletionBlock)(MSIDSPATokenAcquisitionResult *_Nullable result,
-                                                     NSError *_Nullable error);
+typedef void (^MSIDSPATokenAcquirerCompletionBlock)(MSIDSPATokenAcquisitionResult *_Nullable result, NSError *_Nullable error);
 /// Completion blocks must be invoked exactly once and may run synchronously or asynchronously on an arbitrary queue.
 @protocol MSIDSPATokenAcquiring <NSObject>
 /// Returns nil only after populating error.

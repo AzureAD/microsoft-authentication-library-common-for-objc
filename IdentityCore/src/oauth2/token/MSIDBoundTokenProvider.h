@@ -47,7 +47,6 @@ typedef void (^MSIDBoundTokenProviderCompletionBlock)(NSString *_Nullable respon
 ///   - interactive path: flips to the broker (Authenticator) via URL scheme to mint the initial token.
 @interface MSIDBoundTokenProvider : NSObject
 
-- (instancetype)init;
 - (instancetype)initWithAcquirer:(id<MSIDSPATokenAcquiring>)acquirer NS_DESIGNATED_INITIALIZER;
 
 /// Acquire a bound token for the supplied browser-native-message GetToken request.

@@ -123,12 +123,8 @@
     XCTAssertEqualObjects(outcome.fallbackRequestAccountUpn, @"user@contoso.com");
     XCTAssertTrue(self.silentRequest.requiresBoundRefreshToken);
     result.account.username = @"cached@contoso.com";
-    [acquirer acquireSilentWithParameters:[self parametersWithAcquirer:acquirer]
-                                  request:[self request]
-                                  context:nil
-                          completionBlock:^(MSIDSPATokenAcquisitionResult *resultOutcome, __unused NSError *error) {
-        outcome = resultOutcome;
-    }];
+    [acquirer acquireSilentWithParameters:[self parametersWithAcquirer:acquirer] request:[self request] context:nil
+                          completionBlock:^(MSIDSPATokenAcquisitionResult *resultOutcome, __unused NSError *error) { outcome = resultOutcome; }];
     XCTAssertEqualObjects(outcome.fallbackRequestAccountUpn, @"cached@contoso.com");
 }
 

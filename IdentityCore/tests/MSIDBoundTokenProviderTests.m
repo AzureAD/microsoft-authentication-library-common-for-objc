@@ -131,9 +131,7 @@
 
 - (NSDictionary *)payloadFromResponse:(NSString *)response
 {
-    XCTAssertNotNil(response);
     NSData *data = [response dataUsingEncoding:NSUTF8StringEncoding];
-    XCTAssertNotNil(data);
     NSError *error = nil;
     id payload = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:&error] : nil;
     XCTAssertNotNil(payload, @"Failed to parse response JSON: %@", error);
@@ -202,9 +200,10 @@
 - (void)testAcquireBoundToken_whenUIIsBlocked_shouldReturnInteractionRequired
 {
     MSIDSPATokenAcquirerMock *acquirer = [MSIDSPATokenAcquirerMock new];
+    acquirer.silentError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired,
+                                           @"Interaction required.", nil, nil, nil, nil, nil, YES);
     MSIDBoundTokenProvider *provider = [[MSIDBoundTokenProvider alloc] initWithAcquirer:acquirer];
     MSIDBrowserNativeMessageGetTokenRequest *request = [self validRequest];
-    request.prompt = MSIDPromptTypeSelectAccount;
     request.canShowUI = NO;
     __block NSError *responseError = nil;
     [provider acquireBoundTokenWithRequest:request
@@ -212,9 +211,16 @@
                            completionBlock:^(__unused NSString *result, NSError *error) {
         responseError = error;
     }];
-    XCTAssertEqual(acquirer.silentCallCount, 0);
+    XCTAssertEqual(acquirer.silentCallCount, 1);
     XCTAssertEqual(acquirer.interactiveCallCount, 0);
     XCTAssertEqual(responseError.code, MSIDErrorInteractionRequired);
+    XCTAssertEqualObjects(responseError.userInfo[@"MSALBrowserNativeMessageErrorStatus"], @"UI_NOT_ALLOWED");
+    XCTAssertEqual(responseError.userInfo[NSUnderlyingErrorKey], acquirer.silentError);
+    request.prompt = MSIDPromptTypeNever;
+    [provider acquireBoundTokenWithRequest:request context:nil completionBlock:^(__unused NSString *result, NSError *error) {
+        responseError = error;
+    }];
+    XCTAssertEqualObjects(responseError.userInfo[@"MSALBrowserNativeMessageErrorStatus"], @"USER_INTERACTION_REQUIRED");
 }
 
 - (void)testAcquireBoundToken_whenSilentFailsHard_shouldReturnOriginalError
